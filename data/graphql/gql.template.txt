@@ -1,0 +1,17 @@
+import { GraphqlDefinition } from './graphql-definition';
+import { ExtendedRequest } from '../../middlewares';
+import * as logger from 'winston';
+
+export const gql: GraphqlDefinition = {
+    name: 'users',
+    schema: {
+        types: ``,
+        queries: ``,
+        mutations: ``,
+    },
+
+    resolvers: {
+        Query: {},
+        Mutation: {}
+    }
+};

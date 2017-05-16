@@ -1,0 +1,1370 @@
+[
+  {
+    "expense": {
+      "amount": "219.69",
+      "concept": "advertising"
+    },
+    "product": {
+      "name": "Product 4",
+      "id": 4
+    },
+    "employee": {
+      "name": "Employee 4",
+      "id": 4
+    },
+    "location": {
+      "name": "Location 3",
+      "id": 3
+    }
+  },
+  {
+    "expense": {
+      "amount": "246.55",
+      "concept": "transportsation"
+    },
+    "product": {
+      "name": "Product 1",
+      "id": 1
+    },
+    "employee": {
+      "name": "Employee 1",
+      "id": 1
+    },
+    "location": {
+      "name": "Location 6",
+      "id": 6
+    }
+  },
+  {
+    "expense": {
+      "amount": "171.64",
+      "concept": "office"
+    },
+    "product": {
+      "name": "Product 4",
+      "id": 4
+    },
+    "employee": {
+      "name": "Employee 6",
+      "id": 6
+    },
+    "location": {
+      "name": "Location 3",
+      "id": 3
+    }
+  },
+  {
+    "expense": {
+      "amount": "215.52",
+      "concept": "office"
+    },
+    "product": {
+      "name": "Product 1",
+      "id": 1
+    },
+    "employee": {
+      "name": "Employee 1",
+      "id": 1
+    },
+    "location": {
+      "name": "Location 3",
+      "id": 3
+    }
+  },
+  {
+    "expense": {
+      "amount": "94.27",
+      "concept": "advertising"
+    },
+    "product": {
+      "name": "Product 6",
+      "id": 6
+    },
+    "employee": {
+      "name": "Employee 5",
+      "id": 5
+    },
+    "location": {
+      "name": "Location 4",
+      "id": 4
+    }
+  },
+  {
+    "expense": {
+      "amount": "130.77",
+      "concept": "rent"
+    },
+    "product": {
+      "name": "Product 2",
+      "id": 2
+    },
+    "employee": {
+      "name": "Employee 6",
+      "id": 6
+    },
+    "location": {
+      "name": "Location 2",
+      "id": 2
+    }
+  },
+  {
+    "expense": {
+      "amount": "296.76",
+      "concept": "advertising"
+    },
+    "product": {
+      "name": "Product 2",
+      "id": 2
+    },
+    "employee": {
+      "name": "Employee 1",
+      "id": 1
+    },
+    "location": {
+      "name": "Location 5",
+      "id": 5
+    }
+  },
+  {
+    "expense": {
+      "amount": "57.99",
+      "concept": "meals"
+    },
+    "product": {
+      "name": "Product 4",
+      "id": 4
+    },
+    "employee": {
+      "name": "Employee 2",
+      "id": 2
+    },
+    "location": {
+      "name": "Location 2",
+      "id": 2
+    }
+  },
+  {
+    "expense": {
+      "amount": "31.84",
+      "concept": "salary"
+    },
+    "product": {
+      "name": "Product 5",
+      "id": 5
+    },
+    "employee": {
+      "name": "Employee 2",
+      "id": 2
+    },
+    "location": {
+      "name": "Location 1",
+      "id": 1
+    }
+  },
+  {
+    "expense": {
+      "amount": "277.16",
+      "concept": "advertising"
+    },
+    "product": {
+      "name": "Product 1",
+      "id": 1
+    },
+    "employee": {
+      "name": "Employee 5",
+      "id": 5
+    },
+    "location": {
+      "name": "Location 3",
+      "id": 3
+    }
+  },
+  {
+    "expense": {
+      "amount": "126.63",
+      "concept": "transportsation"
+    },
+    "product": {
+      "name": "Product 5",
+      "id": 5
+    },
+    "employee": {
+      "name": "Employee 5",
+      "id": 5
+    },
+    "location": {
+      "name": "Location 6",
+      "id": 6
+    }
+  },
+  {
+    "expense": {
+      "amount": "66.56",
+      "concept": "salary"
+    },
+    "product": {
+      "name": "Product 2",
+      "id": 2
+    },
+    "employee": {
+      "name": "Employee 3",
+      "id": 3
+    },
+    "location": {
+      "name": "Location 3",
+      "id": 3
+    }
+  },
+  {
+    "expense": {
+      "amount": "253.93",
+      "concept": "salary"
+    },
+    "product": {
+      "name": "Product 2",
+      "id": 2
+    },
+    "employee": {
+      "name": "Employee 4",
+      "id": 4
+    },
+    "location": {
+      "name": "Location 4",
+      "id": 4
+    }
+  },
+  {
+    "expense": {
+      "amount": "142.84",
+      "concept": "rent"
+    },
+    "product": {
+      "name": "Product 6",
+      "id": 6
+    },
+    "employee": {
+      "name": "Employee 1",
+      "id": 1
+    },
+    "location": {
+      "name": "Location 1",
+      "id": 1
+    }
+  },
+  {
+    "expense": {
+      "amount": "150.85",
+      "concept": "salary"
+    },
+    "product": {
+      "name": "Product 1",
+      "id": 1
+    },
+    "employee": {
+      "name": "Employee 3",
+      "id": 3
+    },
+    "location": {
+      "name": "Location 4",
+      "id": 4
+    }
+  },
+  {
+    "expense": {
+      "amount": "164.55",
+      "concept": "office"
+    },
+    "product": {
+      "name": "Product 5",
+      "id": 5
+    },
+    "employee": {
+      "name": "Employee 6",
+      "id": 6
+    },
+    "location": {
+      "name": "Location 4",
+      "id": 4
+    }
+  },
+  {
+    "expense": {
+      "amount": "225.42",
+      "concept": "legal"
+    },
+    "product": {
+      "name": "Product 2",
+      "id": 2
+    },
+    "employee": {
+      "name": "Employee 4",
+      "id": 4
+    },
+    "location": {
+      "name": "Location 1",
+      "id": 1
+    }
+  },
+  {
+    "expense": {
+      "amount": "122.31",
+      "concept": "legal"
+    },
+    "product": {
+      "name": "Product 3",
+      "id": 3
+    },
+    "employee": {
+      "name": "Employee 3",
+      "id": 3
+    },
+    "location": {
+      "name": "Location 4",
+      "id": 4
+    }
+  },
+  {
+    "expense": {
+      "amount": "181.72",
+      "concept": "office"
+    },
+    "product": {
+      "name": "Product 4",
+      "id": 4
+    },
+    "employee": {
+      "name": "Employee 4",
+      "id": 4
+    },
+    "location": {
+      "name": "Location 5",
+      "id": 5
+    }
+  },
+  {
+    "expense": {
+      "amount": "175.05",
+      "concept": "maintenance"
+    },
+    "product": {
+      "name": "Product 2",
+      "id": 2
+    },
+    "employee": {
+      "name": "Employee 6",
+      "id": 6
+    },
+    "location": {
+      "name": "Location 3",
+      "id": 3
+    }
+  },
+  {
+    "expense": {
+      "amount": "193.26",
+      "concept": "advertising"
+    },
+    "product": {
+      "name": "Product 4",
+      "id": 4
+    },
+    "employee": {
+      "name": "Employee 2",
+      "id": 2
+    },
+    "location": {
+      "name": "Location 6",
+      "id": 6
+    }
+  },
+  {
+    "expense": {
+      "amount": "44.83",
+      "concept": "maintenance"
+    },
+    "product": {
+      "name": "Product 2",
+      "id": 2
+    },
+    "employee": {
+      "name": "Employee 2",
+      "id": 2
+    },
+    "location": {
+      "name": "Location 3",
+      "id": 3
+    }
+  },
+  {
+    "expense": {
+      "amount": "154.65",
+      "concept": "meals"
+    },
+    "product": {
+      "name": "Product 2",
+      "id": 2
+    },
+    "employee": {
+      "name": "Employee 5",
+      "id": 5
+    },
+    "location": {
+      "name": "Location 5",
+      "id": 5
+    }
+  },
+  {
+    "expense": {
+      "amount": "70.77",
+      "concept": "maintenance"
+    },
+    "product": {
+      "name": "Product 4",
+      "id": 4
+    },
+    "employee": {
+      "name": "Employee 5",
+      "id": 5
+    },
+    "location": {
+      "name": "Location 6",
+      "id": 6
+    }
+  },
+  {
+    "expense": {
+      "amount": "265.24",
+      "concept": "legal"
+    },
+    "product": {
+      "name": "Product 2",
+      "id": 2
+    },
+    "employee": {
+      "name": "Employee 6",
+      "id": 6
+    },
+    "location": {
+      "name": "Location 6",
+      "id": 6
+    }
+  },
+  {
+    "expense": {
+      "amount": "262.48",
+      "concept": "transportsation"
+    },
+    "product": {
+      "name": "Product 2",
+      "id": 2
+    },
+    "employee": {
+      "name": "Employee 2",
+      "id": 2
+    },
+    "location": {
+      "name": "Location 1",
+      "id": 1
+    }
+  },
+  {
+    "expense": {
+      "amount": "12.09",
+      "concept": "legal"
+    },
+    "product": {
+      "name": "Product 4",
+      "id": 4
+    },
+    "employee": {
+      "name": "Employee 1",
+      "id": 1
+    },
+    "location": {
+      "name": "Location 5",
+      "id": 5
+    }
+  },
+  {
+    "expense": {
+      "amount": "32.98",
+      "concept": "salary"
+    },
+    "product": {
+      "name": "Product 6",
+      "id": 6
+    },
+    "employee": {
+      "name": "Employee 5",
+      "id": 5
+    },
+    "location": {
+      "name": "Location 6",
+      "id": 6
+    }
+  },
+  {
+    "expense": {
+      "amount": "56.71",
+      "concept": "transportsation"
+    },
+    "product": {
+      "name": "Product 4",
+      "id": 4
+    },
+    "employee": {
+      "name": "Employee 4",
+      "id": 4
+    },
+    "location": {
+      "name": "Location 5",
+      "id": 5
+    }
+  },
+  {
+    "expense": {
+      "amount": "166.82",
+      "concept": "advertising"
+    },
+    "product": {
+      "name": "Product 3",
+      "id": 3
+    },
+    "employee": {
+      "name": "Employee 2",
+      "id": 2
+    },
+    "location": {
+      "name": "Location 5",
+      "id": 5
+    }
+  },
+  {
+    "expense": {
+      "amount": "78.44",
+      "concept": "transportsation"
+    },
+    "product": {
+      "name": "Product 5",
+      "id": 5
+    },
+    "employee": {
+      "name": "Employee 6",
+      "id": 6
+    },
+    "location": {
+      "name": "Location 6",
+      "id": 6
+    }
+  },
+  {
+    "expense": {
+      "amount": "15.47",
+      "concept": "rent"
+    },
+    "product": {
+      "name": "Product 6",
+      "id": 6
+    },
+    "employee": {
+      "name": "Employee 4",
+      "id": 4
+    },
+    "location": {
+      "name": "Location 5",
+      "id": 5
+    }
+  },
+  {
+    "expense": {
+      "amount": "33.86",
+      "concept": "meals"
+    },
+    "product": {
+      "name": "Product 6",
+      "id": 6
+    },
+    "employee": {
+      "name": "Employee 2",
+      "id": 2
+    },
+    "location": {
+      "name": "Location 4",
+      "id": 4
+    }
+  },
+  {
+    "expense": {
+      "amount": "232.65",
+      "concept": "rent"
+    },
+    "product": {
+      "name": "Product 1",
+      "id": 1
+    },
+    "employee": {
+      "name": "Employee 6",
+      "id": 6
+    },
+    "location": {
+      "name": "Location 3",
+      "id": 3
+    }
+  },
+  {
+    "expense": {
+      "amount": "111.6",
+      "concept": "legal"
+    },
+    "product": {
+      "name": "Product 6",
+      "id": 6
+    },
+    "employee": {
+      "name": "Employee 1",
+      "id": 1
+    },
+    "location": {
+      "name": "Location 4",
+      "id": 4
+    }
+  },
+  {
+    "expense": {
+      "amount": "5.02",
+      "concept": "salary"
+    },
+    "product": {
+      "name": "Product 2",
+      "id": 2
+    },
+    "employee": {
+      "name": "Employee 4",
+      "id": 4
+    },
+    "location": {
+      "name": "Location 1",
+      "id": 1
+    }
+  },
+  {
+    "expense": {
+      "amount": "104.95",
+      "concept": "transportsation"
+    },
+    "product": {
+      "name": "Product 3",
+      "id": 3
+    },
+    "employee": {
+      "name": "Employee 4",
+      "id": 4
+    },
+    "location": {
+      "name": "Location 1",
+      "id": 1
+    }
+  },
+  {
+    "expense": {
+      "amount": "275.16",
+      "concept": "legal"
+    },
+    "product": {
+      "name": "Product 5",
+      "id": 5
+    },
+    "employee": {
+      "name": "Employee 1",
+      "id": 1
+    },
+    "location": {
+      "name": "Location 5",
+      "id": 5
+    }
+  },
+  {
+    "expense": {
+      "amount": "139.65",
+      "concept": "salary"
+    },
+    "product": {
+      "name": "Product 1",
+      "id": 1
+    },
+    "employee": {
+      "name": "Employee 5",
+      "id": 5
+    },
+    "location": {
+      "name": "Location 6",
+      "id": 6
+    }
+  },
+  {
+    "expense": {
+      "amount": "25.79",
+      "concept": "meals"
+    },
+    "product": {
+      "name": "Product 1",
+      "id": 1
+    },
+    "employee": {
+      "name": "Employee 5",
+      "id": 5
+    },
+    "location": {
+      "name": "Location 3",
+      "id": 3
+    }
+  },
+  {
+    "expense": {
+      "amount": "23.69",
+      "concept": "salary"
+    },
+    "product": {
+      "name": "Product 6",
+      "id": 6
+    },
+    "employee": {
+      "name": "Employee 3",
+      "id": 3
+    },
+    "location": {
+      "name": "Location 4",
+      "id": 4
+    }
+  },
+  {
+    "expense": {
+      "amount": "292.52",
+      "concept": "maintenance"
+    },
+    "product": {
+      "name": "Product 3",
+      "id": 3
+    },
+    "employee": {
+      "name": "Employee 4",
+      "id": 4
+    },
+    "location": {
+      "name": "Location 3",
+      "id": 3
+    }
+  },
+  {
+    "expense": {
+      "amount": "37.36",
+      "concept": "maintenance"
+    },
+    "product": {
+      "name": "Product 4",
+      "id": 4
+    },
+    "employee": {
+      "name": "Employee 2",
+      "id": 2
+    },
+    "location": {
+      "name": "Location 4",
+      "id": 4
+    }
+  },
+  {
+    "expense": {
+      "amount": "81.98",
+      "concept": "meals"
+    },
+    "product": {
+      "name": "Product 5",
+      "id": 5
+    },
+    "employee": {
+      "name": "Employee 5",
+      "id": 5
+    },
+    "location": {
+      "name": "Location 3",
+      "id": 3
+    }
+  },
+  {
+    "expense": {
+      "amount": "21.76",
+      "concept": "advertising"
+    },
+    "product": {
+      "name": "Product 4",
+      "id": 4
+    },
+    "employee": {
+      "name": "Employee 3",
+      "id": 3
+    },
+    "location": {
+      "name": "Location 3",
+      "id": 3
+    }
+  },
+  {
+    "expense": {
+      "amount": "70.66",
+      "concept": "transportsation"
+    },
+    "product": {
+      "name": "Product 5",
+      "id": 5
+    },
+    "employee": {
+      "name": "Employee 2",
+      "id": 2
+    },
+    "location": {
+      "name": "Location 6",
+      "id": 6
+    }
+  },
+  {
+    "expense": {
+      "amount": "32.96",
+      "concept": "maintenance"
+    },
+    "product": {
+      "name": "Product 4",
+      "id": 4
+    },
+    "employee": {
+      "name": "Employee 4",
+      "id": 4
+    },
+    "location": {
+      "name": "Location 1",
+      "id": 1
+    }
+  },
+  {
+    "expense": {
+      "amount": "155.27",
+      "concept": "transportsation"
+    },
+    "product": {
+      "name": "Product 4",
+      "id": 4
+    },
+    "employee": {
+      "name": "Employee 5",
+      "id": 5
+    },
+    "location": {
+      "name": "Location 4",
+      "id": 4
+    }
+  },
+  {
+    "expense": {
+      "amount": "239.29",
+      "concept": "salary"
+    },
+    "product": {
+      "name": "Product 5",
+      "id": 5
+    },
+    "employee": {
+      "name": "Employee 6",
+      "id": 6
+    },
+    "location": {
+      "name": "Location 6",
+      "id": 6
+    }
+  },
+  {
+    "expense": {
+      "amount": "48.09",
+      "concept": "meals"
+    },
+    "product": {
+      "name": "Product 6",
+      "id": 6
+    },
+    "employee": {
+      "name": "Employee 4",
+      "id": 4
+    },
+    "location": {
+      "name": "Location 6",
+      "id": 6
+    }
+  },
+  {
+    "expense": {
+      "amount": "274.26",
+      "concept": "salary"
+    },
+    "product": {
+      "name": "Product 1",
+      "id": 1
+    },
+    "employee": {
+      "name": "Employee 3",
+      "id": 3
+    },
+    "location": {
+      "name": "Location 6",
+      "id": 6
+    }
+  },
+  {
+    "expense": {
+      "amount": "106.7",
+      "concept": "legal"
+    },
+    "product": {
+      "name": "Product 5",
+      "id": 5
+    },
+    "employee": {
+      "name": "Employee 4",
+      "id": 4
+    },
+    "location": {
+      "name": "Location 5",
+      "id": 5
+    }
+  },
+  {
+    "expense": {
+      "amount": "138.87",
+      "concept": "transportsation"
+    },
+    "product": {
+      "name": "Product 5",
+      "id": 5
+    },
+    "employee": {
+      "name": "Employee 4",
+      "id": 4
+    },
+    "location": {
+      "name": "Location 6",
+      "id": 6
+    }
+  },
+  {
+    "expense": {
+      "amount": "137.61",
+      "concept": "legal"
+    },
+    "product": {
+      "name": "Product 3",
+      "id": 3
+    },
+    "employee": {
+      "name": "Employee 2",
+      "id": 2
+    },
+    "location": {
+      "name": "Location 2",
+      "id": 2
+    }
+  },
+  {
+    "expense": {
+      "amount": "200.3",
+      "concept": "salary"
+    },
+    "product": {
+      "name": "Product 1",
+      "id": 1
+    },
+    "employee": {
+      "name": "Employee 5",
+      "id": 5
+    },
+    "location": {
+      "name": "Location 4",
+      "id": 4
+    }
+  },
+  {
+    "expense": {
+      "amount": "175.34",
+      "concept": "salary"
+    },
+    "product": {
+      "name": "Product 1",
+      "id": 1
+    },
+    "employee": {
+      "name": "Employee 4",
+      "id": 4
+    },
+    "location": {
+      "name": "Location 1",
+      "id": 1
+    }
+  },
+  {
+    "expense": {
+      "amount": "59.86",
+      "concept": "office"
+    },
+    "product": {
+      "name": "Product 4",
+      "id": 4
+    },
+    "employee": {
+      "name": "Employee 5",
+      "id": 5
+    },
+    "location": {
+      "name": "Location 4",
+      "id": 4
+    }
+  },
+  {
+    "expense": {
+      "amount": "215.2",
+      "concept": "advertising"
+    },
+    "product": {
+      "name": "Product 1",
+      "id": 1
+    },
+    "employee": {
+      "name": "Employee 2",
+      "id": 2
+    },
+    "location": {
+      "name": "Location 2",
+      "id": 2
+    }
+  },
+  {
+    "expense": {
+      "amount": "266.4",
+      "concept": "advertising"
+    },
+    "product": {
+      "name": "Product 6",
+      "id": 6
+    },
+    "employee": {
+      "name": "Employee 5",
+      "id": 5
+    },
+    "location": {
+      "name": "Location 4",
+      "id": 4
+    }
+  },
+  {
+    "expense": {
+      "amount": "154.15",
+      "concept": "maintenance"
+    },
+    "product": {
+      "name": "Product 4",
+      "id": 4
+    },
+    "employee": {
+      "name": "Employee 5",
+      "id": 5
+    },
+    "location": {
+      "name": "Location 2",
+      "id": 2
+    }
+  },
+  {
+    "expense": {
+      "amount": "211.49",
+      "concept": "salary"
+    },
+    "product": {
+      "name": "Product 4",
+      "id": 4
+    },
+    "employee": {
+      "name": "Employee 4",
+      "id": 4
+    },
+    "location": {
+      "name": "Location 3",
+      "id": 3
+    }
+  },
+  {
+    "expense": {
+      "amount": "48.03",
+      "concept": "salary"
+    },
+    "product": {
+      "name": "Product 1",
+      "id": 1
+    },
+    "employee": {
+      "name": "Employee 2",
+      "id": 2
+    },
+    "location": {
+      "name": "Location 3",
+      "id": 3
+    }
+  },
+  {
+    "expense": {
+      "amount": "182.47",
+      "concept": "legal"
+    },
+    "product": {
+      "name": "Product 1",
+      "id": 1
+    },
+    "employee": {
+      "name": "Employee 4",
+      "id": 4
+    },
+    "location": {
+      "name": "Location 3",
+      "id": 3
+    }
+  },
+  {
+    "expense": {
+      "amount": "173.42",
+      "concept": "office"
+    },
+    "product": {
+      "name": "Product 5",
+      "id": 5
+    },
+    "employee": {
+      "name": "Employee 3",
+      "id": 3
+    },
+    "location": {
+      "name": "Location 1",
+      "id": 1
+    }
+  },
+  {
+    "expense": {
+      "amount": "43.95",
+      "concept": "salary"
+    },
+    "product": {
+      "name": "Product 4",
+      "id": 4
+    },
+    "employee": {
+      "name": "Employee 5",
+      "id": 5
+    },
+    "location": {
+      "name": "Location 3",
+      "id": 3
+    }
+  },
+  {
+    "expense": {
+      "amount": "199.2",
+      "concept": "salary"
+    },
+    "product": {
+      "name": "Product 3",
+      "id": 3
+    },
+    "employee": {
+      "name": "Employee 4",
+      "id": 4
+    },
+    "location": {
+      "name": "Location 3",
+      "id": 3
+    }
+  },
+  {
+    "expense": {
+      "amount": "98.44",
+      "concept": "office"
+    },
+    "product": {
+      "name": "Product 1",
+      "id": 1
+    },
+    "employee": {
+      "name": "Employee 1",
+      "id": 1
+    },
+    "location": {
+      "name": "Location 4",
+      "id": 4
+    }
+  },
+  {
+    "expense": {
+      "amount": "137.3",
+      "concept": "legal"
+    },
+    "product": {
+      "name": "Product 1",
+      "id": 1
+    },
+    "employee": {
+      "name": "Employee 6",
+      "id": 6
+    },
+    "location": {
+      "name": "Location 5",
+      "id": 5
+    }
+  },
+  {
+    "expense": {
+      "amount": "109.94",
+      "concept": "meals"
+    },
+    "product": {
+      "name": "Product 6",
+      "id": 6
+    },
+    "employee": {
+      "name": "Employee 3",
+      "id": 3
+    },
+    "location": {
+      "name": "Location 4",
+      "id": 4
+    }
+  },
+  {
+    "expense": {
+      "amount": "59.36",
+      "concept": "advertising"
+    },
+    "product": {
+      "name": "Product 5",
+      "id": 5
+    },
+    "employee": {
+      "name": "Employee 2",
+      "id": 2
+    },
+    "location": {
+      "name": "Location 1",
+      "id": 1
+    }
+  },
+  {
+    "expense": {
+      "amount": "219.55",
+      "concept": "advertising"
+    },
+    "product": {
+      "name": "Product 6",
+      "id": 6
+    },
+    "employee": {
+      "name": "Employee 6",
+      "id": 6
+    },
+    "location": {
+      "name": "Location 5",
+      "id": 5
+    }
+  },
+  {
+    "expense": {
+      "amount": "225.92",
+      "concept": "advertising"
+    },
+    "product": {
+      "name": "Product 6",
+      "id": 6
+    },
+    "employee": {
+      "name": "Employee 3",
+      "id": 3
+    },
+    "location": {
+      "name": "Location 2",
+      "id": 2
+    }
+  },
+  {
+    "expense": {
+      "amount": "194.64",
+      "concept": "transportsation"
+    },
+    "product": {
+      "name": "Product 6",
+      "id": 6
+    },
+    "employee": {
+      "name": "Employee 6",
+      "id": 6
+    },
+    "location": {
+      "name": "Location 2",
+      "id": 2
+    }
+  },
+  {
+    "expense": {
+      "amount": "250.12",
+      "concept": "office"
+    },
+    "product": {
+      "name": "Product 4",
+      "id": 4
+    },
+    "employee": {
+      "name": "Employee 4",
+      "id": 4
+    },
+    "location": {
+      "name": "Location 6",
+      "id": 6
+    }
+  },
+  {
+    "expense": {
+      "amount": "47.56",
+      "concept": "advertising"
+    },
+    "product": {
+      "name": "Product 4",
+      "id": 4
+    },
+    "employee": {
+      "name": "Employee 6",
+      "id": 6
+    },
+    "location": {
+      "name": "Location 3",
+      "id": 3
+    }
+  },
+  {
+    "expense": {
+      "amount": "233.7",
+      "concept": "salary"
+    },
+    "product": {
+      "name": "Product 6",
+      "id": 6
+    },
+    "employee": {
+      "name": "Employee 6",
+      "id": 6
+    },
+    "location": {
+      "name": "Location 5",
+      "id": 5
+    }
+  }
+]
