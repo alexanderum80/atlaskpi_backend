@@ -1,0 +1,20 @@
+# This is a sample build configuration for Javascript (Node.js).
+# Check our guides at https://confluence.atlassian.com/x/14UWN for more examples.
+# Only use spaces to indent your .yml configuration.
+# -----
+# You can specify a custom docker image from Docker Hub as your build environment.
+image: node:6.9.4
+
+pipelines:
+  default:
+    - step:
+        script: # Modify the commands below to build your repository.
+          - mkdir -p ~/.ssh
+          - cat my_known_hosts >> ~/.ssh/known_hosts
+          - (umask 077; echo $MY_SSH_KEY | base64 --decode > ~/.ssh/id_rsa)
+          - npm install
+          - npm run release
+          - tar cvfz webapp-backend-dist.tgz dist
+          - scp webapp-backend-dist.tgz ubuntu@dev.kpibi.com:./releases 
+          - ssh ubuntu@dev.kpibi.com 'cd releases && rm -Rf webapp-backend-dist && tar xvfz webapp-backend-dist.tgz && sudo cp -R dist/* /var/www/html/webapp-backend && rm -Rf webapp-backend-dist*'
+
