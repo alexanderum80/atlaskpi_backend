@@ -4,7 +4,7 @@ import { getContext } from '../models';
 import * as winston from 'winston';
 
 
-const newKPIs: IKPIDetails[] = [
+const newKPIs = [
        {
            'name': 'KPI Number 1',
            'description': 'This is the KPI Number 1 Description, is only data to be displayed',
@@ -52,8 +52,8 @@ export default function seedKPIs() {
 
             winston.debug('Seeding kpis for customer2');
 
-            newKPIs.forEach((kpi: IKPIDetails) => {
-                ctx.KPI.createKPI(kpi).then((response) => {
+            newKPIs.forEach((kpi) => {
+                ctx.KPI.createKPI(<any>kpi).then((response) => {
                     winston.info('KPI Created: ', kpi.name);
                 }, (err) => {
                     winston.error('Error creating KPI: ', err);
