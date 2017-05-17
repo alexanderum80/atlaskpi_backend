@@ -16,5 +16,5 @@ pipelines:
           - npm run release
           - tar cvfz webapp-backend-dist.tgz dist
           - scp webapp-backend-dist.tgz ubuntu@dev.kpibi.com:./releases 
-          - ssh ubuntu@dev.kpibi.com 'cd releases && rm -Rf webapp-backend-dist && tar xvfz webapp-backend-dist.tgz && sudo cp -R dist/* /var/www/html/webapp-backend && rm -Rf webapp-backend-dist* && cd /var/www/html/webapp-backend && sudo npm install'
+          - ssh ubuntu@dev.kpibi.com 'cd releases && rm -Rf webapp-backend-dist && tar xvfz webapp-backend-dist.tgz && sudo cp -R dist/* /var/www/html/webapp-backend && rm -Rf webapp-backend-dist* && cd /var/www/html/webapp-backend && sudo npm install && pm2 restart webapp-backend'
 
