@@ -7,7 +7,7 @@
         "test": "echo \"Error: no test specified\" && exit 1",
         "start": "npm run build:live",
         "build:live": "nodemon --exec ./node_modules/.bin/ts-node -- ./index.ts",
-        "release": "tsc -p . --outDir dist || true && cp -R configuration/users/templates dist/configuration/users && cp -R resources dist && cp package.json dist"
+        "release": "tsc -p . --outDir dist || true && cp -R configuration/users/templates dist/configuration/users && cp -R resources dist && cp -R data/seed/app dist/data/seed && cp package.json dist"
     },
     "keywords": [],
     "author": "",
