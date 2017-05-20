@@ -27,7 +27,8 @@ export class Chart {
         return new Promise<string>((resolve, reject) => {
             that._kpi.getData(dateRange, frequency).then(series => {
                 that._chart.chartDefinition = chartProcessor.process(that._chart, series);
-                resolve(JSON.stringify(that._chart.chartDefinition));
+                // resolve(JSON.stringify(that._chart.chartDefinition));
+                resolve(JSON.stringify(that._chart));
             }, (e) => reject(e));
         });
     }
