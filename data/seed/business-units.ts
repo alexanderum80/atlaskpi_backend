@@ -1,3 +1,4 @@
+import { IAppModels } from '../models/app/app-models';
 import { IBusinessUnit, IBusinessUnitDocument } from '../models/app/business-units';
 import { getContext } from '../models';
 import * as winston from 'winston';
@@ -7,11 +8,11 @@ const newBusinessUnits: IBusinessUnit[] = [
        {
          'name': 'B-Unit1',
          'industry': {
-             'id': 1,
+             '_id': '58cc85ac2ef8ca2713c42f96',
              'name': 'Food'
          },
          'subIndustry': {
-             'id': 1,
+             '_id': '58cc85ac2ef8ca2713c42f92',
              'name': 'FastFood'
          },
          'active': true
@@ -19,11 +20,11 @@ const newBusinessUnits: IBusinessUnit[] = [
       {
          'name': 'B-Unit2',
          'industry': {
-             'id': 1,
+             '_id': '58cc85ac2ef8ca2713c42f96',
              'name': 'Food'
          },
          'subIndustry': {
-             'id': 2,
+             '_id': '58cc85ac2ef8ca2713c42f95',
              'name': 'SeaFood'
          },
          'active': false
@@ -31,11 +32,11 @@ const newBusinessUnits: IBusinessUnit[] = [
      {
          'name': 'B-Unit3',
          'industry': {
-             'id': 1,
+             '_id': '58cc85ac2ef8ca2713c42f96',
              'name': 'Food'
          },
          'subIndustry': {
-             'id': 3,
+             '_id': '58cc85ac2ef8ca2713c42f98',
              'name': 'Chinese'
          },
          'active': false
@@ -43,11 +44,11 @@ const newBusinessUnits: IBusinessUnit[] = [
       {
          'name': 'B-Unit4',
          'industry': {
-             'id': 2,
+             '_id': '58cc85ac2ef8ca2713c42f9c',
              'name': 'Wine'
          },
          'subIndustry': {
-             'id': 1,
+             '_id': '58cc85ac2ef8ca2713c42f9b',
              'name': 'GrapeVine'
          },
          'active': true
@@ -55,23 +56,23 @@ const newBusinessUnits: IBusinessUnit[] = [
       {
          'name': 'B-Unit5',
          'industry': {
-             'id': 2,
+             '_id': '58cc85ac2ef8ca2713c42f9c',
              'name': 'Wine'
          },
          'subIndustry': {
-             'id': 2,
-             'name': 'Store'
+             '_id': '2',
+             'name': '58cc85ac2ef8ca2713c42f9e'
          },
          'active': true
       },
       {
          'name': 'B-Unit6',
          'industry': {
-             'id': 2,
+             '_id': '58cc85ac2ef8ca2713c42f9c',
              'name': 'Wine'
          },
          'subIndustry': {
-             'id': 3,
+             '_id': '58cc85ac2ef8ca2713c42fa1',
              'name': 'Restorant'
          },
          'active': true
@@ -79,11 +80,11 @@ const newBusinessUnits: IBusinessUnit[] = [
      {
          'name': 'B-Unit7',
          'industry': {
-             'id': 2,
+             '_id': '58cc85ac2ef8ca2713c42f9c',
              'name': 'Wine'
          },
          'subIndustry': {
-             'id': 4,
+             '_id': '58cc85ac2ef8ca2713c42fa4',
              'name': 'Liquor'
          },
          'active': false
@@ -91,11 +92,11 @@ const newBusinessUnits: IBusinessUnit[] = [
       {
          'name': 'B-Unit8',
          'industry': {
-             'id': 3,
+             '_id': '58cc85ac2ef8ca2713c42fab',
              'name': 'Retail'
          },
          'subIndustry': {
-             'id': 1,
+             '_id': '58cc85ac2ef8ca2713c42fa7',
              'name': 'Kiosk'
          },
          'active': false
@@ -103,11 +104,11 @@ const newBusinessUnits: IBusinessUnit[] = [
       {
          'name': 'B-Unit9',
          'industry': {
-             'id': 3,
+             '_id': '58cc85ac2ef8ca2713c42fab',
              'name': 'Retail'
          },
          'subIndustry': {
-             'id': 2,
+             '_id': '58cc85ac2ef8ca2713c42faa',
              'name': 'Distribiutor'
          },
          'active': true
@@ -115,11 +116,11 @@ const newBusinessUnits: IBusinessUnit[] = [
      {
          'name': 'B-Unit10',
          'industry': {
-             'id': 3,
+             '_id': '58cc85ac2ef8ca2713c42fab',
              'name': 'Retail'
          },
          'subIndustry': {
-             'id': 3,
+             '_id': '58cc85ac2ef8ca2713c42fad',
              'name': 'Pawnshop'
          },
          'active': true
@@ -127,11 +128,11 @@ const newBusinessUnits: IBusinessUnit[] = [
      {
          'name': 'B-Unit11',
          'industry': {
-             'id': 3,
+             '_id': '58cc85ac2ef8ca2713c42fab',
              'name': 'Retail'
          },
          'subIndustry': {
-             'id': 4,
+             '_id': '58cc85ac2ef8ca2713c42fb0',
              'name': 'Dolar'
          },
          'active': true
@@ -139,11 +140,11 @@ const newBusinessUnits: IBusinessUnit[] = [
       {
          'name': 'B-Unit12',
          'industry': {
-             'id': 3,
+             '_id': '58cc85ac2ef8ca2713c42fab',
              'name': 'Retail'
          },
          'subIndustry': {
-             'id': 5,
+             '_id': '58cc85ac2ef8ca2713c42fb3',
              'name': 'WallGreen'
          },
          'active': false
@@ -152,9 +153,7 @@ const newBusinessUnits: IBusinessUnit[] = [
 
 ];
 
-export default function seedBusinessUnits() {
-    getContext('mongodb://localhost/customer2').then((ctx) => {
-
+export default function seedBusinessUnits(ctx: IAppModels) {
         ctx.BusinessUnit.find({}).then((bUnits) => {
               if (bUnits.length > 0) {
                   return;
@@ -170,6 +169,4 @@ export default function seedBusinessUnits() {
                 });
             });
         });
-    });
-
 };

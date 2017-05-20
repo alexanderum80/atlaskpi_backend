@@ -10,7 +10,7 @@ import * as _ from 'lodash';
 const aggregate: AggregateStage[] = [
     {
         dateRange: true,
-        $match: { }
+        $match: {}
     },
     {
         frequency: true,

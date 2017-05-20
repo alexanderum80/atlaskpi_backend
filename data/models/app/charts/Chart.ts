@@ -42,9 +42,7 @@ let ChartSchema = new Schema({
     yFormat: { type: mongoose.Schema.Types.ObjectId, ref: 'ChartFormat' },
     kpis: [{ type: mongoose.Schema.Types.String, ref: 'KPI' }],
     dataRange: ChartDateRangeSchema,
-    chartDefinition: Schema.Types.Mixed,
-    dateFrom: String,
-    dateTo: String
+    chartDefinition: Schema.Types.Mixed
 });
 
     // ChartSchema.methods.

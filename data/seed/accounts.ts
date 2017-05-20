@@ -1,14 +1,12 @@
+import { IAccountModel } from '../models/master/accounts';
 import connectToMongoDb from '../mongo-utils';
-import { getMasterContext } from '../models';
+
 import * as winston from 'winston';
 
 
-export default function seedAccounts() {
+export default function seedAccounts(accountModel: IAccountModel) {
 
-    getMasterContext().then((masterContext) => {
-        let Account = masterContext.Account;
-
-        Account.find({}).then((accounts) => {
+        accountModel.find({}).then((accounts) => {
 
             if (accounts.length !== 0) {
                 return;
@@ -16,7 +14,7 @@ export default function seedAccounts() {
 
             winston.debug('Seeding Accounts');
 
-            Account.create({
+            accountModel.create({
                 name: 'Customer 1',
                 personalInfo: {
                     fullname: 'Orlando Quero',
@@ -37,7 +35,7 @@ export default function seedAccounts() {
                 }
             });
 
-            Account.create({
+            accountModel.create({
                 name: 'Customer 2',
                 personalInfo: {
                     fullname: 'Mario Quero',
@@ -58,7 +56,5 @@ export default function seedAccounts() {
                 }
             });
 
-        })
-
-    });
+        });
 };

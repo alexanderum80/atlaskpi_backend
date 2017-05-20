@@ -1,4 +1,5 @@
 import { getSaleModel } from './sales/Sale';
+import { getExpenseModel } from './expenses/Expenses';
 import { getInventoryModel } from './inventory/Inventory';
 import { getSurveyModel } from './surveys';
 import { getEmployeeAttendanceModel } from './employees-attendance/';
@@ -19,7 +20,6 @@ import { getChartFormatModel } from './chart-formats';
 import { getChartModel } from './charts';
 import { getDashboardModel } from './dashboards';
 import { getWorkLogModel } from './work-log/WorkLog';
-import { getExpenseModel } from './expenses/Expenses';
 
 import * as winston from 'winston';
 
@@ -47,8 +47,7 @@ export function getContext(dbUri: string): Promise<IAppModels> {
                 Chart: getChartModel(m),
                 ChartFormat: getChartFormatModel(m),
                 Dashboard: getDashboardModel(m),
-                WorkLog: getWorkLogModel(m),
-                Expense: getExpenseModel(m)
+                WorkLog: getWorkLogModel(m)
             });
         }, (err) => reject(err));
     });

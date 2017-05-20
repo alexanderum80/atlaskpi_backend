@@ -84,10 +84,10 @@ export interface ITokenVerification {
  * Information neede to create a new user
  */
 export interface ICreateUserDetails {
-    firstName: string;
+    firstName?: string;
     middleName?: string;
     lastName?: string;
-    email?: string;
+    email: string;
     username?: string;
     password?: string;
     roles?: string[];
@@ -199,7 +199,7 @@ export interface IUserModel extends mongoose.Model<IUserDocument> {
      * @param {boolean} logoutOtherSessions - (Optional) Logout other sessions for this user. (default: true)
      * @returns {Promise<IMutationResponse>}
      */
-    resetPassword(token: string, newPassword: string, logoutOtherSessions?: boolean): Promise<IMutationResponse>;
+    resetPassword(token: string, newPassword: string, enrollment?: boolean, logoutOtherSessions?: boolean): Promise<IMutationResponse>;
     /**
      * Forcibly change the password for a user.
      * @param {string} userId - the id of the user to update
@@ -225,6 +225,10 @@ export interface IUserModel extends mongoose.Model<IUserDocument> {
      * Checks if a reset password token is valid
      */
     verifyResetPasswordToken(token: string): Promise<boolean>;
+     /**
+     * Checks if a enrollment token is valid
+     */
+    verifyEnrollmentToken(token: string): Promise<boolean>;
     /**
      * Search system users using paging
      */

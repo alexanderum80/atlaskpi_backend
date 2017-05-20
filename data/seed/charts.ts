@@ -1,3 +1,4 @@
+import { IAppModels } from '../models/app/app-models';
 import { IChart, IChartDetails, IChartDocument } from '../models/app/charts';
 import { getContext } from '../models';
 import * as winston from 'winston';
@@ -24,8 +25,7 @@ const newCharts: IChartDetails[] = [
       }
 ];
 
-export default function seedCharts() {
-    getContext('mongodb://localhost/customer2').then((ctx) => {
+export default function seedCharts(ctx: IAppModels) {
 
         // ctx.Chart.find({}).then((charts) => {
         //       if (charts.length > 0) {
@@ -42,6 +42,5 @@ export default function seedCharts() {
         //         });
         //     });
         // });
-    });
 
 };

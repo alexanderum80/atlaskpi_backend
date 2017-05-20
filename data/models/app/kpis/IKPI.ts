@@ -13,7 +13,6 @@ export interface IKPI {
     filter: string;
     axisSelection: string;
     emptyValueReplacement?: string;
-    outputType: string;
 }
 
 export interface IKPIDetails extends IKPI { }

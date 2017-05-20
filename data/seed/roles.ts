@@ -1,9 +1,9 @@
+import { IAppModels } from '../models/app/app-models';
 import { getContext } from '../models';
 import { initRoles } from '../../lib/rbac';
 import * as winston from 'winston';
 
-export default function seedRoles() {
-    getContext('mongodb://localhost/customer2').then((ctx) => {
+export default function seedRoles(ctx: IAppModels) {
 
         ctx.Role.find({}).then((roles) => {
               if (roles.length > 0) {
@@ -39,6 +39,5 @@ export default function seedRoles() {
                   console.log(admin);
                   console.log(readonly);
                 });
-        });
     });
 };

@@ -10,7 +10,6 @@ let EntitySchema = new Schema({
 });
 
 let LocationSchema =  new Schema ({
-    externalId: String,
     identifier: String,
     name: String,
     city: String,
@@ -22,7 +21,6 @@ let LocationSchema =  new Schema ({
 });
 
 let CustomerSchema = new Schema ({
-        externalId: String,
         city: String,
         state: String,
         zip: String,
@@ -30,8 +28,6 @@ let CustomerSchema = new Schema ({
 });
 
 let EmployeeSchema = new Schema({
-    externalId: String,
-    name: String,
     firstName: String,
     middleName: String,
     lastName: String,
@@ -41,20 +37,15 @@ let EmployeeSchema = new Schema({
 });
 
 let ProductSchema = new Schema({
-    externalId: String,
-    name: String,
     cost: Number,
     price: Number,
     tax: Number,
     tax2: Number,
     from: Date,
     to: Date,
-    type: String,
 });
 
 let CategorySchema = new Schema ({
-    externalId: String,
-    name: String,
     service: Boolean,
 });
 

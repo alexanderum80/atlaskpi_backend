@@ -46,4 +46,3 @@ export class GetDashboardQuery implements IQuery<IDashboard> {
         });
     }
 }
-

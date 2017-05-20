@@ -50,9 +50,9 @@ export class AuthController {
                 .then((token: string) => {
                     winston.debug('token: token generated: ' + token);
                     resolve({
-                        '.issued': new Date(),
-                        '.expires': moment().add('milliseconds', ms(config.token.expiresIn)).toDate(),
-                        'access_token': token
+                        issued: new Date(),
+                        expires: moment().add('milliseconds', ms(config.token.expiresIn)).toDate(),
+                        access_token: token
                     });
                 })
                 .catch((err) => {

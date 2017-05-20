@@ -38,16 +38,14 @@ export function executeKpis() {
     getContext('mongodb://localhost/customer2').then(ctx => {
 
         let dateRange: IDateRange = {
-            from: new Date('2016-01-01'),
-            to: new Date('2016-12-31')
+            from: new Date('2012-01-01'),
+            to: new Date('2012-12-31')
         };
         let frequency = FrequencyEnum.Monthly;
 
-         mongoose.set('debug', true);
+        let kpi = new AestheticianRevenueRatePerHour(ctx.Sale, ctx.WorkLog);
 
-        // let kpi = new AestheticianRevenueRatePerHour(ctx.Sale, ctx.WorkLog);
-
-        let kpi = new NetRevenueByFTE(ctx.Sale);
+        //let kpi = new AvgRevenueByFTPhysician(ctx.Sale);
 
         kpi.getData(dateRange, frequency).then(data => {
 

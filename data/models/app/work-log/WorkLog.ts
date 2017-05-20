@@ -5,7 +5,7 @@ import * as Promise from 'bluebird';
 let Schema = mongoose.Schema;
 
 let WorkLogSchema =  new Schema ({
-    externalId: String,
+    externalId: Number,
     date: Date,
     workTime: Number
 });

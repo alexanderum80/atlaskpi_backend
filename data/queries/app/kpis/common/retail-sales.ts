@@ -9,7 +9,7 @@ import * as Promise from 'bluebird';
 const aggregate: AggregateStage[] = [
     {
         dateRange: true,
-        $match: { 'product.type': { '$eq': 'retail' } }
+        $match: { 'category.service': { '$eq': 0 } }
     },
     {
         frequency: true,

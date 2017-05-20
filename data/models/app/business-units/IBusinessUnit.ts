@@ -4,7 +4,7 @@ import * as mongoose from 'mongoose';
 import * as Promise from 'bluebird';
 
 export interface INamedType {
-    id: Number;
+    _id?: string;
     name: string;
 }
 
@@ -13,7 +13,7 @@ export interface IBusinessUnit {
     industry: INamedType;
     subIndustry?: INamedType;
     shortName?: string;
-    active: boolean;
+    active?: boolean;
 
     phone?: string;
     website?: string;

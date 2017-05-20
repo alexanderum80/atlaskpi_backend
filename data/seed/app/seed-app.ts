@@ -1,10 +1,11 @@
+import { IAppModels } from '../../models/app/app-models';
 import { IRevenueDocument, IRevenueModel } from '../../models/app/revenue';
 import * as mongoose from  'mongoose';
 import { getContext } from '../../models';
 import * as fs from 'fs';
 import * as path from 'path';
 
-export function seedApp() {
+export function seedApp(ctx: IAppModels) {
     let dataFiles = [
         // { model: 'Customer', filename: 'customers.json' },
         // { model: 'Employee', filename: 'employees.json' },
@@ -19,13 +20,7 @@ export function seedApp() {
         { model: 'Dashboard', filename: 'dashboards.json' }
     ];
 
-    getContext('mongodb://localhost/customer2').then((ctx) => {
-        // test
-        let count = ctx.Sale.find({}).count((err, count) => {
-            console.log('Number of records in sales collection: ' + count);
-        });
-
-        for (let i = 0; i < dataFiles.length; i++) {
+       for (let i = 0; i < dataFiles.length; i++) {
             // make sure the collection is empty
             let data = dataFiles[i];
             let model = ctx[data.model];
@@ -35,19 +30,12 @@ export function seedApp() {
                 if (!count || count === 0) {
                     console.log(`seeding ${data.model}`);
                     let file = fs.readFile(path.join(__dirname, data.filename), { encoding: 'utf-8' }, (err, data) => {
-                        if (err)
-                            throw err;
-
                         let dataArray = JSON.parse(data);
 
-                        (<mongoose.Model<any>>model).insertMany(dataArray, (err, doc) => {
-                            if (err)
-                                throw err;
-                        });
+                        (<mongoose.Model<IRevenueDocument>>model).insertMany(dataArray, (err, doc) => { });
                     });
                 }
             });
-        };
-    });
+        }
 };
 

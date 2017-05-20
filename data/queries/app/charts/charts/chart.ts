@@ -2,7 +2,7 @@ import { ChartProcessor } from '../chart-processor';
 import { FrequencyEnum, IDateRange } from '../../../../models/common';
 import { IAppModels } from '../../../../models/app/app-models';
 import { getKPI } from '../../kpis/kpi.factory';
-import { IChart, IChartDocument } from '../../../../models/app/charts';
+import { IChart } from '../../../../models/app/charts';
 import * as Promise from 'bluebird';
 import * as mongoose from 'mongoose';
 
@@ -25,17 +25,11 @@ export class Chart {
         let chartProcessor = new ChartPostProcessingExtention();
 
         return new Promise<string>((resolve, reject) => {
-            let chartDr;
-            if (this._chart.dateFrom && this._chart.dateTo) {
-                chartDr = { from: new Date(this._chart.dateFrom), to: new Date(this._chart.dateTo) };
-            }
-
-            that._kpi.getData(chartDr || dateRange, frequency).then(series => {
+            that._kpi.getData(dateRange, frequency).then(series => {
                 that._chart.chartDefinition = chartProcessor.process(that._chart, series);
-                resolve(JSON.stringify(that._chart));
+                resolve(JSON.stringify(that._chart.chartDefinition));
             }, (e) => reject(e));
         });
     }
 
 }
-

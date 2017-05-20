@@ -1,5 +1,4 @@
-import { spreadsheetGpl } from './master/import-from-spreadsheet';
-
+import { industriesGql } from './master/industries.gql';
 // from: https://gist.github.com/icebob/553c1f9f1a9478d828bcb7a08d06790a
 
 import { GraphqlDefinition } from './graphql-definition';
@@ -20,7 +19,7 @@ definitions.push(businessUnitsGql);
 definitions.push(chartFormatGql);
 definitions.push(chartsGql);
 definitions.push(dashboardGql);
-definitions.push(spreadsheetGpl);
+definitions.push(industriesGql);
 
 let moduleQueries = [];
 let moduleTypes = [];

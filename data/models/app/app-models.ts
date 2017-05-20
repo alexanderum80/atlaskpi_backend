@@ -1,4 +1,3 @@
-import { IExpenseModel } from './expenses';
 import { IWorkLogModel } from './work-log/IWorkLog';
 import { IChartModel } from './charts';
 import { IInventoryModel } from './inventory/IInventory';
@@ -39,5 +38,4 @@ export interface IAppModels {
     ChartFormat: IChartFormatModel;
     Dashboard: IDashboardModel;
     WorkLog: IWorkLogModel;
-    Expense: IExpenseModel;
 }

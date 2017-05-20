@@ -9,7 +9,7 @@ import {
 import mongoose = require('mongoose');
 import * as Promise from 'bluebird';
 import validate = require('validate.js');
-// import validate from 'validate.js';
+//import validate from 'validate.js';
 import { IKPI, IKPIDocument, IKPIModel, IKPIDetails } from '.';
 
 
@@ -26,7 +26,6 @@ let KPISchema = new Schema({
     filter: String,
     axisSelection: String,
     emptyValueReplacement: String,
-    outputType: String,
 });
 
 KPISchema.statics.createKPI = function(data: IKPIDetails): Promise<IMutationResponse> {

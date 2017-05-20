@@ -18,7 +18,7 @@ export function tokenValidator(req: ExtendedRequest, res: Response, next) {
                 winston.debug('Signin request (adding identity)', { identity: req.identity });
                 next();
             }
-        })
+        });
     } else {
         next();
     }

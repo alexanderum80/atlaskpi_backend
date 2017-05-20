@@ -1,3 +1,4 @@
+import { IAppModels } from '../models/app/app-models';
 import { AccountCreatedNotification } from '../../services/notifications/users';
 import { getContext, ICreateUserDetails, IUserDocument } from '../models';
 import * as winston from 'winston';
@@ -27,9 +28,7 @@ const newUsers: ICreateUserDetails[] = [{
     }
 ];
 
-export default function seedCustomer2() {
-    getContext('mongodb://localhost/customer2').then((ctx) => {
-
+export default function seedCustomer2(ctx: IAppModels) {
         ctx.User.find({}).then((users) => {
             if (users.length > 0) {
                 return;
@@ -49,7 +48,5 @@ export default function seedCustomer2() {
                     winston.error('Error creating user mario: ', err);
                 });
             });
-
-        });
     });
 };

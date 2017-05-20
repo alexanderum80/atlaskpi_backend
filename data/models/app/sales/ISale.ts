@@ -26,7 +26,7 @@ export interface ICustomer extends IEntity {
 
 
 export interface IEmployee extends IEntity {
-    name: string;
+    firstName: string;
     middleName: string;
     lastName: string;
     role: string;

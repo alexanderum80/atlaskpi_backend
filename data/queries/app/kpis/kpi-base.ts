@@ -9,7 +9,6 @@ export interface IKpiBase {
 }
 
 export class KpiBase {
-    frequency: FrequencyEnum;
 
     constructor(public model: any, public aggregate: AggregateStage[]) { }
 
