@@ -39,7 +39,7 @@ accountSchema.statics.findAccountByHostname = function(hostname: String): Promis
         let hostnameTokens = hostname.split('.');
 
         // make sure the hotsname is in this format: subdomain.domain.com
-        if (hostnameTokens.length !== 3) {
+        if (hostnameTokens.length !== 4) {
             reject('Invalid hostname');
         }
 
@@ -62,9 +62,9 @@ accountSchema.statics.findAccountByHostname = function(hostname: String): Promis
 };
 
 accountSchema.methods.getConnectionString = function() {
-    return `${this.database.url}/${this.database.name}`;
+    return this.database.url;
 };
 
 export function getAccountModel(): IAccountModel {
     return <IAccountModel>mongoose.model('Account', accountSchema);
-};
+}

@@ -28,7 +28,9 @@ const newUsers: ICreateUserDetails[] = [{
     }
 ];
 
-export default function seedCustomer2(ctx: IAppModels) {
+export default function seedCustomer2(connectionString) {
+    getContext(connectionString).then((ctx) => {
+
         ctx.User.find({}).then((users) => {
             if (users.length > 0) {
                 return;
@@ -48,5 +50,7 @@ export default function seedCustomer2(ctx: IAppModels) {
                     winston.error('Error creating user mario: ', err);
                 });
             });
+
+        });
     });
-};
+}

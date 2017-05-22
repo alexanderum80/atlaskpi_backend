@@ -3,7 +3,8 @@ import { getContext } from '../models';
 import { initRoles } from '../../lib/rbac';
 import * as winston from 'winston';
 
-export default function seedRoles(ctx: IAppModels) {
+export default function seedRoles(connectionString) {
+    getContext(connectionString).then((ctx) => {
 
         ctx.Role.find({}).then((roles) => {
               if (roles.length > 0) {
@@ -39,5 +40,6 @@ export default function seedRoles(ctx: IAppModels) {
                   console.log(admin);
                   console.log(readonly);
                 });
+        });
     });
 };

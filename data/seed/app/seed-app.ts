@@ -5,7 +5,7 @@ import { getContext } from '../../models';
 import * as fs from 'fs';
 import * as path from 'path';
 
-export function seedApp(ctx: IAppModels) {
+export function seedApp(connectionString) {
     let dataFiles = [
         // { model: 'Customer', filename: 'customers.json' },
         // { model: 'Employee', filename: 'employees.json' },
@@ -20,7 +20,13 @@ export function seedApp(ctx: IAppModels) {
         { model: 'Dashboard', filename: 'dashboards.json' }
     ];
 
-       for (let i = 0; i < dataFiles.length; i++) {
+    getContext(connectionString).then((ctx) => {
+        // test
+        let count = ctx.Sale.find({}).count((err, count) => {
+            console.log('Number of records in sales collection: ' + count);
+        });
+
+        for (let i = 0; i < dataFiles.length; i++) {
             // make sure the collection is empty
             let data = dataFiles[i];
             let model = ctx[data.model];
@@ -30,11 +36,19 @@ export function seedApp(ctx: IAppModels) {
                 if (!count || count === 0) {
                     console.log(`seeding ${data.model}`);
                     let file = fs.readFile(path.join(__dirname, data.filename), { encoding: 'utf-8' }, (err, data) => {
+                        if (err)
+                            throw err;
+
                         let dataArray = JSON.parse(data);
 
-                        (<mongoose.Model<any>>model).insertMany(dataArray, (err, doc) => { });
+                        (<mongoose.Model<any>>model).insertMany(dataArray, (err, doc) => {
+                            if (err)
+                                throw err;
+                        });
                     });
                 }
             });
-        }
+        };
+    });
 };
+

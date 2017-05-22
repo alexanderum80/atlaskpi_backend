@@ -153,7 +153,9 @@ const newBusinessUnits: IBusinessUnit[] = [
 
 ];
 
-export default function seedBusinessUnits(ctx: IAppModels) {
+export default function seedBusinessUnits(connectionString) {
+    getContext(connectionString).then((ctx) => {
+
         ctx.BusinessUnit.find({}).then((bUnits) => {
               if (bUnits.length > 0) {
                   return;
@@ -169,4 +171,6 @@ export default function seedBusinessUnits(ctx: IAppModels) {
                 });
             });
         });
+    });
+
 };

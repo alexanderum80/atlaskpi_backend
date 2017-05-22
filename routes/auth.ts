@@ -39,16 +39,18 @@ function _getHostname(req: ExtendedRequest): string {
     //return 'customer2.kpibi.com';
 
     // check host value from body
-    let hostname: string = req.body.host || req.hostname || req.subdomain;
+    let hostname: string = req.body.host || req.hostname;
 
     // stop if not host have been passed
     if (!hostname)
         return null;
 
+    // let hostUri = url.parse(companySubdomain);
+
     let hostTokens = hostname.split('.');
 
     // make sure that we have at least 4 tokens, otherwise there is not a subdomain
-    return hostTokens.length !== 3 ? hostname : hostTokens[0];
+    return hostTokens.length !== 4 ? null : hostname;
 }
 
 export { auth };
