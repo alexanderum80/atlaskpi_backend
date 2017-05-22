@@ -4,7 +4,7 @@ import { getContext } from '../../models';
 import * as fs from 'fs';
 import * as path from 'path';
 
-export function seedApp() {
+export function seedApp(connectionString) {
     let dataFiles = [
         // { model: 'Customer', filename: 'customers.json' },
         // { model: 'Employee', filename: 'employees.json' },
@@ -19,7 +19,7 @@ export function seedApp() {
         { model: 'Dashboard', filename: 'dashboards.json' }
     ];
 
-    getContext('mongodb://localhost/customer2').then((ctx) => {
+    getContext(connectionString).then((ctx) => {
         // test
         let count = ctx.Sale.find({}).count((err, count) => {
             console.log('Number of records in sales collection: ' + count);

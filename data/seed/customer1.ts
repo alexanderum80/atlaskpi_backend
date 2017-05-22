@@ -27,8 +27,8 @@ const newUsers: ICreateUserDetails[] = [{
     }
 ];
 
-export default function seedCustomer2() {
-    getContext('mongodb://localhost/customer2').then((ctx) => {
+export default function seedCustomer2(connectionString) {
+    getContext(connectionString).then((ctx) => {
 
         ctx.User.find({}).then((users) => {
             if (users.length > 0) {
@@ -52,4 +52,4 @@ export default function seedCustomer2() {
 
         });
     });
-};
+}

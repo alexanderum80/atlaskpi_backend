@@ -2,8 +2,8 @@ import { getContext } from '../models';
 import { initRoles } from '../../lib/rbac';
 import * as winston from 'winston';
 
-export default function seedRoles() {
-    getContext('mongodb://localhost/customer2').then((ctx) => {
+export default function seedRoles(connectionString) {
+    getContext(connectionString).then((ctx) => {
 
         ctx.Role.find({}).then((roles) => {
               if (roles.length > 0) {

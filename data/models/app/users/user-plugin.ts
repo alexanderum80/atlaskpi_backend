@@ -192,8 +192,8 @@ export function accountPlugin(schema: mongoose.Schema, options: any) {
 
     schema.statics.createUser = function(data: ICreateUserDetails, notifier: IAccountCreatedNotifier, options?: ICreateUserOptions): Promise<IMutationResponse> {
         // deambiguation (when seed method used data is a simple object!!!
-        if ((<any>data).data !== undefined) { data = (<any>data).data; };
-        
+        if ((<any>data).data !== undefined) { data = (<any>data).data; }
+
         let that = this;
 
         let opts = Object.assign({}, defaultCreateUserOptions, options);

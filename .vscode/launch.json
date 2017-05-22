@@ -1,0 +1,59 @@
+{
+    // Use IntelliSense to learn about possible Node.js debug attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [{
+            "args": [],
+            "cwd": "${workspaceRoot}",
+            "env": { "NODE_ENV": "development" },
+            // "console": false,
+            "name": "DEBUG",
+            "outFiles": ["${workspaceRoot}/backend/build/debug/**/*.js"],
+            "preLaunchTask": "main",
+            "program": "${workspaceRoot}/backend/build/debug/index.js",
+            "request": "launch",
+            "runtimeArgs": ["--nolazy"],
+            "runtimeExecutable": null,
+            "sourceMaps": true,
+            "stopOnEntry": false,
+            "type": "node"
+        },
+        {
+            "args": [],
+            "cwd": "${workspaceRoot}",
+            "env": { "NODE_ENV": "development" },
+            // "console": false,
+            "name": "PLAYGROUND",
+            "outFiles": ["${workspaceRoot}/backend/build/playground/**/*.js"],
+            "preLaunchTask": "playground",
+            "program": "${workspaceRoot}/backend/build/playground/playground.js",
+            "request": "launch",
+            "runtimeArgs": ["--nolazy"],
+            "runtimeExecutable": null,
+            "sourceMaps": true,
+            "stopOnEntry": false,
+            "type": "node"
+        },
+        {
+            "args": ["test"],
+            "cwd": "${workspaceRoot}",
+            "env": { "NODE_ENV": "development" },
+            "console": "internalConsole",
+            "name": "CLI",
+            "program": "${workspaceRoot}/cli/index.js",
+            "request": "launch",
+            "runtimeArgs": ["--nolazy"],
+            "runtimeExecutable": null,
+            "stopOnEntry": false,
+            "type": "node"
+        },
+        {
+            "name": "Launch localhost",
+            "type": "chrome",
+            "request": "launch",
+            "url": "http://localhost:8080/index.html",
+            "webRoot": "${workspaceRoot}/client/src/public"
+        }
+    ]
+}

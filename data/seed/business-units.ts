@@ -152,8 +152,8 @@ const newBusinessUnits: IBusinessUnit[] = [
 
 ];
 
-export default function seedBusinessUnits() {
-    getContext('mongodb://localhost/customer2').then((ctx) => {
+export default function seedBusinessUnits(connectionString) {
+    getContext(connectionString).then((ctx) => {
 
         ctx.BusinessUnit.find({}).then((bUnits) => {
               if (bUnits.length > 0) {
