@@ -1,1 +1,0 @@
-{"version":3,"file":"gql.template.js","sourceRoot":"","sources":["../../../../data/graphql/gql.template.ts"],"names":[],"mappings":";AAIa,QAAA,GAAG,GAAsB;IAClC,IAAI,EAAE,OAAO;IACb,MAAM,EAAE;QACJ,KAAK,EAAE,EAAE;QACT,OAAO,EAAE,EAAE;QACX,SAAS,EAAE,EAAE;KAChB;IAED,SAAS,EAAE;QACP,KAAK,EAAE,EAAE;QACT,QAAQ,EAAE,EAAE;KACf;CACJ,CAAC"}
