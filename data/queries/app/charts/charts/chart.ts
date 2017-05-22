@@ -28,13 +28,14 @@ export class Chart {
             let chartDr;
             if (this._chart.dateFrom && this._chart.dateTo) {
                 chartDr = { from: new Date(this._chart.dateFrom), to: new Date(this._chart.dateTo) };
-            };
+            }
 
             that._kpi.getData(chartDr || dateRange, frequency).then(series => {
                 that._chart.chartDefinition = chartProcessor.process(that._chart, series);
-                resolve(JSON.stringify(that._chart.chartDefinition));
+                resolve(JSON.stringify(that._chart));
             }, (e) => reject(e));
         });
     }
 
 }
+

@@ -6,7 +6,8 @@
         "formula": "Sum(Revenue.employees.amount)",
         "grouping": { "id": "$employees.id", "employee": "$employees.name" },
         "filter": "employees.type == 'f'",
-        "axisSelection": "employee"
+        "axisSelection": "employee",
+        "outputType": "list"
     },
     {
         "_id": "2",
@@ -16,7 +17,8 @@
         "formula": "Sum(Revenue.employees.amount)",
         "grouping": { "id": "$employees.id", "employee": "$employees.name" },
         "filter": "employees.type == 'f'",
-        "axisSelection": "employee"
+        "axisSelection": "employee",
+        "outputType": "list"
     },
     {
         "_id": "3",
@@ -26,7 +28,8 @@
         "formula": "Sum(Revenue.employees.amount)",
         "grouping": { "id": "$employees.id", "employee": "$employees.name" },
         "filter": "employees.type == 'f'",
-        "axisSelection": "employee"
+        "axisSelection": "employee",
+        "outputType": "value"
     },
     {
         "_id": "4",
@@ -36,7 +39,8 @@
         "formula": "Sum(Revenue.employees.amount)",
         "grouping": { "id": "$employees.id", "employee": "$employees.name" },
         "filter": "employees.type == 'f'",
-        "axisSelection": "employee"
+        "axisSelection": "employee",
+        "outputType": "value"
     },
     {
         "_id": "5",
@@ -46,7 +50,8 @@
         "formula": "Sum(Revenue.employees.amount)",
         "grouping": { "id": "$employees.id", "employee": "$employees.name" },
         "filter": "employees.type == 'f'",
-        "axisSelection": "employee"
+        "axisSelection": "employee",
+        "outputType": "value"
     },
 
     {
@@ -57,7 +62,8 @@
         "formula": "Sum(Revenue.employees.amount)",
         "grouping": { "id": "$employees.id", "employee": "$employees.name" },
         "filter": "employees.type == 'f'",
-        "axisSelection": "employee"
+        "axisSelection": "employee",
+        "outputType": "list"
     },
     {
         "_id": "7",
@@ -67,7 +73,8 @@
         "formula": "Sum(Revenue.employees.amount)",
         "grouping": { "id": "$employees.id", "employee": "$employees.name" },
         "filter": "employees.type == 'f'",
-        "axisSelection": "employee"
+        "axisSelection": "employee",
+        "outputType": "value"
     },
     {
         "_id": "8",
@@ -77,53 +84,9 @@
         "formula": "Sum(Revenue.employees.amount)",
         "grouping": { "id": "$employees.id", "employee": "$employees.name" },
         "filter": "employees.type == 'f'",
-        "axisSelection": "employee"
+        "axisSelection": "employee",
+        "outputType": "value"
     },
-
-
-
-
-
-
-    {
-        "_id": "10",
-        "name": "Net Collected Revenue per Full Time Employee (FTE)",
-        "description": "Net Collected Revenue per Full Time Employee (FTE)",
-        "formula": "Sum(Revenue.employees.amount)",
-        "grouping": { "id": "$employees.id", "employee": "$employees.name" },
-        "filter": "employees.type == 'f'",
-        "axisSelection": "employee"
-    },
-    {
-        "_id": "20",
-        "name": "Average Revenue per FTE Physician",
-        "description": "Total Physician Rev/Total # of Physicians",
-        "formula": "Avg(Revenue.employees.amount/@Total)",
-        "grouping": { "id": "$employees.id", "employee": "$employees.name" },
-        "filter": "employees.type == 'f' && employees.role == 'Physician'",
-        "axisSelection": "employee"
-    },
-    {
-        "_id": "30",
-        "name": "Average Revenue per FTE Non Physician",
-        "description": "Total Physician Rev/@Total # of Non Physicians",
-        "formula": "Avg(Revenue.employees.amount/@Total)",
-        "grouping": { "id": "$employees.id", "employee": "$employees.name" },
-        "filter": "employees.type == 'f' && employees.role == 'Non Physician'",
-        "axisSelection": "employee"
-    },
-    {
-        "_id": "40",
-        "name": "Aesthetician Revenue Rate Per Hour",
-        "description": "Total Physician Rev/@Total # of Aesthetician",
-        "formula": "Avg(Revenue.employees.amount/@Total)",
-        "grouping": { "id": "$employees.id", "employee": "$employees.name" },
-        "filter": "employees.type == 'f' && employees.role == 'Aesthetician'",
-        "axisSelection": "employee"
-    },
-
-
-
 
     {
         "_id": "100",
@@ -133,7 +96,8 @@
         "formula": "Sum(Revenue.value.amount)/Sum(Employees.Hours)",
         "grouping": { "id": "$employees.id", "employee": "$employees.name" },
         "filter": "employees.role == 'Aesthetician'",
-        "axisSelection": "employee"
+        "axisSelection": "employee",
+        "outputType": "list"
     },
     {
         "_id": "101",
@@ -143,7 +107,8 @@
         "formula": "Sum(Revenue.value.amount)",
         "grouping": { "id": "$location.externalId" },
         "filter": "Revenue.location  == 'Ambulatory Surgery Center'",
-        "axisSelection": "location"
+        "axisSelection": "location",
+        "outputType": "value"
     },
     {
         "_id": "102",
@@ -153,7 +118,8 @@
         "formula": "Sum(Revenue.value.amount)/Sum(Employees.Hours)",
         "grouping": { "id": "$location.externalId" },
         "filter": "Revenue.concept == 'consulting' || Revenue.concept == 'research'",
-        "axisSelection": "location"
+        "axisSelection": "location",
+        "outputType": "value"
     },
     {
         "_id": "103",
@@ -163,7 +129,8 @@
         "formula": "Sum(Revenue.value.amount)/Sum(Employees.Hours)",
         "grouping": { "id": "$location.externalId" },
         "filter": "employees.role != 'Physician'",
-        "axisSelection": "location"
+        "axisSelection": "location",
+        "outputType": "value"
     },
     {
         "_id": "104",
@@ -173,7 +140,8 @@
         "formula": "Sum(Revenue.value.amount)",
         "grouping": { "id": "$location.externalId" },
         "filter": "Revenue.concept == 'service'",
-        "axisSelection": "location"
+        "axisSelection": "location",
+        "outputType": "value"
     },
 
 
@@ -186,7 +154,8 @@
         "formula": "Retail Sales/Total Revenue x 100",
         "grouping": null,
         "filter": null,
-        "axisSelection": "retail"
+        "axisSelection": "retail",
+        "outputType": "value"
     },
     {
         "_id": "201",
@@ -196,7 +165,8 @@
         "formula": "Prof Service/Total Revenue x 100",
         "grouping": null,
         "filter": null,
-        "axisSelection": "retail"
+        "axisSelection": "retail",
+        "outputType": "value"
     },
     {
         "_id": "202",
@@ -206,7 +176,8 @@
         "formula": "Consulting and Research/Total Revenue x 100",
         "grouping": null,
         "filter": null,
-        "axisSelection": "retail"
+        "axisSelection": "retail",
+        "outputType": "value"
     },
     {
         "_id": "203",
@@ -216,7 +187,8 @@
         "formula": "Ambulatory Surgery Centre/Total Revenue x 100",
         "grouping": null,
         "filter": null,
-        "axisSelection": "retail"
+        "axisSelection": "retail",
+        "outputType": "value"
     },
     {
         "_id": "204",
@@ -226,7 +198,8 @@
         "formula": "Other/Total Revenue x 100",
         "grouping": null,
         "filter": null,
-        "axisSelection": "retail"
+        "axisSelection": "retail",
+        "outputType": "value"
     }
 
 ]
