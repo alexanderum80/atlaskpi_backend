@@ -1,0 +1,11 @@
+{
+	"cannot be blank": "cannot be blank",
+	"the email address needs to be valid": "the email address needs to be valid",
+	"this email was already registered": "this email was already registered",
+	"USERS": {
+		"E1000": "This email already exist",
+		"E1001": "%s is a mandatory field",
+		"UNKNOWN": "AN unknown error was found. Please contact support"
+	},
+	"not found": "not found"
+}

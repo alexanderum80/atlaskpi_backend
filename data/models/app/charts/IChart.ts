@@ -10,6 +10,9 @@ export interface IChartDateRange {
 }
 
 export interface IChart {
+    //remove this
+    dateFrom: string;
+    dateTo: string;
     name: string;
     group: string;
     description: string;
