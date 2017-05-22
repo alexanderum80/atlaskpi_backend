@@ -1,6 +1,8 @@
 [{
         "_id": 10,
-        "name": "Revenue By Service Line",
+        "dateFrom": "2016-01-1",
+        "dateTo": "2016-12-31",
+        "name": "Revenue By Service Line (Year 2016)",
         "group": "Finance",
         "description": "Revenue by Service Line",
         "kpis": ["1"],
@@ -9,14 +11,20 @@
         },
         "chartDefinition": {
             "chart": { "type": "pie" },
-            "title": { "text": "Revenue by Service Line" },
+            "title": { "text": "Revenue By Service Line (Year 2016)" },
             "subtitle": { "text": "This chart allows you to monitor the inidividual elements responsible for your revenue. This chart is most useful when compared over time." },
+            "lang": {
+                "decimalPoint": ".",
+                "thousandsSep": ","
+            },
             "plotOptions": {    
                 "pie": {
                     "allowPointSelect": true,
                     "cursor": "pointer",
                     "dataLabels": {
-                        "enabled": true
+                        "enabled": true,
+                        "distance": 10,
+                        "formatter": "kpi_percent_for_pie_chart"
                     },
                     "showInLegend": true
                 }
@@ -75,7 +83,7 @@
         "_id": 11,
         "name": "Revenue per FTE",
         "group": "Finance",
-        "description": "Net Collected Revenue per Full Time Employee (FTE)",
+        "description": "Net Collected Revenue per Full Time Employee (FTE) (Year 2016)",
         "kpis": ["2"],
         "frequency": "yearly",
         "dateRange": {
@@ -83,7 +91,7 @@
         },
         "chartDefinition": {
             "chart": { "type": "column" },
-            "title": { "text": "Net Collected Revenue per Full Time Employee (FTE)" },
+            "title": { "text": "Net Collected Revenue per Full Time Employee (FTE) (Year 2016)" },
             "subtitle": { "text": "Use this chart to evaluate each physicians productivity and schedule efficiency" },
             "yAxis": {
                 "min": 0,
@@ -138,7 +146,7 @@
         "chartDefinition": {
             "chart": { "type": "line", "inverted": false },
             "title": {
-                "text": "Average Revenue per FTE Physician",
+                "text": "Average Revenue per FTE Physician (Year 2016)",
                 "x": -20
             },
             "subtitle": { "text": "This indicator will allow you to evaluate physician productivity and set minimum goals" },
@@ -236,7 +244,7 @@
         "chartDefinition": {
             "chart": { "type": "line", "inverted": false },
             "title": {
-                "text": "Average Revenue per FTE Non-Physician",
+                "text": "Average Revenue per FTE Non-Physician (Year 2016)",
                 "x": -20
             },
             "subtitle": { "text": "This indicator will allow you to evaluate non physician productivity and set minimum goals" },
@@ -334,7 +342,7 @@
         "chartDefinition": {
             "chart": { "type": "line", "inverted": false },
             "title": {
-                "text": "Average Revenue per FTE Aestheticians",
+                "text": "Average Revenue per FTE Aestheticians (Year 2016)",
                 "x": -20
             },
             "subtitle": { "text": "This indicator will allow you to evaluate Aesthetician productivity and set minimum goals" },
@@ -422,6 +430,8 @@
     },
     {
         "_id": 15,
+        "dateFrom": "2017-01-01",
+        "dateTo": "2017-12-31",
         "name": "Sales By Product",
         "group": "Finance",
         "description": "Sales By Product",
@@ -432,23 +442,17 @@
        
         "chartDefinition": {
             "chart": { "type": "column" },
-            "title": { "text": "Sales By Product" },
+            "title": { "text": "Sales By Product (Year 2017)" },
             "subtitle": { "text": "Compare the financial performance of your individual products" },
             "yAxis": {
                 "title": { "text": "Sales" },
-                "stackLabels": {
-                    "enabled": true,
-                    "style": {
-                        "fontWeight": "bold",
-                        "color": "gray"
-                    }
-                },
                 "labels": { "formatter": "kpi_dollarize" }
             },
             "tooltip": {
-                "valueDecimals": 2,
                 "valuePrefix": "$",
-                "valueSuffix": " USD"
+                "valueSuffix": " USD",
+                "useHTML": true,
+                "formatter":"kpi_tooltip_with_percentage_and_total"                
             },
             "plotOptions": { 
                 "column": {
@@ -577,7 +581,7 @@
                 "type": "line"
             },
             "title": {
-                "text": "Retail Sales"
+                "text": "Retail Sales (Year 2016)"
             },
             "subtitle": { "text": "This chart will present the total revenue generated from all retail sales. Monitoring individaully will allow you to set growth targets easier." },
             "xAxis": {
@@ -630,6 +634,78 @@
 
         }
     },
+
+     {
+        "_id": 18,
+        "dateFrom": "1990-01-1",
+        "dateTo": "2018-12-31",
+        "name": "Total Revenue Over Time",
+        "group": "Finance",
+        "description": "Total Revenue",
+        "kpis": ["7"],
+        "dateRange": {
+            "predefined": "last year"
+        },
+        "chartDefinition": {
+            "chart": {
+                "type": "line"
+            },
+            "title": {
+                "text": "Total Revenue Over Time"
+            },
+            "subtitle": { "text": "The life of your business, review this chart daily to ensure you are achieving at least a 5% year on year growth." },
+            "xAxis": {
+                "categories": ["1750", "1800", "1850", "1900", "1950", "1999", "2050"],
+                "tickmarkPlacement": "on",
+                "title": {
+                    "enabled": false
+                }
+            },
+            "yAxis": {
+                "title": {
+                    "text": " Sales"
+                },
+                "labels": { "formatter": "kpi_dollarize" }
+            },
+            "tooltip": {
+                "shared": "true",
+                "valueDecimals": 2,
+                "valuePrefix": "$",
+                "valueSuffix": " USD"
+            },
+            "plotOptions": {
+                "area": {
+                    "stacking": "normal",
+                    "lineColor": "#666666",
+                    "lineWidth": 2,
+                    "marker": {
+                        "lineWidth": 1,
+                        "lineColor": "#666666"
+                    }
+                }
+            },
+            "series": [{
+                "name": "Asia",
+                "data": [502, 635, 809, 947, 1402, 3634, 5268]
+            }, {
+                "name": "Africa",
+                "data": [106, 107, 111, 133, 221, 767, 1766]
+            }, {
+                "name": "Europe",
+                "type": "line",
+                "stacking": "normal",
+                "data": [163, 203, 276, 408, 547, 729, 628]
+            }, {
+                "name": "America",
+                "data": [18, 31, 54, 156, 339, 818, 1201]
+            }, {
+                "name": "Oceania",
+                "data": [2, 2, 2, 6, 13, 30, 46]
+            }]
+
+        }
+    },
+
 
     
 
@@ -858,7 +934,7 @@
         },
         "chartDefinition": {
             "chart": { "type": "column" },
-            "title": { "text": "Aesthetician Revenue Rate Per Hour" },
+            "title": { "text": "Aesthetician Revenue Rate Per Hour (Year 2016)" },
             "subtitle": { "text": "An important indication of Aesthetician productivity, this chart will allow you to review Aesthetician revenue rate per hour over time monitoring constant improvements with correct mixing of services. " },
             "tooltip": {
                 "valueDecimals": 2,
@@ -976,7 +1052,7 @@
         },
         "chartDefinition": {
             "chart": { "type": "column" },
-            "title": { "text": "Individual Non Physician Revenue Rate Per Hour" },
+            "title": { "text": "Individual Non Physician Revenue Rate Per Hour (Year 2016)" },
             "subtitle": { "text": "This chart will allow you to compare the productivity of your Non Physician Revenue providers" },
             "yAxis": { 
                 "title": { "text": "Revenue" },
@@ -1021,7 +1097,7 @@
         },
         "chartDefinition": {
             "chart": { "type": "line" },
-            "title": { "text": "Profesional Service Sales" },
+            "title": { "text": "Profesional Service Sales (Year 2016)" },
             "subtitle": { "text": "This chart will present the total revenue generated from all Professional Service sales. Monitoring individaully will allow you to set growth targets easier." },
             "tooltip": {
                 "valueDecimals": 2,
@@ -1068,7 +1144,7 @@
         },
         "chartDefinition": {
             "chart": { "type": "bar" },
-            "title": { "text": "Retail Sales Ratio" },
+            "title": { "text": "Retail Sales Ratio (Year 2016)" },
             "subtitle": { "text": "This indicator allows you to evaluate your retail sales productivity and it's impact on the revenue" },
             "yAxis": {
                 "title": { "text": "Percent" }
@@ -1104,7 +1180,7 @@
         },
         "chartDefinition": {
             "chart": { "type": "column" },
-            "title": { "text": "Profesional Sales Ratio" },
+            "title": { "text": "Profesional Sales Ratio (Year 2016)" },
             "subtitle": { "text": "This indicator allows you to evaluate your professional services productivity and it's impact on the revenue" },
             "yAxis": {
                 "title": { "text": "Percent" }
@@ -1248,5 +1324,5 @@
             }]
         }
     }
-
 ]
+

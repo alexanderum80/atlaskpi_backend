@@ -11,7 +11,7 @@ import * as _ from 'lodash';
 const aggregate: AggregateStage[] = [
     {
         dateRange: true,
-        $match: { 'category.service': { '$eq': 1 } }
+        $match: { }
     },
     {
         frequency: true,

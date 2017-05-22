@@ -71,7 +71,6 @@ export class ChartPostProcessingExtention {
                 return this._serieToMonthNameCategories(series, chart.chartDefinition);
 
             case 'NetRevenueByFTE':
-                 series = this._nameToEmployees(series);
                  return this._serieToMonthNameCategories(series, chart.chartDefinition);
 
             case 'SalesByProduct':

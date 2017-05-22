@@ -47,6 +47,7 @@ export function getContext(dbUri: string): Promise<IAppModels> {
                 Chart: getChartModel(m),
                 ChartFormat: getChartFormatModel(m),
                 Dashboard: getDashboardModel(m),
+                Expense: getExpenseModel(m),
                 WorkLog: getWorkLogModel(m)
             });
         }, (err) => reject(err));

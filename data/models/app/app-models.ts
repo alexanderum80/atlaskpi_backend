@@ -15,6 +15,7 @@ import { IBusinessUnitModel } from './business-units';
 import { IChartFormatModel } from './chart-formats';
 import { ISaleModel } from './sales';
 import { IDashboardModel } from './dashboards';
+import { IExpenseModel } from './expenses';
 
 import { IRoleModel, IPermissionModel } from '../../../lib/rbac';
 
@@ -38,4 +39,5 @@ export interface IAppModels {
     ChartFormat: IChartFormatModel;
     Dashboard: IDashboardModel;
     WorkLog: IWorkLogModel;
+    Expense: IExpenseModel;
 }

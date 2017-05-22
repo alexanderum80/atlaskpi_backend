@@ -13,6 +13,7 @@ export interface IKPI {
     filter: string;
     axisSelection: string;
     emptyValueReplacement?: string;
+    outputType: string;
 }
 
 export interface IKPIDetails extends IKPI { }
@@ -23,6 +24,7 @@ export interface IKPIDocument extends IKPI, mongoose.Document {
     formula: string;
     group?: string;
     emptyValueReplacement?: string;
+    outputType: string;
 }
 
 export interface IKPIModel extends mongoose.Model<IKPIDocument> {

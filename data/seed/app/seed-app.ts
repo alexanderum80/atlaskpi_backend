@@ -32,10 +32,9 @@ export function seedApp(ctx: IAppModels) {
                     let file = fs.readFile(path.join(__dirname, data.filename), { encoding: 'utf-8' }, (err, data) => {
                         let dataArray = JSON.parse(data);
 
-                        (<mongoose.Model<IRevenueDocument>>model).insertMany(dataArray, (err, doc) => { });
+                        (<mongoose.Model<any>>model).insertMany(dataArray, (err, doc) => { });
                     });
                 }
             });
         }
 };
-

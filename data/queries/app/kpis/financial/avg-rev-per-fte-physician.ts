@@ -12,7 +12,7 @@ const aggregate: AggregateStage[] = [
         dateRange: true,
         $match: {
             'employee.type': { $eq: 'f' },
-            'employee.role': { $eq: 'Doctor' }
+            'employee.role': { $eq: 'Physician' }
         }
     },
     {

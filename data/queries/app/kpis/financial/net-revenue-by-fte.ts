@@ -40,7 +40,7 @@ const aggregate: AggregateStage[] = [{
     $group: {
       _id: {
         employeeId: '$employee.externalId',
-        employeeFirstname: '$employee.firstName',
+        name: '$employee.firstName',
         employeeLastname: '$employee.lastName'
       },
       sales: {
@@ -76,7 +76,7 @@ export class NetRevenueByFTE extends KpiBase {
     if (!frequency) {
       return [{
           name: 'Net Revenue',
-          data: rawData.map(item => [ item._id.employeeId, item.sales ])
+          data: rawData.map(item => [ item._id.name, item.sales ])
       }];
     } else {
       let frequencies = _.uniq(rawData.map(item => item._id.frequency)).sort();
@@ -84,14 +84,14 @@ export class NetRevenueByFTE extends KpiBase {
 
       let data = rawData.filter((item, index) => {
                       if (frequencies.indexOf(item._id.frequency) === -1 ||
-                          employees.indexOf(item._id.employeeId) === -1)  { return; };
+                          employees.indexOf(item._id.name) === -1)  { return; };
                       return item;
                 });
 
       data = _.orderBy(data, ['_id.frequency', 'sales'], ['asc', 'desc']);
 
       data = _(data)
-              .groupBy('_id.employeeId')
+              .groupBy('_id.name')
               .map((v, k) => ({
                   name: k,
                   data: v.map(item => [item._id.frequency, item.sales])
@@ -145,7 +145,7 @@ export class NetRevenueByFTE extends KpiBase {
   }
     private _top5Employees(rawData: any)  {
         return  _(rawData)
-                .groupBy('_id.employeeId')
+                .groupBy('_id.name')
                 .map((v, k) => ({
                     employee: k,
                     sales: _.sumBy(v, 'sales')
@@ -155,7 +155,7 @@ export class NetRevenueByFTE extends KpiBase {
                     if (index > 4) { return; };
                     return item;
                 })
-                .map(item => item.employee);
+                .map(item => item.name);
     }
 
 
