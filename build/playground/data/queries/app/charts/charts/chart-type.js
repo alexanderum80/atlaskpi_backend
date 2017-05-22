@@ -1,0 +1,27 @@
+"use strict";
+exports.ChartType = {
+    Area: 'area',
+    AreaRange: 'arearange',
+    AreaSpline: 'areaSpline',
+    AreaSplineRange: 'areasplinerange',
+    Bar: 'bar',
+    BoxPlot: 'boxplot',
+    Bubble: 'bubble',
+    Column: 'column',
+    ColumnRange: 'columnrange',
+    ErrorBar: 'errorbar',
+    Funnel: 'funnel',
+    Gauge: 'gauge',
+    HeatMap: 'heatmap',
+    Line: 'line',
+    Pie: 'pie',
+    Polygon: 'polygon',
+    Pyramid: 'pyramid',
+    Scatter: 'scatter',
+    Series: 'series',
+    SolidGauge: 'solidgauge',
+    Spline: 'spline',
+    TreeMap: 'treemap',
+    Waterfall: 'waterfall'
+};
+//# sourceMappingURL=chart-type.js.map

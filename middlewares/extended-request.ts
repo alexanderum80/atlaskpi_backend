@@ -1,14 +1,14 @@
 import { IAppConfig } from '../config';
 import { IIdentity, IMutationBus, IQueryBus } from '../data';
 import { Request } from 'express';
-// import { Plura } from 'i18n';
+import { i18nAPI } from 'i18n';
 import { IAppModels, IMasterModels } from '../data/models';
 import * as winston from 'winston';
 
 /**
  * Extension of the express request object
  */
-export interface ExtendedRequest extends Request {
+export interface ExtendedRequest extends Request, i18nAPI {
 
     /**
      * Value mainly used for testing multiple accounts

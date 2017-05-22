@@ -40,7 +40,7 @@ export function seedApp() {
 
                         let dataArray = JSON.parse(data);
 
-                        (<mongoose.Model<IRevenueDocument>>model).insertMany(dataArray, (err, doc) => {
+                        (<mongoose.Model<any>>model).insertMany(dataArray, (err, doc) => {
                             if (err)
                                 throw err;
                         });

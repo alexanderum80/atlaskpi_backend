@@ -1,0 +1,13 @@
+
+{
+	"cannot be blank": "no puede estar vacio",
+	"the email address needs to be valid": "direccion de correo invalida",
+	"this email was already registered": "este correo ya fue registrado",
+
+	"USERS": {
+		"E1000": "El correo electronico existe",
+		"E1001": "%s es un campo obligatorio",
+		"UNKNOWN": "Un error desconocido ha ocurrido. Por favor contacte a soporte"
+	}
+}
+

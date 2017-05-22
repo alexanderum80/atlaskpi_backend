@@ -1,0 +1,1 @@
+{"version":3,"file":"common.gql.js","sourceRoot":"","sources":["../../../../../data/graphql/app/common.gql.ts"],"names":[],"mappings":";AAIa,QAAA,SAAS,GAAsB;IACxC,IAAI,EAAE,QAAQ;IACd,MAAM,EAAE;QACJ,KAAK,EAAE,weAoBP;QACA,OAAO,EAAE,EAAE;QACX,SAAS,EAAE,EAAE;KAChB;IAED,SAAS,EAAE;QACP,KAAK,EAAE,EAAE;QACT,QAAQ,EAAE,EAAE;KAChB;CACH,CAAC"}
