@@ -22,7 +22,7 @@ export function initializeContexts(req: ExtendedRequest, res: Response, next) {
         }
         // using hostname
         else if (hostname) {
-            logger.debug('creating app context from user hostname: ' + hostname);
+            logger.debug('creating app context from user hostname');
 
             ctx.Account.find((err, res) => {
                 let a = res;
@@ -31,7 +31,6 @@ export function initializeContexts(req: ExtendedRequest, res: Response, next) {
             ctx.Account.findAccountByHostname(hostname).then((account: IAccountDocument) => {
                 getContext(account.getConnectionString()).then((ctx) => {
                     req.appContext = ctx;
-                    req.subdomain = <any>hostname;
                     next();
                 });
             });
@@ -42,21 +41,20 @@ export function initializeContexts(req: ExtendedRequest, res: Response, next) {
     });
 }
 
-function _getHostname(req: ExtendedRequest): string {
+export function _getHostname(req: ExtendedRequest): string {
     //  just for testing
     // return 'customer2.kpibi.com';
 
     // check host value from body
-    let hostname: String = req.body.host || req.hostname || req.subdomain;
+    // let hostname: string = req.body.host || req.hostname || req.subdomain;
+
+    let hostname = req.headers['x-hostname'] || req.body.host || req.hostname || req.subdomain;
 
     // stop if not host have been passed
     if (!hostname)
         return null;
-    };
 
     let hostTokens = hostname.split('.');
-    if (!hostname)
-        return null;
 
     // make sure that we have at least 4 tokens, otherwise there is not a subdomain
     return hostTokens.length !== 4 ? null : hostname;

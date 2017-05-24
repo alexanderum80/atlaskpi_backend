@@ -30,12 +30,8 @@ export class UserForgotPasswordNotification implements IEmailNotifier {
             (<any>dataSource).fullName = `${user.profile.firstName} ${user.profile.lastName}`;
         };
 
-        if (this._data.hostname) {
-            Object.assign(dataSource, this._data);
-        } else {
-            winston.error('Error sending notification: ', 'no hostname provided');
-            throw { status: 400, message: 'Invalid hostname' };
-        };
+        (<any>dataSource).host = this._data.hostname.split('.')[0] || this._data.hostname;
+        (<any>dataSource).subdomain = this._config.subdomain;
 
         (<any>dataSource).resetToken = user.services.password.reset.token;
 

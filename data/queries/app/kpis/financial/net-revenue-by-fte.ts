@@ -40,7 +40,7 @@ const aggregate: AggregateStage[] = [{
     $group: {
       _id: {
         employeeId: '$employee.externalId',
-        name: '$employee.firstName',
+        name: '$employee.name',
         employeeLastname: '$employee.lastName'
       },
       sales: {
@@ -147,7 +147,7 @@ export class NetRevenueByFTE extends KpiBase {
         return  _(rawData)
                 .groupBy('_id.name')
                 .map((v, k) => ({
-                    employee: k,
+                    name: k,
                     sales: _.sumBy(v, 'sales')
                 }))
                 .orderBy('sales', 'desc')

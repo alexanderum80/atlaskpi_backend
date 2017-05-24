@@ -29,13 +29,8 @@ export class EnrollmentNotification implements IEnrollmentNotifier {
             (<any>dataSource).firstName = user.username;
         };
 
-        if (this._data.hostname) {
-            Object.assign(dataSource, this._data);
-        } else {
-            winston.error('Error sending notification: ', 'no hostname provided');
-            throw { status: 400, message: 'Invalid hostname' };
-        };
-
+        (<any>dataSource).host = this._data.hostname;
+        (<any>dataSource).subdomain = this._config.subdomain;
         (<any>dataSource).enrollmentToken = user.services.email.enrollment[0].token;
 
         let emailContent = enrollmentTemplate(dataSource);

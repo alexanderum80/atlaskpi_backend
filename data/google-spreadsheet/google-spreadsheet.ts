@@ -18,7 +18,7 @@ let TOKEN_DIR = (process.env.HOME || process.env.HOMEPATH ||
     process.env.USERPROFILE) + '/.credentials/';
 let TOKEN_PATH = TOKEN_DIR + 'sheets.googleapis.com-nodejs-quickstart.json';
 
-export function importSpreadSheet(): Promise<any> {
+export function importSpreadSheet(dbUri: string): Promise<any> {
     // If modifying these scopes, delete your previously saved credentials
     // at ~/.credentials/sheets.googleapis.com-nodejs-quickstart.json
 
@@ -33,7 +33,7 @@ export function importSpreadSheet(): Promise<any> {
             // Authorize a client with the loaded credentials, then call the
             // Google Sheets API.
             authorize(JSON.parse(content.toString()), function(auth) {
-                importData(auth).then(result => {
+                importData(auth, dbUri).then(result => {
                     resolve(result);
                 }, err => {
                     reject(err);

@@ -1,3 +1,4 @@
+import { importSpreadSheet } from '../../../google-spreadsheet/google-spreadsheet';
 import mongoose = require('mongoose');
 import * as Promise from 'bluebird';
 import { IAccountModel, IAccountDocument, IAccount, IDatabaseInfo } from './IAccount';
@@ -57,7 +58,7 @@ accountSchema.statics.createNewAccount = function(account: IAccount): Promise<IM
 
         account.database = generateDBObject(account.name);
 
-        that.create(account, (err, newAccount: IAccount) => {
+        that.create(account, (err, newAccount: IAccountDocument) => {
             if (err) {
                 resolve({ errors: [ {field: 'account', errors: [err.message] } ], entity: null });
                 return;
@@ -67,7 +68,7 @@ accountSchema.statics.createNewAccount = function(account: IAccount): Promise<IM
             let firstUser: ICreateUserDetails = { email: account.personalInfo.email,
                                                   password: hash.substr(hash.length - 10, hash.length) };
 
-            getContext(`${newAccount.database.url}/${newAccount.database.name}`).then((newAccountContext) => {
+            getContext(newAccount.getConnectionString()).then((newAccountContext) => {
                  newAccountContext.Role.find({}).then((roles) => {
                     initRoles(newAccountContext, rolesSetup.initialRoles, function (err, admin, readonly) {
                         console.log(admin);
@@ -83,12 +84,12 @@ accountSchema.statics.createNewAccount = function(account: IAccount): Promise<IM
                     })
                     .then(() => {
                         if (account.seedData) {
-                            seedApp(newAccountContext);
+                           seedApp(newAccount.getConnectionString());
+                           return importSpreadSheet(newAccount.getConnectionString());
                         }
-                        return Promise.resolve();
                     })
                     .then(() => {
-                        let subdomain = `${account.database.name}.kpibi.com:4200`;
+                        let subdomain = `${account.database.name}.${config.subdomain}`;
 
                         let auth = new AuthController(that, newAccountContext);
                         auth.authenticateUser(subdomain, firstUser.email, firstUser.password)

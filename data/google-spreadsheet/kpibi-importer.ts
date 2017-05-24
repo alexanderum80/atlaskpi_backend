@@ -4,13 +4,13 @@ import { DataContext, DataTable } from './google-sheet.processor';
 import * as async from 'async';
 import * as Promise from 'bluebird';
 
-export default function importSpreadSheetData(data: any): Promise<any> {
+export default function importSpreadSheetData(data: any, dbUri = 'mongodb://localhost/customer2'): Promise<any> {
 
     return new Promise<any>((resolve, reject) => {
         async.parallel([
-            async.apply(importSales, data),
-            async.apply(importWorklog, data),
-            async.apply(importExpenses, data)
+            async.apply(importSales, data, dbUri),
+            async.apply(importWorklog, data, dbUri),
+            async.apply(importExpenses, data, dbUri)
         ], function(err, results) {
             if (err) {
                 console.log('There was an error: ' + err.toString());
@@ -22,8 +22,8 @@ export default function importSpreadSheetData(data: any): Promise<any> {
     });
 }
 
-function importSales(data: DataContext, cb) {
-    getContext('mongodb://localhost/customer2').then(ctx => {
+function importSales(data: DataContext, dbUri: string, cb) {
+    getContext(dbUri).then(ctx => {
         const sales = data.sales;
         // map the data
         const mappedSales = sales.map(s => {
@@ -51,8 +51,8 @@ function importSales(data: DataContext, cb) {
     });
 }
 
-function importWorklog(data: DataContext, cb) {
-    getContext('mongodb://localhost/customer2').then(ctx => {
+function importWorklog(data: DataContext, dbUri: string,  cb) {
+    getContext(dbUri).then(ctx => {
         const worklog = data.worklog;
 
         const mappedWorklog = worklog.map(w => {
@@ -77,8 +77,8 @@ function importWorklog(data: DataContext, cb) {
     });
 }
 
-function importExpenses(data: DataContext, cb) {
-    getContext('mongodb://localhost/customer2').then(ctx => {
+function importExpenses(data: DataContext, dbUri: string, cb) {
+    getContext(dbUri).then(ctx => {
         const expenses = data.expense;
 
         const mappedExpenses = expenses.map(e => {

@@ -1,3 +1,4 @@
+import { _getHostname } from '../../../middlewares/initialize-contexts.middleware';
 import { IQueryResponse } from '../../models/common/query-response';
 import { FindUserByIdQuery } from '../../queries/app/users/find-user-by-id.query';
 import { ResetPasswordMutation } from '../../mutations/app/users/reset-password.mutation';
@@ -149,7 +150,7 @@ export const usersGql: GraphqlDefinition = {
                 return ctx.mutationBus.run<IMutationResponse>('remove-user', ctx.req, mutation, args);
             },
             userForgotPassword(root: any, args, ctx: IGraphqlContext) {
-                let notifier = new UserForgotPasswordNotification(ctx.config, { hostname: ctx.req.subdomain });
+                let notifier = new UserForgotPasswordNotification(ctx.config, { hostname: _getHostname(ctx.req) });
                 let mutation = new UserForgotPasswordMutation(ctx.req.identity, notifier, ctx.req.appContext.User);
                 return ctx.mutationBus.run<IMutationResponse>('user-forgot-password', ctx.req, mutation, args);
             },

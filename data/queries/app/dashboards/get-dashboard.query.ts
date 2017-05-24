@@ -24,7 +24,7 @@ export class GetDashboardQuery implements IQuery<IDashboard> {
         let frequency = FrequencyTable[data.frequency];
 
         return new Promise<IDashboard>((resolve, reject) => {
-            this._ctx.Dashboard
+            that._ctx.Dashboard
                 .findOne({ _id: data.id })
                 .populate({
                     path: 'charts',
