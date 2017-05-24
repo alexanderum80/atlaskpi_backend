@@ -1,3 +1,4 @@
+import { IIdentity } from '../identity';
 import { IQueryResponse } from '../../common/query-response';
 import { IAppConfig } from '../../../../config';
 import { IMutationResponse, IPaginationDetails, IPagedQueryResult } from '../../common';
@@ -143,7 +144,7 @@ export interface IUserModel extends mongoose.Model<IUserDocument> {
      * @param {string} username - the username to look for
      * @return {Promise<IUserDocument>}
      */
-    findUserById(id: string): Promise<IQueryResponse<IUserDocument>>;
+    findUserById(id: string): Promise<IUserDocument>;
     /**
      * Finds the user with the specified email but if more than one user matches the case insensitive search, it returns null.
      * @param {string} email - the email address to look for
@@ -233,4 +234,10 @@ export interface IUserModel extends mongoose.Model<IUserDocument> {
      * Search system users using paging
      */
     search(details: IPaginationDetails): Promise<IPagedQueryResult<IUserDocument>>;
+     /**
+     * Finds the user with the specified identity
+     * @param {IIdentity} identity - the Identity taken from the request
+     * @return {Promise<IUserDocument>}
+     */
+    findByIdentity(identity: IIdentity): Promise<IUserDocument>;
 }

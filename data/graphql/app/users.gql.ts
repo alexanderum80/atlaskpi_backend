@@ -70,7 +70,6 @@ export const usersGql: GraphqlDefinition = {
                 _id: String
                 username: String
                 emails: [UserEmail]
-                services: [UserServices]
                 profile: UserProfile
                 roles: [String]
             }           
@@ -104,7 +103,7 @@ export const usersGql: GraphqlDefinition = {
         queries: `
             isResetPasswordTokenValid(token: String!): TokenVerification
             users(details: PaginationDetails): UserPagedQueryResult
-            User(id: String!): UserResult
+            User(id: String): User
             isEnrollmentTokenValid(token: String!): TokenVerification
         `,
         mutations: `
@@ -161,7 +160,7 @@ export const usersGql: GraphqlDefinition = {
         },
         User: {
             emails(user: IUserDocument) { return user.emails; },
-            services(user: IUserDocument) { return user.services; },
+            // services(user: IUserDocument) { return user.services; },
             profile(user: IUserDocument) { return user.profile; },
             roles(user: IUserDocument) { return user.roles.map((role) => role.name ); }
         },

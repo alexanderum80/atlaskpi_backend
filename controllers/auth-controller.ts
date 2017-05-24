@@ -70,6 +70,7 @@ export class AuthController {
     private _generateIdentity(account: IAccountDocument, user: IUserDocument): Promise<IIdentity> {
         return new Promise<IIdentity>((resolve, reject) => {
             let userSignature: IIdentity = {
+                username: user.username,
                 firstName: user.profile.firstName,
                 middleName: user.profile.middleName,
                 lastName: user.profile.lastName,

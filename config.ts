@@ -27,6 +27,5 @@ export const config = {
     emailService: emailServiceConfig,
     usersService: usersServiceConfig,
     subdomain: 'd.kpibi.com:4200'
-
 };
 

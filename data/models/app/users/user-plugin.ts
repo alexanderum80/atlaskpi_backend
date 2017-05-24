@@ -1,3 +1,4 @@
+import { IIdentity } from '../identity';
 import { IQueryResponse } from '../../common/query-response';
 import * as moment from 'moment';
 import * as _ from 'lodash';
@@ -711,7 +712,7 @@ export function accountPlugin(schema: mongoose.Schema, options: any) {
        });
     };
 
-    schema.statics.verifyResetPasswordToken = function(token: string): Promise<ITokenVerification> {
+    schema.statics.verifyResetasswordToken = function(token: string): Promise<ITokenVerification> {
         let defer = Promise.defer<ITokenVerification>();
 
         (<IUserModel>this).findOne({ 'services.password.reset.token': token }).then((user) => {
@@ -768,6 +769,23 @@ export function accountPlugin(schema: mongoose.Schema, options: any) {
     schema.statics.search = function(details: IPaginationDetails): Promise<IPagedQueryResult<IUserDocument>> {
         let paginator = new Paginator<IUserDocument>(this, ['username', 'profile.firstName', 'profile.middleName', 'profile.lastName']);
         return paginator.getPage(details);
+    };
+
+    schema.statics.findByIdentity = function(identity: IIdentity): Promise<IUserDocument> {
+        return new Promise<IUserDocument>((resolve, reject) => {
+            (<IUserModel>this).findOne({ 'username': identity.username })
+                .populate('roles', '-_id, name' )
+                .populate('services', '-id')
+                .then((user) => {
+                if (user) {
+                    resolve(user);
+                } else {
+                    resolve(null);
+                }
+            }).catch(() => {
+                resolve(null);
+            });
+        });
     };
 
 }
