@@ -26,7 +26,8 @@ export const config = {
     },
     emailService: emailServiceConfig,
     usersService: usersServiceConfig,
-    subdomain: 'd.kpibi.com:4200',
+    // subdomain: 'd.kpibi.com:4200',
+    subdomain: 'app.kpibi.com',
     mongoDbCluster: {
         connectionString: `mongodb://{{user}}:{{password}}@cluster0-shard-00-00-unrxu.mongodb.net:27017,cluster0-shard-00-01-unrxu.mongodb.net:27017,cluster0-shard-00-02-unrxu.mongodb.net:27017/{{database}}?ssl=true&replicaSet=Cluster0-shard-0&authSource=admin`,
         // connectionString: `mongodb://{{user}}:{{password}}@localhost/{{database}}`,
