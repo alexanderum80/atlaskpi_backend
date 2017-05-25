@@ -1,9 +1,12 @@
 import connectToMongoDb from '../mongo-utils';
-import { IIndustryModel } from '../models/master';
+import { getMasterContext, IIndustryModel } from '../models/master';
 import * as winston from 'winston';
 
 
-export default function seedIndustries(industryModel: IIndustryModel) {
+export default function seedIndustries(connectionString) {
+
+    getMasterContext().then(ctx => {
+        let industryModel = ctx.Industry;
 
         industryModel.find({}).then((industries) => {
 
@@ -44,4 +47,5 @@ export default function seedIndustries(industryModel: IIndustryModel) {
             });
 
         });
+    });
 };

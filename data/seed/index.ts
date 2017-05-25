@@ -19,4 +19,5 @@ export default function seed() {
     seedCustomer2(connectionString);
     seedApp(connectionString);
     seedBusinessUnit(connectionString);
+    seedIndustries(connectionString);
 }
