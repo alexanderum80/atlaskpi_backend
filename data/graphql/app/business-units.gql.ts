@@ -70,11 +70,11 @@ export const businessUnitsGql: GraphqlDefinition = {
             type BusinessUnitsPagedQueryResponse {
                 pagination: PaginationInfo
                 data: [BusinessUnit]
-            }   
+            }
             type BusinessUnitResult {
                 businessUnit: BusinessUnit
                 errors: [ErrorDetails]
-            }  
+            }
             `,
         queries: `
             businessUnits(details: PaginationDetails): BusinessUnitsPagedQueryResponse
