@@ -126,6 +126,7 @@ export const usersGql: GraphqlDefinition = {
                 return ctx.queryBus.run('search-users', query, args);
             },
             User(root: any, args, ctx: IGraphqlContext) {
+                if (!ctx.req.identity || !ctx.req.appContext.User) { return null; }
                 let query = new FindUserByIdQuery(ctx.req.identity, ctx.req.appContext.User);
                 return ctx.queryBus.run('find-user-by-id', query, args);
             },

@@ -1,7 +1,7 @@
 import { importSpreadSheet } from '../../../google-spreadsheet/google-spreadsheet';
 import mongoose = require('mongoose');
 import * as Promise from 'bluebird';
-import { IAccountModel, IAccountDocument, IAccount, IDatabaseInfo } from './IAccount';
+import { IAccountModel, IAccountDocument, IAccount, IDatabaseInfo, IParticularDBUser } from './IAccount';
 import { IMutationResponse, MutationResponse } from '../..';
 import { getContext, ICreateUserDetails, IUserDocument } from '../../../models';
 import { AccountCreatedNotification, EnrollmentNotification } from '../../../../services/notifications/users';
@@ -13,8 +13,12 @@ import * as rolesSetup from './initialRoles';
 import * as changeCase from 'change-case';
 import { generateUniqueHash } from '../../../../lib/utils';
 import { AuthController } from '../../../../controllers';
+import * as Handlebars from 'handlebars';
+import * as mongodb from 'mongodb';
 
 import { seedApp } from '../../../seed/app/seed-app';
+
+import * as request from 'request';
 
 // define mongo schema
 let accountSchema = new mongoose.Schema({
@@ -29,7 +33,7 @@ let accountSchema = new mongoose.Schema({
         phoneNumber: String,
     },
     database: {
-        url: String,
+        uri: String,
         name: String,
     },
     audit: {
@@ -42,6 +46,8 @@ let accountSchema = new mongoose.Schema({
 accountSchema.statics.createNewAccount = function(account: IAccount): Promise<IMutationResponse>   {
     let that = this;
     return new Promise<IMutationResponse>((resolve, reject) => {
+
+        let accountDatabaseName = changeCase.paramCase(account.name);
 
         let constrains = {
             name: { presence: { message: '^cannot be blank'}},
@@ -56,19 +62,31 @@ accountSchema.statics.createNewAccount = function(account: IAccount): Promise<IM
             return;
         };
 
-        account.database = generateDBObject(account.name);
+        let hash = generateUniqueHash();
+
+        let particularUser = {
+            user: `adm-${hash.substr(hash.length - 10, hash.length)}`,
+            pwd: hash.substr(0, 10),
+            roles: [
+                { roleName: 'dbAdmin', databaseName: accountDatabaseName },
+                { roleName: 'readWrite', databaseName: accountDatabaseName }
+            ]
+        };
+
+        account.database = generateDBObject(accountDatabaseName, particularUser.user, particularUser.pwd);
+
+        let firstUser: ICreateUserDetails = { email: account.personalInfo.email,
+                                                password: hash.substr(hash.length - 10, hash.length) };
 
         that.create(account, (err, newAccount: IAccountDocument) => {
             if (err) {
                 resolve({ errors: [ {field: 'account', errors: [err.message] } ], entity: null });
                 return;
             }
+            getContext(newAccount.getMasterConnectionString()).then((newAccountContext) => {
+              newAccount.createParticularUser(particularUser).then((result) => {
+                 if (result !== true) { throw result; };
 
-            let hash = generateUniqueHash();
-            let firstUser: ICreateUserDetails = { email: account.personalInfo.email,
-                                                  password: hash.substr(hash.length - 10, hash.length) };
-
-            getContext(newAccount.getConnectionString()).then((newAccountContext) => {
                  newAccountContext.Role.find({}).then((roles) => {
                     initRoles(newAccountContext, rolesSetup.initialRoles, function (err, admin, readonly) {
                         console.log(admin);
@@ -84,8 +102,8 @@ accountSchema.statics.createNewAccount = function(account: IAccount): Promise<IM
                     })
                     .then(() => {
                         if (account.seedData) {
-                           seedApp(newAccount.getConnectionString());
-                           return importSpreadSheet(newAccount.getConnectionString());
+                           seedApp(newAccount.getMasterConnectionString());
+                           return importSpreadSheet(newAccount.getMasterConnectionString());
                         }
                     })
                     .then(() => {
@@ -102,10 +120,11 @@ accountSchema.statics.createNewAccount = function(account: IAccount): Promise<IM
                     }, (err) => {
                         winston.error('Error creating user: ', err);
                     });
-                 })
-                 .catch((err) => {
-                     resolve({ errors: [ {field: 'account', errors: [err.message] } ], entity: null });
                  });
+              })
+            .catch((err) => {
+                resolve({ errors: [ {field: 'account', errors: [err.message] } ], entity: null });
+            });
             });
 
         });
@@ -186,15 +205,60 @@ accountSchema.statics.accountNameAvailable = function(name: String): Promise<boo
 };
 
 accountSchema.methods.getConnectionString = function() {
-    return `${this.database.url}/${this.database.name}`;
+    return `${this.database.uri}`;
+};
+
+accountSchema.methods.getMasterConnectionString = function() {
+    let uriTemplate = Handlebars.compile(config.mongoDbCluster.masterConnectionString);
+    return uriTemplate({database: this.database.name});
+};
+
+accountSchema.methods.createParticularUser = function(particularUser: IParticularDBUser): Promise<any> {
+    console.log('Creating db specific user');
+    let body = {
+        databaseName: 'admin',
+        roles: particularUser.roles,
+        username: particularUser.user,
+        password: particularUser.pwd
+    };
+
+    let options: request.Options = {
+        uri: config.mongoDbAtlasApi.uri,
+        auth: {
+            user: config.mongoDbAtlasApi.username,
+            pass: config.mongoDbAtlasApi.api_key,
+            sendImmediately: false
+        },
+        json: body
+    };
+
+    return new Promise((resolve, reject) => {
+        request.post(options, function(error, response, body) {
+            if (!error) {
+                console.log('User created...');
+                return resolve(true);
+            } else {
+                // console.log('Code : ' + response.statusCode);
+                // console.log('error : ' + error);
+                // console.log('body : ' + body);
+                console.log('Error creating db user: ' + error);
+                return reject(error);
+            }
+        });
+    });
+
 };
 
 export function getAccountModel(): IAccountModel {
     return <IAccountModel>mongoose.model('Account', accountSchema);
 }
 
-export function generateDBObject(databaseName: string): IDatabaseInfo {
-    return { url: 'mongodb://localhost',
-             name: changeCase.paramCase(databaseName)
-           };
+export function generateDBObject(database: string, user?: string, password?: string): IDatabaseInfo {
+    let uriTemplate = Handlebars.compile(config.mongoDbCluster.connectionString);
+    let data = {
+        user: user,
+        password: password,
+        database: database
+    };
+    return { uri: uriTemplate(data), name: changeCase.paramCase(database) };
 };

@@ -4,6 +4,17 @@ import { IIndustry, ISubIndustry } from '../industries';
 import mongoose = require('mongoose');
 import * as Promise from 'bluebird';
 
+export interface IParticularDBUserRole {
+    databaseName: string;
+    roleName: string;
+}
+
+export interface IParticularDBUser {
+    user: string;
+    pwd: string;
+    roles: IParticularDBUserRole[];
+};
+
 export interface IPersonalInfo {
     fullname: string;
     email: string;
@@ -16,7 +27,7 @@ export interface IBusinessInfo {
 }
 
 export interface IDatabaseInfo {
-    url: string;
+    uri: string;
     name: string;
 }
 
@@ -40,6 +51,8 @@ export interface IAccount {
 // declare interface to mix account and mongo docuemnt properties/methods
 export interface IAccountDocument extends IAccount, mongoose.Document {
     getConnectionString(): string;
+    getMasterConnectionString(): string;
+    createParticularUser(particularUser: IParticularDBUser): Promise<any>;
 }
 
 export interface IAccountModel extends mongoose.Model<IAccountDocument> {
