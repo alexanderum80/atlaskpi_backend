@@ -1,4 +1,3 @@
-import { IExpenseModel } from './expenses';
 import { IWorkLogModel } from './work-log/IWorkLog';
 import { IChartModel } from './charts';
 import { IInventoryModel } from './inventory/IInventory';
@@ -16,6 +15,7 @@ import { IBusinessUnitModel } from './business-units';
 import { IChartFormatModel } from './chart-formats';
 import { ISaleModel } from './sales';
 import { IDashboardModel } from './dashboards';
+import { IExpenseModel } from './expenses';
 
 import { IRoleModel, IPermissionModel } from '../../../lib/rbac';
 

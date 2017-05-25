@@ -1,3 +1,4 @@
+import { IIdentity } from '../identity';
 import { IQueryResponse } from '../../common/query-response';
 import { IAppConfig } from '../../../../config';
 import { IMutationResponse, IPaginationDetails, IPagedQueryResult } from '../../common';
@@ -84,10 +85,10 @@ export interface ITokenVerification {
  * Information neede to create a new user
  */
 export interface ICreateUserDetails {
-    firstName: string;
+    firstName?: string;
     middleName?: string;
     lastName?: string;
-    email?: string;
+    email: string;
     username?: string;
     password?: string;
     roles?: string[];
@@ -143,7 +144,7 @@ export interface IUserModel extends mongoose.Model<IUserDocument> {
      * @param {string} username - the username to look for
      * @return {Promise<IUserDocument>}
      */
-    findUserById(id: string): Promise<IQueryResponse<IUserDocument>>;
+    findUserById(id: string): Promise<IUserDocument>;
     /**
      * Finds the user with the specified email but if more than one user matches the case insensitive search, it returns null.
      * @param {string} email - the email address to look for
@@ -199,7 +200,7 @@ export interface IUserModel extends mongoose.Model<IUserDocument> {
      * @param {boolean} logoutOtherSessions - (Optional) Logout other sessions for this user. (default: true)
      * @returns {Promise<IMutationResponse>}
      */
-    resetPassword(token: string, newPassword: string, logoutOtherSessions?: boolean): Promise<IMutationResponse>;
+    resetPassword(token: string, newPassword: string, enrollment?: boolean, logoutOtherSessions?: boolean): Promise<IMutationResponse>;
     /**
      * Forcibly change the password for a user.
      * @param {string} userId - the id of the user to update
@@ -225,8 +226,18 @@ export interface IUserModel extends mongoose.Model<IUserDocument> {
      * Checks if a reset password token is valid
      */
     verifyResetPasswordToken(token: string): Promise<boolean>;
+     /**
+     * Checks if a enrollment token is valid
+     */
+    verifyEnrollmentToken(token: string): Promise<boolean>;
     /**
      * Search system users using paging
      */
     search(details: IPaginationDetails): Promise<IPagedQueryResult<IUserDocument>>;
+     /**
+     * Finds the user with the specified identity
+     * @param {IIdentity} identity - the Identity taken from the request
+     * @return {Promise<IUserDocument>}
+     */
+    findByIdentity(identity: IIdentity): Promise<IUserDocument>;
 }

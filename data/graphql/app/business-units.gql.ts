@@ -15,51 +15,51 @@ export const businessUnitsGql: GraphqlDefinition = {
     schema: {
         types: `
             input NamedTypeDetails {
-                id: Int!
+                _id: String
                 name: String!
             }
             input BusinessUnitDetails {
-                name: String!,
-                industry: NamedTypeDetails,
-                subIndustry: NamedTypeDetails,
-                shortName: String,
-                active: Boolean!,
-                phone: String,
-                website: String,
-                address1: String,
-                address2: String,
-                city: String,
-                state: String,
-                zip: String,
-                timezone: String,
-                timeFormat: String,
-                dateFormat: String,
-                defaultCurrency: String,
-                defaultLanguage: String,
-                firstDayOfWeek: String,
+                name: String!
+                industry: NamedTypeDetails
+                subIndustry: NamedTypeDetails
+                shortName: String
+                active: Boolean
+                phone: String
+                website: String
+                address1: String
+                address2: String
+                city: String
+                state: String
+                zip: String
+                timezone: String
+                timeFormat: String
+                dateFormat: String
+                defaultCurrency: String
+                defaultLanguage: String
+                firstDayOfWeek: String
             }
             type NamedType {
-                id: Int
+                _id: String
                 name: String
             }
             type BusinessUnit {
-                _id: String,
-                name: String,
-                shortName: String,
-                active: Boolean,
-                phone: String,
-                website: String,
-                address1: String,
-                address2: String,
-                city: String,
-                state: String,
-                zip: String,
-                timezone: String,
-                timeFormat: String,
-                dateFormat: String,
-                defaultCurrency: String,
-                defaultLanguage: String,
-                firstDayOfWeek: String,
+                _id: String
+                name: String
+                shortName: String
+                active: Boolean
+                phone: String
+                website: String
+                address1: String
+                address2: String
+                city: String
+                state: String
+                zip: String
+                timezone: String
+                timeFormat: String
+                dateFormat: String
+                defaultCurrency: String
+                defaultLanguage: String
+                firstDayOfWeek: String
                 industry: NamedType
                 subIndustry: NamedType
             }
@@ -70,11 +70,11 @@ export const businessUnitsGql: GraphqlDefinition = {
             type BusinessUnitsPagedQueryResponse {
                 pagination: PaginationInfo
                 data: [BusinessUnit]
-            }   
+            }
             type BusinessUnitResult {
                 businessUnit: BusinessUnit
                 errors: [ErrorDetails]
-            }  
+            }
             `,
         queries: `
             businessUnits(details: PaginationDetails): BusinessUnitsPagedQueryResponse

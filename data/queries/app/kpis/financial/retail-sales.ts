@@ -10,7 +10,7 @@ import * as _ from 'lodash';
 const aggregate: AggregateStage[] = [
     {
         dateRange: true,
-        $match: { 'product.type': {$eq: 'retail' } }
+        $match: { 'category.service': { '$ne': 1 } }
     },
     {
         frequency: true,

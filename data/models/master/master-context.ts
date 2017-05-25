@@ -1,28 +1,30 @@
 import * as Promise from 'bluebird';
 import * as winston from 'winston';
 import { IMasterModels } from './master-models';
-import makeDefaultConnection from '../../nova-connector';
-import { getAccountModel } from './Account';
+import makeDefaultConnection from '../../db-connector';
+import { getAccountModel } from './accounts';
+import { getIndustryModel } from './industries';
 
-let mastertModels: IMasterModels = null;
+let masterModels: IMasterModels = null;
 
 export function getMasterContext(): Promise<IMasterModels> {
     winston.debug(`Getting master context`);
 
     return new Promise<IMasterModels>((resolve, reject) => {
-        if (mastertModels !== null) {
-            resolve(mastertModels);
+        if (masterModels !== null) {
+            resolve(masterModels);
             return;
         }
 
         makeDefaultConnection().then(() => {
-            mastertModels = {
+            masterModels = {
                 Account: getAccountModel(),
+                Industry: getIndustryModel(),
             };
 
-            resolve(mastertModels);
+            resolve(masterModels);
         }, (err) => {
             winston.error('Error connecting to master database', err);
-        })
+        });
     });
 }

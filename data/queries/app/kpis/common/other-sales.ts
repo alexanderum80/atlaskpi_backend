@@ -10,7 +10,7 @@ const aggregate: AggregateStage[] = [
     {
         dateRange: true,
         $match: {
-                    $nor: [ { 'product.type' : { $regex: 'Retail', $options: 'i'} }, { 'product.type': { $regex: 'Service', $options: 'i' } } ]
+                   $nor: [ { 'product.type' : { $regex: 'Retail', $options: 'i'} }, { 'product.type': { $regex: 'Service', $options: 'i' } } ]
                 }
     },
     {

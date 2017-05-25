@@ -1,3 +1,4 @@
+import { IAppModels } from '../../models/app/app-models';
 import { IRevenueDocument, IRevenueModel } from '../../models/app/revenue';
 import * as mongoose from  'mongoose';
 import { getContext } from '../../models';
@@ -36,13 +37,13 @@ export function seedApp(connectionString) {
                     console.log(`seeding ${data.model}`);
                     let file = fs.readFile(path.join(__dirname, data.filename), { encoding: 'utf-8' }, (err, data) => {
                         if (err)
-                            throw err;
+                            console.log(err);
 
                         let dataArray = JSON.parse(data);
 
                         (<mongoose.Model<any>>model).insertMany(dataArray, (err, doc) => {
                             if (err)
-                                throw err;
+                                console.log(err);
                         });
                     });
                 }

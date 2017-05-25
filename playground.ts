@@ -9,8 +9,4 @@ import { executeKpis } from './playground/execute-kpis';
 // testMongoosePerformance();
 executeKpis();
 
-// import { importSpreadSheet } from './playground/google-spreadsheet/google-spreadsheet';
-
-// importSpreadSheet();
-
 

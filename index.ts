@@ -60,7 +60,6 @@ graphQLServer.use(i18n.init);
 
 //  GRAPHQL
 
-// import makeDefaultConnection from './data/nova-connector';
 import { graphqlExpress } from 'graphql-server-express';
 import { apolloExpress, graphiqlExpress } from 'apollo-server';
 import { makeExecutableSchema, addMockFunctionsToSchema } from 'graphql-tools';

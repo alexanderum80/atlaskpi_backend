@@ -12,7 +12,9 @@ export class FindUserByIdQuery implements IQueryResponse<IUserDocument> {
     // log = true;
     // audit = true;
 
-    run(data: any): Promise<IQueryResponse<IUserDocument>> {
+    run(data: any): Promise<IUserDocument> {
+        // If not id specified return the own user
+        if (!data || !data.id) { return this._UserModel.findByIdentity(this.identity); };
         return this._UserModel.findUserById(data.id);
     }
 }

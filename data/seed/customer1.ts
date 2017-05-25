@@ -1,3 +1,4 @@
+import { IAppModels } from '../models/app/app-models';
 import { AccountCreatedNotification } from '../../services/notifications/users';
 import { getContext, ICreateUserDetails, IUserDocument } from '../models';
 import * as winston from 'winston';

@@ -32,7 +32,6 @@ let CustomerSchema = new Schema ({
 let EmployeeSchema = new Schema({
     externalId: String,
     name: String,
-    firstName: String,
     middleName: String,
     lastName: String,
     role: String,
@@ -49,7 +48,7 @@ let ProductSchema = new Schema({
     tax2: Number,
     from: Date,
     to: Date,
-    type: String,
+    type: String
 });
 
 let CategorySchema = new Schema ({

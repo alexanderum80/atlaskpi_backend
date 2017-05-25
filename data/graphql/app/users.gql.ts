@@ -1,7 +1,8 @@
+import { _getHostname } from '../../../middlewares/initialize-contexts.middleware';
 import { IQueryResponse } from '../../models/common/query-response';
 import { FindUserByIdQuery } from '../../queries/app/users/find-user-by-id.query';
 import { ResetPasswordMutation } from '../../mutations/app/users/reset-password.mutation';
-import { VerifyResetPasswordQuery, SearchUsersQuery } from '../../queries';
+import { VerifyResetPasswordQuery, SearchUsersQuery, VerifyEnrollmentQuery } from '../../queries';
 import { IMutationResponse, IPagedQueryResult } from '../../models/common';
 import { UserForgotPasswordMutation } from '../../mutations';
 import { AccountCreatedNotification, UserForgotPasswordNotification } from '../../../services/notifications/users';
@@ -20,7 +21,7 @@ export const usersGql: GraphqlDefinition = {
     schema: {
         types: `
             input UserDetails {
-                firstName: String!,
+                firstName: String,
                 middleName: String,
                 lastName: String,
                 email: String!,
@@ -69,7 +70,6 @@ export const usersGql: GraphqlDefinition = {
                 _id: String
                 username: String
                 emails: [UserEmail]
-                services: [UserServices]
                 profile: UserProfile
                 roles: [String]
             }           
@@ -103,14 +103,15 @@ export const usersGql: GraphqlDefinition = {
         queries: `
             isResetPasswordTokenValid(token: String!): TokenVerification
             users(details: PaginationDetails): UserPagedQueryResult
-            User(id: String!): UserResult
+            User(id: String): User
+            isEnrollmentTokenValid(token: String!): TokenVerification
         `,
         mutations: `
             createUser(data: UserDetails): CreateUserResult
             updateUser(id: String!, data: UserDetails): CreateUserResult
             removeUser(id: String!): CreateUserResult
             userForgotPassword(email: String!): ForgotPasswordResult
-            resetPassword(token: String!, password: String!): ResetPasswordResult
+            resetPassword(token: String!, password: String!, enrollment: Boolean): ResetPasswordResult
         `,
     },
 
@@ -125,9 +126,14 @@ export const usersGql: GraphqlDefinition = {
                 return ctx.queryBus.run('search-users', query, args);
             },
             User(root: any, args, ctx: IGraphqlContext) {
+                if (!ctx.req.identity || !ctx.req.appContext.User) { return null; }
                 let query = new FindUserByIdQuery(ctx.req.identity, ctx.req.appContext.User);
                 return ctx.queryBus.run('find-user-by-id', query, args);
-            }
+            },
+            isEnrollmentTokenValid(root: any, args, ctx: IGraphqlContext) {
+                let query = new VerifyEnrollmentQuery(ctx.req.identity, ctx.req.appContext.User);
+                return ctx.queryBus.run('verify-enrollment', query, args);
+            },
         },
         Mutation: {
             createUser(root: any, args, ctx: IGraphqlContext) {
@@ -144,7 +150,7 @@ export const usersGql: GraphqlDefinition = {
                 return ctx.mutationBus.run<IMutationResponse>('remove-user', ctx.req, mutation, args);
             },
             userForgotPassword(root: any, args, ctx: IGraphqlContext) {
-                let notifier = new UserForgotPasswordNotification(ctx.config);
+                let notifier = new UserForgotPasswordNotification(ctx.config, { hostname: _getHostname(ctx.req) });
                 let mutation = new UserForgotPasswordMutation(ctx.req.identity, notifier, ctx.req.appContext.User);
                 return ctx.mutationBus.run<IMutationResponse>('user-forgot-password', ctx.req, mutation, args);
             },
@@ -155,7 +161,7 @@ export const usersGql: GraphqlDefinition = {
         },
         User: {
             emails(user: IUserDocument) { return user.emails; },
-            services(user: IUserDocument) { return user.services; },
+            // services(user: IUserDocument) { return user.services; },
             profile(user: IUserDocument) { return user.profile; },
             roles(user: IUserDocument) { return user.roles.map((role) => role.name ); }
         },

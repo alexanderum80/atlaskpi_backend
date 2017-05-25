@@ -1,6 +1,8 @@
 import {
     createAccountActivity,
-    getAccountActivity
+    getAccountActivity,
+    getIndustriesActivity,
+    accountNameAvailableActivity,
 } from './master';
 
 import {
@@ -13,6 +15,7 @@ import {
     updateUserActivity,
     findUserByIdActivity,
     removeUserActivity,
+    verifyEnrollmentActivity,
     // kpis
     getAllKPIsActivity,
     createKPIActivity,
@@ -47,9 +50,12 @@ export function addActivities() {
     let enforcerConfig = getEnforcerConfig();
 
     enforcerConfig.addActivities([
-        // master
+         // master
         createAccountActivity,
         getAccountActivity,
+        getIndustriesActivity,
+        accountNameAvailableActivity,
+
         // app
         createUserActivity,
         userForgotPasswordActivity,
@@ -59,6 +65,8 @@ export function addActivities() {
         updateUserActivity,
         findUserByIdActivity,
         removeUserActivity,
+        verifyEnrollmentActivity,
+
         // kpis
         getAllKPIsActivity,
         createKPIActivity,

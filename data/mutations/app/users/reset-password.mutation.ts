@@ -13,7 +13,7 @@ export class ResetPasswordMutation implements IMutation<IMutationResponse> {
     // log = true;
     // audit = true;
 
-    run(data: { token: string, password: string }): Promise<IMutationResponse> {
-        return this._UserModel.resetPassword(data.token, data.password);
+    run(data: { token: string, password: string, enrollment?: boolean }): Promise<IMutationResponse> {
+        return this._UserModel.resetPassword(data.token, data.password, data.enrollment || false);
     }
 }

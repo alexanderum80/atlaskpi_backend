@@ -43,8 +43,6 @@ export function executeKpis() {
         };
         let frequency = FrequencyEnum.Monthly;
 
-         mongoose.set('debug', true);
-
         // let kpi = new AestheticianRevenueRatePerHour(ctx.Sale, ctx.WorkLog);
 
         let kpi = new NetRevenueByFTE(ctx.Sale);

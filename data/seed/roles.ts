@@ -1,3 +1,4 @@
+import { IAppModels } from '../models/app/app-models';
 import { getContext } from '../models';
 import { initRoles } from '../../lib/rbac';
 import * as winston from 'winston';

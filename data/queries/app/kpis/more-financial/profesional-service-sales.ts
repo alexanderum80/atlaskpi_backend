@@ -41,7 +41,7 @@ export class ProfesionalServiceSales extends KpiBase {
     getData(dateRange: IDateRange, frequency?: FrequencyEnum): Promise<any> {
         let that = this;
 
-        return new Promise((resolve, reject) => {
+            return new Promise((resolve, reject) => {
             that.executeQuery('product.from', dateRange, frequency).then(data => {
                if (that._preProcesingKpi) {
                   resolve(data);

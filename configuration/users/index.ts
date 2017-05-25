@@ -38,7 +38,7 @@ function readTemplate(name: string) {
 export const usersServiceConfig = {
     app: {
         name: 'Application Name',
-        url: 'http://localhost:9090',
+        url: 'http://localhost:4200',
     },
     from: 'orlando@kpibi.com',
     usernameField: 'email', // this could be emil or username

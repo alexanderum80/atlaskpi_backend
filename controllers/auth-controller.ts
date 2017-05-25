@@ -50,9 +50,9 @@ export class AuthController {
                 .then((token: string) => {
                     winston.debug('token: token generated: ' + token);
                     resolve({
-                        '.issued': new Date(),
-                        '.expires': moment().add('milliseconds', ms(config.token.expiresIn)).toDate(),
-                        'access_token': token
+                        issued: new Date(),
+                        expires: moment().add('milliseconds', ms(config.token.expiresIn)).toDate(),
+                        access_token: token
                     });
                 })
                 .catch((err) => {
@@ -70,6 +70,7 @@ export class AuthController {
     private _generateIdentity(account: IAccountDocument, user: IUserDocument): Promise<IIdentity> {
         return new Promise<IIdentity>((resolve, reject) => {
             let userSignature: IIdentity = {
+                username: user.username,
                 firstName: user.profile.firstName,
                 middleName: user.profile.middleName,
                 lastName: user.profile.lastName,

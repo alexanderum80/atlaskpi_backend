@@ -1,8 +1,9 @@
+import { IMutationResponse } from '../../models/common';
 import { IAccountModel, IIdentity, IAccount } from '../..';
 import { IMutation, IValidationResult } from '..';
 import * as Promise from 'bluebird';
 
-export class CreateAccountMutation implements IMutation<IAccount> {
+export class CreateAccountMutation implements IMutation<IMutationResponse> {
 
     constructor(
         public identity: IIdentity,
@@ -10,7 +11,7 @@ export class CreateAccountMutation implements IMutation<IAccount> {
 
     audit = true;
 
-    run(data: IAccount): Promise<IAccount> {
-        return this._AccountModel.createNewAccount(data);
+    run(data: any): Promise<IMutationResponse> {
+        return this._AccountModel.createNewAccount(data.account);
     }
 }

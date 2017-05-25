@@ -20,7 +20,7 @@ export class Chart {
         this._kpi = getKPI(_chart.kpis[0].code, ctx);
     }
 
-    getDefinition(dateRange: IDateRange, frequency: FrequencyEnum): Promise<string> {
+   getDefinition(dateRange: IDateRange, frequency: FrequencyEnum): Promise<string> {
         let that = this;
         let chartProcessor = new ChartPostProcessingExtention();
 
@@ -38,4 +38,3 @@ export class Chart {
     }
 
 }
-

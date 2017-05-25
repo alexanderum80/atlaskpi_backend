@@ -20,7 +20,7 @@ export function initializeContexts(req: ExtendedRequest, res: Response, next) {
                 next();
             });
         }
-        // using hostname 
+        // using hostname
         else if (hostname) {
             logger.debug('creating app context from user hostname');
 
@@ -41,12 +41,14 @@ export function initializeContexts(req: ExtendedRequest, res: Response, next) {
     });
 }
 
-function _getHostname(req: ExtendedRequest): String {
+export function _getHostname(req: ExtendedRequest): string {
     //  just for testing
     // return 'customer2.kpibi.com';
 
     // check host value from body
-    let hostname: String = req.body.host || req.hostname || req.subdomain;
+    // let hostname: string = req.body.host || req.hostname || req.subdomain;
+
+    let hostname = req.headers['x-hostname'] || req.body.host || req.hostname || req.subdomain;
 
     // stop if not host have been passed
     if (!hostname)
