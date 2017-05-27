@@ -81,7 +81,7 @@ const executableSchema = makeExecutableSchema({
 // });
 
 // Routes
-graphQLServer.use('/auth', auth);
+graphQLServer.use('/auth', auth, bodyParser.json());
 
 
 graphQLServer.use('/graphql', bodyParser.json(), graphqlExpress((req) => (
