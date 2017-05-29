@@ -205,7 +205,7 @@ accountSchema.statics.accountNameAvailable = function(name: String): Promise<boo
 };
 
 accountSchema.methods.getConnectionString = function() {
-    return `${this.database.uri}`;
+    return this.database.toObject().url;
 };
 
 accountSchema.methods.getMasterConnectionString = function() {

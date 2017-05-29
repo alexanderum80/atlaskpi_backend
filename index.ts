@@ -40,6 +40,7 @@ graphQLServer.use('*', cors());
 graphQLServer.use(bodyParser.urlencoded({ extended: false }));
 graphQLServer.use(bodyParser.json());
 
+
 // middlewares
 
 // enable logger

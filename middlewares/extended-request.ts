@@ -1,7 +1,6 @@
 import { IAppConfig } from '../config';
 import { IIdentity, IMutationBus, IQueryBus } from '../data';
 import { Request } from 'express';
-import { i18nAPI } from 'i18n';
 import { IAppModels, IMasterModels } from '../data/models';
 import * as winston from 'winston';
 
