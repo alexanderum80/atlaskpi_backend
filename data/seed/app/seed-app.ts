@@ -1,5 +1,4 @@
 import { IAppModels } from '../../models/app/app-models';
-import { IRevenueDocument, IRevenueModel } from '../../models/app/revenue';
 import * as mongoose from  'mongoose';
 import { getContext } from '../../models';
 import * as fs from 'fs';

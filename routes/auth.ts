@@ -8,7 +8,6 @@ const auth = express.Router();
 
 auth.post('/token', function authenticate(req: ExtendedRequest, res: Response) {
     let hostname = _getHostname(req);
-
     let authManager = new AuthController(req.masterContext.Account, req.appContext);
     authManager.authenticateUser(hostname, req.body.username, req.body.password)
         .then((tokenInfo) => {
@@ -36,7 +35,7 @@ auth.post('/token', function authenticate(req: ExtendedRequest, res: Response) {
 
 function _getHostname(req: ExtendedRequest): string {
     //  just for testing
-    //return 'customer2.kpibi.com';
+    // return 'customer2.kpibi.com';
 
     // check host value from body
     let hostname: string = req.body.host || req.hostname;

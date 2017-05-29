@@ -40,6 +40,7 @@ graphQLServer.use('*', cors());
 graphQLServer.use(bodyParser.urlencoded({ extended: false }));
 graphQLServer.use(bodyParser.json());
 
+
 // middlewares
 
 // enable logger
@@ -81,7 +82,7 @@ const executableSchema = makeExecutableSchema({
 // });
 
 // Routes
-graphQLServer.use('/auth', auth);
+graphQLServer.use('/auth', auth, bodyParser.json());
 
 
 graphQLServer.use('/graphql', bodyParser.json(), graphqlExpress((req) => (
