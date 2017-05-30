@@ -84,15 +84,24 @@ accountSchema.statics.createNewAccount = function(account: IAccount): Promise<IM
                 return;
             }
             getContext(newAccount.getMasterConnectionString()).then((newAccountContext) => {
-              newAccount.createParticularUser(particularUser).then((result) => {
-                 if (result !== true) { throw result; };
-
-                 newAccountContext.Role.find({}).then((roles) => {
-                    initRoles(newAccountContext, rolesSetup.initialRoles, function (err, admin, readonly) {
-                        console.log(admin);
-                        console.log(readonly);
-                     });
-                 })
+               return new Promise<boolean>((resolve, reject) => {
+                    // Create a db user if it's in production
+                    if (config.environment.isMongoDBAtlas) {
+                        newAccount.createParticularUser(particularUser)
+                        .then((value) => resolve(value))
+                        .catch((err) => reject(err));
+                    };
+                    // Local db... no need to create a db user;
+                    resolve(true);
+                })
+                .then((result) => {
+                    if (result !== true) { throw result; };
+                    newAccountContext.Role.find({}).then((roles) => {
+                        initRoles(newAccountContext, rolesSetup.initialRoles, function (err, admin, readonly) {
+                            console.log(admin);
+                            console.log(readonly);
+                        });
+                    })
                  .then((rolesCreated) => {
                     let notifier = new EnrollmentNotification(config, { hostname: newAccount.database.name });
                     newAccountContext.User.createUser(firstUser, notifier).then((response) => {
@@ -107,7 +116,7 @@ accountSchema.statics.createNewAccount = function(account: IAccount): Promise<IM
                         }
                     })
                     .then(() => {
-                        let subdomain = `${account.database.name}.${config.subdomain}`;
+                        let subdomain = `${account.database.name}.${config.environment.subdomain}`;
 
                         let auth = new AuthController(that, newAccountContext);
                         auth.authenticateUser(subdomain, firstUser.email, firstUser.password)
@@ -205,15 +214,15 @@ accountSchema.statics.accountNameAvailable = function(name: String): Promise<boo
 };
 
 accountSchema.methods.getConnectionString = function() {
-    return this.database.toObject().url;
+    return this.database.toObject().uri;
 };
 
 accountSchema.methods.getMasterConnectionString = function() {
-    let uriTemplate = Handlebars.compile(config.mongoDbCluster.masterConnectionString);
+    let uriTemplate = Handlebars.compile(config.environment.masterConnectionString);
     return uriTemplate({database: this.database.name});
 };
 
-accountSchema.methods.createParticularUser = function(particularUser: IParticularDBUser): Promise<any> {
+accountSchema.methods.createParticularUser = function(particularUser: IParticularDBUser): Promise<boolean> {
     console.log('Creating db specific user');
     let body = {
         databaseName: 'admin',
@@ -223,26 +232,26 @@ accountSchema.methods.createParticularUser = function(particularUser: IParticula
     };
 
     let options: request.Options = {
-        uri: config.mongoDbAtlasApi.uri,
+        uri: config.environment.mongoDBAtlasCredentials.uri,
         auth: {
-            user: config.mongoDbAtlasApi.username,
-            pass: config.mongoDbAtlasApi.api_key,
+            user: config.environment.mongoDBAtlasCredentials.username,
+            pass: config.environment.mongoDBAtlasCredentials.api_key,
             sendImmediately: false
         },
         json: body
     };
 
-    return new Promise((resolve, reject) => {
+    return new Promise<boolean>((resolve, reject) => {
         request.post(options, function(error, response, body) {
             if (!error) {
                 console.log('User created...');
-                return resolve(true);
+                resolve(true);
             } else {
                 // console.log('Code : ' + response.statusCode);
                 // console.log('error : ' + error);
                 // console.log('body : ' + body);
                 console.log('Error creating db user: ' + error);
-                return reject(error);
+                reject(false);
             }
         });
     });
@@ -254,7 +263,7 @@ export function getAccountModel(): IAccountModel {
 }
 
 export function generateDBObject(database: string, user?: string, password?: string): IDatabaseInfo {
-    let uriTemplate = Handlebars.compile(config.mongoDbCluster.connectionString);
+    let uriTemplate = Handlebars.compile(config.environment.connectionString);
     let data = {
         user: user,
         password: password,

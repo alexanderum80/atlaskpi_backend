@@ -88,7 +88,8 @@ function importExpenses(data: DataContext, dbUri: string, cb) {
                 expense: {
                     concept: e.category,
                     amount: +e.amount
-                }
+                },
+                timestamp: new Date(e.date)
             };
         });
 

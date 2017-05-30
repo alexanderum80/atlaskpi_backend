@@ -2,7 +2,6 @@ import { IMutationResponse } from '../../../models/common';
 import * as Promise from 'bluebird';
 import { IIdentity, IKPIModel } from '../../..';
 import { IMutation, IValidationResult } from '../..';
-import { IAppConfig } from '../../../../config';
 
 export class RemoveKPIMutation implements IMutation<IMutationResponse> {
 

@@ -3,7 +3,7 @@ import { ICreateUserDetails, IUserModel, IUserDocument, IIdentity, IMutationResp
 import { IMutation, IValidationResult } from '../..';
 import * as Promise from 'bluebird';
 import { AccountCreatedNotification } from '../../../../services';
-import { IAppConfig } from '../../../../config';
+import { IAppConfig } from '../../../../configuration';
 
 export class CreateUserMutation implements IMutation<IMutationResponse> {
     constructor(

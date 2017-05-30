@@ -24,10 +24,6 @@ export function initializeContexts(req: ExtendedRequest, res: Response, next) {
         else if (hostname) {
             logger.debug('creating app context from user hostname');
 
-            ctx.Account.find((err, res) => {
-                let a = res;
-            });
-
             ctx.Account.findAccountByHostname(hostname).then((account: IAccountDocument) => {
                 getContext(account.getConnectionString()).then((ctx) => {
                     req.appContext = ctx;

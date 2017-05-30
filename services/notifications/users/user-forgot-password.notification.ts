@@ -5,7 +5,7 @@ import * as nodemailer from 'nodemailer';
 import * as Handlebars from 'handlebars';
 import * as winston from 'winston';
 import { sendEmail } from '../..';
-import { IAppConfig } from '../../../config';
+import { IAppConfig } from '../../../configuration';
 
 export interface IForgotPasswordNotifier extends IEmailNotifier { }
 
@@ -31,7 +31,7 @@ export class UserForgotPasswordNotification implements IEmailNotifier {
         };
 
         (<any>dataSource).host = this._data.hostname.split('.')[0] || this._data.hostname;
-        (<any>dataSource).subdomain = this._config.subdomain;
+        (<any>dataSource).subdomain = this._config.environment.subdomain;
 
         (<any>dataSource).resetToken = user.services.password.reset.token;
 

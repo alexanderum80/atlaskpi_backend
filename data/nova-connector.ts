@@ -6,7 +6,7 @@ import * as winston from 'winston';
 
 export default function makeDefaultConnection(): Promise<boolean> {
   return new Promise<boolean>((resolve, reject) => {
-    let dbUri = config.masterDb; // 'mongodb://localhost/nova';
+    let dbUri = config.environment.masterDb; // 'mongodb://localhost/nova';
 
     // if the connection is open, leave this block
     if (mongoose.connection.readyState === 1) {

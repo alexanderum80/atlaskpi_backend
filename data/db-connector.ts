@@ -6,7 +6,7 @@ import * as winston from 'winston';
 
 export default function makeDefaultConnection(): Promise<boolean> {
   return new Promise<boolean>((resolve, reject) => {
-    let dbUri = config.masterDb; // 'mongodb://localhost/kpibi';
+    let dbUri = config.environment.masterDb; // 'mongodb://localhost/kpibi';
 
     // if the connection is open, leave this block
     if (mongoose.connection.readyState === 1) {

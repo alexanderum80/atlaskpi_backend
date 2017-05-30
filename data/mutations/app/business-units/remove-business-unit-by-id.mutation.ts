@@ -2,7 +2,6 @@ import { IBusinessUnitModel } from '../../../models/app/business-units/IBusiness
 import * as Promise from 'bluebird';
 import { IIdentity, IMutationResponse } from '../../..';
 import { IMutation, IValidationResult } from '../..';
-import { IAppConfig } from '../../../../config';
 
 export class RemoveBusinessUnitByIdMutation implements IMutation<IMutationResponse> {
 

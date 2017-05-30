@@ -52,7 +52,7 @@ export interface IAccount {
 export interface IAccountDocument extends IAccount, mongoose.Document {
     getConnectionString(): string;
     getMasterConnectionString(): string;
-    createParticularUser(particularUser: IParticularDBUser): Promise<any>;
+    createParticularUser(particularUser: IParticularDBUser): Promise<boolean>;
 }
 
 export interface IAccountModel extends mongoose.Model<IAccountDocument> {

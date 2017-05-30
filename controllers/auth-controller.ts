@@ -51,7 +51,7 @@ export class AuthController {
                     winston.debug('token: token generated: ' + token);
                     resolve({
                         issued: new Date(),
-                        expires: moment().add('milliseconds', ms(config.token.expiresIn)).toDate(),
+                        expires: moment().add('milliseconds', ms(String(config.token.expiresIn))).toDate(),
                         access_token: token
                     });
                 })

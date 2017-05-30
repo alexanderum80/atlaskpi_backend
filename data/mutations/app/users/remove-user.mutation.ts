@@ -2,7 +2,7 @@ import { IUserModel } from '../../../models/app/users';
 import * as Promise from 'bluebird';
 import { IIdentity, IMutationResponse } from '../../..';
 import { IMutation, IValidationResult } from '../..';
-import { IAppConfig } from '../../../../config';
+import { IAppConfig } from '../../../../configuration';
 
 export class RemoveUserMutation implements IMutation<IMutationResponse> {
 

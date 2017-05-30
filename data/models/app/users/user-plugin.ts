@@ -32,7 +32,7 @@ import {
     IPagedQueryResult,
     Paginator
 } from '../../';
-import { config, IAppConfig } from '../../../../config';
+import { config } from '../../../../config';
 import { IErrorData } from '../..';
 
 export function accountPlugin(schema: mongoose.Schema, options: any) {
@@ -721,7 +721,7 @@ export function accountPlugin(schema: mongoose.Schema, options: any) {
             }
 
             let expirationDate = moment(user.services.password.reset.when)
-                .add('milliseconds', ms(config.usersService.services.forgotPassword.expiresIn));
+                .add('milliseconds', ms(String(config.usersService.services.forgotPassword.expiresIn)));
 
             if (moment().isAfter(expirationDate)) {
                 // remove token because it is not useful any way
@@ -748,7 +748,7 @@ export function accountPlugin(schema: mongoose.Schema, options: any) {
             }
 
             let expirationDate = moment(user.services.email.enrollment[0].when)
-                .add('milliseconds', ms(config.usersService.services.forgotPassword.expiresIn));
+                .add('milliseconds', ms(String(config.usersService.services.forgotPassword.expiresIn)));
 
             if (moment().isAfter(expirationDate)) {
                 // remove token because it is not useful any way

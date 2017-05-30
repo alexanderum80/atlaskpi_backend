@@ -2,7 +2,6 @@ import { IIdentity, IUserModel } from '../../..';
 import { IMutationResponse } from '../../..';
 import * as Promise from 'bluebird';
 import { IMutation, IValidationResult } from '../..';
-import { IAppConfig } from '../../../../config';
 
 export class ResetPasswordMutation implements IMutation<IMutationResponse> {
 
