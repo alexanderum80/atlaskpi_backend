@@ -62,7 +62,7 @@ export function rbacPlugin(schema, options) {
       if (err) return done(err);
       let hasPerm = false;
       if (obj.roles) {
-        async.forEachSeries(obj.roles, function (role, next) {
+        (<any>async).forEachSeries(obj.roles, function (role, next) {
           (<any>role).can(action, subject, function (err, has) {
             if (err) return next(err);
             if (has) hasPerm = true;
@@ -84,9 +84,9 @@ export function rbacPlugin(schema, options) {
       let count = 0,
         hasAll = false;
       if (obj.roles) {
-        async.forEachSeries(actionsAndSubjects, function (as, nextPerm) {
+        (<any>async).forEachSeries(actionsAndSubjects, function (as, nextPerm) {
           let found = false;
-          async.forEachSeries(obj.roles, function (role, nextRole) {
+          (<any>async).forEachSeries(obj.roles, function (role, nextRole) {
             (<any>role).can(as[0], as[1], function (err, has) {
               if (err) return nextRole(err);
               if (!found && has) {

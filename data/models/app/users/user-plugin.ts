@@ -23,6 +23,8 @@ import {
     ICreateUserOptions,
     ITokenVerification,
     IUser,
+    ITokenInfo,
+    ITokenDetails,
     IUserDocument,
     IUserEmailedToken,
     IUserModel,
@@ -74,6 +76,15 @@ export function accountPlugin(schema: mongoose.Schema, options: any) {
         dob: Date
     });
 
+    let UserTokenInfo = new Schema({
+        ip: String,
+        token: String,
+        issued: Date,
+        expires: Date,
+        clientId: String,
+        clientDetails: String
+    });
+
     schema.add({
         emails: [{
             address: { type: String, required: true },
@@ -85,7 +96,8 @@ export function accountPlugin(schema: mongoose.Schema, options: any) {
         },
         password: String,
         services: ServicesSchema,
-        profile: UserProfileSchema
+        profile: UserProfileSchema,
+        tokens: [UserTokenInfo]
     });
 
     // encrypt passowrd on save
@@ -148,6 +160,30 @@ export function accountPlugin(schema: mongoose.Schema, options: any) {
             email: email,
             token: generateUniqueHash(),
             when: moment.utc().toDate()
+        });
+    };
+
+    schema.methods.addToken = function(tokenDetails: ITokenDetails, ip: string, clientId: string, clientDetails: string): Promise<boolean> {
+
+        return new Promise<boolean>((resolve, reject) => {
+
+            let tokenInfo: ITokenInfo = {
+                ip: ip,
+                token: tokenDetails.access_token,
+                issued: tokenDetails.issued,
+                expires: tokenDetails.expires,
+                clientId: clientId,
+                clientDetails: clientDetails
+            };
+
+            (<IUserDocument>this).update({
+            $push: { 'tokens': tokenInfo }}, (err, doc) => {
+                if (err) {
+                    reject(err);
+                } else {
+                    resolve(true);
+                }
+            });
         });
     };
 
@@ -323,10 +359,10 @@ export function accountPlugin(schema: mongoose.Schema, options: any) {
                   return;
                 }
 
-                if (data.firstName) { user.profile.firstName = data.firstName; };
-                if (data.lastName) { user.profile.lastName = data.lastName; };
-                if (data.middleName) { user.profile.middleName = data.middleName; };
-                if (data.password) { user.password = data.password; };
+                if (data.firstName) { user.profile.firstName = data.firstName; }
+                if (data.lastName) { user.profile.lastName = data.lastName; }
+                if (data.middleName) { user.profile.middleName = data.middleName; }
+                if (data.password) { user.password = data.password; }
 
                 // add user roles
                 if (data.roles && data.roles.length > 0) {

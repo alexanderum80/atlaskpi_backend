@@ -21,7 +21,7 @@ export const PermissionSchema = new mongoose.Schema({
   description: String
 });
 
-PermissionSchema.statics.findOrCreate = function (params, callback) {
+PermissionSchema.statics.findOrCreate = function (params: any[], callback) {
   let that = this;
 
   function findOrCreateOne(params, callback) {
@@ -34,7 +34,7 @@ PermissionSchema.statics.findOrCreate = function (params, callback) {
 
   if (Array.isArray(params)) {
     let permissions = [];
-    async.forEachSeries(params, function (param, next) {
+    (<any>async).forEachSeries(params, function (param, next) {
       findOrCreateOne(param, function (err, permission) {
         permissions.push(permission);
         next(err);
