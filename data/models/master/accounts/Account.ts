@@ -60,7 +60,7 @@ accountSchema.statics.createNewAccount = function(account: IAccount): Promise<IM
         if (validationErrors) {
             resolve(MutationResponse.fromValidationErrors(validationErrors));
             return;
-        };
+        }
 
         let hash = generateUniqueHash();
 
@@ -110,7 +110,8 @@ accountSchema.statics.createNewAccount = function(account: IAccount): Promise<IM
                         let subdomain = `${account.database.name}.${config.subdomain}`;
 
                         let auth = new AuthController(that, newAccountContext);
-                        auth.authenticateUser(subdomain, firstUser.email, firstUser.password)
+                        // TODO: I need to add the browser details on this request
+                        auth.authenticateUser(subdomain, firstUser.email, firstUser.password, 'web', 'Browser details here')
                         .then((tokenInfo) => {
                             newAccount.subdomain = subdomain;
                             newAccount.initialToken = tokenInfo;

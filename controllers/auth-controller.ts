@@ -11,14 +11,15 @@ import {
     IAccountDocument,
     IUserDocument,
     IIdentity,
-    IAppModels } from '../data/models';
+    IAppModels,
+    ITokenDetails } from '../data/models';
 
 export class AuthController {
     status: string = 'intial value';
 
     constructor(private _Account: IAccountModel, private _appContext: IAppModels) { }
 
-    authenticateUser(hostname: string, username: string, password: string): Promise<IUserToken> {
+    authenticateUser(hostname: string, username: string, password: string, ip: string, clientId: string, clientDetails: string): Promise<IUserToken> {
         let that = this;
 
         return new Promise<IUserToken>((resolve, reject) => {
@@ -39,8 +40,10 @@ export class AuthController {
                     account = acct;
                     return that._appContext.User.authenticate(username, password);
                 })
-                .then((user: IUserDocument) => {
+                .then((u: IUserDocument) => {
                     winston.debug('token: credentials validated');
+                    // I need to save the user for later use
+                    user = u;
                     return that._generateIdentity(account, user);
                 })
                 .then((identity: IIdentity) => {
@@ -49,11 +52,16 @@ export class AuthController {
                 })
                 .then((token: string) => {
                     winston.debug('token: token generated: ' + token);
-                    resolve({
+
+                    let tokenDetails: ITokenDetails = {
                         issued: new Date(),
                         expires: moment().add('milliseconds', ms(config.token.expiresIn)).toDate(),
                         access_token: token
-                    });
+                    };
+
+                    user.addToken(tokenDetails, ip, clientId, clientDetails);
+
+                    resolve(tokenDetails);
                 })
                 .catch((err) => {
                     winston.error('Error generating user token: ', err);
@@ -91,5 +99,4 @@ export class AuthController {
             resolve(token);
         });
     }
-
 }

@@ -12,6 +12,7 @@ import {
     IEnrollmentNotifier,
     IAccountCreatedNotifier
 } from '../../../../services';
+import { ITokenDetails } from './token-details';
 
 export interface IEmbeddedDocument {
     remove?();
@@ -53,6 +54,15 @@ export interface IUserProfile {
     dob?: Date;
 }
 
+export interface ITokenInfo {
+    ip: string;
+    token: string;
+    issued: Date;
+    expires: Date;
+    clientId: string;
+    clientDetails: string;
+}
+
 export interface IUser {
     username: string;
     password?: string;
@@ -60,6 +70,7 @@ export interface IUser {
     services?: IUserServices;
     profile: IUserProfile;
     roles?: IRoleDocument[];
+    tokens?: ITokenInfo[];
 }
 
 // declare interface to mix account and mongo docuemnt properties/methods
@@ -75,6 +86,7 @@ export interface IUserDocument extends IUser, mongoose.Document {
     hasEmail(email): Boolean;
     addResetPasswordToken(email: string): void;
     addEnrollmentEmail(email: string): void;
+    addToken(token: ITokenDetails, ip: string, clientId: string, clientDetails: string): Promise<boolean>;
 }
 
 export interface ITokenVerification {
