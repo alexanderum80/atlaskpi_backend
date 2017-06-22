@@ -1,3 +1,5 @@
+
+import * as jwt from 'jsonwebtoken';
 import { IIdentity } from '../identity';
 import { IQueryResponse } from '../../common/query-response';
 import * as moment from 'moment';
@@ -23,6 +25,7 @@ import {
     ICreateUserOptions,
     ITokenVerification,
     IUser,
+    IUserToken,
     ITokenInfo,
     ITokenDetails,
     IUserDocument,
@@ -163,7 +166,43 @@ export function accountPlugin(schema: mongoose.Schema, options: any) {
         });
     };
 
-    schema.methods.addToken = function(tokenDetails: ITokenDetails, ip: string, clientId: string, clientDetails: string): Promise<boolean> {
+    schema.methods.generateToken = function(dbUri: string, hostname: string, username: string, password: string, ip: string, clientId: string, clientDetails: string): Promise<IUserToken> {
+        return new Promise<IUserToken>((resolve, reject) => {
+
+            // create user identity
+            let identity: IIdentity = {
+                username: this.username,
+                firstName: this.profile.firstName,
+                middleName: this.profile.middleName,
+                lastName: this.profile.lastName,
+                roles: this.roles.map((role) => role.name),
+                dbUri: dbUri
+            };
+
+            // generate user token
+            let token = jwt.sign(identity, config.token.secret, {
+                expiresIn: config.token.expiresIn
+            });
+
+            // create user token response
+            let tokenDetails: IUserToken = {
+                issued: new Date(),
+                expires: moment().add('milliseconds', ms(config.token.expiresIn)).toDate(),
+                access_token: token
+            };
+
+            // add token to the list of generated token for this user
+            addToken(this, tokenDetails, ip, clientId, clientDetails).then(success => {
+                if (success) {
+                    resolve(tokenDetails);
+                } else {
+                    reject(new Error('There was an error saving the user token'));
+                }
+            });
+        });
+    };
+
+    function addToken(user: IUserDocument, tokenDetails: ITokenDetails, ip: string, clientId: string, clientDetails: string): Promise<boolean> {
 
         return new Promise<boolean>((resolve, reject) => {
 
@@ -176,16 +215,16 @@ export function accountPlugin(schema: mongoose.Schema, options: any) {
                 clientDetails: clientDetails
             };
 
-            (<IUserDocument>this).update({
-            $push: { 'tokens': tokenInfo }}, (err, doc) => {
-                if (err) {
-                    reject(err);
-                } else {
-                    resolve(true);
-                }
-            });
+            user.update({
+                $push: { 'tokens': tokenInfo }}, (err, doc) => {
+                    if (err) {
+                        reject(err);
+                    } else {
+                        resolve(true);
+                    }
+                });
         });
-    };
+    }
 
     /**
      *    STATIC METHODS

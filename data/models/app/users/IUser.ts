@@ -12,7 +12,7 @@ import {
     IEnrollmentNotifier,
     IAccountCreatedNotifier
 } from '../../../../services';
-import { ITokenDetails } from './token-details';
+import { ITokenDetails, IUserToken } from '../..';
 
 export interface IEmbeddedDocument {
     remove?();
@@ -86,7 +86,7 @@ export interface IUserDocument extends IUser, mongoose.Document {
     hasEmail(email): Boolean;
     addResetPasswordToken(email: string): void;
     addEnrollmentEmail(email: string): void;
-    addToken(token: ITokenDetails, ip: string, clientId: string, clientDetails: string): Promise<boolean>;
+    generateToken(dbUri: string, username: string, password: string, ip: string, clientId: string, clientDetails: string): Promise<IUserToken>;
 }
 
 export interface ITokenVerification {
