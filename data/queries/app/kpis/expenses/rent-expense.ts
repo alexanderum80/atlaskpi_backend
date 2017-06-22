@@ -10,7 +10,7 @@ import * as _ from 'lodash';
 const aggregate: AggregateStage[] = [
     {
         dateRange: true,
-        $match: { 'expense.concept': { $regex: 'Operating', $options: 'i'  } }
+        $match: { 'expense.concept': { $regex: 'Rent', $options: 'i'  } }
     },
     {
         frequency: true,
@@ -33,20 +33,26 @@ const aggregate: AggregateStage[] = [
     }
 ];
 
-export class TotalOperatingExpenses extends KpiBase {
+export class RentExpenses extends KpiBase {
 
-    constructor(expenses: IExpenseModel) {
+    constructor(expenses: IExpenseModel,
+                private _preProcesingKpi = false) {
         super(expenses, aggregate);
     }
 
     getData(dateRange: IDateRange, frequency?: FrequencyEnum): Promise<any> {
        const that = this;
-       return this.executeQuery('timestamp', dateRange, frequency).then(data => {
-            return Promise.resolve(that._toSeries(data, frequency));
+
+       return new Promise((resolve, reject) => {
+            that.executeQuery('timestamp', dateRange, frequency).then(data => {
+              if (that._preProcesingKpi) {
+                  resolve(data);
+              } else { resolve(that._toSeries(data)); }
+            }), (e) => reject(e);
         });
     }
 
-    private _toSeries(rawData: any[], frequency: FrequencyEnum) {
+    private _toSeries(rawData: any[]) {
         let frequencies = _.uniq(rawData.map(item => item._id.frequency)).sort();
         let years = _.uniq(frequencies.map(f => { return f.split('-')[0]; }));
 

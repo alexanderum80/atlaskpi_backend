@@ -1,3 +1,5 @@
+import { RentExpenseRatio } from '../data/queries/app/kpis/expenses/rent-expense-ratio';
+import { TotalOperatingExpenses } from '../data/queries/app/kpis/expenses/total-operating-expenses';
 import { RevenueRateByFTEmployee } from '../data/queries/app/kpis/financial/revenue-rate-per-hour-fte';
 import { PhysicianRevenueRateHour } from '../data/queries/app/kpis/financial/revenue-rate-per-hour-physian';
 import { OtherSalesRatio } from '../data/queries/app/kpis/operational/other-sales-ratio';
@@ -35,24 +37,21 @@ export function executeKpis() {
 
     mongoose.set('debug', true);
 
-    getContext('mongodb://localhost/customer2').then(ctx => {
+    getContext('mongodb://localhost/company-test-3001').then(ctx => {
 
         let dateRange: IDateRange = {
-            from: new Date('2016-01-01'),
-            to: new Date('2016-12-31')
+            from: new Date('2015-01-01'),
+            to: new Date('2018-12-31')
         };
         let frequency = FrequencyEnum.Monthly;
 
         // let kpi = new AestheticianRevenueRatePerHour(ctx.Sale, ctx.WorkLog);
 
-        let kpi = new NetRevenueByFTE(ctx.Sale);
+        let kpi = new RentExpenseRatio(ctx.Sale, ctx.Expense);
 
         kpi.getData(dateRange, frequency).then(data => {
 
-            // let definition = `{
-            //     "chart": {
-            //         "type": "pie"
-            //     },
+            // let definition = `{r
             //     "title": {
             //         "text": "Chart Title"
             //     },
