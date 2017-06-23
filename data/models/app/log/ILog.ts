@@ -5,14 +5,9 @@ export interface ILogEntry {
     clientId: string;
     level: number;
     message: string;
+    timestamp: Date;
 }
 
-export interface ILogEntryDocument extends ILogEntry, mongoose.Document {
-    clientId: string;
-    level: number;
-    message: string;
-}
+export interface ILogEntryDocument extends mongoose.Document { }
 
-export interface ILogEntryModel extends mongoose.Model<ILogEntryDocument> {
-    createEntry(details: ILogEntry): Promise<ILogEntryDocument>;
-}
+export interface ILogEntryModel extends mongoose.Model<ILogEntryDocument> { }
