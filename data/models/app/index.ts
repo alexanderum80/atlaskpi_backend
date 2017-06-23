@@ -13,3 +13,4 @@ export * from './business-units';
 export * from './app-models';
 export * from './app-context';
 export * from './identity';
+export * from './log';
