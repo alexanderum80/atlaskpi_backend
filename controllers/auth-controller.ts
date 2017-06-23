@@ -1,8 +1,12 @@
-import { IUserToken } from '../data/models/common/user-token';
+import {
+    IUserToken
+} from '../data/models/common/user-token';
 import * as Promise from 'bluebird';
 import * as jwt from 'jsonwebtoken';
 import * as winston from 'winston';
-import { config } from '../config';
+import {
+    config
+} from '../config';
 import ms = require('ms');
 import * as moment from 'moment';
 import connectToMongoDb from '../data/mongo-utils';
@@ -12,23 +16,30 @@ import {
     IUserDocument,
     IIdentity,
     IAppModels,
-    ITokenDetails } from '../data/models';
+    ITokenDetails
+} from '../data/models';
 
 export class AuthController {
     status: string = 'intial value';
 
-    constructor(private _Account: IAccountModel, private _appContext: IAppModels) { }
+    constructor(private _Account: IAccountModel, private _appContext: IAppModels) {}
 
-    authenticateUser(hostname: string, username: string, password: string, ip: string, clientId: string, clientDetails: string): Promise<IUserToken> {
+    authenticateUser(hostname: string, username: string, password: string, ip: string, clientId: string, clientDetails: string): Promise < IUserToken > {
         let that = this;
 
-        return new Promise<IUserToken>((resolve, reject) => {
+        return new Promise < IUserToken > ((resolve, reject) => {
             if (!hostname) {
-                throw { status: 400, message: 'Invalid hostname' };
+                throw {
+                    status: 400,
+                    message: 'Invalid hostname'
+                };
             }
 
             if (!username || !password) {
-                throw { status: 400, message: 'Username or password missing' };
+                throw {
+                    status: 400,
+                    message: 'Username or password missing'
+                };
             }
 
             let account: IAccountDocument;
