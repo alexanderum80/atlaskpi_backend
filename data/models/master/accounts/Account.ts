@@ -43,7 +43,7 @@ let accountSchema = new mongoose.Schema({
 });
 
 // static methods
-accountSchema.statics.createNewAccount = function(account: IAccount): Promise<IMutationResponse>   {
+accountSchema.statics.createNewAccount = function(ip: string, clientId: string, clientDetails: string, account: IAccount): Promise<IMutationResponse>   {
     let that = this;
     return new Promise<IMutationResponse>((resolve, reject) => {
 
@@ -120,7 +120,7 @@ accountSchema.statics.createNewAccount = function(account: IAccount): Promise<IM
 
                         let auth = new AuthController(that, newAccountContext);
                         // TODO: I need to add the browser details on this request
-                        auth.authenticateUser(subdomain, firstUser.email, firstUser.password, 'web', 'Browser details here')
+                        auth.authenticateUser(subdomain, firstUser.email, firstUser.password, ip, clientId, clientDetails)
                         .then((tokenInfo) => {
                             newAccount.subdomain = subdomain;
                             newAccount.initialToken = tokenInfo;

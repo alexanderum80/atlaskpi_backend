@@ -41,27 +41,10 @@ export class AuthController {
                     return that._appContext.User.authenticate(username, password);
                 })
                 .then((u: IUserDocument) => {
-                    winston.debug('token: credentials validated');
-                    // I need to save the user for later use
-                    user = u;
-                    return that._generateIdentity(account, user);
+                    return u.generateToken(account.getConnectionString(), username, password, ip, clientId, clientDetails);
                 })
-                .then((identity: IIdentity) => {
-                    winston.debug('token: identity generated');
-                    return that._generateToken(identity);
-                })
-                .then((token: string) => {
-                    winston.debug('token: token generated: ' + token);
-
-                    let tokenDetails: ITokenDetails = {
-                        issued: new Date(),
-                        expires: moment().add('milliseconds', ms(String(config.token.expiresIn))).toDate(),
-                        access_token: token
-                    };
-
-                    user.addToken(tokenDetails, ip, clientId, clientDetails);
-
-                    resolve(tokenDetails);
+                .then((userToken: IUserToken) => {
+                    resolve(userToken);
                 })
                 .catch((err) => {
                     winston.error('Error generating user token: ', err);
@@ -72,31 +55,6 @@ export class AuthController {
 
                     reject(err);
                 });
-        });
-    }
-
-    private _generateIdentity(account: IAccountDocument, user: IUserDocument): Promise<IIdentity> {
-        return new Promise<IIdentity>((resolve, reject) => {
-            let userSignature: IIdentity = {
-                username: user.username,
-                firstName: user.profile.firstName,
-                middleName: user.profile.middleName,
-                lastName: user.profile.lastName,
-                roles: user.roles.map((role) => role.name),
-                dbUri: account.getConnectionString()
-            };
-
-            resolve(userSignature);
-        });
-    }
-
-    private _generateToken(identity: IIdentity): Promise<string> {
-        return new Promise<string>((resolve, reject) => {
-            let token = jwt.sign(identity, config.token.secret, {
-                expiresIn: config.token.expiresIn
-            });
-
-            resolve(token);
         });
     }
 }
