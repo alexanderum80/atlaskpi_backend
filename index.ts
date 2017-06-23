@@ -13,7 +13,7 @@ import { addActivities } from './activities';
 addActivities();
 
 // middlewares
-import { tokenValidator, logger, initializeContexts } from './middlewares';
+import { tokenValidator, logger, initializeContexts, loadUser } from './middlewares';
 
 // Routes
 import { auth, me, log } from './routes';
@@ -49,6 +49,8 @@ graphQLServer.use(logger);
 graphQLServer.use(tokenValidator);
 // initialize master and app context
 graphQLServer.use(initializeContexts);
+// validate token still exist and load user into request
+graphQLServer.use(loadUser);
 
 // i8n
 i18n.configure({

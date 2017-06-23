@@ -1,7 +1,7 @@
 import { IAppConfig } from '../config';
 import { IIdentity, IMutationBus, IQueryBus } from '../data';
 import { Request } from 'express';
-import { IAppModels, IMasterModels } from '../data/models';
+import { IAppModels, IMasterModels, IUserDocument } from '../data/models';
 import * as winston from 'winston';
 
 /**
@@ -49,5 +49,10 @@ export interface ExtendedRequest extends Request, i18nAPI {
      * The mutation bus associated to provided account through the user token
      */
     queryBus: IQueryBus;
+
+    /**
+     * The user whi is running this request
+     */
+    user: IUserDocument;
 
 }

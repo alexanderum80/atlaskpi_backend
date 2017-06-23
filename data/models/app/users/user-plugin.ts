@@ -179,9 +179,16 @@ export function accountPlugin(schema: mongoose.Schema, options: any) {
                 dbUri: dbUri
             };
 
+            // workbench tokens should not expire
+            let expiresIn = config.token.expiresIn;
+
+            if (clientId === 'workbench') {
+                expiresIn = '10 y';
+            }
+
             // generate user token
             let token = jwt.sign(identity, config.token.secret, {
-                expiresIn: config.token.expiresIn
+                expiresIn: expiresIn
             });
 
             // create user token response
