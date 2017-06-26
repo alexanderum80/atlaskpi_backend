@@ -27,10 +27,12 @@ log.post('/log', function user(req: ExtendedRequest, res: Response) {
     log.processLogEntry(clientId, timestamp, level, message).then((entry) => {
         logger.debug('log entry processed sucessfully');
         res.status(200).send();
+        return;
     })
     .catch((err) => {
         logger.error('something went wrong processing the log entry: ' + err);
         res.status(500).send(err);
+        return;
     });
 });
 
