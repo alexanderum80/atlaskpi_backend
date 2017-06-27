@@ -38,21 +38,21 @@ describe('AuthController', function() {
             describe('when hostname is invalid', function() {
 
                 it('specifically "null" should reject with status 400 and "Invalid hostname" message', function(done) {
-                    controller.authenticateUser(null, 'username', 'password')
+                    controller.authenticateUser(null, 'username', 'password', 'ip', 'clientId', 'details')
                         .should.eventually.be.rejectedWith('Invalid hostname')
                         .and.have.property('status', 400)
                         .notify(done);
                 });
 
                 it('specifically "undefined" should reject with status 400 and "Invalid hostname" message', function(done) {
-                    controller.authenticateUser(null, 'username', 'password')
+                    controller.authenticateUser(null, 'username', 'password', 'ip', 'clientId', 'details')
                         .should.eventually.be.rejectedWith('Invalid hostname')
                         .and.have.property('status', 400)
                         .notify(done);
                 });
 
                 it('specifically "<empty>" should reject with status 400 and "Invalid hostname" message', function(done) {
-                    controller.authenticateUser(null, 'username', 'password')
+                    controller.authenticateUser(null, 'username', 'password', 'ip', 'clientId', 'details')
                         .should.eventually.be.rejectedWith('Invalid hostname')
                         .and.have.property('status', 400)
                         .notify(done);
@@ -62,21 +62,21 @@ describe('AuthController', function() {
             describe('when username is invalid', function() {
 
                 it('specifically "null" should reject with status 400 and "Username or password missing" message', function(done) {
-                    controller.authenticateUser('host.name.com', null, 'password')
+                    controller.authenticateUser('host.name.com', null, 'password', 'ip', 'clientId', 'details')
                         .should.eventually.be.rejectedWith('Username or password missing')
                         .and.have.property('status', 400)
                         .notify(done);
                 });
 
                 it('specifically "undefined" should reject with status 400 and "Username or password missing" message', function(done) {
-                    controller.authenticateUser('host.name.com', undefined, 'password')
+                    controller.authenticateUser('host.name.com', undefined, 'password', 'ip', 'clientId', 'details')
                         .should.eventually.be.rejectedWith('Username or password missing')
                         .and.have.property('status', 400)
                         .notify(done);
                 });
 
                 it('specifically "<empty>" should reject with status 400 and "Username or password missing" message', function(done) {
-                    controller.authenticateUser('host.name.com', '', 'password')
+                    controller.authenticateUser('host.name.com', '', 'password', 'ip', 'clientId', 'details')
                         .should.eventually.be.rejectedWith('Username or password missing')
                         .and.have.property('status', 400)
                         .notify(done);
@@ -87,7 +87,7 @@ describe('AuthController', function() {
             describe('when password is invalid', function() {
 
                 it('should reject with status 400 and "Username or password missing" message', function(done) {
-                    controller.authenticateUser('host.name.com', 'username', null)
+                    controller.authenticateUser('host.name.com', 'username', null, 'ip', 'clientId', 'details')
                         .should.eventually.be.rejectedWith('Username or password missing')
                         .and.have.property('status', 400)
                         .notify(done);
@@ -115,7 +115,7 @@ describe('AuthController', function() {
                 });
 
                 it('should go to the database looking for the account', function(done) {
-                    controller.authenticateUser(hostname, 'username', 'password')
+                    controller.authenticateUser(hostname, 'username', 'password', 'ip', 'clientId', 'details')
                         .finally(() => {
                             findAccountStub.should.have.been.calledWith(hostname);
                             done();
@@ -123,7 +123,7 @@ describe('AuthController', function() {
                 })
 
                 it('should return account not found', function(done) {
-                    controller.authenticateUser(hostname, 'username', 'password')
+                    controller.authenticateUser(hostname, 'username', 'password', 'ip', 'clientId', 'details')
                         .should.eventually.be.rejectedWith('Account not found')
                         .notify(done);
                 });
@@ -162,7 +162,7 @@ describe('AuthController', function() {
                     });
 
                     it('should try to validate credentials', function(done) {
-                        controller.authenticateUser(hostname, username, password)
+                        controller.authenticateUser(hostname, username, password, 'ip', 'clientId', 'details')
                             .catch((err) => {
                                 findOneStub.should.have.been.calledWith({ username: username});
                                 done();
@@ -170,7 +170,7 @@ describe('AuthController', function() {
                     });
 
                     it('should return user not found when username is invalid', function(done) {
-                        controller.authenticateUser(hostname, username, password)
+                        controller.authenticateUser(hostname, username, password, 'ip', 'clientId', 'details')
                             .should.eventually.be.rejectedWith('User not found')
                             .notify(done);
                     });
@@ -221,7 +221,7 @@ describe('AuthController', function() {
                         // we cannot check the entire token that is why we only check the first part
                         let tokenSections = token.split('.');
 
-                        controller.authenticateUser(hostname, username, password)
+                        controller.authenticateUser(hostname, username, password, 'ip', 'clientId', 'details')
                             .then((token: IUserToken) => {
                                 token.access_token.split('.')[0].should.be.equal(tokenSections[0]);
                                 done();

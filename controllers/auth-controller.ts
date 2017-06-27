@@ -27,7 +27,7 @@ export class AuthController {
     authenticateUser(hostname: string, username: string, password: string, ip: string, clientId: string, clientDetails: string): Promise < IUserToken > {
         let that = this;
 
-        return new Promise < IUserToken > ((resolve, reject) => {
+        return new Promise <IUserToken> ((resolve, reject) => {
             if (!hostname) {
                 throw {
                     status: 400,

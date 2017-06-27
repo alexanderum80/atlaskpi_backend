@@ -2,6 +2,12 @@ import { IExpenseModel } from './';
 import * as mongoose from 'mongoose';
 
 const Schema = mongoose.Schema;
+
+let IdNameSchema = new Schema({
+    id: String,
+    name: String,
+});
+
 // let ExpenseSchema = new Schema({
 //     location: {
 //         id: String,
@@ -22,14 +28,18 @@ const Schema = mongoose.Schema;
 // });
 
 const ExpenseSchema = new Schema({
-    location: {
-        name: String
-    },
+    source: String,
+    externalId: { type: String, unique: true },
+    location: IdNameSchema,
     expense: {
         concept: String,
         amount: Number
     },
-    timestamp: Date
+    timestamp: Date,
+    document: {
+        type: String, // invoice, bill, charge, etc
+        identifier: String
+    }
 });
 
 export function getExpenseModel(m: mongoose.Connection): IExpenseModel {
