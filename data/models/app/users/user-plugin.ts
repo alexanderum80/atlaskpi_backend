@@ -166,7 +166,7 @@ export function accountPlugin(schema: mongoose.Schema, options: any) {
         });
     };
 
-    schema.methods.generateToken = function(dbUri: string, hostname: string, username: string, password: string, ip: string, clientId: string, clientDetails: string): Promise<IUserToken> {
+    schema.methods.generateToken = function(dbUri: string, username: string, password: string, ip: string, clientId: string, clientDetails: string): Promise<IUserToken> {
         return new Promise<IUserToken>((resolve, reject) => {
 
             // create user identity

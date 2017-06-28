@@ -83,6 +83,7 @@ function importExpenses(data: DataContext, dbUri: string, cb) {
 
         const mappedExpenses = expenses.map(e => {
             return {
+                externalId: my_guid(),
                 location: getLocation(data.location, e.location),
                 exployee: getEmployee(data.employee, e.employee),
                 expense: {
@@ -175,4 +176,14 @@ function getCategory(categories, name) {
         externalId: c.id,
         name: c.name
     };
+}
+
+function my_guid() {
+  function s4() {
+    return Math.floor((1 + Math.random()) * 0x10000)
+      .toString(16)
+      .substring(1);
+  }
+  return s4() + s4() + '-' + s4() + '-' + s4() + '-' +
+    s4() + '-' + s4() + s4() + s4();
 }

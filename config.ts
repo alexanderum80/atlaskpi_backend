@@ -23,7 +23,7 @@ const prod: IEnvConfig = {
 
 const local: IEnvConfig = {
     masterDb: 'mongodb://localhost/kpibi',
-    subdomain: 'app.kpibi.com:4200',
+    subdomain: 'd.kpibi.com:4200',
     connectionString: `mongodb://localhost/{{database}}`,
     masterConnectionString: `mongodb://localhost/{{database}}`,
     isMongoDBAtlas: false
@@ -44,7 +44,7 @@ export const config: IAppConfig = {
     },
     emailService: emailServiceConfig,
     usersService: usersServiceConfig,
-    environment: prod_localdb
-    // environment: local,
+    // environment: prod_localdb
+    environment: local,
     // environment: prod
 };
