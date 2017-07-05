@@ -2,6 +2,7 @@ import { getContext } from '../../data/models/app/app-context';
 import * as util from 'util';
 import { DataContext, DataTable } from './google-sheet.processor';
 import * as async from 'async';
+import { my_guid } from '../../data/extentions';
 
 export default function importSpreadSheetData(data: any) {
     async.parallel([
@@ -142,13 +143,12 @@ function getProduct(products, name, price, date) {
     const p = products.find(prod => prod.name === name);
 
     return {
-        externalId: p.id,
+        externalId: p.id + my_guid(),
         name: p.name,
         cost: 0,
         price: price,
         tax: 0.7,
         tax2: 0,
-        type: p.type.toLowerCase(),
         from: date,
         to: date
     };
@@ -159,6 +159,7 @@ function getCategory(categories, name) {
 
     return {
         externalId: c.id,
-        name: c.name
+        name: c.name,
+        service: c.service
     };
 }

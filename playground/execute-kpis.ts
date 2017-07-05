@@ -37,7 +37,7 @@ export function executeKpis() {
 
     mongoose.set('debug', true);
 
-    getContext('mongodb://localhost/company-test-3001').then(ctx => {
+    getContext('mongodb://localhost/test-cat-6').then(ctx => {
 
         let dateRange: IDateRange = {
             from: new Date('2015-01-01'),
@@ -47,7 +47,7 @@ export function executeKpis() {
 
         // let kpi = new AestheticianRevenueRatePerHour(ctx.Sale, ctx.WorkLog);
 
-        let kpi = new RentExpenseRatio(ctx.Sale, ctx.Expense);
+        let kpi = new NetRevenueByFTE(ctx.Sale);
 
         kpi.getData(dateRange, frequency).then(data => {
 

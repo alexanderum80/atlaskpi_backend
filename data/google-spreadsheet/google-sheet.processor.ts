@@ -2,6 +2,7 @@
 import * as google from 'googleapis';
 import importSpreadSheetData from './kpibi-importer';
 
+
 const SPREADSHEET_ID = '1-4c7x1AxUHrzubZ9fnAGaitvkO63gRyIwpJUP-Qe5J0';
 
 export interface DataSchema {
@@ -23,8 +24,8 @@ const dataSources: DataSource[] = [{
     range: 'Locations!A2:F',
     schema: { name: 'location', fields: ['id', 'name', 'address', 'city', 'state', 'zip'] }
 }, {
-    range: 'Categories!A2:B',
-    schema: { name: 'category', fields: ['id', 'name'] }
+    range: 'Categories!A2:C',
+    schema: { name: 'category', fields: ['id', 'name', 'service'] }
 }, {
     range: 'Products!A2:D',
     schema: { name: 'product', fields: ['id', 'name', 'type', 'category'] }

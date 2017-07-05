@@ -22,8 +22,8 @@ const aggregate: AggregateStage[] = [
     {
         frequency: true,
         $group: {
-            _id: { product: '$product.name' },
-            sales: { $sum: '$product.price' }
+            _id: { product: '$product.itemDescription' },
+            sales: { $sum: '$product.amount' }
         }
     },
     {

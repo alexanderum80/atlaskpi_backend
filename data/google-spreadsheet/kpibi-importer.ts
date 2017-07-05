@@ -3,6 +3,7 @@ import * as util from 'util';
 import { DataContext, DataTable } from './google-sheet.processor';
 import * as async from 'async';
 import * as Promise from 'bluebird';
+import { my_guid } from '../extentions';
 
 export default function importSpreadSheetData(data: any, dbUri = 'mongodb://localhost/customer2'): Promise<any> {
 
@@ -28,6 +29,7 @@ function importSales(data: DataContext, dbUri: string, cb) {
         // map the data
         const mappedSales = sales.map(s => {
             return {
+                externalId: my_guid(),
                 location: getLocation(data.location, s.location),
                 customer: getCustomer(data.customer, s.customer),
                 employee: getEmployee(data.employee, s.employee),
@@ -141,13 +143,13 @@ function getEmployee(employees, name) {
     if (!e) {
         return {
             externalId: 0,
-            name: ''
+            fullName: ''
         };
     }
 
     return {
         externalId: e.id,
-        name: e.name,
+        fullName: e.name,
         role: e.role,
         type: e.fte === 'Yes' ? 'f' : 'p'
     };
@@ -157,10 +159,12 @@ function getProduct(products, name, price, date) {
     const p = products.find(prod => prod.name === name);
 
     return {
-        externalId: p.id,
-        name: p.name,
-        cost: 0,
-        price: price,
+        externalId: p.id + my_guid(),
+        itemCode: p.id,
+        itemDescription: p.name,
+        unitPrice: price,
+        quantity: 1,
+        amount: price,
         tax: 0.7,
         tax2: 0,
         type: p.type.toLowerCase(),
@@ -174,16 +178,8 @@ function getCategory(categories, name) {
 
     return {
         externalId: c.id,
-        name: c.name
+        name: c.name,
+        service: c.service
     };
 }
 
-function my_guid() {
-  function s4() {
-    return Math.floor((1 + Math.random()) * 0x10000)
-      .toString(16)
-      .substring(1);
-  }
-  return s4() + s4() + '-' + s4() + '-' + s4() + '-' +
-    s4() + '-' + s4() + s4() + s4();
-}

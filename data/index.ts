@@ -5,3 +5,4 @@ export * from './seed';
 export * from './mongo-utils';
 export * from './db-connector';
 export * from './validators';
+export * from './extentions';
