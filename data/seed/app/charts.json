@@ -17,7 +17,7 @@
                 "decimalPoint": ".",
                 "thousandsSep": ","
             },
-            "plotOptions": {    
+            "plotOptions": {
                 "pie": {
                     "allowPointSelect": true,
                     "cursor": "pointer",
@@ -29,7 +29,7 @@
                     "showInLegend": true
                 }
             },
-             "legend": {
+            "legend": {
                 "layout": "horizontal",
                 "align": "center",
                 "verticalAlign": "bottom",
@@ -439,7 +439,7 @@
         "dateRange": {
             "predefined": "last year"
         },
-       
+
         "chartDefinition": {
             "chart": { "type": "column" },
             "title": { "text": "Sales By Product (Year 2017)" },
@@ -452,11 +452,11 @@
                 "valuePrefix": "$",
                 "valueSuffix": " USD",
                 "useHTML": true,
-                "formatter":"kpi_tooltip_with_percentage_and_total"                
+                "formatter": "kpi_tooltip_with_percentage_and_total"
             },
-            "plotOptions": { 
+            "plotOptions": {
                 "column": {
-                     "stacking": "normal"
+                    "stacking": "normal"
                 }
             },
             "legend": {
@@ -635,7 +635,7 @@
         }
     },
 
-     {
+    {
         "_id": 18,
         "dateFrom": "1990-01-1",
         "dateTo": "2018-12-31",
@@ -707,7 +707,7 @@
     },
 
 
-    
+
 
 
 
@@ -941,10 +941,10 @@
                 "valuePrefix": "$",
                 "valueSuffix": " USD"
             },
-            "yAxis": { 
+            "yAxis": {
                 "title": { "text": "Revenue" },
                 "labels": { "formatter": "kpi_dollarize" }
-            }, 
+            },
             "legend": {
                 "enabled": false
             },
@@ -975,16 +975,16 @@
             "chart": { "type": "line" },
             "title": { "text": "Ambulatory Surgery Center Sales" },
             "subtitle": { "text": "This chart will present the total revenue generated from all Ambulatory Surgery Center sales. Monitoring individaully will allow you to set growth targets easier." },
-            "yAxis": { 
+            "yAxis": {
                 "title": { "text": "Sales" },
                 "labels": { "formatter": "kpi_dollarize" }
-            }, 
+            },
             "tooltip": {
                 "valueDecimals": 2,
                 "valuePrefix": "$",
                 "valueSuffix": " USD"
             },
-           "legend": {
+            "legend": {
                 "enabled": false
             },
             "series": [{
@@ -1015,7 +1015,7 @@
             "chart": { "type": "line" },
             "title": { "text": "Total Consulting and Research Sales" },
             "subtitle": { "text": "This chart will present the total revenue generated from all Consulting and Research sales. Monitoring individaully will allow you to set growth targets easier." },
-            "yAxis": { 
+            "yAxis": {
                 "title": { "text": "Sales" },
                 "labels": { "formatter": "kpi_dollarize" }
             },
@@ -1054,10 +1054,10 @@
             "chart": { "type": "column" },
             "title": { "text": "Individual Non Physician Revenue Rate Per Hour (Year 2016)" },
             "subtitle": { "text": "This chart will allow you to compare the productivity of your Non Physician Revenue providers" },
-            "yAxis": { 
+            "yAxis": {
                 "title": { "text": "Revenue" },
                 "labels": { "formatter": "kpi_dollarize" }
-            }, 
+            },
             "tooltip": {
                 "valueDecimals": 2,
                 "valuePrefix": "$",
@@ -1104,10 +1104,10 @@
                 "valuePrefix": "$",
                 "valueSuffix": " USD"
             },
-            "yAxis": { 
+            "yAxis": {
                 "title": { "text": "Sales" },
                 "labels": { "formatter": "kpi_dollarize" }
-            }, 
+            },
             "legend": {
                 "enabled": false
             },
@@ -1323,6 +1323,315 @@
                 ]
             }]
         }
+    },
+    {
+        "_id": 301,
+        "name": "Total Expenses",
+        "group": "Expenses",
+        "description": "Total Expenses",
+        "dateFrom": "2016-01-1",
+        "dateTo": "2018-12-31",
+        "kpis": ["301"],
+        "dateRange": {
+            "predefined": "last year"
+        },
+        "chartDefinition": {
+            "chart": {
+                "type": "line"
+            },
+            "title": {
+                "text": "Total Expenses Over Time"
+            },
+            "subtitle": { "text": "The life of your business, review this chart daily to ensure you are achieving at least a 5% year on year growth." },
+            "xAxis": {
+                "categories": ["1750", "1800", "1850", "1900", "1950", "1999", "2050"],
+                "tickmarkPlacement": "on",
+                "title": {
+                    "enabled": false
+                }
+            },
+            "yAxis": {
+                "title": {
+                    "text": " Sales"
+                },
+                "labels": { "formatter": "kpi_dollarize" }
+            },
+            "tooltip": {
+                "shared": "true",
+                "valueDecimals": 2,
+                "valuePrefix": "$",
+                "valueSuffix": " USD"
+            },
+            "plotOptions": {
+                "area": {
+                    "stacking": "normal",
+                    "lineColor": "#666666",
+                    "lineWidth": 2,
+                    "marker": {
+                        "lineWidth": 1,
+                        "lineColor": "#666666"
+                    }
+                }
+            },
+            "series": [{
+                "name": "Asia",
+                "data": [502, 635, 809, 947, 1402, 3634, 5268]
+            }, {
+                "name": "Africa",
+                "data": [106, 107, 111, 133, 221, 767, 1766]
+            }, {
+                "name": "Europe",
+                "type": "line",
+                "stacking": "normal",
+                "data": [163, 203, 276, 408, 547, 729, 628]
+            }, {
+                "name": "America",
+                "data": [18, 31, 54, 156, 339, 818, 1201]
+            }, {
+                "name": "Oceania",
+                "data": [2, 2, 2, 6, 13, 30, 46]
+            }]
+
+        }
+    },
+    {
+        "_id": 302,
+        "name": "Cost of Goods Sold",
+        "group": "Expenses",
+        "description": "Total Goods Sold",
+        "dateFrom": "2016-01-1",
+        "dateTo": "2018-12-31",
+        "kpis": ["302"],
+        "dateRange": {
+            "predefined": "last year"
+        },
+        "chartDefinition": {
+            "chart": {
+                "type": "line"
+            },
+            "title": {
+                "text": "Cost of Goods Sold Over Time"
+            },
+            "subtitle": { "text": "The life of your business, review this chart daily to ensure you are achieving at least a 5% year on year growth." },
+            "xAxis": {
+                "categories": ["1750", "1800", "1850", "1900", "1950", "1999", "2050"],
+                "tickmarkPlacement": "on",
+                "title": {
+                    "enabled": false
+                }
+            },
+            "yAxis": {
+                "title": {
+                    "text": " Sales"
+                },
+                "labels": { "formatter": "kpi_dollarize" }
+            },
+            "tooltip": {
+                "shared": "true",
+                "valueDecimals": 2,
+                "valuePrefix": "$",
+                "valueSuffix": " USD"
+            },
+            "plotOptions": {
+                "area": {
+                    "stacking": "normal",
+                    "lineColor": "#666666",
+                    "lineWidth": 2,
+                    "marker": {
+                        "lineWidth": 1,
+                        "lineColor": "#666666"
+                    }
+                }
+            },
+            "series": [{
+                "name": "Asia",
+                "data": [502, 635, 809, 947, 1402, 3634, 5268]
+            }, {
+                "name": "Africa",
+                "data": [106, 107, 111, 133, 221, 767, 1766]
+            }, {
+                "name": "Europe",
+                "type": "line",
+                "stacking": "normal",
+                "data": [163, 203, 276, 408, 547, 729, 628]
+            }, {
+                "name": "America",
+                "data": [18, 31, 54, 156, 339, 818, 1201]
+            }, {
+                "name": "Oceania",
+                "data": [2, 2, 2, 6, 13, 30, 46]
+            }]
+
+        }
+    },
+    {
+        "_id": 303,
+        "name": "Expense By Category",
+        "group": "Expenses",
+        "description": "Expense By Category",
+        "dateFrom": "2016-01-1",
+        "dateTo": "2018-12-31",
+        "kpis": ["303"],
+        "dateRange": {
+            "predefined": "last year"
+        },
+        "chartDefinition": {
+            "chart": { "type": "pie" },
+            "title": { "text": "Expense By Category (Year 2016)" },
+            "subtitle": { "text": "This chart allows you to monitor the inidividual elements responsible for your revenue. This chart is most useful when compared over time." },
+            "lang": {
+                "decimalPoint": ".",
+                "thousandsSep": ","
+            },
+            "plotOptions": {
+                "pie": {
+                    "allowPointSelect": true,
+                    "cursor": "pointer",
+                    "dataLabels": {
+                        "enabled": true,
+                        "distance": 10,
+                        "formatter": "kpi_percent_for_pie_chart"
+                    },
+                    "showInLegend": true
+                }
+            },
+            "legend": {
+                "layout": "horizontal",
+                "align": "center",
+                "verticalAlign": "bottom",
+                "borderWidth": 0
+            },
+            "yAxis": {
+                "min": 0,
+                "title": { "text": "Expenses" }
+            },
+            "tooltip": {
+                "valueDecimals": 2,
+                "valuePrefix": "$",
+                "valueSuffix": " USD"
+            },
+            "series": [{
+                "name": "Delivered amount",
+                "data": [
+                    ["Bananas",
+                        8
+                    ],
+                    ["Kiwi",
+                        3
+                    ],
+                    ["Mixed nuts",
+                        1
+                    ],
+                    ["Oranges",
+                        6
+                    ],
+                    ["Apples",
+                        8
+                    ],
+                    ["Pears",
+                        4
+                    ],
+                    ["Clementines",
+                        4
+                    ],
+                    ["Reddish (bag)",
+                        1
+                    ],
+                    ["Grapes (bunch)",
+                        1
+                    ]
+                ]
+            }]
+        }
+    },
+    {
+        "_id": 304,
+        "name": "Expense Ratio",
+        "group": "Operational",
+        "description": "Expense Ratio",
+        "frequency": "monthly",
+        "kpis": ["304"],
+        "dateRange": {
+            "predefined": "last year"
+        },
+        "chartDefinition": {
+            "chart": { "type": "column" },
+            "title": { "text": "Expense Ratio (Year 2016)" },
+            "subtitle": { "text": "This indicator allows you to evaluate your professional services productivity and it's impact on the revenue" },
+            "yAxis": {
+                "title": { "text": "Percent" }
+            },
+            "tooltip": {
+                "valueDecimals": 2,
+                "valueSuffix": " %"
+            },
+            "legend": {
+                "enabled": false
+            },
+            "series": [{
+                "name": "Expense Ratio",
+                "data": [
+                    ["2012-01", 100],
+                    ["2012-02", 100],
+                    ["2012-03", 66.66666666666666],
+                    ["2012-04", 100],
+                    ["2012-05", 100],
+                    ["2012-07", 100],
+                    ["2012-08", 1.1871733660236143],
+                    ["2012-09", 0.2764803217225562],
+                    ["2012-10", 11.411239724314202],
+                    ["2012-11", 17.51133724145559],
+                    ["2012-12", 13.55089526046925]
+
+                ]
+            }]
+
+        }
+    },
+    {
+        "_id": 305,
+        "name": "Payroll Expense Ratio",
+        "group": "Operational",
+        "description": "Payroll Expense Ratio",
+        "frequency": "monthly",
+        "kpis": ["305"],
+        "dateRange": {
+            "predefined": "last year"
+        },
+        "chartDefinition": {
+            "chart": { "type": "column" },
+            "title": { "text": "Payroll Expense Ratio (Year 2016)" },
+            "subtitle": { "text": "This indicator allows you to evaluate your professional services productivity and it's impact on the revenue" },
+            "yAxis": {
+                "title": { "text": "Percent" }
+            },
+            "tooltip": {
+                "valueDecimals": 2,
+                "valueSuffix": " %"
+            },
+            "legend": {
+                "enabled": false
+            },
+            "series": [{
+                "name": "Expense Ratio",
+                "data": [
+                    ["2012-01", 100],
+                    ["2012-02", 100],
+                    ["2012-03", 66.66666666666666],
+                    ["2012-04", 100],
+                    ["2012-05", 100],
+                    ["2012-07", 100],
+                    ["2012-08", 1.1871733660236143],
+                    ["2012-09", 0.2764803217225562],
+                    ["2012-10", 11.411239724314202],
+                    ["2012-11", 17.51133724145559],
+                    ["2012-12", 13.55089526046925]
+
+                ]
+            }]
+
+        }
     }
+
 
 ]

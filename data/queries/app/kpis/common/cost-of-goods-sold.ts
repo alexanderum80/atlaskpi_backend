@@ -10,7 +10,9 @@ import * as _ from 'lodash';
 const aggregate: AggregateStage[] = [
     {
         dateRange: true,
-        $match:  { }
+        $match:  {
+            "expense.concept": "Cost of Good Sold"
+        }
     },
     {
         frequency: true,
@@ -18,7 +20,11 @@ const aggregate: AggregateStage[] = [
     },
     {
         frequency: true,
-        $group: { expenses: { $sum: '$expense.amount' } }
+        $group: {
+            expenses: {
+                $sum: "$expense.amount"
+            }
+        }
     },
     {
         $sort: {
@@ -27,13 +33,10 @@ const aggregate: AggregateStage[] = [
     }
 ];
 
-export class TotalExpense extends KpiBase {
+export class CostOfGoodSold extends KpiBase {
 
-    constructor(sales: IExpenseModel) {
+   constructor(sales: IExpenseModel) {
         super(sales, aggregate);
-    }
-    getRawData(dateRange: IDateRange, frequency?: FrequencyEnum): Promise<any> {
-        return this.executeQuery('timestamp', dateRange, frequency);
     }
     getData(dateRange: IDateRange, frequency?: FrequencyEnum): Promise<any> {
         const that = this;
@@ -66,5 +69,4 @@ export class TotalExpense extends KpiBase {
         data = _.sortBy(data, '_id.frequency');
         return data.map(item => [ item._id.frequency, item.expenses ]);
     }
-
 }

@@ -10,15 +10,22 @@ import * as _ from 'lodash';
 const aggregate: AggregateStage[] = [
     {
         dateRange: true,
-        $match:  { }
+        $match: {
+            "expense.concept": "Payroll"
+        }
     },
     {
         frequency: true,
-        $project: { _id: 0, expense: 1 }
+        $project: {_id: 0, expense: 1}
     },
     {
         frequency: true,
-        $group: { expenses: { $sum: '$expense.amount' } }
+        $group: {
+            _id: null,
+            total: {
+                $sum: "$expense.amount"
+            }
+        }
     },
     {
         $sort: {
@@ -27,21 +34,19 @@ const aggregate: AggregateStage[] = [
     }
 ];
 
-export class TotalExpense extends KpiBase {
-
+export class TotalPayroll extends KpiBase {
     constructor(sales: IExpenseModel) {
         super(sales, aggregate);
     }
-    getRawData(dateRange: IDateRange, frequency?: FrequencyEnum): Promise<any> {
+    getRawData(dateRange: IDateRange, frequency: FrequencyEnum) {
         return this.executeQuery('timestamp', dateRange, frequency);
     }
-    getData(dateRange: IDateRange, frequency?: FrequencyEnum): Promise<any> {
+    getData(dateRange: IDateRange, frequency: FrequencyEnum): Promise<any> {
         const that = this;
         return this.executeQuery('timestamp', dateRange, frequency).then(data => {
             return Promise.resolve(that._toSeries(data, frequency));
-        });
+        })
     }
-
     private _toSeries(rawData: any[], frequency: FrequencyEnum) {
         let frequencies = _.uniq(rawData.map(item => item._id.frequency)).sort();
         let years = _.uniq(frequencies.map(f => { return f.split('-')[0]; }));
@@ -64,7 +69,6 @@ export class TotalExpense extends KpiBase {
         });
 
         data = _.sortBy(data, '_id.frequency');
-        return data.map(item => [ item._id.frequency, item.expenses ]);
+        return data.map(item => [ item._id.frequency, item.total ]);
     }
-
 }

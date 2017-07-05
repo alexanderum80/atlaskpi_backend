@@ -6,7 +6,7 @@
     "scripts": {
         "test": "echo \"Error: no test specified\" && exit 1",
         "start": "npm run build:live",
-        "build:live": "nodemon --exec ./node_modules/.bin/ts-node -- ./index.ts",
+        "build:live": "nodemon --exec .\\node_modules\\.bin\\ts-node -- .\\index.ts",
         "build": "tsc -p . --outDir dist"
     },
     "keywords": [],
