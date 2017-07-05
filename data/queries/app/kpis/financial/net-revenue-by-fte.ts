@@ -40,11 +40,10 @@ const aggregate: AggregateStage[] = [{
     $group: {
       _id: {
         employeeId: '$employee.externalId',
-        name: '$employee.name',
-        employeeLastname: '$employee.lastName'
+        fullName: '$employee.fullName',
       },
       sales: {
-        $sum: '$product.price'
+        $sum: '$product.amount'
       }
     }
   },
@@ -76,7 +75,7 @@ export class NetRevenueByFTE extends KpiBase {
     if (!frequency) {
       return [{
           name: 'Net Revenue',
-          data: rawData.map(item => [ item._id.name, item.sales ])
+          data: rawData.map(item => [ item._id.fullName, item.sales ])
       }];
     } else {
       let frequencies = _.uniq(rawData.map(item => item._id.frequency)).sort();
@@ -84,14 +83,14 @@ export class NetRevenueByFTE extends KpiBase {
 
       let data = rawData.filter((item, index) => {
                       if (frequencies.indexOf(item._id.frequency) === -1 ||
-                          employees.indexOf(item._id.name) === -1)  { return; };
+                          employees.indexOf(item._id.fullName) === -1)  { return; };
                       return item;
                 });
 
       data = _.orderBy(data, ['_id.frequency', 'sales'], ['asc', 'desc']);
 
       data = _(data)
-              .groupBy('_id.name')
+              .groupBy('_id.fullName')
               .map((v, k) => ({
                   name: k,
                   data: v.map(item => [item._id.frequency, item.sales])
@@ -145,9 +144,9 @@ export class NetRevenueByFTE extends KpiBase {
   }
     private _top5Employees(rawData: any)  {
         return  _(rawData)
-                .groupBy('_id.name')
+                .groupBy('_id.fullName')
                 .map((v, k) => ({
-                    name: k,
+                    fullName: k,
                     sales: _.sumBy(v, 'sales')
                 }))
                 .orderBy('sales', 'desc')
@@ -155,7 +154,7 @@ export class NetRevenueByFTE extends KpiBase {
                     if (index > 4) { return; };
                     return item;
                 })
-                .map(item => item.name);
+                .map(item => item.fullName);
     }
 
 

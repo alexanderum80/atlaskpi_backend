@@ -6,11 +6,13 @@ import {
     IAppConfig, IEnvConfig
 } from './configuration';
 
+export { IAppConfig } from './configuration';
+
 const prod: IEnvConfig = {
     masterDb: 'mongodb://kpibi:nLGPxvOzqcBDHBc7@cluster0-shard-00-00-unrxu.mongodb.net:27017,cluster0-shard-00-01-unrxu.mongodb.net:27017,cluster0-shard-00-02-unrxu.mongodb.net:27017/kpibi?ssl=true&replicaSet=Cluster0-shard-0&authSource=admin',
     connectionString: `mongodb://{{user}}:{{password}}@cluster0-shard-00-00-unrxu.mongodb.net:27017,cluster0-shard-00-01-unrxu.mongodb.net:27017,cluster0-shard-00-02-unrxu.mongodb.net:27017/{{database}}?ssl=true&replicaSet=Cluster0-shard-0&authSource=admin`,
     masterConnectionString: `mongodb://kpibi:nLGPxvOzqcBDHBc7@cluster0-shard-00-00-unrxu.mongodb.net:27017,cluster0-shard-00-01-unrxu.mongodb.net:27017,cluster0-shard-00-02-unrxu.mongodb.net:27017/{{database}}?ssl=true&replicaSet=Cluster0-shard-0&authSource=admin`,
-    subdomain: 'd.kpibi.com:4200',
+    subdomain: 'app.kpibi.com',
     isMongoDBAtlas: true,
     mongoDBAtlasCredentials: {
         username: 'orlando@kpibi.com',
@@ -27,6 +29,14 @@ const local: IEnvConfig = {
     isMongoDBAtlas: false
 };
 
+const prod_localdb: IEnvConfig = {
+    masterDb: 'mongodb://localhost/kpibi',
+    subdomain: 'app.kpibi.com',
+    connectionString: `mongodb://localhost/{{database}}`,
+    masterConnectionString: `mongodb://localhost/{{database}}`,
+    isMongoDBAtlas: false
+};
+
 export const config: IAppConfig = {
     token: {
         secret: 'jyeu4L?v*FGXmsGAYEXPjp(i',
@@ -34,6 +44,7 @@ export const config: IAppConfig = {
     },
     emailService: emailServiceConfig,
     usersService: usersServiceConfig,
+    // environment: prod_localdb
     environment: local,
     // environment: prod
 };
