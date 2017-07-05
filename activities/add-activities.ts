@@ -37,7 +37,8 @@ import {
     getChartFormatByIdActivity,
 
     // charts
-    getChartDataActivity,
+    // getChartDataActivity,
+    getChartActivity,
 
     // dashboards
     getDashboardActivity
@@ -88,7 +89,8 @@ export function addActivities() {
         getChartFormatByIdActivity,
 
          // charts
-        getChartDataActivity,
+        // getChartDataActivity,
+        getChartActivity,
 
         // dashboards
         getDashboardActivity,

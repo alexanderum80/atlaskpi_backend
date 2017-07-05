@@ -1,12 +1,9 @@
 import { IIdentity } from '../../../data';
 import { IActivity } from '../../../lib/enforcer';
 
-export const getChartDataActivity: IActivity = {
-    may: 'get-chart-data',
+export const getChartActivity: IActivity = {
+    may: 'get-chart',
     when(identity: IIdentity, cb: (err: any, authorized: Boolean) => void) {
         cb(null, true);
     }
 };
-
-
-// This is part of the dynamic code, DO NOT DELETE, KEEP IT FOR LATER
