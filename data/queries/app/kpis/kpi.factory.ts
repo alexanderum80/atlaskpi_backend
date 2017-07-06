@@ -2,25 +2,26 @@ import { ProfesionalSalesRatio } from './operational/professional-service-ratio'
 import { PhysicianRevenueRateHour } from './financial/revenue-rate-per-hour-physian';
 import { RevenueRateByFTEmployee } from './financial/revenue-rate-per-hour-fte';
 import { RetailSalesRatio } from './operational/retail-sales-ratio';
-import { OtherSalesRatio } from './operational/other-sales-ratio';
-import { ConsultingResearchServiceRatio } from './operational/consulting-research-service-ratio';
-import { AmbulatorySurgeryCenterServiceRatio } from './operational/ambulatory-surgery-center-service-ratio';
-import { ProfesionalServiceSales } from './more-financial/profesional-service-sales';
-import { IndividualNonPhysicianRevenueRatePerHour } from './more-financial/indiviual-non-physician-revenue-per-hour';
-import { ConsultingResearchSales } from './more-financial/consulting-research-sales';
-import { AmbulatorySurgeryCenterSales } from './more-financial/ambulatory-surgery-center-sales';
-import { AestheticianRevenueRatePerHour } from './more-financial/aesthetician-revenue-per-hour';
-import { RetailSales } from './financial/retail-sales';
-import { TotalRevenue } from './financial/total-revenue';
-import { SalesByProduct } from './financial/sales-by-product';
+import { IAppModels } from '../../../models/app/app-models';
+import { TotalExpense } from './common/total-expense';
+import { CostOfGoodSold } from "./common/cost-of-goods-sold";
+import { ExpenseByCategory } from "./common/expense-by-category";
+import { ExpenseRatio } from './common/expense-ratio';
+import { PayrollExpenseRatio } from './common/payroll-expense-ratio';
+import { AvgRevenueByFTPhysician, NetRevenueByFTE, RevenueByServiceLine } from './financial';
 import { AvgRevenueByFTAesthetician } from './financial/avg-rev-per-fte-aesthetician';
 import { AvgRevenueByFTNonPhysician } from './financial/avg-rev-per-non-fte-physician';
-import {
-    RevenueByServiceLine,
-    NetRevenueByFTE,
-    AvgRevenueByFTPhysician
-} from './financial';
-import { IAppModels } from '../../../models/app/app-models';
+import { RetailSales } from './financial/retail-sales';
+import { SalesByProduct } from './financial/sales-by-product';
+import { TotalRevenue } from './financial/total-revenue';
+import { AestheticianRevenueRatePerHour } from './more-financial/aesthetician-revenue-per-hour';
+import { AmbulatorySurgeryCenterSales } from './more-financial/ambulatory-surgery-center-sales';
+import { ConsultingResearchSales } from './more-financial/consulting-research-sales';
+import { IndividualNonPhysicianRevenueRatePerHour } from './more-financial/indiviual-non-physician-revenue-per-hour';
+import { ProfesionalServiceSales } from './more-financial/profesional-service-sales';
+import { AmbulatorySurgeryCenterServiceRatio } from './operational/ambulatory-surgery-center-service-ratio';
+import { ConsultingResearchServiceRatio } from './operational/consulting-research-service-ratio';
+import { OtherSalesRatio } from './operational/other-sales-ratio';
 
 export function getKPI(code: string, ctx: IAppModels) {
     switch (code) {
@@ -69,6 +70,19 @@ export function getKPI(code: string, ctx: IAppModels) {
             return new ProfesionalSalesRatio(ctx.Sale);
         case 'RetailSalesRatio':
             return new RetailSalesRatio(ctx.Sale);
+        
+        // Expenses
+        case 'TotalExpense':
+            return new TotalExpense(ctx.Expense);
+
+        case 'CostOfGoodSold':
+            return new CostOfGoodSold(ctx.Expense);
+        case 'ExpenseByCategory':
+            return new ExpenseByCategory(ctx.Expense);
+        case 'ExpenseRatio':
+            return new ExpenseRatio(ctx.Expense, ctx.Sale);
+        case 'PayrollExpenseRatio':
+            return new PayrollExpenseRatio(ctx.Expense, ctx.Sale);
 
         default:
             return null;

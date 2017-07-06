@@ -200,6 +200,61 @@
         "filter": null,
         "axisSelection": "retail",
         "outputType": "value"
+    },
+    {
+        "_id": "301",
+        "code": "TotalExpense",
+        "name": "Total Expense",
+        "description": "Total Expense",
+        "formula": "Sum(Expenses.amount)",
+        "grouping": null,
+        "filter": null,
+        "axisSelection": "expense",
+        "outputType": "value"
+    },
+    {
+        "_id": "302",
+        "code": "CostOfGoodSold",
+        "name": "Cost Of Goods Sold",
+        "description": "Cost of Goods Sold",
+        "formula": "Sum(Expense.amount)",
+        "grouping": null,
+        "filter": null,
+        "axisSelection": "expense",
+        "outputType": "value"
+    },
+    {
+        "_id": "303",
+        "code": "ExpenseByCategory",
+        "name": "Expense By Category",
+        "description": "Expense By Category",
+        "formula": "Sum(Expense.amount)",
+        "grouping": null,
+        "filter": null,
+        "axisSelection": "expense",
+        "outputType": "value"
+    },
+    {
+        "_id": "304",
+        "code": "ExpenseRatio",
+        "name": "Expense Ratio",
+        "description": "Expense Ratio",
+        "formula": "Total Expense / Total Revenue * 100",
+        "grouping": null,
+        "filter": null,
+        "axisSelection": "expense",
+        "outputType": "value"
+    },
+    {
+        "_id": "305",
+        "code": "PayrollExpenseRatio",
+        "name": "Payroll Expense Ratio",
+        "description": "Payroll Expense Ratio",
+        "formula": "Total Payroll / Total Revenue * 100",
+        "grouping": null,
+        "filter": null,
+        "axisSelection": "expense",
+        "outputType": "value"
     }
 
 ]

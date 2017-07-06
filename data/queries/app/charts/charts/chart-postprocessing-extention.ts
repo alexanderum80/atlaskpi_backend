@@ -83,6 +83,23 @@ export class ChartPostProcessingExtention {
             case 'RetailSales':
                 return this._serieToMonthNameCategories(series, chart.chartDefinition);
 
+            case 'TotalExpense':
+                return this._serieToMonthNameCategories(series, chart.chartDefinition);
+
+            case 'CostOfGoodSold':
+                return this._serieToMonthNameCategories(series, chart.chartDefinition);
+                
+            case 'ExpenseByCategory':
+                return this._serieToMonthNameCategories(series, chart.chartDefinition);
+            
+            case 'ExpenseRatio':
+                chart.chartDefinition = this._withColorBars(chart.chartDefinition);
+                return this._serieToMonthNameCategories(series, chart.chartDefinition);
+
+            case 'PayrollExpenseRatio':
+                chart.chartDefinition = this._withColorBars(chart.chartDefinition);
+                return this._serieToMonthNameCategories(series, chart.chartDefinition);
+
             default:
                 // no post-processing
                 return chart.chartDefinition;
