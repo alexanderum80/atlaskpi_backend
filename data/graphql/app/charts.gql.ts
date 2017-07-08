@@ -11,11 +11,13 @@ export const chartsGql: GraphqlDefinition = {
         types: ``,
         queries: `
             charts(from: String!, to: String!, preview: Boolean): String
-            getChartDefinition(id: String!, from: String!, to: String!): String
-            getChart(id: String!, dateRange: DateRange!, frequency: String): String
+            
+            chart(id: String!, dateRange: DateRange!, frequency: String): String
         `,
         mutations: ``,
     },
+
+    // getChartDefinition(id: String!, from: String!, to: String!): String
 
     resolvers: {
         Query: {
@@ -29,7 +31,7 @@ export const chartsGql: GraphqlDefinition = {
             //         .then(definition => JSON.stringify(definition));
             // }
 
-            getChart(root: any, args, ctx: IGraphqlContext) {
+            chart(root: any, args, ctx: IGraphqlContext) {
                 let query = new GetChartQuery(ctx.req.identity, ctx.req.appContext);
                 return ctx.queryBus.run('get-chart', query, args);
             }

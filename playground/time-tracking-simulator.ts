@@ -106,7 +106,7 @@ export function fillEmployeeHours() {
 
     mongoose.set('debug', true);
 
-    getContext('mongodb://localhost:47017/saltz-plastic-surgey').then(ctx => {
+    getContext('mongodb://localhost:47017/saltz-plastic-surgery').then(ctx => {
 
         let start = moment('2007-01-01');
         let end = moment('2017-07-06');

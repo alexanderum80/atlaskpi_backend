@@ -17,7 +17,7 @@ interface IHolliday {
     month: number;
 }
 
-const Employees: IEmployeeWithRole[] = [
+const Employees = [
     // fulltime
     {
         id: 4310,
@@ -105,11 +105,11 @@ export function fixEmployeesRoles() {
 
     mongoose.set('debug', true);
 
-    getContext('mongodb://localhost:47017/saltz-plastic-surgey').then(ctx => {
+    getContext('mongodb://localhost:47017/saltz-plastic-surgery').then(ctx => {
 
         Employees.forEach(e => {
             let query = { 'employee.externalId': String(e.id) };
-            let newValue = { 'employee.role': e.role, 'employee.type': e.type };
+            let newValue = { 'employee.role': e.role, 'employee.type': (<any>e).type };
 
             ctx.Sale.update(query, newValue, {multi: true}, (err, records) => {
                 if (err) {
