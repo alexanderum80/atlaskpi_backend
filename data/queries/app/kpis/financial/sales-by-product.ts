@@ -49,30 +49,43 @@ export class SalesByProduct extends KpiBase {
     }
 
      private _toSeries(rawData: any[], frequency: FrequencyEnum) {
-        // console.log(JSON.stringify(rawData));
         if (!frequency) {
+            let getBottomRank = [];
+            let data = _.orderBy(rawData, ['sales'], ['desc'])
+                      .filter((item, index) => {
+                          if (index > 9) {
+                              getBottomRank.push(item);
+                              return ;
+                          }
+                          return item;
+                      });
+            let noFreqTenData = this.afterTen(getBottomRank);
+            let noFreqAllData = [data, noFreqTenData];
+            noFreqAllData = _.flatten(noFreqAllData);
+
             return [{
                 name: 'Sales',
-                data: _.orderBy(rawData, ['sales'], ['desc'])
-                       .filter((item, index) => {
-                           if (index > 9) { return; };
-                           return item;
-                       })
-                       .map(item => [ item._id.product, item.sales ])
+                data: noFreqAllData.filter((item, index) => {
+                            return item;
+                        })
+                        .map(item => [ item['_id']['product'], item['sales'] ])
             }];
 
         } else {
             let frequencies = _.uniq(rawData.map(item => item._id.frequency)).sort();
             let products =  this._topTenBestSeller(rawData);
-
+            var bottomSales = [];
             let data = rawData.filter((item, index) => {
                            if (frequencies.indexOf(item._id.frequency) === -1 ||
-                               products.indexOf(item._id.product) === -1)  { return; };
+                               products.indexOf(item._id.product) === -1)  { bottomSales.push(item); return; };
                            return item;
                        });
+            let notTopTen = this.afterTen(bottomSales);
+            let allData = [data, notTopTen];
+            allData = _.flatten(allData);
 
-            data = _.orderBy(data, ['_id.frequency', 'sales'], ['asc', 'desc']);
-            data = _(data)
+            allData = _.orderBy(allData, ['_id.frequency', 'sales'], ['asc', 'desc']);
+            let groupData = _(allData)
                     .groupBy('_id.product')
                     .map((v, k) => ({
                         name: k,
@@ -80,7 +93,7 @@ export class SalesByProduct extends KpiBase {
                     }))
                     .value();
 
-            return data;
+            return groupData;
         }
     }
 
@@ -97,6 +110,25 @@ export class SalesByProduct extends KpiBase {
                     return item;
                 })
                 .map(item => item.product);
+    }
+    private afterTen(rawData: any) {
+        let data = _.orderBy(rawData, "sales", "desc");
+        var sum = 0;
+        
+        var others = _(data)
+            .groupBy("_id.frequency")
+            .map((v, k) => ({
+                _id: {
+                    product: "Others",
+                    frequency: k
+                },
+                sales: _.sumBy(v, 'sales')
+            }))
+            .orderBy('_id.frequency','desc')
+            //   .map(item => [item.product, item.sales, item.frequency])
+            .value();
+            
+        return others;
     }
 
 }
