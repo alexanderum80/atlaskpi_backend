@@ -44,14 +44,15 @@ export class RevenueByUnitPie extends KpiBase{
         return this.executeQuery('timestamp', dateRange, frequency).then(data => {
             return Promise.resolve(that._toSeries(data, frequency));
         })
-    } 
-    _toSeries(rawData: any[], frequency: FrequencyEnum) {
+    }
+
+    private _toSeries(rawData: any[], frequency: FrequencyEnum) {
         return [{
             name: "Revenue",
             data: this.arrangeData(rawData)
-
-        }]
+        }];
     }
+    
     private arrangeData(rawData: any) {
         return _(rawData)
             .orderBy("sales", "desc")
