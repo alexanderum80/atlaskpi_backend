@@ -31,6 +31,7 @@ import { IDateRange } from '../data/models/common';
 import { RevenueByServiceLine } from '../data/queries/app/kpis/financial/revenue-by-service-line';
 import { getContext } from '../data/models/app/app-context';
 import { FrequencyEnum } from '../data/models/common';
+import { SalesByProduct } from '../data/queries/app/kpis/financial/sales-by-product';
 import * as mongoose from 'mongoose';
 
 export function executeKpis() {
@@ -40,11 +41,11 @@ export function executeKpis() {
     getContext('mongodb://localhost/saltz-plastic-surgery').then(ctx => {
 
         let dateRange: IDateRange = {
-            from: new Date('2005-01-01'),
-            to: new Date('2017-12-31')
+            from: new Date('2016-01-01'),
+            to: new Date('2016-05-31')
         };
 
-        let frequency = FrequencyEnum.Monthly;
+        let frequency = FrequencyEnum.Daily;
 
         // let kpi = new AestheticianRevenueRatePerHour(ctx.Sale, ctx.WorkLog);
 
@@ -59,7 +60,7 @@ export function executeKpis() {
         // let kpi = new PayrollExpenseRatio(ctx.Expense, ctx.Sale);
         // let kpi = new TotalPayroll(ctx.Expense);
 
-        let kpi = new TotalRevenue(ctx.Sale);
+        let kpi = new RetailSales(ctx.Sale);
 
 
         kpi.getData(dateRange, frequency).then(data => {

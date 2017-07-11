@@ -24,7 +24,7 @@ export class KpiBase {
         return new Promise<any>((resolve, reject) => {
             if (dateRange)
                 that._injectDataRange(dateRange, dateField);
-            if (frequency)
+            if (frequency !== undefined)
                 that._injectFrequency(frequency, dateField);
 
             // decompose aggregate object into array
@@ -83,8 +83,8 @@ export class KpiBase {
     }
 
     private _injectFrequency(frequency: FrequencyEnum, field: string) {
-
-        if (!frequency) return;
+        // console.log(typeof frequency);
+        if (frequency === undefined) return;
 
         field = '$' + field;
 
@@ -105,6 +105,38 @@ export class KpiBase {
         if (!projectStage) throw 'An aggregate needs a project operator defined for a frequency';
 
         switch (frequency) {
+
+            case FrequencyEnum.Daily:
+                if (!projectStage.$project) projectStage.$project = { };
+
+                // add to the projection the frequency field with year, month and day: YYYY-MM-DD
+                projectStage.$project.frequency = {
+                    $concat: [
+                        { $substr: [ { $year: field }, 0, 4 ] },
+                        '-',
+                        { $cond: [
+                            { $lte: [ { $month: field }, 9 ] },
+                            { $concat: [
+                                '0', { $substr: [ { $month: field }, 0, 2 ] }
+                            ]},
+                            { $substr: [ { $month: field }, 0, 2 ] }
+                        ]},
+                        '-',
+                        { $cond: [
+                            { $lte: [ { $dayOfMonth: field }, 9 ] },
+                            { $concat: [
+                                '0', { $substr: [ { $dayOfMonth: field }, 0, 2 ] }
+                            ]},
+                            { $substr: [ { $dayOfMonth: field }, 0, 2 ] }
+                        ]}
+                    ]
+                };
+
+                delete groupStage.$group._id.frequency;
+                currentGrouping = groupStage.$group._id;
+                groupStage.$group._id = { frequency: '$frequency' };
+                break;
+
             case FrequencyEnum.Weekly:
                 delete groupStage.$group._id.frequency;
                 currentGrouping = groupStage.$group._id;

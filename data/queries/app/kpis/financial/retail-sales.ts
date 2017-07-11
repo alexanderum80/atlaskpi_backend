@@ -4,6 +4,7 @@ import { KpiBase } from '../kpi-base';
 import { IAppModels } from '../../../../models/app/app-models';
 import { FrequencyEnum } from '../../../../models/common/frequency-enum';
 import { IDateRange } from '../../../../models/common/date-range';
+import { SeriesProcessorExtention, ISerieOptions } from '../common/series-processor';
 import * as Promise from 'bluebird';
 import * as _ from 'lodash';
 
@@ -28,57 +29,63 @@ const aggregate: AggregateStage[] = [
     },
     {
         $sort: {
-            frequency: 1
+            '_id.frequency': 1
         }
     }
 ];
 
 export class RetailSales extends KpiBase {
 
+    seriesProcessor: SeriesProcessorExtention;
+    options: ISerieOptions = { name: 'Retail', property: 'sales' };
+
     constructor(sales: ISaleModel) {
         super(sales, aggregate);
+        this.seriesProcessor = new SeriesProcessorExtention();
     }
 
     getData(dateRange: IDateRange, frequency?: FrequencyEnum): Promise<any> {
         let that = this;
 
         return this.executeQuery('product.from', dateRange, frequency).then(data => {
-            return Promise.resolve(that._toSeries(data, frequency));
+            // return Promise.resolve(that._toSeries(data, frequency));
+            // return Promise.resolve(data);
+            return Promise.resolve(this.seriesProcessor.ToSeries(data, frequency, this.options));
         });
     }
 
-    private _toSeries(rawData: any[], frequency: FrequencyEnum) {
+    // private _toSeries(rawData: any[], frequency: FrequencyEnum) {
 
-        if (!frequency) {
-            return [{
-                name: 'Retail',
-                data: rawData.map(item => [ null, item.sales ])
-            }];
-        } else {
-           let frequencies = _.uniq(rawData.map(item => item._id.frequency)).sort();
-           let years = _.uniq(frequencies.map(f => { return f.split('-')[0]; }));
+    //     if (!frequency) {
+    //         return [{
+    //             name: 'Retail',
+    //             data: rawData.map(item => [ null, item.sales ])
+    //         }];
+    //     } else {
+    //        let frequencies = _.uniq(rawData.map(item => item._id.frequency)).sort();
+    //        let years = _.uniq(frequencies.map(f => { return f.split('-')[0]; }));
 
-            let result = [];
+    //         let result = [];
 
-            years.forEach(y => {
-                let serie = { name: y,
-                            data: this._getRetalByYear(rawData, y) };
-                result.push(serie);
-            });
+    //         years.forEach(y => {
+    //             let serie = { name: y,
+    //                         data: this._getRetalByYear(rawData, y) };
+    //             result.push(serie);
+    //         });
 
-            return result;
-        }
-    }
+    //         return result;
+    //     }
+    // }
 
-    private _getRetalByYear(rawData: any, year: string) {
-        let data = rawData.filter(d => {
-            if (d._id.frequency.indexOf(year) === -1) { return; };
-            return d;
-        });
+    // private _getRetalByYear(rawData: any, year: string) {
+    //     let data = rawData.filter(d => {
+    //         if (d._id.frequency.indexOf(year) === -1) { return; };
+    //         return d;
+    //     });
 
-        data = _.sortBy(data, '_id.frequency');
-        return data.map(item => [ item._id.frequency, item.sales ]);
-    }
+    //     data = _.sortBy(data, '_id.frequency');
+    //     return data.map(item => [ item._id.frequency, item.sales ]);
+    // }
 
 
 

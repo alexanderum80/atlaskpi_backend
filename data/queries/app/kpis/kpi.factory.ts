@@ -70,7 +70,7 @@ export function getKPI(code: string, ctx: IAppModels) {
             return new ProfesionalSalesRatio(ctx.Sale);
         case 'RetailSalesRatio':
             return new RetailSalesRatio(ctx.Sale);
-        
+
         // Expenses
         case 'TotalExpense':
             return new TotalExpense(ctx.Expense);

@@ -37,7 +37,6 @@ export class Chart {
                 // preserve dateRange for single chart reload
                 that._chart.dateFrom = dateRange.from.toDateString();
                 that._chart.dateTo = dateRange.to.toDateString();
-
                 resolve(JSON.stringify(that._chart));
             }, (e) => reject(e));
         });

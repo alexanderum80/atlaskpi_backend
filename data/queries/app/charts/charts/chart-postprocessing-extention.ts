@@ -10,7 +10,8 @@ const serieElementsToCategories = function(series: any[]) {
             });
         });
 
-        categories = _.uniq(categories).sort();
+        // categories = _.uniq(categories).sort();
+        categories = _.uniq(categories);
 
         return categories;
 };
@@ -88,7 +89,16 @@ export class ChartPostProcessingExtention {
                 return this._serieToMonthNameCategories(series, chart.chartDefinition);
 
             case 'RetailSales':
-                return this._serieToMonthNameCategories(series, chart.chartDefinition);
+                // return this._serieToMonthNameCategories(series, chart.chartDefinition);
+
+                let definition = this._serieToCategories(series, chart.chartDefinition);
+                let newSeries = this._getRidOfFrequency(series);
+
+                definition.series = newSeries;
+                chart.chartDefinition = definition;
+                
+                return chart.chartDefinition;
+                // return this._seriesAreDateWithIntervals(series, chart.chartDefinition);
 
             case 'TotalExpense':
                 return this._serieToMonthNameCategories(series, chart.chartDefinition);
@@ -244,5 +254,14 @@ export class ChartPostProcessingExtention {
 
         return hiddenSeries;
     }
-}
 
+    // private _seriesAreDateWithIntervals(series: any[], definition: any): any {
+    //      let xAxis = definition.xAxis || {};
+    //      xAxis =  {
+    //         type: 'datetime',
+    //      };
+
+    //      definition.xAxis = xAxis;
+    //         return definition;
+    // }
+}
