@@ -16,6 +16,7 @@ const serieElementsToCategories = function(series: any[]) {
 };
 
 const Names = ['Wilson', 'Chase', 'Cameron', 'Foreman', 'Taub', 'Hadley', 'Masters' ];
+const orderMonths = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 
 export class ChartPostProcessingExtention {
 
@@ -99,6 +100,15 @@ export class ChartPostProcessingExtention {
             case 'PayrollExpenseRatio':
                 chart.chartDefinition = this._withColorBars(chart.chartDefinition);
                 return this._serieToMonthNameCategories(series, chart.chartDefinition);
+            
+            case 'RevenueByUnits':
+                return this._serieToMonthNameCategories(series, chart.chartDefinition);
+            
+            case 'TotalSalesByDayByLocation':
+                return this._serieToMonthNameCategories(series, chart.chartDefinition);
+
+            case 'RevenueByUnitPie':
+                return this._serieToMonthNameCategories(series, chart.chartDefinition);
 
             default:
                 // no post-processing
@@ -133,7 +143,11 @@ export class ChartPostProcessingExtention {
     private _serieToMonthNameCategories(series: any[], definition: any): any {
          let xAxis = definition.xAxis || {};
          xAxis.categories = serieElementsToCategories(series).map(s => {
-             return moment(s + '-01').format('MMM');
+             return moment(s + "-01").format('MMM');
+         });
+         xAxis.categories = _.uniq(xAxis.categories);
+         xAxis.categories = xAxis.categories.sort((a, b) => {
+             return orderMonths.indexOf(a) - orderMonths.indexOf(b);
          });
          definition.xAxis = xAxis;
          return definition;

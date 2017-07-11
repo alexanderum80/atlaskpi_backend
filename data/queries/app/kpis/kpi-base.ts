@@ -24,7 +24,7 @@ export class KpiBase {
         return new Promise<any>((resolve, reject) => {
             if (dateRange)
                 that._injectDataRange(dateRange, dateField);
-            if (frequency)
+            if (frequency !== undefined)
                 that._injectFrequency(frequency, dateField);
 
             // decompose aggregate object into array
@@ -84,7 +84,7 @@ export class KpiBase {
 
     private _injectFrequency(frequency: FrequencyEnum, field: string) {
 
-        if (!frequency) return;
+        if (frequency === undefined) return;
 
         field = '$' + field;
 

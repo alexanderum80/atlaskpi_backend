@@ -255,6 +255,39 @@
         "filter": null,
         "axisSelection": "expense",
         "outputType": "value"
+    },
+    {
+        "_id": "306",
+        "code": "RevenueByUnits",
+        "name": "Revenue By Units",
+        "description": "Revenue By Units",
+        "formula": "Total Sales",
+        "grouping": null,
+        "filter": null,
+        "axisSelection": "sales",
+        "outputType": "value"
+    },
+    {
+        "_id": "307",
+        "code": "TotalSalesByDayByLocation",
+        "name": "Total Sales By Day By Location",
+        "description": "Sale By Day Per Location",
+        "formula": "Total Sales",
+        "grouping": null,
+        "filter": null,
+        "axisSelection": "sales",
+        "outputType": "value"
+    },
+    {
+        "_id": "308",
+        "code": "RevenueByUnitPie",
+        "name": "Revenue By Unit Pie",
+        "description": "Revenue By Unit Pie",
+        "formula": "Total Sales",
+        "grouping": null,
+        "filter": null,
+        "axisSelection": "sales",
+        "outputType": "value"
     }
 
 ]

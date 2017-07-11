@@ -8,6 +8,9 @@ import { CostOfGoodSold } from "./common/cost-of-goods-sold";
 import { ExpenseByCategory } from "./common/expense-by-category";
 import { ExpenseRatio } from './common/expense-ratio';
 import { PayrollExpenseRatio } from './common/payroll-expense-ratio';
+import { RevenueByUnits } from './common/revenue-by-units';
+import { TotalSalesByDayByLocation } from './financial/total-sales-by-day-by-location';
+import { RevenueByUnitPie } from './financial/revenue-by-unit-pie';
 import { AvgRevenueByFTPhysician, NetRevenueByFTE, RevenueByServiceLine } from './financial';
 import { AvgRevenueByFTAesthetician } from './financial/avg-rev-per-fte-aesthetician';
 import { AvgRevenueByFTNonPhysician } from './financial/avg-rev-per-non-fte-physician';
@@ -83,6 +86,14 @@ export function getKPI(code: string, ctx: IAppModels) {
             return new ExpenseRatio(ctx.Expense, ctx.Sale);
         case 'PayrollExpenseRatio':
             return new PayrollExpenseRatio(ctx.Expense, ctx.Sale);
+        case 'RevenueByUnits':
+            return new RevenueByUnits(ctx.Sale);
+
+        case 'TotalSalesByDayByLocation':
+            return new TotalSalesByDayByLocation(ctx.Sale);
+
+        case 'RevenueByUnitPie':
+            return new RevenueByUnitPie(ctx.Sale);
 
         default:
             return null;
