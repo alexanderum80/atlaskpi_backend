@@ -1,7 +1,6 @@
 import * as Promise from 'bluebird';
 import { IIdentity, IMutationResponse, ICreateUserDetails, IUserModel, IUserDocument } from '../../..';
 import { IMutation, IValidationResult } from '../..';
-import { IAppConfig } from '../../../../config';
 
 export class UpdateUserMutation implements IMutation<IMutationResponse> {
 

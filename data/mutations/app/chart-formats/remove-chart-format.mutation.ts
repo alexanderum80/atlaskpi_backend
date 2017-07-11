@@ -2,7 +2,6 @@ import { IChartFormatDetails, IChartFormatModel, IChartFormatDocument, IIdentity
 import { IMutation, IValidationResult } from '../..';
 import * as Promise from 'bluebird';
 import { AccountCreatedNotification } from '../../../../services';
-import { IAppConfig } from '../../../../config';
 
 export class RemoveChartFormatMutation implements IMutation<IMutationResponse> {
     constructor(

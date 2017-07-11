@@ -52,7 +52,7 @@ export interface IAccount {
 export interface IAccountDocument extends IAccount, mongoose.Document {
     getConnectionString(): string;
     getMasterConnectionString(): string;
-    createParticularUser(particularUser: IParticularDBUser): Promise<any>;
+    createParticularUser(particularUser: IParticularDBUser): Promise<boolean>;
 }
 
 export interface IAccountModel extends mongoose.Model<IAccountDocument> {
@@ -61,7 +61,7 @@ export interface IAccountModel extends mongoose.Model<IAccountDocument> {
      * @param {IAccount} account - an object with the details of the account
      * @returns {Promise<IMutationResponse>}
      */
-     createNewAccount(account: IAccount): Promise<IMutationResponse>;
+     createNewAccount(ip: string, clientId: string, clientDetails: string, account: IAccount): Promise<IMutationResponse>;
      /**
      * Search an account by the hostname
      * @param {String} username - the account owner username

@@ -37,7 +37,7 @@ import {
     IPagedQueryResult,
     Paginator
 } from '../../';
-import { config, IAppConfig } from '../../../../config';
+import { config } from '../../../../config';
 import { IErrorData } from '../..';
 
 export function accountPlugin(schema: mongoose.Schema, options: any) {
@@ -166,7 +166,7 @@ export function accountPlugin(schema: mongoose.Schema, options: any) {
         });
     };
 
-    schema.methods.generateToken = function(dbUri: string, hostname: string, username: string, password: string, ip: string, clientId: string, clientDetails: string): Promise<IUserToken> {
+    schema.methods.generateToken = function(dbUri: string, username: string, password: string, ip: string, clientId: string, clientDetails: string): Promise<IUserToken> {
         return new Promise<IUserToken>((resolve, reject) => {
 
             // create user identity
@@ -194,7 +194,7 @@ export function accountPlugin(schema: mongoose.Schema, options: any) {
             // create user token response
             let tokenDetails: IUserToken = {
                 issued: new Date(),
-                expires: moment().add('milliseconds', ms(config.token.expiresIn)).toDate(),
+                expires: moment().add('milliseconds', ms(String(config.token.expiresIn))).toDate(),
                 access_token: token
             };
 
@@ -803,7 +803,7 @@ export function accountPlugin(schema: mongoose.Schema, options: any) {
             }
 
             let expirationDate = moment(user.services.password.reset.when)
-                .add('milliseconds', ms(config.usersService.services.forgotPassword.expiresIn));
+                .add('milliseconds', ms(String(config.usersService.services.forgotPassword.expiresIn)));
 
             if (moment().isAfter(expirationDate)) {
                 // remove token because it is not useful any way
@@ -830,7 +830,7 @@ export function accountPlugin(schema: mongoose.Schema, options: any) {
             }
 
             let expirationDate = moment(user.services.email.enrollment[0].when)
-                .add('milliseconds', ms(config.usersService.services.forgotPassword.expiresIn));
+                .add('milliseconds', ms(String(config.usersService.services.forgotPassword.expiresIn)));
 
             if (moment().isAfter(expirationDate)) {
                 // remove token because it is not useful any way

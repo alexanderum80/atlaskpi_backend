@@ -20,6 +20,7 @@ import { getChartFormatModel } from './chart-formats';
 import { getChartModel } from './charts';
 import { getDashboardModel } from './dashboards';
 import { getWorkLogModel } from './work-log/WorkLog';
+import { getLogModel } from './log';
 
 import * as winston from 'winston';
 
@@ -48,7 +49,8 @@ export function getContext(dbUri: string): Promise<IAppModels> {
                 ChartFormat: getChartFormatModel(m),
                 Dashboard: getDashboardModel(m),
                 Expense: getExpenseModel(m),
-                WorkLog: getWorkLogModel(m)
+                WorkLog: getWorkLogModel(m),
+                LogModel: getLogModel(m)
             });
         }, (err) => reject(err));
     });

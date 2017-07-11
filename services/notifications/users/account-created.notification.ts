@@ -5,7 +5,7 @@ import * as Promise from 'bluebird';
 import * as nodemailer from 'nodemailer';
 import * as Handlebars from 'handlebars';
 import { sendEmail } from '../..';
-import { IAppConfig } from '../../../config';
+import { IAppConfig } from '../../../configuration';
 
 export interface IAccountCreatedNotifier extends IEmailNotifier {
 

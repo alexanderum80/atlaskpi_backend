@@ -3,7 +3,6 @@ import { IForgotPasswordNotifier } from '../../../../services';
 import { IUserModel, IIdentity } from '../../..';
 import { IMutation } from '../..';
 import * as Promise from 'bluebird';
-import { IAppConfig } from '../../../../config';
 import * as nodemailer from 'nodemailer';
 
 export class UserForgotPasswordMutation implements IMutation<IMutationResponse> {
