@@ -37,13 +37,15 @@ export class RevenueByUnits extends KpiBase {
     constructor(sales: ISaleModel) {
         super(sales, aggregate);
     }
+
     getData(dateRange: IDateRange, frequency?: FrequencyEnum): Promise<any> {
         const that = this;
         return this.executeQuery('product.from', dateRange, frequency).then(data => {
             return Promise.resolve(that._toSeries(data, frequency));
         })
     }
-    _toSeries(rawData: any[], frequency: FrequencyEnum) {
+
+    private _toSeries(rawData: any[], frequency: FrequencyEnum) {
         let frequencies = _.uniq(rawData.map(item => item._id.frequency)).sort();
         let products =  this.arrangeData(rawData);
         let data = rawData.filter((item, index) => {
@@ -63,6 +65,7 @@ export class RevenueByUnits extends KpiBase {
 
         return groupData;
     }
+    
     private arrangeData(rawData: any) {
         return _(rawData)
             .orderBy("sales", "desc")
