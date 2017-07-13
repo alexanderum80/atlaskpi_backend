@@ -19,7 +19,7 @@ export function seedApp(connectionString) {
         { model: 'Dashboard', filename: 'dashboards.json' }
     ];
 
-    getContext(connectionString).then((ctx) => {
+    getContext('mongodb://localhost/test-company-chris').then((ctx) => {
         // test
         let count = ctx.Sale.find({}).count((err, count) => {
             console.log('Number of records in sales collection: ' + count);

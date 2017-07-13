@@ -26,25 +26,27 @@ export interface ICustomer extends IEntity {
 
 
 export interface IEmployee extends IEntity {
-    name: string;
-    middleName: string;
-    lastName: string;
+    fullName: string;
     role: string;
     type: string; // full time (f), part time (p)
     workedTime: number; // in seconds
 }
 
 export interface IProduct extends IEntity {
-    cost: number;
-    price: number;
+    itemCode: string;
+    itemDescription: string;
+    quantity: number;
+    unitPrice: number;
     tax: number;
     tax2: number;
+    amount: number;
+    discount: number;
     from: Date;
     to: Date;
 }
 
 export interface ICategory extends IEntity {
-    service: boolean;
+    service: number;
 }
 
 export interface ISales extends IIdName {

@@ -31,9 +31,7 @@ let CustomerSchema = new Schema ({
 
 let EmployeeSchema = new Schema({
     externalId: String,
-    name: String,
-    middleName: String,
-    lastName: String,
+    fullName: String,
     role: String,
     type: String, // full time (f), part time (p)
     workedTime: Number // time in seconds
@@ -41,11 +39,14 @@ let EmployeeSchema = new Schema({
 
 let ProductSchema = new Schema({
     externalId: String,
-    name: String,
-    cost: Number,
-    price: Number,
+    itemCode: String,
+    itemDescription: String,
+    quantity: Number,
+    unitPrice: Number,
     tax: Number,
     tax2: Number,
+    amount: Number,
+    discount: Number,
     from: Date,
     to: Date,
     type: String
@@ -54,7 +55,7 @@ let ProductSchema = new Schema({
 let CategorySchema = new Schema ({
     externalId: String,
     name: String,
-    service: Boolean,
+    service: Number,
 });
 
 let DocumentSchema = new Schema ({
@@ -69,6 +70,8 @@ let PaymentSchema = new Schema ({
 });
 
 let SalesSchema = new Schema ({
+    source: String,
+    externalId: { type: String, unique: true },
     location: LocationSchema,
     customer: CustomerSchema,
     employee: EmployeeSchema,
@@ -78,7 +81,6 @@ let SalesSchema = new Schema ({
     timestamp: Date,
     concept: String,
     document: DocumentSchema,
-
     payment: PaymentSchema
 });
 
