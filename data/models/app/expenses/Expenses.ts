@@ -8,25 +8,6 @@ let IdNameSchema = new Schema({
     name: String,
 });
 
-// let ExpenseSchema = new Schema({
-//     location: {
-//         id: String,
-//         name: String
-//     },
-//     employee: {
-//         id: String,
-//         name: String
-//     },
-//     product: {
-//         id: String,
-//         name: String
-//     },
-//     expense: {
-//         concept: String,
-//         amount: Number
-//     }
-// });
-
 const ExpenseSchema = new Schema({
     source: String,
     externalId: { type: String, unique: true },
