@@ -11,14 +11,14 @@ export class ExpenseRatio {
     constructor(private expenses: IExpenseModel, private sales: ISaleModel) {}
 
     getData(dateRange: IDateRange, frequency?: FrequencyEnum): Promise<any> {
-        let self = this;
+        const that = this;
         let totalRevenue = new TotalRevenue(this.sales);
         let totalExpense = new TotalExpense(this.expenses);
         let ratioKPI = new RatioExpensesCalculatorKPI(totalExpense, totalRevenue);
 
         return new Promise((resolve, reject) => {
             ratioKPI.getData(dateRange, frequency).then(data => {
-                resolve(self._toSeries(data));
+                resolve(that._toSeries(data));
             })
         })
         
