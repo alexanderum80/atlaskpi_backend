@@ -1,10 +1,10 @@
 import { ISaleModel } from '../../../../models/app/sales';
 import { AggregateStage } from '../aggregate';
-import { KpiBase } from '../kpi-base';
+import { KpiBase, IKpiBase, IKPIResult, IKPIMetadata } from '../kpi-base';
 import { IAppModels } from '../../../../models/app/app-models';
 import { FrequencyEnum } from '../../../../models/common/frequency-enum';
 import { IDateRange } from '../../../../models/common/date-range';
-import { SeriesProcessorExtention, ISerieOptions } from '../common/series-processor';
+import { SeriesProcessorExtention } from '../common/series-processor';
 import * as Promise from 'bluebird';
 import * as _ from 'lodash';
 
@@ -24,7 +24,7 @@ const aggregate: AggregateStage[] = [
         frequency: true,
         $group: {
             _id: null,
-            sales: { $sum: '$product.amount' }
+            value: { $sum: '$product.amount' }
         }
     },
     {
@@ -34,23 +34,20 @@ const aggregate: AggregateStage[] = [
     }
 ];
 
-export class RetailSales extends KpiBase {
-
-    seriesProcessor: SeriesProcessorExtention;
-    options: ISerieOptions = { name: 'Retail', property: 'sales' };
+export class RetailSales extends KpiBase implements IKpiBase {
 
     constructor(sales: ISaleModel) {
         super(sales, aggregate);
-        this.seriesProcessor = new SeriesProcessorExtention();
     }
 
-    getData(dateRange: IDateRange, frequency?: FrequencyEnum): Promise<any> {
+    getData(dateRange: IDateRange, frequency?: FrequencyEnum): Promise<IKPIResult> {
         let that = this;
 
         return this.executeQuery('product.from', dateRange, frequency).then(data => {
-            // return Promise.resolve(that._toSeries(data, frequency));
-            // return Promise.resolve(data);
-            return Promise.resolve(this.seriesProcessor.ToSeries(data, frequency, this.options));
+            return Promise.resolve({ data: data, metadata: { name: 'Retail Sales', dateRange: dateRange, frequency: frequency }});
+        })
+        .catch((err) => {
+            return Promise.reject(err);
         });
     }
 

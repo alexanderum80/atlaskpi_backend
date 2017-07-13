@@ -1,17 +1,17 @@
 import { IExpenseModel } from '../../../../models/app/expenses';
 import { AggregateStage } from '../aggregate';
-import { KpiBase } from '../kpi-base';
+import { KpiBase, IKpiBase } from '../kpi-base';
 import { IAppModels } from '../../../../models/app/app-models';
 import { FrequencyEnum } from '../../../../models/common/frequency-enum';
 import { IDateRange } from '../../../../models/common/date-range';
-import * as Promise from 'bluebird';
 import * as _ from 'lodash';
+import * as Promise from 'bluebird';
 
 const aggregate: AggregateStage[] = [
     {
         dateRange: true,
         $match:  {
-            "expense.concept": "Cost of Good Sold"
+            'expense.concept': 'Cost of Good Sold'
         }
     },
     {
@@ -22,7 +22,7 @@ const aggregate: AggregateStage[] = [
         frequency: true,
         $group: {
             expenses: {
-                $sum: "$expense.amount"
+                $sum: '$expense.amount'
             }
         }
     },
@@ -33,7 +33,7 @@ const aggregate: AggregateStage[] = [
     }
 ];
 
-export class CostOfGoodSold extends KpiBase {
+export class CostOfGoodSold extends KpiBase implements IKpiBase {
 
    constructor(sales: IExpenseModel) {
         super(sales, aggregate);

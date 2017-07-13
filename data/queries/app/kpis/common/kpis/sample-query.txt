@@ -1,0 +1,161 @@
+db.sales.aggregate(
+    { "$match":
+        { 
+            "category.service": { "$eq": 1 },
+            "product.from": { "$gte": new Date("2011-01-01") },
+            "product.to": { "$lte": new Date("2014-11-01") }
+        }
+    },
+    { $project: {
+        'product': 1,
+        'category': 1,
+        '_id': 0        
+      }
+    },
+    {
+        $group: {
+            _id: {
+                frequency: { $week: '$product.from' },
+                product: '$product.name'
+            },
+            sales: { $sum: '$product.price' }
+        }
+    },
+    {
+        $sort: {
+            '_id.frequency': 1,
+            sales: -1
+        }
+    });
+
+
+
+
+
+
+
+
+
+
+db.sales.aggregate(
+    { "$match":
+        { 
+            "category.service": { "$eq": 1 },
+            "product.from": { "$gte": new Date("2011-01-01") },
+            "product.to": { "$lte": new Date("2014-11-01") }
+        }
+    },
+    { $project: {
+        'product': 1,
+        'category': 1,
+        '_id': 0,
+        'frequency': {
+            $concat: [
+                { $substr: [ { $year: '$product.from' }, 0, 4 ] },
+                '-',
+                { "$cond": [
+                    { "$lte": [ { "$month": "$product.from" }, 9 ] },
+                    { "$concat": [
+                        "0", { "$substr": [ { "$month": "$product.from" }, 0, 2 ] }
+                    ]},
+                    { "$substr": [ { "$month": "$product.from" }, 0, 2 ] }
+                ]}                
+            ]
+        }
+      }
+    },
+    {
+        $group: {
+            _id: {
+                frequency: '$frequency',
+                product: '$product.name'
+            },
+            sales: { $sum: '$product.price' }
+        }
+    },
+    {
+        $sort: {
+            '_id.year': 1,
+            '_id.month': 1,
+            '_id.week': 1,
+            'week': 1,
+            sales: -1
+        }
+    });
+
+
+
+
+
+
+
+
+
+db.sales.aggregate(
+{ "$match":
+    { 
+        "category.service": { "$eq": 1 },
+        "product.from": { "$gte": new Date("2012-01-01"), "$lte": new Date("2014-12-31") }
+    }
+},
+{ $project: {
+    'product': 1,
+    'category': 1,
+    '_id': 0,
+    'quarter': {
+        $concat: [
+            { $substr: [ { $year: '$product.from' }, 0, 4 ] },
+            "-",
+            { $cond: [
+                { $lte: [{ $month: '$product.from' }, 3] }, 
+                    'Q1',
+                    { $cond: [
+                        { $lte: [{ $month: '$product.from' }, 6] },
+                            'Q2',
+                            { $cond: [
+                                { $lte: [{ $month: '$product.from' }, 9] },
+                                'Q3',
+                                'Q4'
+                            ] }
+                    ] }  
+            ] }
+        ]
+        
+    }
+  }
+},
+{
+    $group: {
+        _id: {
+            frequency: '$quarter',
+            product: '$product.name'
+        },
+        sales: { $sum: '$product.price' }
+    }
+},
+{
+    $sort: {
+        '_id.frequency': 1,
+        sales: -1
+    }
+});
+
+
+
+
+db.sales.aggregate(
+    
+    { $match: { 'employee.type': { '$eq': 'f' } } },
+    { $project: {
+        'product': 1,
+        'employee': 1,
+        '_id': 0
+    } },
+    { $group: {
+        _id: { employee: '$employee.externalId' },
+        sales: { $sum: '$product.price' }
+    } },
+    { $sort: {
+        frequency: 1
+    } }
+)

@@ -1,6 +1,6 @@
 import { ISaleModel } from '../../../../models/app/sales';
 import { AggregateStage } from '../aggregate';
-import { KpiBase } from '../kpi-base';
+import { KpiBase, IKpiBase } from '../kpi-base';
 import { IAppModels } from '../../../../models/app/app-models';
 import { FrequencyEnum } from '../../../../models/common/frequency-enum';
 import { IDateRange } from '../../../../models/common/date-range';
@@ -32,7 +32,7 @@ const aggregate: AggregateStage[] = [
     }
 ];
 
-export class ProfesionalServiceSales extends KpiBase {
+export class ProfesionalServiceSales extends KpiBase implements IKpiBase {
     constructor(sales: ISaleModel,
                 private _preProcesingKpi = false) {
         super(sales, aggregate);

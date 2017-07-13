@@ -1,6 +1,6 @@
 import { ISaleModel } from '../../../../models/app/sales';
 import { AggregateStage } from '../aggregate';
-import { KpiBase } from '../kpi-base';
+import { KpiBase, IKpiBase } from '../kpi-base';
 import { IAppModels } from '../../../../models/app/app-models';
 import { FrequencyEnum } from '../../../../models/common/frequency-enum';
 import { IDateRange } from '../../../../models/common/date-range';
@@ -33,7 +33,7 @@ const aggregate: AggregateStage[] = [
     }
 ];
 
-export class SalesByProduct extends KpiBase {
+export class SalesByProduct extends KpiBase implements IKpiBase {
 
     constructor(sales: ISaleModel) {
         super(sales, aggregate);
@@ -74,7 +74,7 @@ export class SalesByProduct extends KpiBase {
         } else {
             let frequencies = _.uniq(rawData.map(item => item._id.frequency)).sort();
             let products =  this._topTenBestSeller(rawData);
-            var bottomSales = [];
+            let bottomSales = [];
             let data = rawData.filter((item, index) => {
                            if (frequencies.indexOf(item._id.frequency) === -1 ||
                                products.indexOf(item._id.product) === -1)  { bottomSales.push(item); return; };
@@ -112,22 +112,22 @@ export class SalesByProduct extends KpiBase {
                 .map(item => item.product);
     }
     private afterTen(rawData: any) {
-        let data = _.orderBy(rawData, "sales", "desc");
-        var sum = 0;
-        
-        var others = _(data)
-            .groupBy("_id.frequency")
+        let data = _.orderBy(rawData, 'sales', 'desc');
+        let sum = 0;
+
+        let others = _(data)
+            .groupBy('_id.frequency')
             .map((v, k) => ({
                 _id: {
-                    product: "Others",
+                    product: 'Others',
                     frequency: k
                 },
                 sales: _.sumBy(v, 'sales')
             }))
-            .orderBy('_id.frequency','desc')
+            .orderBy('_id.frequency', 'desc')
             //   .map(item => [item.product, item.sales, item.frequency])
             .value();
-            
+
         return others;
     }
 

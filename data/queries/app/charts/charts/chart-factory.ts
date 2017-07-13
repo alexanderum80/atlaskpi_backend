@@ -1,13 +1,13 @@
-import { LineChart } from './line.chart';
 import { UIChartBase } from './chart-base';
 import { IAppModels } from '../../../../models/app/app-models';
-
+import { IChart, IChartDocument } from '../../../../models/app/charts';
+import { LineChart } from './line.chart';
 
 export function getUIChart(chart: IChart, ctx: IAppModels) {
-    switch (type) {
+    switch (chart.chartDefinition.type) {
         // Financial
         case 'line':
-            return new LineChart(ctx.Sale);
+            return new LineChart(chart, ctx);
 
             default:
             return null;

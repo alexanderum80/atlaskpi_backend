@@ -30,7 +30,7 @@ export interface IRevenueByIdKpi extends IKpiBase {
     setExternalids(ids: any[]): void;
 }
 
-export class RevenueByIds extends KpiBase {
+export class RevenueByIds extends KpiBase implements IKpiBase {
 
     externalIds: string[];
 

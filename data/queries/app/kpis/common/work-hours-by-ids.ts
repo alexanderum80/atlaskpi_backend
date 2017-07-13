@@ -30,7 +30,7 @@ export interface IWorkHoursByIdKpi extends IKpiBase {
     setExternalids(ids: any[]): void;
 }
 
-export class WorkHoursByIds extends KpiBase {
+export class WorkHoursByIds extends KpiBase implements IKpiBase {
 
     externalIds: string[];
 
