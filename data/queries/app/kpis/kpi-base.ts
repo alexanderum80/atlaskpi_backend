@@ -5,7 +5,7 @@ import { FrequencyEnum } from '../../../models/common/frequency-enum';
 import * as Promise from 'bluebird';
 
 export interface IKPIGrouping {
-    leve: number;
+    level: number;
     name: string;
 }
 

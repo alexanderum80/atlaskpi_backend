@@ -3,7 +3,7 @@ import { IAppModels } from '../../../../models/app/app-models';
 import { getKPI } from '../../kpis/kpi.factory';
 import { IKpiBase, IKPIResult } from '../../kpis/kpi-base';
 import { IChart, IChartDocument } from '../../../../models/app/charts';
-import { SeriesProcessorExtention } from '../../kpis/common/series-processor';
+import { KPIPostProcessorExtention } from '../../kpis/common/kpi-post-processor-extention';
 import * as Promise from 'bluebird';
 import * as mongoose from 'mongoose';
 
@@ -21,7 +21,7 @@ export class UIChartBase {
     series: any;
     categories: any;
 
-    seriesProcessor: SeriesProcessorExtention;
+    kpiPostProcessor: KPIPostProcessorExtention;
 
     constructor(private _chart: IChart, ctx: IAppModels) {
 

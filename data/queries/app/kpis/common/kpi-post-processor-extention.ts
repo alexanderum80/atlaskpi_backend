@@ -62,6 +62,8 @@ export class KPIPostProcessorExtention {
         return [];
     }
 
+    public getGroupings
+
     public ToSeries(res: IKPIResult): any[] {
          switch (res.metadata.frequency) {
             case FrequencyEnum.Daily:
