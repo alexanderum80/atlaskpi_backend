@@ -3,7 +3,7 @@ import { IActivity } from '../../../lib/enforcer';
 
 export const getChartActivity: IActivity = {
     may: 'get-chart',
-    when(identity: IIdentity, cb: (err: any, authorized: Boolean) => void) {
+    when(identity: IIdentity, cb: (err: any, authorized: boolean) => void) {
         cb(null, true);
     }
 };

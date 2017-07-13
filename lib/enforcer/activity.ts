@@ -12,7 +12,7 @@ export class ActivityCollection {
     private _activities: IActivity[];
     add(activity: IActivity): void {
         if (!activity) {
-            throw { message: 'Activity cannot be null' }
+            throw { message: 'Activity cannot be null' };
         }
         this._activities.push(activity);
     }
