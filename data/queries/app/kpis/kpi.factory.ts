@@ -9,7 +9,7 @@ import { ExpenseByCategory } from "./common/expense-by-category";
 import { ExpenseRatio } from './common/expense-ratio';
 import { PayrollExpenseRatio } from './common/payroll-expense-ratio';
 import { RevenueByUnits } from './common/revenue-by-units';
-import { TotalSalesByDayByLocation } from './financial/total-sales-by-day-by-location';
+// import { TotalSalesByDayByLocation } from './financial/total-sales-by-day-by-location';
 import { RevenueByUnitPie } from './financial/revenue-by-unit-pie';
 import { AvgRevenueByFTPhysician, NetRevenueByFTE, RevenueByServiceLine } from './financial';
 import { AvgRevenueByFTAesthetician } from './financial/avg-rev-per-fte-aesthetician';
@@ -89,8 +89,8 @@ export function getKPI(code: string, ctx: IAppModels) {
         case 'RevenueByUnits':
             return new RevenueByUnits(ctx.Sale);
 
-        case 'TotalSalesByDayByLocation':
-            return new TotalSalesByDayByLocation(ctx.Sale);
+        // case 'TotalSalesByDayByLocation':
+        //     return new TotalSalesByDayByLocation(ctx.Sale);
 
         case 'RevenueByUnitPie':
             return new RevenueByUnitPie(ctx.Sale);
