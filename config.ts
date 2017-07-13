@@ -44,7 +44,7 @@ export const config: IAppConfig = {
     },
     emailService: emailServiceConfig,
     usersService: usersServiceConfig,
-    // environment: prod_localdb
-    environment: local,
+    environment: prod_localdb
+    // environment: local,
     // environment: prod
 };
