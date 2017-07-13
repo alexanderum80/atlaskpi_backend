@@ -32,24 +32,18 @@ import { RevenueByServiceLine } from '../data/queries/app/kpis/financial/revenue
 import { getContext } from '../data/models/app/app-context';
 import { FrequencyEnum } from '../data/models/common';
 import * as mongoose from 'mongoose';
-import { TotalExpense } from "../data/queries/app/kpis/common/total-expense";
-import { ExpenseRatio } from "../data/queries/app/kpis/common/expense-ratio";
-import { SalesByProduct } from "../data/queries/app/kpis/financial/sales-by-product";
-import { CostOfGoodSold } from "../data/queries/app/kpis/common/cost-of-goods-sold";
-import { ExpenseByCategory } from "../data/queries/app/kpis/common/expense-by-category";
-import { PayrollExpenseRatio } from "../data/queries/app/kpis/common/payroll-expense-ratio";
-import { TotalPayroll } from '../data/queries/app/kpis/common/total-payroll';
 
 export function executeKpis() {
 
     mongoose.set('debug', true);
 
-    getContext('mongodb://localhost/test-company-chris').then(ctx => {
+    getContext('mongodb://localhost/saltz-plastic-surgery').then(ctx => {
 
         let dateRange: IDateRange = {
-            from: new Date('2016-01-01'),
-            to: new Date('2016-12-31')
+            from: new Date('2005-01-01'),
+            to: new Date('2017-12-31')
         };
+
         let frequency = FrequencyEnum.Monthly;
 
         // let kpi = new AestheticianRevenueRatePerHour(ctx.Sale, ctx.WorkLog);
@@ -62,42 +56,18 @@ export function executeKpis() {
         // let kpi = new SalesByProduct(ctx.Sale);
         // let kpi = new RetailSalesRatio(ctx.Sale);
         // let kpi = new ExpenseRatio(ctx.Expense, ctx.Sale);
-        let kpi = new PayrollExpenseRatio(ctx.Expense, ctx.Sale);
+        // let kpi = new PayrollExpenseRatio(ctx.Expense, ctx.Sale);
         // let kpi = new TotalPayroll(ctx.Expense);
+
+        let kpi = new TotalRevenue(ctx.Sale);
 
 
         kpi.getData(dateRange, frequency).then(data => {
 
-            // let definition = `{r
-            //     "title": {
-            //         "text": "Chart Title"
-            //     },
-            //     "subtitle": {
-            //         "text": "Subtitle for Chart"
-            //     },
-            //     "plotOptions": {
-            //         "pie": {
-            //             "dataLabels": {
-            //                 "enabled": true
-            //             },
-            //             "showInLegend": false
-            //         }
-            //     }
-            // }`;
-
-           
-
             let series = data;
-            // let chart = new Chart(definition, series);
 
-                console.log(JSON.stringify(data));
+            console.log(JSON.stringify(data));
         });
-
-      /*  let kpi2 = new TotalRevenue(ctx.Sale);
-        kpi2.getData(dateRange, frequency).then((d) =>{
-
-            let r = d;
-        });*/
 
     });
 }

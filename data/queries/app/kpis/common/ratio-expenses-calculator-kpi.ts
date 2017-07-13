@@ -34,6 +34,7 @@ export class RatioExpensesCalculatorKPI {
                 expenseRatio.push({ _id: { frequency: t._id.frequency },
                                          ratio: ratio });
         });
+        
         return Promise.resolve(expenseRatio);
     }
 

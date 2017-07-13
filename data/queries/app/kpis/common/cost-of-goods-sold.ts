@@ -11,7 +11,7 @@ const aggregate: AggregateStage[] = [
     {
         dateRange: true,
         $match:  {
-            "expense.concept": "Cost of Good Sold"
+            'expense.concept': 'Cost of Good Sold'
         }
     },
     {
@@ -22,7 +22,7 @@ const aggregate: AggregateStage[] = [
         frequency: true,
         $group: {
             expenses: {
-                $sum: "$expense.amount"
+                $sum: '$expense.amount'
             }
         }
     },
@@ -38,6 +38,7 @@ export class CostOfGoodSold extends KpiBase {
    constructor(sales: IExpenseModel) {
         super(sales, aggregate);
     }
+
     getData(dateRange: IDateRange, frequency?: FrequencyEnum): Promise<any> {
         const that = this;
         return this.executeQuery('timestamp', dateRange, frequency).then(data => {
