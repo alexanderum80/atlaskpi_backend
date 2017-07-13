@@ -41,22 +41,6 @@ export class ExpenseByCategory extends KpiBase {
     }
 
     private _toSeries(rawData: any[], frequency: FrequencyEnum) {
-        //let data = this.limitData(rawData, frequency);
-     /*   let data = _.orderBy(rawData, "expenses");
-
-        data = _(rawData)
-                    .map((v, k) => ({
-                        expenses: v.expenses,
-                        concept: v._id.concept
-                    }))
-                    .value()
-                    .map(item => [item.concept, item.expenses]);
-
-        let result = [{
-            name: 'Expense',
-            data: data
-        }];
-        return result;*/
         let data = this.fiveBest(rawData);
         return [{
             name: 'Expense',
@@ -67,31 +51,30 @@ export class ExpenseByCategory extends KpiBase {
         }];
     }
     private limitData(rawData: any[], frequency: FrequencyEnum) {
-       // var data = _.flatten(rawData);
         return _.filter(rawData, (v, k) => {
             if (k > 5) return;
             return v;
         });
     }
     private fiveBest(rawData: any) {
-        var sum = 0;
-        var data = rawData;
-        var a = data.slice(0,5);
-        var b = data.slice(5, data.length);
-        for (var i = 0;i < b.length;i++) {
-            sum += b[i].expenses;
+        let sum = 0;
+        let data = rawData;
+        let topFive = data.slice(0,5);
+        let bottomExpense = data.slice(5, data.length);
+        for (let i = 0;i < bottomExpense.length;i++) {
+            sum += bottomExpense[i].expenses;
         }
         
-        a.push({
+        topFive.push({
             _id: {
                 concept: "Others"
             },
             expenses: sum
         });
-        return a;
+        return topFive;
     }
     private _topFivBestSeller(rawData: any) {
-        var sum = 0;
+        let sum = 0;
         return  _(rawData)
                 .map((v, k) => ({
                     concept: k,

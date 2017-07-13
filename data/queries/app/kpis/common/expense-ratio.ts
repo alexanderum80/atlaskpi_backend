@@ -11,10 +11,10 @@ export class ExpenseRatio {
     constructor(private expenses: IExpenseModel, private sales: ISaleModel) {}
 
     getData(dateRange: IDateRange, frequency?: FrequencyEnum): Promise<any> {
-        var self = this;
-        var totalRevenue = new TotalRevenue(this.sales);
-        var totalExpense = new TotalExpense(this.expenses);
-        var ratioKPI = new RatioExpensesCalculatorKPI(totalExpense, totalRevenue);
+        let self = this;
+        let totalRevenue = new TotalRevenue(this.sales);
+        let totalExpense = new TotalExpense(this.expenses);
+        let ratioKPI = new RatioExpensesCalculatorKPI(totalExpense, totalRevenue);
 
         return new Promise((resolve, reject) => {
             ratioKPI.getData(dateRange, frequency).then(data => {
@@ -23,6 +23,7 @@ export class ExpenseRatio {
         })
         
     }
+    
     private _toSeries(rawData: any[]) {
         return [{
             name: "Expense By Ratio",
