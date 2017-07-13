@@ -49,7 +49,8 @@ export interface ICategory extends IEntity {
     service: number;
 }
 
-export interface ISales extends IIdName {
+export interface ISales {
+    externalId: string;
     location: ILocation;
     customer: ICustomer;
     employee: IEmployee;
