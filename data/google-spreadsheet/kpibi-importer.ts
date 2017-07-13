@@ -183,4 +183,3 @@ function getCategory(categories, name) {
         service: c.service
     };
 }
-

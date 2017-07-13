@@ -43,7 +43,6 @@ export class SalesByProduct extends KpiBase {
         let that = this;
 
         return this.executeQuery('product.from', dateRange, frequency).then(data => {
-            // console.log(JSON.stringify(that._toSeries(data, frequency)));
             return Promise.resolve(that._toSeries(data, frequency));
         });
     }
@@ -59,7 +58,9 @@ export class SalesByProduct extends KpiBase {
                           }
                           return item;
                       });
-            let noFreqTenData = this.afterTen(getBottomRank);
+
+            let noFreqTenData = this._afterTen(getBottomRank);
+
             let noFreqAllData = [data, noFreqTenData];
             noFreqAllData = _.flatten(noFreqAllData);
 
@@ -74,13 +75,17 @@ export class SalesByProduct extends KpiBase {
         } else {
             let frequencies = _.uniq(rawData.map(item => item._id.frequency)).sort();
             let products =  this._topTenBestSeller(rawData);
-            var bottomSales = [];
+
+            let bottomSales = [];
+
             let data = rawData.filter((item, index) => {
                            if (frequencies.indexOf(item._id.frequency) === -1 ||
                                products.indexOf(item._id.product) === -1)  { bottomSales.push(item); return; };
                            return item;
                        });
-            let notTopTen = this.afterTen(bottomSales);
+
+            let notTopTen = this._afterTen(bottomSales);
+
             let allData = [data, notTopTen];
             allData = _.flatten(allData);
 
@@ -111,11 +116,12 @@ export class SalesByProduct extends KpiBase {
                 })
                 .map(item => item.product);
     }
-    private afterTen(rawData: any) {
+
+    private _afterTen(rawData: any) {
         let data = _.orderBy(rawData, "sales", "desc");
-        var sum = 0;
+        let sum = 0;
         
-        var others = _(data)
+        let others = _(data)
             .groupBy("_id.frequency")
             .map((v, k) => ({
                 _id: {
@@ -125,7 +131,6 @@ export class SalesByProduct extends KpiBase {
                 sales: _.sumBy(v, 'sales')
             }))
             .orderBy('_id.frequency','desc')
-            //   .map(item => [item.product, item.sales, item.frequency])
             .value();
             
         return others;

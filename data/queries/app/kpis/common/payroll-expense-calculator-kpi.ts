@@ -8,22 +8,23 @@ export class PayrollExpenseCalculator {
     constructor(private payrollKpi: IKpiBase, private revenueKpi) {}
 
     getData(dateRange: IDateRange, frequency: FrequencyEnum): Promise<any> {
-        var self = this;
+        let self = this;
 
-        var payroll;
-        var revenue;
+        let payroll;
+        let revenue;
 
         return this.revenueKpi.getData(dateRange, frequency).then(p => {
             payroll = p;
             return self.payrollKpi.getRawData(dateRange, frequency);
         }).then(r => {
             revenue = r;
-            return self._calPayrollRevenu(payroll, revenue);
+            return self._calPayrollRevenue(payroll, revenue);
         })
     }
-    _calPayrollRevenu(s: any, r: any): Promise<any> {
-        var payrollRatio = [];
-        var self = this;
+
+    private _calPayrollRevenue(s: any, r: any): Promise<any> {
+        let payrollRatio = [];
+        let self = this;
         r.forEach(t => {
         let ratio = self.getPayrollRatioByRevenue(t._id.frequency, s, r);
         if (!ratio) { return; }
@@ -32,9 +33,10 @@ export class PayrollExpenseCalculator {
         });
         return Promise.resolve(payrollRatio);
     }
-    getPayrollRatioByRevenue(frequencyItem: string, payrollRevenue: any[], totalRevenue: any[]) {
-        var mySale = payrollRevenue.find(h => h._id.frequency === frequencyItem);
-        var myRevenue = totalRevenue.find(h => h._id.frequency === frequencyItem);
+
+    private getPayrollRatioByRevenue(frequencyItem: string, payrollRevenue: any[], totalRevenue: any[]) {
+        let mySale = payrollRevenue.find(h => h._id.frequency === frequencyItem);
+        let myRevenue = totalRevenue.find(h => h._id.frequency === frequencyItem);
 
         if (!myRevenue || myRevenue.revenue === 0) { return null; };
         if (!mySale) { return 0; };
@@ -46,4 +48,5 @@ export class PayrollExpenseCalculator {
 
         return myRevenue.total / mySale.revenue * 100;
     }
+    
 }
