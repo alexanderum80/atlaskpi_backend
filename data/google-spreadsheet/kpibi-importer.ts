@@ -3,6 +3,8 @@ import * as util from 'util';
 import { DataContext, DataTable } from './google-sheet.processor';
 import * as async from 'async';
 import * as Promise from 'bluebird';
+import { my_guid } from '../extentions';
+
 
 export default function importSpreadSheetData(data: any, dbUri = 'mongodb://localhost/customer2'): Promise<any> {
 
@@ -176,14 +178,4 @@ function getCategory(categories, name) {
         externalId: c.id,
         name: c.name
     };
-}
-
-function my_guid() {
-  function s4() {
-    return Math.floor((1 + Math.random()) * 0x10000)
-      .toString(16)
-      .substring(1);
-  }
-  return s4() + s4() + '-' + s4() + '-' + s4() + '-' +
-    s4() + '-' + s4() + s4() + s4();
 }
