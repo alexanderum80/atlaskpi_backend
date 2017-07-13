@@ -12,8 +12,6 @@ export class GetChartDefinitionQuery implements IQuery<string> {
         private _ctx: IAppModels) { }
 
     run(data: { id: string, from: Date, to: Date }): Promise<string> {
-        // let processor = new ChartProcessor(this._ctx);
-        // return processor.getChartDefinition(data);
         return;
     }
 }

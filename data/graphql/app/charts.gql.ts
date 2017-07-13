@@ -17,19 +17,12 @@ export const chartsGql: GraphqlDefinition = {
         mutations: ``,
     },
 
-    // getChartDefinition(id: String!, from: String!, to: String!): String
-
     resolvers: {
         Query: {
             charts(root: any, args, ctx: IGraphqlContext) {
                 let query = new GetChartQuery(ctx.req.identity, ctx.req.appContext);
                 return ctx.queryBus.run('get-chart-data', query, args);
             },
-            // getChartDefinition(root: any, args, ctx: IGraphqlContext) {
-            //     let query = new GetChartDefinitionQuery(ctx.req.identity, ctx.req.appContext);
-            //     return ctx.queryBus.run('get-chart-data', query, args)
-            //         .then(definition => JSON.stringify(definition));
-            // }
 
             chart(root: any, args, ctx: IGraphqlContext) {
                 let query = new GetChartQuery(ctx.req.identity, ctx.req.appContext);

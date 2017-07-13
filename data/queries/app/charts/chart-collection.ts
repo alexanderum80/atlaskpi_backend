@@ -22,9 +22,6 @@ export class ChartCollection {
 
                     if (data.preview) {
                         definitions.push(chart);
-                    } else {
-                        // let processor = new ChartProcessor(this._ctx);
-                        // definitions.push(processor.getChartDefinition(payload));
                     }
                 });
 
