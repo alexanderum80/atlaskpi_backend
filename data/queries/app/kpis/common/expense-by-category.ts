@@ -52,7 +52,9 @@ export class ExpenseByCategory extends KpiBase {
                     }
                     return item;
                 });
+
             let notTopFive = this._afterFiveBest(bottomSales);
+
             let noFreqAllData = [data, notTopFive];
             noFreqAllData = _.flatten(noFreqAllData);
             
@@ -69,11 +71,13 @@ export class ExpenseByCategory extends KpiBase {
             let concept =  this._topFivBestSeller(rawData);
 
             let hasFrequencyBottomExpenses = [];
+            
             let data = rawData.filter((item, index) => {
                         if (frequencies.indexOf(item._id.frequency) === -1 ||
                             concept.indexOf(item._id.concept) === -1)  { hasFrequencyBottomExpenses.push(item); return; };
                         return item;
                     });
+
             let afterFive = this._afterFiveBest(hasFrequencyBottomExpenses);
             let completeData = [data, afterFive];
 
@@ -85,7 +89,8 @@ export class ExpenseByCategory extends KpiBase {
                 .map((v, k) => {
                     return v.map(item => [k, item.expenses])
                 })
-                .map((item) => _.flatten(item))
+                .map((item) => _.flatten(item));
+
             return [{
                 name: "Expenses",
                 data: groupData
@@ -95,8 +100,9 @@ export class ExpenseByCategory extends KpiBase {
 
     private _afterFiveBest(rawData: any) {
         let data = _.orderBy(rawData, "expenses", "desc");
-        var sum = 0;
-        var others = _(data)
+        let sum = 0;
+
+        let others = _(data)
             .groupBy("_id.frequency")
             .map((v, k) => ({
                 _id: {
@@ -107,6 +113,7 @@ export class ExpenseByCategory extends KpiBase {
             }))
             .orderBy("_id.frequency", "desc")
             .value();
+
         return others;
     }
     
