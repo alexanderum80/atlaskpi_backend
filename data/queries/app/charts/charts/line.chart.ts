@@ -4,7 +4,7 @@ import * as Handlebars from 'handlebars';
 import { IAppModels } from '../../../../models/app/app-models';
 import { IChart, IChartDocument } from '../../../../models/app/charts';
 import { FrequencyEnum, IDateRange } from '../../../../models/common';
-import { SeriesProcessorExtention } from '../../kpis/common/series-processor';
+import { KPIPostProcessorExtention } from '../../kpis/common/kpi-post-processor-extention';
 import * as Promise from 'bluebird';
 
 export class LineChart extends UIChartBase implements IUIChart {

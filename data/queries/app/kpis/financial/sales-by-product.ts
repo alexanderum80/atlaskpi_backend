@@ -44,7 +44,8 @@ export class SalesByProduct extends KpiBase implements IKpiBase {
 
         return this.executeQuery('product.from', dateRange, frequency).then(data => {
             // console.log(JSON.stringify(that._toSeries(data, frequency)));
-            return Promise.resolve(that._toSeries(data, frequency));
+            // return Promise.resolve(that._toSeries(data, frequency));
+            return Promise.resolve({ data: data, metadata: { name: 'Sales By Product', dateRange: dateRange, frequency: frequency }});
         });
     }
 

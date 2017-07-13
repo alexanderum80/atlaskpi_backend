@@ -33,6 +33,7 @@ import { getContext } from '../data/models/app/app-context';
 import { FrequencyEnum } from '../data/models/common';
 import { SalesByProduct } from '../data/queries/app/kpis/financial/sales-by-product';
 import * as mongoose from 'mongoose';
+import { KPIPostProcessorExtention } from '../data/queries/app/kpis/common/kpi-post-processor-extention';
 
 export function executeKpis() {
 
@@ -45,7 +46,7 @@ export function executeKpis() {
             to: new Date('2016-05-31')
         };
 
-        let frequency = FrequencyEnum.Daily;
+        let frequency = FrequencyEnum.Monthly;
 
         // let kpi = new AestheticianRevenueRatePerHour(ctx.Sale, ctx.WorkLog);
 
@@ -60,14 +61,14 @@ export function executeKpis() {
         // let kpi = new PayrollExpenseRatio(ctx.Expense, ctx.Sale);
         // let kpi = new TotalPayroll(ctx.Expense);
 
-        let kpi = new RetailSales(ctx.Sale);
+        let kpi = new SalesByProduct(ctx.Sale);
 
+        kpi.getData(dateRange, frequency).then(res => {
 
-        kpi.getData(dateRange, frequency).then(data => {
+            let series = res;
 
-            let series = data;
-
-            console.log(JSON.stringify(data));
+            console.log(JSON.stringify(res));
+            let processor = new KPIPostProcessorExtention();
         });
 
     });

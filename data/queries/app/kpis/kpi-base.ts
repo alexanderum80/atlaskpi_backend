@@ -4,17 +4,11 @@ import { IDateRange } from '../../../models/common/date-range';
 import { FrequencyEnum } from '../../../models/common/frequency-enum';
 import * as Promise from 'bluebird';
 
-export interface IKPIGrouping {
-    level: number;
-    name: string;
-}
-
 export interface IKPIMetadata {
     name?: string;
     code?: string;
     dateRange: IDateRange;
     frequency: FrequencyEnum;
-    grouping?: IKPIGrouping[];
     drillDown?: boolean;
 }
 

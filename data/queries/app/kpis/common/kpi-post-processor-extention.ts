@@ -62,7 +62,19 @@ export class KPIPostProcessorExtention {
         return [];
     }
 
-    public getGroupings
+    public getGroupings(res: IKPIResult): string[] {
+        let groups: string[] = [];
+        if (!res.data || !res.data[0]._id) { return groups; };
+
+        res.data.map(serie => {
+            Object.keys(serie._id).forEach(k => {
+                if (k === 'frequency' || groups.find(e => e === k)) { return; }
+                groups.push(k);
+            });
+        });
+
+        return groups;
+    }
 
     public ToSeries(res: IKPIResult): any[] {
          switch (res.metadata.frequency) {
@@ -291,4 +303,5 @@ export class KPIPostProcessorExtention {
     private _getYearlyFrequencies(res: IKPIResult): any[] {
         return this._getYearsInData(res.data);
     }
+
 }
