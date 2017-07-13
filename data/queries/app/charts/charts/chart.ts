@@ -1,4 +1,3 @@
-import { ChartProcessor } from '../chart-processor';
 import { FrequencyEnum, IDateRange } from '../../../../models/common';
 import { IAppModels } from '../../../../models/app/app-models';
 import { getKPI } from '../../kpis/kpi.factory';
@@ -30,8 +29,15 @@ export class Chart {
                 chartDr = { from: new Date(this._chart.dateFrom), to: new Date(this._chart.dateTo) };
             }
 
-            that._kpi.getData(chartDr || dateRange, frequency).then(series => {
+            dateRange = chartDr || dateRange;
+
+            that._kpi.getData(dateRange, frequency).then(series => {
                 that._chart.chartDefinition = chartProcessor.process(that._chart, series);
+
+                // preserve dateRange for single chart reload
+                that._chart.dateFrom = dateRange.from.toDateString();
+                that._chart.dateTo = dateRange.to.toDateString();
+
                 resolve(JSON.stringify(that._chart));
             }, (e) => reject(e));
         });

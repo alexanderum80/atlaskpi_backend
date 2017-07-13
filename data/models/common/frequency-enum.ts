@@ -11,5 +11,5 @@ export const FrequencyTable = {
     weekly: FrequencyEnum.Weekly,
     monthly: FrequencyEnum.Monthly,
     quartely: FrequencyEnum.Quartely,
-    yearly: FrequencyEnum.Yearly
+    yearly: FrequencyEnum.Yearly,
 };

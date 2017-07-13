@@ -1,5 +1,5 @@
 import * as Promise from 'bluebird';
-import { ChartProcessor } from './chart-processor';
+// import { ChartProcessor } from './chart-processor';
 import { IAppModels } from '../../../models/app/app-models';
 
 export class ChartCollection {
@@ -22,9 +22,6 @@ export class ChartCollection {
 
                     if (data.preview) {
                         definitions.push(chart);
-                    } else {
-                        let processor = new ChartProcessor(this._ctx);
-                        definitions.push(processor.getChartDefinition(payload));
                     }
                 });
 

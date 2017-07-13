@@ -1,6 +1,6 @@
 import { ChartCollection } from './chart-collection';
 import { IAppModels } from '../../../models/app/app-models';
-import { ChartProcessor } from './chart-processor';
+// import { ChartProcessor } from './chart-processor';
 import { IKPIModel, IKPI } from '../../../models/app/kpis';
 import * as Promise from 'bluebird';
 import { IQuery } from '../..';

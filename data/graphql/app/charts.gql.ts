@@ -1,4 +1,4 @@
-import { GetChartsQuery } from '../../queries/app/charts/get-charts.query';
+import { GetChartQuery } from '../../queries/app/charts/get-chart.query';
 import { GetChartDefinitionQuery } from '../../queries';
 import { GraphqlDefinition } from '../graphql-definition';
 import { ExtendedRequest } from '../../../middlewares';
@@ -11,7 +11,8 @@ export const chartsGql: GraphqlDefinition = {
         types: ``,
         queries: `
             charts(from: String!, to: String!, preview: Boolean): String
-            getChartDefinition(id: String!, from: String!, to: String!): String
+            
+            chart(id: String!, dateRange: DateRange!, frequency: String): String
         `,
         mutations: ``,
     },
@@ -19,13 +20,13 @@ export const chartsGql: GraphqlDefinition = {
     resolvers: {
         Query: {
             charts(root: any, args, ctx: IGraphqlContext) {
-                let query = new GetChartsQuery(ctx.req.identity, ctx.req.appContext);
+                let query = new GetChartQuery(ctx.req.identity, ctx.req.appContext);
                 return ctx.queryBus.run('get-chart-data', query, args);
             },
-            getChartDefinition(root: any, args, ctx: IGraphqlContext) {
-                let query = new GetChartDefinitionQuery(ctx.req.identity, ctx.req.appContext);
-                return ctx.queryBus.run('get-chart-data', query, args)
-                    .then(definition => JSON.stringify(definition));
+
+            chart(root: any, args, ctx: IGraphqlContext) {
+                let query = new GetChartQuery(ctx.req.identity, ctx.req.appContext);
+                return ctx.queryBus.run('get-chart', query, args);
             }
         },
         Mutation: {}
