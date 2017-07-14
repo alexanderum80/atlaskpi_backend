@@ -76,6 +76,24 @@ export class ChartPreProcessorExtention {
         return groups;
     }
 
+    public ToFrequencySeries(res: IKPIResult): any[] {
+         switch (res.metadata.frequency) {
+            case FrequencyEnum.Daily:
+                 return this._getSeriesByDay(res);
+
+            case FrequencyEnum.Weekly:
+                 return this._getSeriesByWeek(res);
+
+            case FrequencyEnum.Monthly:
+                 return this._getSeriesByMonth(res);
+
+            case FrequencyEnum.Yearly:
+                 return [];
+         }
+
+         return [];
+    }
+
     public ToSeries(res: IKPIResult): any[] {
          switch (res.metadata.frequency) {
             case FrequencyEnum.Daily:
@@ -106,7 +124,7 @@ export class ChartPreProcessorExtention {
         let years = this._getYearsInData(res.data);
 
         if (years.length > 1) {
-            console.log('trying to see a chart with dayli frequency in a date range with more than one year is not supported');
+            console.log('daily frecuencies only support a daterange of a year at this moment... displaying nothing...');
             return result;
         }
 
