@@ -7,6 +7,10 @@ import { IChart } from '../../../models/app/charts';
 import { IAppModels } from '../../../models/app/app-models';
 import { Chart } from '../charts/charts/chart';
 
+import { ChartFactory } from './charts/chart-factory';
+import { KpiFactory } from '../kpis/kpi.factory';
+import { getGroupingMetadata } from './chart-grouping-map';
+
 export class GetChartQuery implements IQuery<string> {
 
     constructor(public identity: IIdentity, private _ctx: IAppModels) { }
@@ -14,7 +18,7 @@ export class GetChartQuery implements IQuery<string> {
     // log = true;
     // audit = true;
 
-    run(data: { id: string, dateRange: { from: string, to: string}, frequency: string }): Promise<string> {
+    run(data: { id: string, dateRange: { from: string, to: string}, frequency: string, grouping: string }): Promise<string> {
         let that = this;
 
         let dr: IDateRange = {
@@ -30,9 +34,17 @@ export class GetChartQuery implements IQuery<string> {
                     path: 'kpis',
                 })
                 .then(chartDocument => {
-                    let chart = new Chart(chartDocument, that._ctx);
 
-                    chart.getDefinition(dr, frequency).then((definition) => {
+                    if (!chartDocument) {
+                        reject(null);
+                        return;
+                    }
+
+                    let chart = ChartFactory.getInstance(chartDocument);
+                    let kpi = KpiFactory.getInstance(chartDocument.kpis[0], that._ctx);
+                    let grouping = getGroupingMetadata(data.grouping);
+
+                    chart.getUIDefinition(kpi, dr, frequency, grouping).then((definition) => {
                         resolve(definition);
                     }).catch(e => reject(e));
                 });

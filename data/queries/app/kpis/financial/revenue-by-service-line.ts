@@ -35,7 +35,7 @@ const aggregate: AggregateStage[] = [
     }
 ];
 
-export class RevenueByServiceLine extends KpiBase implements IKpiBase implements IKpiBase {
+export class RevenueByServiceLine extends KpiBase implements IKpiBase {
 
     constructor(sales: ISaleModel) {
         super(sales, aggregate);

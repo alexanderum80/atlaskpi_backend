@@ -12,7 +12,7 @@ export const chartsGql: GraphqlDefinition = {
         queries: `
             charts(from: String!, to: String!, preview: Boolean): String
             
-            chart(id: String!, dateRange: DateRange!, frequency: String): String
+            chart(id: String!, dateRange: DateRange!, frequency: String, grouping: String): String
         `,
         mutations: ``,
     },

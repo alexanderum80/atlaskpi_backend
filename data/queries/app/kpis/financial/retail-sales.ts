@@ -39,10 +39,10 @@ export class RetailSales extends KpiBase implements IKpiBase {
         super(sales, aggregate);
     }
 
-    getData(dateRange: IDateRange, frequency?: FrequencyEnum): Promise<IKPIResult> {
+    getData(dateRange: IDateRange, frequency?: FrequencyEnum, grouping?: string): Promise<IKPIResult> {
         let that = this;
 
-        return this.executeQuery('product.from', dateRange, frequency).then(data => {
+        return this.executeQuery('product.from', dateRange, frequency, grouping).then(data => {
             return Promise.resolve({ data: data, metadata: { name: 'Retail Sales', dateRange: dateRange, frequency: frequency }});
         })
         .catch((err) => {

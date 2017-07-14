@@ -22,8 +22,18 @@ import { ProfesionalServiceSales } from './more-financial/profesional-service-sa
 import { AmbulatorySurgeryCenterServiceRatio } from './operational/ambulatory-surgery-center-service-ratio';
 import { ConsultingResearchServiceRatio } from './operational/consulting-research-service-ratio';
 import { OtherSalesRatio } from './operational/other-sales-ratio';
+import { IKPIDocument } from '../../../models/app/kpis';
+import { IKpiBase } from './kpi-base';
 
-export function getKPI(code: string, ctx: IAppModels) {
+export class KpiFactory {
+
+    static getInstance(kpiDocument: IKPIDocument, ctx: IAppModels) {
+        return getKPI(kpiDocument.code, ctx);
+    }
+
+}
+
+export function getKPI(code: string, ctx: IAppModels): IKpiBase {
     switch (code) {
         // Financial
         case 'RevenueByServiceLine':

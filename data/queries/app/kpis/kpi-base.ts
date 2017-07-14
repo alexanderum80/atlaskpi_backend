@@ -18,7 +18,7 @@ export interface IKPIResult {
 }
 
 export interface IKpiBase {
-    getData(dateRange: IDateRange, frequency?: FrequencyEnum): Promise<any>;
+    getData(dateRange: IDateRange, frequency?: FrequencyEnum, grouping?: string): Promise<any>;
     getRawData?(dateRange: IDateRange, frequency?: FrequencyEnum): Promise<any>;
 }
 
@@ -27,7 +27,7 @@ export class KpiBase {
 
     constructor(public model: any, public aggregate: AggregateStage[]) { }
 
-    executeQuery(dateField: string, dateRange?: IDateRange, frequency?: FrequencyEnum): Promise<any> {
+    executeQuery(dateField: string, dateRange?: IDateRange, frequency?: FrequencyEnum, grouping?: string): Promise<any> {
 
         if (!this.model) throw 'A model is required to execute kpi query';
         if (!dateField) throw 'A date field is required to execute kpi query';
@@ -38,7 +38,7 @@ export class KpiBase {
             if (dateRange)
                 that._injectDataRange(dateRange, dateField);
             if (frequency !== undefined)
-                that._injectFrequency(frequency, dateField);
+                that._injectFrequencyAndGrouping(frequency, grouping, dateField);
 
             // decompose aggregate object into array
             let aggregateParameters = [];
@@ -95,7 +95,7 @@ export class KpiBase {
         }
     }
 
-    private _injectFrequency(frequency: FrequencyEnum, field: string) {
+    private _injectFrequencyAndGrouping(frequency: FrequencyEnum, grouping: string, field: string) {
         // console.log(typeof frequency);
         if (frequency === undefined) return;
 
@@ -215,12 +215,41 @@ export class KpiBase {
         let that = this;
 
         // restore the rest of the grouping if there is anything to restore
-        if (!currentGrouping) return;
+        if (!currentGrouping && !grouping) return;
 
         Object.keys(currentGrouping).forEach(prop => {
             groupStage.$group._id[prop] = currentGrouping[prop];
         });
 
+        // if grouping is present also add it
+        this._includeGroupingInProjection(projectStage.$project, grouping);
+        this._applyGrouping(groupStage.$group, grouping);
+    }
+
+    private _includeGroupingInProjection(projection: any, grouping: string) {
+        if (!grouping) {
+            return;
+        }
+
+        let groupingTokens = grouping.split('.');
+        let index = Object.keys(projection).findIndex(prop => prop === groupingTokens[0]);
+
+        if (index === -1) {
+            projection[groupingTokens[0]] = 1;
+        }
+    }
+
+    private _applyGrouping(group: any, grouping: string) {
+        if (!grouping) {
+            return;
+        }
+
+        let groupingTokens = grouping.split('.');
+        let index = Object.keys(group._id).findIndex(prop => prop === groupingTokens[0]);
+
+        if (index === -1) {
+            group._id[groupingTokens[0]] = '$' + grouping;
+        }
     }
 
 }

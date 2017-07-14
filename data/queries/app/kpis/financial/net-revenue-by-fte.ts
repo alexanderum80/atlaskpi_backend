@@ -18,6 +18,7 @@ import {
 } from '../../../../models/common/date-range';
 import * as Promise from 'bluebird';
 import * as _ from 'lodash';
+import { IKpiBase } from '../kpi-base';
 
 const aggregate: AggregateStage[] = [{
     dateRange: true,

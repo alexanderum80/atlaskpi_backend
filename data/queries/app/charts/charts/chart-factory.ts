@@ -1,15 +1,23 @@
-import { UIChartBase } from './chart-base';
 import { IAppModels } from '../../../../models/app/app-models';
-import { IChart, IChartDocument } from '../../../../models/app/charts';
-import { LineChart } from './line.chart';
+import { IChart } from '../../../../models/app/charts';
+import {
+    IUIChart,
+    UIChartBase,
+    ColumnChart,
+    LineChart
+} from '.';
 
-export function getUIChart(chart: IChart, ctx: IAppModels) {
-    switch (chart.chartDefinition.type) {
-        // Financial
-        case 'line':
-            return new LineChart(chart, ctx);
 
+export class ChartFactory {
+
+    static getInstance(chart: IChart): IUIChart {
+        switch (chart.chartDefinition.chart.type) {
+            case 'column':
+                return new ColumnChart(chart);
+            // case 'line':
+            //     return new LineChart(chart);
             default:
-            return null;
+                return null;
+        }
     }
 }

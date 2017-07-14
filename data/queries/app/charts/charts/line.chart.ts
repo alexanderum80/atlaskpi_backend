@@ -1,5 +1,5 @@
 import { IChartOptions } from './chart-type';
-import { UIChartBase, IUIChart } from './chart-base';
+import { UIChartBase, IUIChart } from './ui-chart-base';
 import * as Handlebars from 'handlebars';
 import { IAppModels } from '../../../../models/app/app-models';
 import { IChart, IChartDocument } from '../../../../models/app/charts';
@@ -9,8 +9,8 @@ import * as Promise from 'bluebird';
 
 export class LineChart extends UIChartBase implements IUIChart {
 
-    constructor(_chart: IChart, ctx: IAppModels) {
-        super(_chart, ctx);
+    constructor(_chart: IChart) {
+        super(_chart);
     }
 
     prepareXAxis() {
@@ -29,7 +29,7 @@ export class LineChart extends UIChartBase implements IUIChart {
     }
 
     getDefinition(dateRange: IDateRange, frequency: FrequencyEnum): Promise<any> {
-         this.getKPIData()
+         return null;
     }
 
 }
