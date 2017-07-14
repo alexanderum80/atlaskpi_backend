@@ -16,5 +16,5 @@ pipelines:
           - npm run build
           - mv dist webapp-backend && tar cvfz webapp-backend.tgz webapp-backend
           - scp webapp-backend.tgz ubuntu@app.kpibi.com:./apps/uploads
-          - ssh ubuntu@app.kpibi.com 'cd apps/uploads && tar xvfz webapp-backend.tgz && cp -R webapp-backend/* ../webapp-backend && rm -Rf webapp-backend* && cd ../webapp-backend && npm install'
+          - ssh ubuntu@app.kpibi.com 'cd apps/uploads && tar xvfz webapp-backend.tgz && cp -R webapp-backend/* ../webapp-backend && rm -Rf webapp-backend* && cd ../webapp-backend && sudo npm install'
 
