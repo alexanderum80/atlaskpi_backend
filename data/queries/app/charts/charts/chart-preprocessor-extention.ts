@@ -1,6 +1,6 @@
 import { FrequencyEnum } from '../../../../models/common/frequency-enum';
 import { IDateRange } from '../../../../models/common/date-range';
-import { IKPIMetadata, IKPIResult } from '../kpi-base';
+import { IKPIMetadata, IKPIResult } from '../../kpis/kpi-base';
 import * as _ from 'lodash';
 import * as moment from 'moment';
 
@@ -9,7 +9,7 @@ import * as moment from 'moment';
 //     property: string;
 // }
 
-export class KPIPostProcessorExtention {
+export class ChartPreProcessorExtention {
 
     /**
      * Gets a uniq list of frecuencies on the kpi result.
