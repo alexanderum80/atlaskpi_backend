@@ -4,6 +4,7 @@ import { getKPI } from '../../kpis/kpi.factory';
 import { IKpiBase, IKPIResult } from '../../kpis/kpi-base';
 import { IChart, IChartDocument } from '../../../../models/app/charts';
 import { ChartPreProcessorExtention } from './chart-preprocessor-extention';
+import { IFrequencyValues, FrequencyHelper } from './frequency-values';
 import * as Promise from 'bluebird';
 import * as mongoose from 'mongoose';
 import * as moment from 'moment';
@@ -18,33 +19,23 @@ export interface IUIChart {
     getUIDefinition?(kpiBase: IKpiBase, dateRange: IDateRange, frequency: FrequencyEnum, grouping: string): Promise<string>;
 };
 
-export interface IFrequencyValues {
-        years: number[];
-        months: number[];
-        weeks: number[];
-        days: number[];
-        quarters: number[];
-    }
-
 export abstract class UIChartBase {
-    private _kpi: IKpiBase;
+    protected series: any[];
+    protected categories: any[];
 
-    series: any;
-    categories: any;
-
-    frequencies: string[];
-    groupings: string[];
-    data: any;
+    protected frequencieValues: IFrequencyValues;
+    protected grouping: string;
+    protected data: any[];
 
     chartPreProcessor: ChartPreProcessorExtention;
 
-    constructor(private _chart: IChart) {
+    constructor(private _chart: IChart, protected frequencyHelper: FrequencyHelper) {
         if (!_chart.kpis || _chart.kpis.length < 1) {
             throw 'A chart cannot be created with a KPI';
         }
     }
 
-    getKPIData(dateRange: IDateRange, frequency: FrequencyEnum): Promise<IKPIResult> {
+    getKPIData(kpi: IKpiBase, dateRange: IDateRange, frequency: FrequencyEnum, grouping?: string): Promise<IKPIResult> {
         let that = this;
 
         return new Promise<IKPIResult>((resolve, reject) => {
@@ -56,10 +47,11 @@ export abstract class UIChartBase {
             dateRange = dateRange || chartDr;
             console.log(frequency);
 
-            return that._kpi.getData(dateRange, frequency).then(data => {
+            return kpi.getData(dateRange, frequency, grouping).then(data => {
                 that.data = data;
-                that.frequencies = this.getFrequencies(data, frequency);
-                that.groupings = this.getGroupings(data);
+                that.frequencyHelper.processData(data, frequency);
+                // TODO: pending when we deal with second level groupings
+                // that.groupings = this.getGroupings(data);
                 resolve(data);
             })
             .catch(err => reject(err));
@@ -107,7 +99,7 @@ export abstract class UIChartBase {
     }
 
     public getSeriesByFrequency(frequency: FrequencyEnum, data: any) {
-        if (!data) {
+            if (!data) {
             console.log('you have to call getData() before getting the series');
             return null;
         }
@@ -133,94 +125,84 @@ export abstract class UIChartBase {
 
 
 
-    private _getDailyFrequencies() {
-        let numbers = [];
-        for (let i = 1; i <= 31; i++) {
-            numbers.push(i);
-        }
-        return numbers;
-    }
+    // private _getDailyFrequencies() {
+    //     let numbers = [];
+    //     for (let i = 1; i <= 31; i++) {
+    //         numbers.push(i);
+    //     }
+    //     return numbers;
+    // }
 
-    private _getMonthlyFrequencies(res: IKPIResult): any[] {
-        return this._getMonthsInData(res.data);
-    }
+    // private _getWeeklyFrequencies() {
+    //     let numbers = [];
+    //     for (let i = 0; i <= 53; i++) {
+    //         numbers.push(i);
+    //     }
+    //     return numbers;
+    // }
 
-    private _getWeeklyFrequencies() {
-        let numbers = [];
-        for (let i = 0; i <= 53; i++) {
-            numbers.push(i);
-        }
-        return numbers;
-    }
+    // private _getQuartersInData(rawData: any[]): string[] {
+    //     let qs = [];
+    //     try {
+    //         let frequencies = _.uniq(rawData.map(item => item._id.frequency)).sort();
+    //         qs = _.uniq(frequencies.map(f => { return f.split('-')[1]; }));
+    //     }
+    //     catch (err) {
+    //         console.log('error trying to extract months...: ' + err);
+    //     }
+    //     return qs || [];
+    // }
 
-    private _getYearlyFrequencies(res: IKPIResult): any[] {
-        return this._getYearsInData(res.data);
-    }
+    // private _getMonthlyFrequencies(res: IKPIResult): any[] {
+    //     return this._getMonthsInData(res.data);
+    // }
 
-    private _getQuartersInData(rawData: any[]): string[] {
-        let qs = [];
-        try {
-            let frequencies = _.uniq(rawData.map(item => item._id.frequency)).sort();
-            qs = _.uniq(frequencies.map(f => { return f.split('-')[1]; }));
-        }
-        catch (err) {
-            console.log('error trying to extract months...: ' + err);
-        }
-        return qs || [];
-    }
+    // private _getYearlyFrequencies(res: IKPIResult): any[] {
+    //     return this._getYearsInData(res.data);
+    // }
 
-    private _processFrequency(data: any, frequency: FrequencyEnum): IFrequencyValues {
-        switch (frequency) {
-            case FrequencyEnum.Daily:
-            case FrequencyEnum.Monthly:
-            case FrequencyEnum.Quartely:
-            case FrequencyEnum.Weekly:
-            case FrequencyEnum.Yearly:
-        }
-    }
+    //  private _getYearsInData(rawData: any[]): string[] {
+    //     let years = [];
+    //     try {
+    //         let frequencies = _.uniq(rawData.map(item => item._id.frequency)).sort();
+    //         years = _.uniq(frequencies.map(f => { return f.split('-')[0]; }));
+    //     }
+    //     catch (err) {
+    //         console.log('error trying to extract year...: ' + err);
+    //     }
+    //     return years || [];
+    // }
 
-     private _getYearsInData(rawData: any[]): string[] {
-        let years = [];
-        try {
-            let frequencies = _.uniq(rawData.map(item => item._id.frequency)).sort();
-            years = _.uniq(frequencies.map(f => { return f.split('-')[0]; }));
-        }
-        catch (err) {
-            console.log('error trying to extract year...: ' + err);
-        }
-        return years || [];
-    }
+    // private _getMonthsInData(rawData: any[]): string[] {
+    //     let months = [];
+    //     try {
+    //         let frequencies = _.uniq(rawData.map(item => item._id.frequency)).sort();
+    //         months = _.uniq(frequencies.map(f => { return f.split('-')[1]; }));
+    //     }
+    //     catch (err) {
+    //         console.log('error trying to extract months...: ' + err);
+    //     }
+    //     return months || [];
+    // }
 
-    private _getMonthsInData(rawData: any[]): string[] {
-        let months = [];
-        try {
-            let frequencies = _.uniq(rawData.map(item => item._id.frequency)).sort();
-            months = _.uniq(frequencies.map(f => { return f.split('-')[1]; }));
-        }
-        catch (err) {
-            console.log('error trying to extract months...: ' + err);
-        }
-        return months || [];
-    }
-
-    private _getDaysInData(rawData: any[]): string[] {
-        let days = [];
-        try {
-            let frequencies = _.uniq(rawData.map(item => item._id.frequency)).sort();
-            days = _.uniq(frequencies.map(f => { return f.split('-')[2]; }));
-        }
-        catch (err) {
-            console.log('error trying to extract days...: ' + err);
-        }
-        return days || [];
-    }
+    // private _getDaysInData(rawData: any[]): string[] {
+    //     let days = [];
+    //     try {
+    //         let frequencies = _.uniq(rawData.map(item => item._id.frequency)).sort();
+    //         days = _.uniq(frequencies.map(f => { return f.split('-')[2]; }));
+    //     }
+    //     catch (err) {
+    //         console.log('error trying to extract days...: ' + err);
+    //     }
+    //     return days || [];
+    // }
 
      private _getSeriesByDay(data): any[] {
         let result = [];
         let years = this._getYearsInData(data);
 
         if (years.length > 1) {
-            console.log('daily frecuencies only support a daterange of a year at this moment... displaying nothing...');
+            console.log('daily frecuencies only support a date range of a year at this moment... displaying nothing...');
             return result;
         }
 
@@ -245,21 +227,17 @@ export abstract class UIChartBase {
         return result;
     }
 
-    private _getSeriesByMonth(data): any[] {
-        let result = [];
-        let years = this._getYearsInData(data);
-
-        // if (years.length === 1) {
-        //     return this._getValueByYear(res.data, years[0]);
-        // }
-
-        years.forEach(y => {
-            let serie = { name: y,
-                          data: this._getValueByYear(data, y) };
-            result.push(serie);
+    /**
+     * Transform the raw data into a list of chart series by year
+     * @param data raw data
+     */
+    private _getYearlySeries(data: any[]): any[] {
+        return this.frequencieValues.years.map(y => {
+            return {
+                name: y,
+                data: this._getValueByYear(data, y)
+            };
         });
-
-        return result;
     }
 
     private _getValueByMonth(rawData: any, month: string) {
@@ -326,7 +304,9 @@ export abstract class UIChartBase {
         return simpleSerie;
     }
 
-     private _getValueByYear(rawData: any, year: string) {
+     private _getValueByYear(rawData: any[], year: number) {
+
+         s;dkfhsdkjfhx
         let data = rawData.filter(d => {
             if (d._id.frequency.indexOf(year) === -1) { return; };
             return d;

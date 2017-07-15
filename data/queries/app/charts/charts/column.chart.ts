@@ -5,20 +5,21 @@ import { IAppModels } from '../../../../models/app';
 import { IChart, IChartDocument } from '../../../../models/app/charts';
 import { FrequencyEnum, IDateRange } from '../../../../models/common';
 import { ChartPreProcessorExtention } from './chart-preprocessor-extention';
+import { IFrequencyValues, FrequencyHelper } from './frequency-values';
 import { IKpiBase } from '../../kpis/kpi-base';
 import * as Promise from 'bluebird';
 
 export class ColumnChart extends UIChartBase implements IUIChart {
 
-    constructor(_chart: IChart) {
-        super(_chart);
+    constructor(_chart: IChart, frequencyHelper: FrequencyHelper) {
+        super(_chart, frequencyHelper);
     }
 
-    getUIDefinition(kpiBase: IKpiBase, dateRange: IDateRange, frequency: FrequencyEnum, grouping: string): Promise<string> {
+    getUIDefinition(kpi: IKpiBase, dateRange: IDateRange, frequency: FrequencyEnum, grouping: string): Promise<string> {
         let that = this;
 
         return new Promise<string>((resolve, reject) => {
-            kpiBase.getData(dateRange, frequency, grouping).then(rawData => {
+            that.getKPIData(kpi, dateRange, frequency, grouping).then(rawData => {
                 let series = this.getSeriesByFrequency(frequency, rawData);
                 resolve('');
             });

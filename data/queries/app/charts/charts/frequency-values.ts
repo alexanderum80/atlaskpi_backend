@@ -9,14 +9,22 @@ export interface IFrequencyValues {
     quarters: number[];
 }
 
-export class FrequencyValues {
+export interface IFrequencyInfo {
+    year?: number;
+    month?: number;
+    day?: number;
+    quarter?: number;
+    week?: number;
+}
+
+export class FrequencyHelper {
     private _years: number[];
     private _months: number[];
     private _weeks: number[];
     private _days: number[];
     private _quarters: number[];
 
-    constructor(rawData: any[], frequency: FrequencyEnum) {
+    processData(rawData: any[], frequency: FrequencyEnum) {
         this._processFrequency(rawData, frequency);
     }
 
@@ -41,33 +49,66 @@ export class FrequencyValues {
             case FrequencyEnum.Daily:
                 data.forEach(item => {
                     let tokens = item._id.frequency.split('-');
-                    y.push(tokens[0]);
-                    m.push(tokens[1]);
-                    d.push(tokens[2]);
+                    let freqInfo: IFrequencyInfo = {
+                        year: +tokens[0],
+                        month: +tokens[1],
+                        day: +tokens[2]
+                    };
+
+                    item.frequency = freqInfo;
+
+                    y.push(freqInfo.year);
+                    m.push(freqInfo.month);
+                    d.push(freqInfo.day);
                 });
                 break;
             case FrequencyEnum.Monthly:
                 data.forEach(item => {
                     let tokens = item._id.frequency.split('-');
-                    y.push(tokens[0]);
-                    m.push(tokens[1]);
+                    let freqInfo: IFrequencyInfo = {
+                        year: +tokens[0],
+                        month: +tokens[1]
+                    };
+
+                    item.frequency = freqInfo;
+
+                    y.push(freqInfo.year);
+                    m.push(freqInfo.month);
                 });
                 break;
             case FrequencyEnum.Quartely:
                 data.forEach(item => {
                     let tokens = item._id.frequency.split('-');
-                    y.push(tokens[0]);
-                    q.push(tokens[1]);
+                    let freqInfo: IFrequencyInfo = {
+                        year: +tokens[0],
+                        quarter: +tokens[1]
+                    };
+
+                    item.frequency = freqInfo;
+
+                    y.push(freqInfo.year);
+                    q.push(freqInfo.quarter);
                 });
                 break;
             case FrequencyEnum.Weekly:
                 data.forEach(item => {
-                    w.push(item._id.frequency);
+                    let freqInfo: IFrequencyInfo = {
+                        week: +item._id.frequency
+                    };
+
+                    item.frequency = freqInfo;
+
+                    w.push(freqInfo.week);
                 });
                 break;
             case FrequencyEnum.Yearly:
                 data.forEach(item => {
-                    y.push(item._id.frequency);
+                    let freqInfo: IFrequencyInfo = {
+                        year: +item._id.frequency
+                    };
+
+                    item.frequency = freqInfo;
+                    y.push(freqInfo.year);
                 });
                 break;
         }
@@ -85,7 +126,7 @@ export class FrequencyValues {
         let max = _.max(cleanList);
         let output: number[] = [];
 
-        for (let i = min; i < max; i++) {
+        for (let i = min; i <= max; i++) {
             output.push(i);
         }
 
