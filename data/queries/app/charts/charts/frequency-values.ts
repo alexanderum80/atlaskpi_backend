@@ -72,11 +72,24 @@ export class FrequencyValues {
                 break;
         }
 
-        this._years = _.uniq(y);
-        this._months = _.uniq(m);
-        this._weeks = _.uniq(w);
-        this._days = _.uniq(d);
-        this._quarters = _.uniq(q);
+        this._years = this._fixSequence(y);
+        this._months = this._fixSequence(m);
+        this._weeks = this._fixSequence(w);
+        this._days = this._fixSequence(d);
+        this._quarters = this._fixSequence(q);
+    }
+
+    private _fixSequence(sequence: number[]): number[] {
+        let cleanList = _.uniq(sequence).sort();
+        let min = _.min(cleanList);
+        let max = _.max(cleanList);
+        let output: number[] = [];
+
+        for (let i = min; i < max; i++) {
+            output.push(i);
+        }
+
+        return output;
     }
 
 }
