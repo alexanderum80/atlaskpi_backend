@@ -19,6 +19,7 @@ export class ColumnChart extends UIChartBase implements IUIChart {
 
         return new Promise<string>((resolve, reject) => {
             kpiBase.getData(dateRange, frequency, grouping).then(rawData => {
+                let series = this.getSeriesByFrequency(frequency);
                 resolve('');
             });
         });

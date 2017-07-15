@@ -82,7 +82,8 @@ export class ChartPreProcessorExtention {
                  return this._getSeriesByDay(res);
 
             case FrequencyEnum.Weekly:
-                 return this._getSeriesByWeek(res);
+                //  return this._getSeriesByWeek(res);
+                return [];
 
             case FrequencyEnum.Monthly:
                  return this._getSeriesByMonth(res);
@@ -153,9 +154,9 @@ export class ChartPreProcessorExtention {
         let result = [];
         let years = this._getYearsInData(res.data);
 
-        if (years.length === 1) {
-            return this._getValueByYear(res.data, years[0]);
-        }
+        // if (years.length === 1) {
+        //     return this._getValueByYear(res.data, years[0]);
+        // }
 
         years.forEach(y => {
             let serie = { name: y,
