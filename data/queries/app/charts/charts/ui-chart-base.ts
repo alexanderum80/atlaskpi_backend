@@ -1,4 +1,4 @@
-import { FrequencyEnum, IDateRange } from '../../../../models/common';
+import { FrequencyEnum, IDateRange, getFrequencyPropName, getFrequencySequence } from '../../../../models/common';
 import { IKPIDocument, IAppModels } from '../../../../models/app';
 import { getKPI } from '../../kpis/kpi.factory';
 import { IKpiBase, IKPIResult } from '../../kpis/kpi-base';
@@ -8,9 +8,15 @@ import { IFrequencyValues, FrequencyHelper } from './frequency-values';
 import * as Promise from 'bluebird';
 import * as mongoose from 'mongoose';
 import * as moment from 'moment';
+import * as _ from 'lodash';
 
 
 import { ChartPostProcessingExtention } from './chart-postprocessing-extention';
+
+export interface IChartSerie {
+    name: string | number;
+    data: any;
+}
 
 export interface IUIChart {
     prepareCategories();
@@ -19,11 +25,20 @@ export interface IUIChart {
     getUIDefinition?(kpiBase: IKpiBase, dateRange: IDateRange, frequency: FrequencyEnum, grouping: string): Promise<string>;
 };
 
+export interface IChartMetadata {
+    frequency?: FrequencyEnum;
+    grouping?: string;
+}
+
+export enum CreateSeriesByEnum {
+    Frequency,
+    Grouping
+}
+
 export abstract class UIChartBase {
     protected series: any[];
     protected categories: any[];
 
-    protected frequencieValues: IFrequencyValues;
     protected grouping: string;
     protected data: any[];
 
@@ -49,7 +64,8 @@ export abstract class UIChartBase {
 
             return kpi.getData(dateRange, frequency, grouping).then(data => {
                 that.data = data;
-                that.frequencyHelper.processData(data, frequency);
+                that.frequencyHelper.extractFrequency(data, frequency);
+                let t = that.createSeries(data, CreateSeriesByEnum.Frequency, { frequency: frequency });
                 // TODO: pending when we deal with second level groupings
                 // that.groupings = this.getGroupings(data);
                 resolve(data);
@@ -58,264 +74,137 @@ export abstract class UIChartBase {
         });
     }
 
-    /**
-     * Gets a uniq list of frecuencies on the kpi result.
-     * @param {IKPIResult} res - the response of the kpi's getData method
-     * @returns {Array<string>} - an array of string
-     */
-    public getFrequencies(data: any, frequency: FrequencyEnum): string[] {
-        switch (frequency) {
-            case FrequencyEnum.Daily:
-                 return this._getDailyFrequencies();
-
-            case FrequencyEnum.Weekly:
-                 return this._getWeeklyFrequencies();
-
-            case FrequencyEnum.Monthly:
-                 return this._getMonthlyFrequencies(data);
-
-            case FrequencyEnum.Quartely:
-                 return this._getQuartersInData(data);
-
-            case FrequencyEnum.Yearly:
-                 return this._getYearlyFrequencies(data);
-         }
-        return [];
-    }
-
-
-    public getGroupings(res: IKPIResult): string[] {
-        let groups: string[] = [];
-        if (!res.data || !res.data[0]._id) { return groups; };
-
-        res.data.map(serie => {
-            Object.keys(serie._id).forEach(k => {
-                if (k === 'frequency' || groups.find(e => e === k)) { return; }
-                groups.push(k);
-            });
-        });
-
-        return groups;
-    }
-
-    public getSeriesByFrequency(frequency: FrequencyEnum, data: any) {
-            if (!data) {
+    private createSeries(data: any[], by: CreateSeriesByEnum, extra: IChartMetadata) {
+        if (!data) {
             console.log('you have to call getData() before getting the series');
             return null;
         }
 
-        switch (frequency) {
-            case FrequencyEnum.Daily:
-                 return this._getSeriesByDay(data);
-
-            case FrequencyEnum.Weekly:
-                //  return this._getSeriesByWeek(res);
-                return [];
-
-            case FrequencyEnum.Monthly:
-                 return this._getSeriesByMonth(data);
-
-            case FrequencyEnum.Yearly:
-                 return [];
-         }
-
-         return [];
-
-    }
-
-
-
-    // private _getDailyFrequencies() {
-    //     let numbers = [];
-    //     for (let i = 1; i <= 31; i++) {
-    //         numbers.push(i);
-    //     }
-    //     return numbers;
-    // }
-
-    // private _getWeeklyFrequencies() {
-    //     let numbers = [];
-    //     for (let i = 0; i <= 53; i++) {
-    //         numbers.push(i);
-    //     }
-    //     return numbers;
-    // }
-
-    // private _getQuartersInData(rawData: any[]): string[] {
-    //     let qs = [];
-    //     try {
-    //         let frequencies = _.uniq(rawData.map(item => item._id.frequency)).sort();
-    //         qs = _.uniq(frequencies.map(f => { return f.split('-')[1]; }));
-    //     }
-    //     catch (err) {
-    //         console.log('error trying to extract months...: ' + err);
-    //     }
-    //     return qs || [];
-    // }
-
-    // private _getMonthlyFrequencies(res: IKPIResult): any[] {
-    //     return this._getMonthsInData(res.data);
-    // }
-
-    // private _getYearlyFrequencies(res: IKPIResult): any[] {
-    //     return this._getYearsInData(res.data);
-    // }
-
-    //  private _getYearsInData(rawData: any[]): string[] {
-    //     let years = [];
-    //     try {
-    //         let frequencies = _.uniq(rawData.map(item => item._id.frequency)).sort();
-    //         years = _.uniq(frequencies.map(f => { return f.split('-')[0]; }));
-    //     }
-    //     catch (err) {
-    //         console.log('error trying to extract year...: ' + err);
-    //     }
-    //     return years || [];
-    // }
-
-    // private _getMonthsInData(rawData: any[]): string[] {
-    //     let months = [];
-    //     try {
-    //         let frequencies = _.uniq(rawData.map(item => item._id.frequency)).sort();
-    //         months = _.uniq(frequencies.map(f => { return f.split('-')[1]; }));
-    //     }
-    //     catch (err) {
-    //         console.log('error trying to extract months...: ' + err);
-    //     }
-    //     return months || [];
-    // }
-
-    // private _getDaysInData(rawData: any[]): string[] {
-    //     let days = [];
-    //     try {
-    //         let frequencies = _.uniq(rawData.map(item => item._id.frequency)).sort();
-    //         days = _.uniq(frequencies.map(f => { return f.split('-')[2]; }));
-    //     }
-    //     catch (err) {
-    //         console.log('error trying to extract days...: ' + err);
-    //     }
-    //     return days || [];
-    // }
-
-     private _getSeriesByDay(data): any[] {
-        let result = [];
-        let years = this._getYearsInData(data);
-
-        if (years.length > 1) {
-            console.log('daily frecuencies only support a date range of a year at this moment... displaying nothing...');
-            return result;
+        if (by === CreateSeriesByEnum.Frequency && !extra.frequency) {
+            throw new Error('Chart frequency is missing');
         }
 
-        let months = this._getMonthsInData(data);
-
-        if (months.length === 1) {
-            result.push(this._getValueByMonth(data, months[0]));
-            result = this._fillEmptyDaysWithNull(result, 1, 31);
+        if (by === CreateSeriesByEnum.Grouping && !extra.grouping) {
+            throw new Error('Chart grouping is missing');
         }
 
-        months.forEach(m => {
-            let serie = {
-                name: moment().month(Number(m) - 1).format('MMM'),
-                data: this._getValueByMonth(data, m)
-            };
 
-            result.push(serie);
-        });
-
-        result = this._fillEmptyDaysWithNull(result, 1, 31);
-
-        return result;
+        switch (by) {
+            case CreateSeriesByEnum.Frequency:
+                let a = this._createSeriesByFrequency(data, extra.frequency);
+                return a;
+            case CreateSeriesByEnum.Grouping:
+                // return this._createSeriesByGrouping();
+                break;
+        }
     }
 
-    /**
-     * Transform the raw data into a list of chart series by year
-     * @param data raw data
-     */
-    private _getYearlySeries(data: any[]): any[] {
-        return this.frequencieValues.years.map(y => {
+    private _createSeriesByFrequency(data: any[], frequency: FrequencyEnum) {
+        let dataGroupedByYear = _.groupBy(data, 'frequency.year');
+        let frequencyName = getFrequencyPropName(frequency);
+
+        let series: IChartSerie[] = this.frequencyHelper.get().years.map(y => {
             return {
                 name: y,
-                data: this._getValueByYear(data, y)
+                data: dataGroupedByYear[y].map(item => [item.frequency[frequencyName], item.value])
             };
         });
-    }
 
-    private _getValueByMonth(rawData: any, month: string) {
-        let data = rawData.filter(d => {
-            if (d._id.frequency.split('-')[1] !== month) { return; };
-            return d;
-        });
+        // once we have the series data we need to make sure the sequence is completed
+        let freqSequence = getFrequencySequence(frequency);
 
-        data = _.sortBy(data, '_id.frequency');
-        return data.map(item => [ Number(item._id.frequency.split('-')[2]), item.value]);
-    }
+        if (freqSequence) {
+            for (let i = 0; i < series.length; i++) {
+                let completed = freqSequence.map(freq => {
+                    let dataValue = series[i].data.find(dataItem => freq === dataItem[0]);
+                    return dataValue ? dataValue[1] : null;
+                });
 
-    private _formatNumber(n: number, length = 2) {
-        return (n < 10)
-                ? '0' + n
-                : n;
-    }
-
-     // months numbers starting 0
-    private _fillEmptyMonthsWithNull(series: any[], startingMonth: number, endingMonth: number): any[] {
-        let data = series.map(s => {
-            let year = s.name;
-            let serieData = [];
-            for (let currMonth = startingMonth; currMonth <= endingMonth; currMonth++) {
-                let value = s.data.find(d => { return Number(d[0].split('-')[1]) === currMonth; });
-                if (value) {
-                    serieData.push(value);
-                } else {
-                    serieData.push([`${year}-${this._formatNumber(currMonth)}`, null]);
-                }
-            };
-
-            return { name: year, data: serieData };
-        });
-
-        return data;
-    }
-
-    private _fillEmptyDaysWithNull(series: any, start: number, end: number): any[] {
-        if (series && !series.name) {
-            return this._fillSimpleSerieWithNullValues(series, start, end);
+                series[i].data = completed;
+            }
         }
 
-        let data = series.map(s => {
-            let month = s.name;
-            let serieData = this._fillSimpleSerieWithNullValues(s.data, start, end);
-            return { name: month, data: serieData };
-        });
-
-        return data;
+        return series;
     }
 
-    private _fillSimpleSerieWithNullValues(series: any, start: number, end: number): any[] {
-        let simpleSerie = [];
-        for (let currDay = start; currDay <= end; currDay++) {
-            let value = series.find(d => { return Number(d[0]) === currDay; });
-            if (value) {
-                simpleSerie.push(value);
-            } else {
-                simpleSerie.push([currDay, null]);
-            }
-        };
-
-        return simpleSerie;
-    }
-
-     private _getValueByYear(rawData: any[], year: number) {
-
-         s;dkfhsdkjfhx
-        let data = rawData.filter(d => {
-            if (d._id.frequency.indexOf(year) === -1) { return; };
-            return d;
-        });
-
-        data = _.sortBy(data, '_id.frequency');
-        return data.map(item => [ moment(String(item._id.frequency + '-01')).format('MMM'), item.value]);
-    }
+    // private _getSeriesByDay(data): any[] {
+    //     if (this.frequencieValues.years.length > 1) {
+    //         console.log('daily frecuencies only support a date range of a year at this moment... displaying nothing...');
+    //         return [];
+    //     }
 
 
+    //     // if (this.frequencieValues.months.length === 1) {
+    //     //     result.push(this._getValueByMonth(data, months[0]));
+    //     //     result = this._fillEmptyDaysWithNull(result, 1, 31);
+    //     // }
 
+    //     return this.frequencieValues.months.map(m => {
+    //         return {
+    //             name: moment().month(m - 1).format('MMM'),
+    //             data: this._fillEmptyDaysWithNull(this._getMonthlySeries(data, m), 1, 31)
+    //         };
+    //     });
+    // }
+
+    // private _getMonthlySeries(rawData: any[], month: number) {
+    //     return rawData.map(d => {
+    //         if (d.frequency.month !== month) { return; }
+    //         return d.map(item => [month, item.value]);
+    //     });
+    // }
+
+    // private _formatNumber(n: number, length = 2) {
+    //     return (n < 10)
+    //             ? '0' + n
+    //             : n;
+    // }
+
+     // months numbers starting 0
+    // private _fillEmptyMonthsWithNull(series: any[], startingMonth: number, endingMonth: number): any[] {
+    //     let data = series.map(s => {
+    //         let year = s.name;
+    //         let serieData = [];
+    //         for (let currMonth = startingMonth; currMonth <= endingMonth; currMonth++) {
+    //             let value = s.data.find(d => { return Number(d[0].split('-')[1]) === currMonth; });
+    //             if (value) {
+    //                 serieData.push(value);
+    //             } else {
+    //                 serieData.push([`${year}-${this._formatNumber(currMonth)}`, null]);
+    //             }
+    //         };
+
+    //         return { name: year, data: serieData };
+    //     });
+
+    //     return data;
+    // }
+
+    // private _fillEmptyDaysWithNull(series: any, start: number, end: number): any[] {
+    //     if (series && !series.name) {
+    //         return this._fillSimpleSerieWithNullValues(series, start, end);
+    //     }
+
+    //     let data = series.map(s => {
+    //         let month = s.name;
+    //         let serieData = this._fillSimpleSerieWithNullValues(s.data, start, end);
+    //         return { name: month, data: serieData };
+    //     });
+
+    //     return data;
+    // }
+
+    // private _fillSimpleSerieWithNullValues(series: any, start: number, end: number): any[] {
+    //     let simpleSerie = [];
+    //     for (let currDay = start; currDay <= end; currDay++) {
+    //         let value = series.find(d => { return Number(d[0]) === currDay; });
+    //         if (value) {
+    //             simpleSerie.push(value);
+    //         } else {
+    //             simpleSerie.push([currDay, null]);
+    //         }
+    //     };
+
+    //     return simpleSerie;
+    // }
 }

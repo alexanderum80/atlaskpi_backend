@@ -24,7 +24,7 @@ export class FrequencyHelper {
     private _days: number[];
     private _quarters: number[];
 
-    processData(rawData: any[], frequency: FrequencyEnum) {
+    extractFrequency(rawData: any[], frequency: FrequencyEnum) {
         this._processFrequency(rawData, frequency);
     }
 
