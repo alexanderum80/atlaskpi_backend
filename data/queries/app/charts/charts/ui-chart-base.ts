@@ -18,6 +18,14 @@ export interface IUIChart {
     getUIDefinition?(kpiBase: IKpiBase, dateRange: IDateRange, frequency: FrequencyEnum, grouping: string): Promise<string>;
 };
 
+export interface IFrequencyValues {
+        years: number[];
+        months: number[];
+        weeks: number[];
+        days: number[];
+        quarters: number[];
+    }
+
 export abstract class UIChartBase {
     private _kpi: IKpiBase;
 
@@ -98,22 +106,22 @@ export abstract class UIChartBase {
         return groups;
     }
 
-    public getSeriesByFrequency(frequency: FrequencyEnum) {
-        if (!this.data) {
+    public getSeriesByFrequency(frequency: FrequencyEnum, data: any) {
+        if (!data) {
             console.log('you have to call getData() before getting the series');
             return null;
         }
 
         switch (frequency) {
             case FrequencyEnum.Daily:
-                 return this._getSeriesByDay(this.data);
+                 return this._getSeriesByDay(data);
 
             case FrequencyEnum.Weekly:
                 //  return this._getSeriesByWeek(res);
                 return [];
 
             case FrequencyEnum.Monthly:
-                 return this._getSeriesByMonth(this.data);
+                 return this._getSeriesByMonth(data);
 
             case FrequencyEnum.Yearly:
                  return [];
@@ -159,6 +167,16 @@ export abstract class UIChartBase {
             console.log('error trying to extract months...: ' + err);
         }
         return qs || [];
+    }
+
+    private _processFrequency(data: any, frequency: FrequencyEnum): IFrequencyValues {
+        switch (frequency) {
+            case FrequencyEnum.Daily:
+            case FrequencyEnum.Monthly:
+            case FrequencyEnum.Quartely:
+            case FrequencyEnum.Weekly:
+            case FrequencyEnum.Yearly:
+        }
     }
 
      private _getYearsInData(rawData: any[]): string[] {
