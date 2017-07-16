@@ -18,7 +18,7 @@ export class GetChartQuery implements IQuery<string> {
     // log = true;
     // audit = true;
 
-    run(data: { id: string, dateRange: { from: string, to: string}, frequency: string, grouping: string }): Promise<string> {
+    run(data: { id: string, dateRange: { from: string, to: string}, frequency: string, grouping: string, xAxisSource: string }): Promise<string> {
         let that = this;
 
         let dr: IDateRange = {
@@ -44,7 +44,7 @@ export class GetChartQuery implements IQuery<string> {
                     let kpi = KpiFactory.getInstance(chartDocument.kpis[0], that._ctx);
                     let grouping = getGroupingMetadata(data.grouping);
 
-                    chart.getUIDefinition(kpi, dr, frequency, grouping).then((definition) => {
+                    chart.getUIDefinition(kpi, dr, { frequency: frequency, grouping: grouping, xAxisSource: data.xAxisSource }).then((definition) => {
                         resolve(definition);
                     }).catch(e => reject(e));
                 });

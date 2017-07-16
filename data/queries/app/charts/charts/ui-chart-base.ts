@@ -27,13 +27,13 @@ export interface IUIChart {
     prepareCategories();
     prepareSeries();
     getDefinition(dateRange: IDateRange, frequency: FrequencyEnum): Promise<any>;
-    getUIDefinition?(kpiBase: IKpiBase, dateRange: IDateRange, frequency: FrequencyEnum, grouping: string): Promise<string>;
+    getUIDefinition?(kpiBase: IKpiBase, dateRange: IDateRange, metadata?: IChartMetadata): Promise<string>;
 };
 
 export interface IChartMetadata {
     frequency?: FrequencyEnum;
     grouping?: string;
-    xAxisDataSource?: string;
+    xAxisSource?: string;
 }
 
 export enum CreateSeriesByEnum {
@@ -72,7 +72,7 @@ export abstract class UIChartBase {
                 that.data = data;
                 that.frequencyHelper.extractFrequency(data, metadata.frequency);
                 let categories = that._createCategories(data, metadata);
-                let series = that.createSeries(data, CreateSeriesByEnum.Frequency, { frequency: metadata.frequency });
+                let series = that._createSeries(data, categories, CreateSeriesByEnum.Frequency, { frequency: metadata.frequency });
 
                 // TODO: pending when we deal with second level groupings
                 // that.groupings = this.getGroupings(data);
@@ -82,33 +82,35 @@ export abstract class UIChartBase {
         });
     }
 
-    private createSeries(data: any[], by: CreateSeriesByEnum, extra: IChartMetadata): any[] {
+    private _createSeries(data: any[], categories: IXAxisCategory[], /* by: CreateSeriesByEnum, */ extra: IChartMetadata): any[] {
         if (!data) {
             console.log('you have to call getData() before getting the series');
             return null;
         }
 
-        if (by === CreateSeriesByEnum.Frequency && !extra.frequency) {
-            throw new Error('Chart frequency is missing');
-        }
+        // if (by === CreateSeriesByEnum.Frequency && !extra.frequency) {
+        //     throw new Error('Chart frequency is missing');
+        // }
 
-        if (by === CreateSeriesByEnum.Grouping && !extra.grouping) {
-            throw new Error('Chart grouping is missing');
-        }
+        // if (by === CreateSeriesByEnum.Grouping && !extra.grouping) {
+        //     throw new Error('Chart grouping is missing');
+        // }
 
 
-        switch (by) {
-            case CreateSeriesByEnum.Frequency:
-                return this._getSeriesByFrequency(data, extra.frequency);
-            case CreateSeriesByEnum.Grouping:
-                // return this._createSeriesByGrouping();
-                break;
-        }
-    }
+        // switch (by) {
+        //     case CreateSeriesByEnum.Frequency:
+        //         return this._getSeriesByFrequency(data, extra.frequency);
+        //     case CreateSeriesByEnum.Grouping:
+        //         // return this._createSeriesByGrouping();
+        //         break;
+        // }
 
-    private _getSeriesByFrequency(data: any[], frequency: FrequencyEnum): IChartSerie[] {
+        // TODO: I left here, I think that using the xAxisSource I can understand how to generate the series
+        // that is why I commented out the by parameter in this function so instead of calling "getFrequencySequence" 
+        // I can use the categories directly
+
         let dataGroupedByYear = _.groupBy(data, 'frequency.year');
-        let frequencyName = getFrequencyPropName(frequency);
+        let frequencyName = getFrequencyPropName(extra.frequency);
 
         let series: IChartSerie[] = this.frequencyHelper.get().years.map(y => {
             return {
@@ -118,7 +120,7 @@ export abstract class UIChartBase {
         });
 
         // once we have the series data we need to make sure the sequence is completed
-        let freqSequence = getFrequencySequence(frequency);
+        let freqSequence = getFrequencySequence(extra.frequency);
 
         if (freqSequence) {
             for (let i = 0; i < series.length; i++) {
@@ -134,12 +136,47 @@ export abstract class UIChartBase {
         return series;
     }
 
-    private _createCategories(data: any, metadata: IChartMetadata): string[] {
-       if (metadata.xAxisDataSource === 'frequency') {
-           this.frequencyHelper.getCategories(metadata.frequency);
-       }
+    // private _getSeriesByFrequency(data: any[], frequency: FrequencyEnum): IChartSerie[] {
+    //     let dataGroupedByYear = _.groupBy(data, 'frequency.year');
+    //     let frequencyName = getFrequencyPropName(frequency);
 
-        return [];
+    //     let series: IChartSerie[] = this.frequencyHelper.get().years.map(y => {
+    //         return {
+    //             name: y,
+    //             data: dataGroupedByYear[y].map(item => [item.frequency[frequencyName], item.value])
+    //         };
+    //     });
+
+    //     // once we have the series data we need to make sure the sequence is completed
+    //     let freqSequence = getFrequencySequence(frequency);
+
+    //     if (freqSequence) {
+    //         for (let i = 0; i < series.length; i++) {
+    //             let completed = freqSequence.map(freq => {
+    //                 let dataValue = series[i].data.find(dataItem => freq === dataItem[0]);
+    //                 return dataValue ? dataValue[1] : null;
+    //             });
+
+    //             series[i].data = completed;
+    //         }
+    //     }
+
+    //     return series;
+    // }
+
+    private _createCategories(data: any, metadata: IChartMetadata): IXAxisCategory[] {
+        if (metadata.xAxisSource === 'frequency') {
+           return this.frequencyHelper.getCategories(metadata.frequency);
+        }
+
+        const uniqueCategories = <string[]> _.uniq(data.map(item => item._id[metadata.xAxisSource]));
+
+        return uniqueCategories.map(category => {
+            return {
+                id: category,
+                name: category
+            };
+        });
     }
 
 
