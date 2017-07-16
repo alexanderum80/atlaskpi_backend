@@ -13,9 +13,14 @@ import * as _ from 'lodash';
 
 import { ChartPostProcessingExtention } from './chart-postprocessing-extention';
 
+export interface IXAxisCategory {
+    id: string | number;
+    name: string;
+}
+
 export interface IChartSerie {
     name: string | number;
-    data: any;
+    data: any[];
 }
 
 export interface IUIChart {
@@ -28,6 +33,7 @@ export interface IUIChart {
 export interface IChartMetadata {
     frequency?: FrequencyEnum;
     grouping?: string;
+    xAxisDataSource?: string;
 }
 
 export enum CreateSeriesByEnum {
@@ -50,7 +56,7 @@ export abstract class UIChartBase {
         }
     }
 
-    getKPIData(kpi: IKpiBase, dateRange: IDateRange, frequency: FrequencyEnum, grouping?: string): Promise<IKPIResult> {
+    getKPIData(kpi: IKpiBase, dateRange: IDateRange, metadata?: IChartMetadata): Promise<IKPIResult> {
         let that = this;
 
         return new Promise<IKPIResult>((resolve, reject) => {
@@ -60,12 +66,14 @@ export abstract class UIChartBase {
             }
 
             dateRange = dateRange || chartDr;
-            console.log(frequency);
+            console.log(metadata.frequency);
 
-            return kpi.getData(dateRange, frequency, grouping).then(data => {
+            return kpi.getData(dateRange, metadata.frequency, metadata.grouping).then(data => {
                 that.data = data;
-                that.frequencyHelper.extractFrequency(data, frequency);
-                let t = that.createSeries(data, CreateSeriesByEnum.Frequency, { frequency: frequency });
+                that.frequencyHelper.extractFrequency(data, metadata.frequency);
+                let categories = that._createCategories(data, metadata);
+                let series = that.createSeries(data, CreateSeriesByEnum.Frequency, { frequency: metadata.frequency });
+
                 // TODO: pending when we deal with second level groupings
                 // that.groupings = this.getGroupings(data);
                 resolve(data);
@@ -74,7 +82,7 @@ export abstract class UIChartBase {
         });
     }
 
-    private createSeries(data: any[], by: CreateSeriesByEnum, extra: IChartMetadata) {
+    private createSeries(data: any[], by: CreateSeriesByEnum, extra: IChartMetadata): any[] {
         if (!data) {
             console.log('you have to call getData() before getting the series');
             return null;
@@ -91,15 +99,14 @@ export abstract class UIChartBase {
 
         switch (by) {
             case CreateSeriesByEnum.Frequency:
-                let a = this._createSeriesByFrequency(data, extra.frequency);
-                return a;
+                return this._getSeriesByFrequency(data, extra.frequency);
             case CreateSeriesByEnum.Grouping:
                 // return this._createSeriesByGrouping();
                 break;
         }
     }
 
-    private _createSeriesByFrequency(data: any[], frequency: FrequencyEnum) {
+    private _getSeriesByFrequency(data: any[], frequency: FrequencyEnum): IChartSerie[] {
         let dataGroupedByYear = _.groupBy(data, 'frequency.year');
         let frequencyName = getFrequencyPropName(frequency);
 
@@ -126,6 +133,15 @@ export abstract class UIChartBase {
 
         return series;
     }
+
+    private _createCategories(data: any, metadata: IChartMetadata): string[] {
+       if (metadata.xAxisDataSource === 'frequency') {
+           this.frequencyHelper.getCategories(metadata.frequency);
+       }
+
+        return [];
+    }
+
 
     // private _getSeriesByDay(data): any[] {
     //     if (this.frequencieValues.years.length > 1) {

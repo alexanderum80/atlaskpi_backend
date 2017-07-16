@@ -1,5 +1,7 @@
-import { FrequencyEnum } from '../../../../models/common';
+import { FrequencyEnum, getFrequencySequence } from '../../../../models/common';
+import { IXAxisCategory } from './ui-chart-base';
 import * as _ from 'lodash';
+import * as moment from 'moment';
 
 export interface IFrequencyValues {
     years: number[];
@@ -36,6 +38,27 @@ export class FrequencyHelper {
             days: this._days,
             quarters: this._quarters
         };
+    }
+
+    getCategories(frequency: FrequencyEnum): IXAxisCategory[] {
+        switch (frequency) {
+            case FrequencyEnum.Daily:
+                return getFrequencySequence(frequency).map(f => { return { id: f, name: String(f) }; });
+
+            case FrequencyEnum.Weekly:
+                return getFrequencySequence(frequency).map(f => { return { id: f, name: String(f) }; });
+
+            case FrequencyEnum.Monthly:
+                return getFrequencySequence(frequency).map(f => { return { id: f, name: moment().month(f - 1).format('MMM') }; });
+
+            case FrequencyEnum.Quartely:
+                return getFrequencySequence(frequency).map(f => { return { id: f, name: `Q${f}` }; });
+
+            case FrequencyEnum.Yearly:
+                return this._years.map((y, index): IXAxisCategory => { return { id: index, name: String(y) }; });
+        }
+
+        return [];
     }
 
     private _processFrequency(data: any, frequency: FrequencyEnum) {
