@@ -1,15 +1,15 @@
-import { FrequencyEnum, IDateRange, getFrequencyPropName, getFrequencySequence } from '../../../../models/common';
+import { FrequencyEnum, IDateRange, getFrequencyPropName, getFrequencySequence, FREQUENCY_GROUPING_NAME } from '../../../../models/common';
 import { IKPIDocument, IAppModels } from '../../../../models/app';
 import { getKPI } from '../../kpis/kpi.factory';
 import { IKpiBase, IKPIResult } from '../../kpis/kpi-base';
 import { IChart, IChartDocument } from '../../../../models/app/charts';
 import { ChartPreProcessorExtention } from './chart-preprocessor-extention';
 import { IFrequencyValues, FrequencyHelper } from './frequency-values';
+import { IChartMetadata, IChartSerie } from '.';
 import * as Promise from 'bluebird';
 import * as mongoose from 'mongoose';
 import * as moment from 'moment';
 import * as _ from 'lodash';
-
 
 import { ChartPostProcessingExtention } from './chart-postprocessing-extention';
 
@@ -18,27 +18,11 @@ export interface IXAxisCategory {
     name: string;
 }
 
-export interface IChartSerie {
-    name: string | number;
-    data: any[];
-}
-
 export interface IUIChart {
     prepareCategories();
     prepareSeries();
     getDefinition(dateRange: IDateRange, frequency: FrequencyEnum): Promise<any>;
     getUIDefinition?(kpiBase: IKpiBase, dateRange: IDateRange, metadata?: IChartMetadata): Promise<string>;
-};
-
-export interface IChartMetadata {
-    frequency?: FrequencyEnum;
-    grouping?: string;
-    xAxisSource?: string;
-}
-
-export enum CreateSeriesByEnum {
-    Frequency,
-    Grouping
 }
 
 export abstract class UIChartBase {
@@ -52,10 +36,16 @@ export abstract class UIChartBase {
 
     constructor(private _chart: IChart, protected frequencyHelper: FrequencyHelper) {
         if (!_chart.kpis || _chart.kpis.length < 1) {
-            throw 'A chart cannot be created with a KPI';
+            throw 'A chart cannot be created without a KPI';
         }
     }
 
+    /**
+     * Retrieve kpi data
+     * @param kpi kpi to run
+     * @param dateRange date range
+     * @param metadata chart metadata
+     */
     getKPIData(kpi: IKpiBase, dateRange: IDateRange, metadata?: IChartMetadata): Promise<IKPIResult> {
         let that = this;
 
@@ -70,9 +60,12 @@ export abstract class UIChartBase {
 
             return kpi.getData(dateRange, metadata.frequency, metadata.grouping).then(data => {
                 that.data = data;
+                // TODO: I do not think this is a neccesary step this should only run when the frequency exist
                 that.frequencyHelper.extractFrequency(data, metadata.frequency);
+
+                let groupings = that._getGroupingFields(data);
                 let categories = that._createCategories(data, metadata);
-                let series = that._createSeries(data, categories, CreateSeriesByEnum.Frequency, { frequency: metadata.frequency });
+                let series = that._createSeries(data, metadata, categories, groupings);
 
                 // TODO: pending when we deal with second level groupings
                 // that.groupings = this.getGroupings(data);
@@ -82,88 +75,23 @@ export abstract class UIChartBase {
         });
     }
 
-    private _createSeries(data: any[], categories: IXAxisCategory[], /* by: CreateSeriesByEnum, */ extra: IChartMetadata): any[] {
+    /**
+     * Return all field names used for grouping the results
+     * @param data raw data
+     */
+    private _getGroupingFields(data): string[] {
         if (!data) {
-            console.log('you have to call getData() before getting the series');
-            return null;
+            return [];
         }
 
-        // if (by === CreateSeriesByEnum.Frequency && !extra.frequency) {
-        //     throw new Error('Chart frequency is missing');
-        // }
-
-        // if (by === CreateSeriesByEnum.Grouping && !extra.grouping) {
-        //     throw new Error('Chart grouping is missing');
-        // }
-
-
-        // switch (by) {
-        //     case CreateSeriesByEnum.Frequency:
-        //         return this._getSeriesByFrequency(data, extra.frequency);
-        //     case CreateSeriesByEnum.Grouping:
-        //         // return this._createSeriesByGrouping();
-        //         break;
-        // }
-
-        // TODO: I left here, I think that using the xAxisSource I can understand how to generate the series
-        // that is why I commented out the by parameter in this function so instead of calling "getFrequencySequence" 
-        // I can use the categories directly
-
-        let dataGroupedByYear = _.groupBy(data, 'frequency.year');
-        let frequencyName = getFrequencyPropName(extra.frequency);
-
-        let series: IChartSerie[] = this.frequencyHelper.get().years.map(y => {
-            return {
-                name: y,
-                data: dataGroupedByYear[y].map(item => [item.frequency[frequencyName], item.value])
-            };
-        });
-
-        // once we have the series data we need to make sure the sequence is completed
-        let freqSequence = getFrequencySequence(extra.frequency);
-
-        if (freqSequence) {
-            for (let i = 0; i < series.length; i++) {
-                let completed = freqSequence.map(freq => {
-                    let dataValue = series[i].data.find(dataItem => freq === dataItem[0]);
-                    return dataValue ? dataValue[1] : null;
-                });
-
-                series[i].data = completed;
-            }
-        }
-
-        return series;
+        return Object.keys(data[0]._id);
     }
 
-    // private _getSeriesByFrequency(data: any[], frequency: FrequencyEnum): IChartSerie[] {
-    //     let dataGroupedByYear = _.groupBy(data, 'frequency.year');
-    //     let frequencyName = getFrequencyPropName(frequency);
-
-    //     let series: IChartSerie[] = this.frequencyHelper.get().years.map(y => {
-    //         return {
-    //             name: y,
-    //             data: dataGroupedByYear[y].map(item => [item.frequency[frequencyName], item.value])
-    //         };
-    //     });
-
-    //     // once we have the series data we need to make sure the sequence is completed
-    //     let freqSequence = getFrequencySequence(frequency);
-
-    //     if (freqSequence) {
-    //         for (let i = 0; i < series.length; i++) {
-    //             let completed = freqSequence.map(freq => {
-    //                 let dataValue = series[i].data.find(dataItem => freq === dataItem[0]);
-    //                 return dataValue ? dataValue[1] : null;
-    //             });
-
-    //             series[i].data = completed;
-    //         }
-    //     }
-
-    //     return series;
-    // }
-
+    /**
+     * Generate the list of categories for the chart
+     * @param data raw data
+     * @param metadata chart metadata
+     */
     private _createCategories(data: any, metadata: IChartMetadata): IXAxisCategory[] {
         if (metadata.xAxisSource === 'frequency') {
            return this.frequencyHelper.getCategories(metadata.frequency);
@@ -179,85 +107,145 @@ export abstract class UIChartBase {
         });
     }
 
+    /**
+     * Generate the chart serie(s) based on the parameters
+     * @param data raw data
+     * @param categories chart categories
+     * @param extra chart metadata
+     * @param groupings list of fields used to group the data
+     */
+    private _createSeries(data: any[], meta: IChartMetadata, categories: IXAxisCategory[], groupings: string[]): any[] {
+        if (!data) {
+            console.log('you have to call getData() before getting the series');
+            return null;
+        }
 
-    // private _getSeriesByDay(data): any[] {
-    //     if (this.frequencieValues.years.length > 1) {
-    //         console.log('daily frecuencies only support a date range of a year at this moment... displaying nothing...');
-    //         return [];
-    //     }
+        /**
+         *  Not all charts come with frequency so the processing may be a little different
+         *  when frequency is present I need to group the results by year
+         *  we have a couple of ways to deal with the generation of the series and it depends mainly
+         *  on how many groupings exist
+         *  1- level grouping: all
+         *  2- level grouping: line, column, bar
+         *  3- level grouping: stacked columns, stacked bar
+         */
 
 
-    //     // if (this.frequencieValues.months.length === 1) {
-    //     //     result.push(this._getValueByMonth(data, months[0]));
-    //     //     result = this._fillEmptyDaysWithNull(result, 1, 31);
-    //     // }
+        /*
+         *  At this point I already know which field is going to be used for the xAxis
+         *  so I need to get a list of the rest of the grouping fields so I can build the series
+         */
 
-    //     return this.frequencieValues.months.map(m => {
-    //         return {
-    //             name: moment().month(m - 1).format('MMM'),
-    //             data: this._fillEmptyDaysWithNull(this._getMonthlySeries(data, m), 1, 31)
-    //         };
-    //     });
-    // }
+        const availableGroupingsForSeries = _.difference(groupings, [meta.xAxisSource]);
 
-    // private _getMonthlySeries(rawData: any[], month: number) {
-    //     return rawData.map(d => {
-    //         if (d.frequency.month !== month) { return; }
-    //         return d.map(item => [month, item.value]);
-    //     });
-    // }
 
-    // private _formatNumber(n: number, length = 2) {
-    //     return (n < 10)
-    //             ? '0' + n
-    //             : n;
-    // }
+        if (availableGroupingsForSeries.length === 0) {
 
-     // months numbers starting 0
-    // private _fillEmptyMonthsWithNull(series: any[], startingMonth: number, endingMonth: number): any[] {
-    //     let data = series.map(s => {
-    //         let year = s.name;
-    //         let serieData = [];
-    //         for (let currMonth = startingMonth; currMonth <= endingMonth; currMonth++) {
-    //             let value = s.data.find(d => { return Number(d[0].split('-')[1]) === currMonth; });
-    //             if (value) {
-    //                 serieData.push(value);
-    //             } else {
-    //                 serieData.push([`${year}-${this._formatNumber(currMonth)}`, null]);
-    //             }
-    //         };
+            /**
+             *  this is a one level grouping chart
+             */
+            return this._getSeriesForFirstLevelGrouping(data, '');
 
-    //         return { name: year, data: serieData };
-    //     });
 
-    //     return data;
-    // }
+        } else if (availableGroupingsForSeries.length === 1) {
 
-    // private _fillEmptyDaysWithNull(series: any, start: number, end: number): any[] {
-    //     if (series && !series.name) {
-    //         return this._fillSimpleSerieWithNullValues(series, start, end);
-    //     }
+            /**
+             *  this is a two level grouping chart
+             */
+            return this._getSeriesForSecondLevelGrouping(data, categories, availableGroupingsForSeries[0]);
 
-    //     let data = series.map(s => {
-    //         let month = s.name;
-    //         let serieData = this._fillSimpleSerieWithNullValues(s.data, start, end);
-    //         return { name: month, data: serieData };
-    //     });
 
-    //     return data;
-    // }
+        } else if (availableGroupingsForSeries.length === 2) {
 
-    // private _fillSimpleSerieWithNullValues(series: any, start: number, end: number): any[] {
-    //     let simpleSerie = [];
-    //     for (let currDay = start; currDay <= end; currDay++) {
-    //         let value = series.find(d => { return Number(d[0]) === currDay; });
-    //         if (value) {
-    //             simpleSerie.push(value);
-    //         } else {
-    //             simpleSerie.push([currDay, null]);
-    //         }
-    //     };
+            /**
+             *  this is a three level grouping chart
+             */
+            // this._getSeriesForThirdLevelGrouping(data, meta, categories, groupings);
 
-    //     return simpleSerie;
-    // }
+        }
+
+
+
+
+        // if (groupings.indexOf(FREQUENCY_GROUPING_NAME)) {
+
+        //     /*
+        //     *  then I get the frequency property name based on the the selected frequency because that
+        //     *  property is used to save the frequency info once the data is received from mongo as numeric values(year, month, day, etc)
+        //     */
+        //     let frequencyName = getFrequencyPropName(meta.frequency);
+
+        //     /*
+        //     *  first of we need to group the result set by year because in a chart we are not showing more than a year at a time
+        //     */
+        //     let dataGroupedByYear = _.groupBy(data, FREQUENCY_GROUPING_NAME + '.year');
+
+        //     /**
+        //      *  here I create series by year
+        //      */
+        //     let series: IChartSerie[] = this.frequencyHelper.get().years.map(y => {
+        //         return {
+        //             name: y,
+        //             data: dataGroupedByYear[y].map(item => [item.frequency[frequencyName], item.value])
+        //         };
+        //     });
+
+        // }
+
+        // /*
+        //  *  frequency data may not be completed and we need to make sure that we
+        //  *  complete the sequence. Ex: months, days of the months, quarters, etc
+        //  */
+        // let freqSequence = getFrequencySequence(meta.frequency);
+
+        // /**
+        //  *  once I have a complete sequence for the frequency I go over the series's data
+        //  *  I complete the empty frequency slots if any
+        //  */
+        // if (freqSequence) {
+        //     for (let i = 0; i < series.length; i++) {
+        //         let completed = freqSequence.map(freq => {
+        //             let dataValue = series[i].data.find(dataItem => freq === dataItem[0]);
+        //             return dataValue ? dataValue[1] : null;
+        //         });
+
+        //         series[i].data = completed;
+        //     }
+        // }
+
+        // return series;
+    }
+
+
+    private _getSeriesForFirstLevelGrouping(data: any[], name: string): IChartSerie[] {
+        return [{
+            name: name,
+            data: data.map(item => item.value)
+        }];
+    }
+
+    private _getSeriesForSecondLevelGrouping(data: any[], categories: IXAxisCategory[], groupByField: string): IChartSerie[] {
+
+        let groupedData: Dictionary<any> = _.groupBy(data, '_id.' + groupByField);
+        let series: IChartSerie[] = [];
+
+        for (let serieName in groupedData) {
+            let serie: IChartSerie = {
+                name: serieName,
+                data: []
+            };
+
+            categories.forEach(cat => {
+                let dataItem = _.find(groupedData[serieName], (item: any) => {
+                    return item._id[groupByField] === cat;
+                });
+
+                serie.data.push( dataItem ? dataItem.value : null );
+            });
+
+            series.push(serie);
+        }
+
+        return series;
+    }
 }

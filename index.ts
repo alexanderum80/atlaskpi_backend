@@ -64,7 +64,7 @@ graphQLServer.use(i18n.init);
 //  GRAPHQL
 
 import { graphqlExpress } from 'graphql-server-express';
-import { apolloExpress, graphiqlExpress } from 'apollo-server';
+// import { apolloExpress, graphiqlExpress } from 'apollo-server';
 import { makeExecutableSchema, addMockFunctionsToSchema } from 'graphql-tools';
 
 import { GraphqlSchema } from './data/graphql/graphql-schema';
@@ -100,9 +100,9 @@ graphQLServer.use('/graphql', bodyParser.json(), graphqlExpress((req) => (
   }
 )));
 
-graphQLServer.use('/graphiql', graphiqlExpress({
-  endpointURL: '/graphql',
-}));
+// graphQLServer.use('/graphiql', graphiqlExpress({
+//   endpointURL: '/graphql',
+// }));
 
 // first of all make sure we can connecto to mongo db
 

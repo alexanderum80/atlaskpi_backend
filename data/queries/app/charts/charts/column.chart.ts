@@ -6,6 +6,7 @@ import { IChart, IChartDocument } from '../../../../models/app/charts';
 import { FrequencyEnum, IDateRange } from '../../../../models/common';
 import { ChartPreProcessorExtention } from './chart-preprocessor-extention';
 import { IFrequencyValues, FrequencyHelper } from './frequency-values';
+import { IChartMetadata } from './chart-metadata';
 import { IKpiBase } from '../../kpis/kpi-base';
 import * as Promise from 'bluebird';
 
@@ -15,11 +16,11 @@ export class ColumnChart extends UIChartBase implements IUIChart {
         super(_chart, frequencyHelper);
     }
 
-    getUIDefinition(kpi: IKpiBase, dateRange: IDateRange, frequency: FrequencyEnum, grouping: string): Promise<string> {
+    getUIDefinition(kpi: IKpiBase, dateRange: IDateRange, metadata?: IChartMetadata): Promise<string> {
         let that = this;
 
         return new Promise<string>((resolve, reject) => {
-            that.getKPIData(kpi, dateRange, frequency, grouping).then(rawData => {
+            that.getKPIData(kpi, dateRange, metadata).then(rawData => {
                 resolve('');
             });
         });
