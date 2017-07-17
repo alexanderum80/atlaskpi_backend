@@ -29,12 +29,12 @@ export class PerHourCalculator {
                    .then((externalIds) => {
                         ids = externalIds;
                         that._hoursKpi.setExternalids(ids);
-                        return that._hoursKpi.getData(dateRange, frequency);
+                        return that._hoursKpi.getDataToSeries(dateRange, frequency);
                    })
                    .then((h) => {
                         hours = h;
                         that._revenueKpi.setExternalids(ids);
-                        return that._revenueKpi.getData(dateRange, frequency);
+                        return that._revenueKpi.getDataToSeries(dateRange, frequency);
                    })
                    .then((r) => {
                        revenue = r;
