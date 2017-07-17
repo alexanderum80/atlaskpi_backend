@@ -20,7 +20,7 @@ export class PayrollExpenseCalculator {
         }).then(r => {
             revenue = r;
             return self._calPayrollRevenue(payroll, revenue);
-        })
+        });
     }
 
     getDataToSeries(dateRange: IDateRange, frequency: FrequencyEnum): Promise<any> {
@@ -47,7 +47,7 @@ export class PayrollExpenseCalculator {
         if (!mySale) { return 0; };
 
         // validation check for operand order, to help for debuging
-        if (mySale.value > myRevenue.value) {
+        if (mySale.value < myRevenue.value) {
             throw 'Total revenue cannot be less than part revenue, give it a try switching the order of the arguments of RatioSalesCalculatorKPI.getData(...)';
         }
 

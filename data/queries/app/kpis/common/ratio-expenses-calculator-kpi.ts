@@ -51,11 +51,6 @@ export class RatioExpensesCalculatorKPI {
         if (!totalOfFrequencyItem || totalOfFrequencyItem.value === 0) { return null; };
         if (!revenueOfFrequencyItem) { return 0; };
 
-        // validation check for operand order, to help for debuging
-        if (revenueOfFrequencyItem.value > totalOfFrequencyItem.value) {
-            throw 'Total revenue cannot be less than part revenue, give it a try switching the order of the arguments of RatioSalesCalculatorKPI.getData(...)';
-        }
-
         return revenueOfFrequencyItem.value / totalOfFrequencyItem.value * 100;
     }
 
