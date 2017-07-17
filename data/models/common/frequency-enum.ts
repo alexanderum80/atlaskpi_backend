@@ -43,7 +43,15 @@ export function getFrequencySequence(frequency: FrequencyEnum): number[] {
             return [1, 2, 3, 4];
         // case FrequencyEnum.Yearly:
         //     return 'year';
-        // case FrequencyEnum.Weekly:
-        //     return 'week';
+        case FrequencyEnum.Weekly:
+            return _getArrayFromRange(1, 53);
     }
+}
+
+function _getArrayFromRange(from: number, to: number) {
+    let i = from;
+    let range: number[] = [];
+
+    while (i < to) { range.push(i); i++; }
+    return range;
 }

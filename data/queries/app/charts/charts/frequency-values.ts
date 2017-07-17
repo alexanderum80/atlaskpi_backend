@@ -61,6 +61,8 @@ export class FrequencyHelper {
         return [];
     }
 
+    
+
     private _processFrequency(data: any, frequency: FrequencyEnum) {
         let y: number[] = [];
         let m: number[] = [];
@@ -78,7 +80,8 @@ export class FrequencyHelper {
                         day: +tokens[2]
                     };
 
-                    item.frequency = freqInfo;
+                    // item.frequency = freqInfo;
+                    Object.assign(item._id, freqInfo);
 
                     y.push(freqInfo.year);
                     m.push(freqInfo.month);
@@ -93,7 +96,8 @@ export class FrequencyHelper {
                         month: +tokens[1]
                     };
 
-                    item.frequency = freqInfo;
+                    // item.frequency = freqInfo;
+                    Object.assign(item._id, freqInfo);
 
                     y.push(freqInfo.year);
                     m.push(freqInfo.month);
@@ -107,7 +111,8 @@ export class FrequencyHelper {
                         quarter: +tokens[1]
                     };
 
-                    item.frequency = freqInfo;
+                    // item.frequency = freqInfo;
+                    Object.assign(item._id, freqInfo);
 
                     y.push(freqInfo.year);
                     q.push(freqInfo.quarter);
@@ -119,7 +124,8 @@ export class FrequencyHelper {
                         week: +item._id.frequency
                     };
 
-                    item.frequency = freqInfo;
+                    // item.frequency = freqInfo;
+                    Object.assign(item._id, freqInfo);
 
                     w.push(freqInfo.week);
                 });
@@ -130,7 +136,9 @@ export class FrequencyHelper {
                         year: +item._id.frequency
                     };
 
-                    item.frequency = freqInfo;
+                    // item.frequency = freqInfo;
+                    Object.assign(item._id, freqInfo);
+
                     y.push(freqInfo.year);
                 });
                 break;

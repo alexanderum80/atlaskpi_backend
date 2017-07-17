@@ -6,7 +6,25 @@ import { IChart, IChartDocument } from '../../../../models/app/charts';
 import { ChartPreProcessorExtention } from './chart-preprocessor-extention';
 import { IFrequencyValues, FrequencyHelper } from './frequency-values';
 import { IChartMetadata, IChartSerie } from '.';
+import { IAppModels, IKPIDocument } from '../../../../models/app';
+import { IChart, IChartDocument } from '../../../../models/app/charts';
+import {
+    FREQUENCY_GROUPING_NAME,
+    FrequencyEnum,
+    getFrequencyPropName,
+    getFrequencySequence,
+    IDateRange,
+} from '../../../../models/common';
+import { FREQUENCY_GROUPING_NAME } from '../../../../models/common/frequency-enum';
+import { IKpiBase, IKPIResult } from '../../kpis/kpi-base';
+import { getKPI } from '../../kpis/kpi.factory';
+import { ChartPostProcessingExtention } from './chart-postprocessing-extention';
+import { ChartPreProcessorExtention } from './chart-preprocessor-extention';
+import { FrequencyHelper, IFrequencyValues } from './frequency-values';
+import { IChartMetadata, IChartSerie } from '.';
 import * as Promise from 'bluebird';
+import * as _ from 'lodash';
+import * as moment from 'moment';
 import * as mongoose from 'mongoose';
 import * as moment from 'moment';
 import * as _ from 'lodash';
@@ -17,6 +35,12 @@ export interface IXAxisCategory {
     id: string | number;
     name: string;
 }
+
+// export interface IXAxisConfig {
+//     fieldName: string;
+//     categories: IXAxisCategory[];
+// }
+
 
 export interface IUIChart {
     prepareCategories();
@@ -61,9 +85,10 @@ export abstract class UIChartBase {
             return kpi.getData(dateRange, metadata.frequency, metadata.grouping).then(data => {
                 that.data = data;
                 // TODO: I do not think this is a neccesary step this should only run when the frequency exist
-                that.frequencyHelper.extractFrequency(data, metadata.frequency);
 
                 let groupings = that._getGroupingFields(data);
+                that.frequencyHelper.extractFrequency(data, metadata.frequency);
+
                 let categories = that._createCategories(data, metadata);
                 let series = that._createSeries(data, metadata, categories, groupings);
 
@@ -152,7 +177,7 @@ export abstract class UIChartBase {
             /**
              *  this is a two level grouping chart
              */
-            return this._getSeriesForSecondLevelGrouping(data, categories, availableGroupingsForSeries[0]);
+            return this._getSeriesForSecondLevelGrouping(data, meta, categories, availableGroupingsForSeries[0]);
 
 
         } else if (availableGroupingsForSeries.length === 2) {
@@ -224,9 +249,25 @@ export abstract class UIChartBase {
         }];
     }
 
-    private _getSeriesForSecondLevelGrouping(data: any[], categories: IXAxisCategory[], groupByField: string): IChartSerie[] {
+    private _getSeriesForSecondLevelGrouping(data: any[], meta: IChartMetadata, categories: IXAxisCategory[], groupByField: string): IChartSerie[] {
 
+        /**
+         * First I need to group the results using the next groupig field
+         */
         let groupedData: Dictionary<any> = _.groupBy(data, '_id.' + groupByField);
+        let series: IChartSerie[] = [];
+        let matchField: string;
+
+        if (meta.xAxisSource === FREQUENCY_GROUPING_NAME) {
+            matchField = getFrequencyPropName(meta.frequency);
+        } else {
+            matchField = meta.xAxisSource;
+        }
+
+        return this._createSeriesFromgroupedData(groupedData, categories, matchField);
+    }
+
+    private _createSeriesFromgroupedData(groupedData: Dictionary<any>, categories: IXAxisCategory[], matchField: string): IChartSerie[] {
         let series: IChartSerie[] = [];
 
         for (let serieName in groupedData) {
@@ -237,7 +278,7 @@ export abstract class UIChartBase {
 
             categories.forEach(cat => {
                 let dataItem = _.find(groupedData[serieName], (item: any) => {
-                    return item._id[groupByField] === cat;
+                    return item._id[matchField] === cat.id;
                 });
 
                 serie.data.push( dataItem ? dataItem.value : null );
