@@ -23,17 +23,23 @@ export class ConsultingResearchServiceRatio {
         let consultingResearchServiceRatioKPI = new RatioSalesCalculatorKPI(consultingResearchRevenueKpi,
                                                                             totalRevenueKpi);
 
+        return consultingResearchServiceRatioKPI.getData(dateRange, frequency);
+    }
+
+    getDataToSeries(dateRange: IDateRange, frequency?: FrequencyEnum): Promise<any> {
+        const that = this;
+
         return new Promise((resolve, reject) => {
-            consultingResearchServiceRatioKPI.getData(dateRange, frequency).then(data => {
+            that.getData(dateRange, frequency).then(data => {
                 resolve(that._toSeries(data));
             }), (e) => reject(e);
-        });
+        });        
     }
 
     private _toSeries(rawData: any[]) {
         return [{
             name: 'Consulting Research Service Ratio',
-            data: rawData.map(item => [ item._id.frequency, item.ratio ])
+            data: rawData.map(item => [ item._id.frequency, item.value ])
         }];
     }
 

@@ -15,14 +15,18 @@ export class RatioExpensesCalculatorKPI {
         let totalRevenue;
         let partRevenue;
 
-        return this._totalKpi.getData(dateRange, frequency)
+        return this._totalKpi.getDataToSeries(dateRange, frequency)
              .then((t) => {
                 totalRevenue = t;
-                return this._partKpi.getRawData(dateRange, frequency);
+                return this._partKpi.getData(dateRange, frequency);
             }).then((p) => {
                 partRevenue = p;
                 return that._calcRatioSales(partRevenue, totalRevenue);
             });
+    }
+
+    getDataToSeries(dateRange: IDateRange, frequency?: FrequencyEnum): Promise<any> {
+        return this.getData(dateRange, frequency);
     }
 
     private _calcRatioSales(part: any[], total: any[]): Promise<any> {
@@ -32,7 +36,7 @@ export class RatioExpensesCalculatorKPI {
                 let ratio = this._getSalesRatioByFrequencyItem(t._id.frequency, part, total);
                 if (!ratio) { return; }
                 expenseRatio.push({ _id: { frequency: t._id.frequency },
-                                         ratio: ratio });
+                                         value: ratio });
         });
         
         return Promise.resolve(expenseRatio);
@@ -44,15 +48,15 @@ export class RatioExpensesCalculatorKPI {
 
         let totalOfFrequencyItem = totalRevenue.find(h => h._id.frequency === frequencyItem);
 
-        if (!totalOfFrequencyItem || totalOfFrequencyItem.revenue === 0) { return null; };
+        if (!totalOfFrequencyItem || totalOfFrequencyItem.value === 0) { return null; };
         if (!revenueOfFrequencyItem) { return 0; };
 
         // validation check for operand order, to help for debuging
-        if (revenueOfFrequencyItem.revenue > totalOfFrequencyItem.revenue) {
+        if (revenueOfFrequencyItem.value > totalOfFrequencyItem.value) {
             throw 'Total revenue cannot be less than part revenue, give it a try switching the order of the arguments of RatioSalesCalculatorKPI.getData(...)';
         }
 
-        return revenueOfFrequencyItem.expenses / totalOfFrequencyItem.revenue * 100;
+        return revenueOfFrequencyItem.value / totalOfFrequencyItem.value * 100;
     }
 
 }

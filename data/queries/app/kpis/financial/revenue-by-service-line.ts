@@ -42,7 +42,7 @@ export class RevenueByServiceLine extends KpiBase {
     }
 
     getData(dateRange: IDateRange, frequency?: FrequencyEnum): Promise<any> {
-        return this.executeQuery('product.from', dateRange, frequency).then(data => data);
+        return this.executeQuery('product.from', dateRange, frequency);
     }
 
     getDataToSeries(dateRange: IDateRange, frequency?: FrequencyEnum): Promise<any> {

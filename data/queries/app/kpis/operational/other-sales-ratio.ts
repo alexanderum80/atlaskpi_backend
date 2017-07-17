@@ -23,9 +23,14 @@ export class OtherSalesRatio {
         let otherSalesRatioKpi = new RatioSalesCalculatorKPI(otherRevenueKpi,
                                                              totalRevenueKpi);
 
+        return otherSalesRatioKpi.getData(dateRange, frequency);
+    }
+
+    getDataToSeries(dateRange: IDateRange, frequency?: FrequencyEnum): Promise<any> {
+        const that = this;
         return new Promise((resolve, reject) => {
-                otherSalesRatioKpi.getData(dateRange, frequency).then(data => {
-                    resolve(that._toSeries(data));
+            that.getData(dateRange, frequency).then(data => {
+                resolve(that._toSeries(data));
             }), (e) => reject(e);
         });
     }
@@ -33,7 +38,7 @@ export class OtherSalesRatio {
     private _toSeries(rawData: any[]) {
         return [{
             name: 'Other Sales Ratio',
-            data: rawData.map(item => [ item._id.frequency, item.ratio ])
+            data: rawData.map(item => [ item._id.frequency, item.value ])
         }];
     }
 }

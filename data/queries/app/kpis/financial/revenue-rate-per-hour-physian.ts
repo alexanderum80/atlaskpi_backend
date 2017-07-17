@@ -35,17 +35,22 @@ export class PhysicianRevenueRateHour {
                                                                revenueKpi,
                                                                hoursKpi);
 
+        return physicianRevenueRateHourKpi.getData(dateRange, frequency);
+    }
+
+    getDataToSeries(dateRange: IDateRange, frequency?: FrequencyEnum): Promise<any> {
+        const that = this;
         return new Promise((resolve, reject) => {
-            physicianRevenueRateHourKpi.getData(dateRange, frequency).then(data => {
+            that.getData(dateRange, frequency).then(data => {
                 resolve(that._toSeries(data));
             }), (e) => reject(e);
-        });
+        });        
     }
 
      private _toSeries(rawData: any[]) {
         return [{
             name: 'Physician Revenue Rate Per Hour',
-            data: rawData.map(item => [ item._id.frequency, item.revenuePerHour ])
+            data: rawData.map(item => [ item._id.frequency, item.value ])
         }];
     }
 }

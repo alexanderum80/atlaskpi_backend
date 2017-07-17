@@ -16,18 +16,22 @@ export class ExpenseRatio {
         let totalExpense = new TotalExpense(this.expenses);
         let ratioKPI = new RatioExpensesCalculatorKPI(totalExpense, totalRevenue);
 
+        return <any>(ratioKPI.getData(dateRange, frequency));
+    }
+
+    getDataToSeries(dateRange: IDateRange, frequency?: FrequencyEnum): Promise<any> {
+        const that = this;
         return new Promise((resolve, reject) => {
-            ratioKPI.getData(dateRange, frequency).then(data => {
+            that.getData(dateRange, frequency).then(data => {
                 resolve(that._toSeries(data));
             })
         })
-        
     }
     
     private _toSeries(rawData: any[]) {
         return [{
             name: "Expense By Ratio",
-            data: rawData.map((item) => [item._id.frequency, item.ratio])
+            data: rawData.map((item) => [item._id.frequency, item.value])
         }]
     }
 }

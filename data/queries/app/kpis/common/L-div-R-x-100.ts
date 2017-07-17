@@ -26,6 +26,10 @@ export class LeftDivRightMult100Kpi                                             
             });
     }
 
+    getDataToSeries(dateRange: IDateRange, frequency?: FrequencyEnum): Promise<any> {
+        return this.getData(dateRange, frequency);
+    }
+
     private _calc(l: any[], r: any[]): Promise<any> {
         let result = [];
 
@@ -33,7 +37,7 @@ export class LeftDivRightMult100Kpi                                             
                 let calc = this._getDivisionByFrequencyItem(t._id.frequency, l, r);
                 if (!calc) { return; }
                 result.push({ _id: { frequency: t._id.frequency },
-                                     calc: calc });
+                                     value: calc });
         });
         return Promise.resolve(result);
     }
@@ -44,15 +48,15 @@ export class LeftDivRightMult100Kpi                                             
 
         let rFrequencyItem = r.find(h => h._id.frequency === frequencyItem);
 
-        if (!rFrequencyItem || rFrequencyItem.revenue === 0) { return null; };
+        if (!rFrequencyItem || rFrequencyItem.value === 0) { return null; };
         if (!lFrequencyItem) { return 0; };
 
         // validation check for operand order, to help for debuging
-        if (lFrequencyItem.revenue > rFrequencyItem.revenue) {
+        if (lFrequencyItem.value > rFrequencyItem.value) {
             throw 'Total revenue cannot be less than part revenue, give it a try switching the order of the arguments of RatioSalesCalculatorKPI.getData(...)';
         }
 
-        return lFrequencyItem.expenses / rFrequencyItem.revenue * 100;
+        return lFrequencyItem.value / rFrequencyItem.value * 100;
     }
 
 }

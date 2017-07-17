@@ -39,12 +39,12 @@ export class RevenueByUnits extends KpiBase {
     }
 
     getData(dateRange: IDateRange, frequency?: FrequencyEnum): Promise<any> {
-        return this.executeQuery('product.from', dateRange, frequency).then(data => data);
+        return this.executeQuery('product.from', dateRange, frequency);
     }
 
     getDataToSeries(dateRange: IDateRange, frequency?: FrequencyEnum): Promise<any> {
         const that = this;
-        return this.executeQuery('product.from', dateRange, frequency).then(data => {
+        return this.getData(dateRange, frequency).then(data => {
             return Promise.resolve(that._toSeries(data, frequency));
         })
     }

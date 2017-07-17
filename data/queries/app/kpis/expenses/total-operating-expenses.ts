@@ -40,10 +40,7 @@ export class TotalOperatingExpenses extends KpiBase {
     }
 
     getData(dateRange: IDateRange, frequency?: FrequencyEnum): Promise<any> {
-       const that = this;
-       return this.executeQuery('timestamp', dateRange, frequency).then(data => {
-            return data;
-        });
+       return this.executeQuery('timestamp', dateRange, frequency);
     }
     
     getDataToSeries(dateRange: IDateRange, frequency?: FrequencyEnum): Promise<any> {

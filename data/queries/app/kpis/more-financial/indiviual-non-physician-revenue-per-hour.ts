@@ -32,18 +32,25 @@ export class IndividualNonPhysicianRevenueRatePerHour {
 
         let individualNonPhysicianRevenueRatePerHourKpi = new PerHourCalculator(
             idAggregate, this._sales, revenueKpi, hoursKpi);
+            
+        return individualNonPhysicianRevenueRatePerHourKpi.getData(dateRange, frequency);
+    }
+    
+    getDataToSeries(dateRange: IDateRange, frequency?: FrequencyEnum): Promise<any> {
+        const that = this;
         return new Promise<any>((resolve, reject) => {
-            individualNonPhysicianRevenueRatePerHourKpi.getData(dateRange, frequency)
+            that.getData(dateRange, frequency)
             .then(data => {
                 resolve(that._toSeries(data));
             }, (e) => reject(e));
-        });
+        });        
+
     }
 
     private _toSeries(rawData: any[]) {
         return [{
             name: 'Individual Non Physician Revenue Rate Per Hour',
-            data: rawData.map(item => [ item._id.frequency, item.revenuePerHour ])
+            data: rawData.map(item => [ item._id.frequency, item.value ])
         }];
     }
 

@@ -42,6 +42,10 @@ export class PerHourCalculator {
                    });
     }
 
+    getDataToSeries(dateRange: IDateRange, frequency?: FrequencyEnum): Promise<any> {
+        return this.getData(dateRange, frequency);
+    }
+
     private _getEmployeeIds(aggregate: AggregateStage[], dateRange: IDateRange): Promise<any> {
         let idsKpi = new KpiBase(this._sales, aggregate);
 
@@ -57,17 +61,17 @@ export class PerHourCalculator {
                 let rPerHour = this._getRevenuePerHour(h._id.frequency, revenue, hours);
                 if (!rPerHour) { return; };
                 revenuePerHour.push({ _id: { frequency: h._id.frequency },
-                                      revenuePerHour: rPerHour  });
+                                      value: rPerHour  });
         });
         return Promise.resolve(revenuePerHour);
     }
 
-    private _getRevenuePerHour(date: string, revenue: any[], hours: any[]) {
+    private _getRevenuePerHour(date: string, value: any[], hours: any[]) {
         let hoursOfDay = hours.find(h => h._id.frequency === date);
-        let revenueOfDay = revenue.find(h => h._id.frequency === date);
+        let revenueOfDay = value.find(h => h._id.frequency === date);
         if (!hoursOfDay || hoursOfDay.hours === 0) { return 0; };
         if (!revenueOfDay) { return 0; };
-        return revenueOfDay.revenue / hoursOfDay.hours;
+        return revenueOfDay.value / hoursOfDay.hours;
     }
 
     private _validateArguments(): void {
