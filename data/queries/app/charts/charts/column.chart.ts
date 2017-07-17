@@ -12,16 +12,23 @@ import * as Promise from 'bluebird';
 
 export class ColumnChart extends UIChartBase implements IUIChart {
 
+    private chart: IChart;
+
     constructor(_chart: IChart, frequencyHelper: FrequencyHelper) {
         super(_chart, frequencyHelper);
+        this.chart = _chart;
     }
 
     getUIDefinition(kpi: IKpiBase, dateRange: IDateRange, metadata?: IChartMetadata): Promise<string> {
         let that = this;
 
         return new Promise<string>((resolve, reject) => {
-            that.getKPIData(kpi, dateRange, metadata).then(rawData => {
-                resolve('');
+            that.getKPIData(kpi, dateRange, metadata).then(elements => {
+                let output = that.chart;
+                let xAxis = output.chartDefinition.xAxis || {};
+                xAxis.categories = elements.categories;
+                output.chartDefinition.series = elements.series;
+                resolve(JSON.stringify(output));
             });
         });
     }

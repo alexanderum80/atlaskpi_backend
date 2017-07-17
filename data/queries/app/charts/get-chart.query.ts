@@ -40,6 +40,7 @@ export class GetChartQuery implements IQuery<string> {
                         return;
                     }
 
+
                     let chart = ChartFactory.getInstance(chartDocument);
                     let kpi = KpiFactory.getInstance(chartDocument.kpis[0], that._ctx);
                     let grouping = getGroupingMetadata(data.grouping);

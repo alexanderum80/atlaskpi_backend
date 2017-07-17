@@ -15,8 +15,8 @@ export class ChartFactory {
         switch (chart.chartDefinition.chart.type) {
             case 'column':
                 return new ColumnChart(chart, new FrequencyHelper());
-            // case 'line':
-            //     return new LineChart(chart);
+            case 'line':
+                return new LineChart(chart, new FrequencyHelper());
             default:
                 return null;
         }

@@ -58,8 +58,8 @@ export abstract class UIChartBase {
 
     chartPreProcessor: ChartPreProcessorExtention;
 
-    constructor(private _chart: IChart, protected frequencyHelper: FrequencyHelper) {
-        if (!_chart.kpis || _chart.kpis.length < 1) {
+    constructor(protected chart: IChart, protected frequencyHelper: FrequencyHelper) {
+        if (!chart.kpis || chart.kpis.length < 1) {
             throw 'A chart cannot be created without a KPI';
         }
     }
@@ -70,13 +70,13 @@ export abstract class UIChartBase {
      * @param dateRange date range
      * @param metadata chart metadata
      */
-    getKPIData(kpi: IKpiBase, dateRange: IDateRange, metadata?: IChartMetadata): Promise<IKPIResult> {
+    getKPIData(kpi: IKpiBase, dateRange: IDateRange, metadata?: IChartMetadata): Promise<any> {
         let that = this;
 
-        return new Promise<IKPIResult>((resolve, reject) => {
+        return new Promise<any>((resolve, reject) => {
             let chartDr;
-            if (this._chart.dateFrom && this._chart.dateTo) {
-                chartDr = { from: new Date(this._chart.dateFrom), to: new Date(this._chart.dateTo) };
+            if (this.chart.dateFrom && this.chart.dateTo) {
+                chartDr = { from: new Date(this.chart.dateFrom), to: new Date(this.chart.dateTo) };
             }
 
             dateRange = dateRange || chartDr;
@@ -94,7 +94,7 @@ export abstract class UIChartBase {
 
                 // TODO: pending when we deal with second level groupings
                 // that.groupings = this.getGroupings(data);
-                resolve(data);
+                resolve({categories: categories.map(c => c.name), series: series});
             })
             .catch(err => reject(err));
         });
