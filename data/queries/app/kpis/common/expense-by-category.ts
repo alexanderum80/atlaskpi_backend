@@ -35,10 +35,7 @@ export class ExpenseByCategory extends KpiBase {
     }
 
     getData(dateRange: IDateRange, frequency?: FrequencyEnum): Promise<any> {
-        const that = this;
-        return this.executeQuery('timestamp', dateRange).then(data => {
-            return data;
-        });
+        return this.executeQuery('timestamp', dateRange).then(data => data);
     }
 
     getDataToSeries(dateRange: IDateRange, frequency?: FrequencyEnum): Promise<any> {

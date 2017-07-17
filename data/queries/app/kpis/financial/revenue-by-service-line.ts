@@ -25,7 +25,7 @@ const aggregate: AggregateStage[] = [
         frequency: true,
         $group: {
             _id: { category: '$category.name' },
-            sales: { $sum: '$product.amount' }
+            value: { $sum: '$product.amount' }
         }
     },
     {
@@ -42,6 +42,10 @@ export class RevenueByServiceLine extends KpiBase {
     }
 
     getData(dateRange: IDateRange, frequency?: FrequencyEnum): Promise<any> {
+        return this.executeQuery('product.from', dateRange, frequency).then(data => data);
+    }
+
+    getDataToSeries(dateRange: IDateRange, frequency?: FrequencyEnum): Promise<any> {
         let that = this;
 
         return new Promise<any>((resolve, reject) => {
@@ -56,10 +60,10 @@ export class RevenueByServiceLine extends KpiBase {
                     .groupBy('_id.category')
                     .map((v, k) => ({
                         category: k,
-                        sales: _.sumBy(v, 'sales')
+                        value: _.sumBy(v, 'value')
                     }))
                     .value()
-                    .map(item => [item.category, item.sales]);
+                    .map(item => [item.category, item.value]);
 
         let result = [{
             name: 'Revenue',

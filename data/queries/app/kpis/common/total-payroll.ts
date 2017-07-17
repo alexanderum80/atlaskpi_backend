@@ -23,7 +23,7 @@ const aggregate: AggregateStage[] = [
         frequency: true,
         $group: {
             _id: null,
-            total: {
+            value: {
                 $sum: "$expense.amount"
             }
         }
@@ -40,11 +40,11 @@ export class TotalPayroll extends KpiBase {
         super(sales, aggregate);
     }
 
-    getRawData(dateRange: IDateRange, frequency: FrequencyEnum) {
-        return this.executeQuery('timestamp', dateRange, frequency);
+    getData(dateRange: IDateRange, frequency: FrequencyEnum) {
+        return this.executeQuery('timestamp', dateRange, frequency).then(data => data);
     }
 
-    getData(dateRange: IDateRange, frequency: FrequencyEnum): Promise<any> {
+    getDataToSeries(dateRange: IDateRange, frequency: FrequencyEnum): Promise<any> {
         const that = this;
         return this.executeQuery('timestamp', dateRange, frequency).then(data => {
             return Promise.resolve(that._toSeries(data, frequency));
@@ -59,7 +59,7 @@ export class TotalPayroll extends KpiBase {
             })
             .map((v, k) => ({
                 name: k,
-                data: v.map(item => [item._id.frequency, item.total])
+                data: v.map(item => [item._id.frequency, item.value])
             }))
             .value();
     }
