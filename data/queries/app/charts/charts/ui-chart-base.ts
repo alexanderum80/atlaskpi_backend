@@ -1,7 +1,8 @@
+import { parsePredifinedDate } from '../../../../models/common/date-range';
 import { IKPIDocument, IAppModels } from '../../../../models/app';
 import { getKPI } from '../../kpis/kpi.factory';
 import { IKpiBase, IKPIResult } from '../../kpis/kpi-base';
-import { IChart, IChartDocument } from '../../../../models/app/charts';
+import { IChart, IChartDateRange, IChartDocument } from '../../../../models/app/charts';
 import { ChartPreProcessorExtention } from './chart-preprocessor-extention';
 import { IFrequencyValues, FrequencyHelper } from './frequency-values';
 import { IChartMetadata, IChartSerie } from '.';
@@ -16,6 +17,7 @@ import * as Promise from 'bluebird';
 import * as _ from 'lodash';
 import * as moment from 'moment';
 import * as mongoose from 'mongoose';
+import 'datejs';
 
 import { ChartPostProcessingExtention } from './chart-postprocessing-extention';
 
@@ -29,15 +31,11 @@ export interface IXAxisCategory {
 //     categories: IXAxisCategory[];
 // }
 
-
 export interface IUIChart {
-    prepareCategories();
-    prepareSeries();
-    getDefinition(dateRange: IDateRange, frequency: FrequencyEnum): Promise<any>;
-    getUIDefinition?(kpiBase: IKpiBase, dateRange: IDateRange, metadata?: IChartMetadata): Promise<string>;
+    getDefinition?(kpiBase: IKpiBase, dateRange: IDateRange, metadata?: IChartMetadata): Promise<string>;
 }
 
-export abstract class UIChartBase {
+export abstract class UIChartBase implements IUIChart {
     protected series: any[];
     protected categories: any[];
 
@@ -52,40 +50,53 @@ export abstract class UIChartBase {
         }
     }
 
+    protected getDefinitionBase(kpi: IKpiBase, metadata?: IChartMetadata): Promise < string > {
+        const that = this;
+
+        return that.getKPIData(kpi, metadata).then(data => {
+            let groupings = that._getGroupingFields(data);
+            that.frequencyHelper.extractFrequency(data, metadata.frequency);
+
+            let categories = that._createCategories(data, metadata);
+            let series = that._createSeries(data, metadata, categories, groupings);
+
+            // TODO: pending when we deal with second level groupings
+            // that.groupings = this.getGroupings(data);
+            return JSON.stringify({categories: categories.map(c => c.name), series: series});
+        });
+    }
+
     /**
      * Retrieve kpi data
      * @param kpi kpi to run
      * @param dateRange date range
      * @param metadata chart metadata
      */
-    getKPIData(kpi: IKpiBase, dateRange: IDateRange, metadata?: IChartMetadata): Promise<any> {
-        let that = this;
+    protected getKPIData(kpi: IKpiBase, metadata?: IChartMetadata): Promise<any[]> {
+        const dateRange = this._getDateRange(metadata.dateRange);
+        return kpi.getData(dateRange, metadata.frequency, metadata.grouping);
+    }
 
-        return new Promise<any>((resolve, reject) => {
-            let chartDr;
-            if (this.chart.dateFrom && this.chart.dateTo) {
-                chartDr = { from: new Date(this.chart.dateFrom), to: new Date(this.chart.dateTo) };
-            }
+    /**
+     * Returns the data range to be used for the chart
+     * @param metadataDateRange data range that includes a predefined or a custom data range
+     */
+    private _getDateRange(metadataDateRange: IChartDateRange): IDateRange {
+        let dateRange: IDateRange;
 
-            dateRange = dateRange || chartDr;
-            console.log(metadata.frequency);
+        return metadataDateRange ?
+            this._processChartDateRange(metadataDateRange)
+            : this._processChartDateRange(this.chart.dateRange);
+    }
 
-            return kpi.getData(dateRange, metadata.frequency, metadata.grouping).then(data => {
-                that.data = data;
-                // TODO: I do not think this is a neccesary step this should only run when the frequency exist
-
-                let groupings = that._getGroupingFields(data);
-                that.frequencyHelper.extractFrequency(data, metadata.frequency);
-
-                let categories = that._createCategories(data, metadata);
-                let series = that._createSeries(data, metadata, categories, groupings);
-
-                // TODO: pending when we deal with second level groupings
-                // that.groupings = this.getGroupings(data);
-                resolve({categories: categories.map(c => c.name), series: series});
-            })
-            .catch(err => reject(err));
-        });
+    /**
+     * Understand how to convert a chart data range interface into a simple date range
+     * @param chartDateRange data range that includes a predefined or a custom data range
+     */
+    private _processChartDateRange(chartDateRange: IChartDateRange): IDateRange {
+        return chartDateRange.custom ?
+            { from: new Date(chartDateRange.custom.from), to: new Date(chartDateRange.custom.to) }
+            : parsePredifinedDate(chartDateRange.predefined);
     }
 
     /**

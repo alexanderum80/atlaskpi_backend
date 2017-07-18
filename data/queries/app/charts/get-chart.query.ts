@@ -18,7 +18,7 @@ export class GetChartQuery implements IQuery<string> {
     // log = true;
     // audit = true;
 
-    run(data: { id: string, dateRange: { from: string, to: string}, frequency: string, grouping: string, xAxisSource: string }): Promise<string> {
+    run(data: { id: string, dateRange?: { from: string, to: string}, frequency?: string, grouping?: string[], xAxisSource?: string }): Promise<string> {
         let that = this;
 
         let dr: IDateRange = {

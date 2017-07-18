@@ -10,30 +10,28 @@ export interface IChartDateRange {
 }
 
 export interface IChart {
-    //remove this
-    dateFrom: string;
-    dateTo: string;
-    name: string;
+    _id: string;
+    title: string;
+    subtitle?: string;
     group: string;
-    description: string;
+    kpis: [IKPIDocument];
+    dateRange: IChartDateRange;
+    frequency: string;
+    groupings: string[];
     xFormat?: string;
     yFormat?: string;
-    frequency: string;
-    kpis: [IKPIDocument];
-    chartFormat: string;
-    dataRange: IChartDateRange;
     chartDefinition: any;
 }
 
-export interface IChartDetails {
-    name: string;
-    description: string;
-    group: string;
-    frequency: string;
-    kpis: string[];
-    chartFormat: string;
-    dataRange: IChartDateRange;
-}
+// export interface IChartDetails {
+//     title: string;
+//     subtitle: string;
+//     group: string;
+//     frequency: string;
+//     kpis: string[];
+//     chartFormat: string;
+//     dataRange: IChartDateRange;
+// }
 
 export interface IChartDocument extends IChart, mongoose.Document {
       hasKpi(kpi: string, done: (err: any, hasKpi: boolean) => void): void;

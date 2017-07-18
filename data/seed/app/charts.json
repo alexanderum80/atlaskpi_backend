@@ -7,10 +7,10 @@
         "dateRange": {
             "predefined": "last year"
         },
+        "frequency": "",
+        "groupings": [""],
         "chartDefinition": {
             "chart": { "type": "pie" },
-            "title": { "text": "Revenue By Service Line (Year 2016)" },
-            "subtitle": { "text": "This chart allows you to monitor the inidividual elements responsible for your revenue. This chart is most useful when compared over time." },
             "lang": {
                 "decimalPoint": ".",
                 "thousandsSep": ","
