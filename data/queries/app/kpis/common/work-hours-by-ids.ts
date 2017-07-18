@@ -52,7 +52,7 @@ export class WorkHoursByIds extends KpiBase {
         return this.executeQuery('date', dateRange, frequency);
     }
 
-    getDataToSeries(dateRange: IDateRange, frequency?: FrequencyEnum): Promise<any> {
+    getSeries(dateRange: IDateRange, frequency?: FrequencyEnum): Promise<any> {
         return this.getData(dateRange, frequency);
     }
 

@@ -25,7 +25,7 @@ export class RatioSalesCalculatorKPI {
             });
     }
 
-    getDataToSeries(dateRange: IDateRange, frequency?: FrequencyEnum): Promise<any> {
+    getSeries(dateRange: IDateRange, frequency?: FrequencyEnum): Promise<any> {
         return this.getData(dateRange, frequency);
     }
 

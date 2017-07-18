@@ -44,7 +44,7 @@ export class RentExpenses extends KpiBase {
         return this.executeQuery('timestamp', dateRange, frequency);
     }
 
-    getDataToSeries(dateRange: IDateRange, frequency?: FrequencyEnum): Promise<any> {
+    getSeries(dateRange: IDateRange, frequency?: FrequencyEnum): Promise<any> {
         const that = this;
 
         return new Promise((resolve, reject) => {

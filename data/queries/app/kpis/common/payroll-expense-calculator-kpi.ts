@@ -13,7 +13,7 @@ export class PayrollExpenseCalculator {
         let payroll;
         let revenue;
 
-        return this.revenueKpi.getDataToSeries(dateRange, frequency).then(p => {
+        return this.revenueKpi.getSeries(dateRange, frequency).then(p => {
             payroll = p;
             // rawData
             return self.payrollKpi.getData(dateRange, frequency);
@@ -23,7 +23,7 @@ export class PayrollExpenseCalculator {
         });
     }
 
-    getDataToSeries(dateRange: IDateRange, frequency: FrequencyEnum): Promise<any> {
+    getSeries(dateRange: IDateRange, frequency: FrequencyEnum): Promise<any> {
          return this.getData(dateRange, frequency);
     }
 

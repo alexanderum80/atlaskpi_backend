@@ -26,7 +26,7 @@ export class LeftDivRightMult100Kpi                                             
             });
     }
 
-    getDataToSeries(dateRange: IDateRange, frequency?: FrequencyEnum): Promise<any> {
+    getSeries(dateRange: IDateRange, frequency?: FrequencyEnum): Promise<any> {
         return this.getData(dateRange, frequency);
     }
 

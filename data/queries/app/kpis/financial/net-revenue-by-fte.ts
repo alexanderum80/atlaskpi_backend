@@ -64,7 +64,7 @@ export class NetRevenueByFTE extends KpiBase {
     return this.executeQuery('product.from', dateRange, frequency);
   }
 
-  getDataToSeries(dateRange: IDateRange, frequency?: FrequencyEnum): Promise<any> {
+  getSeries(dateRange: IDateRange, frequency?: FrequencyEnum): Promise<any> {
     const that = this;
     return new Promise<any>((resolve, reject) => {
       that.getData(dateRange, frequency).then(data => {

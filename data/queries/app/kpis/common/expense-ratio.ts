@@ -20,7 +20,7 @@ export class ExpenseRatio {
         return ratioKPI.getData(dateRange, frequency);
     }
 
-    getDataToSeries(dateRange: IDateRange, frequency?: FrequencyEnum): Promise<any> {
+    getSeries(dateRange: IDateRange, frequency?: FrequencyEnum): Promise<any> {
         const that = this;
         return new Promise((resolve, reject) => {
             that.getData(dateRange, frequency).then(data => {

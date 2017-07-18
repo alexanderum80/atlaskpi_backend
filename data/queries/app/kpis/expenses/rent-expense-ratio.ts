@@ -27,7 +27,7 @@ export class RentExpenseRatio {
         return rentExpesnesCalc.getData(dateRange, frequency);
     }
     
-    private getDataToSeries(dateRange: IDateRange, frequency?: FrequencyEnum): Promise<any> {
+    private getSeries(dateRange: IDateRange, frequency?: FrequencyEnum): Promise<any> {
         const that = this;
         return new Promise((resolve, reject) => {
             that.getData(dateRange, frequency).then(data => {

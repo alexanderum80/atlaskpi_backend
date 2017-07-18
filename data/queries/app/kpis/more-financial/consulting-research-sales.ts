@@ -37,7 +37,7 @@ export class ConsultingResearchSales extends KpiBase {
         return this.executeQuery('product.from', dateRange, frequency);
     }
 
-    getDataToSeries(dateRange: IDateRange, frequency?: FrequencyEnum): Promise<any> {
+    getSeries(dateRange: IDateRange, frequency?: FrequencyEnum): Promise<any> {
         let that = this;
 
         return new Promise((resolve, reject) => {

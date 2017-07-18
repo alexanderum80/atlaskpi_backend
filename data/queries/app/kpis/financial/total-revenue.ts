@@ -43,7 +43,7 @@ export class TotalRevenue extends KpiBase {
         return this.executeQuery('product.from', dateRange, frequency);
     }
 
-    getDataToSeries(dateRange: IDateRange, frequency?: FrequencyEnum): Promise<any> {
+    getSeries(dateRange: IDateRange, frequency?: FrequencyEnum): Promise<any> {
        const that = this;
        return this.getData(dateRange, frequency).then(data => {
             return Promise.resolve(that._toSeries(data, frequency));

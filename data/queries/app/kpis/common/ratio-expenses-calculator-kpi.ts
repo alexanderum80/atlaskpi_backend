@@ -15,7 +15,7 @@ export class RatioExpensesCalculatorKPI {
         let totalRevenue;
         let partRevenue;
 
-        return this._totalKpi.getDataToSeries(dateRange, frequency)
+        return this._totalKpi.getSeries(dateRange, frequency)
              .then((t) => {
                 totalRevenue = t;
                 return this._partKpi.getData(dateRange, frequency);
@@ -25,7 +25,7 @@ export class RatioExpensesCalculatorKPI {
             });
     }
 
-    getDataToSeries(dateRange: IDateRange, frequency?: FrequencyEnum): Promise<any> {
+    getSeries(dateRange: IDateRange, frequency?: FrequencyEnum): Promise<any> {
         return this.getData(dateRange, frequency);
     }
 

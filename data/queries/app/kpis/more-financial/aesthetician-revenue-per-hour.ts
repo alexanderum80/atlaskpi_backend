@@ -37,7 +37,7 @@ export class AestheticianRevenueRatePerHour {
         return aestheticianRevenueRatePerHourKpi.getData(dateRange, frequency);
     }
 
-    getDataToSeries(dateRange: IDateRange, frequency?: FrequencyEnum): Promise<any> {
+    getSeries(dateRange: IDateRange, frequency?: FrequencyEnum): Promise<any> {
         const that = this;
         return new Promise<any>((resolve, reject) => {
           that.getData(dateRange, frequency).then(data => {

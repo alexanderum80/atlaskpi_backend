@@ -29,12 +29,12 @@ export class PerHourCalculator {
                    .then((externalIds) => {
                         ids = externalIds;
                         that._hoursKpi.setExternalids(ids);
-                        return that._hoursKpi.getDataToSeries(dateRange, frequency);
+                        return that._hoursKpi.getSeries(dateRange, frequency);
                    })
                    .then((h) => {
                         hours = h;
                         that._revenueKpi.setExternalids(ids);
-                        return that._revenueKpi.getDataToSeries(dateRange, frequency);
+                        return that._revenueKpi.getSeries(dateRange, frequency);
                    })
                    .then((r) => {
                        revenue = r;
@@ -42,7 +42,7 @@ export class PerHourCalculator {
                    });
     }
 
-    getDataToSeries(dateRange: IDateRange, frequency?: FrequencyEnum): Promise<any> {
+    getSeries(dateRange: IDateRange, frequency?: FrequencyEnum): Promise<any> {
         return this.getData(dateRange, frequency);
     }
 
