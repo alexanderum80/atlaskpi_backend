@@ -25,6 +25,7 @@ export class ExpenseRatio implements IKpiBase {
         });
 
     }
+    
     private _toSeries(rawData: any[]) {
         return [{
             name: 'Expense By Ratio',

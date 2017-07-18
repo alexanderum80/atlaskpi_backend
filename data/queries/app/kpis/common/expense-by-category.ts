@@ -33,6 +33,7 @@ export class ExpenseByCategory extends KpiBase implements IKpiBase {
    constructor(sales: IExpenseModel) {
         super(sales, aggregate);
     }
+
     getData(dateRange: IDateRange, frequency?: FrequencyEnum): Promise<any> {
         const that = this;
         return this.executeQuery('timestamp', dateRange).then(data => {
@@ -41,70 +42,95 @@ export class ExpenseByCategory extends KpiBase implements IKpiBase {
     }
 
     private _toSeries(rawData: any[], frequency: FrequencyEnum) {
-        //let data = this.limitData(rawData, frequency);
-     /*   let data = _.orderBy(rawData, "expenses");
-
-        data = _(rawData)
-                    .map((v, k) => ({
-                        expenses: v.expenses,
-                        concept: v._id.concept
-                    }))
-                    .value()
-                    .map(item => [item.concept, item.expenses]);
-
-        let result = [{
-            name: 'Expense',
-            data: data
-        }];
-        return result;*/
-        let data = this.fiveBest(rawData);
-        return [{
-            name: 'Expense',
-            data: data.filter((item, index) => {
-                        return item;
-                    })
-                    .map(item => [ item._id.concept, item.expenses ])
-        }];
-    }
-    private limitData(rawData: any[], frequency: FrequencyEnum) {
-       // var data = _.flatten(rawData);
-        return _.filter(rawData, (v, k) => {
-            if (k > 5) return;
-            return v;
-        });
-    }
-    private fiveBest(rawData: any) {
-        var sum = 0;
-        var data = rawData;
-        var a = data.slice(0,5);
-        var b = data.slice(5, data.length);
-        for (var i = 0;i < b.length;i++) {
-            sum += b[i].expenses;
-        }
-        
-        a.push({
-            _id: {
-                concept: "Others"
-            },
-            expenses: sum
-        });
-        return a;
-    }
-    private _topFivBestSeller(rawData: any) {
-        var sum = 0;
-        return  _(rawData)
-                .map((v, k) => ({
-                    concept: k,
-                    expenses: _.sumBy(v, 'expenses')
-                }))
-                .orderBy('expenses', 'desc')
+        if (!frequency) {
+            let bottomSales = [];
+            let data = _.orderBy(rawData, "expenses", "desc")
                 .filter((item, index) => {
                     if (index > 5) {
-                        sum += item.expenses;
-                        return ["Others", sum];
+                        bottomSales.push(item);
+                        return ;
                     }
                     return item;
+                });
+
+            let notTopFive = this._afterFiveBest(bottomSales);
+
+            let noFreqAllData = [data, notTopFive];
+            noFreqAllData = _.flatten(noFreqAllData);
+            
+            return [{
+                name: "Expenses",
+                data: noFreqAllData.filter((item, index) => {
+                    return item;
                 })
-                .map(item => item.concept);
+                .map(item => [item['_id']['concept'], item['expenses']])
+            }]
+        }
+        else {
+            let frequencies = _.uniq(rawData.map(item => item._id.frequency)).sort();
+            let concept =  this._topFivBestSeller(rawData);
+
+            let hasFrequencyBottomExpenses = [];
+            
+            let data = rawData.filter((item, index) => {
+                        if (frequencies.indexOf(item._id.frequency) === -1 ||
+                            concept.indexOf(item._id.concept) === -1)  { hasFrequencyBottomExpenses.push(item); return; };
+                        return item;
+                    });
+
+            let afterFive = this._afterFiveBest(hasFrequencyBottomExpenses);
+            let completeData = [data, afterFive];
+
+            completeData = _.flatten(completeData);
+            completeData = _.orderBy(completeData, ["_id.frequency", "expenses"], ["asc", "desc"]);
+
+            let groupData = _(completeData)
+                .groupBy("_id.concept")
+                .map((v, k) => {
+                    return v.map(item => [k, item.expenses])
+                })
+                .map((item) => _.flatten(item));
+
+            return [{
+                name: "Expenses",
+                data: groupData
+            }];
+        }
+    }
+
+    private _afterFiveBest(rawData: any) {
+        let data = _.orderBy(rawData, "expenses", "desc");
+        let sum = 0;
+
+        let others = _(data)
+            .groupBy("_id.frequency")
+            .map((v, k) => ({
+                _id: {
+                    concept: "Others",
+                    frequency: k
+                },
+                expenses: _.sumBy(v, "expenses")
+            }))
+            .orderBy("_id.frequency", "desc")
+            .value();
+
+        return others;
+    }
+    
+    private _topFivBestSeller(rawData: any) {
+        return _(rawData)
+            .groupBy('_id.concept')
+            .map((v, k) => ({
+                concept: k,
+                expenses: _.sumBy(v, 'expenses')
+            }))
+            .orderBy('expenses', 'desc')
+            .filter((item, index) => {
+                if (index >= 4) { 
+                    return;
+                }
+                return item;
+            })
+            .map(item => item.concept);
     }
 }

@@ -1,3 +1,4 @@
+
 import { IKpiBase } from '../kpi-base';
 import { FrequencyEnum } from '../../../../models/common/frequency-enum';
 import { IDateRange } from '../../../../models/common/date-range';

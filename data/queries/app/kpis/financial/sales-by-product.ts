@@ -43,9 +43,7 @@ export class SalesByProduct extends KpiBase implements IKpiBase {
         let that = this;
 
         return this.executeQuery('product.from', dateRange, frequency).then(data => {
-            // console.log(JSON.stringify(that._toSeries(data, frequency)));
-            // return Promise.resolve(that._toSeries(data, frequency));
-            return Promise.resolve({ data: data, metadata: { name: 'Sales By Product', dateRange: dateRange, frequency: frequency }});
+            return Promise.resolve(that._toSeries(data, frequency));
         });
     }
 
@@ -60,7 +58,9 @@ export class SalesByProduct extends KpiBase implements IKpiBase {
                           }
                           return item;
                       });
-            let noFreqTenData = this.afterTen(getBottomRank);
+
+            let noFreqTenData = this._afterTen(getBottomRank);
+
             let noFreqAllData = [data, noFreqTenData];
             noFreqAllData = _.flatten(noFreqAllData);
 
@@ -75,13 +75,17 @@ export class SalesByProduct extends KpiBase implements IKpiBase {
         } else {
             let frequencies = _.uniq(rawData.map(item => item._id.frequency)).sort();
             let products =  this._topTenBestSeller(rawData);
+
             let bottomSales = [];
+
             let data = rawData.filter((item, index) => {
                            if (frequencies.indexOf(item._id.frequency) === -1 ||
                                products.indexOf(item._id.product) === -1)  { bottomSales.push(item); return; };
                            return item;
                        });
-            let notTopTen = this.afterTen(bottomSales);
+
+            let notTopTen = this._afterTen(bottomSales);
+
             let allData = [data, notTopTen];
             allData = _.flatten(allData);
 
@@ -112,12 +116,13 @@ export class SalesByProduct extends KpiBase implements IKpiBase {
                 })
                 .map(item => item.product);
     }
-    private afterTen(rawData: any) {
-        let data = _.orderBy(rawData, 'sales', 'desc');
-        let sum = 0;
 
+    private _afterTen(rawData: any) {
+        let data = _.orderBy(rawData, "sales", "desc");
+        let sum = 0;
+        
         let others = _(data)
-            .groupBy('_id.frequency')
+            .groupBy("_id.frequency")
             .map((v, k) => ({
                 _id: {
                     product: 'Others',
@@ -125,8 +130,7 @@ export class SalesByProduct extends KpiBase implements IKpiBase {
                 },
                 sales: _.sumBy(v, 'sales')
             }))
-            .orderBy('_id.frequency', 'desc')
-            //   .map(item => [item.product, item.sales, item.frequency])
+            .orderBy('_id.frequency','desc')
             .value();
 
         return others;

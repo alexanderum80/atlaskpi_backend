@@ -3,7 +3,7 @@ import * as Promise from 'bluebird';
 import { IQuery } from '../..';
 import { IIdentity, IQueryResponse } from '../../../';
 
-export class FindBusinessUnitByIdQuery implements IQueryResponse<IBusinessUnitDocument> {
+export class FindBusinessUnitByIdQuery implements IQuery<IQueryResponse<IBusinessUnitDocument>> {
 
     constructor(public identity: IIdentity,
                 private _BusinessUnitModel: IBusinessUnitModel) { }

@@ -1,4 +1,3 @@
-import { FrequencyEnum, IDateRange, getFrequencyPropName, getFrequencySequence, FREQUENCY_GROUPING_NAME } from '../../../../models/common';
 import { IKPIDocument, IAppModels } from '../../../../models/app';
 import { getKPI } from '../../kpis/kpi.factory';
 import { IKpiBase, IKPIResult } from '../../kpis/kpi-base';
@@ -6,8 +5,6 @@ import { IChart, IChartDocument } from '../../../../models/app/charts';
 import { ChartPreProcessorExtention } from './chart-preprocessor-extention';
 import { IFrequencyValues, FrequencyHelper } from './frequency-values';
 import { IChartMetadata, IChartSerie } from '.';
-import { IAppModels, IKPIDocument } from '../../../../models/app';
-import { IChart, IChartDocument } from '../../../../models/app/charts';
 import {
     FREQUENCY_GROUPING_NAME,
     FrequencyEnum,
@@ -15,19 +12,10 @@ import {
     getFrequencySequence,
     IDateRange,
 } from '../../../../models/common';
-import { FREQUENCY_GROUPING_NAME } from '../../../../models/common/frequency-enum';
-import { IKpiBase, IKPIResult } from '../../kpis/kpi-base';
-import { getKPI } from '../../kpis/kpi.factory';
-import { ChartPostProcessingExtention } from './chart-postprocessing-extention';
-import { ChartPreProcessorExtention } from './chart-preprocessor-extention';
-import { FrequencyHelper, IFrequencyValues } from './frequency-values';
-import { IChartMetadata, IChartSerie } from '.';
 import * as Promise from 'bluebird';
 import * as _ from 'lodash';
 import * as moment from 'moment';
 import * as mongoose from 'mongoose';
-import * as moment from 'moment';
-import * as _ from 'lodash';
 
 import { ChartPostProcessingExtention } from './chart-postprocessing-extention';
 

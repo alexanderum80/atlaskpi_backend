@@ -3,7 +3,7 @@ import { IActivity } from '../../../lib/enforcer';
 
 export const removeChartFormatActivity: IActivity = {
     may: 'remove-chart-format',
-    when(identity: IIdentity, cb: (err: any, authorized: Boolean) => void) {
+    when(identity: IIdentity, cb: (err: any, authorized: boolean) => void) {
         cb(null, true);
     }
 };

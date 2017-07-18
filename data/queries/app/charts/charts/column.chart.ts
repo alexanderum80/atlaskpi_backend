@@ -12,11 +12,8 @@ import * as Promise from 'bluebird';
 
 export class ColumnChart extends UIChartBase implements IUIChart {
 
-    private chart: IChart;
-
-    constructor(_chart: IChart, frequencyHelper: FrequencyHelper) {
-        super(_chart, frequencyHelper);
-        this.chart = _chart;
+    constructor(chart: IChart, frequencyHelper: FrequencyHelper) {
+        super(chart, frequencyHelper);
     }
 
     getUIDefinition(kpi: IKpiBase, dateRange: IDateRange, metadata?: IChartMetadata): Promise<string> {

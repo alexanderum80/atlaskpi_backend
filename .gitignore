@@ -35,3 +35,7 @@ node_modules
 
 # Release files
 dist
+
+# continuos deployment
+bitbucket-pipelines.yml
+my_known_hosts

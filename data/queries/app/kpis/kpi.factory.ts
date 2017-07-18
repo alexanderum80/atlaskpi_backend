@@ -4,10 +4,12 @@ import { RevenueRateByFTEmployee } from './financial/revenue-rate-per-hour-fte';
 import { RetailSalesRatio } from './operational/retail-sales-ratio';
 import { IAppModels } from '../../../models/app/app-models';
 import { TotalExpense } from './common/total-expense';
-import { CostOfGoodSold } from "./common/cost-of-goods-sold";
-import { ExpenseByCategory } from "./common/expense-by-category";
+import { CostOfGoodSold } from './common/cost-of-goods-sold';
+import { ExpenseByCategory } from './common/expense-by-category';
 import { ExpenseRatio } from './common/expense-ratio';
 import { PayrollExpenseRatio } from './common/payroll-expense-ratio';
+import { RevenueByUnits } from './common/revenue-by-units';
+import { RevenueByUnitPie } from './financial/revenue-by-unit-pie';
 import { AvgRevenueByFTPhysician, NetRevenueByFTE, RevenueByServiceLine } from './financial';
 import { AvgRevenueByFTAesthetician } from './financial/avg-rev-per-fte-aesthetician';
 import { AvgRevenueByFTNonPhysician } from './financial/avg-rev-per-non-fte-physician';
@@ -93,6 +95,11 @@ export function getKPI(code: string, ctx: IAppModels): IKpiBase {
             return new ExpenseRatio(ctx.Expense, ctx.Sale);
         case 'PayrollExpenseRatio':
             return new PayrollExpenseRatio(ctx.Expense, ctx.Sale);
+        case 'RevenueByUnits':
+            return new RevenueByUnits(ctx.Sale);
+
+        case 'RevenueByUnitPie':
+            return new RevenueByUnitPie(ctx.Sale);
 
         default:
             return null;

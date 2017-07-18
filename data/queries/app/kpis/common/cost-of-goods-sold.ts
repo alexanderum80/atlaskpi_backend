@@ -38,6 +38,7 @@ export class CostOfGoodSold extends KpiBase implements IKpiBase {
    constructor(sales: IExpenseModel) {
         super(sales, aggregate);
     }
+
     getData(dateRange: IDateRange, frequency?: FrequencyEnum): Promise<any> {
         const that = this;
         return this.executeQuery('timestamp', dateRange, frequency).then(data => {

@@ -99,6 +99,8 @@ export class KpiBase {
         // console.log(typeof frequency);
         if (frequency === undefined) return;
 
+        if (frequency === undefined) return;
+
         field = '$' + field;
 
         let groupStage = this.findStage('frequency', '$group');

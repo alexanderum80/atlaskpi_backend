@@ -8,7 +8,7 @@ export class PayrollExpenseCalculator {
     constructor(private payrollKpi: IKpiBase, private revenueKpi) {}
 
     getData(dateRange: IDateRange, frequency: FrequencyEnum): Promise<any> {
-        const self = this;
+        let self = this;
 
         let payroll;
         let revenue;
@@ -18,12 +18,13 @@ export class PayrollExpenseCalculator {
             return self.payrollKpi.getRawData(dateRange, frequency);
         }).then(r => {
             revenue = r;
-            return self._calPayrollRevenu(payroll, revenue);
-        });
+            return self._calPayrollRevenue(payroll, revenue);
+        })
     }
-    _calPayrollRevenu(s: any, r: any): Promise<any> {
+
+    private _calPayrollRevenue(s: any, r: any): Promise<any> {
         let payrollRatio = [];
-        const self = this;
+        let self = this;
         r.forEach(t => {
         let ratio = self.getPayrollRatioByRevenue(t._id.frequency, s, r);
         if (!ratio) { return; }
@@ -32,7 +33,8 @@ export class PayrollExpenseCalculator {
         });
         return Promise.resolve(payrollRatio);
     }
-    getPayrollRatioByRevenue(frequencyItem: string, payrollRevenue: any[], totalRevenue: any[]) {
+
+    private getPayrollRatioByRevenue(frequencyItem: string, payrollRevenue: any[], totalRevenue: any[]) {
         let mySale = payrollRevenue.find(h => h._id.frequency === frequencyItem);
         let myRevenue = totalRevenue.find(h => h._id.frequency === frequencyItem);
 
@@ -46,4 +48,5 @@ export class PayrollExpenseCalculator {
 
         return myRevenue.total / mySale.revenue * 100;
     }
+    
 }
