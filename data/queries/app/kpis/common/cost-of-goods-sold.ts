@@ -21,7 +21,7 @@ const aggregate: AggregateStage[] = [
     {
         frequency: true,
         $group: {
-            expenses: {
+            value: {
                 $sum: '$expense.amount'
             }
         }
@@ -40,11 +40,15 @@ export class CostOfGoodSold extends KpiBase {
     }
 
     getData(dateRange: IDateRange, frequency?: FrequencyEnum): Promise<any> {
+        return this.executeQuery('timestamp', dateRange, frequency);
+    }
+
+    getSeries(dateRange: IDateRange, frequency?: FrequencyEnum): Promise<any> {
         const that = this;
-        return this.executeQuery('timestamp', dateRange, frequency).then(data => {
+        return this.getData(dateRange, frequency).then(data => {
             return Promise.resolve(that._toSeries(data, frequency));
         });
-    }
+    }    
 
     private _toSeries(rawData: any[], frequency: FrequencyEnum) {
         let frequencies = _.uniq(rawData.map(item => item._id.frequency)).sort();
@@ -68,6 +72,6 @@ export class CostOfGoodSold extends KpiBase {
         });
 
         data = _.sortBy(data, '_id.frequency');
-        return data.map(item => [ item._id.frequency, item.expenses ]);
+        return data.map(item => [ item._id.frequency, item.value ]);
     }
 }

@@ -23,7 +23,7 @@ const aggregate: AggregateStage[] = [
         frequency: true,
         $group: {
             _id: null,
-            expenses: { $sum: '$expense.amount' }
+            value: { $sum: '$expense.amount' }
         }
     },
     {
@@ -40,8 +40,12 @@ export class TotalOperatingExpenses extends KpiBase {
     }
 
     getData(dateRange: IDateRange, frequency?: FrequencyEnum): Promise<any> {
-       const that = this;
-       return this.executeQuery('timestamp', dateRange, frequency).then(data => {
+       return this.executeQuery('timestamp', dateRange, frequency);
+    }
+    
+    getSeries(dateRange: IDateRange, frequency?: FrequencyEnum): Promise<any> {
+        const that = this;
+        return this.executeQuery('timestamp', dateRange, frequency).then(data => {
             return Promise.resolve(that._toSeries(data, frequency));
         });
     }
@@ -68,7 +72,7 @@ export class TotalOperatingExpenses extends KpiBase {
         });
 
         data = _.sortBy(data, '_id.frequency');
-        return data.map(item => [ item._id.frequency, item.expenses ]);
+        return data.map(item => [ item._id.frequency, item.value ]);
     }
 
 }

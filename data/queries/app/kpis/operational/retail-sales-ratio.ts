@@ -19,17 +19,23 @@ export class RetailSalesRatio {
         let retailSalesRatioKpi = new RatioSalesCalculatorKPI(retailRevenueKpi,
                                                               totalRevenueKpi);
 
+        return retailSalesRatioKpi.getData(dateRange, frequency);
+    }
+
+    getSeries(dateRange: IDateRange, frequency?: FrequencyEnum): Promise<any> {
+        const that = this;
+        
         return new Promise((resolve, reject) => {
-            retailSalesRatioKpi.getData(dateRange, frequency).then(data => {
+            that.getData(dateRange, frequency).then(data => {
                 resolve(that._toSeries(data));
             });
-        });
-    }
+        });        
+    }    
 
     private _toSeries(rawData: any[]) {
         return [{
             name: 'Retail Sales Ratio',
-            data: rawData.map(item => [ item._id.frequency, item.ratio ])
+            data: rawData.map(item => [ item._id.frequency, item.value ])
         }];
     }
 }

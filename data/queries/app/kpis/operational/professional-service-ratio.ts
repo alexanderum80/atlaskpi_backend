@@ -22,8 +22,14 @@ export class ProfesionalSalesRatio {
 
         let profesionalSalesRatioKpi = new RatioSalesCalculatorKPI(profesionalRevenueKpi,
                                                                    totalRevenueKpi);
+        return profesionalSalesRatioKpi.getData(dateRange, frequency);
+    }
+
+    getSeries(dateRange: IDateRange, frequency?: FrequencyEnum): Promise<any> {
+        const that = this;
+
         return new Promise((resolve, reject) => {
-                profesionalSalesRatioKpi.getData(dateRange, frequency).then(data => {
+                that.getData(dateRange, frequency).then(data => {
                     resolve(that._toSeries(data));
             }), (e) => reject(e);
         });
@@ -32,7 +38,7 @@ export class ProfesionalSalesRatio {
     private _toSeries(rawData: any[]) {
         return [{
             name: 'Profesional Sales Ratio',
-            data: rawData.map(item => [ item._id.frequency, item.ratio ])
+            data: rawData.map(item => [ item._id.frequency, item.value ])
         }];
     }
 }

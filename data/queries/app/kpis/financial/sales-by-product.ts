@@ -23,7 +23,7 @@ const aggregate: AggregateStage[] = [
         frequency: true,
         $group: {
             _id: { product: '$product.itemDescription' },
-            sales: { $sum: '$product.amount' }
+            value: { $sum: '$product.amount' }
         }
     },
     {
@@ -40,17 +40,21 @@ export class SalesByProduct extends KpiBase {
     }
 
     getData(dateRange: IDateRange, frequency?: FrequencyEnum): Promise<any> {
+        return this.executeQuery('product.from', dateRange, frequency).then(data => data);
+    }
+    
+    getSeries(dateRange: IDateRange, frequency?: FrequencyEnum): Promise<any> {
         let that = this;
 
         return this.executeQuery('product.from', dateRange, frequency).then(data => {
             return Promise.resolve(that._toSeries(data, frequency));
-        });
+        });        
     }
 
      private _toSeries(rawData: any[], frequency: FrequencyEnum) {
         if (!frequency) {
             let getBottomRank = [];
-            let data = _.orderBy(rawData, ['sales'], ['desc'])
+            let data = _.orderBy(rawData, ['value'], ['desc'])
                       .filter((item, index) => {
                           if (index > 9) {
                               getBottomRank.push(item);
@@ -69,7 +73,7 @@ export class SalesByProduct extends KpiBase {
                 data: noFreqAllData.filter((item, index) => {
                             return item;
                         })
-                        .map(item => [ item['_id']['product'], item['sales'] ])
+                        .map(item => [ item['_id']['product'], item['value'] ])
             }];
 
         } else {
@@ -89,12 +93,12 @@ export class SalesByProduct extends KpiBase {
             let allData = [data, notTopTen];
             allData = _.flatten(allData);
 
-            allData = _.orderBy(allData, ['_id.frequency', 'sales'], ['asc', 'desc']);
+            allData = _.orderBy(allData, ['_id.frequency', 'value'], ['asc', 'desc']);
             let groupData = _(allData)
                     .groupBy('_id.product')
                     .map((v, k) => ({
                         name: k,
-                        data: v.map(item => [item._id.frequency, item.sales])
+                        data: v.map(item => [item._id.frequency, item.value])
                     }))
                     .value();
 
@@ -107,9 +111,9 @@ export class SalesByProduct extends KpiBase {
                 .groupBy('_id.product')
                 .map((v, k) => ({
                     product: k,
-                    sales: _.sumBy(v, 'sales')
+                    value: _.sumBy(v, 'value')
                 }))
-                .orderBy('sales', 'desc')
+                .orderBy('value', 'desc')
                 .filter((item, index) => {
                     if (index > 9) { return; };
                     return item;
@@ -118,7 +122,7 @@ export class SalesByProduct extends KpiBase {
     }
 
     private _afterTen(rawData: any) {
-        let data = _.orderBy(rawData, "sales", "desc");
+        let data = _.orderBy(rawData, "value", "desc");
         let sum = 0;
         
         let others = _(data)
@@ -128,7 +132,7 @@ export class SalesByProduct extends KpiBase {
                     product: "Others",
                     frequency: k
                 },
-                sales: _.sumBy(v, 'sales')
+                value: _.sumBy(v, 'value')
             }))
             .orderBy('_id.frequency','desc')
             .value();

@@ -17,7 +17,7 @@ const aggregate: AggregateStage[] = [
     },
     {
         frequency: true,
-        $group: { _id: null, hours: { $sum: '$hours' } }
+        $group: { _id: null, value: { $sum: '$hours' } }
     },
     {
         $sort: {
@@ -50,6 +50,10 @@ export class WorkHoursByIds extends KpiBase {
         };
 
         return this.executeQuery('date', dateRange, frequency);
+    }
+
+    getSeries(dateRange: IDateRange, frequency?: FrequencyEnum): Promise<any> {
+        return this.getData(dateRange, frequency);
     }
 
 }

@@ -24,11 +24,16 @@ export class RentExpenseRatio {
         const rentExpesnesCalc = new LeftDivRightMult100Kpi(rentExpense,
                                                             totalRevenueKpi);
 
+        return rentExpesnesCalc.getData(dateRange, frequency);
+    }
+    
+    private getSeries(dateRange: IDateRange, frequency?: FrequencyEnum): Promise<any> {
+        const that = this;
         return new Promise((resolve, reject) => {
-            rentExpesnesCalc.getData(dateRange, frequency).then(data => {
+            that.getData(dateRange, frequency).then(data => {
                 resolve(that._toSeries(data));
             }), (e) => reject(e);
-        });
+        })
     }
 
    private _toSeries(rawData: any[]) {
@@ -53,7 +58,7 @@ export class RentExpenseRatio {
         });
 
         data = _.sortBy(data, '_id.frequency');
-        return data.map(item => [ item._id.frequency, item.calc ]);
+        return data.map(item => [ item._id.frequency, item.value ]);
     }
 
 }

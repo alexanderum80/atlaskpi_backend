@@ -35,17 +35,22 @@ export class RevenueRateByFTEmployee {
                                                                revenueKpi,
                                                                hoursKpi);
 
+        return revenueRateByFTEmployeeKpi.getData(dateRange, frequency)
+    }
+    
+    getSeries(dateRange: IDateRange, frequency?: FrequencyEnum): Promise<any> {
+        const that = this;
         return new Promise((resolve, reject) => {
-            revenueRateByFTEmployeeKpi.getData(dateRange, frequency).then(data => {
+            that.getData(dateRange, frequency).then(data => {
                 resolve(that._toSeries(data));
             }), (e) => reject(e);
-        });
+        })
     }
 
     private _toSeries(rawData: any[]) {
         return [{
             name: 'Revenue Rate By FT Employee',
-            data: rawData.map(item => [ item._id.frequency, item.revenuePerHour ])
+            data: rawData.map(item => [ item._id.frequency, item.value ])
         }];
     }
 }

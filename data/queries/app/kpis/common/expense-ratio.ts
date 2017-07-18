@@ -5,6 +5,7 @@ import { IDateRange } from '../../../../models/common/date-range';
 import { TotalExpense } from '../common/total-expense';
 import { TotalRevenue } from '../common/total-revenue';
 import { RatioExpensesCalculatorKPI } from '../common/ratio-expenses-calculator-kpi';
+import * as Promise from 'bluebird';
 
 export class ExpenseRatio {
 
@@ -16,18 +17,22 @@ export class ExpenseRatio {
         let totalExpense = new TotalExpense(this.expenses);
         let ratioKPI = new RatioExpensesCalculatorKPI(totalExpense, totalRevenue);
 
+        return ratioKPI.getData(dateRange, frequency);
+    }
+
+    getSeries(dateRange: IDateRange, frequency?: FrequencyEnum): Promise<any> {
+        const that = this;
         return new Promise((resolve, reject) => {
-            ratioKPI.getData(dateRange, frequency).then(data => {
+            that.getData(dateRange, frequency).then(data => {
                 resolve(that._toSeries(data));
             })
         })
-        
     }
     
     private _toSeries(rawData: any[]) {
         return [{
             name: "Expense By Ratio",
-            data: rawData.map((item) => [item._id.frequency, item.ratio])
+            data: rawData.map((item) => [item._id.frequency, item.value])
         }]
     }
 }

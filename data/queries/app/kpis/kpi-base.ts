@@ -6,7 +6,7 @@ import * as Promise from 'bluebird';
 
 export interface IKpiBase {
     getData(dateRange: IDateRange, frequency?: FrequencyEnum): Promise<any>;
-    getRawData?(dateRange: IDateRange, frequency?: FrequencyEnum): Promise<any>;
+    getDataToSeries?(dateRange: IDateRange, frequency?: FrequencyEnum): Promise<any>;
 }
 
 export class KpiBase {

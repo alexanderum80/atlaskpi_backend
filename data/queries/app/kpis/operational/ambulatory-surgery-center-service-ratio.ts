@@ -23,17 +23,22 @@ export class AmbulatorySurgeryCenterServiceRatio {
         let ambulatorySurgeryCenterServiceRatioKpi = new RatioSalesCalculatorKPI(ambulatoryRevenueKpi,
                                                                                  totalRevenueKpi);
 
+        return ambulatorySurgeryCenterServiceRatioKpi.getData(dateRange, frequency);
+    }
+
+    getSeries(dateRange: IDateRange, frequency?: FrequencyEnum): Promise<any> {
+        const that = this;
         return new Promise((resolve, reject) => {
-                ambulatorySurgeryCenterServiceRatioKpi.getData(dateRange, frequency).then(data => {
+                that.getData(dateRange, frequency).then(data => {
                     resolve(that._toSeries(data));
             }), (e) => reject(e);
-        });
+        });        
     }
 
     private _toSeries(rawData: any[]) {
         return [{
             name: 'Ambulatory Surgery Center Service Ratio',
-            data: rawData.map(item => [ item._id.frequency, item.ratio ])
+            data: rawData.map(item => [ item._id.frequency, item.value ])
         }];
     }
 

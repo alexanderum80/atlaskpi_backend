@@ -23,7 +23,7 @@ const aggregate: AggregateStage[] = [
         frequency: true,
         $group: {
             _id: null,
-            sales: { $sum: '$product.amount' }
+            value: { $sum: '$product.amount' }
         }
     },
     {
@@ -40,9 +40,13 @@ export class RetailSales extends KpiBase {
     }
 
     getData(dateRange: IDateRange, frequency?: FrequencyEnum): Promise<any> {
+        return this.executeQuery('product.from', dateRange, frequency);
+    }
+
+    getSeries(dateRange: IDateRange, frequency?: FrequencyEnum): Promise<any> {
         let that = this;
 
-        return this.executeQuery('product.from', dateRange, frequency).then(data => {
+        return this.getData(dateRange, frequency).then(data => {
             return Promise.resolve(that._toSeries(data, frequency));
         });
     }
@@ -77,7 +81,7 @@ export class RetailSales extends KpiBase {
         });
 
         data = _.sortBy(data, '_id.frequency');
-        return data.map(item => [ item._id.frequency, item.sales ]);
+        return data.map(item => [ item._id.frequency, item.value ]);
     }
 
 
