@@ -2,9 +2,10 @@ import { parsePredifinedDate } from '../../../../models/common/date-range';
 import { IKPIDocument, IAppModels } from '../../../../models/app';
 import { getKPI } from '../../kpis/kpi.factory';
 import { IKpiBase, IKPIResult } from '../../kpis/kpi-base';
-import { IChart, IChartDateRange, IChartDocument } from '../../../../models/app/charts';
+import { IChart, IChartDocument } from '../../../../models/app/charts';
+import { IChartDateRange } from '../../../../models/common/date-range';
 import { ChartPreProcessorExtention } from './chart-preprocessor-extention';
-import { IFrequencyValues, FrequencyHelper } from './frequency-values';
+import { FrequencyHelper, IFrequencyInfo, IFrequencyValues } from './frequency-values';
 import { IChartMetadata, IChartSerie } from '.';
 import {
     FREQUENCY_GROUPING_NAME,
@@ -21,6 +22,7 @@ import 'datejs';
 
 import { ChartPostProcessingExtention } from './chart-postprocessing-extention';
 
+
 export interface IXAxisCategory {
     id: string | number;
     name: string;
@@ -32,15 +34,14 @@ export interface IXAxisCategory {
 // }
 
 export interface IUIChart {
-    getDefinition?(kpiBase: IKpiBase, dateRange: IDateRange, metadata?: IChartMetadata): Promise<string>;
+    getDefinition?(kpiBase: IKpiBase, metadata?: IChartMetadata): Promise<any>;
 }
 
-export abstract class UIChartBase implements IUIChart {
-    protected series: any[];
-    protected categories: any[];
-
-    protected grouping: string;
+export class UIChartBase {
     protected data: any[];
+    protected groupings: string[];
+    protected categories: IXAxisCategory[];
+    protected series: any[];
 
     chartPreProcessor: ChartPreProcessorExtention;
 
@@ -50,20 +51,50 @@ export abstract class UIChartBase implements IUIChart {
         }
     }
 
-    protected getDefinitionBase(kpi: IKpiBase, metadata?: IChartMetadata): Promise < string > {
+    /**
+     * Process the chart data decomposing it into the most relevant parts to build the chart definition
+     * @param kpi kpi to run
+     * @param metadata chart metadata
+     */
+    protected processChartData(kpi: IKpiBase, metadata?: IChartMetadata): Promise < void > {
         const that = this;
 
         return that.getKPIData(kpi, metadata).then(data => {
-            let groupings = that._getGroupingFields(data);
-            that.frequencyHelper.extractFrequency(data, metadata.frequency);
+            that.data = data;
+            that.groupings = that._getGroupingFields(data);
+            that.frequencyHelper.decomposeFrequencyInfo(data, metadata.frequency);
 
-            let categories = that._createCategories(data, metadata);
-            let series = that._createSeries(data, metadata, categories, groupings);
+            // xAxisSource name can be empty when there is only one grouping
+            // in that case we choose that one
+            if (!metadata.xAxisSource) {
+                metadata.xAxisSource = that.groupings[0];
+            }
 
-            // TODO: pending when we deal with second level groupings
-            // that.groupings = this.getGroupings(data);
-            return JSON.stringify({categories: categories.map(c => c.name), series: series});
-        });
+            that.categories = that._createCategories(data, metadata);
+            that.series = that._createSeries(data, metadata, that.categories, that.groupings);
+
+            return;
+        }).catch(e => e );
+    }
+
+    /**
+     * Put together all pieces of information to generate the chart definition
+     * @param customOptions extra chart definition options
+     */
+    protected buildDefinition(customOptions: any): string {
+        let definition = Object.assign({}, customOptions, this.chart.chartDefinition);
+
+        definition.title = { text: this.chart.title };
+        definition.subtitle = { text: this.chart.subtitle };
+        definition.series = this.series;
+
+        if (!definition.xAxis) {
+            definition.xAxis = {};
+        }
+
+        definition.xAxis.categories = this.categories ? this.categories.map(c => c.name) : [];
+
+        return definition;
     }
 
     /**
@@ -74,7 +105,7 @@ export abstract class UIChartBase implements IUIChart {
      */
     protected getKPIData(kpi: IKpiBase, metadata?: IChartMetadata): Promise<any[]> {
         const dateRange = this._getDateRange(metadata.dateRange);
-        return kpi.getData(dateRange, metadata.frequency, metadata.grouping);
+        return kpi.getData(dateRange, { frequency: metadata.frequency, groupings: metadata.groupings });
     }
 
     /**
@@ -94,7 +125,7 @@ export abstract class UIChartBase implements IUIChart {
      * @param chartDateRange data range that includes a predefined or a custom data range
      */
     private _processChartDateRange(chartDateRange: IChartDateRange): IDateRange {
-        return chartDateRange.custom ?
+        return chartDateRange.custom && chartDateRange.custom.from ?
             { from: new Date(chartDateRange.custom.from), to: new Date(chartDateRange.custom.to) }
             : parsePredifinedDate(chartDateRange.predefined);
     }

@@ -1,3 +1,4 @@
+import { IChartMetadata } from './charts/chart-metadata';
 import { FrequencyTable } from '../../../models/common/frequency-enum';
 import { FrequencyEnum, IDateRange } from '../../../models/common';
 import * as Promise from 'bluebird';
@@ -18,14 +19,8 @@ export class GetChartQuery implements IQuery<string> {
     // log = true;
     // audit = true;
 
-    run(data: { id: string, dateRange?: { from: string, to: string}, frequency?: string, grouping?: string[], xAxisSource?: string }): Promise<string> {
+    run(data: { id: string, dateRange?: { from: string, to: string}, frequency?: string, groupings?: string[], xAxisSource?: string }): Promise<string> {
         let that = this;
-
-        let dr: IDateRange = {
-            from: new Date(data.dateRange.from),
-            to: new Date(data.dateRange.to)
-        };
-        let frequency = FrequencyTable[data.frequency];
 
         return new Promise<string>((resolve, reject) => {
             that._ctx.Chart
@@ -40,13 +35,30 @@ export class GetChartQuery implements IQuery<string> {
                         return;
                     }
 
-
                     let chart = ChartFactory.getInstance(chartDocument);
                     let kpi = KpiFactory.getInstance(chartDocument.kpis[0], that._ctx);
-                    let grouping = getGroupingMetadata(data.grouping);
+                    let groupings = getGroupingMetadata(data.groupings);
 
-                    chart.getUIDefinition(kpi, dr, { frequency: frequency, grouping: grouping, xAxisSource: data.xAxisSource }).then((definition) => {
-                        resolve(definition);
+                    let frequency = FrequencyTable[data.frequency];
+                    let definitionParameters: IChartMetadata = {
+                        frequency: frequency,
+                        groupings: groupings,
+                        xAxisSource: data.xAxisSource
+                    };
+
+                    if (data.dateRange) {
+                        definitionParameters.dateRange = {
+                            predefined: null,
+                            custom: {
+                                from: new Date(data.dateRange.from),
+                                to: new Date(data.dateRange.to)
+                            }
+                        };
+                    }
+
+                    chart.getDefinition(kpi, definitionParameters).then((definition) => {
+                        chartDocument.chartDefinition = definition;
+                        resolve(JSON.stringify(chartDocument));
                     }).catch(e => reject(e));
                 });
         });

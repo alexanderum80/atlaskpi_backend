@@ -26,7 +26,7 @@ export class FrequencyHelper {
     private _days: number[];
     private _quarters: number[];
 
-    extractFrequency(rawData: any[], frequency: FrequencyEnum) {
+    decomposeFrequencyInfo(rawData: any[], frequency: FrequencyEnum) {
         this._processFrequency(rawData, frequency);
     }
 
@@ -60,8 +60,6 @@ export class FrequencyHelper {
 
         return [];
     }
-
-    
 
     private _processFrequency(data: any, frequency: FrequencyEnum) {
         let y: number[] = [];

@@ -25,8 +25,8 @@ export class AreaChart extends UIChartBase implements IUIChart {
         super(chart, frequencyHelper);
     }
 
-    getDefinition(kpi: IKpiBase, dateRange: IDateRange, metadata?: IChartMetadata): Promise < string > {
-        return this.getDefinitionBase(kpi, metadata);
+    getDefinition(kpi: IKpiBase, metadata?: IChartMetadata): Promise < string > {
+        return this.processChartData(kpi, metadata).then(res => JSON.stringify(res));
     }
 
 }

@@ -1,6 +1,6 @@
 import { AggregateStage } from './aggregate';
 import { IAppModels } from '../../../models/app/app-models';
-import { IDateRange } from '../../../models/common/date-range';
+import { IChartDateRange, IDateRange } from '../../../models/common/date-range';
 import { FrequencyEnum } from '../../../models/common/frequency-enum';
 import * as Promise from 'bluebird';
 
@@ -17,9 +17,15 @@ export interface IKPIResult {
     metadata?: IKPIMetadata;
 }
 
+export interface IGetDataOptions {
+    dateRange?: IChartDateRange;
+    frequency?: FrequencyEnum;
+    groupings?: string[];
+}
+
 export interface IKpiBase {
-    getData(dateRange: IDateRange, frequency?: FrequencyEnum): Promise<any>;
-    getSeries?(dateRange: IDateRange, frequency?: FrequencyEnum): Promise<any>;
+    getData(dateRange: IDateRange, options: IGetDataOptions): Promise<any>;
+    getSeries(dateRange: IDateRange, frequency: FrequencyEnum);
 }
 
 export class KpiBase {
@@ -27,7 +33,7 @@ export class KpiBase {
 
     constructor(public model: any, public aggregate: AggregateStage[]) { }
 
-    executeQuery(dateField: string, dateRange?: IDateRange, frequency?: FrequencyEnum, grouping?: string): Promise<any> {
+    executeQuery(dateField: string, dateRange?: IDateRange, options?: IGetDataOptions): Promise<any> {
 
         if (!this.model) throw 'A model is required to execute kpi query';
         if (!dateField) throw 'A date field is required to execute kpi query';
@@ -37,8 +43,8 @@ export class KpiBase {
         return new Promise<any>((resolve, reject) => {
             if (dateRange)
                 that._injectDataRange(dateRange, dateField);
-            if (frequency !== undefined)
-                that._injectFrequencyAndGrouping(frequency, grouping, dateField);
+            if (options.frequency !== undefined)
+                that._injectFrequencyAndGrouping(options.frequency, options.groupings, dateField);
 
             // decompose aggregate object into array
             let aggregateParameters = [];
@@ -95,7 +101,7 @@ export class KpiBase {
         }
     }
 
-    private _injectFrequencyAndGrouping(frequency: FrequencyEnum, grouping: string, field: string) {
+    private _injectFrequencyAndGrouping(frequency: FrequencyEnum, groupings: string[], field: string) {
         // console.log(typeof frequency);
         if (frequency === undefined) return;
 
@@ -217,41 +223,45 @@ export class KpiBase {
         let that = this;
 
         // restore the rest of the grouping if there is anything to restore
-        if (!currentGrouping && !grouping) return;
+        if (!currentGrouping && !groupings) return;
 
         Object.keys(currentGrouping).forEach(prop => {
             groupStage.$group._id[prop] = currentGrouping[prop];
         });
 
         // if grouping is present also add it
-        this._includeGroupingInProjection(projectStage.$project, grouping);
-        this._applyGrouping(groupStage.$group, grouping);
+        this._includeGroupingsInProjection(projectStage.$project, groupings);
+        this._applyGroupings(groupStage.$group, groupings);
     }
 
-    private _includeGroupingInProjection(projection: any, grouping: string) {
-        if (!grouping) {
+    private _includeGroupingsInProjection(projection: any, groupings: string[]) {
+        if (!groupings) {
             return;
         }
 
-        let groupingTokens = grouping.split('.');
-        let index = Object.keys(projection).findIndex(prop => prop === groupingTokens[0]);
+        groupings.forEach(g => {
+            let groupingTokens = g.split('.');
+            let index = Object.keys(projection).findIndex(prop => prop === groupingTokens[0]);
 
-        if (index === -1) {
-            projection[groupingTokens[0]] = 1;
-        }
+            if (index === -1) {
+                projection[groupingTokens[0]] = 1;
+            }
+        });
     }
 
-    private _applyGrouping(group: any, grouping: string) {
-        if (!grouping) {
+    private _applyGroupings(group: any, groupings: string[]) {
+        if (!groupings) {
             return;
         }
 
-        let groupingTokens = grouping.split('.');
-        let index = Object.keys(group._id).findIndex(prop => prop === groupingTokens[0]);
+        groupings.forEach(g => {
+            let groupingTokens = g.split('.');
+            let index = Object.keys(group._id).findIndex(prop => prop === groupingTokens[0]);
 
-        if (index === -1) {
-            group._id[groupingTokens[0]] = '$' + grouping;
-        }
+            if (index === -1) {
+                group._id[groupingTokens[0]] = '$' + g;
+            }
+        });
     }
 
 }

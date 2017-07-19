@@ -1,16 +1,12 @@
+import { IChartDateRange } from '../../common/date-range';
 import { IKPIDocument } from '../kpis';
 import { IDateRange } from '../../common';
 import { IMutationResponse } from '../../';
 import * as mongoose from 'mongoose';
 import * as Promise from 'bluebird';
 
-export interface IChartDateRange {
-    predefined?: string;
-    custom?: IDateRange;
-}
-
 export interface IChart {
-    _id: string;
+    _id: any;
     title: string;
     subtitle?: string;
     group: string;
@@ -42,5 +38,5 @@ export interface IChartModel extends mongoose.Model<IChartDocument> {
     /**
      * Create a Chart
      */
-    createChart(details: IChartDetails): Promise<IMutationResponse>;
+    // createChart(details: IChartDetails): Promise<IMutationResponse>;
 }

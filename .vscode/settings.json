@@ -3,6 +3,6 @@
     // Defines if there should be a space inside the curly braces of an import statement.
     "typescriptHero.resolver.insertSpaceBeforeAndAfterImportBraces": true,
 
-    "git.enabled": false,
+    "git.enabled": true,
     "typescript.check.workspaceVersion": false
 }

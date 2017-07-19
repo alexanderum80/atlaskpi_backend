@@ -33,7 +33,7 @@ export class QueryBus implements IQueryBus {
             })
             .then((authorized: boolean) => {
                 if (authorized) {
-                    console.log('trying to run query');
+                    console.log('trying to run query: ' + query.constructor.toString());
                     return query.run(data);
                 }
             })

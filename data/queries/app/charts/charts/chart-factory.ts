@@ -5,8 +5,12 @@ import { FrequencyHelper } from './frequency-values';
 import {
     IUIChart,
     UIChartBase,
+    AreaChart,
+    BarChart,
     ColumnChart,
-    LineChart
+    DonutChart,
+    LineChart,
+    PieChart
 } from '.';
 
 

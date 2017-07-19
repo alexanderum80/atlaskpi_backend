@@ -17,7 +17,7 @@ export const dashboardGql: GraphqlDefinition = {
         `,
         queries: `
             dashboards(group: String): [Dashboard]
-            dashboard(id: String!, dateRange: DateRange!, frequency: String): Dashboard
+            dashboard(id: String!): Dashboard
         `,
         mutations: ``,
     },

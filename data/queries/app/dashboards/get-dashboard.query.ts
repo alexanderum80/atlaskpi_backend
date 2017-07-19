@@ -16,14 +16,8 @@ export class GetDashboardQuery implements IQuery<IDashboard> {
     // log = true;
     // audit = true;
 
-    run(data: { id: string, dateRange: { from: string, to: string}, frequency: string }): Promise<IDashboard> {
+    run(data: { id: string }): Promise<IDashboard> {
         let that = this;
-
-        let dr: IDateRange = {
-            from: new Date(data.dateRange.from),
-            to: new Date(data.dateRange.to)
-        };
-        let frequency = FrequencyTable[data.frequency];
 
         return new Promise<IDashboard>((resolve, reject) => {
             that._ctx.Dashboard

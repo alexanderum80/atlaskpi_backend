@@ -1,9 +1,8 @@
-import { IChartDateRange } from '../../../../models/app/charts';
+import { IGetDataOptions } from '../../kpis/kpi-base';
+import { IChartDateRange } from '../../../../models/common/date-range';
 import { FrequencyEnum, IDateRange } from '../../../../models/common';
 
-export interface IChartMetadata {
-    dateRange: IChartDateRange;
-    frequency?: FrequencyEnum;
-    grouping?: string;
+
+export interface IChartMetadata extends IGetDataOptions {
     xAxisSource?: string;
 }
