@@ -27,13 +27,13 @@ const aggregate: AggregateStage[] = [
         frequency: true,
         $group: {
             _id: null,
-            sales: { $sum: '$product.amount' }
+            value: { $sum: '$product.amount' }
         }
     },
     {
         $project: {
             avg: {
-                $divide: [ '$sales' ]
+                $divide: [ '$value' ]
             }
         }
     },
@@ -51,6 +51,10 @@ export class AvgRevenueByFTAesthetician extends KpiBase implements IKpiBase {
     }
 
     getData(dateRange: IDateRange, frequency?: FrequencyEnum): Promise<any> {
+        return this.executeQuery('product.from', dateRange, frequency);
+    }
+    
+    getSeries(dateRange: IDateRange, frequency?: FrequencyEnum): Promise<any> {
         let that = this;
 
         return new Promise<any>((resolve, reject) => {
@@ -74,7 +78,7 @@ export class AvgRevenueByFTAesthetician extends KpiBase implements IKpiBase {
                     console.error(e);
                 });
             });
-        });
+        });        
     }
 
      private _toSeries(rawData: any[]) {

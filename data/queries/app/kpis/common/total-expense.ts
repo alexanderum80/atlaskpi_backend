@@ -19,7 +19,7 @@ const aggregate: AggregateStage[] = [
     },
     {
         frequency: true,
-        $group: { expenses: { $sum: '$expense.amount' } }
+        $group: { value: { $sum: '$expense.amount' } }
     },
     {
         $sort: {
@@ -34,13 +34,13 @@ export class TotalExpense extends KpiBase implements IKpiBase {
         super(sales, aggregate);
     }
 
-    getRawData(dateRange: IDateRange, frequency?: FrequencyEnum): Promise<any> {
+    getData(dateRange: IDateRange, frequency?: FrequencyEnum): Promise<any> {
         return this.executeQuery('timestamp', dateRange, frequency);
     }
     
-    getData(dateRange: IDateRange, frequency?: FrequencyEnum): Promise<any> {
+    getSeries(dateRange: IDateRange, frequency?: FrequencyEnum): Promise<any> {
         const that = this;
-        return this.executeQuery('timestamp', dateRange, frequency).then(data => {
+        return this.getData(dateRange, frequency).then(data => {
             return Promise.resolve(that._toSeries(data, frequency));
         });
     }
@@ -53,7 +53,7 @@ export class TotalExpense extends KpiBase implements IKpiBase {
             })
             .map((v, k) => ({
                 name: k,
-                data: v.map(item => [item._id.frequency, item.expenses])
+                data: v.map(item => [item._id.frequency, item.value])
             }))
             .value();
     }

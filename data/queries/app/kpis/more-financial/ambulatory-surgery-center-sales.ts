@@ -17,7 +17,7 @@ const aggregate: AggregateStage[] = [
     },
     {
         frequency: true,
-        $group: { _id: null, 'revenue': { $sum: '$product.amount' } }
+        $group: { _id: null, 'value': { $sum: '$product.amount' } }
     },
     {
         $sort: {
@@ -34,6 +34,10 @@ export class AmbulatorySurgeryCenterSales extends KpiBase implements IKpiBase {
     }
 
     getData(dateRange: IDateRange, frequency?: FrequencyEnum): Promise<any> {
+        return this.executeQuery('product.from', dateRange, frequency);
+    }
+
+    getSeries(dateRange: IDateRange, frequency?: FrequencyEnum): Promise<any> {
         let that = this;
 
         return new Promise((resolve, reject) => {
@@ -48,7 +52,7 @@ export class AmbulatorySurgeryCenterSales extends KpiBase implements IKpiBase {
     private _toSeries(rawData: any[]) {
         return [{
             name: 'Ambulatory Surgery Center Sales',
-            data: rawData.map(item => [ item._id.frequency, item.revenue ])
+            data: rawData.map(item => [ item._id.frequency, item.value ])
         }];
     }
 

@@ -34,17 +34,22 @@ export class AestheticianRevenueRatePerHour {
                                                                       this._sales,
                                                                       revenueKpi,
                                                                       hoursKpi);
+        return aestheticianRevenueRatePerHourKpi.getData(dateRange, frequency);
+    }
+
+    getSeries(dateRange: IDateRange, frequency?: FrequencyEnum): Promise<any> {
+        const that = this;
         return new Promise<any>((resolve, reject) => {
-          aestheticianRevenueRatePerHourKpi.getData(dateRange, frequency).then(data => {
+          that.getData(dateRange, frequency).then(data => {
               resolve(that._toSeries(data));
           }, (e) => reject(e));
-        });
+        });        
     }
 
     private _toSeries(rawData: any[]) {
         return [{
             name: 'Aesthetician Revenue Rate Per Hour',
-            data: rawData.map(item => [ item._id.frequency, item.revenuePerHour ])
+            data: rawData.map(item => [ item._id.frequency, item.value ])
         }];
     }
 }

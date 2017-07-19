@@ -17,7 +17,7 @@ const aggregate: AggregateStage[] = [
     },
     {
         frequency: true,
-        $group: { revenue: { $sum: '$product.amount' } }
+        $group: { value: { $sum: '$product.amount' } }
     },
     {
         $sort: {
@@ -34,6 +34,10 @@ export class TotalRevenue extends KpiBase implements IKpiBase {
 
     getData(dateRange: IDateRange, frequency?: FrequencyEnum): Promise<any> {
         return this.executeQuery('product.from', dateRange, frequency);
+    }
+
+    getSeries(dateRange: IDateRange, frequency?: FrequencyEnum): Promise<any> {
+        return this.getData(dateRange, frequency);
     }
 
 }

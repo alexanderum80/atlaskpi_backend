@@ -18,8 +18,8 @@ export interface IKPIResult {
 }
 
 export interface IKpiBase {
-    getData(dateRange: IDateRange, frequency?: FrequencyEnum, grouping?: string): Promise<any>;
-    getRawData?(dateRange: IDateRange, frequency?: FrequencyEnum): Promise<any>;
+    getData(dateRange: IDateRange, frequency?: FrequencyEnum): Promise<any>;
+    getSeries?(dateRange: IDateRange, frequency?: FrequencyEnum): Promise<any>;
 }
 
 export class KpiBase {

@@ -40,7 +40,14 @@ export class TotalRevenue extends KpiBase implements IKpiBase {
     }
 
     getData(dateRange: IDateRange, frequency?: FrequencyEnum): Promise<any> {
-       return this.executeQuery('product.from', dateRange, frequency);
+        return this.executeQuery('product.from', dateRange, frequency);
+    }
+
+    getSeries(dateRange: IDateRange, frequency?: FrequencyEnum): Promise<any> {
+       const that = this;
+       return this.getData(dateRange, frequency).then(data => {
+            return Promise.resolve(that._toSeries(data, frequency));
+        });
     }
 
     private _toSeries(rawData: any[], frequency: FrequencyEnum) {
@@ -65,7 +72,7 @@ export class TotalRevenue extends KpiBase implements IKpiBase {
         });
 
         data = _.sortBy(data, '_id.frequency');
-        return data.map(item => [ item._id.frequency, item.sales ]);
+        return data.map(item => [ item._id.frequency, item.value ]);
     }
 
 }

@@ -48,7 +48,7 @@
     {
         "_id": 11,
         "title": "Revenue per FTE",
-        "subtitle": "Net Collected Revenue per Full Time Employee (FTE) (Year 2016)",
+        "subtitle": "Net Collected Revenue per Full Time Employee (FTE) (Last Year)",
         "group": "Finance",
         "kpis": ["2"],
         "frequency": "yearly",

@@ -18,18 +18,22 @@ export class ExpenseRatio implements IKpiBase {
         const totalExpense = new TotalExpense(this.expenses);
         const ratioKPI = new RatioExpensesCalculatorKPI(totalExpense, totalRevenue);
 
-        return new Promise((resolve, reject) => {
-            ratioKPI.getData(dateRange, frequency).then(data => {
-                resolve(self._toSeries(data));
-            });
-        });
+        return ratioKPI.getData(dateRange, frequency);
+    }
 
+    getSeries(dateRange: IDateRange, frequency?: FrequencyEnum): Promise<any> {
+        const that = this;
+        return new Promise((resolve, reject) => {
+            that.getData(dateRange, frequency).then(data => {
+                resolve(that._toSeries(data));
+            })
+        })
     }
     
     private _toSeries(rawData: any[]) {
         return [{
-            name: 'Expense By Ratio',
-            data: rawData.map((item) => [item._id.frequency, item.ratio])
-        }];
+            name: "Expense By Ratio",
+            data: rawData.map((item) => [item._id.frequency, item.value])
+        }]
     }
 }

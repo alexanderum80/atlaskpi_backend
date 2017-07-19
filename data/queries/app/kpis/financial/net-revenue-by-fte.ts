@@ -43,7 +43,7 @@ const aggregate: AggregateStage[] = [{
         employeeId: '$employee.externalId',
         fullName: '$employee.fullName',
       },
-      sales: {
+      value: {
         $sum: '$product.amount'
       }
     }
@@ -62,13 +62,16 @@ export class NetRevenueByFTE extends KpiBase implements IKpiBase {
   }
 
   getData(dateRange: IDateRange, frequency ?: FrequencyEnum): Promise < any > {
-    let that = this;
+    return this.executeQuery('product.from', dateRange, frequency);
+  }
 
+  getSeries(dateRange: IDateRange, frequency?: FrequencyEnum): Promise<any> {
+    const that = this;
     return new Promise<any>((resolve, reject) => {
-          that.executeQuery('product.from', dateRange, frequency).then(data => {
-              resolve(that._toSeries(data, frequency));
-          }, (e) => reject(e));
-      });
+      that.getData(dateRange, frequency).then(data => {
+        resolve(that._toSeries(data, frequency));
+      }), (e) => reject(e);
+    })
   }
 
   private _toSeries(rawData: any[], frequency: FrequencyEnum) {
@@ -76,7 +79,7 @@ export class NetRevenueByFTE extends KpiBase implements IKpiBase {
     if (!frequency) {
       return [{
           name: 'Net Revenue',
-          data: rawData.map(item => [ item._id.fullName, item.sales ])
+          data: rawData.map(item => [ item._id.fullName, item.value ])
       }];
     } else {
       let frequencies = _.uniq(rawData.map(item => item._id.frequency)).sort();
@@ -88,13 +91,13 @@ export class NetRevenueByFTE extends KpiBase implements IKpiBase {
                       return item;
                 });
 
-      data = _.orderBy(data, ['_id.frequency', 'sales'], ['asc', 'desc']);
+      data = _.orderBy(data, ['_id.frequency', 'value'], ['asc', 'desc']);
 
       data = _(data)
               .groupBy('_id.fullName')
               .map((v, k) => ({
                   name: k,
-                  data: v.map(item => [item._id.frequency, item.sales])
+                  data: v.map(item => [item._id.frequency, item.value])
               }))
               .value();
 
@@ -148,9 +151,9 @@ export class NetRevenueByFTE extends KpiBase implements IKpiBase {
                 .groupBy('_id.fullName')
                 .map((v, k) => ({
                     fullName: k,
-                    sales: _.sumBy(v, 'sales')
+                    value: _.sumBy(v, 'value')
                 }))
-                .orderBy('sales', 'desc')
+                .orderBy('value', 'desc')
                 .filter((item, index) => {
                     if (index > 4) { return; };
                     return item;

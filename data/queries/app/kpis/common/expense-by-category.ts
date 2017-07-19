@@ -18,12 +18,12 @@ const aggregate: AggregateStage[] = [
     {
         $group: {
             _id: { concept: '$expense.concept' },
-            expenses: { $sum: '$expense.amount' }
+            value: { $sum: '$expense.amount' }
         }
     },
     {
         $sort: {
-            expenses: -1
+            value: -1
         }
     }
 ];
@@ -35,16 +35,20 @@ export class ExpenseByCategory extends KpiBase implements IKpiBase {
     }
 
     getData(dateRange: IDateRange, frequency?: FrequencyEnum): Promise<any> {
+        return this.executeQuery('timestamp', dateRange);
+    }
+
+    getSeries(dateRange: IDateRange, frequency?: FrequencyEnum): Promise<any> {
         const that = this;
-        return this.executeQuery('timestamp', dateRange).then(data => {
+        return this.getData(dateRange).then(data => {
             return Promise.resolve(that._toSeries(data, frequency));
-        });
+        })
     }
 
     private _toSeries(rawData: any[], frequency: FrequencyEnum) {
         if (!frequency) {
             let bottomSales = [];
-            let data = _.orderBy(rawData, "expenses", "desc")
+            let data = _.orderBy(rawData, "value", "desc")
                 .filter((item, index) => {
                     if (index > 5) {
                         bottomSales.push(item);
@@ -63,7 +67,7 @@ export class ExpenseByCategory extends KpiBase implements IKpiBase {
                 data: noFreqAllData.filter((item, index) => {
                     return item;
                 })
-                .map(item => [item['_id']['concept'], item['expenses']])
+                .map(item => [item['_id']['concept'], item['value']])
             }]
         }
         else {
@@ -82,12 +86,12 @@ export class ExpenseByCategory extends KpiBase implements IKpiBase {
             let completeData = [data, afterFive];
 
             completeData = _.flatten(completeData);
-            completeData = _.orderBy(completeData, ["_id.frequency", "expenses"], ["asc", "desc"]);
+            completeData = _.orderBy(completeData, ["_id.frequency", "value"], ["asc", "desc"]);
 
             let groupData = _(completeData)
                 .groupBy("_id.concept")
                 .map((v, k) => {
-                    return v.map(item => [k, item.expenses])
+                    return v.map(item => [k, item.value])
                 })
                 .map((item) => _.flatten(item));
 
@@ -99,7 +103,7 @@ export class ExpenseByCategory extends KpiBase implements IKpiBase {
     }
 
     private _afterFiveBest(rawData: any) {
-        let data = _.orderBy(rawData, "expenses", "desc");
+        let data = _.orderBy(rawData, "value", "desc");
         let sum = 0;
 
         let others = _(data)
@@ -109,7 +113,7 @@ export class ExpenseByCategory extends KpiBase implements IKpiBase {
                     concept: "Others",
                     frequency: k
                 },
-                expenses: _.sumBy(v, "expenses")
+                value: _.sumBy(v, "value")
             }))
             .orderBy("_id.frequency", "desc")
             .value();
@@ -122,9 +126,9 @@ export class ExpenseByCategory extends KpiBase implements IKpiBase {
             .groupBy('_id.concept')
             .map((v, k) => ({
                 concept: k,
-                expenses: _.sumBy(v, 'expenses')
+                value: _.sumBy(v, 'value')
             }))
-            .orderBy('expenses', 'desc')
+            .orderBy('value', 'desc')
             .filter((item, index) => {
                 if (index >= 4) { 
                     return;

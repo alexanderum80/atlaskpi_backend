@@ -18,17 +18,22 @@ export class PayrollExpenseRatio implements IKpiBase {
 
         let _payrollCalculuator = new PayrollExpenseCalculator(myExpense, myRevenue);
         
+        return <any>(_payrollCalculuator.getData(dateRange, frequency));
+    }
+
+    getSeries(dateRange: IDateRange, frequency?: FrequencyEnum): Promise<any> {
+        const that = this;
         return new Promise((resolve, reject) => {
-            _payrollCalculuator.getData(dateRange, frequency).then(data => {
-                resolve(self._toSeries(data));
-            });
-        });
+            this.getData(dateRange, frequency).then(data => {
+                resolve(that._toSeries(data));
+            })
+        })
     }
     
     private _toSeries(rawData: any[]) {
         return [{
             name: 'Payroll Expense Ratio',
-            data: rawData.map(item => [ item._id.frequency, item.ratio ])
+            data: rawData.map(item => [ item._id.frequency, item.value ])
         }];
     }
     
