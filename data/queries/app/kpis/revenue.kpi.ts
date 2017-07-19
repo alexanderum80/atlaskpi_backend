@@ -8,37 +8,37 @@ import { IDateRange } from '../../../models/common/date-range';
 
 import * as _ from 'lodash';
 
-const aggregate: AggregateStage[] = [
-    {
-        dateRange: true,
-        $match: { }
-    },
-    {
-        frequency: true,
-        $project: {
-            'product': 1,
-            '_id': 0
-        }
-    },
-    {
-        frequency: true,
-        $group: {
-            // dynamic groupings are going to be added here
-            _id: { },
-            value: { $sum: '$product.amount' }
-        }
-    },
-    {
-        $sort: {
-            frequency: 1
-        }
-    }
-];
-
 export class Revenue extends KpiBase implements IKpiBase {
 
     constructor(sales: ISaleModel) {
-        super(sales, aggregate);
+        const baseAggregate: AggregateStage[] = [
+            {
+                dateRange: true,
+                $match: { }
+            },
+            {
+                frequency: true,
+                $project: {
+                    'product': 1,
+                    '_id': 0
+                }
+            },
+            {
+                frequency: true,
+                $group: {
+                    // dynamic groupings are going to be added here
+                    _id: { },
+                    value: { $sum: '$product.amount' }
+                }
+            },
+            {
+                $sort: {
+                    frequency: 1
+                }
+            }
+        ];
+
+        super(sales, baseAggregate);
     }
 
     getData(dateRange: IDateRange, options?: IGetDataOptions): Promise<any> {

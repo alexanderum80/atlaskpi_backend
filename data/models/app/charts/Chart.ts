@@ -43,7 +43,8 @@ let ChartSchema = new Schema({
     groupings: [String],
     xFormat: { type: mongoose.Schema.Types.ObjectId, ref: 'ChartFormat' },
     yFormat: { type: mongoose.Schema.Types.ObjectId, ref: 'ChartFormat' },
-    chartDefinition: Schema.Types.Mixed
+    chartDefinition: Schema.Types.Mixed,
+    xAxisSource: String
 });
 
     // ChartSchema.methods.

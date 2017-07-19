@@ -17,6 +17,7 @@ export interface IChart {
     xFormat?: string;
     yFormat?: string;
     chartDefinition: any;
+    xAxisSource: string;
 }
 
 // export interface IChartDetails {

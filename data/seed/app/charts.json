@@ -14,6 +14,21 @@
             "chart"       : { "type":"column" },
             "plotOptions" : { "column" : { "stacking" : "normal" } }
         }            
+    },
+    {
+        "_id": 2,
+        "title": "Total Revenue by business unit",
+        "subtitle": "Show the grand total of sales by business unit",
+        "group": "Finance",
+        "kpis": ["1"],
+        "dateRange": {
+            "predefined": "this year"
+        },
+        "frequency": "monthly",
+        "chartDefinition": { 
+            "chart"       : { "type":"column" },
+            "plotOptions" : { "column" : { "stacking" : "normal" } }
+        }            
     }
 
 ]
