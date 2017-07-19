@@ -1,3 +1,4 @@
+import { Revenue } from './revenue.kpi';
 import { ProfesionalSalesRatio } from './operational/professional-service-ratio';
 import { PhysicianRevenueRateHour } from './financial/revenue-rate-per-hour-physian';
 import { RevenueRateByFTEmployee } from './financial/revenue-rate-per-hour-fte';
@@ -37,6 +38,8 @@ export class KpiFactory {
 
 export function getKPI(code: string, ctx: IAppModels): IKpiBase {
     switch (code) {
+        case 'Revenue':
+            return new Revenue(ctx.Sale);
         // Financial
         case 'RevenueByServiceLine':
             return new RevenueByServiceLine(ctx.Sale);

@@ -1,3 +1,5 @@
+import { IChartDocument } from '../../../models/app/charts';
+import * as _ from 'lodash';
 // export interface IGroupingMap {
 //     location: {
 //         expenses: string,
@@ -7,19 +9,27 @@
 
 export const GroupingMap = {
     location: 'location.name',
-    employee: 'employee.name'
+    employee: 'employee.externalId',
+    category: 'category.name'
 };
 
-export function getGroupingMetadata(groupings) {
-    if (!groupings) {
+export function getGroupingMetadata(chartDocument: IChartDocument, groupings: string[]) {
+    if (!chartDocument.groupings && !groupings) {
         return null;
     }
 
     let result: string[] = [];
+    let groups: string[] = [];
 
-    groupings.forEach(g => {
-        result.push(GroupingMap[g]);
-    });
+    groups = groups.concat(chartDocument.groupings, groupings);
+
+    groups.forEach(g => {
+            let group = GroupingMap[g];
+
+            if (group && result.indexOf(g) === -1) {
+                result.push(GroupingMap[g]);
+            }
+        });
 
     return result;
 }

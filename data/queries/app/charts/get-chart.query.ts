@@ -37,9 +37,9 @@ export class GetChartQuery implements IQuery<string> {
 
                     let chart = ChartFactory.getInstance(chartDocument);
                     let kpi = KpiFactory.getInstance(chartDocument.kpis[0], that._ctx);
-                    let groupings = getGroupingMetadata(data.groupings);
+                    let groupings = getGroupingMetadata(chartDocument, data.groupings);
 
-                    let frequency = FrequencyTable[data.frequency];
+                    let frequency = FrequencyTable[data.frequency ? data.frequency : chartDocument.frequency];
                     let definitionParameters: IChartMetadata = {
                         frequency: frequency,
                         groupings: groupings,

@@ -28,8 +28,7 @@ export class ColumnChart extends UIChartBase implements IUIChart {
         const that = this;
 
         return this.processChartData(kpi, metadata).then(() => {
-            const definition = that.buildDefinition(basicDefinition);
-            return definition;
+            return that.buildDefinition(basicDefinition);
         });
     }
 
