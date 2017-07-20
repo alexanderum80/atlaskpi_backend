@@ -13,7 +13,7 @@
         "chartDefinition": { 
             "chart"       : { "type":"column" },
             "plotOptions" : { "column" : { "stacking" : "normal" } }
-        }            
+        }
     },
     {
         "_id": 2,
@@ -29,7 +29,7 @@
         "chartDefinition": { 
             "chart"       : { "type":"column" },
             "plotOptions" : { "column" : { "stacking" : "normal" } }
-        }            
+        }
     },
     {
         "_id": 3,
@@ -47,7 +47,8 @@
                                 "enabled": true
                               },
                               "showInLegend": false } }
-        }            
+        }
+        
     }
 
 ]

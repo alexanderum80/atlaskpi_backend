@@ -1,3 +1,4 @@
+import { SampleDefinitionsTable } from './charts/sample-definitions.chart';
 import { IChartMetadata } from './charts/chart-metadata';
 import { FrequencyTable } from '../../../models/common/frequency-enum';
 import { FrequencyEnum, IDateRange } from '../../../models/common';
@@ -14,7 +15,7 @@ import { getGroupingMetadata } from './chart-grouping-map';
 
 export class GetChartQuery implements IQuery<string> {
 
-    constructor(public identity: IIdentity, private _ctx: IAppModels) { }
+    constructor(public identity: IIdentity, private _ctx: IAppModels, private _preview?: boolean) { }
 
     // log = true;
     // audit = true;
@@ -33,6 +34,12 @@ export class GetChartQuery implements IQuery<string> {
                     if (!chartDocument) {
                         reject(null);
                         return;
+                    }
+
+                    if (that._preview) {
+                        let type = chartDocument.chartDefinition.chart.type;
+                        chartDocument.chartDefinition = JSON.parse(SampleDefinitionsTable[type]) || [];
+                        return resolve(JSON.stringify(chartDocument));
                     }
 
                     let chart = ChartFactory.getInstance(chartDocument);

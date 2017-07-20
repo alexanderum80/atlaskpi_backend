@@ -9,3 +9,5 @@ export * from './donut.chart';
 export * from './line.chart';
 export * from './pie.chart';
 
+export * from './sample-definitions.chart';
+
