@@ -6,7 +6,7 @@ import { IChart, IChartDocument } from '../../../../models/app/charts';
 import { IChartDateRange } from '../../../../models/common/date-range';
 import { ChartPreProcessorExtention } from './chart-preprocessor-extention';
 import { FrequencyHelper, IFrequencyInfo, IFrequencyValues } from './frequency-values';
-import { IChartMetadata, IChartSerie } from '.';
+import { IChartMetadata, IChartSerie, ChartType } from '.';
 import {
     FREQUENCY_GROUPING_NAME,
     FrequencyEnum,
@@ -208,7 +208,7 @@ export class UIChartBase {
             /**
              *  this is a one level grouping chart
              */
-            return this._getSeriesForFirstLevelGrouping(data, '');
+            return this._getSeriesForFirstLevelGrouping(data, categories, meta.xAxisSource);
 
 
         } else if (availableGroupingsForSeries.length === 1) {
@@ -281,12 +281,29 @@ export class UIChartBase {
     }
 
 
-    private _getSeriesForFirstLevelGrouping(data: any[], name: string): IChartSerie[] {
-        return [{
-            showInLegend: false,
-            name: name,
-            data: data.map(item => item.value)
-        }];
+    private _getSeriesForFirstLevelGrouping(data: any[], categories: IXAxisCategory[], group: string): IChartSerie[] {
+
+        if (this.chart.chartDefinition.chart.type === ChartType.Pie) {
+            return [{
+                showInLegend: false,
+                name: '',
+                data:  categories.map(cat => {
+                    let dataItem = _.find(data, (item: any) => {
+                        return item._id[group] === cat.id;
+                    });
+
+                    return {
+                        name: cat.name || 'Others',
+                        y: dataItem ? dataItem.value : null
+                    };
+                })
+            }];
+        } else {
+            return [{
+                name: name,
+                data: data.map(item => item.value)
+            }];
+        }
     }
 
     private _getSeriesForSecondLevelGrouping(data: any[], meta: IChartMetadata, categories: IXAxisCategory[], groupByField: string): IChartSerie[] {
