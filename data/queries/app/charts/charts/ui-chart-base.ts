@@ -86,8 +86,12 @@ export class UIChartBase {
      */
     protected buildDefinition(customOptions: any): string {
         let definition = Object.assign({}, customOptions, this.chart.chartDefinition);
+        let shortDateFormat = 'MM/DD/YY';
+        let dateRangeText = this.dateRange.predefined ?
+            this.dateRange.predefined
+            : moment(this.dateRange.custom.from).format(shortDateFormat) + ' - ' + moment(this.dateRange.custom.to).format(shortDateFormat);
 
-        definition.title = { text: this.chart.title };
+        definition.title = { text: `${this.chart.title} (${dateRangeText})` };
         definition.subtitle = { text: this.chart.subtitle };
         definition.series = this.series;
 
