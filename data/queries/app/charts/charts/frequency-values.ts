@@ -55,7 +55,7 @@ export class FrequencyHelper {
                 return sequence.map(f => { return { id: f, name: `Q${f}` }; });
 
             case FrequencyEnum.Yearly:
-                return this._years.map((y, index): IXAxisCategory => { return { id: index, name: String(y) }; });
+                return this._years.map(y => { return { id: y, name: String(y) }; });
         }
 
         return [];

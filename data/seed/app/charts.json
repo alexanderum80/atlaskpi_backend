@@ -48,6 +48,22 @@
                               },
                               "showInLegend": false } }
         }            
+    },
+    {
+        "_id": 4,
+        "title": "Total revenue over time",
+        "subtitle": "Total revenue of all times grouped by busines unit (revenue source)",
+        "group": "Finance",
+        "kpis": ["1"],
+        "dateRange": {
+            "predefined": "all times"
+        },
+        "frequency": "yearly",
+        "groupings": ["category"],
+        "chartDefinition": { 
+            "chart"       : { "type":"column" },
+            "plotOptions" : { "column" : { "stacking" : "normal" } }
+        }            
     }
 
 ]
