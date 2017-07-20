@@ -3,6 +3,7 @@ import { IAppModels } from '../../../models/app/app-models';
 import { IChartDateRange, IDateRange } from '../../../models/common/date-range';
 import { FrequencyEnum } from '../../../models/common/frequency-enum';
 import * as Promise from 'bluebird';
+import * as _ from 'lodash';
 
 export interface IKPIMetadata {
     name?: string;
@@ -19,6 +20,7 @@ export interface IKPIResult {
 
 export interface IGetDataOptions {
     dateRange?: IChartDateRange;
+    filter?: any;
     frequency?: FrequencyEnum;
     groupings?: string[];
 }
@@ -43,6 +45,8 @@ export class KpiBase {
         return new Promise<any>((resolve, reject) => {
             if (dateRange)
                 that._injectDataRange(dateRange, dateField);
+            if (options.filter)
+                that._injectFilter(options.filter);
             if (options.frequency >= 0)
                 that._injectFrequency(options.frequency, dateField);
             if (options.groupings)
@@ -64,11 +68,11 @@ export class KpiBase {
         });
     }
 
-    findStage(booleanField: string, stageOperator: string): AggregateStage {
+    protected findStage(booleanField: string, stageOperator: string): AggregateStage {
         return this.aggregate.find(s => s[booleanField] === true && s[stageOperator] !== undefined);
     }
 
-    findStages(stageOperator: string): AggregateStage[] {
+    protected findStages(stageOperator: string): AggregateStage[] {
         return this.aggregate.filter(s => s[stageOperator] !== undefined);
     }
 
@@ -89,18 +93,52 @@ export class KpiBase {
     }
 
     private _injectDataRange(dateRange: IDateRange, field: string) {
-        // find date range sectiopn or first $match section instead
-        let matchStage = this.findStage('dateRange', '$match');
+        let matchStage = this.findStage('filter', '$match');
 
         if (!matchStage) {
             throw 'KpiBase#_injectDataRange: Cannot inject date range because a dateRange/$match stage could not be found';
         }
 
-
         // apply date range
         if (dateRange) {
             matchStage.$match[field] = { '$gte': dateRange.from, '$lte': dateRange.to };
         }
+    }
+
+    private _injectFilter(filter: any) {
+        let matchStage = this.findStage('filter', '$match');
+        let cleanFilter = this._cleanFilter(filter);
+
+        if (!matchStage) {
+            throw 'KpiBase#_injectDataRange: Cannot inject filter because a dateRange/$match stage could not be found';
+        }
+
+        Object.keys(cleanFilter).forEach(filterKey => {
+            matchStage.$match[filterKey] = cleanFilter[filterKey];
+        });
+    }
+
+    private _cleanFilter(filter: any): any {
+        let newFilter = {};
+        let replacementString = [
+            { key: '__dot__', value: '.' },
+            { key: '__dollar__', value: '$' }
+        ];
+
+        Object.keys(filter).forEach(filterKey => {
+            let newKey = filterKey;
+
+            replacementString.forEach(replacement => {
+                newKey = newKey.replace(replacement.key, replacement.value);
+            });
+
+            let value = filter[filterKey];
+            value = _.isObject(value) ? this._cleanFilter(value) : value;
+
+            newFilter[newKey] = value;
+        });
+
+        return newFilter;
     }
 
     private _injectFrequency(frequency: FrequencyEnum, field: string) {

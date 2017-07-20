@@ -12,6 +12,7 @@ export interface IChart {
     group: string;
     kpis: [IKPIDocument];
     dateRange: IChartDateRange;
+    filter: any;
     frequency: string;
     groupings: string[];
     xFormat?: string;

@@ -111,7 +111,7 @@ export class UIChartBase {
      * @param metadata chart metadata
      */
     protected getKPIData(kpi: IKpiBase, metadata?: IChartMetadata): Promise<any[]> {
-        return kpi.getData(this.dateRange.custom, { frequency: metadata.frequency, groupings: metadata.groupings });
+        return kpi.getData(this.dateRange.custom, metadata);
     }
 
     /**
@@ -227,57 +227,6 @@ export class UIChartBase {
             // this._getSeriesForThirdLevelGrouping(data, meta, categories, groupings);
 
         }
-
-
-
-
-        // if (groupings.indexOf(FREQUENCY_GROUPING_NAME)) {
-
-        //     /*
-        //     *  then I get the frequency property name based on the the selected frequency because that
-        //     *  property is used to save the frequency info once the data is received from mongo as numeric values(year, month, day, etc)
-        //     */
-        //     let frequencyName = getFrequencyPropName(meta.frequency);
-
-        //     /*
-        //     *  first of we need to group the result set by year because in a chart we are not showing more than a year at a time
-        //     */
-        //     let dataGroupedByYear = _.groupBy(data, FREQUENCY_GROUPING_NAME + '.year');
-
-        //     /**
-        //      *  here I create series by year
-        //      */
-        //     let series: IChartSerie[] = this.frequencyHelper.get().years.map(y => {
-        //         return {
-        //             name: y,
-        //             data: dataGroupedByYear[y].map(item => [item.frequency[frequencyName], item.value])
-        //         };
-        //     });
-
-        // }
-
-        // /*
-        //  *  frequency data may not be completed and we need to make sure that we
-        //  *  complete the sequence. Ex: months, days of the months, quarters, etc
-        //  */
-        // let freqSequence = getFrequencySequence(meta.frequency);
-
-        // /**
-        //  *  once I have a complete sequence for the frequency I go over the series's data
-        //  *  I complete the empty frequency slots if any
-        //  */
-        // if (freqSequence) {
-        //     for (let i = 0; i < series.length; i++) {
-        //         let completed = freqSequence.map(freq => {
-        //             let dataValue = series[i].data.find(dataItem => freq === dataItem[0]);
-        //             return dataValue ? dataValue[1] : null;
-        //         });
-
-        //         series[i].data = completed;
-        //     }
-        // }
-
-        // return series;
     }
 
 

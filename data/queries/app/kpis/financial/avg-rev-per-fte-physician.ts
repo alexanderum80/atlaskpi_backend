@@ -59,7 +59,7 @@ export class AvgRevenueByFTPhysician extends KpiBase implements IKpiBase {
 
         return new Promise<any>((resolve, reject) => {
             // get total physicians first
-            let query = this.findStage('dateRange', '$match').$match;
+            let query = this.findStage('filter', '$match').$match;
             query['product.from'] = { '$gte': dateRange.from, '$lte': dateRange.to };
 
             this.model.find(query).distinct('employee.externalId', function(err, employeeIds) {

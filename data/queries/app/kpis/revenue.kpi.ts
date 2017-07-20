@@ -13,7 +13,7 @@ export class Revenue extends KpiBase implements IKpiBase {
     constructor(sales: ISaleModel) {
         const baseAggregate: AggregateStage[] = [
             {
-                dateRange: true,
+                filter: true,
                 $match: { }
             },
             {

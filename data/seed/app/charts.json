@@ -64,6 +64,24 @@
             "chart"       : { "type":"column" },
             "plotOptions" : { "column" : { "stacking" : "normal" } }
         }            
+    },
+    {
+        "_id": 5,
+        "title": "Net Collected Revenue per Full Time Employee by location",
+        "subtitle": "Revenue collected for full time employees grouped by location",
+        "group": "Finance",
+        "kpis": ["1"],
+        "dateRange": {
+            "predefined": "this year"
+        },
+        "filter": {
+            "employee__dot__type": { "__dollar__eq": "f" }
+        },
+        "frequency": "monthly",
+        "groupings": ["category"],
+        "chartDefinition": { 
+            "chart"       : { "type":"line" }
+        }            
     }
 
 ]

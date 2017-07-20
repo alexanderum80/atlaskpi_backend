@@ -45,9 +45,9 @@ export class RevenueByIds extends KpiBase implements IKpiBase {
     getData(dateRange: IDateRange, frequency?: FrequencyEnum): Promise<any> {
         // inject a criteria to the $match stage
         if (this.externalIds) {
-            let query = this.findStage('dateRange', '$match').$match;
+            let query = this.findStage('filter', '$match').$match;
             query['employee.externalId'] = { '$in': this.externalIds };
-        };
+        }
 
         return this.executeQuery('product.from', dateRange, frequency);
     }

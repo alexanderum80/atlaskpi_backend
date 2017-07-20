@@ -53,13 +53,13 @@ export class AvgRevenueByFTNonPhysician extends KpiBase implements IKpiBase {
     getData(dateRange: IDateRange, frequency?: FrequencyEnum): Promise<any> {
         return this.executeQuery('product.from', dateRange, frequency);
     }
-    
+
     getSeries(dateRange: IDateRange, frequency?: FrequencyEnum): Promise<any> {
                 let that = this;
 
         return new Promise<any>((resolve, reject) => {
             // get total physicians first
-            let query = this.findStage('dateRange', '$match').$match;
+            let query = this.findStage('filter', '$match').$match;
             query['product.from'] = { '$gte': dateRange.from, '$lte': dateRange.to };
 
             this.model.find(query).distinct('employee.externalId', function(err, employeeIds) {

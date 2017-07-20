@@ -19,7 +19,7 @@ export class GetChartQuery implements IQuery<string> {
     // log = true;
     // audit = true;
 
-    run(data: { id: string, dateRange?: { from: string, to: string}, frequency?: string, groupings?: string[], xAxisSource?: string }): Promise<string> {
+    run(data: { id: string, dateRange?: { from: string, to: string}, filter?: any, frequency?: string, groupings?: string[], xAxisSource?: string }): Promise<string> {
         let that = this;
 
         return new Promise<string>((resolve, reject) => {
@@ -41,6 +41,7 @@ export class GetChartQuery implements IQuery<string> {
 
                     let frequency = FrequencyTable[data.frequency ? data.frequency : chartDocument.frequency];
                     let definitionParameters: IChartMetadata = {
+                        filter: data.filter ? data.filter : chartDocument.filter,
                         frequency: frequency,
                         groupings: groupings,
                         xAxisSource: data.xAxisSource
