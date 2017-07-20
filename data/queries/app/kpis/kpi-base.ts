@@ -43,8 +43,10 @@ export class KpiBase {
         return new Promise<any>((resolve, reject) => {
             if (dateRange)
                 that._injectDataRange(dateRange, dateField);
-            if (options.frequency !== undefined)
-                that._injectFrequencyAndGrouping(options.frequency, options.groupings, dateField);
+            if (options.frequency >= 0)
+                that._injectFrequency(options.frequency, dateField);
+            if (options.groupings)
+                that._injectGroupings(options.groupings);
 
             // decompose aggregate object into array
             let aggregateParameters = [];
@@ -91,7 +93,7 @@ export class KpiBase {
         let matchStage = this.findStage('dateRange', '$match');
 
         if (!matchStage) {
-            throw 'KpiBase#_injectDataRange: Cannot inject date range because a dateRAnge/$match stage could not be found';
+            throw 'KpiBase#_injectDataRange: Cannot inject date range because a dateRange/$match stage could not be found';
         }
 
 
@@ -101,11 +103,9 @@ export class KpiBase {
         }
     }
 
-    private _injectFrequencyAndGrouping(frequency: FrequencyEnum, groupings: string[], field: string) {
+    private _injectFrequency(frequency: FrequencyEnum, field: string) {
         // console.log(typeof frequency);
-        if (frequency === undefined) return;
-
-        if (frequency === undefined) return;
+        if (frequency < 0) return;
 
         field = '$' + field;
 
@@ -223,11 +223,16 @@ export class KpiBase {
         let that = this;
 
         // restore the rest of the grouping if there is anything to restore
-        if (!currentGrouping && !groupings) return;
+        if (!currentGrouping) return;
 
         Object.keys(currentGrouping).forEach(prop => {
             groupStage.$group._id[prop] = currentGrouping[prop];
         });
+    }
+
+    private _injectGroupings(groupings: string[]) {
+        let projectStage = this.findStage('frequency', '$project');
+        let groupStage = this.findStage('frequency', '$group');
 
         // if grouping is present also add it
         this._includeGroupingsInProjection(projectStage.$project, groupings);

@@ -39,6 +39,7 @@ export interface IUIChart {
 
 export class UIChartBase {
     protected data: any[];
+    protected dateRange: IChartDateRange;
     protected groupings: string[];
     protected categories: IXAxisCategory[];
     protected series: any[];
@@ -58,6 +59,8 @@ export class UIChartBase {
      */
     protected processChartData(kpi: IKpiBase, metadata?: IChartMetadata): Promise < void > {
         const that = this;
+
+        this.dateRange = this._getDateRange(metadata.dateRange);
 
         return that.getKPIData(kpi, metadata).then(data => {
             that.data = data;
@@ -104,20 +107,22 @@ export class UIChartBase {
      * @param metadata chart metadata
      */
     protected getKPIData(kpi: IKpiBase, metadata?: IChartMetadata): Promise<any[]> {
-        const dateRange = this._getDateRange(metadata.dateRange);
-        return kpi.getData(dateRange, { frequency: metadata.frequency, groupings: metadata.groupings });
+        return kpi.getData(this.dateRange.custom, { frequency: metadata.frequency, groupings: metadata.groupings });
     }
 
     /**
      * Returns the data range to be used for the chart
      * @param metadataDateRange data range that includes a predefined or a custom data range
      */
-    private _getDateRange(metadataDateRange: IChartDateRange): IDateRange {
+    private _getDateRange(metadataDateRange: IChartDateRange): IChartDateRange {
         let dateRange: IDateRange;
 
-        return metadataDateRange ?
-            this._processChartDateRange(metadataDateRange)
-            : this._processChartDateRange(this.chart.dateRange);
+        return {
+            predefined: metadataDateRange ? metadataDateRange.predefined : this.chart.dateRange.predefined,
+            custom: metadataDateRange ?
+                this._processChartDateRange(metadataDateRange)
+                : this._processChartDateRange(this.chart.dateRange)
+        };
     }
 
     /**
@@ -274,6 +279,7 @@ export class UIChartBase {
 
     private _getSeriesForFirstLevelGrouping(data: any[], name: string): IChartSerie[] {
         return [{
+            showInLegend: false,
             name: name,
             data: data.map(item => item.value)
         }];

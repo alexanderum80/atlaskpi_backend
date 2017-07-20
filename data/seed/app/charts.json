@@ -25,9 +25,28 @@
             "predefined": "this year"
         },
         "frequency": "monthly",
+        "groupings": ["category"],
         "chartDefinition": { 
             "chart"       : { "type":"column" },
             "plotOptions" : { "column" : { "stacking" : "normal" } }
+        }            
+    },
+    {
+        "_id": 3,
+        "title": "Total Revenue by business unit",
+        "subtitle": "Show the grand total of sales by business unit",
+        "group": "Finance",
+        "kpis": ["1"],
+        "dateRange": {
+            "predefined": "this year"
+        },
+        "groupings": ["category"],
+        "chartDefinition": { 
+            "chart"       : { "type":"pie" },
+            "plotOptions" : { "pie" : { "dataLabels": {
+                                "enabled": true
+                              },
+                              "showInLegend": false } }
         }            
     }
 
