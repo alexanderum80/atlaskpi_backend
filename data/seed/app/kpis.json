@@ -25,18 +25,22 @@
                 "binaryExpression": {
                     "left": {
                         "id": 1,
-                        "dateRange": {},
-                        "filter": "",
-                        "groupings": [],
-                        "frequency": ""
+                        "code": "Revenue",
+                        "dateRange": {
+                            "predefined": "this year"
+                        },
+                        "frequency": "monthly",
+                        "groupings": ["location"]
                     },
-                    "operator": "-", // -, +, *, /
+                    "operator": "-",
                     "right": {
-                            "id": 2,
-                            "dateRange": {},
-                            "filter": "",
-                            "groupings": [],
-                            "frequency": ""
+                        "id": 2,
+                        "code": "Expenses",
+                        "dateRange": {
+                            "predefined": "this year"
+                        },
+                        "frequency": "monthly",
+                        "groupings": ["location"]
                     }
                 }
             }

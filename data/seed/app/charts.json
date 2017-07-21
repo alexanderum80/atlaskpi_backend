@@ -97,6 +97,21 @@
         "chartDefinition": { 
             "chart"       : { "type":"line" }
         }            
+    },
+    {
+        "_id": 7,
+        "title": "Ebitda by business unit",
+        "subtitle": "Ebitda by business unit",
+        "group": "Finance",
+        "kpis": ["3"],
+        "dateRange": {
+            "predefined": "this year"
+        },
+        "frequency": "monthly",
+        "groupings": ["location"],
+        "chartDefinition": { 
+            "chart"       : { "type":"bar" }
+        }            
     }
 
 ]

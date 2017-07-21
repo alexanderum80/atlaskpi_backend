@@ -8,7 +8,8 @@ import { IKPIDocument } from '../../../models/app/kpis';
 export class KpiFactory {
 
     static getInstance(kpiDocument: IKPIDocument, ctx: IAppModels): IKpiBase {
-        if (kpiDocument.composition) return new CompositeKpi(kpiDocument, ctx);
+        if (kpiDocument.composition && kpiDocument.composition.length > 0)
+            return new CompositeKpi(kpiDocument, ctx);
 
         switch (kpiDocument.code) {
             case 'Revenue':

@@ -1,3 +1,4 @@
+import { getGroupingMetadata } from '../charts/chart-grouping-map';
 import { FrequencyTable, IChartDateRange, IDateRange, parsePredifinedDate } from '../../../models/common';
 import { KpiFactory } from './kpi.factory';
 import { IAppModels } from '../../../models/app/app-models';
@@ -36,7 +37,7 @@ export class CompositeKpi implements IKpiBase {
 
         switch (expression) {
             case ExpressionTypesMap.binary:
-                return this._processBinaryExpression(exp);
+                return this._processBinaryExpression(exp.binaryExpression);
             default:
                 return;
         }
@@ -63,7 +64,7 @@ export class CompositeKpi implements IKpiBase {
         const options: IGetDataOptions = {
             filter: kpiDocument.filter,
             frequency: FrequencyTable[kpiDocument.frequency],
-            groupings: kpiDocument.groupings
+            groupings: getGroupingMetadata(null, kpiDocument.groupings)
         };
 
         return kpi.getData(dateRange, options);
@@ -85,9 +86,7 @@ export class CompositeKpi implements IKpiBase {
         if (leftIsArray && rightIsArray) {
             let result = [];
             // get the keys for the first element
-            const keysToTest = Object.keys(left[0]);
-            // remove the value key because it is not needed for comparison
-            _.remove(keysToTest, k => k === 'value');
+            const keysToTest = Object.keys(left[0]._id);
             // clone array on the right so we can remove elements from this array
             let rightCloned = _.clone(right);
             // start on the left collection
@@ -95,7 +94,7 @@ export class CompositeKpi implements IKpiBase {
                 const rightSide = that._popWithSameGroupings(rightCloned, l, keysToTest);
                 let newDataItem = _.clone(l);
 
-                newDataItem.value = rightSide ? rightSide[0].value : 0;
+                newDataItem.value = rightSide.length > 0 ? rightSide[0].value : 0;
                 result.push(newDataItem);
             });
             // now continue with whatever is left on the right cloned collection
@@ -103,7 +102,7 @@ export class CompositeKpi implements IKpiBase {
                 const leftSide = that._popWithSameGroupings(left, r, keysToTest);
                 let newDataItem = _.clone(r);
 
-                newDataItem.value = leftSide ? leftSide[0].value : 0;
+                newDataItem.value = leftSide.length > 0 ? leftSide[0].value : 0;
                 result.push(newDataItem);
             });
         }
@@ -115,7 +114,7 @@ export class CompositeKpi implements IKpiBase {
             // build the comparison object with all the jeys for this object
             keys.forEach(k => {
                 // if at least one value is different then I can finish the comparison here
-                if (e[k] !== ele[k]) {
+                if (e._id[k] !== ele._id[k]) {
                     found = false;
                     return;
                 }

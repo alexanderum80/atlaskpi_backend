@@ -16,9 +16,11 @@ export const GroupingMap = {
 };
 
 export function getGroupingMetadata(chartDocument: IChartDocument, groupings: string[]) {
-    if (!chartDocument.groupings && !groupings) {
+    if ((!chartDocument || !chartDocument.groupings) && !groupings) {
         return null;
     }
+
+    if (!chartDocument) chartDocument = <any>{};
 
     let result: string[] = [];
     let groups: string[] = [];
