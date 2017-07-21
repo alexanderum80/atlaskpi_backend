@@ -31,9 +31,8 @@ export class CompositeKpi implements IKpiBase {
         let promises = this._kpi.composition.map(e => that._processExpression(e));
 
         return new Promise<any>((resolve, reject) => {
-            Promise.all(promises).then(r => {
-                let rs = r[0].length;
-                resolve(r[0]);
+            Promise.all(promises).then(result => {
+                resolve(result[0]);
             }).catch(e => reject(e));
         });
     }

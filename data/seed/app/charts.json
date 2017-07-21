@@ -93,7 +93,7 @@
             "predefined": "this year"
         },
         "frequency": "monthly",
-        "groupings": ["concept"],
+        "groupings": ["location"],
         "chartDefinition": { 
             "chart"       : { "type":"line" }
         }            
