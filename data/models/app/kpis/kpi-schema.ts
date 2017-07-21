@@ -27,15 +27,16 @@ let KPISchema = new Schema({
     _id: String,
     code: String,
     name: String!,
+    baseKpi: String,
     description: String,
     group: String,
-    grouping: Schema.Types.Mixed,
+    groupings: [String],
     dateRange: ChartDateRangeSchema,
     filter: String,
     frequency: String,
     axisSelection: String,
     emptyValueReplacement: String,
-    composition: [Schema.Types.Mixed]
+    composition: String
 });
 
 KPISchema.statics.createKPI = function(data: IKPIDetails): Promise<IMutationResponse> {

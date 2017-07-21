@@ -15,35 +15,35 @@
         "groupings": [],
         "filter": ""
     },
+    
     {
-        "_id": "3",
+        "_id": "10",
+        "baseKpi": "Revenue",
+        "name": "This year sales grouped by location with a monthly frequency",
+        "description": "Revenue",
+        "dateRange": {
+            "predefined": "this year"
+        },
+        "frequency": "monthly",
+        "groupings": ["location"]   
+    },
+    {
+        "_id": "11",
+        "baseKpi": "Expenses",
+        "name": "This year expenses grouped by location with a monthly frequency",
+        "description": "Revenue",
+        "dateRange": {
+            "predefined": "this year"
+        },
+        "frequency": "monthly",
+        "groupings": ["location"]   
+    },
+    
+    {
+        "_id": "30",
         "code": "Ebitda by business unit",
         "name": "Ebitda by business unit ",
         "description": "Ebitda by business unit ",
-        "composition": [
-            {
-                "binaryExpression": {
-                    "left": {
-                        "id": 1,
-                        "code": "Revenue",
-                        "dateRange": {
-                            "predefined": "this year"
-                        },
-                        "frequency": "monthly",
-                        "groupings": ["location"]
-                    },
-                    "operator": "-",
-                    "right": {
-                        "id": 2,
-                        "code": "Expenses",
-                        "dateRange": {
-                            "predefined": "this year"
-                        },
-                        "frequency": "monthly",
-                        "groupings": ["location"]
-                    }
-                }
-            }
-        ]
+        "composition": "kpi10 - kpi11"
     }
 ]

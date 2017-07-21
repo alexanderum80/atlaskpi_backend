@@ -7,19 +7,16 @@ import { IGetDataOptions, IKpiBase } from './kpi-base';
 import * as Promise from 'bluebird';
 import * as _ from 'lodash';
 import * as math from 'mathjs';
+import * as jsep from 'jsep';
 
 type KpiOperators = {
     '-', '+', '*', '/'
 };
 
-interface BinaryKpiExpression {
-    left: any;
-    operator: KpiOperators;
-    right: any;
-}
-
-export const ExpressionTypesMap = {
-    binary: 'binaryExpression'
+export const ExpressionTreeTypes = {
+    binary: 'BinaryExpression',
+    identifier: 'Identifier',
+    literal: 'Literal'
 };
 
 export class CompositeKpi implements IKpiBase {
@@ -27,55 +24,51 @@ export class CompositeKpi implements IKpiBase {
     constructor(private _kpi: IKPIDocument, private ctx: IAppModels) { }
 
     getData(): Promise<any> {
-        const that = this;
-        let promises = this._kpi.composition.map(e => that._processExpression(e));
-
-        return new Promise<any>((resolve, reject) => {
-            Promise.all(promises).then(result => {
-                resolve(result[0]);
-            }).catch(e => reject(e));
-        });
+        const exp: jsep.IExpression = jsep(this._kpi.composition);
+        return this._processExpression(exp);
     }
 
-    private _processExpression(exp: any): Promise<any> {
-        const expression = Object.keys(exp)[0];
-
-        switch (expression) {
-            case ExpressionTypesMap.binary:
-                return this._processBinaryExpression(exp.binaryExpression);
-            default:
-                return;
+    private _processExpression(exp: jsep.IExpression): Promise<any> {
+        switch (exp.type) {
+            case ExpressionTreeTypes.binary:
+                return this._processBinaryExpression(<jsep.IBinaryExpression>exp);
+            case ExpressionTreeTypes.identifier:
+                return this._getKpiData((<jsep.IIdentifier>exp).name.replace('kpi', ''));
+            case ExpressionTreeTypes.literal:
+                return Promise.resolve(+(<jsep.ILiteral>exp).value);
         }
     }
 
-    private _processBinaryExpression(exp: BinaryKpiExpression): Promise<any> {
-        // validate the expression is valid first
-        if (!exp.left || !exp.operator || !exp.right) {
-            throw new Error('Malformed binary kpi expression');
-        }
-
+    private _processBinaryExpression(exp: jsep.IBinaryExpression): Promise<any> {
         const that = this;
-        let leftKpiData = this._getKpiData(exp.left);
-        let rightKpiData = this._getKpiData(exp.right);
+        // get type for operands
+        const leftValue = this._processExpression(exp.left);
+        const rightValue = this._processExpression(exp.right);
 
         return new Promise<any>((resolve, reject) => {
-            Promise.all([leftKpiData, rightKpiData]).then(results => {
+            Promise.all([leftValue, rightValue]).then(results => {
                 const result = that._applyBinaryOperator(results[0], exp.operator, results[1]);
                 resolve(result);
             }).catch(e => reject(e));
         });
     }
 
-    private _getKpiData(kpiDocument: IKPIDocument): Promise<any> {
-        const kpi = KpiFactory.getInstance(kpiDocument, this.ctx);
-        const dateRange: IDateRange = this._processChartDateRange(kpiDocument.dateRange);
-        const options: IGetDataOptions = {
-            filter: kpiDocument.filter,
-            frequency: FrequencyTable[kpiDocument.frequency],
-            groupings: getGroupingMetadata(null, kpiDocument.groupings)
-        };
+    private _getKpiData(id: string): Promise<any> {
+        return new Promise<any>((resolve, reject) => {
+            this.ctx.KPI.findOne({ _id: id }).then(kpiDocument => {
+                const kpi = KpiFactory.getInstance(kpiDocument, this.ctx);
+                const dateRange: IDateRange = this._processChartDateRange(kpiDocument.dateRange);
+                const options: IGetDataOptions = {
+                    filter: kpiDocument.filter,
+                    frequency: FrequencyTable[kpiDocument.frequency],
+                    groupings: getGroupingMetadata(null, kpiDocument.groupings)
+                };
 
-        return kpi.getData(dateRange, options);
+                kpi.getData(dateRange, options)
+                    .then(res => resolve(res))
+                    .catch(e => reject(e));
+            });
+        });
     }
 
     private _processChartDateRange(chartDateRange: IChartDateRange): IDateRange {
@@ -92,32 +85,41 @@ export class CompositeKpi implements IKpiBase {
         const rightIsArray = _.isArray(right);
 
         if (leftIsArray && rightIsArray) {
-            let result = [];
-            // get the keys for the first element
-            const keysToTest = Object.keys(left[0]._id);
-            // clone array on the right so we can remove elements from this array
-            let rightCloned = _.clone(right);
-            // start on the left collection
-            (<Array<any>>left).forEach(l => {
-                const rightSide = that._popWithSameGroupings(rightCloned, l, keysToTest);
-                const rightValue = rightSide.length > 0 ? rightSide[0].value : 0;
-                let newDataItem = _.clone(l);
-
-                newDataItem.value = that._doCalculation(l.value, operator, rightValue);
-                result.push(newDataItem);
-            });
-            // now continue with whatever is left on the right cloned collection
-            (<Array<any>>rightCloned).forEach(r => {
-                const leftSide = that._popWithSameGroupings(left, r, keysToTest);
-                const leftValue = leftSide.length > 0 ? leftSide[0].value : 0;
-                let newDataItem = _.clone(r);
-
-                newDataItem.value = that._doCalculation(leftValue, operator, r.value);
-                result.push(newDataItem);
-            });
-
-            return result;
+            return this._mergeList(left, operator, right);
+        } else if (leftIsArray && !rightIsArray) {
+            return this._applyLiteralToList(left, operator, +right);
+        } else if (!leftIsArray && rightIsArray) {
+            return this._applyLiteralToList(right, operator, +left);
+        } else if (!leftIsArray && !rightIsArray) {
+            return that._doCalculation(left, operator, right);
         }
+    }
+
+    private _mergeList(leftList, operator, rightList) {
+        const that = this;
+        let result = [];
+        // get the keys for the first element
+        const keysToTest = Object.keys(leftList[0]._id);
+        // start on the left collection
+        (<Array<any>>leftList).forEach(l => {
+            const rightSide = that._popWithSameGroupings(rightList, l, keysToTest);
+            const rightValue = rightSide.length > 0 ? rightSide[0].value : 0;
+            let newDataItem = _.clone(l);
+
+            newDataItem.value = that._doCalculation(l.value, operator, rightValue);
+            result.push(newDataItem);
+        });
+        // now continue with whatever is left on the right cloned collection
+        (<Array<any>>rightList).forEach(r => {
+            const leftSide = that._popWithSameGroupings(leftList, r, keysToTest);
+            const leftValue = leftSide.length > 0 ? leftSide[0].value : 0;
+            let newDataItem = _.clone(r);
+
+            newDataItem.value = that._doCalculation(leftValue, operator, r.value);
+            result.push(newDataItem);
+        });
+
+        return result;
     }
 
     private _popWithSameGroupings(collection: any[], ele: any, keys: string[]) {
@@ -138,6 +140,12 @@ export class CompositeKpi implements IKpiBase {
 
     private _doCalculation(left, operator, right) {
         return math.eval(`${left || 0} ${operator} ${right || 0}`);
+    }
+
+    private _applyLiteralToList(list: any[], operator: string, value: number) {
+        const that = this;
+        list.forEach(item => item.value = that._doCalculation(item.value, operator, value));
+        return list;
     }
 
 }

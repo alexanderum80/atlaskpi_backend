@@ -103,7 +103,7 @@
         "title": "Ebitda by business unit",
         "subtitle": "Ebitda by business unit",
         "group": "Finance",
-        "kpis": ["3"],
+        "kpis": ["30"],
         "dateRange": {
             "predefined": "this year"
         },
@@ -111,6 +111,35 @@
         "groupings": ["location"],
         "chartDefinition": { 
             "chart"       : { "type":"bar" }
+        }            
+    },
+    {
+        "_id": 8,
+        "title": "Total Expenses Over Time by business unit",
+        "subtitle": "Total Expenses Over Time by business unit",
+        "group": "Finance",
+        "kpis": ["2"],
+        "dateRange": {
+            "predefined": "last 2 years"
+        },
+        "frequency": "monthly",
+        "groupings": ["location"],
+        "chartDefinition": { 
+            "chart"       : { "type": "line" }
+        }            
+    },
+    {
+        "_id": 9,
+        "title": "Revenue By Service Type",
+        "subtitle": "Revenue By Service Type",
+        "group": "Finance",
+        "kpis": ["1"],
+        "dateRange": {
+            "predefined": "this quarter"
+        },
+        "groupings": ["serviceType"],
+        "chartDefinition": { 
+            "chart"       : { "type":"pie" }
         }            
     }
 

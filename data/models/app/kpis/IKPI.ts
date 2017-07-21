@@ -6,14 +6,15 @@ import * as Promise from 'bluebird';
 export interface IKPI {
     code: string;
     name: string;
+    baseKpi?: string;
     description?: string;
     groupings?: string[];
     dateRange: IChartDateRange;
-    filter: any;
-    frequency: string;
-    axisSelection: string;
-    emptyValueReplacement: string;
-    composition: any[];
+    filter?: any;
+    frequency?: string;
+    axisSelection?: string;
+    emptyValueReplacement?: string;
+    composition?: string;
 }
 
 export interface IKPIDetails extends IKPI { }
