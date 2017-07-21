@@ -6,6 +6,7 @@ import { IKPI, IKPIDocument } from '../../../models/app/kpis';
 import { IGetDataOptions, IKpiBase } from './kpi-base';
 import * as Promise from 'bluebird';
 import * as _ from 'lodash';
+import * as math from 'mathjs';
 
 type KpiOperators = {
     '-', '+', '*', '/'
@@ -29,7 +30,12 @@ export class CompositeKpi implements IKpiBase {
         const that = this;
         let promises = this._kpi.composition.map(e => that._processExpression(e));
 
-        return Promise.all(promises);
+        return new Promise<any>((resolve, reject) => {
+            Promise.all(promises).then(r => {
+                let rs = r[0].length;
+                resolve(r[0]);
+            }).catch(e => reject(e));
+        });
     }
 
     private _processExpression(exp: any): Promise<any> {
@@ -53,8 +59,11 @@ export class CompositeKpi implements IKpiBase {
         let leftKpiData = this._getKpiData(exp.left);
         let rightKpiData = this._getKpiData(exp.right);
 
-        return Promise.all([leftKpiData, rightKpiData]).then(results => {
-            that._applyBinaryOperator(results[0], results[1]);
+        return new Promise<any>((resolve, reject) => {
+            Promise.all([leftKpiData, rightKpiData]).then(results => {
+                const result = that._applyBinaryOperator(results[0], exp.operator, results[1]);
+                resolve(result);
+            }).catch(e => reject(e));
         });
     }
 
@@ -76,7 +85,7 @@ export class CompositeKpi implements IKpiBase {
             : parsePredifinedDate(chartDateRange.predefined);
     }
 
-    private _applyBinaryOperator(left, right): any {
+    private _applyBinaryOperator(left, operator, right): any {
         // I need to make sure that both sets have the same data
         // algorhitm: Start running one collection
         const that = this;
@@ -92,19 +101,23 @@ export class CompositeKpi implements IKpiBase {
             // start on the left collection
             (<Array<any>>left).forEach(l => {
                 const rightSide = that._popWithSameGroupings(rightCloned, l, keysToTest);
+                const rightValue = rightSide.length > 0 ? rightSide[0].value : 0;
                 let newDataItem = _.clone(l);
 
-                newDataItem.value = rightSide.length > 0 ? rightSide[0].value : 0;
+                newDataItem.value = that._doCalculation(l.value, operator, rightValue);
                 result.push(newDataItem);
             });
             // now continue with whatever is left on the right cloned collection
             (<Array<any>>rightCloned).forEach(r => {
                 const leftSide = that._popWithSameGroupings(left, r, keysToTest);
+                const leftValue = leftSide.length > 0 ? leftSide[0].value : 0;
                 let newDataItem = _.clone(r);
 
-                newDataItem.value = leftSide.length > 0 ? leftSide[0].value : 0;
+                newDataItem.value = that._doCalculation(leftValue, operator, r.value);
                 result.push(newDataItem);
             });
+
+            return result;
         }
     }
 
@@ -112,9 +125,9 @@ export class CompositeKpi implements IKpiBase {
         return _.remove(collection, (e) => {
             let found = true;
             // build the comparison object with all the jeys for this object
-            keys.forEach(k => {
+            keys.forEach(key => {
                 // if at least one value is different then I can finish the comparison here
-                if (e._id[k] !== ele._id[k]) {
+                if (e._id[key] !== ele._id[key]) {
                     found = false;
                     return;
                 }
@@ -122,6 +135,10 @@ export class CompositeKpi implements IKpiBase {
 
             return found;
         });
+    }
+
+    private _doCalculation(left, operator, right) {
+        return math.eval(`${left || 0} ${operator} ${right || 0}`);
     }
 
 }
