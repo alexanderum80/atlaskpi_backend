@@ -82,6 +82,21 @@
         "chartDefinition": { 
             "chart"       : { "type":"line" }
         }            
+    },
+    {
+        "_id": 6,
+        "title": "Total Expense by business unit",
+        "subtitle": "Expenses grouped by business unit",
+        "group": "Finance",
+        "kpis": ["2"],
+        "dateRange": {
+            "predefined": "this year"
+        },
+        "frequency": "monthly",
+        "groupings": ["concept"],
+        "chartDefinition": { 
+            "chart"       : { "type":"line" }
+        }            
     }
 
 ]

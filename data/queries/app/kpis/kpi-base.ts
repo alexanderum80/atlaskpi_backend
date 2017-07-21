@@ -26,8 +26,8 @@ export interface IGetDataOptions {
 }
 
 export interface IKpiBase {
-    getData(dateRange: IDateRange, options: IGetDataOptions): Promise<any>;
-    getSeries(dateRange: IDateRange, frequency: FrequencyEnum);
+    getData(dateRange?: IDateRange, options?: IGetDataOptions): Promise<any>;
+    getSeries?(dateRange: IDateRange, frequency: FrequencyEnum);
 }
 
 export class KpiBase {

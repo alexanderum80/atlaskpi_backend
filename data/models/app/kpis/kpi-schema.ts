@@ -9,23 +9,33 @@ import {
 import mongoose = require('mongoose');
 import * as Promise from 'bluebird';
 import validate = require('validate.js');
-//import validate from 'validate.js';
+// import validate from 'validate.js';
 import { IKPI, IKPIDocument, IKPIModel, IKPIDetails } from '.';
 
 
 let Schema = mongoose.Schema;
+
+let ChartDateRangeSchema = new Schema({
+    predefined: String,
+    custom: {
+        from: Date,
+        to: Date,
+    }
+});
 
 let KPISchema = new Schema({
     _id: String,
     code: String,
     name: String!,
     description: String,
-    formula: String!,
     group: String,
     grouping: Schema.Types.Mixed,
+    dateRange: ChartDateRangeSchema,
     filter: String,
+    frequency: String,
     axisSelection: String,
     emptyValueReplacement: String,
+    comopsition: Schema.Types.Mixed
 });
 
 KPISchema.statics.createKPI = function(data: IKPIDetails): Promise<IMutationResponse> {

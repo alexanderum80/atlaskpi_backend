@@ -10,7 +10,9 @@ import * as _ from 'lodash';
 export const GroupingMap = {
     location: 'location.name',
     employee: 'employee.externalId',
-    category: 'category.name'
+    category: 'category.name',
+    // expenses
+    concept: 'expense.concept'
 };
 
 export function getGroupingMetadata(chartDocument: IChartDocument, groupings: string[]) {

@@ -6,5 +6,40 @@
         "description": "Revenue",
         "groupings": [],
         "filter": ""
+    },
+    {
+        "_id": "2",
+        "code": "Expenses",
+        "name": "Expenses",
+        "description": "Expenses",
+        "groupings": [],
+        "filter": ""
+    },
+    {
+        "_id": "3",
+        "code": "Ebitda by business unit",
+        "name": "Ebitda by business unit ",
+        "description": "Ebitda by business unit ",
+        "composition": [
+            {
+                "binaryExpression": {
+                    "left": {
+                        "id": 1,
+                        "dateRange": {},
+                        "filter": "",
+                        "groupings": [],
+                        "frequency": ""
+                    },
+                    "operator": "-", // -, +, *, /
+                    "right": {
+                            "id": 2,
+                            "dateRange": {},
+                            "filter": "",
+                            "groupings": [],
+                            "frequency": ""
+                    }
+                }
+            }
+        ]
     }
 ]

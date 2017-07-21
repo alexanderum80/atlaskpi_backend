@@ -1,6 +1,5 @@
 export interface AggregateStage {
     filter?: boolean;
-    dateRange?: boolean;
     frequency?: boolean;
 
     $match?: any;
