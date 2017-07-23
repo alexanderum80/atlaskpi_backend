@@ -1,4 +1,4 @@
-import { IChartDocument } from '../../../models/app/charts';
+import { IChart, IChartDocument } from '../../../models/app/charts';
 import * as _ from 'lodash';
 // export interface IGroupingMap {
 //     location: {
@@ -17,7 +17,7 @@ export const GroupingMap = {
     concept: 'expense.concept'
 };
 
-export function getGroupingMetadata(chartDocument: IChartDocument, groupings: string[]) {
+export function getGroupingMetadata(chartDocument: IChart, groupings: string[]) {
     if ((!chartDocument || !chartDocument.groupings) && !groupings) {
         return null;
     }

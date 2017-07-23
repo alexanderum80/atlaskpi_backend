@@ -9,16 +9,13 @@ export const searchGql: GraphqlDefinition = {
     name: 'search',
     schema: {
         types: `
-            type SearchItem {
-                identifier: String
+            type SearchResultItem {
                 section: String
-                title: String
-                subtitle: String
-                timeElapsed: String
+                data: String
             }
         `,
         queries: `
-            search(sections: [String]!, query: String!): [SearchItem]
+            search(sections: [String]!, query: String!): [SearchResultItem]
         `,
         mutations: ``,
     },

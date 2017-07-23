@@ -40,7 +40,7 @@ const sectionsModelsMap = {
 
 export interface ISearchResult {
     section: string;
-    data: SearchResultItem[];
+    data: SearchResultItem[] | string;
 }
 
 export class SearchQuery implements IQuery < ISearchResult[] > {

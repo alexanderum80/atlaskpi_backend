@@ -34,11 +34,11 @@ export class AdaptEngine {
 
     private _enableChartIntent() {
         this._builder.entity('ChartKeyword', ['show me', 'give me', 'draw for me']);
-        this._builder.entity('DateRange', ['last month', 'this year']);
+        this._builder.entity('DateRange', ['last month', 'this year', 'last year', 'last 6 months']);
         this._builder.entity('Frequency', ['daily', 'monthly']);
         this._builder.entity('Collection', ['sales', 'expenses']);
-        this._builder.entity('Grouping', ['location', 'service type', 'category']);
-        this._builder.entity('ChartType', ['pie chart', 'area chart', 'column chart', 'line chart', 'stacked bar chart']);
+        this._builder.entity('Grouping', ['location', 'service type', 'category', 'business unit']);
+        this._builder.entity('ChartType', ['pie chart', 'area chart', 'column chart', 'line chart', 'stacked bar chart', 'bar chart']);
 
         this._builder.intent('ChartIntent')
             .require('ChartKeyword', 'chartKey')

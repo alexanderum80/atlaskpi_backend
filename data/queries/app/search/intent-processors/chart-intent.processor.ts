@@ -31,10 +31,16 @@ export class ChartIntentProcessor {
         */
 
     static run(identity: IIdentity, ctx: IAppModels, intent: any): Promise<ISearchResult[]> {
+        const that = this;
 
         return new Promise<ISearchResult[]>((resolve, reject) => {
             let chartQuery = new GetChartQuery(identity, ctx);
-            chartQuery.run();
+            chartQuery.run({ chart: that._convertIntentToChart(intent) }).then((chart: string) => {
+                resolve([{
+                    section: 'chart',
+                    data: chart
+                }]);
+            }).catch(e => reject(e));
         });
     }
 
@@ -42,13 +48,23 @@ export class ChartIntentProcessor {
         return {
             title: `${intent.DateRange} ${intent.Collection}`,
             kpis: intent.Collection === 'sales' ? [SalesKPI] : [ExpensesKPI],
-            dateRange: { custom: intent.DateRange },
+            dateRange: { predefined: intent.DateRange },
             filter: '',
-            frequency: '',
-            groupings: [''],
+            frequency: intent.Frequency,
+            groupings: this._processGrouping(intent.Grouping),
             xAxisSource: '',
-            chartDefinition: ''
+            chartDefinition: {
+                chart: { type: intent.ChartType.split(' ')[0] }
+            }
         };
+    }
+
+    private static _processGrouping(grouping: string): string[] {
+        if (grouping === 'business unit') {
+            return ['businessUnit'];
+        } else {
+            return [grouping];
+        }
     }
 
 }
