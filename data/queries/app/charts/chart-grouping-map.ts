@@ -12,6 +12,7 @@ export const GroupingMap = {
     employee: 'employee.externalId',
     category: 'category.name',
     serviceType: 'serviceType',
+    businessUnit: 'businessUnit.name',
     // expenses
     concept: 'expense.concept'
 };

@@ -42,7 +42,9 @@ import {
 
     // dashboards
     getDashboardActivity,
-    getDashboardsActivity
+    getDashboardsActivity,
+    // search
+    searchActivity
 
 } from './app';
 
@@ -96,6 +98,9 @@ export function addActivities() {
         // dashboards
         getDashboardActivity,
         getDashboardsActivity,
+
+        // search
+        searchActivity
 
     ]);
 }

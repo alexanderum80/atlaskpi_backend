@@ -9,7 +9,7 @@ export interface IKPI {
     baseKpi?: string;
     description?: string;
     groupings?: string[];
-    dateRange: IChartDateRange;
+    dateRange?: IChartDateRange;
     filter?: any;
     frequency?: string;
     axisSelection?: string;

@@ -25,7 +25,7 @@
             "predefined": "this year"
         },
         "frequency": "monthly",
-        "groupings": ["category"],
+        "groupings": ["businessUnit"],
         "chartDefinition": { 
             "chart"       : { "type":"column" },
             "plotOptions" : { "column" : { "stacking" : "normal" } }
@@ -40,7 +40,7 @@
         "dateRange": {
             "predefined": "this year"
         },
-        "groupings": ["category"],
+        "groupings": ["businessUnit"],
         "chartDefinition": { 
             "chart"       : { "type":"pie" },
             "plotOptions" : { "pie" : { "dataLabels": {
@@ -59,7 +59,7 @@
             "predefined": "all times"
         },
         "frequency": "yearly",
-        "groupings": ["category"],
+        "groupings": ["businessUnit"],
         "chartDefinition": { 
             "chart"       : { "type":"column" },
             "plotOptions" : { "column" : { "stacking" : "normal" } }
@@ -78,7 +78,7 @@
             "employee__dot__type": { "__dollar__eq": "f" }
         },
         "frequency": "monthly",
-        "groupings": ["category"],
+        "groupings": ["businessUnit"],
         "chartDefinition": { 
             "chart"       : { "type":"line" }
         }            

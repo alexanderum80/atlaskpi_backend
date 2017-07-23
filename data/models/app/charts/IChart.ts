@@ -6,15 +6,15 @@ import * as mongoose from 'mongoose';
 import * as Promise from 'bluebird';
 
 export interface IChart {
-    _id: any;
+    _id?: any;
     title: string;
     subtitle?: string;
-    group: string;
+    group?: string;
     kpis: [IKPIDocument];
     dateRange: IChartDateRange;
-    filter: any;
-    frequency: string;
-    groupings: string[];
+    filter?: any;
+    frequency?: string;
+    groupings?: string[];
     xFormat?: string;
     yFormat?: string;
     chartDefinition: any;
