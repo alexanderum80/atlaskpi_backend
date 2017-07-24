@@ -17,7 +17,9 @@ import * as Promise from 'bluebird';
 import * as _ from 'lodash';
 import * as moment from 'moment';
 import * as mongoose from 'mongoose';
+import * as logger from 'winston';
 import 'datejs';
+
 
 import { ChartPostProcessingExtention } from './chart-postprocessing-extention';
 
@@ -57,11 +59,13 @@ export class UIChartBase {
      * @param metadata chart metadata
      */
     protected processChartData(kpi: IKpiBase, metadata?: IChartMetadata): Promise < void > {
+        logger.debug('processChartData for: ' + this.constructor.name + ' - kpi: ' + kpi.constructor.name);
         const that = this;
 
         this.dateRange = this._getDateRange(metadata.dateRange);
 
         return that.getKPIData(kpi, metadata).then(data => {
+            logger.debug('data received, for chart: ' + this.constructor.name + ' - kpi: ' + kpi.constructor.name);
             that.data = data;
             that.groupings = that._getGroupingFields(data);
             that.frequencyHelper.decomposeFrequencyInfo(data, metadata.frequency);
@@ -110,6 +114,7 @@ export class UIChartBase {
      * @param metadata chart metadata
      */
     protected getKPIData(kpi: IKpiBase, metadata?: IChartMetadata): Promise<any[]> {
+        logger.debug('trying to get kpi data for: ' + this.chart.title);
         return kpi.getData(this.dateRange.custom, metadata);
     }
 

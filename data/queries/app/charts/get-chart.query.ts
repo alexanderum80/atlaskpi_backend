@@ -10,6 +10,7 @@ import { IAppModels } from '../../../models/app/app-models';
 import { ChartFactory } from './charts/chart-factory';
 import { KpiFactory } from '../kpis/kpi.factory';
 import { getGroupingMetadata } from './chart-grouping-map';
+import * as logger from 'winston';
 
 export class GetChartQuery implements IQuery<string> {
 
@@ -19,6 +20,8 @@ export class GetChartQuery implements IQuery<string> {
     // audit = true;
 
     run(data: { chart?: IChart, id?: string, dateRange?: { from: string, to: string}, filter?: any, frequency?: string, groupings?: string[], xAxisSource?: string }): Promise<string> {
+        logger.debug('running get chart query for id:' + data.id);
+
         let that = this;
 
         // in order for this query to make sense I need either a chart definition or an id
@@ -60,9 +63,13 @@ export class GetChartQuery implements IQuery<string> {
                     }
 
                     uiChart.getDefinition(kpi, definitionParameters).then((definition) => {
+                        logger.debug('chart definition received for id: ' + data.id);
                         chart.chartDefinition = definition;
                         resolve(JSON.stringify(chart));
-                    }).catch(e => reject(e));
+                    }).catch(e => {
+                        console.error(e);
+                        reject(e);
+                    });
                 });
         });
     }

@@ -4,6 +4,7 @@ import { IAppModels } from '../../../models/app/app-models';
 import { IChartDateRange, IDateRange } from '../../../models/common/date-range';
 import { FrequencyEnum } from '../../../models/common/frequency-enum';
 import * as Promise from 'bluebird';
+import * as logger from 'winston';
 import * as _ from 'lodash';
 
 export interface IKPIMetadata {
@@ -37,6 +38,7 @@ export class KpiBase {
     constructor(public model: any, public aggregate: AggregateStage[]) { }
 
     executeQuery(dateField: string, dateRange?: IDateRange, options?: IGetDataOptions): Promise<any> {
+        logger.debug('executing query: ' + this.constructor.name);
 
         if (!this.model) throw 'A model is required to execute kpi query';
         if (!dateField) throw 'A date field is required to execute kpi query';
@@ -62,9 +64,12 @@ export class KpiBase {
                 aggregateParameters.push(operator);
             });
 
+            // logger.debug('With aggregate: ' + JSON.stringify(aggregateParameters));
+
             this.model.aggregate(...aggregateParameters).then(data => {
+                logger.debug('MongoDB data received: ' + that.model.modelName);
                 // before returning I need to check if a "top" filter was added
-                if (options.filter.top) {
+                if (options.filter && options.filter.top) {
                     data = that._applyTop(data, options.filter.top);
                 }
 
