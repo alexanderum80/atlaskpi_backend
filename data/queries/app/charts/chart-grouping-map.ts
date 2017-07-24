@@ -11,6 +11,7 @@ export const GroupingMap = {
     location: 'location.name',
     employee: 'employee.externalId',
     category: 'category.name',
+    product: 'product.itemDescription',
     serviceType: 'serviceType',
     // expenses
     concept: 'expense.concept'

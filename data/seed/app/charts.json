@@ -141,6 +141,25 @@
         "chartDefinition": { 
             "chart"       : { "type":"pie" }
         }            
+    },
+    {
+        "_id": 10,
+        "title": "Sales By Product",
+        "subtitle": "Sales By Product",
+        "group": "Finance",
+        "kpis": ["1"],
+        "dateRange": {
+            "predefined": "this month"
+        },
+        "filter": {
+            "top": { "field": "product", "value": 5 }
+        },
+        "frequency": "daily",
+        "groupings": ["product"],
+        "chartDefinition": { 
+            "chart"       : { "type":"column" },
+            "plotOptions" : { "column" : { "stacking" : "normal" } }
+        }             
     }
 
 ]

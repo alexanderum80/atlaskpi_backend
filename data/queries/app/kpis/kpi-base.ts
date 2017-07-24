@@ -1,3 +1,4 @@
+import { IChartOptions } from '../charts/charts';
 import { AggregateStage } from './aggregate';
 import { IAppModels } from '../../../models/app/app-models';
 import { IChartDateRange, IDateRange } from '../../../models/common/date-range';
@@ -43,6 +44,7 @@ export class KpiBase {
         let that = this;
 
         return new Promise<any>((resolve, reject) => {
+
             if (dateRange)
                 that._injectDataRange(dateRange, dateField);
             if (options.filter)
@@ -61,6 +63,11 @@ export class KpiBase {
             });
 
             this.model.aggregate(...aggregateParameters).then(data => {
+                // before returning I need to check if a "top" filter was added
+                if (options.filter.top) {
+                    data = that._applyTop(data, options.filter.top);
+                }
+
                 resolve(data);
             }, (e) => {
                 reject(e);
@@ -114,6 +121,8 @@ export class KpiBase {
         }
 
         Object.keys(cleanFilter).forEach(filterKey => {
+            // do not add top to the filter, that gets applied in the end
+            if (filterKey === 'top') return;
             matchStage.$match[filterKey] = cleanFilter[filterKey];
         });
     }
@@ -305,6 +314,32 @@ export class KpiBase {
                 group._id[groupingTokens[0]] = '$' + g;
             }
         });
+    }
+
+    private _applyTop(data: any[], top: { field: string, value: number }): any[] {
+        // get first record to extract the groupings
+        let groupings = Object.keys(data[0]._id);
+        // remove out of that group the filed use for the top
+        _.remove(groupings, g => g === top.field);
+        // now group the results and remove all values that exceed the group size
+        // https://stackoverflow.com/questions/29587488/grouping-objects-by-multiple-columns-with-lodash-or-underscore
+        const notNull = _.negate(_.isNull);
+        const dataGroups = _.groupBy(data, (item) => {
+            return _.find(_.pick(item._id, groupings), notNull);
+        });
+
+        let newResult: any[] = [];
+
+        // sort / slice results
+        for (let k in dataGroups) {
+            let groupData = dataGroups[k];
+            const sortedResult = _.sortBy(groupData, (item: any) => -item.value );
+            const slicedList = sortedResult.slice(0, top.value);
+
+            newResult = newResult.concat(slicedList);
+        }
+
+        return newResult;
     }
 
 }
