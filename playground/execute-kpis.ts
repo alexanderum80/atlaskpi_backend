@@ -33,7 +33,7 @@ import { getContext } from '../data/models/app/app-context';
 import { FrequencyEnum } from '../data/models/common';
 import { SalesByProduct } from '../data/queries/app/kpis/financial/sales-by-product';
 import * as mongoose from 'mongoose';
-import { KPIPostProcessorExtention } from '../data/queries/app/kpis/common/kpi-post-processor-extention';
+// import { KPIPostProcessorExtention } from '../data/queries/app/kpis/common/kpi-post-processor-extention';
 
 export function executeKpis() {
 
@@ -68,7 +68,7 @@ export function executeKpis() {
             let series = res;
 
             console.log(JSON.stringify(res));
-            let processor = new KPIPostProcessorExtention();
+            // let processor = new KPIPostProcessorExtention();
         });
 
     });

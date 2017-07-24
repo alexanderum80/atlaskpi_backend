@@ -25,9 +25,9 @@ export class Chart {
 
         return new Promise<string>((resolve, reject) => {
             let chartDr;
-            if (this._chart.dateFrom && this._chart.dateTo) {
-                chartDr = { from: new Date(this._chart.dateFrom), to: new Date(this._chart.dateTo) };
-            }
+            // if (this._chart.dateFrom && this._chart.dateTo) {
+            //     chartDr = { from: new Date(this._chart.dateFrom), to: new Date(this._chart.dateTo) };
+            // }
 
             dateRange = chartDr || dateRange;
 
@@ -35,8 +35,8 @@ export class Chart {
                 that._chart.chartDefinition = chartProcessor.process(that._chart, series);
 
                 // preserve dateRange for single chart reload
-                that._chart.dateFrom = dateRange.from.toDateString();
-                that._chart.dateTo = dateRange.to.toDateString();
+                // that._chart.dateFrom = dateRange.from.toDateString();
+                // that._chart.dateTo = dateRange.to.toDateString();
                 resolve(JSON.stringify(that._chart));
             }, (e) => reject(e));
         });
