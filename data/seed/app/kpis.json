@@ -25,7 +25,7 @@
             "predefined": "this year"
         },
         "frequency": "monthly",
-        "groupings": ["location"]   
+        "groupings": ["businessUnit"]   
     },
     {
         "_id": "11",
@@ -36,7 +36,7 @@
             "predefined": "this year"
         },
         "frequency": "monthly",
-        "groupings": ["location"]   
+        "groupings": ["businessUnit"]   
     },
     
     {
