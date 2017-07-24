@@ -211,6 +211,19 @@
         "chartDefinition": { 
             "chart"       : { "type":"line" }
         }             
+    },{
+        "_id": 14,
+        "title": "Payroll Expense Ratio",
+        "subtitle": "Payroll Expense Ratio",
+        "group": "Finance",
+        "kpis": ["32"],
+        "dateRange": {
+            "predefined": "last 2 years"
+        },
+        "frequency": "monthly",
+        "chartDefinition": { 
+            "chart"       : { "type":"line" }
+        }             
     }
 
 ]

@@ -90,9 +90,11 @@ export class UIChartBase {
     protected buildDefinition(customOptions: any): string {
         let definition = Object.assign({}, customOptions, this.chart.chartDefinition);
         let shortDateFormat = 'MM/DD/YY';
-        let dateRangeText = this.dateRange.predefined ?
-            this.dateRange.predefined
-            : moment(this.dateRange.custom.from).format(shortDateFormat) + ' - ' + moment(this.dateRange.custom.to).format(shortDateFormat);
+        const dateRange = this.dateRange || this.chart.dateRange;
+
+        let dateRangeText = dateRange.predefined ?
+            dateRange.predefined
+            : moment(dateRange.custom.from).format(shortDateFormat) + ' - ' + moment(dateRange.custom.to).format(shortDateFormat);
 
         definition.title = { text: `${this.chart.title} (${dateRangeText})` };
         definition.subtitle = { text: this.chart.subtitle };
@@ -115,6 +117,7 @@ export class UIChartBase {
      */
     protected getKPIData(kpi: IKpiBase, metadata?: IChartMetadata): Promise<any[]> {
         logger.debug('trying to get kpi data for: ' + this.chart.title);
+        // const dateRange = this.dateRange ? this. dateRange.custom : null;
         return kpi.getData(this.dateRange.custom, metadata);
     }
 

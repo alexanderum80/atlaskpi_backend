@@ -7,7 +7,7 @@
     {
         "name": "Financial",
         "group": "Financial",
-        "charts": ["9", "10", "11", "12", "13"]
+        "charts": ["9", "10", "11", "12", "13", "14"]
     },
     {
         "name": "Playground",

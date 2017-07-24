@@ -38,6 +38,20 @@
         "frequency": "monthly",
         "groupings": ["businessUnit"]   
     },
+    {
+        "_id": "12",
+        "baseKpi": "Expenses",
+        "name": "Payroll Expenses",
+        "description": "Payroll Expenses",
+        "filter": {
+            "expense__dot__concept": { "__dollar__regex": "/^Payroll/" }
+        },
+        "dateRange": {
+            "predefined": "last 2 years"
+        },
+        "frequency": "monthly",
+        "groupings": ["businessUnit"] 
+    },
     
     {
         "_id": "30",
@@ -52,6 +66,13 @@
         "name": "Expense Ratio",
         "description": "Expense Ratio",
         "composition": "kpi11 - kpi10 * 100"
+    },
+    {
+        "_id": "32",
+        "code": "Payrol Expense Ratio",
+        "name": "Payroll Expense Ratio",
+        "description": "Expense Ratio",
+        "composition": "kpi12 - kpi10 * 100"
     }
 
 ]
