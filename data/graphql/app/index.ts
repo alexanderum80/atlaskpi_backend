@@ -5,3 +5,4 @@ export * from './business-units.gql';
 export * from './chart-formats.gql';
 export * from './charts.gql';
 export * from './dashboards.gql';
+export * from './search.gpl';

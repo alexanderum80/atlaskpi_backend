@@ -45,6 +45,6 @@ export const config: IAppConfig = {
     emailService: emailServiceConfig,
     usersService: usersServiceConfig,
     // environment: local_tunnel_db
-    environment: prod_localdb,
-    // environment: local
+    // environment: prod_localdb,
+    environment: local
 };

@@ -1,5 +1,5 @@
 import { DateRange } from '../../common';
-import { IChart, IChartDetails, IChartModel, IChartDocument } from './IChart';
+import { IChart, IChartModel, IChartDocument } from './IChart';
 import { IMutationResponse, MutationResponse } from '../../';
 import * as mongoose from 'mongoose';
 import * as Promise from 'bluebird';
@@ -34,17 +34,18 @@ let ChartDateRangeSchema = new Schema({
 
 let ChartSchema = new Schema({
     _id: String,
-    name: String,
+    title: String,
+    subtitle: String,
     group: String,
-    description: String,
+    kpis: [{ type: mongoose.Schema.Types.String, ref: 'KPI' }],
+    dateRange: ChartDateRangeSchema,
+    filter: Schema.Types.Mixed,
     frequency: String,
+    groupings: [String],
     xFormat: { type: mongoose.Schema.Types.ObjectId, ref: 'ChartFormat' },
     yFormat: { type: mongoose.Schema.Types.ObjectId, ref: 'ChartFormat' },
-    kpis: [{ type: mongoose.Schema.Types.String, ref: 'KPI' }],
-    dataRange: ChartDateRangeSchema,
-    dateFrom: String,
-    dateTo: String,
-    chartDefinition: Schema.Types.Mixed
+    chartDefinition: Schema.Types.Mixed,
+    xAxisSource: String
 });
 
     // ChartSchema.methods.
@@ -76,54 +77,56 @@ let ChartSchema = new Schema({
     });
   };
 
+// TODO: I need to revive this later that is why I did not remove it
+
   // ChartSchema.statics.
-  ChartSchema.statics.createChart = function(details: IChartDetails): Promise<IMutationResponse> {
-    let that = this;
+//   ChartSchema.statics.createChart = function(details: IChartDetails): Promise<IMutationResponse> {
+//     let that = this;
 
-    return new Promise<IMutationResponse>((resolve, reject) => {
-        let constraints = {
-            name: { presence: { message: '^cannot be blank' }},
-            frecuency: { presence: { message: '^cannot be blank' }},
-        };
+//     return new Promise<IMutationResponse>((resolve, reject) => {
+//         let constraints = {
+//             name: { presence: { message: '^cannot be blank' }},
+//             frecuency: { presence: { message: '^cannot be blank' }},
+//         };
 
-        let errors = (<any>validate)((<any>details), constraints, {fullMessages: false});
-        if (errors) {
-            resolve(MutationResponse.fromValidationErrors(errors));
-            return;
-        };
+//         let errors = (<any>validate)((<any>details), constraints, {fullMessages: false});
+//         if (errors) {
+//             resolve(MutationResponse.fromValidationErrors(errors));
+//             return;
+//         };
 
-        let newChart = {
-            name: details.name,
-            dataRange: details.dataRange,
-            description: details.description,
-            frequency: details.frequency,
-            group: details.group,
-            kpis: [],
-            format: details.chartFormat
-        };
+//         let newChart = {
+//             name: details.name,
+//             dataRange: details.dataRange,
+//             description: details.description,
+//             frequency: details.frequency,
+//             group: details.group,
+//             kpis: [],
+//             format: details.chartFormat
+//         };
 
-        that.create(newChart, (err, chart: IChartDocument) => {
-            if (err) {
-                reject({ message: 'There was an error creating the chart', error: err });
-                return;
-            }
+//         that.create(newChart, (err, chart: IChartDocument) => {
+//             if (err) {
+//                 reject({ message: 'There was an error creating the chart', error: err });
+//                 return;
+//             }
 
-            // adding kpis
-            if (details.kpis && details.kpis.length > 0) {
-                chart.kpis = null;
-                details.kpis.forEach((kpi) => {
-                    chart.addKpi(kpi, (err, role) => {
-                        if (err) {
-                            winston.error('Error adding role: ', err);
-                        }
-                    });
-                });
-            };
+//             // adding kpis
+//             if (details.kpis && details.kpis.length > 0) {
+//                 chart.kpis = null;
+//                 details.kpis.forEach((kpi) => {
+//                     chart.addKpi(kpi, (err, role) => {
+//                         if (err) {
+//                             winston.error('Error adding role: ', err);
+//                         }
+//                     });
+//                 });
+//             };
 
-            resolve({ entity: chart });
-        });
-    });
-  };
+//             resolve({ entity: chart });
+//         });
+//     });
+//   };
 
 export function getChartModel(m: mongoose.Connection): IChartModel {
     return <IChartModel>m.model('Chart', ChartSchema, 'charts');

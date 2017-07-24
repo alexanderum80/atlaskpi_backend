@@ -1,4 +1,4 @@
-import { GetDashboardQuery } from '../../queries/app/dashboards';
+import { GetDashboardQuery, GetDashboardsQuery } from '../../queries/app/dashboards';
 import { IGraphqlContext } from '../graphql-context';
 import { GraphqlDefinition } from '../graphql-definition';
 import { ExtendedRequest } from '../../../middlewares';
@@ -16,16 +16,21 @@ export const dashboardGql: GraphqlDefinition = {
             }
         `,
         queries: `
-            dashboard(id: String!, dateRange: DateRange!, frequency: String): Dashboard
+            dashboards(group: String): [Dashboard]
+            dashboard(id: String!): Dashboard
         `,
         mutations: ``,
     },
 
     resolvers: {
         Query: {
+            dashboards(root: any, args: any, ctx: IGraphqlContext) {
+                let query = new GetDashboardsQuery(ctx.req.identity, ctx.req.appContext);
+                return ctx.queryBus.run('get-dashboards', query, args).catch(e => console.error(e));
+            },
             dashboard(root: any, args: any, ctx: IGraphqlContext) {
                 let query = new GetDashboardQuery(ctx.req.identity, ctx.req.appContext);
-                return ctx.queryBus.run('get-dashboard', query, args);
+                return ctx.queryBus.run('get-dashboard', query, args).catch(e => console.error(e));
             }
         },
         Mutation: {}

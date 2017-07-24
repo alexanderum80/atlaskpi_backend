@@ -1,6 +1,6 @@
 import { ISaleModel } from '../../../../models/app/sales';
 import { AggregateStage } from '../aggregate';
-import { KpiBase } from '../kpi-base';
+import { KpiBase, IKpiBase } from '../kpi-base';
 import { IAppModels } from '../../../../models/app/app-models';
 import { FrequencyEnum } from '../../../../models/common/frequency-enum';
 import { IDateRange } from '../../../../models/common/date-range';
@@ -33,7 +33,7 @@ const aggregate: AggregateStage[] = [
     }
 ];
 
-export class SalesByProduct extends KpiBase {
+export class SalesByProduct extends KpiBase implements IKpiBase {
 
     constructor(sales: ISaleModel) {
         super(sales, aggregate);
@@ -129,14 +129,14 @@ export class SalesByProduct extends KpiBase {
             .groupBy("_id.frequency")
             .map((v, k) => ({
                 _id: {
-                    product: "Others",
+                    product: 'Others',
                     frequency: k
                 },
                 value: _.sumBy(v, 'value')
             }))
             .orderBy('_id.frequency','desc')
             .value();
-            
+
         return others;
     }
 

@@ -4,9 +4,7 @@ import {
 import {
   ISaleModel
 } from '../../../../models/app/sales';
-import {
-  KpiBase
-} from '../kpi-base';
+import { IGetDataOptions, KpiBase } from '../kpi-base';
 import {
   IAppModels
 } from '../../../../models/app/app-models';
@@ -18,6 +16,7 @@ import {
 } from '../../../../models/common/date-range';
 import * as Promise from 'bluebird';
 import * as _ from 'lodash';
+import { IKpiBase } from '../kpi-base';
 
 const aggregate: AggregateStage[] = [{
     dateRange: true,
@@ -40,7 +39,7 @@ const aggregate: AggregateStage[] = [{
     $group: {
       _id: {
         employeeId: '$employee.externalId',
-        fullName: '$employee.fullName',
+        // fullName: '$employee.fullName',
       },
       value: {
         $sum: '$product.amount'
@@ -54,14 +53,14 @@ const aggregate: AggregateStage[] = [{
   }
 ];
 
-export class NetRevenueByFTE extends KpiBase {
+export class NetRevenueByFTE extends KpiBase implements IKpiBase {
 
   constructor(sales: ISaleModel) {
     super(sales, aggregate);
   }
 
-  getData(dateRange: IDateRange, frequency ?: FrequencyEnum): Promise < any > {
-    return this.executeQuery('product.from', dateRange, frequency);
+  getData(dateRange: IDateRange, options?: IGetDataOptions): Promise < any > {
+    return this.executeQuery('product.from', dateRange, options);
   }
 
   getSeries(dateRange: IDateRange, frequency?: FrequencyEnum): Promise<any> {
@@ -70,7 +69,7 @@ export class NetRevenueByFTE extends KpiBase {
       that.getData(dateRange, frequency).then(data => {
         resolve(that._toSeries(data, frequency));
       }), (e) => reject(e);
-    })
+    });
   }
 
   private _toSeries(rawData: any[], frequency: FrequencyEnum) {

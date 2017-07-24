@@ -1,17 +1,26 @@
-
-import { IChartOptions } from './chart-type';
+import * as Promise from 'bluebird';
+import {
+    IDateRange
+} from '../../../../models/common';
+import {
+    IKpiBase
+} from '../../kpis/kpi-base';
+import {
+    IChartMetadata
+} from './chart-metadata';
+import {
+    FrequencyHelper
+} from './frequency-values';
+import {
+    IChart
+} from '../../../../models/app/charts';
+import {
+    IUIChart,
+    UIChartBase
+} from './';
 import * as Handlebars from 'handlebars';
 
-const chartTemplate = `
-    "chart": {
-        "type": "{{type}}"
-    },
-    "title": {
-        "text": "{{title}}"
-    },
-    "subtitle": {
-        "text": "{{subtitle}}"
-    },
+const basicDefinition = `
     "plotOptions": {
         "pie": {
             "dataLabels": {
@@ -22,19 +31,18 @@ const chartTemplate = `
     }
 `;
 
+export class PieChart extends UIChartBase implements IUIChart {
 
-export class PieChart implements IChartOptions {
-    type: string = 'pie';
-    title: string;
-    subtitle: string;
-    plotOptions: any;
-    series: any;
-
-    constructor(private data: any, opts: IChartOptions) {
-        Object.assign(this, opts);
+    constructor(chart: IChart, frequencyHelper: FrequencyHelper) {
+        super(chart, frequencyHelper);
     }
 
-    is3d = false;
-    
+    getDefinition(kpi: IKpiBase, metadata?: IChartMetadata): Promise < any > {
+        const that = this;
+
+        return this.processChartData(kpi, metadata).then(() => {
+            return that.buildDefinition(basicDefinition);
+        });
+    }
 
 }

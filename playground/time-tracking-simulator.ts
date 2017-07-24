@@ -109,7 +109,7 @@ export function fillEmployeeHours() {
     getContext('mongodb://localhost:47017/saltz-plastic-surgery').then(ctx => {
 
         let start = moment('2007-01-01');
-        let end = moment('2017-07-06');
+        let end = moment('2017-07-07');
 
         let logs: IWorkLog[] = [];
 

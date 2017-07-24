@@ -36,6 +36,11 @@ node_modules
 # Release files
 dist
 
+.vscode
+
 # continuos deployment
 bitbucket-pipelines.yml
 my_known_hosts
+
+# virtual env it is to setup the python env for the adapt engine
+myvirtualenv

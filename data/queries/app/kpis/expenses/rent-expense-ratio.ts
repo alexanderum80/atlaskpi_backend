@@ -3,7 +3,7 @@ import { RentExpenses } from './rent-expense';
 import { TotalRevenue } from '../common/total-revenue';
 import { ISaleModel } from '../../../../models/app/sales';
 import { IExpenseModel} from '../../../../models/app/expenses';
-import { KpiBase } from '../kpi-base';
+import { KpiBase, IKpiBase } from '../kpi-base';
 import { FrequencyEnum } from '../../../../models/common/frequency-enum';
 import { IDateRange } from '../../../../models/common/date-range';
 import * as Promise from 'bluebird';

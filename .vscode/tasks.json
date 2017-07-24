@@ -10,13 +10,13 @@
     "tasks": [{
             "taskName": "main",
             // "args": ["-p", "./server"],
-            "args": ["--outDir", "backend/build/debug", "./backend/index.ts"],
+            "args": ["--outDir", "build/debug", "./index.ts"],
             "problemMatcher": "$tsc",
             "suppressTaskName": true
         },
         {
             "taskName": "playground",
-            "args": ["--outDir", "backend/build/playground", "./backend/playground.ts"],
+            "args": ["--outDir", "build/playground", "./playground.ts"],
             "problemMatcher": "$tsc",
             "suppressTaskName": true
         }
