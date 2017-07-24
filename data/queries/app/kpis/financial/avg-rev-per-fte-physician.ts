@@ -1,6 +1,6 @@
 import { ISaleModel } from '../../../../models/app/sales';
 import { AggregateStage } from '../aggregate';
-import { KpiBase } from '../kpi-base';
+import { KpiBase, IKpiBase } from '../kpi-base';
 import { IAppModels } from '../../../../models/app/app-models';
 import { FrequencyEnum } from '../../../../models/common/frequency-enum';
 import { IDateRange } from '../../../../models/common/date-range';
@@ -44,7 +44,7 @@ const aggregate: AggregateStage[] = [
     }
 ];
 
-export class AvgRevenueByFTPhysician extends KpiBase {
+export class AvgRevenueByFTPhysician extends KpiBase implements IKpiBase {
 
     constructor(sales: ISaleModel) {
         super(sales, _.clone(aggregate));
@@ -59,7 +59,7 @@ export class AvgRevenueByFTPhysician extends KpiBase {
 
         return new Promise<any>((resolve, reject) => {
             // get total physicians first
-            let query = this.findStage('dateRange', '$match').$match;
+            let query = this.findStage('filter', '$match').$match;
             query['product.from'] = { '$gte': dateRange.from, '$lte': dateRange.to };
 
             this.model.find(query).distinct('employee.externalId', function(err, employeeIds) {

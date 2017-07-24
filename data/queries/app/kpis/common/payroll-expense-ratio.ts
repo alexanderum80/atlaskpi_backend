@@ -1,12 +1,14 @@
-import { IExpenseModel } from "../../../../models/app/expenses";
+import { IExpenseModel } from '../../../../models/app/expenses';
 import { ISaleModel } from '../../../../models/app/sales';
 import { FrequencyEnum } from '../../../../models/common/frequency-enum';
 import { IDateRange } from '../../../../models/common/date-range';
 import { TotalRevenue } from '../common/total-revenue';
 import { TotalPayroll } from './total-payroll';
 import { PayrollExpenseCalculator } from './payroll-expense-calculator-kpi';
+import { KpiBase, IKpiBase } from '../kpi-base';
+import * as Promise from 'bluebird';
 
-export class PayrollExpenseRatio {
+export class PayrollExpenseRatio implements IKpiBase {
     constructor(private payrollExpense: IExpenseModel, private payrollRevenue: ISaleModel) { }
 
     getData(dateRange: IDateRange, frequency: FrequencyEnum): Promise<any> {

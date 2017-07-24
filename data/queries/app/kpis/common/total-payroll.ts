@@ -1,6 +1,6 @@
 import { IExpenseModel } from '../../../../models/app/expenses';
 import { AggregateStage } from '../aggregate';
-import { KpiBase } from '../kpi-base';
+import { KpiBase, IKpiBase } from '../kpi-base';
 import { IAppModels } from '../../../../models/app/app-models';
 import { FrequencyEnum } from '../../../../models/common/frequency-enum';
 import { IDateRange } from '../../../../models/common/date-range';
@@ -12,7 +12,7 @@ const aggregate: AggregateStage[] = [
     {
         dateRange: true,
         $match: {
-            "expense.concept": "Payroll"
+            'expense.concept': 'Payroll'
         }
     },
     {
@@ -35,7 +35,7 @@ const aggregate: AggregateStage[] = [
     }
 ];
 
-export class TotalPayroll extends KpiBase {
+export class TotalPayroll extends KpiBase implements IKpiBase {
     constructor(sales: IExpenseModel) {
         super(sales, aggregate);
     }

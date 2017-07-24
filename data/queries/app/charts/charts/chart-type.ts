@@ -14,6 +14,7 @@ export const ChartType = {
     HeatMap: 'heatmap',
     Line: 'line',
     Pie: 'pie',
+    Donut: 'donut',
     Polygon: 'polygon',
     Pyramid: 'pyramid',
     Scatter: 'scatter',

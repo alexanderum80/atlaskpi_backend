@@ -30,7 +30,7 @@ export interface IRevenueByIdKpi extends IKpiBase {
     setExternalids(ids: any[]): void;
 }
 
-export class RevenueByIds extends KpiBase {
+export class RevenueByIds extends KpiBase implements IKpiBase {
 
     externalIds: string[];
 
@@ -45,9 +45,9 @@ export class RevenueByIds extends KpiBase {
     getData(dateRange: IDateRange, frequency?: FrequencyEnum): Promise<any> {
         // inject a criteria to the $match stage
         if (this.externalIds) {
-            let query = this.findStage('dateRange', '$match').$match;
+            let query = this.findStage('filter', '$match').$match;
             query['employee.externalId'] = { '$in': this.externalIds };
-        };
+        }
 
         return this.executeQuery('product.from', dateRange, frequency);
     }

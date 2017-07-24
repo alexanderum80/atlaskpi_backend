@@ -41,7 +41,10 @@ import {
     getChartActivity,
 
     // dashboards
-    getDashboardActivity
+    getDashboardActivity,
+    getDashboardsActivity,
+    // search
+    searchActivity
 
 } from './app';
 
@@ -94,6 +97,10 @@ export function addActivities() {
 
         // dashboards
         getDashboardActivity,
+        getDashboardsActivity,
+
+        // search
+        searchActivity
 
     ]);
 }

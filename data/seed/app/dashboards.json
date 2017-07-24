@@ -1,20 +1,17 @@
-[{
-        "_id": "5909f2b526217eac17462630",
-        "name": "Dashboard 1",
+[
+    {
+        "name": "Main",
         "group": "Financial",
-        "charts": ["18", "10", "15", "17", "12", "13", "11", "14"]
+        "charts": ["1", "2", "3", "4", "5", "6", "7", "8"]
     },
     {
-        "_id": "5909f2b526217eac17462740",
-        "name": "Dashboard 2",
-        "group": "More Financial",
-        "charts": ["100", "103", "104", "306", "308"]
+        "name": "Financial",
+        "group": "Financial",
+        "charts": ["9", "10", "11", "12", "13", "14"]
     },
     {
-        "_id": "5909f2b526217eac17462850",
-        "name": "Dashboard 3",
-        "group": "Operational",
-        "charts": ["200", "201", "301", "302", "303", "304", "305"]
+        "name": "Playground",
+        "group": "Test",
+        "charts": ["10"]
     }
-
 ]

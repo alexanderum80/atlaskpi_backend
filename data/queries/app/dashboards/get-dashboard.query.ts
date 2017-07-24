@@ -1,7 +1,8 @@
+import { GetChartQuery } from '../charts';
+import { ChartFactory } from '../charts/charts/chart-factory';
 import { FrequencyTable } from '../../../models/common/frequency-enum';
 import { FrequencyEnum, IDateRange } from '../../../models/common';
 import { IAppModels } from '../../../models/app/app-models';
-import { Chart } from '../charts/charts/chart';
 import * as Promise from 'bluebird';
 import { IQuery } from '../..';
 import { IIdentity } from '../../../';
@@ -14,14 +15,8 @@ export class GetDashboardQuery implements IQuery<IDashboard> {
     // log = true;
     // audit = true;
 
-    run(data: { id: string, dateRange: { from: string, to: string}, frequency: string }): Promise<IDashboard> {
+    run(data: { id: string }): Promise<IDashboard> {
         let that = this;
-
-        let dr: IDateRange = {
-            from: new Date(data.dateRange.from),
-            to: new Date(data.dateRange.to)
-        };
-        let frequency = FrequencyTable[data.frequency];
 
         return new Promise<IDashboard>((resolve, reject) => {
             that._ctx.Dashboard
@@ -32,9 +27,9 @@ export class GetDashboardQuery implements IQuery<IDashboard> {
                 })
                 .then(dashboard => {
                     // process charts
-                    let charts = dashboard.charts.map(c => new Chart(c, that._ctx));
-                    let promises = charts.map(c => {
-                        return c.getDefinition(dr, frequency);
+                    let promises = dashboard.charts.map(c => {
+                        let chartQuery = new GetChartQuery(that.identity, that._ctx);
+                        return chartQuery.run({ id: c._id });
                     });
 
                     Promise.all(promises).then((charts) => {

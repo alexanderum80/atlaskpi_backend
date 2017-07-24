@@ -5,9 +5,16 @@ import { Address } from '../../common';
 
 let Schema = mongoose.Schema;
 
+const LocationAlias = {
+    source: String,
+    externalId: String,
+    name: String
+};
+
 let LocationSchema = new Schema({
     name: String,
-    address: Address,
+    address: new Schema(Address),
+    aliases: new Schema(LocationAlias)
 });
 
 // LocationSchema.methods.

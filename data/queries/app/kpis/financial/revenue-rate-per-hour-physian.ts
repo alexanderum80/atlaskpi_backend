@@ -4,7 +4,7 @@ import { WorkHoursByIds } from '../common/work-hours-by-ids';
 import { IWorkLogModel } from '../../../../models/app/work-log/IWorkLog';
 import { ISaleModel } from '../../../../models/app/sales';
 import { AggregateStage } from '../aggregate';
-import { KpiBase } from '../kpi-base';
+import { KpiBase, IKpiBase } from '../kpi-base';
 import { IAppModels } from '../../../../models/app/app-models';
 import { FrequencyEnum } from '../../../../models/common/frequency-enum';
 import { IDateRange } from '../../../../models/common/date-range';

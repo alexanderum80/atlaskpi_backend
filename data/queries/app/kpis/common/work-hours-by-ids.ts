@@ -30,7 +30,7 @@ export interface IWorkHoursByIdKpi extends IKpiBase {
     setExternalids(ids: any[]): void;
 }
 
-export class WorkHoursByIds extends KpiBase {
+export class WorkHoursByIds extends KpiBase implements IKpiBase {
 
     externalIds: string[];
 
@@ -45,9 +45,9 @@ export class WorkHoursByIds extends KpiBase {
     getData(dateRange: IDateRange, frequency?: FrequencyEnum): Promise<any> {
         // inject a criteria to the $match stage
         if (this.externalIds) {
-            let query = this.findStage('dateRange', '$match').$match;
+            let query = this.findStage('filter', '$match').$match;
             query['externalId'] = { '$in': this.externalIds };
-        };
+        }
 
         return this.executeQuery('date', dateRange, frequency);
     }

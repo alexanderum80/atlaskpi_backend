@@ -1,0 +1,815 @@
+[{
+        "_id": 10,
+        "title": "Revenue By Service Line (Last Year)",
+        "subtitle": "Revenue by Service Line",
+        "group": "Finance",
+        "kpis": ["1"],
+        "dateRange": {
+            "predefined": "last year"
+        },
+        "frequency": "",
+        "groupings": [],
+        "chartDefinition": {
+            "chart": { "type": "pie" },
+            "lang": {
+                "decimalPoint": ".",
+                "thousandsSep": ","
+            },
+            "plotOptions": {
+                "pie": {
+                    "allowPointSelect": true,
+                    "cursor": "pointer",
+                    "dataLabels": {
+                        "enabled": true,
+                        "distance": 10,
+                        "formatter": "kpi_percent_for_pie_chart"
+                    },
+                    "showInLegend": true
+                }
+            },
+            "legend": {
+                "layout": "horizontal",
+                "align": "center",
+                "verticalAlign": "bottom",
+                "borderWidth": 0
+            },
+            "yAxis": {
+                "min": 0,
+                "title": { "text": "Revenue" }
+            },
+            "tooltip": {
+                "valueDecimals": 2,
+                "valuePrefix": "$",
+                "valueSuffix": " USD"
+            }
+        }
+    },
+
+    {
+        "_id": 11,
+        "title": "Revenue per FTE",
+        "subtitle": "Net Collected Revenue per Full Time Employee (FTE) (Last Year)",
+        "group": "Finance",
+        "kpis": ["2"],
+        "frequency": "yearly",
+        "dateRange": {
+            "predefined": "last year"
+        },
+        "chartDefinition": {
+            "chart": { "type": "column" },
+            "yAxis": {
+                "min": 0,
+                "title": { "text": "Revenue" },
+                "labels": { "formatter": "kpi_dollarize" }
+            },
+            "tooltip": {
+                "valueDecimals": 2,
+                "valuePrefix": "$",
+                "valueSuffix": " USD"
+            }
+        }
+
+    },
+    {
+        "_id": 12,
+        "title": "Average Revenue per FTE Physician",
+        "subtitle": "Average Revenue per FTE Physician",
+        "group": "Finance",
+        "kpis": ["3"],
+        "dateRange": {
+            "predefined": "last year"
+        },
+        "chartDefinition": {
+            "chart": { "type": "line", "inverted": false },
+            "yAxis": {
+                "min": 0,
+                "title": { "text": "Revenue" },
+                "labels": { "formatter": "kpi_dollarize" }
+            },
+            "plotOptions": { "line": { "dataLabels": { "enabled": false } } },
+            "tooltip": {
+                "valueDecimals": 2,
+                "valuePrefix": "$",
+                "valueSuffix": " USD"
+            },
+            "legend": {
+                "enabled": false
+            }
+        }
+
+    },
+    {
+        "_id": 13,
+        "title": "Average Revenue per FTE Non-Physician",
+        "subtitle": "Average Revenue per FTE Non-Physician",
+        "group": "Finance",
+        "kpis": ["4"],
+        "dateRange": {
+            "predefined": "last year"
+        },
+        "chartDefinition": {
+            "chart": { "type": "line", "inverted": false },
+            "yAxis": {
+                "min": 0,
+                "title": { "text": "Revenue" },
+                "labels": { "formatter": "kpi_dollarize" }
+            },
+            "plotOptions": { "line": { "dataLabels": { "enabled": false } } },
+            "tooltip": {
+                "valueDecimals": 2,
+                "valuePrefix": "$",
+                "valueSuffix": " USD"
+            },
+            "legend": {
+                "enabled": false
+            }
+        }
+
+    },
+    {
+        "_id": 14,
+        "title": "Average Revenue per FTE Aestheticians",
+        "subtitle": "Average Revenue per FTE Aestheticians",
+        "group": "Finance",
+        "kpis": ["5"],
+        "dateRange": {
+            "predefined": "last year"
+        },
+        "chartDefinition": {
+            "chart": { "type": "line", "inverted": false },
+            "yAxis": {
+                "min": 0,
+                "title": { "text": "Revenue" },
+                "labels": { "formatter": "kpi_dollarize" }
+            },
+            "plotOptions": { "line": { "dataLabels": { "enabled": false } } },
+            "tooltip": {
+                "valueDecimals": 2,
+                "valuePrefix": "$",
+                "valueSuffix": " USD"
+            },
+            "legend": {
+                "enabled": false
+            }
+        }
+
+    },
+    {
+        "_id": 15,
+        "title": "Sales By Product",
+        "subtitle": "Sales By Product",
+        "group": "Finance",
+        "kpis": ["6"],
+        "dateRange": {
+            "predefined": "last year"
+        },
+        "chartDefinition": {
+            "chart": { "type": "column" },
+            "yAxis": {
+                "title": { "text": "Sales" },
+                "labels": { "formatter": "kpi_dollarize" }
+            },
+            "tooltip": {
+                "valuePrefix": "$",
+                "valueSuffix": " USD",
+                "useHTML": true,
+                "formatter": "kpi_tooltip_with_percentage_and_total"
+            },
+            "plotOptions": {
+                "column": {
+                    "stacking": "normal"
+                }
+            },
+            "legend": {
+                "layout": "vertical",
+                "align": "right",
+                "verticalAlign": "middle"
+            }
+        }
+
+    },
+
+    {
+        "_id": 17,
+        "title": "Retail Sales",
+        "subtitle": "Retail Sales",
+        "group": "Finance",
+        "kpis": ["8"],
+        "dateRange": {
+            "predefined": "last year"
+        },
+        "chartDefinition": {
+            "chart": {
+                "type": "line"
+            },
+            "xAxis": {
+                "categories": ["1750", "1800", "1850", "1900", "1950", "1999", "2050"],
+                "tickmarkPlacement": "on",
+                "title": {
+                    "enabled": false
+                }
+            },
+            "yAxis": {
+                "title": {
+                    "text": " Sales"
+                },
+                "labels": { "formatter": "kpi_dollarize" }
+            },
+            "tooltip": {
+                "valueDecimals": 2,
+                "valuePrefix": "$",
+                "valueSuffix": " USD"
+            },
+            "plotOptions": {
+                "area": {
+                    "stacking": "normal",
+                    "lineColor": "#666666",
+                    "lineWidth": 2,
+                    "marker": {
+                        "lineWidth": 1,
+                        "lineColor": "#666666"
+                    }
+                }
+            }
+        }
+    },
+
+    {
+        "_id": 18,
+        "title": "Total Revenue Over Time",
+        "subtitle": "Total Revenue",
+        "group": "Finance",
+        "kpis": ["7"],
+        "dateRange": {
+            "predefined": "last year"
+        },
+        "chartDefinition": {
+            "chart": {
+                "type": "line"
+            },
+            "xAxis": {
+                "categories": ["1750", "1800", "1850", "1900", "1950", "1999", "2050"],
+                "tickmarkPlacement": "on",
+                "title": {
+                    "enabled": false
+                }
+            },
+            "yAxis": {
+                "title": {
+                    "text": " Sales"
+                },
+                "labels": { "formatter": "kpi_dollarize" }
+            },
+            "tooltip": {
+                "shared": "true",
+                "valueDecimals": 2,
+                "valuePrefix": "$",
+                "valueSuffix": " USD"
+            },
+            "plotOptions": {
+                "area": {
+                    "stacking": "normal",
+                    "lineColor": "#666666",
+                    "lineWidth": 2,
+                    "marker": {
+                        "lineWidth": 1,
+                        "lineColor": "#666666"
+                    }
+                }
+            }
+        }
+    },
+
+
+    {
+        "_id": 100,
+        "title": "Aesthetician Revenue Rate Per Hour",
+        "subtitle": "Aesthetician Revenue Rate Per Hour",
+        "group": "More Financial",
+        "frequency": "monthly",
+        "kpis": ["100"],
+        "dateRange": {
+            "predefined": "last year"
+        },
+        "chartDefinition": {
+            "chart": { "type": "column" },
+            "tooltip": {
+                "valueDecimals": 2,
+                "valuePrefix": "$",
+                "valueSuffix": " USD"
+            },
+            "yAxis": {
+                "title": { "text": "Revenue" },
+                "labels": { "formatter": "kpi_dollarize" }
+            },
+            "legend": {
+                "enabled": false
+            }
+        }
+    },
+
+    {
+        "_id": 103,
+        "title": "Individual Non Physician Revenue Rate Per Hour",
+        "subtitle": "IndividualNonPhysicianRevenueRatePerHour",
+        "group": "More Financial",
+        "frequency": "monthly",
+        "kpis": ["103"],
+        "dateRange": {
+            "predefined": "last year"
+        },
+        "chartDefinition": {
+            "chart": { "type": "column" },
+            "title": { "text": "Individual Non Physician Revenue Rate Per Hour (Year 2016)" },
+            "subtitle": { "text": "This chart will allow you to compare the productivity of your Non Physician Revenue providers" },
+            "yAxis": {
+                "title": { "text": "Revenue" },
+                "labels": { "formatter": "kpi_dollarize" }
+            },
+            "tooltip": {
+                "valueDecimals": 2,
+                "valuePrefix": "$",
+                "valueSuffix": " USD"
+            },
+            "legend": {
+                "enabled": false
+            }
+        }
+    },
+
+    {
+        "_id": 104,
+        "title": "Profesional Service Sales",
+        "subtitle": "Profesional Service Sales",
+        "group": "More Financial",
+        "frequency": "monthly",
+        "kpis": ["104"],
+        "dateRange": {
+            "predefined": "last year"
+        },
+        "chartDefinition": {
+            "chart": { "type": "line" },
+            "tooltip": {
+                "valueDecimals": 2,
+                "valuePrefix": "$",
+                "valueSuffix": " USD"
+            },
+            "yAxis": {
+                "title": { "text": "Sales" },
+                "labels": { "formatter": "kpi_dollarize" }
+            },
+            "legend": {
+                "enabled": false
+            }
+        }
+    },
+
+
+
+    {
+        "_id": 200,
+        "title": "Retail Sales Ratio",
+        "group": "Operational",
+        "subtitle": "Retail Sales Ratio",
+        "frequency": "monthly",
+        "kpis": ["200"],
+        "dateRange": {
+            "predefined": "last year"
+        },
+        "chartDefinition": {
+            "chart": { "type": "bar" },
+            "yAxis": {
+                "title": { "text": "Percent" }
+            },
+            "tooltip": {
+                "valueDecimals": 2,
+                "valueSuffix": " %"
+            },
+            "legend": {
+                "enabled": false
+            }
+        }
+    },
+    {
+        "_id": 201,
+        "title": "Profesional Sales Ratio",
+        "subtitle": "Profesional Sales Ratio",
+        "group": "Operational",
+        "frequency": "monthly",
+        "kpis": ["201"],
+        "dateRange": {
+            "predefined": "last year"
+        },
+        "chartDefinition": {
+            "chart": { "type": "column" },
+            "yAxis": {
+                "title": { "text": "Percent" }
+            },
+            "tooltip": {
+                "valueDecimals": 2,
+                "valueSuffix": " %"
+            },
+            "legend": {
+                "enabled": false
+            }
+        }
+    },
+
+    
+    {
+        "_id": 301,
+        "title": "Total Expenses",
+        "subtitle": "Total Expenses",
+        "group": "Expenses",
+        "kpis": ["301"],
+        "dateRange": {
+            "predefined": "last year"
+        },
+        "chartDefinition": {
+            "chart": {
+                "type": "line"
+            },
+            "xAxis": {
+                "categories": ["1750", "1800", "1850", "1900", "1950", "1999", "2050"],
+                "tickmarkPlacement": "on",
+                "title": {
+                    "enabled": false
+                }
+            },
+            "yAxis": {
+                "title": {
+                    "text": " Sales"
+                },
+                "labels": { "formatter": "kpi_dollarize" }
+            },
+            "tooltip": {
+                "shared": "true",
+                "valueDecimals": 2,
+                "valuePrefix": "$",
+                "valueSuffix": " USD"
+            },
+            "plotOptions": {
+                "area": {
+                    "stacking": "normal",
+                    "lineColor": "#666666",
+                    "lineWidth": 2,
+                    "marker": {
+                        "lineWidth": 1,
+                        "lineColor": "#666666"
+                    }
+                }
+            }
+        }
+    },
+    {
+        "_id": 302,
+        "title": "Cost of Goods Sold",
+        "subtitle": "Total Goods Sold",
+        "group": "Expenses",
+        "dateFrom": "2016-01-1",
+        "dateTo": "2018-12-31",
+        "kpis": ["302"],
+        "dateRange": {
+            "predefined": "last year"
+        },
+        "chartDefinition": {
+            "chart": {
+                "type": "line"
+            },
+            "xAxis": {
+                "categories": ["1750", "1800", "1850", "1900", "1950", "1999", "2050"],
+                "tickmarkPlacement": "on",
+                "title": {
+                    "enabled": false
+                }
+            },
+            "yAxis": {
+                "title": {
+                    "text": " Sales"
+                },
+                "labels": { "formatter": "kpi_dollarize" }
+            },
+            "tooltip": {
+                "shared": "true",
+                "valueDecimals": 2,
+                "valuePrefix": "$",
+                "valueSuffix": " USD"
+            },
+            "plotOptions": {
+                "area": {
+                    "stacking": "normal",
+                    "lineColor": "#666666",
+                    "lineWidth": 2,
+                    "marker": {
+                        "lineWidth": 1,
+                        "lineColor": "#666666"
+                    }
+                }
+            }
+        }
+    },
+    {
+        "_id": 303,
+        "title": "Expense By Category",
+        "subtitle": "Expense By Category",
+        "group": "Expenses",
+        "kpis": ["303"],
+        "dateRange": {
+            "predefined": "last year"
+        },
+        "chartDefinition": {
+            "chart": { "type": "pie" },
+            "lang": {
+                "decimalPoint": ".",
+                "thousandsSep": ","
+            },
+            "plotOptions": {
+                "pie": {
+                    "allowPointSelect": true,
+                    "cursor": "pointer",
+                    "dataLabels": {
+                        "enabled": true,
+                        "distance": 10,
+                        "formatter": "kpi_percent_for_pie_chart"
+                    },
+                    "showInLegend": true
+                }
+            },
+            "legend": {
+                "layout": "horizontal",
+                "align": "center",
+                "verticalAlign": "bottom",
+                "borderWidth": 0
+            },
+            "yAxis": {
+                "min": 0,
+                "title": { "text": "Expenses" }
+            },
+            "tooltip": {
+                "valueDecimals": 2,
+                "valuePrefix": "$",
+                "valueSuffix": " USD"
+            }
+        }
+    },
+    {
+        "_id": 304,
+        "title": "Expense Ratio",
+        "subtitle": "Expense Ratio",
+        "group": "Operational",
+        "frequency": "monthly",
+        "kpis": ["304"],
+        "dateRange": {
+            "predefined": "last year"
+        },
+        "chartDefinition": {
+            "chart": { "type": "column" },
+            "yAxis": {
+                "title": { "text": "Percent" }
+            },
+            "tooltip": {
+                "valueDecimals": 2,
+                "valueSuffix": " %"
+            },
+            "legend": {
+                "enabled": false
+            }
+        }
+    },
+    {
+        "_id": 305,
+        "title": "Payroll Expense Ratio",
+        "subtitle": "Payroll Expense Ratio",
+        "group": "Operational",
+        "frequency": "monthly",
+        "kpis": ["305"],
+        "dateRange": {
+            "predefined": "last year"
+        },
+        "chartDefinition": {
+            "chart": { "type": "column" },
+            "yAxis": {
+                "title": { "text": "Percent" }
+            },
+            "tooltip": {
+                "valueDecimals": 2,
+                "valueSuffix": " %"
+            },
+            "legend": {
+                "enabled": false
+            }
+        }
+    },
+
+    {
+        "_id": 306,
+        "dateFrom": "2017-01-01",
+        "dateTo": "2017-12-31",
+        "name": "Revenue By Units",
+        "group": "More Financial",
+        "description": "Revenue By Units",
+        "kpis": ["306"],
+        "dateRange": {
+            "predefined": "last year"
+        },
+        "chartDefinition": {
+            "chart": { "type": "line" },
+            "title": { "text": "Revenue By Units (Year 2017)" },
+            "subtitle": { "text": "View Revenue Per Location Yearly" },
+            "xAxis": {
+                "categories": ["1750", "1800", "1850", "1900", "1950", "1999", "2050"],
+                "tickmarkPlacement": "on",
+                "title": {
+                    "enabled": false
+                }
+            },
+            "yAxis": {
+                "title": {
+                    "text": " Sales"
+                },
+                "labels": { "formatter": "kpi_dollarize" }
+            },
+            "tooltip": {
+                "valueDecimals": 2,
+                "valuePrefix": "$",
+                "valueSuffix": " USD"
+            },
+            "plotOptions": {
+                "area": {
+                    "stacking": "normal",
+                    "lineColor": "#666666",
+                    "lineWidth": 2,
+                    "marker": {
+                        "lineWidth": 1,
+                        "lineColor": "#666666"
+                    }
+                }
+            },
+            "series": [{
+                "name": "Asia",
+                "data": [502, 635, 809, 947, 1402, 3634, 5268]
+            }, {
+                "name": "Africa",
+                "data": [106, 107, 111, 133, 221, 767, 1766]
+            }, {
+                "name": "Europe",
+                "type": "line",
+                "stacking": "normal",
+                "data": [163, 203, 276, 408, 547, 729, 628]
+            }, {
+                "name": "America",
+                "data": [18, 31, 54, 156, 339, 818, 1201]
+            }, {
+                "name": "Oceania",
+                "data": [2, 2, 2, 6, 13, 30, 46]
+            }]
+        }
+    },
+    {
+        "_id": 307,
+        "dateFrom": "2017-01-01",
+        "dateTo": "2017-12-31",
+        "name": "Sale Per Location Daily",
+        "group": "More Financial",
+        "description": "Sale Per Location Daily",
+        "kpis": ["307"],
+        "dateRange": {
+            "predefined": "last year"
+        },
+        "chartDefinition": {
+            "chart": { "type": "column" },
+            "title": { "text": "Sales Per Location (July)" },
+            "subtitle": { "text": "Display Sales per day by location" },
+            "yAxis": {
+                "title": { "text": "Sales" },
+                "labels": { "formatter": "kpi_dollarize" }
+            },
+            "tooltip": {
+                "valuePrefix": "$",
+                "valueSuffix": " USD",
+                "useHTML": true,
+                "formatter": "kpi_tooltip_with_percentage_and_total"
+            },
+            "plotOptions": {
+                "column": {
+                    "stacking": "normal"
+                }
+            },
+            "legend": {
+                "layout": "vertical",
+                "align": "right",
+                "verticalAlign": "middle"
+            },
+            "series": [{
+                    "name": "John",
+                    "data": [5,
+                        3,
+                        4,
+                        7,
+                        2
+                    ]
+                },
+                {
+                    "name": "Jane",
+                    "data": [2,
+                        2,
+                        3,
+                        2,
+                        1
+                    ]
+                },
+                {
+                    "name": "Joe",
+                    "data": [3,
+                        4,
+                        4,
+                        2,
+                        5
+                    ]
+                }
+            ]
+        }
+    },
+    {
+        "_id": 308,
+        "dateFrom": "2017-01-01",
+        "dateTo": "2017-12-31",
+        "name": "Revenue By Unit (Year 2017)",
+        "group": "Finance",
+        "description": "Revenue By Units",
+        "kpis": ["308"],
+        "dateRange": {
+            "predefined": "last year"
+        },
+        "chartDefinition": {
+            "chart": { "type": "pie" },
+            "title": { "text": "Revenue By Units (Year 2017)" },
+            "subtitle": { "text": "This chart allows you to monitor the inidividual elements responsible for your revenue. This chart is most useful when compared over time." },
+            "lang": {
+                "decimalPoint": ".",
+                "thousandsSep": ","
+            },
+            "plotOptions": {
+                "pie": {
+                    "allowPointSelect": true,
+                    "cursor": "pointer",
+                    "dataLabels": {
+                        "enabled": true,
+                        "distance": 10,
+                        "formatter": "kpi_percent_for_pie_chart"
+                    },
+                    "showInLegend": true
+                }
+            },
+            "legend": {
+                "layout": "horizontal",
+                "align": "center",
+                "verticalAlign": "bottom",
+                "borderWidth": 0
+            },
+            "yAxis": {
+                "min": 0,
+                "title": { "text": "Revenue" }
+            },
+            "tooltip": {
+                "valueDecimals": 2,
+                "valuePrefix": "$",
+                "valueSuffix": " USD"
+            },
+            "series": [{
+                "name": "Delivered amount",
+                "data": [
+                    ["Bananas",
+                        8
+                    ],
+                    ["Kiwi",
+                        3
+                    ],
+                    ["Mixed nuts",
+                        1
+                    ],
+                    ["Oranges",
+                        6
+                    ],
+                    ["Apples",
+                        8
+                    ],
+                    ["Pears",
+                        4
+                    ],
+                    ["Clementines",
+                        4
+                    ],
+                    ["Reddish (bag)",
+                        1
+                    ],
+                    ["Grapes (bunch)",
+                        1
+                    ]
+                ]
+            }]
+        }
+    }
+
+
+]

@@ -1,6 +1,6 @@
 import { ISaleModel } from '../../../../models/app/sales';
 import { AggregateStage } from '../aggregate';
-import { KpiBase } from '../kpi-base';
+import { KpiBase, IKpiBase, IKPIResult, IKPIMetadata } from '../kpi-base';
 import { IAppModels } from '../../../../models/app/app-models';
 import { FrequencyEnum } from '../../../../models/common/frequency-enum';
 import { IDateRange } from '../../../../models/common/date-range';
@@ -28,12 +28,12 @@ const aggregate: AggregateStage[] = [
     },
     {
         $sort: {
-            frequency: 1
+            '_id.frequency': 1
         }
     }
 ];
 
-export class RetailSales extends KpiBase {
+export class RetailSales extends KpiBase implements IKpiBase {
 
     constructor(sales: ISaleModel) {
         super(sales, aggregate);

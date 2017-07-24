@@ -1,1841 +1,229 @@
-[{
-        "_id": 10,
-        "dateFrom": "2016-01-1",
-        "dateTo": "2016-12-31",
-        "name": "Revenue By Service Line (Year 2016)",
+[  
+    {
+        "_id": 1,
+        "title": "Total sales by day by location",
+        "subtitle": "Show total sales grouped by day",
         "group": "Finance",
-        "description": "Revenue by Service Line",
         "kpis": ["1"],
         "dateRange": {
-            "predefined": "last year"
+            "predefined": "last month"
         },
-        "chartDefinition": {
-            "chart": { "type": "pie" },
-            "title": { "text": "Revenue By Service Line (Year 2016)" },
-            "subtitle": { "text": "This chart allows you to monitor the inidividual elements responsible for your revenue. This chart is most useful when compared over time." },
-            "lang": {
-                "decimalPoint": ".",
-                "thousandsSep": ","
-            },
-            "plotOptions": {
-                "pie": {
-                    "allowPointSelect": true,
-                    "cursor": "pointer",
-                    "dataLabels": {
-                        "enabled": true,
-                        "distance": 10,
-                        "formatter": "kpi_percent_for_pie_chart"
-                    },
-                    "showInLegend": true
-                }
-            },
-            "legend": {
-                "layout": "horizontal",
-                "align": "center",
-                "verticalAlign": "bottom",
-                "borderWidth": 0
-            },
-            "yAxis": {
-                "min": 0,
-                "title": { "text": "Revenue" }
-            },
-            "tooltip": {
-                "valueDecimals": 2,
-                "valuePrefix": "$",
-                "valueSuffix": " USD"
-            },
-            "series": [{
-                "name": "Delivered amount",
-                "data": [
-                    ["Bananas",
-                        8
-                    ],
-                    ["Kiwi",
-                        3
-                    ],
-                    ["Mixed nuts",
-                        1
-                    ],
-                    ["Oranges",
-                        6
-                    ],
-                    ["Apples",
-                        8
-                    ],
-                    ["Pears",
-                        4
-                    ],
-                    ["Clementines",
-                        4
-                    ],
-                    ["Reddish (bag)",
-                        1
-                    ],
-                    ["Grapes (bunch)",
-                        1
-                    ]
-                ]
-            }]
-        }
+        "frequency": "daily",
+        "groupings": ["location"],
+        "chartDefinition": { 
+            "chart"       : { "type":"column" },
+            "plotOptions" : { "column" : { "stacking" : "normal" } }
+        }            
     },
-
+    {
+        "_id": 2,
+        "title": "Total Revenue by business unit",
+        "subtitle": "Show the grand total of sales by business unit",
+        "group": "Finance",
+        "kpis": ["1"],
+        "dateRange": {
+            "predefined": "this year"
+        },
+        "frequency": "monthly",
+        "groupings": ["businessUnit"],
+        "chartDefinition": { 
+            "chart"       : { "type":"column" },
+            "plotOptions" : { "column" : { "stacking" : "normal" } }
+        }            
+    },
+    {
+        "_id": 3,
+        "title": "Total Revenue by business unit",
+        "subtitle": "Show the grand total of sales by business unit",
+        "group": "Finance",
+        "kpis": ["1"],
+        "dateRange": {
+            "predefined": "this year"
+        },
+        "groupings": ["businessUnit"],
+        "chartDefinition": { 
+            "chart"       : { "type":"pie" },
+            "plotOptions" : { "pie" : { "dataLabels": {
+                                "enabled": true
+                              },
+                              "showInLegend": false } }
+        }            
+    },
+    {
+        "_id": 4,
+        "title": "Total revenue over time",
+        "subtitle": "Total revenue of all times grouped by busines unit (revenue source)",
+        "group": "Finance",
+        "kpis": ["1"],
+        "dateRange": {
+            "predefined": "all times"
+        },
+        "frequency": "yearly",
+        "groupings": ["businessUnit"],
+        "chartDefinition": { 
+            "chart"       : { "type":"column" },
+            "plotOptions" : { "column" : { "stacking" : "normal" } }
+        }            
+    },
+    {
+        "_id": 5,
+        "title": "Net Collected Revenue per Full Time Employee by location",
+        "subtitle": "Revenue collected for full time employees grouped by location",
+        "group": "Finance",
+        "kpis": ["1"],
+        "dateRange": {
+            "predefined": "this year"
+        },
+        "filter": {
+            "employee__dot__type": { "__dollar__eq": "f" }
+        },
+        "frequency": "monthly",
+        "groupings": ["businessUnit"],
+        "chartDefinition": { 
+            "chart"       : { "type":"line" }
+        }            
+    },
+    {
+        "_id": 6,
+        "title": "Total Expense by business unit",
+        "subtitle": "Expenses grouped by business unit",
+        "group": "Finance",
+        "kpis": ["2"],
+        "dateRange": {
+            "predefined": "this year"
+        },
+        "frequency": "monthly",
+        "groupings": ["location"],
+        "chartDefinition": { 
+            "chart"       : { "type":"line" }
+        }            
+    },
+    {
+        "_id": 7,
+        "title": "Ebitda by business unit",
+        "subtitle": "Ebitda by business unit",
+        "group": "Finance",
+        "kpis": ["30"],
+        "dateRange": {
+            "predefined": "this year"
+        },
+        "frequency": "monthly",
+        "groupings": ["location"],
+        "chartDefinition": { 
+            "chart"       : { "type":"bar" }
+        }            
+    },
+    {
+        "_id": 8,
+        "title": "Total Expenses Over Time by business unit",
+        "subtitle": "Total Expenses Over Time by business unit",
+        "group": "Finance",
+        "kpis": ["2"],
+        "dateRange": {
+            "predefined": "last 2 years"
+        },
+        "frequency": "monthly",
+        "groupings": ["location"],
+        "chartDefinition": { 
+            "chart"       : { "type": "line" }
+        }            
+    },
+    {
+        "_id": 9,
+        "title": "Revenue By Service Type",
+        "subtitle": "Revenue By Service Type",
+        "group": "Finance",
+        "kpis": ["1"],
+        "dateRange": {
+            "predefined": "this quarter"
+        },
+        "groupings": ["serviceType"],
+        "chartDefinition": { 
+            "chart"       : { "type":"pie" }
+        }            
+    },
+    {
+        "_id": 10,
+        "title": "Sales By Product",
+        "subtitle": "Sales By Product",
+        "group": "Finance",
+        "kpis": ["1"],
+        "dateRange": {
+            "predefined": "this month"
+        },
+        "filter": {
+            "top": { "field": "product", "value": 5 }
+        },
+        "frequency": "daily",
+        "groupings": ["product"],
+        "chartDefinition": { 
+            "chart"       : { "type":"column" },
+            "plotOptions" : { "column" : { "stacking" : "normal" } }
+        }             
+    },
     {
         "_id": 11,
-        "name": "Revenue per FTE",
+        "title": "Retail Sales",
+        "subtitle": "Retail Sales",
         "group": "Finance",
-        "description": "Net Collected Revenue per Full Time Employee (FTE) (Year 2016)",
-        "kpis": ["2"],
-        "frequency": "yearly",
+        "kpis": ["1"],
         "dateRange": {
-            "predefined": "last year"
+            "predefined": "this year"
         },
-        "chartDefinition": {
-            "chart": { "type": "column" },
-            "title": { "text": "Net Collected Revenue per Full Time Employee (FTE) (Year 2016)" },
-            "subtitle": { "text": "Use this chart to evaluate each physicians productivity and schedule efficiency" },
-            "yAxis": {
-                "min": 0,
-                "title": { "text": "Revenue" },
-                "labels": { "formatter": "kpi_dollarize" }
-            },
-            "tooltip": {
-                "valueDecimals": 2,
-                "valuePrefix": "$",
-                "valueSuffix": " USD"
-            },
-            "series": [{
-                    "name": "Year 1800",
-                    "data": [107,
-                        31,
-                        635,
-                        203,
-                        2
-                    ]
-                },
-                {
-                    "name": "Year 1900",
-                    "data": [133,
-                        156,
-                        947,
-                        408,
-                        6
-                    ]
-                },
-                {
-                    "name": "Year 2012",
-                    "data": [1052,
-                        954,
-                        4250,
-                        740,
-                        38
-                    ]
-                }
-            ]
-        }
-
+        "filter": {
+            "serviceType": { "__dollar__eq": "Retail" }
+        },
+        "groupings": ["location"],
+        "frequency": "monthly",
+        "chartDefinition": { 
+            "chart"       : { "type":"column" }
+        }             
     },
     {
         "_id": 12,
-        "name": "Average Revenue per FTE Physician",
+        "title": "Expense By Category",
+        "subtitle": "Expense By Category",
         "group": "Finance",
-        "description": "Average Revenue per FTE Physician",
-        "kpis": ["3"],
-        "dateRange": {
-            "predefined": "last year"
+        "kpis": ["2"],
+        "filter": {
+            "top": {
+                "field": "expense",
+                "value": 10
+            }
         },
-        "chartDefinition": {
-            "chart": { "type": "line", "inverted": false },
-            "title": {
-                "text": "Average Revenue per FTE Physician (Year 2016)",
-                "x": -20
-            },
-            "subtitle": { "text": "This indicator will allow you to evaluate physician productivity and set minimum goals" },
-            "yAxis": {
-                "min": 0,
-                "title": { "text": "Revenue" },
-                "labels": { "formatter": "kpi_dollarize" }
-            },
-            "plotOptions": { "line": { "dataLabels": { "enabled": false } } },
-            "tooltip": {
-                "valueDecimals": 2,
-                "valuePrefix": "$",
-                "valueSuffix": " USD"
-            },
-            "legend": {
-                "enabled": false
-            },
-            "series": [{
-                    "name": "Tokyo",
-                    "data": [7,
-                        6.9,
-                        9.5,
-                        14.5,
-                        18.2,
-                        21.5,
-                        25.2,
-                        26.5,
-                        23.3,
-                        18.3,
-                        13.9,
-                        9.6
-                    ]
-                },
-                {
-                    "name": "New York",
-                    "data": [-0.2,
-                        0.8,
-                        5.7,
-                        11.3,
-                        17,
-                        22,
-                        24.8,
-                        24.1,
-                        20.1,
-                        14.1,
-                        8.6,
-                        2.5
-                    ]
-                },
-                {
-                    "name": "Berlin",
-                    "data": [-0.9,
-                        0.6,
-                        3.5,
-                        8.4,
-                        13.5,
-                        17,
-                        18.6,
-                        17.9,
-                        14.3,
-                        9,
-                        3.9,
-                        1
-                    ]
-                },
-                {
-                    "name": "London",
-                    "data": [3.9,
-                        4.2,
-                        5.7,
-                        8.5,
-                        11.9,
-                        15.2,
-                        17,
-                        16.6,
-                        14.2,
-                        10.3,
-                        6.6,
-                        4.8
-                    ]
-                }
-            ]
-        }
-
-    },
-    {
+        "dateRange": {
+            "predefined": "this month"
+        },
+        "groupings": ["concept"],
+        "chartDefinition": { 
+            "chart"       : { "type": "pie" }
+        }            
+    },{
         "_id": 13,
-        "name": "Average Revenue per FTE Non-Physician",
+        "title": "Expense Ratio",
+        "subtitle": "Expense Ratio",
         "group": "Finance",
-        "description": "Average Revenue per FTE Non-Physician",
-        "kpis": ["4"],
+        "kpis": ["31"],
         "dateRange": {
-            "predefined": "last year"
+            "predefined": "this year"
         },
-        "chartDefinition": {
-            "chart": { "type": "line", "inverted": false },
-            "title": {
-                "text": "Average Revenue per FTE Non-Physician (Year 2016)",
-                "x": -20
-            },
-            "subtitle": { "text": "This indicator will allow you to evaluate non physician productivity and set minimum goals" },
-            "yAxis": {
-                "min": 0,
-                "title": { "text": "Revenue" },
-                "labels": { "formatter": "kpi_dollarize" }
-            },
-            "plotOptions": { "line": { "dataLabels": { "enabled": false } } },
-            "tooltip": {
-                "valueDecimals": 2,
-                "valuePrefix": "$",
-                "valueSuffix": " USD"
-            },
-            "legend": {
-                "enabled": false
-            },
-            "series": [{
-                    "name": "Tokyo",
-                    "data": [7,
-                        6.9,
-                        9.5,
-                        14.5,
-                        18.2,
-                        21.5,
-                        25.2,
-                        26.5,
-                        23.3,
-                        18.3,
-                        13.9,
-                        9.6
-                    ]
-                },
-                {
-                    "name": "New York",
-                    "data": [-0.2,
-                        0.8,
-                        5.7,
-                        11.3,
-                        17,
-                        22,
-                        24.8,
-                        24.1,
-                        20.1,
-                        14.1,
-                        8.6,
-                        2.5
-                    ]
-                },
-                {
-                    "name": "Berlin",
-                    "data": [-0.9,
-                        0.6,
-                        3.5,
-                        8.4,
-                        13.5,
-                        17,
-                        18.6,
-                        17.9,
-                        14.3,
-                        9,
-                        3.9,
-                        1
-                    ]
-                },
-                {
-                    "name": "London",
-                    "data": [3.9,
-                        4.2,
-                        5.7,
-                        8.5,
-                        11.9,
-                        15.2,
-                        17,
-                        16.6,
-                        14.2,
-                        10.3,
-                        6.6,
-                        4.8
-                    ]
-                }
-            ]
-        }
-
-    },
-    {
+        "frequency": "monthly",
+        "chartDefinition": { 
+            "chart"       : { "type":"line" }
+        }             
+    },{
         "_id": 14,
-        "name": "Average Revenue per FTE Aestheticians",
+        "title": "Payroll Expense Ratio",
+        "subtitle": "Payroll Expense Ratio",
         "group": "Finance",
-        "description": "Average Revenue per FTE Aestheticians",
-        "kpis": ["5"],
+        "kpis": ["32"],
         "dateRange": {
-            "predefined": "last year"
+            "predefined": "last 2 years"
         },
-        "chartDefinition": {
-            "chart": { "type": "line", "inverted": false },
-            "title": {
-                "text": "Average Revenue per FTE Aestheticians (Year 2016)",
-                "x": -20
-            },
-            "subtitle": { "text": "This indicator will allow you to evaluate Aesthetician productivity and set minimum goals" },
-            "yAxis": {
-                "min": 0,
-                "title": { "text": "Revenue" },
-                "labels": { "formatter": "kpi_dollarize" }
-            },
-            "plotOptions": { "line": { "dataLabels": { "enabled": false } } },
-            "tooltip": {
-                "valueDecimals": 2,
-                "valuePrefix": "$",
-                "valueSuffix": " USD"
-            },
-            "legend": {
-                "enabled": false
-            },
-            "series": [{
-                    "name": "Tokyo",
-                    "data": [7,
-                        6.9,
-                        9.5,
-                        14.5,
-                        18.2,
-                        21.5,
-                        25.2,
-                        26.5,
-                        23.3,
-                        18.3,
-                        13.9,
-                        9.6
-                    ]
-                },
-                {
-                    "name": "New York",
-                    "data": [-0.2,
-                        0.8,
-                        5.7,
-                        11.3,
-                        17,
-                        22,
-                        24.8,
-                        24.1,
-                        20.1,
-                        14.1,
-                        8.6,
-                        2.5
-                    ]
-                },
-                {
-                    "name": "Berlin",
-                    "data": [-0.9,
-                        0.6,
-                        3.5,
-                        8.4,
-                        13.5,
-                        17,
-                        18.6,
-                        17.9,
-                        14.3,
-                        9,
-                        3.9,
-                        1
-                    ]
-                },
-                {
-                    "name": "London",
-                    "data": [3.9,
-                        4.2,
-                        5.7,
-                        8.5,
-                        11.9,
-                        15.2,
-                        17,
-                        16.6,
-                        14.2,
-                        10.3,
-                        6.6,
-                        4.8
-                    ]
-                }
-            ]
-        }
-
-    },
-    {
-        "_id": 15,
-        "dateFrom": "2017-01-01",
-        "dateTo": "2017-12-31",
-        "name": "Sales By Product",
-        "group": "Finance",
-        "description": "Sales By Product",
-        "kpis": ["6"],
-        "dateRange": {
-            "predefined": "last year"
-        },
-
-        "chartDefinition": {
-            "chart": { "type": "column" },
-            "title": { "text": "Sales By Product (Year 2017)" },
-            "subtitle": { "text": "Compare the financial performance of your individual products" },
-            "yAxis": {
-                "title": { "text": "Sales" },
-                "labels": { "formatter": "kpi_dollarize" }
-            },
-            "tooltip": {
-                "valuePrefix": "$",
-                "valueSuffix": " USD",
-                "useHTML": true,
-                "formatter": "kpi_tooltip_with_percentage_and_total"
-            },
-            "plotOptions": {
-                "column": {
-                    "stacking": "normal"
-                }
-            },
-            "legend": {
-                "layout": "vertical",
-                "align": "right",
-                "verticalAlign": "middle"
-            },
-            "series": [{
-                    "name": "John",
-                    "data": [5,
-                        3,
-                        4,
-                        7,
-                        2
-                    ]
-                },
-                {
-                    "name": "Jane",
-                    "data": [2,
-                        2,
-                        3,
-                        2,
-                        1
-                    ]
-                },
-                {
-                    "name": "Joe",
-                    "data": [3,
-                        4,
-                        4,
-                        2,
-                        5
-                    ]
-                }
-            ]
-        }
-
-
-    },
-
-    {
-        "_id": 16,
-        "name": "Total Revenue",
-        "group": "Finance",
-        "description": "Total Revenue",
-        "kpis": ["7"],
-        "dateRange": {
-            "predefined": "last year"
-        },
-        "chartDefinition": {
-            "chart": {
-                "type": "area"
-            },
-            "title": {
-                "text": "Total Revenue"
-            },
-            "subtitle": { "text": "The life of your business, review this chart daily to ensure you are achieving at least a 5% year on year growth." },
-            "xAxis": {
-                "categories": ["1750", "1800", "1850", "1900", "1950", "1999", "2050"],
-                "tickmarkPlacement": "on",
-                "title": {
-                    "enabled": false
-                }
-            },
-            "yAxis": {
-                "title": {
-                    "text": " Sales"
-                },
-                "labels": { "formatter": "kpi_dollarize" }
-            },
-            "tooltip": {
-                "shared": "true",
-                "valueDecimals": 2,
-                "valuePrefix": "$",
-                "valueSuffix": " USD"
-            },
-            "plotOptions": {
-                "area": {
-                    "stacking": "normal",
-                    "lineColor": "#666666",
-                    "lineWidth": 2,
-                    "marker": {
-                        "lineWidth": 1,
-                        "lineColor": "#666666"
-                    }
-                }
-            },
-            "series": [{
-                "name": "Asia",
-                "data": [502, 635, 809, 947, 1402, 3634, 5268]
-            }, {
-                "name": "Africa",
-                "data": [106, 107, 111, 133, 221, 767, 1766]
-            }, {
-                "name": "Europe",
-                "type": "line",
-                "stacking": "normal",
-                "data": [163, 203, 276, 408, 547, 729, 628]
-            }, {
-                "name": "America",
-                "data": [18, 31, 54, 156, 339, 818, 1201]
-            }, {
-                "name": "Oceania",
-                "data": [2, 2, 2, 6, 13, 30, 46]
-            }]
-
-        }
-    },
-
-
-    {
-        "_id": 17,
-        "name": "Retail Sales",
-        "group": "Finance",
-        "description": "Retail Sales",
-        "kpis": ["8"],
-        "dateRange": {
-            "predefined": "last year"
-        },
-        "chartDefinition": {
-            "chart": {
-                "type": "line"
-            },
-            "title": {
-                "text": "Retail Sales (Year 2016)"
-            },
-            "subtitle": { "text": "This chart will present the total revenue generated from all retail sales. Monitoring individaully will allow you to set growth targets easier." },
-            "xAxis": {
-                "categories": ["1750", "1800", "1850", "1900", "1950", "1999", "2050"],
-                "tickmarkPlacement": "on",
-                "title": {
-                    "enabled": false
-                }
-            },
-            "yAxis": {
-                "title": {
-                    "text": " Sales"
-                },
-                "labels": { "formatter": "kpi_dollarize" }
-            },
-            "tooltip": {
-                "valueDecimals": 2,
-                "valuePrefix": "$",
-                "valueSuffix": " USD"
-            },
-            "plotOptions": {
-                "area": {
-                    "stacking": "normal",
-                    "lineColor": "#666666",
-                    "lineWidth": 2,
-                    "marker": {
-                        "lineWidth": 1,
-                        "lineColor": "#666666"
-                    }
-                }
-            },
-            "series": [{
-                "name": "Asia",
-                "data": [502, 635, 809, 947, 1402, 3634, 5268]
-            }, {
-                "name": "Africa",
-                "data": [106, 107, 111, 133, 221, 767, 1766]
-            }, {
-                "name": "Europe",
-                "type": "line",
-                "stacking": "normal",
-                "data": [163, 203, 276, 408, 547, 729, 628]
-            }, {
-                "name": "America",
-                "data": [18, 31, 54, 156, 339, 818, 1201]
-            }, {
-                "name": "Oceania",
-                "data": [2, 2, 2, 6, 13, 30, 46]
-            }]
-
-        }
-    },
-
-    {
-        "_id": 18,
-        "dateFrom": "1990-01-1",
-        "dateTo": "2018-12-31",
-        "name": "Total Revenue Over Time",
-        "group": "Finance",
-        "description": "Total Revenue",
-        "kpis": ["7"],
-        "dateRange": {
-            "predefined": "last year"
-        },
-        "chartDefinition": {
-            "chart": {
-                "type": "line"
-            },
-            "title": {
-                "text": "Total Revenue Over Time"
-            },
-            "subtitle": { "text": "The life of your business, review this chart daily to ensure you are achieving at least a 5% year on year growth." },
-            "xAxis": {
-                "categories": ["1750", "1800", "1850", "1900", "1950", "1999", "2050"],
-                "tickmarkPlacement": "on",
-                "title": {
-                    "enabled": false
-                }
-            },
-            "yAxis": {
-                "title": {
-                    "text": " Sales"
-                },
-                "labels": { "formatter": "kpi_dollarize" }
-            },
-            "tooltip": {
-                "shared": "true",
-                "valueDecimals": 2,
-                "valuePrefix": "$",
-                "valueSuffix": " USD"
-            },
-            "plotOptions": {
-                "area": {
-                    "stacking": "normal",
-                    "lineColor": "#666666",
-                    "lineWidth": 2,
-                    "marker": {
-                        "lineWidth": 1,
-                        "lineColor": "#666666"
-                    }
-                }
-            },
-            "series": [{
-                "name": "Asia",
-                "data": [502, 635, 809, 947, 1402, 3634, 5268]
-            }, {
-                "name": "Africa",
-                "data": [106, 107, 111, 133, 221, 767, 1766]
-            }, {
-                "name": "Europe",
-                "type": "line",
-                "stacking": "normal",
-                "data": [163, 203, 276, 408, 547, 729, 628]
-            }, {
-                "name": "America",
-                "data": [18, 31, 54, 156, 339, 818, 1201]
-            }, {
-                "name": "Oceania",
-                "data": [2, 2, 2, 6, 13, 30, 46]
-            }]
-
-        }
-    },
-
-
-
-    {
-        "_id": 20,
-        "name": "FTE Totals",
-        "group": "Finance",
-        "description": "Net Collected Revenue per Full Time Employee (FTE)",
-        "frequency": "weekly",
-        "kpis": ["1"],
-        "dateRange": {
-            "predefined": "last year"
-        },
-        "chartDefinition": {
-            "chart": { "type": "bar" },
-            "title": { "text": "" },
-            "subtitle": { "text": "" },
-            "xAxis": {
-                "categories": ["Africa",
-                    "America",
-                    "Asia",
-                    "Europe",
-                    "Oceania"
-                ],
-                "title": { "text": null }
-            },
-            "yAxis": {
-                "min": 0,
-                "title": {
-                    "text": "Revenue",
-                    "align": "high"
-                }
-            },
-            "tooltip": { "valueSuffix": " millions" },
-
-            "legend": {
-                "layout": "vertical",
-                "align": "right",
-                "verticalAlign": "top",
-                "x": -40,
-                "y": 80,
-                "floating": true,
-                "borderWidth": 1,
-                "shadow": true
-            },
-            "credits": { "enabled": false },
-            "series": [{
-                    "name": "Year 1800",
-                    "data": [107,
-                        31,
-                        635,
-                        203,
-                        2
-                    ]
-                },
-                {
-                    "name": "Year 1900",
-                    "data": [133,
-                        156,
-                        947,
-                        408,
-                        6
-                    ]
-                },
-                {
-                    "name": "Year 2012",
-                    "data": [1052,
-                        954,
-                        4250,
-                        740,
-                        38
-                    ]
-                }
-            ]
-        }
-
-    },
-    {
-        "_id": 30,
-        "name": "FTE Totals",
-        "group": "Finance",
-        "description": "Net Collected Revenue per Full Time Employee (FTE)",
         "frequency": "monthly",
-        "kpis": ["2"],
-        "dateRange": {
-            "predefined": "last year"
-        },
-        "chartDefinition": {
-            "chart": { "type": "bar" },
-            "title": { "text": "Historic World Population by Region" },
-            "subtitle": { "text": "" },
-            "xAxis": {
-                "categories": ["Africa",
-                    "America",
-                    "Asia",
-                    "Europe",
-                    "Oceania"
-                ],
-                "title": { "text": null }
-            },
-            "yAxis": {
-                "min": 0,
-                "title": {
-                    "text": "Revenue",
-                    "align": "high"
-                }
-            },
-            "tooltip": { "valueSuffix": " millions" },
-
-            "legend": {
-                "layout": "vertical",
-                "align": "right",
-                "verticalAlign": "top",
-                "x": -40,
-                "y": 80,
-                "floating": true,
-                "borderWidth": 1,
-                "shadow": true
-            },
-            "credits": { "enabled": false },
-            "series": [{
-                    "name": "Year 1800",
-                    "data": [107,
-                        31,
-                        635,
-                        203,
-                        2
-                    ]
-                },
-                {
-                    "name": "Year 1900",
-                    "data": [133,
-                        156,
-                        947,
-                        408,
-                        6
-                    ]
-                },
-                {
-                    "name": "Year 2012",
-                    "data": [1052,
-                        954,
-                        4250,
-                        740,
-                        38
-                    ]
-                }
-            ]
-        }
-
-    },
-    {
-        "_id": 40,
-        "name": "FTE Totals",
-        "group": "Revenue",
-        "description": "Net Collected Revenue per Full Time Employee (FTE)",
-        "frequency": "monthly",
-        "kpis": ["2"],
-        "dateRange": {
-            "predefined": "last year"
-        },
-        "chartDefinition": {
-            "chart": { "type": "pie" },
-            "title": { "text": "Contents of Highsoft's weekly fruit delivery" },
-            "subtitle": { "text": "" },
-            "plotOptions": {
-                "pie": {
-                    "dataLabels": {
-                        "enabled": true
-                    },
-                    "showInLegend": false
-                }
-            },
-            "series": [{
-                "name": "Delivered amount",
-                "data": [
-                    ["Bananas",
-                        8
-                    ],
-                    ["Kiwi",
-                        3
-                    ],
-                    ["Mixed nuts",
-                        1
-                    ],
-                    ["Oranges",
-                        6
-                    ],
-                    ["Apples",
-                        8
-                    ],
-                    ["Pears",
-                        4
-                    ],
-                    ["Clementines",
-                        4
-                    ],
-                    ["Reddish (bag)",
-                        1
-                    ],
-                    ["Grapes (bunch)",
-                        1
-                    ]
-                ]
-            }]
-        }
-    },
-
-
-
-
-    {
-        "_id": 100,
-        "name": "Aesthetician Revenue Rate Per Hour",
-        "group": "More Financial",
-        "description": "Aesthetician Revenue Rate Per Hour",
-        "frequency": "monthly",
-        "kpis": ["100"],
-        "dateRange": {
-            "predefined": "last year"
-        },
-        "chartDefinition": {
-            "chart": { "type": "column" },
-            "title": { "text": "Aesthetician Revenue Rate Per Hour (Year 2016)" },
-            "subtitle": { "text": "An important indication of Aesthetician productivity, this chart will allow you to review Aesthetician revenue rate per hour over time monitoring constant improvements with correct mixing of services. " },
-            "tooltip": {
-                "valueDecimals": 2,
-                "valuePrefix": "$",
-                "valueSuffix": " USD"
-            },
-            "yAxis": {
-                "title": { "text": "Revenue" },
-                "labels": { "formatter": "kpi_dollarize" }
-            },
-            "legend": {
-                "enabled": false
-            },
-            "series": [{
-                "name": "Aesthetician Revenue Rate Per Hour",
-                "data": [
-                    ["2012-08", 59.20073023932452],
-                    ["2012-09", 13.573489603474432],
-                    ["2012-10", 66.53761775712995],
-                    ["2012-11", 61.73874275523852],
-                    ["2012-12", 30.305813205987693]
-                ]
-            }]
-        }
-    },
-
-    {
-        "_id": 101,
-        "name": "Ambulatory Surgery Center Sales",
-        "group": "More Financial",
-        "description": "Ambulatory Surgery Center Sales",
-        "frequency": "monthly",
-        "kpis": ["101"],
-        "dateRange": {
-            "predefined": "last year"
-        },
-        "chartDefinition": {
-            "chart": { "type": "line" },
-            "title": { "text": "Ambulatory Surgery Center Sales" },
-            "subtitle": { "text": "This chart will present the total revenue generated from all Ambulatory Surgery Center sales. Monitoring individaully will allow you to set growth targets easier." },
-            "yAxis": {
-                "title": { "text": "Sales" },
-                "labels": { "formatter": "kpi_dollarize" }
-            },
-            "tooltip": {
-                "valueDecimals": 2,
-                "valuePrefix": "$",
-                "valueSuffix": " USD"
-            },
-            "legend": {
-                "enabled": false
-            },
-            "series": [{
-                "name": "Ambulatory Surgery Center Sales",
-                "data": [
-                    ["2012-01", 40],
-                    ["2012-02", 40],
-                    ["2012-03", 40],
-                    ["2012-05", 40],
-                    ["2012-07", 40],
-                    ["2012-08", 140]
-                ]
-            }]
-        }
-    },
-
-    {
-        "_id": 102,
-        "name": "Consulting Research Sales",
-        "group": "More Financial",
-        "description": "ConsultingResearchSales",
-        "frequency": "monthly",
-        "kpis": ["102"],
-        "dateRange": {
-            "predefined": "last year"
-        },
-        "chartDefinition": {
-            "chart": { "type": "line" },
-            "title": { "text": "Total Consulting and Research Sales" },
-            "subtitle": { "text": "This chart will present the total revenue generated from all Consulting and Research sales. Monitoring individaully will allow you to set growth targets easier." },
-            "yAxis": {
-                "title": { "text": "Sales" },
-                "labels": { "formatter": "kpi_dollarize" }
-            },
-            "tooltip": {
-                "valueDecimals": 2,
-                "valuePrefix": "$",
-                "valueSuffix": " USD"
-            },
-            "legend": {
-                "enabled": false
-            },
-            "series": [{
-                "name": "Consulting Research Sales",
-                "data": [
-                    ["2012-02", 40],
-                    ["2012-03", 80],
-                    ["2012-05", 40],
-                    ["2012-08", 40],
-                    ["2012-10", 48]
-                ]
-            }]
-        }
-    },
-
-    {
-        "_id": 103,
-        "name": "Individual Non Physician Revenue Rate Per Hour",
-        "group": "More Financial",
-        "description": "IndividualNonPhysicianRevenueRatePerHour",
-        "frequency": "monthly",
-        "kpis": ["103"],
-        "dateRange": {
-            "predefined": "last year"
-        },
-        "chartDefinition": {
-            "chart": { "type": "column" },
-            "title": { "text": "Individual Non Physician Revenue Rate Per Hour (Year 2016)" },
-            "subtitle": { "text": "This chart will allow you to compare the productivity of your Non Physician Revenue providers" },
-            "yAxis": {
-                "title": { "text": "Revenue" },
-                "labels": { "formatter": "kpi_dollarize" }
-            },
-            "tooltip": {
-                "valueDecimals": 2,
-                "valuePrefix": "$",
-                "valueSuffix": " USD"
-            },
-            "legend": {
-                "enabled": false
-            },
-            "series": [{
-                "name": "Individual Non Physician Revenue Rate Per Hour",
-                "data": [
-                    ["2012-01", 0.2955558862315085],
-                    ["2012-02", 0.15751338863803424],
-                    ["2012-03", 0.441479897846457],
-                    ["2012-04", 0.6093954817980128],
-                    ["2012-05", 0.7633401022680009],
-                    ["2012-07", 0.49742499255792877],
-                    ["2012-08", 56.703600910974686],
-                    ["2012-09", 90.25407174334049],
-                    ["2012-10", 86.84621406956084],
-                    ["2012-11", 85.32017741614152],
-                    ["2012-12", 108.34966948530709]
-                ]
-            }]
-        }
-    },
-
-    {
-        "_id": 104,
-        "name": "Profesional Service Sales",
-        "group": "More Financial",
-        "description": "Profesional Service Sales",
-        "frequency": "monthly",
-        "kpis": ["104"],
-        "dateRange": {
-            "predefined": "last year"
-        },
-        "chartDefinition": {
-            "chart": { "type": "line" },
-            "title": { "text": "Profesional Service Sales (Year 2016)" },
-            "subtitle": { "text": "This chart will present the total revenue generated from all Professional Service sales. Monitoring individaully will allow you to set growth targets easier." },
-            "tooltip": {
-                "valueDecimals": 2,
-                "valuePrefix": "$",
-                "valueSuffix": " USD"
-            },
-            "yAxis": {
-                "title": { "text": "Sales" },
-                "labels": { "formatter": "kpi_dollarize" }
-            },
-            "legend": {
-                "enabled": false
-            },
-            "series": [{
-                "name": "Profesional Service Sales",
-                "data": [
-                    ["2012-01", 80],
-                    ["2012-02", 40],
-                    ["2012-03", 80],
-                    ["2012-04", 160],
-                    ["2012-05", 208],
-                    ["2012-07", 136],
-                    ["2012-08", 184],
-                    ["2012-09", 66],
-                    ["2012-10", 2714.5],
-                    ["2012-11", 3958],
-                    ["2012-12", 3818.5]
-                ]
-            }]
-        }
-    },
-
-
-
-    {
-        "_id": 200,
-        "name": "Retail Sales Ratio",
-        "group": "Operational",
-        "description": "Retail Sales Ratio",
-        "frequency": "monthly",
-        "kpis": ["200"],
-        "dateRange": {
-            "predefined": "last year"
-        },
-        "chartDefinition": {
-            "chart": { "type": "bar" },
-            "title": { "text": "Retail Sales Ratio (Year 2016)" },
-            "subtitle": { "text": "This indicator allows you to evaluate your retail sales productivity and it's impact on the revenue" },
-            "yAxis": {
-                "title": { "text": "Percent" }
-            },
-            "tooltip": {
-                "valueDecimals": 2,
-                "valueSuffix": " %"
-            },
-            "legend": {
-                "enabled": false
-            },
-            "series": [{
-                "name": "Retail Sales Ratio",
-                "data": [
-                    ["2012-08", 98.39344473837022],
-                    ["2012-09", 99.72351967827744],
-                    ["2012-10", 88.5887602756858],
-                    ["2012-11", 82.48866275854441],
-                    ["2012-12", 86.44910473953075]
-                ]
-            }]
-        }
-    },
-    {
-        "_id": 201,
-        "name": "Profesional Sales Ratio",
-        "group": "Operational",
-        "description": "Profesional Sales Ratio",
-        "frequency": "monthly",
-        "kpis": ["201"],
-        "dateRange": {
-            "predefined": "last year"
-        },
-        "chartDefinition": {
-            "chart": { "type": "column" },
-            "title": { "text": "Profesional Sales Ratio (Year 2016)" },
-            "subtitle": { "text": "This indicator allows you to evaluate your professional services productivity and it's impact on the revenue" },
-            "yAxis": {
-                "title": { "text": "Percent" }
-            },
-            "tooltip": {
-                "valueDecimals": 2,
-                "valueSuffix": " %"
-            },
-            "legend": {
-                "enabled": false
-            },
-            "series": [{
-                "name": "Profesional Sales Ratio",
-                "data": [
-                    ["2012-01", 100],
-                    ["2012-02", 100],
-                    ["2012-03", 66.66666666666666],
-                    ["2012-04", 100],
-                    ["2012-05", 100],
-                    ["2012-07", 100],
-                    ["2012-08", 1.1871733660236143],
-                    ["2012-09", 0.2764803217225562],
-                    ["2012-10", 11.411239724314202],
-                    ["2012-11", 17.51133724145559],
-                    ["2012-12", 13.55089526046925]
-
-                ]
-            }]
-
-        }
-    },
-
-    {
-        "_id": 202,
-        "name": "Consulting Research Service Ratio",
-        "group": "Operational",
-        "description": "Consulting Research Service Ratio",
-        "frequency": "monthly",
-        "kpis": ["202"],
-        "dateRange": {
-            "predefined": "last year"
-        },
-        "chartDefinition": {
-            "chart": { "type": "line" },
-            "title": { "text": "Consulting Research Service Ratio" },
-            "subtitle": { "text": "This indicator is used to monitor the balance between Consulting and Research revenue to other main service lines" },
-            "yAxis": {
-                "title": { "text": "Percent" }
-            },
-            "tooltip": {
-                "valueDecimals": 2,
-                "valueSuffix": " %"
-            },
-            "legend": {
-                "enabled": false
-            },
-            "series": [{
-                "name": "Consulting Research Service Ratio",
-                "data": [
-                    ["2012-02", 100],
-                    ["2012-03", 66.66666666666666],
-                    ["2012-05", 19.230769230769234],
-                    ["2012-08", 0.2580811665268727],
-                    ["2012-10", 0.3278971075691684]
-                ]
-            }]
-        }
-    },
-
-    {
-        "_id": 203,
-        "name": "Ambulatory Surgery Center Service Ratio",
-        "group": "Operational",
-        "description": "Ambulatory Surgery Center Service Ratio",
-        "frequency": "monthly",
-        "kpis": ["203"],
-        "dateRange": {
-            "predefined": "last year"
-        },
-        "chartDefinition": {
-            "chart": { "type": "column" },
-            "title": { "text": "Ambulatory Surgery Center Service Ratio" },
-            "subtitle": { "text": "This indicator allows you to evaluate your professional services productivity and it's impact on the revenue" },
-            "yAxis": {
-                "title": { "text": "Percent" }
-            },
-            "tooltip": {
-                "valueDecimals": 2,
-                "valueSuffix": " %"
-            },
-
-            "legend": {
-                "enabled": false
-            },
-            "series": [{
-                "name": "Ambulatory Surgery Center Service Ratio",
-                "data": [
-                    ["2012-01", 50],
-                    ["2012-02", 100],
-                    ["2012-03", 33.33333333333333],
-                    ["2012-05", 19.230769230769234],
-                    ["2012-07", 29.411764705882355],
-                    ["2012-08", 0.9032840828440544]
-                ]
-            }]
-        }
-    },
-
-    {
-        "_id": 204,
-        "name": "Other Sales Ratio",
-        "group": "Operational",
-        "description": "Other Sales Ratio",
-        "frequency": "monthly",
-        "kpis": ["204"],
-        "dateRange": {
-            "predefined": "last year"
-        },
-        "chartDefinition": {
-            "chart": { "type": "line" },
-            "title": { "text": "Other Sales Ratio" },
-            "subtitle": { "text": "This indicator allows you to evaluate your other revenue and how it compares to your main service lines." },
-            "yAxis": {
-                "title": { "text": "Percent" }
-            },
-            "tooltip": {
-                "valueDecimals": 2,
-                "valueSuffix": " %"
-            },
-
-            "legend": {
-                "enabled": false
-            },
-            "series": [{
-                "name": "Other Sales Ratio",
-                "data": [
-                    ["2012-04", 25],
-                    ["2012-08", 0.4193818956061681],
-                    ["2012-10", 0.11770665399918866]
-                ]
-            }]
-        }
-    },
-    {
-        "_id": 301,
-        "name": "Total Expenses",
-        "group": "Expenses",
-        "description": "Total Expenses",
-        "dateFrom": "2016-01-1",
-        "dateTo": "2018-12-31",
-        "kpis": ["301"],
-        "dateRange": {
-            "predefined": "last year"
-        },
-        "chartDefinition": {
-            "chart": {
-                "type": "line"
-            },
-            "title": {
-                "text": "Total Expenses Over Time"
-            },
-            "subtitle": { "text": "The life of your business, review this chart daily to ensure you are achieving at least a 5% year on year growth." },
-            "xAxis": {
-                "categories": ["1750", "1800", "1850", "1900", "1950", "1999", "2050"],
-                "tickmarkPlacement": "on",
-                "title": {
-                    "enabled": false
-                }
-            },
-            "yAxis": {
-                "title": {
-                    "text": " Sales"
-                },
-                "labels": { "formatter": "kpi_dollarize" }
-            },
-            "tooltip": {
-                "shared": "true",
-                "valueDecimals": 2,
-                "valuePrefix": "$",
-                "valueSuffix": " USD"
-            },
-            "plotOptions": {
-                "area": {
-                    "stacking": "normal",
-                    "lineColor": "#666666",
-                    "lineWidth": 2,
-                    "marker": {
-                        "lineWidth": 1,
-                        "lineColor": "#666666"
-                    }
-                }
-            },
-            "series": [{
-                "name": "Asia",
-                "data": [502, 635, 809, 947, 1402, 3634, 5268]
-            }, {
-                "name": "Africa",
-                "data": [106, 107, 111, 133, 221, 767, 1766]
-            }, {
-                "name": "Europe",
-                "type": "line",
-                "stacking": "normal",
-                "data": [163, 203, 276, 408, 547, 729, 628]
-            }, {
-                "name": "America",
-                "data": [18, 31, 54, 156, 339, 818, 1201]
-            }, {
-                "name": "Oceania",
-                "data": [2, 2, 2, 6, 13, 30, 46]
-            }]
-
-        }
-    },
-    {
-        "_id": 302,
-        "name": "Cost of Goods Sold",
-        "group": "Expenses",
-        "description": "Total Goods Sold",
-        "dateFrom": "2016-01-1",
-        "dateTo": "2018-12-31",
-        "kpis": ["302"],
-        "dateRange": {
-            "predefined": "last year"
-        },
-        "chartDefinition": {
-            "chart": {
-                "type": "line"
-            },
-            "title": {
-                "text": "Cost of Goods Sold Over Time"
-            },
-            "subtitle": { "text": "The life of your business, review this chart daily to ensure you are achieving at least a 5% year on year growth." },
-            "xAxis": {
-                "categories": ["1750", "1800", "1850", "1900", "1950", "1999", "2050"],
-                "tickmarkPlacement": "on",
-                "title": {
-                    "enabled": false
-                }
-            },
-            "yAxis": {
-                "title": {
-                    "text": " Sales"
-                },
-                "labels": { "formatter": "kpi_dollarize" }
-            },
-            "tooltip": {
-                "shared": "true",
-                "valueDecimals": 2,
-                "valuePrefix": "$",
-                "valueSuffix": " USD"
-            },
-            "plotOptions": {
-                "area": {
-                    "stacking": "normal",
-                    "lineColor": "#666666",
-                    "lineWidth": 2,
-                    "marker": {
-                        "lineWidth": 1,
-                        "lineColor": "#666666"
-                    }
-                }
-            },
-            "series": [{
-                "name": "Asia",
-                "data": [502, 635, 809, 947, 1402, 3634, 5268]
-            }, {
-                "name": "Africa",
-                "data": [106, 107, 111, 133, 221, 767, 1766]
-            }, {
-                "name": "Europe",
-                "type": "line",
-                "stacking": "normal",
-                "data": [163, 203, 276, 408, 547, 729, 628]
-            }, {
-                "name": "America",
-                "data": [18, 31, 54, 156, 339, 818, 1201]
-            }, {
-                "name": "Oceania",
-                "data": [2, 2, 2, 6, 13, 30, 46]
-            }]
-
-        }
-    },
-    {
-        "_id": 303,
-        "name": "Expense By Category",
-        "group": "Expenses",
-        "description": "Expense By Category",
-        "dateFrom": "2016-01-1",
-        "dateTo": "2018-12-31",
-        "kpis": ["303"],
-        "dateRange": {
-            "predefined": "last year"
-        },
-        "chartDefinition": {
-            "chart": { "type": "pie" },
-            "title": { "text": "Expense By Category (Year 2016)" },
-            "subtitle": { "text": "This chart allows you to monitor the inidividual elements responsible for your revenue. This chart is most useful when compared over time." },
-            "lang": {
-                "decimalPoint": ".",
-                "thousandsSep": ","
-            },
-            "plotOptions": {
-                "pie": {
-                    "allowPointSelect": true,
-                    "cursor": "pointer",
-                    "dataLabels": {
-                        "enabled": true,
-                        "distance": 10,
-                        "formatter": "kpi_percent_for_pie_chart"
-                    },
-                    "showInLegend": true
-                }
-            },
-            "legend": {
-                "layout": "horizontal",
-                "align": "center",
-                "verticalAlign": "bottom",
-                "borderWidth": 0
-            },
-            "yAxis": {
-                "min": 0,
-                "title": { "text": "Expenses" }
-            },
-            "tooltip": {
-                "valueDecimals": 2,
-                "valuePrefix": "$",
-                "valueSuffix": " USD"
-            },
-            "series": [{
-                "name": "Delivered amount",
-                "data": [
-                    ["Bananas",
-                        8
-                    ],
-                    ["Kiwi",
-                        3
-                    ],
-                    ["Mixed nuts",
-                        1
-                    ],
-                    ["Oranges",
-                        6
-                    ],
-                    ["Apples",
-                        8
-                    ],
-                    ["Pears",
-                        4
-                    ],
-                    ["Clementines",
-                        4
-                    ],
-                    ["Reddish (bag)",
-                        1
-                    ],
-                    ["Grapes (bunch)",
-                        1
-                    ]
-                ]
-            }]
-        }
-    },
-    {
-        "_id": 304,
-        "name": "Expense Ratio",
-        "group": "Operational",
-        "description": "Expense Ratio",
-        "frequency": "monthly",
-        "kpis": ["304"],
-        "dateRange": {
-            "predefined": "last year"
-        },
-        "chartDefinition": {
-            "chart": { "type": "column" },
-            "title": { "text": "Expense Ratio (Year 2016)" },
-            "subtitle": { "text": "This indicator allows you to evaluate your professional services productivity and it's impact on the revenue" },
-            "yAxis": {
-                "title": { "text": "Percent" }
-            },
-            "tooltip": {
-                "valueDecimals": 2,
-                "valueSuffix": " %"
-            },
-            "legend": {
-                "enabled": false
-            },
-            "series": [{
-                "name": "Expense Ratio",
-                "data": [
-                    ["2012-01", 100],
-                    ["2012-02", 100],
-                    ["2012-03", 66.66666666666666],
-                    ["2012-04", 100],
-                    ["2012-05", 100],
-                    ["2012-07", 100],
-                    ["2012-08", 1.1871733660236143],
-                    ["2012-09", 0.2764803217225562],
-                    ["2012-10", 11.411239724314202],
-                    ["2012-11", 17.51133724145559],
-                    ["2012-12", 13.55089526046925]
-
-                ]
-            }]
-
-        }
-    },
-    {
-        "_id": 305,
-        "name": "Payroll Expense Ratio",
-        "group": "Operational",
-        "description": "Payroll Expense Ratio",
-        "frequency": "monthly",
-        "kpis": ["305"],
-        "dateRange": {
-            "predefined": "last year"
-        },
-        "chartDefinition": {
-            "chart": { "type": "column" },
-            "title": { "text": "Payroll Expense Ratio (Year 2016)" },
-            "subtitle": { "text": "This indicator allows you to evaluate your professional services productivity and it's impact on the revenue" },
-            "yAxis": {
-                "title": { "text": "Percent" }
-            },
-            "tooltip": {
-                "valueDecimals": 2,
-                "valueSuffix": " %"
-            },
-            "legend": {
-                "enabled": false
-            },
-            "series": [{
-                "name": "Expense Ratio",
-                "data": [
-                    ["2012-01", 100],
-                    ["2012-02", 100],
-                    ["2012-03", 66.66666666666666],
-                    ["2012-04", 100],
-                    ["2012-05", 100],
-                    ["2012-07", 100],
-                    ["2012-08", 1.1871733660236143],
-                    ["2012-09", 0.2764803217225562],
-                    ["2012-10", 11.411239724314202],
-                    ["2012-11", 17.51133724145559],
-                    ["2012-12", 13.55089526046925]
-
-                ]
-            }]
-
-        }
-    },
-
-    {
-        "_id": 306,
-        "dateFrom": "2017-01-01",
-        "dateTo": "2017-12-31",
-        "name": "Revenue By Units",
-        "group": "More Financial",
-        "description": "Revenue By Units",
-        "kpis": ["306"],
-        "dateRange": {
-            "predefined": "last year"
-        },
-        "chartDefinition": {
-            "chart": { "type": "line" },
-            "title": { "text": "Revenue By Units (Year 2017)" },
-            "subtitle": { "text": "View Revenue Per Location Yearly" },
-            "xAxis": {
-                "categories": ["1750", "1800", "1850", "1900", "1950", "1999", "2050"],
-                "tickmarkPlacement": "on",
-                "title": {
-                    "enabled": false
-                }
-            },
-            "yAxis": {
-                "title": {
-                    "text": " Sales"
-                },
-                "labels": { "formatter": "kpi_dollarize" }
-            },
-            "tooltip": {
-                "valueDecimals": 2,
-                "valuePrefix": "$",
-                "valueSuffix": " USD"
-            },
-            "plotOptions": {
-                "area": {
-                    "stacking": "normal",
-                    "lineColor": "#666666",
-                    "lineWidth": 2,
-                    "marker": {
-                        "lineWidth": 1,
-                        "lineColor": "#666666"
-                    }
-                }
-            },
-            "series": [{
-                "name": "Asia",
-                "data": [502, 635, 809, 947, 1402, 3634, 5268]
-            }, {
-                "name": "Africa",
-                "data": [106, 107, 111, 133, 221, 767, 1766]
-            }, {
-                "name": "Europe",
-                "type": "line",
-                "stacking": "normal",
-                "data": [163, 203, 276, 408, 547, 729, 628]
-            }, {
-                "name": "America",
-                "data": [18, 31, 54, 156, 339, 818, 1201]
-            }, {
-                "name": "Oceania",
-                "data": [2, 2, 2, 6, 13, 30, 46]
-            }]
-        }
-    },
-    {
-        "_id": 307,
-        "dateFrom": "2017-01-01",
-        "dateTo": "2017-12-31",
-        "name": "Sale Per Location Daily",
-        "group": "More Financial",
-        "description": "Sale Per Location Daily",
-        "kpis": ["307"],
-        "dateRange": {
-            "predefined": "last year"
-        },
-        "chartDefinition": {
-            "chart": { "type": "column" },
-            "title": { "text": "Sales Per Location (July)" },
-            "subtitle": { "text": "Display Sales per day by location" },
-            "yAxis": {
-                "title": { "text": "Sales" },
-                "labels": { "formatter": "kpi_dollarize" }
-            },
-            "tooltip": {
-                "valuePrefix": "$",
-                "valueSuffix": " USD",
-                "useHTML": true,
-                "formatter": "kpi_tooltip_with_percentage_and_total"
-            },
-            "plotOptions": {
-                "column": {
-                    "stacking": "normal"
-                }
-            },
-            "legend": {
-                "layout": "vertical",
-                "align": "right",
-                "verticalAlign": "middle"
-            },
-            "series": [{
-                    "name": "John",
-                    "data": [5,
-                        3,
-                        4,
-                        7,
-                        2
-                    ]
-                },
-                {
-                    "name": "Jane",
-                    "data": [2,
-                        2,
-                        3,
-                        2,
-                        1
-                    ]
-                },
-                {
-                    "name": "Joe",
-                    "data": [3,
-                        4,
-                        4,
-                        2,
-                        5
-                    ]
-                }
-            ]
-        }
-    },
-    {
-        "_id": 308,
-        "dateFrom": "2017-01-01",
-        "dateTo": "2017-12-31",
-        "name": "Revenue By Unit (Year 2017)",
-        "group": "Finance",
-        "description": "Revenue By Units",
-        "kpis": ["308"],
-        "dateRange": {
-            "predefined": "last year"
-        },
-        "chartDefinition": {
-            "chart": { "type": "pie" },
-            "title": { "text": "Revenue By Units (Year 2017)" },
-            "subtitle": { "text": "This chart allows you to monitor the inidividual elements responsible for your revenue. This chart is most useful when compared over time." },
-            "lang": {
-                "decimalPoint": ".",
-                "thousandsSep": ","
-            },
-            "plotOptions": {
-                "pie": {
-                    "allowPointSelect": true,
-                    "cursor": "pointer",
-                    "dataLabels": {
-                        "enabled": true,
-                        "distance": 10,
-                        "formatter": "kpi_percent_for_pie_chart"
-                    },
-                    "showInLegend": true
-                }
-            },
-            "legend": {
-                "layout": "horizontal",
-                "align": "center",
-                "verticalAlign": "bottom",
-                "borderWidth": 0
-            },
-            "yAxis": {
-                "min": 0,
-                "title": { "text": "Revenue" }
-            },
-            "tooltip": {
-                "valueDecimals": 2,
-                "valuePrefix": "$",
-                "valueSuffix": " USD"
-            },
-            "series": [{
-                "name": "Delivered amount",
-                "data": [
-                    ["Bananas",
-                        8
-                    ],
-                    ["Kiwi",
-                        3
-                    ],
-                    ["Mixed nuts",
-                        1
-                    ],
-                    ["Oranges",
-                        6
-                    ],
-                    ["Apples",
-                        8
-                    ],
-                    ["Pears",
-                        4
-                    ],
-                    ["Clementines",
-                        4
-                    ],
-                    ["Reddish (bag)",
-                        1
-                    ],
-                    ["Grapes (bunch)",
-                        1
-                    ]
-                ]
-            }]
-        }
+        "chartDefinition": { 
+            "chart"       : { "type":"line" }
+        }             
     }
-
 
 ]

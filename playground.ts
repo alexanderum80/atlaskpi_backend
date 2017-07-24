@@ -3,8 +3,8 @@
 // import { TestReportingProcessor } from './playground/reporting-processor';
 import { executeKpis } from './playground/execute-kpis';
 
-// import { fillEmployeeHours } from './playground/time-tracking-simulator';
-// import { fixEmployeesRoles } from './playground/fix-saltz-employee-roles';
+import { fillEmployeeHours } from './playground/time-tracking-simulator';
+import { fixEmployeesRoles } from './playground/fix-saltz-employee-roles';
 
 // playWithUsers();
 
