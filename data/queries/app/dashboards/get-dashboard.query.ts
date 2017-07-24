@@ -29,7 +29,7 @@ export class GetDashboardQuery implements IQuery<IDashboard> {
                     // process charts
                     let promises = dashboard.charts.map(c => {
                         let chartQuery = new GetChartQuery(that.identity, that._ctx);
-                        return chartQuery.run({ id: c._id });
+                        return chartQuery.run({ id: (<any>c)._id });
                     });
 
                     Promise.all(promises).then((charts) => {

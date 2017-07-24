@@ -6,7 +6,7 @@ import * as mongoose from 'mongoose';
 import * as Promise from 'bluebird';
 
 export interface IChart {
-    _id?: any;
+    // _id?: string;
     title: string;
     subtitle?: string;
     group?: string;
