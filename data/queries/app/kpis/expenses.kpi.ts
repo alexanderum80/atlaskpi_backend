@@ -25,7 +25,7 @@ export class Expenses extends KpiBase implements IKpiBase {
             {
                 frequency: true,
                 $group: {
-                    _id: null,
+                    _id: { },
                     value: { $sum: '$expense.amount' }
                 }
             },

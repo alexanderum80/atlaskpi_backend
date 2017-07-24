@@ -160,6 +160,57 @@
             "chart"       : { "type":"column" },
             "plotOptions" : { "column" : { "stacking" : "normal" } }
         }             
+    },
+    {
+        "_id": 11,
+        "title": "Retail Sales",
+        "subtitle": "Retail Sales",
+        "group": "Finance",
+        "kpis": ["1"],
+        "dateRange": {
+            "predefined": "this year"
+        },
+        "filter": {
+            "serviceType": { "__dollar__eq": "Retail" }
+        },
+        "groupings": ["location"],
+        "frequency": "monthly",
+        "chartDefinition": { 
+            "chart"       : { "type":"column" }
+        }             
+    },
+    {
+        "_id": 12,
+        "title": "Expense By Category",
+        "subtitle": "Expense By Category",
+        "group": "Finance",
+        "kpis": ["2"],
+        "filter": {
+            "top": {
+                "field": "expense",
+                "value": 10
+            }
+        },
+        "dateRange": {
+            "predefined": "this month"
+        },
+        "groupings": ["concept"],
+        "chartDefinition": { 
+            "chart"       : { "type": "pie" }
+        }            
+    },{
+        "_id": 13,
+        "title": "Expense Ratio",
+        "subtitle": "Expense Ratio",
+        "group": "Finance",
+        "kpis": ["31"],
+        "dateRange": {
+            "predefined": "this year"
+        },
+        "frequency": "monthly",
+        "chartDefinition": { 
+            "chart"       : { "type":"line" }
+        }             
     }
 
 ]

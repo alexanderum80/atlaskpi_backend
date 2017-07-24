@@ -253,7 +253,7 @@ export class UIChartBase {
             }];
         } else {
             return [{
-                name: name,
+                name: '',
                 data: data.map(item => item.value)
             }];
         }

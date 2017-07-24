@@ -45,5 +45,13 @@
         "name": "Ebitda by business unit ",
         "description": "Ebitda by business unit ",
         "composition": "kpi10 - kpi11"
+    },
+    {
+        "_id": "31",
+        "code": "Expense Ratio",
+        "name": "Expense Ratio",
+        "description": "Expense Ratio",
+        "composition": "kpi11 - kpi10 * 100"
     }
+
 ]

@@ -326,6 +326,11 @@ export class KpiBase {
         let groupings = Object.keys(data[0]._id);
         // remove out of that group the filed use for the top
         _.remove(groupings, g => g === top.field);
+
+        if (groupings.length === 0) {
+            groupings = ['frequency'];
+        }
+
         // now group the results and remove all values that exceed the group size
         // https://stackoverflow.com/questions/29587488/grouping-objects-by-multiple-columns-with-lodash-or-underscore
         const notNull = _.negate(_.isNull);
