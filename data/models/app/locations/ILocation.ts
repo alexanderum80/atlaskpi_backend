@@ -2,9 +2,16 @@ import * as mongoose from 'mongoose';
 import * as Promise from 'bluebird';
 import { IAddress } from '../../common';
 
+export interface ILocationAlias {
+    source: string;
+    externalId: string;
+    name: string;
+}
+
 export interface ILocation {
     name: string;
-    address: IAddress
+    address: IAddress;
+    aliases: ILocationAlias[];
 }
 
 export interface ILocationDocument extends ILocation, mongoose.Document {

@@ -1,9 +1,17 @@
 [
     {
-        "_id": "5909f2b526217eac17462630",
         "name": "Main",
         "group": "Financial",
-        "charts": ["1", "2", "3"]
+        "charts": ["1", "2", "3", "4", "5", "6", "7", "8"]
+    },
+    {
+        "name": "Financial",
+        "group": "Financial",
+        "charts": ["9", "10", "11", "12", "13", "14"]
+    },
+    {
+        "name": "Playground",
+        "group": "Test",
+        "charts": ["10"]
     }
-
 ]

@@ -33,12 +33,11 @@ export const kpisGql: GraphqlDefinition = {
                 formula: String
                 group: String
                 emptyValueReplacement: String
-            }  
+            }
             type KPIPagedQueryResult {
                 pagination: PaginationInfo
                 data: [KPI]
-            }       
-            
+            }
         `,
         queries: `
             getAllKPIs(details: PaginationDetails): KPIPagedQueryResult

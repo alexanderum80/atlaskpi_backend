@@ -1,12 +1,11 @@
 import { parsePredifinedDate } from '../../../../models/common/date-range';
 import { IKPIDocument, IAppModels } from '../../../../models/app';
-import { getKPI } from '../../kpis/kpi.factory';
 import { IKpiBase, IKPIResult } from '../../kpis/kpi-base';
 import { IChart, IChartDocument } from '../../../../models/app/charts';
 import { IChartDateRange } from '../../../../models/common/date-range';
 import { ChartPreProcessorExtention } from './chart-preprocessor-extention';
 import { FrequencyHelper, IFrequencyInfo, IFrequencyValues } from './frequency-values';
-import { IChartMetadata, IChartSerie } from '.';
+import { IChartMetadata, IChartSerie, ChartType } from '.';
 import {
     FREQUENCY_GROUPING_NAME,
     FrequencyEnum,
@@ -18,7 +17,9 @@ import * as Promise from 'bluebird';
 import * as _ from 'lodash';
 import * as moment from 'moment';
 import * as mongoose from 'mongoose';
+import * as logger from 'winston';
 import 'datejs';
+
 
 import { ChartPostProcessingExtention } from './chart-postprocessing-extention';
 
@@ -58,11 +59,13 @@ export class UIChartBase {
      * @param metadata chart metadata
      */
     protected processChartData(kpi: IKpiBase, metadata?: IChartMetadata): Promise < void > {
+        logger.debug('processChartData for: ' + this.constructor.name + ' - kpi: ' + kpi.constructor.name);
         const that = this;
 
         this.dateRange = this._getDateRange(metadata.dateRange);
 
         return that.getKPIData(kpi, metadata).then(data => {
+            logger.debug('data received, for chart: ' + this.constructor.name + ' - kpi: ' + kpi.constructor.name);
             that.data = data;
             that.groupings = that._getGroupingFields(data);
             that.frequencyHelper.decomposeFrequencyInfo(data, metadata.frequency);
@@ -87,9 +90,11 @@ export class UIChartBase {
     protected buildDefinition(customOptions: any): string {
         let definition = Object.assign({}, customOptions, this.chart.chartDefinition);
         let shortDateFormat = 'MM/DD/YY';
-        let dateRangeText = this.dateRange.predefined ?
-            this.dateRange.predefined
-            : moment(this.dateRange.custom.from).format(shortDateFormat) + ' - ' + moment(this.dateRange.custom.to).format(shortDateFormat);
+        const dateRange = this.dateRange || this.chart.dateRange;
+
+        let dateRangeText = dateRange.predefined ?
+            dateRange.predefined
+            : moment(dateRange.custom.from).format(shortDateFormat) + ' - ' + moment(dateRange.custom.to).format(shortDateFormat);
 
         definition.title = { text: `${this.chart.title} (${dateRangeText})` };
         definition.subtitle = { text: this.chart.subtitle };
@@ -111,7 +116,9 @@ export class UIChartBase {
      * @param metadata chart metadata
      */
     protected getKPIData(kpi: IKpiBase, metadata?: IChartMetadata): Promise<any[]> {
-        return kpi.getData(this.dateRange.custom, { frequency: metadata.frequency, groupings: metadata.groupings });
+        logger.debug('trying to get kpi data for: ' + this.chart.title);
+        // const dateRange = this.dateRange ? this. dateRange.custom : null;
+        return kpi.getData(this.dateRange.custom, metadata);
     }
 
     /**
@@ -208,7 +215,7 @@ export class UIChartBase {
             /**
              *  this is a one level grouping chart
              */
-            return this._getSeriesForFirstLevelGrouping(data, '');
+            return this._getSeriesForFirstLevelGrouping(data, categories, meta.xAxisSource);
 
 
         } else if (availableGroupingsForSeries.length === 1) {
@@ -227,66 +234,32 @@ export class UIChartBase {
             // this._getSeriesForThirdLevelGrouping(data, meta, categories, groupings);
 
         }
-
-
-
-
-        // if (groupings.indexOf(FREQUENCY_GROUPING_NAME)) {
-
-        //     /*
-        //     *  then I get the frequency property name based on the the selected frequency because that
-        //     *  property is used to save the frequency info once the data is received from mongo as numeric values(year, month, day, etc)
-        //     */
-        //     let frequencyName = getFrequencyPropName(meta.frequency);
-
-        //     /*
-        //     *  first of we need to group the result set by year because in a chart we are not showing more than a year at a time
-        //     */
-        //     let dataGroupedByYear = _.groupBy(data, FREQUENCY_GROUPING_NAME + '.year');
-
-        //     /**
-        //      *  here I create series by year
-        //      */
-        //     let series: IChartSerie[] = this.frequencyHelper.get().years.map(y => {
-        //         return {
-        //             name: y,
-        //             data: dataGroupedByYear[y].map(item => [item.frequency[frequencyName], item.value])
-        //         };
-        //     });
-
-        // }
-
-        // /*
-        //  *  frequency data may not be completed and we need to make sure that we
-        //  *  complete the sequence. Ex: months, days of the months, quarters, etc
-        //  */
-        // let freqSequence = getFrequencySequence(meta.frequency);
-
-        // /**
-        //  *  once I have a complete sequence for the frequency I go over the series's data
-        //  *  I complete the empty frequency slots if any
-        //  */
-        // if (freqSequence) {
-        //     for (let i = 0; i < series.length; i++) {
-        //         let completed = freqSequence.map(freq => {
-        //             let dataValue = series[i].data.find(dataItem => freq === dataItem[0]);
-        //             return dataValue ? dataValue[1] : null;
-        //         });
-
-        //         series[i].data = completed;
-        //     }
-        // }
-
-        // return series;
     }
 
 
-    private _getSeriesForFirstLevelGrouping(data: any[], name: string): IChartSerie[] {
-        return [{
-            showInLegend: false,
-            name: name,
-            data: data.map(item => item.value)
-        }];
+    private _getSeriesForFirstLevelGrouping(data: any[], categories: IXAxisCategory[], group: string): IChartSerie[] {
+
+        if (this.chart.chartDefinition.chart.type === ChartType.Pie) {
+            return [{
+                showInLegend: false,
+                name: '',
+                data:  categories.map(cat => {
+                    let dataItem = _.find(data, (item: any) => {
+                        return item._id[group] === cat.id;
+                    });
+
+                    return {
+                        name: cat.name || 'Others',
+                        y: dataItem ? dataItem.value : null
+                    };
+                })
+            }];
+        } else {
+            return [{
+                name: '',
+                data: data.map(item => item.value)
+            }];
+        }
     }
 
     private _getSeriesForSecondLevelGrouping(data: any[], meta: IChartMetadata, categories: IXAxisCategory[], groupByField: string): IChartSerie[] {
@@ -312,7 +285,7 @@ export class UIChartBase {
 
         for (let serieName in groupedData) {
             let serie: IChartSerie = {
-                name: serieName,
+                name: serieName || 'Other',
                 data: []
             };
 

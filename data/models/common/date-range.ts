@@ -112,7 +112,7 @@ export function parsePredifinedDate(textDate: string): IDateRange {
         case PredefinedDateRanges.thisYear:
             return {
                 from: moment().startOf('year').toDate(),
-                to: moment().endOf('year').toDate()
+                to: moment().endOf('year').subtract(1, 'day').toDate()
             };
     }
 

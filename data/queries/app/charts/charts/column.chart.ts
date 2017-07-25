@@ -10,15 +10,15 @@ import { IChartMetadata } from './chart-metadata';
 import { IKpiBase } from '../../kpis/kpi-base';
 import * as Promise from 'bluebird';
 
-const basicDefinition = {
-    chart: { type: 'column' },
-    yAxis: {
-        min: 0,
-        title: { text: '' }
-    }
-};
-
 export class ColumnChart extends UIChartBase implements IUIChart {
+
+    private basicDefinition = {
+        chart: { type: 'column' },
+        yAxis: {
+            min: 0,
+            title: { text: '' }
+        }
+    };
 
     constructor(chart: IChart, frequencyHelper: FrequencyHelper) {
         super(chart, frequencyHelper);
@@ -28,7 +28,7 @@ export class ColumnChart extends UIChartBase implements IUIChart {
         const that = this;
 
         return this.processChartData(kpi, metadata).then(() => {
-            return that.buildDefinition(basicDefinition);
+            return that.buildDefinition(this.basicDefinition);
         });
     }
 

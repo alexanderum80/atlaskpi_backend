@@ -1,31 +1,25 @@
 import { IMutationResponse } from '../../';
-import { IPagedQueryResult, IPaginationDetails, IQueryResponse } from '../../common';
+import { IChartDateRange, IPagedQueryResult, IPaginationDetails, IQueryResponse } from '../../common';
 import * as mongoose from 'mongoose';
 import * as Promise from 'bluebird';
 
 export interface IKPI {
     code: string;
     name: string;
+    baseKpi?: string;
     description?: string;
-    formula: string;
-    group?: string;
-    grouping: any;
-    filter: string;
-    axisSelection: string;
+    groupings?: string[];
+    dateRange?: IChartDateRange;
+    filter?: any;
+    frequency?: string;
+    axisSelection?: string;
     emptyValueReplacement?: string;
-    outputType: string;
+    composition?: string;
 }
 
 export interface IKPIDetails extends IKPI { }
 
-export interface IKPIDocument extends IKPI, mongoose.Document {
-    name: string;
-    description?: string;
-    formula: string;
-    group?: string;
-    emptyValueReplacement?: string;
-    outputType: string;
-}
+export interface IKPIDocument extends IKPI, mongoose.Document { }
 
 export interface IKPIModel extends mongoose.Model<IKPIDocument> {
     /**
@@ -41,7 +35,7 @@ export interface IKPIModel extends mongoose.Model<IKPIDocument> {
 
     /**
      * Update a KPI by its id
-     */d
+     */
     updateKPI(id: string, data: IKPIDetails): Promise<IMutationResponse>;
 
      /**

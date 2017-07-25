@@ -3,7 +3,6 @@ import { ChartFactory } from '../charts/charts/chart-factory';
 import { FrequencyTable } from '../../../models/common/frequency-enum';
 import { FrequencyEnum, IDateRange } from '../../../models/common';
 import { IAppModels } from '../../../models/app/app-models';
-import { Chart } from '../charts/charts/chart';
 import * as Promise from 'bluebird';
 import { IQuery } from '../..';
 import { IIdentity } from '../../../';
@@ -30,7 +29,7 @@ export class GetDashboardQuery implements IQuery<IDashboard> {
                     // process charts
                     let promises = dashboard.charts.map(c => {
                         let chartQuery = new GetChartQuery(that.identity, that._ctx);
-                        return chartQuery.run({ id: c._id });
+                        return chartQuery.run({ id: (<any>c)._id });
                     });
 
                     Promise.all(promises).then((charts) => {

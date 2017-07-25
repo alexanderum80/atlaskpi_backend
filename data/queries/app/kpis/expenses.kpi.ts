@@ -1,16 +1,15 @@
+import { IExpenseModel } from '../../../models/app/expenses';
 import * as Promise from 'bluebird';
-import { ISaleModel } from '../../../models/app/sales';
 import { AggregateStage } from './aggregate';
 import { IGetDataOptions, IKpiBase, KpiBase } from './kpi-base';
-import { IAppModels } from '../../../models/app/app-models';
 import { FrequencyEnum } from '../../../models/common/frequency-enum';
 import { IDateRange } from '../../../models/common/date-range';
 
 import * as _ from 'lodash';
 
-export class Revenue extends KpiBase implements IKpiBase {
+export class Expenses extends KpiBase implements IKpiBase {
 
-    constructor(sales: ISaleModel) {
+    constructor(expense: IExpenseModel) {
         const baseAggregate: AggregateStage[] = [
             {
                 filter: true,
@@ -19,16 +18,15 @@ export class Revenue extends KpiBase implements IKpiBase {
             {
                 frequency: true,
                 $project: {
-                    'product': 1,
+                    'expense': 1,
                     '_id': 0
                 }
             },
             {
                 frequency: true,
                 $group: {
-                    // dynamic groupings are going to be added here
                     _id: { },
-                    value: { $sum: '$product.amount' }
+                    value: { $sum: '$expense.amount' }
                 }
             },
             {
@@ -38,11 +36,11 @@ export class Revenue extends KpiBase implements IKpiBase {
             }
         ];
 
-        super(sales, baseAggregate);
+        super(expense, baseAggregate);
     }
 
     getData(dateRange: IDateRange, options?: IGetDataOptions): Promise<any> {
-        return this.executeQuery('product.from', dateRange, options);
+        return this.executeQuery('timestamp', dateRange, options);
     }
 
     getSeries(dateRange: IDateRange, frequency: FrequencyEnum) {}

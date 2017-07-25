@@ -25,7 +25,7 @@
             "predefined": "this year"
         },
         "frequency": "monthly",
-        "groupings": ["category"],
+        "groupings": ["businessUnit"],
         "chartDefinition": { 
             "chart"       : { "type":"column" },
             "plotOptions" : { "column" : { "stacking" : "normal" } }
@@ -40,7 +40,7 @@
         "dateRange": {
             "predefined": "this year"
         },
-        "groupings": ["category"],
+        "groupings": ["businessUnit"],
         "chartDefinition": { 
             "chart"       : { "type":"pie" },
             "plotOptions" : { "pie" : { "dataLabels": {
@@ -48,7 +48,182 @@
                               },
                               "showInLegend": false } }
         }
-        
+    },
+    {
+        "_id": 4,
+        "title": "Total revenue over time",
+        "subtitle": "Total revenue of all times grouped by busines unit (revenue source)",
+        "group": "Finance",
+        "kpis": ["1"],
+        "dateRange": {
+            "predefined": "all times"
+        },
+        "frequency": "yearly",
+        "groupings": ["businessUnit"],
+        "chartDefinition": { 
+            "chart"       : { "type":"column" },
+            "plotOptions" : { "column" : { "stacking" : "normal" } }
+        }            
+    },
+    {
+        "_id": 5,
+        "title": "Net Collected Revenue per Full Time Employee by location",
+        "subtitle": "Revenue collected for full time employees grouped by location",
+        "group": "Finance",
+        "kpis": ["1"],
+        "dateRange": {
+            "predefined": "this year"
+        },
+        "filter": {
+            "employee__dot__type": { "__dollar__eq": "f" }
+        },
+        "frequency": "monthly",
+        "groupings": ["businessUnit"],
+        "chartDefinition": { 
+            "chart"       : { "type":"line" }
+        }            
+    },
+    {
+        "_id": 6,
+        "title": "Total Expense by business unit",
+        "subtitle": "Expenses grouped by business unit",
+        "group": "Finance",
+        "kpis": ["2"],
+        "dateRange": {
+            "predefined": "this year"
+        },
+        "frequency": "monthly",
+        "groupings": ["location"],
+        "chartDefinition": { 
+            "chart"       : { "type":"line" }
+        }            
+    },
+    {
+        "_id": 7,
+        "title": "Ebitda by business unit",
+        "subtitle": "Ebitda by business unit",
+        "group": "Finance",
+        "kpis": ["30"],
+        "dateRange": {
+            "predefined": "this year"
+        },
+        "frequency": "monthly",
+        "groupings": ["location"],
+        "chartDefinition": { 
+            "chart"       : { "type":"bar" }
+        }            
+    },
+    {
+        "_id": 8,
+        "title": "Total Expenses Over Time by business unit",
+        "subtitle": "Total Expenses Over Time by business unit",
+        "group": "Finance",
+        "kpis": ["2"],
+        "dateRange": {
+            "predefined": "last 2 years"
+        },
+        "frequency": "monthly",
+        "groupings": ["location"],
+        "chartDefinition": { 
+            "chart"       : { "type": "line" }
+        }            
+    },
+    {
+        "_id": 9,
+        "title": "Revenue By Service Type",
+        "subtitle": "Revenue By Service Type",
+        "group": "Finance",
+        "kpis": ["1"],
+        "dateRange": {
+            "predefined": "this quarter"
+        },
+        "groupings": ["serviceType"],
+        "chartDefinition": { 
+            "chart"       : { "type":"pie" }
+        }            
+    },
+    {
+        "_id": 10,
+        "title": "Sales By Product",
+        "subtitle": "Sales By Product",
+        "group": "Finance",
+        "kpis": ["1"],
+        "dateRange": {
+            "predefined": "this month"
+        },
+        "filter": {
+            "top": { "field": "product", "value": 5 }
+        },
+        "frequency": "daily",
+        "groupings": ["product"],
+        "chartDefinition": { 
+            "chart"       : { "type":"column" },
+            "plotOptions" : { "column" : { "stacking" : "normal" } }
+        }             
+    },
+    {
+        "_id": 11,
+        "title": "Retail Sales",
+        "subtitle": "Retail Sales",
+        "group": "Finance",
+        "kpis": ["1"],
+        "dateRange": {
+            "predefined": "this year"
+        },
+        "filter": {
+            "serviceType": { "__dollar__eq": "Retail" }
+        },
+        "groupings": ["location"],
+        "frequency": "monthly",
+        "chartDefinition": { 
+            "chart"       : { "type":"column" }
+        }             
+    },
+    {
+        "_id": 12,
+        "title": "Expense By Category",
+        "subtitle": "Expense By Category",
+        "group": "Finance",
+        "kpis": ["2"],
+        "filter": {
+            "top": {
+                "field": "expense",
+                "value": 10
+            }
+        },
+        "dateRange": {
+            "predefined": "this month"
+        },
+        "groupings": ["concept"],
+        "chartDefinition": { 
+            "chart"       : { "type": "pie" }
+        }            
+    },{
+        "_id": 13,
+        "title": "Expense Ratio",
+        "subtitle": "Expense Ratio",
+        "group": "Finance",
+        "kpis": ["31"],
+        "dateRange": {
+            "predefined": "this year"
+        },
+        "frequency": "monthly",
+        "chartDefinition": { 
+            "chart"       : { "type":"line" }
+        }             
+    },{
+        "_id": 14,
+        "title": "Payroll Expense Ratio",
+        "subtitle": "Payroll Expense Ratio",
+        "group": "Finance",
+        "kpis": ["32"],
+        "dateRange": {
+            "predefined": "last 2 years"
+        },
+        "frequency": "monthly",
+        "chartDefinition": { 
+            "chart"       : { "type":"line" }
+        }             
     }
 
 ]

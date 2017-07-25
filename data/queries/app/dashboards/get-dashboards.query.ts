@@ -1,7 +1,6 @@
 import { FrequencyTable } from '../../../models/common/frequency-enum';
 import { FrequencyEnum, IDateRange } from '../../../models/common';
 import { IAppModels } from '../../../models/app/app-models';
-import { Chart } from '../charts/charts/chart';
 import * as Promise from 'bluebird';
 import { IQuery } from '../..';
 import { IIdentity } from '../../../';
