@@ -147,7 +147,10 @@ export class KpiBase {
             });
 
             let value = filter[filterKey];
-            value = _.isObject(value) ? this._cleanFilter(value) : value;
+
+            if (!_.isArray(value) && _.isObject(value)) {
+                value = this._cleanFilter(value);
+            }
 
             newFilter[newKey] = value;
         });
