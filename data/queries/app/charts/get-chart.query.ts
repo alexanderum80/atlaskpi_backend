@@ -1,4 +1,3 @@
-import { SampleDefinitionsTable } from './charts/sample-definitions.chart';
 import { IChartMetadata } from './charts/chart-metadata';
 import { FrequencyTable } from '../../../models/common/frequency-enum';
 import { FrequencyEnum, IDateRange } from '../../../models/common';
@@ -15,7 +14,7 @@ import * as logger from 'winston';
 
 export class GetChartQuery implements IQuery<string> {
 
-    constructor(public identity: IIdentity, private _ctx: IAppModels, private _preview?: boolean) { }
+    constructor(public identity: IIdentity, private _ctx: IAppModels) { }
 
     // log = true;
     // audit = true;
@@ -39,12 +38,6 @@ export class GetChartQuery implements IQuery<string> {
 
                     if (!chart) {
                         return reject(null);
-                    }
-
-                    if (that._preview) {
-                        let type = chartDocument.chartDefinition.chart.type;
-                        chartDocument.chartDefinition = JSON.parse(SampleDefinitionsTable[type]) || [];
-                        return resolve(JSON.stringify(chartDocument));
                     }
 
                     let uiChart = ChartFactory.getInstance(chart);

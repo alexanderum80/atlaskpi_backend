@@ -15,7 +15,7 @@ export const chartsGql: GraphqlDefinition = {
 
             chartsList(preview: Boolean): String
 
-            chart(id: String!, dateRange: DateRange!, xAxisSource: String!, frequency: String, grouping: String): String
+            chart(id: String!, dateRange: DateRangeDetails!, xAxisSource: String!, frequency: String, grouping: String): String
         `,
         mutations: ``,
     },

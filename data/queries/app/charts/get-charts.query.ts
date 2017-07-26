@@ -23,13 +23,15 @@ export class GetChartsQuery implements IQuery<IChart[]> {
             .then(chartsCollection => {
                 // process charts
                 let promises = chartsCollection.map(c => {
-                    let chartQuery = new GetChartQuery(that.identity, that._ctx, data.preview);
+                    let chartQuery = new GetChartQuery(that.identity, that._ctx);
                     return chartQuery.run({ id: c._id });
                 });
 
-                Promise.all(promises).then((charts) => {
-                    resolve(<any>JSON.stringify(charts));
-                }).catch(e => reject(e));
+               Promise.all(promises).then((charts) => {
+                let response = {};
+                Object.assign(response, { charts: charts });
+                resolve(<any>JSON.stringify(response));
+               }).catch(e => reject(e));
             });
 
         });

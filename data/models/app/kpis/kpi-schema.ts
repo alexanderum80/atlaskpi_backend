@@ -161,11 +161,12 @@ KPISchema.statics.removeKPI = function(id: string): Promise<IMutationResponse> {
 
 };
 
+
+
 KPISchema.statics.getAllKPIs = function(details: IPaginationDetails): Promise<IPagedQueryResult<IKPIDocument>> {
     let paginator = new Paginator<IKPIDocument>(this, ['name']);
     return paginator.getPage(details);
 };
-
 
 export function getKPIModel(m: mongoose.Connection): IKPIModel {
     return <IKPIModel>m.model('KPI', KPISchema, 'kpis');

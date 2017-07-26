@@ -1,3 +1,4 @@
+import { getKpisActivity } from './app/kpis/get-kpis.activity';
 import {
     createAccountActivity,
     getAccountActivity,
@@ -77,6 +78,7 @@ export function addActivities() {
         createKPIActivity,
         updateKPIActivity,
         removeKPIActivity,
+        getKpisActivity,
 
         // businessUnits
         createBusinessUnitActivity,
