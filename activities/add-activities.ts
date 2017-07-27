@@ -1,3 +1,4 @@
+import { createChartActivity } from './app/charts/create-chart.activity';
 import { getKpisActivity } from './app/kpis/get-kpis.activity';
 import {
     createAccountActivity,
@@ -98,6 +99,7 @@ export function addActivities() {
         // getChartDataActivity,
         getChartActivity,
         getChartsActivity,
+        createChartActivity,
 
         // dashboards
         getDashboardActivity,

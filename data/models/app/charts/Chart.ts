@@ -1,3 +1,6 @@
+import { IAppModels } from '../app-models';
+import { IKPIDocument } from '../kpis';
+import { IChartInput } from './';
 import { DateRange } from '../../common';
 import { IChart, IChartModel, IChartDocument } from './IChart';
 import { IMutationResponse, MutationResponse } from '../../';
@@ -7,18 +10,28 @@ import * as validate from 'validate.js';
 import * as winston from 'winston';
 
 
-export function resolveKpi(context, kpi, done) {
-  if (typeof kpi === 'string') {
-    context.model('KPI').findOne({ name: kpi }, function (err, kpi) {
-      console.log('kpi found: ' + kpi);
-      if (err) return done(err);
-      if (!kpi) return done(new Error('Unknown kpi: ' + kpi));
-      done(null, kpi);
+export function resolveKpi(context, kpi: string): Promise<IKPIDocument> {
+  if (typeof kpi !== 'string') {
+    let err = 'kpi should be specified as string';
+    return Promise.reject(err);
+  }
+
+  return new Promise<IKPIDocument>((resolve, reject) => {
+    context.model('KPI').findOne({ _id: kpi }, (err, doc) => {
+      if (err) {
+        console.log('error resolving kpi: ' + kpi);
+        return reject(err);
+      }
+
+      if (!doc) {
+        console.log('kpi not found: ' + kpi);
+        return resolve(doc);
+      }
+
+      console.log('kpi found: ' + doc);
+      resolve(doc);
     });
-  }
-  else {
-    done(null, kpi);
-  }
+  });
 }
 
 let Schema = mongoose.Schema;
@@ -33,7 +46,6 @@ let ChartDateRangeSchema = new Schema({
 
 
 let ChartSchema = new Schema({
-    _id: String,
     title: String,
     subtitle: String,
     group: String,
@@ -49,84 +61,101 @@ let ChartSchema = new Schema({
 });
 
     // ChartSchema.methods.
- ChartSchema.methods.hasKpi = function (kpi, done) {
-    let obj = this;
-    this.resolveRole(this, kpi, function (err, kpi) {
-      if (err) return done(err);
-      let hasKpi = false;
-       obj.kpis.forEach(function (existing) {
-        if ((existing._id && existing._id.equals(kpi._id)) ||
-          (existing.toString() === kpi.id)) {
-          hasKpi = true;
+
+ ChartSchema.methods.hasKpi = function(kpi: any): boolean {
+    this.kpis.forEach((k: IKPIDocument) => {
+      if ((kpi instanceof String && k._id === kpi) ||
+          (kpi instanceof Object && kpi._id === k._id)) {
+          return true;
+      }
+    });
+    return false;
+  };
+
+ ChartSchema.methods.addKpi = function (kpi: string): Promise<IKPIDocument> {
+    const model = this;
+    return new Promise<IKPIDocument>((resolve, reject) => {
+      resolveKpi(model, kpi).then(doc => {
+        if (!doc) {
+          return resolve(doc);
         }
-      });
-      done(null, hasKpi);
+        if (model.hasKpi(doc)) {
+          let err = 'kpi already exist on the chart';
+          console.log(err);
+          return reject(err);
+        }
+
+        model.kpis.push(doc._id);
+        return resolve(doc);
+      })
+      .catch(err => reject(err));
     });
   };
 
- ChartSchema.methods.addKpi = function (kpi, done) {
-    let obj = this;
-    this.resolveKpi(this, kpi, function (err, kpi) {
-      if (err) return done(err);
-      obj.hasKpi(kpi, function (err, has) {
-        if (err) return done(err);
-        if (has) return done(null, obj);
-        obj.kpis = [kpi._id].concat(obj.kpis);
-        obj.save(done);
-      });
+  ChartSchema.statics.createChart = function(input: IChartInput): Promise<IMutationResponse> {
+    const that = this;
+
+    return new Promise<IMutationResponse>((resolve, reject) => {
+        const requiredAndNotBlank =  { presence: { message: '^cannot be blank' } };
+
+        let constraints = {
+            title:  requiredAndNotBlank,
+            kpis: requiredAndNotBlank,
+            dateRange: requiredAndNotBlank,
+            chartDefinition: requiredAndNotBlank,
+            xAxisSource: requiredAndNotBlank
+        };
+
+        let errors = (<any>validate)((<any>input), constraints, {fullMessages: false});
+
+        // validate if kpi exists before saving the model
+        input.kpis.forEach(k => {
+          resolveKpi(this, k).then(kpi => {
+              if (!kpi) {
+                return resolve({  success: false, errors: [ { field: 'kpis', errors: ['kpi not found'] } ]});
+              }
+          })
+          .catch(err => { return resolve({  success: false, errors: [ { field: 'kpis', errors: ['kpi not found'] } ]}); } );
+         });
+
+         if (errors) {
+            resolve(MutationResponse.fromValidationErrors(errors));
+            return;
+        }
+
+        let newChart = {
+            title: input.title,
+            subtitle: input.subtitle,
+            group: input.group,
+            dateRange: input.dateRange,
+            // filter: any;
+            frequency: input.frequency,
+            groupings: input.groupings,
+            xFormat: input.xFormat,
+            yFormat: input.yFormat,
+            chartDefinition: JSON.parse(input.chartDefinition),
+            xAxisSource: input.xAxisSource
+        };
+
+        that.create(newChart, (err, chart: IChartDocument) => {
+            if (err) {
+                reject({ message: 'There was an error creating the chart', error: err });
+                return;
+            }
+
+            // adding kpis
+            let kpiPromises = [];
+            input.kpis.forEach(k => {
+              kpiPromises.push(chart.addKpi(k));
+            });
+
+            Promise.all(kpiPromises).then(kpis => {
+              chart.save();
+              return resolve({ entity: chart });
+            });
+        });
     });
   };
-
-// TODO: I need to revive this later that is why I did not remove it
-
-  // ChartSchema.statics.
-//   ChartSchema.statics.createChart = function(details: IChartDetails): Promise<IMutationResponse> {
-//     let that = this;
-
-//     return new Promise<IMutationResponse>((resolve, reject) => {
-//         let constraints = {
-//             name: { presence: { message: '^cannot be blank' }},
-//             frecuency: { presence: { message: '^cannot be blank' }},
-//         };
-
-//         let errors = (<any>validate)((<any>details), constraints, {fullMessages: false});
-//         if (errors) {
-//             resolve(MutationResponse.fromValidationErrors(errors));
-//             return;
-//         };
-
-//         let newChart = {
-//             name: details.name,
-//             dataRange: details.dataRange,
-//             description: details.description,
-//             frequency: details.frequency,
-//             group: details.group,
-//             kpis: [],
-//             format: details.chartFormat
-//         };
-
-//         that.create(newChart, (err, chart: IChartDocument) => {
-//             if (err) {
-//                 reject({ message: 'There was an error creating the chart', error: err });
-//                 return;
-//             }
-
-//             // adding kpis
-//             if (details.kpis && details.kpis.length > 0) {
-//                 chart.kpis = null;
-//                 details.kpis.forEach((kpi) => {
-//                     chart.addKpi(kpi, (err, role) => {
-//                         if (err) {
-//                             winston.error('Error adding role: ', err);
-//                         }
-//                     });
-//                 });
-//             };
-
-//             resolve({ entity: chart });
-//         });
-//     });
-//   };
 
 export function getChartModel(m: mongoose.Connection): IChartModel {
     return <IChartModel>m.model('Chart', ChartSchema, 'charts');

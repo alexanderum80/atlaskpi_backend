@@ -1,3 +1,4 @@
+import { IDateRange } from '../../models/common/date-range';
 import { GetKpisQuery } from '../../queries/app/kpis/get-kpis.query';
 import { CreateKPIMutation, UpdateKPIMutation, RemoveKPIMutation } from '../../mutations/app/kpis';
 import { IQueryResponse } from '../../models/common/query-response';
@@ -91,5 +92,9 @@ export const kpisGql: GraphqlDefinition = {
             kpi(response: IMutationResponse) { return response.entity; },
             errors(response: IMutationResponse) { return response.errors; }
         },
+        DateRange: {
+            from(dateRange: IDateRange ) { return dateRange.from; },
+            to(dateRange: IDateRange) { return dateRange.to; }
+        }
     }
 };

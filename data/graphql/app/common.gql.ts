@@ -21,21 +21,21 @@ export const commonGql: GraphqlDefinition = {
             field: String
             errors: [String]!
         }
-        input CustomDateRangeDetails {
+        input DateRangeInput {
             from: String
             to: String
         }
-        input DateRangeDetails {
+        input ChartDateRangeInput {
             predefined: String
-            custom: CustomDateRangeDetails
-        }
-        type CustomDateRange {
-            from: String
-            to: String
+            custom: DateRangeInput
         }
         type DateRange {
+            from: String
+            to: String
+        }
+        type ChartDateRange {
             predefined: String,
-            custom: CustomDateRange
+            custom: DateRange
         }
        `,
         queries: ``,

@@ -49,7 +49,7 @@ export class GetChartQuery implements IQuery<string> {
                         filter: data.filter ? data.filter : chart.filter,
                         frequency: frequency,
                         groupings: groupings,
-                        xAxisSource: data.xAxisSource
+                        xAxisSource: data.xAxisSource || chart.xAxisSource
                     };
 
                     if (data.dateRange) {

@@ -21,24 +21,29 @@ export interface IChart {
     xAxisSource: string;
 }
 
-// export interface IChartDetails {
-//     title: string;
-//     subtitle: string;
-//     group: string;
-//     frequency: string;
-//     kpis: string[];
-//     chartFormat: string;
-//     dataRange: IChartDateRange;
-// }
+export interface IChartInput {
+    title: string;
+    subtitle?: string;
+    group?: string;
+    kpis: [string];
+    dateRange: IChartDateRange;
+    filter?: any;
+    frequency?: string;
+    groupings?: string[];
+    xFormat?: string;
+    yFormat?: string;
+    chartDefinition: any;
+    xAxisSource: string;
+}
 
 export interface IChartDocument extends IChart, mongoose.Document {
-      hasKpi(kpi: string, done: (err: any, hasKpi: boolean) => void): void;
-      addKpi(kpi: string, done?: (err: any, kpi: IKPIDocument) => void): void;
+      hasKpi(kpi: string | IKPIDocument): boolean;
+      addKpi(kpi: string): Promise<IKPIDocument>;
 }
 
 export interface IChartModel extends mongoose.Model<IChartDocument> {
     /**
      * Create a Chart
      */
-    // createChart(details: IChartDetails): Promise<IMutationResponse>;
+    createChart(input: IChartInput): Promise<IMutationResponse>;
 }

@@ -1,3 +1,8 @@
+import { IChartDateRange, IDateRange } from '../../models/common/date-range';
+import { IChartDocument } from '../../models/app/charts';
+import { CreateChartMutation } from '../../mutations/app/charts/create-chart.mutation';
+import { IChart } from '../../models/app/charts';
+import { IMutationResponse } from '../../models';
 import { GetChartQuery } from '../../queries/app/charts/get-chart.query';
 import { GetChartsQuery } from '../../queries/app/charts/get-charts.query';
 import { GetChartDefinitionQuery } from '../../queries';
@@ -9,15 +14,49 @@ import * as logger from 'winston';
 export const chartsGql: GraphqlDefinition = {
     name: 'reporting',
     schema: {
-        types: ``,
+        types: `
+            input ChartPreviewInput {
+                title: String!
+                subtitle: String
+                kpis: [String]
+                dateRange: ChartDateRangeInput
+                frequency: String
+                groupings: [String]
+                chartDefinition: String
+                xAxisSource: String
+            }
+            type ChartEntityResponse {
+                _id: String
+                title: String
+                subtitle: String
+                group: String
+                kpis: [String]
+                dateRange: ChartDateRange
+                filter: String
+                frequency: String
+                groupings: String
+                xFormat: String
+                yFormat: String
+                chartDefinition: String
+                xAxisSource: String
+            }
+            type CreateChartMutationResponse {
+                entity: ChartEntityResponse
+                errors: [ErrorDetails]
+            }
+        `,
         queries: `
             charts(from: String!, to: String!, preview: Boolean): String
 
             chartsList(preview: Boolean): String
 
-            chart(id: String!, dateRange: DateRangeDetails!, xAxisSource: String!, frequency: String, grouping: String): String
+            chart(id: String!, dateRange: ChartDateRangeInput!, xAxisSource: String!, frequency: String, grouping: String): String
+
+            previewChart(input: ChartPreviewInput): String
         `,
-        mutations: ``,
+        mutations: `
+            createChart(input: ChartPreviewInput): CreateChartMutationResponse
+        `,
     },
 
     resolvers: {
@@ -35,8 +74,43 @@ export const chartsGql: GraphqlDefinition = {
             chart(root: any, args, ctx: IGraphqlContext) {
                 let query = new GetChartQuery(ctx.req.identity, ctx.req.appContext);
                 return ctx.queryBus.run('get-chart', query, args);
+            },
+
+            previewChart(root: any, args, ctx: IGraphqlContext) {
+                let query = new GetChartQuery(ctx.req.identity, ctx.req.appContext);
+                return ctx.req.appContext.KPI.findOne({ _id: args.input.kpis[0]})
+                .then(kpi => {
+                    // GetChartQuery is expecting a the input parameter as chart
+                    args.chart = args.input;
+                    args.chart.chartDefinition = JSON.parse(args.input.chartDefinition);
+                    args.chart.kpis[0] = kpi;
+                    return ctx.queryBus.run('get-chart', query, args);
+                })
+                .catch(e => { return ctx.queryBus.run('get-chart', query, args); });
             }
         },
-        Mutation: {}
+        Mutation: {
+            createChart(root: any, args, ctx: IGraphqlContext) {
+                let mutation = new CreateChartMutation(ctx.req.identity, ctx.req.appContext.Chart);
+                return ctx.mutationBus.run<IMutationResponse>('create-chart', ctx.req, mutation, args);
+            },
+        },
+        CreateChartMutationResponse: {
+            entity(response: IMutationResponse) {
+                return response.entity;
+            },
+            errors(response: IMutationResponse) {
+                return response.errors;
+            }
+        },
+        ChartDateRange: {
+            predefined(dateRange: IChartDateRange) { return dateRange.predefined; },
+            custom(dateRange: IChartDateRange) { return dateRange.custom; }
+        },
+        ChartEntityResponse: {
+            dateRange(entity: IChart) { return entity.dateRange; },
+            chartDefinition(entity: IChart) { return JSON.stringify(entity.chartDefinition); }
+        }
     }
 };
+
