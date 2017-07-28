@@ -2,3 +2,4 @@
 export * from './get-chart.activity';
 export * from './get-charts.activity';
 export * from './create-chart.activity';
+export * from './list-charts.activity';

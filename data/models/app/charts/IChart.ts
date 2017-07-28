@@ -36,6 +36,14 @@ export interface IChartInput {
     xAxisSource: string;
 }
 
+export interface IGetChartInput {
+    dateRange: IChartDateRange;
+    frequency: string;
+    groupings: [string];
+    xAxisSource: string;
+    filter?: string;
+}
+
 export interface IChartDocument extends IChart, mongoose.Document {
       hasKpi(kpi: string | IKPIDocument): boolean;
       addKpi(kpi: string): Promise<IKPIDocument>;

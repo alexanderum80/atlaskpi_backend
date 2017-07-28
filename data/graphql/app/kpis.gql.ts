@@ -95,6 +95,9 @@ export const kpisGql: GraphqlDefinition = {
         DateRange: {
             from(dateRange: IDateRange ) { return dateRange.from; },
             to(dateRange: IDateRange) { return dateRange.to; }
+        },
+        KPI: {
+            dateRange(entity: IKPIDocument) { return entity.dateRange; },
         }
     }
 };

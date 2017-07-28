@@ -5,6 +5,7 @@ import { IChart } from '../../models/app/charts';
 import { IMutationResponse } from '../../models';
 import { GetChartQuery } from '../../queries/app/charts/get-chart.query';
 import { GetChartsQuery } from '../../queries/app/charts/get-charts.query';
+import { ListChartsQuery } from '../../queries/app/charts/list-charts.query';
 import { GetChartDefinitionQuery } from '../../queries';
 import { GraphqlDefinition } from '../graphql-definition';
 import { ExtendedRequest } from '../../../middlewares';
@@ -15,6 +16,12 @@ export const chartsGql: GraphqlDefinition = {
     name: 'reporting',
     schema: {
         types: `
+            input GetChartInput {
+                dateRange: ChartDateRangeInput!
+                frequency: String!
+                groupings: [String]!
+                xAxisSource: String!
+            }
             input ChartPreviewInput {
                 title: String!
                 subtitle: String
@@ -44,15 +51,20 @@ export const chartsGql: GraphqlDefinition = {
                 entity: ChartEntityResponse
                 errors: [ErrorDetails]
             }
+            type ListChartsQueryResponse {
+                data: [ChartEntityResponse]
+            }
         `,
         queries: `
             charts(from: String!, to: String!, preview: Boolean): String
 
             chartsList(preview: Boolean): String
 
-            chart(id: String!, dateRange: ChartDateRangeInput!, xAxisSource: String!, frequency: String, grouping: String): String
+            chart(id: String, input: GetChartInput): String
 
             previewChart(input: ChartPreviewInput): String
+
+            listCharts: ListChartsQueryResponse
         `,
         mutations: `
             createChart(input: ChartPreviewInput): CreateChartMutationResponse
@@ -87,7 +99,12 @@ export const chartsGql: GraphqlDefinition = {
                     return ctx.queryBus.run('get-chart', query, args);
                 })
                 .catch(e => { return ctx.queryBus.run('get-chart', query, args); });
-            }
+            },
+
+            listCharts(root: any, args, ctx: IGraphqlContext) {
+                let query = new ListChartsQuery(ctx.req.identity, ctx.req.appContext);
+                return ctx.queryBus.run('list-charts', query, args);
+            },
         },
         Mutation: {
             createChart(root: any, args, ctx: IGraphqlContext) {
@@ -110,6 +127,9 @@ export const chartsGql: GraphqlDefinition = {
         ChartEntityResponse: {
             dateRange(entity: IChart) { return entity.dateRange; },
             chartDefinition(entity: IChart) { return JSON.stringify(entity.chartDefinition); }
+        },
+        ListChartsQueryResponse: {
+             data(response: [IChartDocument]) { return response; }
         }
     }
 };

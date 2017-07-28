@@ -1,3 +1,4 @@
+import { listChartsActivity } from './app/charts/list-charts.activity';
 import { createChartActivity } from './app/charts/create-chart.activity';
 import { getKpisActivity } from './app/kpis/get-kpis.activity';
 import {
@@ -100,6 +101,7 @@ export function addActivities() {
         getChartActivity,
         getChartsActivity,
         createChartActivity,
+        listChartsActivity,
 
         // dashboards
         getDashboardActivity,
