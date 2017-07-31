@@ -151,10 +151,34 @@ let ChartSchema = new Schema({
 
             Promise.all(kpiPromises).then(kpis => {
               chart.save();
-              return resolve({ entity: chart });
+              return resolve({ success: true, entity: chart });
             });
         });
     });
+  };
+
+  ChartSchema.statics.deleteChart = function(id: string): Promise<IMutationResponse> {
+    const that = this;
+
+    return new Promise<IMutationResponse>((resolve, reject) => {
+        if (!id ) {
+          return Promise.reject({ message: 'There was an error updating the user' });
+        }
+
+        that.findByIdAndRemove(id, (err, data) => {
+            if (err) {
+                const errResponse: IMutationResponse = {
+                  success: false,
+                  errors: [ { field: 'id', errors: ['There was an error deleting the chart']}]
+                };
+
+                resolve(errResponse);
+                return;
+            }
+
+            return resolve({ success: true });
+          });
+        });
   };
 
 export function getChartModel(m: mongoose.Connection): IChartModel {

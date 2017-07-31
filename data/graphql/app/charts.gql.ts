@@ -1,6 +1,6 @@
 import { IChartDateRange, IDateRange } from '../../models/common/date-range';
 import { IChartDocument } from '../../models/app/charts';
-import { CreateChartMutation } from '../../mutations/app/charts/create-chart.mutation';
+import { CreateChartMutation, DeleteChartMutation } from '../../mutations/app/charts';
 import { IChart } from '../../models/app/charts';
 import { IMutationResponse } from '../../models';
 import { GetChartQuery } from '../../queries/app/charts/get-chart.query';
@@ -48,11 +48,16 @@ export const chartsGql: GraphqlDefinition = {
                 xAxisSource: String
             }
             type CreateChartMutationResponse {
+                success: Boolean
                 entity: ChartEntityResponse
                 errors: [ErrorDetails]
             }
             type ListChartsQueryResponse {
                 data: [ChartEntityResponse]
+            }
+            type DeleteChartMutationResponse {
+                success: Boolean
+                errors: [ErrorDetails]
             }
         `,
         queries: `
@@ -68,6 +73,7 @@ export const chartsGql: GraphqlDefinition = {
         `,
         mutations: `
             createChart(input: ChartPreviewInput): CreateChartMutationResponse
+            deleteChart(id: String!): DeleteChartMutationResponse
         `,
     },
 
@@ -110,6 +116,10 @@ export const chartsGql: GraphqlDefinition = {
             createChart(root: any, args, ctx: IGraphqlContext) {
                 let mutation = new CreateChartMutation(ctx.req.identity, ctx.req.appContext.Chart);
                 return ctx.mutationBus.run<IMutationResponse>('create-chart', ctx.req, mutation, args);
+            },
+            deleteChart(root: any, args, ctx: IGraphqlContext) {
+                let mutation = new DeleteChartMutation(ctx.req.identity, ctx.req.appContext.Chart);
+                return ctx.mutationBus.run<IMutationResponse>('delete-chart', ctx.req, mutation, args);
             },
         },
         CreateChartMutationResponse: {
