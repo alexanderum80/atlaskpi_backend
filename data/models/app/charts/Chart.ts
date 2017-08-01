@@ -181,6 +181,71 @@ let ChartSchema = new Schema({
         });
   };
 
+  ChartSchema.statics.updateChart = function(id: string, input: IChartInput): Promise<IMutationResponse> {
+     const that = this;
+
+     return new Promise<IMutationResponse>((resolve, reject) => {
+        if (!id ) {
+          return Promise.reject({ message: 'There was an error updating the user' });
+        }
+
+        const requiredAndNotBlank =  { presence: { message: '^cannot be blank' } };
+
+        let constraints = {
+            title:  requiredAndNotBlank,
+            kpis: requiredAndNotBlank,
+            dateRange: requiredAndNotBlank,
+            chartDefinition: requiredAndNotBlank,
+            xAxisSource: requiredAndNotBlank
+        };
+
+        let errors = (<any>validate)((<any>input), constraints, {fullMessages: false});
+
+        // validate if kpi exists before saving the model
+        input.kpis.forEach(k => {
+          resolveKpi(this, k).then(kpi => {
+              if (!kpi) {
+                return resolve({  success: false, errors: [ { field: 'kpis', errors: ['kpi not found'] } ]});
+              }
+          })
+          .catch(err => { return resolve({  success: false, errors: [ { field: 'kpis', errors: ['kpi not found'] } ]}); } );
+        });
+
+        if (errors) {
+            resolve(MutationResponse.fromValidationErrors(errors));
+            return;
+        }
+
+        const updatedChart = {
+            title: input.title,
+            subtitle: input.subtitle,
+            group: input.group,
+            dateRange: input.dateRange,
+            // filter: any;
+            frequency: input.frequency,
+            groupings: input.groupings,
+            xFormat: input.xFormat,
+            yFormat: input.yFormat,
+            chartDefinition: JSON.parse(input.chartDefinition),
+            xAxisSource: input.xAxisSource
+        };
+
+        that.findByIdAndUpdate(id, updatedChart, (err, entity) => {
+            if (err) {
+                const errResponse: IMutationResponse = {
+                  success: false,
+                  errors: [ { field: 'id', errors: ['There was an error updating the chart']}]
+                };
+
+                return resolve(errResponse);
+            }
+
+            return resolve({ success: true, entity: entity });
+          });
+        });
+  };
+
 export function getChartModel(m: mongoose.Connection): IChartModel {
     return <IChartModel>m.model('Chart', ChartSchema, 'charts');
 }
+

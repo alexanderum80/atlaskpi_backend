@@ -62,4 +62,11 @@ export interface IChartModel extends mongoose.Model<IChartDocument> {
      * @returns {Promise<IMutationResponse>}
      */
     deleteChart(id: string): Promise<IMutationResponse>;
+    /**
+     * Update a Chart
+     * @param { string } id - and input object with the details of the chart
+     * @param { IChartInput } input - and input object with the details of the chart
+     * @returns {Promise<IMutationResponse>}
+     */
+    updateChart(id: string, input: IChartInput): Promise<IMutationResponse>;
 }
