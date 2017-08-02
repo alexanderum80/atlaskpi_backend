@@ -85,7 +85,7 @@ accountSchema.statics.createNewAccount = function(ip: string, clientId: string, 
             getContext(newAccount.getMasterConnectionString()).then((newAccountContext) => {
                return new Promise<boolean>((resolve, reject) => {
                     // Create a db user if it's in production
-                    if (config.environment.isMongoDBAtlas) {
+                    if (config.isMongoDBAtlas) {
                         newAccount.createParticularUser(particularUser)
                         .then((value) => resolve(value))
                         .catch((err) => reject(err));
@@ -115,7 +115,7 @@ accountSchema.statics.createNewAccount = function(ip: string, clientId: string, 
                         }
                     })
                     .then(() => {
-                        let subdomain = `${account.database.name}.${config.environment.subdomain}`;
+                        let subdomain = `${account.database.name}.${config.subdomain}`;
 
                         let auth = new AuthController(that, newAccountContext);
                         // TODO: I need to add the browser details on this request
@@ -218,7 +218,7 @@ accountSchema.methods.getConnectionString = function() {
 };
 
 accountSchema.methods.getMasterConnectionString = function() {
-    let uriTemplate = Handlebars.compile(config.environment.masterConnectionString);
+    let uriTemplate = Handlebars.compile(config.masterConnectionString);
     return uriTemplate({database: this.database.name});
 };
 
@@ -232,10 +232,10 @@ accountSchema.methods.createParticularUser = function(particularUser: IParticula
     };
 
     let options: request.Options = {
-        uri: config.environment.mongoDBAtlasCredentials.uri,
+        uri: config.mongoDBAtlasCredentials.uri,
         auth: {
-            user: config.environment.mongoDBAtlasCredentials.username,
-            pass: config.environment.mongoDBAtlasCredentials.api_key,
+            user: config.mongoDBAtlasCredentials.username,
+            pass: config.mongoDBAtlasCredentials.api_key,
             sendImmediately: false
         },
         json: body
@@ -263,11 +263,11 @@ export function getAccountModel(): IAccountModel {
 }
 
 export function generateDBObject(database: string, user?: string, password?: string): IDatabaseInfo {
-    let uriTemplate = Handlebars.compile(config.environment.connectionString);
+    let uriTemplate = Handlebars.compile(config.connectionString);
     let data = {
         user: user,
         password: password,
         database: database
     };
     return { uri: uriTemplate(data), name: changeCase.paramCase(database) };
-};
+}

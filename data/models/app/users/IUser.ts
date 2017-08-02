@@ -1,6 +1,6 @@
+import { IAppConfig } from '../../../../configuration/config-models';
 import { IIdentity } from '../identity';
 import { IQueryResponse } from '../../common/query-response';
-import { IAppConfig } from '../../../../config';
 import { IMutationResponse, IPaginationDetails, IPagedQueryResult } from '../../common';
 import { IRoleDocument } from '../../../../lib/rbac/models/roles';
 import mongoose = require('mongoose');

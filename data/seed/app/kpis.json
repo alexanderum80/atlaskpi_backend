@@ -24,6 +24,9 @@
         "dateRange": {
             "predefined": "this year"
         },
+        "filter": {
+            "product__dot__itemCode": { "__dollar__ne": "TIP" }
+        },
         "frequency": "monthly",
         "groupings": ["businessUnit"]   
     },
