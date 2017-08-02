@@ -52,7 +52,6 @@ accountSchema.statics.createNewAccount = function(ip: string, clientId: string, 
         let constrains = {
             name: { presence: { message: '^cannot be blank'}},
             personalInfo: { presence: { message: '^cannot be blank' }},
-            businessUnits: { presence: { message: '^cannot be blank' }},
         };
 
         let validationErrors = (<any>validate)(account, constrains, { fullMessages: false});
@@ -90,12 +89,12 @@ accountSchema.statics.createNewAccount = function(ip: string, clientId: string, 
                         newAccount.createParticularUser(particularUser)
                         .then((value) => resolve(value))
                         .catch((err) => reject(err));
-                    };
+                    }
                     // Local db... no need to create a db user;
                     resolve(true);
                 })
                 .then((result) => {
-                    if (result !== true) { throw result; };
+                    if (result !== true) { throw result; }
                     newAccountContext.Role.find({}).then((roles) => {
                         initRoles(newAccountContext, rolesSetup.initialRoles, function (err, admin, readonly) {
                             console.log(admin);
