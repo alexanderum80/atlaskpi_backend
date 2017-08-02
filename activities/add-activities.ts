@@ -1,3 +1,8 @@
+import { updateChartActivity } from './app/charts/update-chart.activity';
+import { deleteChartActivity } from './app/charts/delete-chart.activity';
+import { listChartsActivity } from './app/charts/list-charts.activity';
+import { createChartActivity } from './app/charts/create-chart.activity';
+import { getKpisActivity } from './app/kpis/get-kpis.activity';
 import {
     createAccountActivity,
     getAccountActivity,
@@ -39,6 +44,7 @@ import {
     // charts
     // getChartDataActivity,
     getChartActivity,
+    getChartsActivity,
 
     // dashboards
     getDashboardActivity,
@@ -76,6 +82,7 @@ export function addActivities() {
         createKPIActivity,
         updateKPIActivity,
         removeKPIActivity,
+        getKpisActivity,
 
         // businessUnits
         createBusinessUnitActivity,
@@ -94,6 +101,11 @@ export function addActivities() {
          // charts
         // getChartDataActivity,
         getChartActivity,
+        getChartsActivity,
+        createChartActivity,
+        listChartsActivity,
+        deleteChartActivity,
+        updateChartActivity,
 
         // dashboards
         getDashboardActivity,

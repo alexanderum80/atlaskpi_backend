@@ -4,7 +4,7 @@ import { FrequencyEnum, IDateRange } from '../../../models/common';
 import * as Promise from 'bluebird';
 import { IQuery } from '../..';
 import { IIdentity } from '../../../';
-import { IChart, IChartDocument } from '../../../models/app/charts';
+import { IChart, IChartDocument, IGetChartInput } from '../../../models/app/charts';
 import { IAppModels } from '../../../models/app/app-models';
 
 import { ChartFactory } from './charts/chart-factory';
@@ -19,13 +19,13 @@ export class GetChartQuery implements IQuery<string> {
     // log = true;
     // audit = true;
 
-    run(data: { chart?: IChart, id?: string, dateRange?: { from: string, to: string}, filter?: any, frequency?: string, groupings?: string[], xAxisSource?: string }): Promise<string> {
+    run(data: { chart?: IChart, id?: string, input?: IGetChartInput }): Promise<string> {
         logger.debug('running get chart query for id:' + data.id);
 
         let that = this;
 
         // in order for this query to make sense I need either a chart definition or an id
-        if (!data.chart && !data.id) {
+        if (!data.chart && !data.id && !data.input) {
             return Promise.reject('An id or a chart definition is needed');
         }
 
@@ -42,24 +42,18 @@ export class GetChartQuery implements IQuery<string> {
 
                     let uiChart = ChartFactory.getInstance(chart);
                     let kpi = KpiFactory.getInstance(chart.kpis[0], that._ctx);
-                    let groupings = getGroupingMetadata(chart, data.groupings);
+                    let groupings = getGroupingMetadata(chart, data.input ? data.input.groupings : []);
 
-                    let frequency = FrequencyTable[data.frequency ? data.frequency : chart.frequency];
+                    let frequency = FrequencyTable[(data.input && data.input.frequency) ? data.input.frequency : chart.frequency];
                     let definitionParameters: IChartMetadata = {
-                        filter: data.filter ? data.filter : chart.filter,
+                        filter: (data.input && data.input.filter)  ? data.input.filter : chart.filter,
                         frequency: frequency,
                         groupings: groupings,
-                        xAxisSource: data.xAxisSource
+                        xAxisSource: (data.input && data.input.xAxisSource) ? data.input.xAxisSource : chart.xAxisSource
                     };
 
-                    if (data.dateRange) {
-                        definitionParameters.dateRange = {
-                            predefined: null,
-                            custom: {
-                                from: new Date(data.dateRange.from),
-                                to: new Date(data.dateRange.to)
-                            }
-                        };
+                    if (data.input && data.input.dateRange) {
+                        definitionParameters.dateRange = data.input.dateRange;
                     }
 
                     uiChart.getDefinition(kpi, definitionParameters).then((definition) => {
