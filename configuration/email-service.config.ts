@@ -19,4 +19,4 @@ export const emailServiceConfig: IEmailServiceConfig = {
             domain: 'kpibi.com'
         }
     }
-}
+};

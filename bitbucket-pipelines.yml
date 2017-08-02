@@ -14,10 +14,10 @@ pipelines:
             - cat my_known_hosts >> ~/.ssh/known_hosts
             - (umask 077; echo $MY_SSH_KEY | base64 --decode > ~/.ssh/id_rsa)
             - npm install
-            - npm run build
+            - NODE_ENV=prod npm run build
             - cp -R configuration/users/templates dist/configuration/users
             - cp -R resources dist
             - mv dist webapp-backend && tar cvfz webapp-backend.tgz webapp-backend
             - scp webapp-backend.tgz ubuntu@app.kpibi.com:./apps/uploads
-            - ssh ubuntu@app.kpibi.com 'cd apps/uploads && tar xvfz webapp-backend.tgz && cp -R webapp-backend/* ../webapp-backend && rm -Rf webapp-backend* && cd ../webapp-backend && npm install && pm2 restart kpibi-webapp-backend'
+            - ssh ubuntu@app.kpibi.com 'cd apps/uploads && tar xvfz webapp-backend.tgz && cp -R webapp-backend/* ../webapp-backend && rm -Rf webapp-backend* && cd ../webapp-backend && npm install && pm2 restart webapp-backend'
 

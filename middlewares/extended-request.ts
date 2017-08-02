@@ -1,4 +1,4 @@
-import { IAppConfig } from '../config';
+import { IAppConfig } from '../configuration/config-models';
 import { IIdentity, IMutationBus, IQueryBus } from '../data';
 import { Request } from 'express';
 import { IAppModels, IMasterModels, IUserDocument } from '../data/models';

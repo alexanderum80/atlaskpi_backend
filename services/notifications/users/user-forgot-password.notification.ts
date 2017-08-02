@@ -31,7 +31,7 @@ export class UserForgotPasswordNotification implements IEmailNotifier {
         };
 
         (<any>dataSource).host = this._data.hostname.split('.')[0] || this._data.hostname;
-        (<any>dataSource).subdomain = this._config.environment.subdomain;
+        (<any>dataSource).subdomain = this._config.subdomain;
 
         (<any>dataSource).resetToken = user.services.password.reset.token;
 

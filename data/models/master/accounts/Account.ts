@@ -52,7 +52,6 @@ accountSchema.statics.createNewAccount = function(ip: string, clientId: string, 
         let constrains = {
             name: { presence: { message: '^cannot be blank'}},
             personalInfo: { presence: { message: '^cannot be blank' }},
-            businessUnits: { presence: { message: '^cannot be blank' }},
         };
 
         let validationErrors = (<any>validate)(account, constrains, { fullMessages: false});
@@ -86,16 +85,16 @@ accountSchema.statics.createNewAccount = function(ip: string, clientId: string, 
             getContext(newAccount.getMasterConnectionString()).then((newAccountContext) => {
                return new Promise<boolean>((resolve, reject) => {
                     // Create a db user if it's in production
-                    if (config.environment.isMongoDBAtlas) {
+                    if (config.isMongoDBAtlas) {
                         newAccount.createParticularUser(particularUser)
                         .then((value) => resolve(value))
                         .catch((err) => reject(err));
-                    };
+                    }
                     // Local db... no need to create a db user;
                     resolve(true);
                 })
                 .then((result) => {
-                    if (result !== true) { throw result; };
+                    if (result !== true) { throw result; }
                     newAccountContext.Role.find({}).then((roles) => {
                         initRoles(newAccountContext, rolesSetup.initialRoles, function (err, admin, readonly) {
                             console.log(admin);
@@ -106,8 +105,6 @@ accountSchema.statics.createNewAccount = function(ip: string, clientId: string, 
                     let notifier = new EnrollmentNotification(config, { hostname: newAccount.database.name });
                     newAccountContext.User.createUser(firstUser, notifier).then((response) => {
                         (<IUserDocument>response.entity).addRole('admin');
-                        Promise.map(account.businessUnits, (businessUnit) => {
-                            return newAccountContext.BusinessUnit.create(businessUnit);
                     })
                     .then(() => {
                         if (account.seedData) {
@@ -116,15 +113,15 @@ accountSchema.statics.createNewAccount = function(ip: string, clientId: string, 
                         }
                     })
                     .then(() => {
-                        let subdomain = `${account.database.name}.${config.environment.subdomain}`;
+                        const subdomain = `${account.database.name}.${config.subdomain}`;
 
-                        let auth = new AuthController(that, newAccountContext);
+                        const auth = new AuthController(that, newAccountContext);
                         // TODO: I need to add the browser details on this request
                         auth.authenticateUser(subdomain, firstUser.email, firstUser.password, ip, clientId, clientDetails)
                         .then((tokenInfo) => {
                             newAccount.subdomain = subdomain;
                             newAccount.initialToken = tokenInfo;
-                            resolve({ entity: newAccount });
+                            resolve({ entity: newAccount, success: true });
                         });
                     });
                     }, (err) => {
@@ -135,11 +132,7 @@ accountSchema.statics.createNewAccount = function(ip: string, clientId: string, 
             .catch((err) => {
                 resolve({ errors: [ {field: 'account', errors: [err.message] } ], entity: null });
             });
-            });
-
         });
-
-
 
     });
 };
@@ -176,7 +169,7 @@ accountSchema.statics.findAccountByHostname = function(hostname: string): Promis
             name = hostname.split('.')[0];
         } else {
             name = <any>hostname;
-        };
+        }
 
         that.findOne({ 'database.name': name }, (err, account) => {
             if (err) {
@@ -219,7 +212,7 @@ accountSchema.methods.getConnectionString = function() {
 };
 
 accountSchema.methods.getMasterConnectionString = function() {
-    let uriTemplate = Handlebars.compile(config.environment.masterConnectionString);
+    let uriTemplate = Handlebars.compile(config.masterConnectionString);
     return uriTemplate({database: this.database.name});
 };
 
@@ -233,10 +226,10 @@ accountSchema.methods.createParticularUser = function(particularUser: IParticula
     };
 
     let options: request.Options = {
-        uri: config.environment.mongoDBAtlasCredentials.uri,
+        uri: config.mongoDBAtlasCredentials.uri,
         auth: {
-            user: config.environment.mongoDBAtlasCredentials.username,
-            pass: config.environment.mongoDBAtlasCredentials.api_key,
+            user: config.mongoDBAtlasCredentials.username,
+            pass: config.mongoDBAtlasCredentials.api_key,
             sendImmediately: false
         },
         json: body
@@ -264,11 +257,11 @@ export function getAccountModel(): IAccountModel {
 }
 
 export function generateDBObject(database: string, user?: string, password?: string): IDatabaseInfo {
-    let uriTemplate = Handlebars.compile(config.environment.connectionString);
+    let uriTemplate = Handlebars.compile(config.connectionString);
     let data = {
         user: user,
         password: password,
         database: database
     };
     return { uri: uriTemplate(data), name: changeCase.paramCase(database) };
-};
+}

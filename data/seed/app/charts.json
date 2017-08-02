@@ -8,6 +8,9 @@
         "dateRange": {
             "predefined": "last month"
         },
+        "filter": {
+            "product__dot__itemCode": { "__dollar__ne": "TIP" }
+        },
         "frequency": "daily",
         "groupings": ["location"],
         "chartDefinition": { 
@@ -24,6 +27,9 @@
         "dateRange": {
             "predefined": "this year"
         },
+        "filter": {
+            "product__dot__itemCode": { "__dollar__ne": "TIP" }
+        },
         "frequency": "monthly",
         "groupings": ["businessUnit"],
         "chartDefinition": { 
@@ -39,6 +45,9 @@
         "kpis": ["1"],
         "dateRange": {
             "predefined": "this year"
+        },
+        "filter": {
+            "product__dot__itemCode": { "__dollar__ne": "TIP" }
         },
         "groupings": ["businessUnit"],
         "chartDefinition": { 
@@ -58,6 +67,9 @@
         "dateRange": {
             "predefined": "all times"
         },
+        "filter": {
+            "product__dot__itemCode": { "__dollar__ne": "TIP" }
+        },
         "frequency": "yearly",
         "groupings": ["businessUnit"],
         "chartDefinition": { 
@@ -75,7 +87,8 @@
             "predefined": "this year"
         },
         "filter": {
-            "employee__dot__type": { "__dollar__eq": "f" }
+            "employee__dot__type": { "__dollar__eq": "f" },
+            "product__dot__itemCode": { "__dollar__ne": "TIP" }
         },
         "frequency": "monthly",
         "groupings": ["businessUnit"],
@@ -137,6 +150,9 @@
         "dateRange": {
             "predefined": "this quarter"
         },
+        "filter": {
+            "product__dot__itemCode": { "__dollar__ne": "TIP" }
+        },
         "groupings": ["serviceType"],
         "chartDefinition": { 
             "chart"       : { "type":"pie" }
@@ -152,7 +168,8 @@
             "predefined": "this month"
         },
         "filter": {
-            "top": { "field": "product", "value": 5 }
+            "top": { "field": "product", "value": 5 },
+            "product__dot__itemCode": { "__dollar__ne": "TIP" }
         },
         "frequency": "daily",
         "groupings": ["product"],
@@ -171,7 +188,8 @@
             "predefined": "this year"
         },
         "filter": {
-            "serviceType": { "__dollar__eq": "Retail" }
+            "serviceType": { "__dollar__eq": "Retail" },
+            "product__dot__itemCode": { "__dollar__ne": "TIP" }
         },
         "groupings": ["location"],
         "frequency": "monthly",

@@ -1,4 +1,3 @@
-import { IAppConfig } from '../../config';
 import { IUserDocument } from '../../data';
 import * as Promise from 'bluebird';
 import * as nodemailer from 'nodemailer';
