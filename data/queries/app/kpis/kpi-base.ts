@@ -65,7 +65,6 @@ export class KpiBase {
             });
 
             // logger.debug('With aggregate: ' + JSON.stringify(aggregateParameters));
-
             this.model.aggregate(...aggregateParameters).then(data => {
                 logger.debug('MongoDB data received: ' + that.model.modelName);
                 // before returning I need to check if a "top" filter was added
@@ -147,7 +146,10 @@ export class KpiBase {
             });
 
             let value = filter[filterKey];
-            value = _.isObject(value) ? this._cleanFilter(value) : value;
+
+            if (!_.isArray(value) && _.isObject(value)) {
+                value = this._cleanFilter(value);
+            }
 
             newFilter[newKey] = value;
         });
@@ -322,6 +324,10 @@ export class KpiBase {
     }
 
     private _applyTop(data: any[], top: { field: string, value: number }): any[] {
+        // validate if data array has elements
+        if (!data || data.length === 0) {
+            return data;
+        }
         // get first record to extract the groupings
         let groupings = Object.keys(data[0]._id);
         // remove out of that group the filed use for the top
