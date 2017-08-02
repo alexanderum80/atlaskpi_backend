@@ -52,7 +52,6 @@ accountSchema.statics.createNewAccount = function(ip: string, clientId: string, 
         let constrains = {
             name: { presence: { message: '^cannot be blank'}},
             personalInfo: { presence: { message: '^cannot be blank' }},
-            businessUnits: { presence: { message: '^cannot be blank' }},
         };
 
         let validationErrors = (<any>validate)(account, constrains, { fullMessages: false});
@@ -95,7 +94,7 @@ accountSchema.statics.createNewAccount = function(ip: string, clientId: string, 
                     resolve(true);
                 })
                 .then((result) => {
-                    if (result !== true) { throw result; };
+                    if (result !== true) { throw result; }
                     newAccountContext.Role.find({}).then((roles) => {
                         initRoles(newAccountContext, rolesSetup.initialRoles, function (err, admin, readonly) {
                             console.log(admin);
@@ -106,8 +105,6 @@ accountSchema.statics.createNewAccount = function(ip: string, clientId: string, 
                     let notifier = new EnrollmentNotification(config, { hostname: newAccount.database.name });
                     newAccountContext.User.createUser(firstUser, notifier).then((response) => {
                         (<IUserDocument>response.entity).addRole('admin');
-                        Promise.map(account.businessUnits, (businessUnit) => {
-                            return newAccountContext.BusinessUnit.create(businessUnit);
                     })
                     .then(() => {
                         if (account.seedData) {
@@ -116,15 +113,15 @@ accountSchema.statics.createNewAccount = function(ip: string, clientId: string, 
                         }
                     })
                     .then(() => {
-                        let subdomain = `${account.database.name}.${config.subdomain}`;
+                        const subdomain = `${account.database.name}.${config.subdomain}`;
 
-                        let auth = new AuthController(that, newAccountContext);
+                        const auth = new AuthController(that, newAccountContext);
                         // TODO: I need to add the browser details on this request
                         auth.authenticateUser(subdomain, firstUser.email, firstUser.password, ip, clientId, clientDetails)
                         .then((tokenInfo) => {
                             newAccount.subdomain = subdomain;
                             newAccount.initialToken = tokenInfo;
-                            resolve({ entity: newAccount });
+                            resolve({ entity: newAccount, success: true });
                         });
                     });
                     }, (err) => {
@@ -135,11 +132,7 @@ accountSchema.statics.createNewAccount = function(ip: string, clientId: string, 
             .catch((err) => {
                 resolve({ errors: [ {field: 'account', errors: [err.message] } ], entity: null });
             });
-            });
-
         });
-
-
 
     });
 };
@@ -176,7 +169,7 @@ accountSchema.statics.findAccountByHostname = function(hostname: string): Promis
             name = hostname.split('.')[0];
         } else {
             name = <any>hostname;
-        };
+        }
 
         that.findOne({ 'database.name': name }, (err, account) => {
             if (err) {
