@@ -22,7 +22,6 @@ export const accountsGql: GraphqlDefinition = {
             input AccountDetails {
                 name: String!
                 personalInfo: PersonalInfoDetails
-                businessUnits: [BusinessUnitDetails]!
                 seedData: Boolean
             }
             type PersonalInfo {
