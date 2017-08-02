@@ -32,7 +32,7 @@ let KPISchema = new Schema({
     group: String,
     groupings: [String],
     dateRange: ChartDateRangeSchema,
-    filter: String,
+    filter: Schema.Types.Mixed,
     frequency: String,
     axisSelection: String,
     emptyValueReplacement: String,
