@@ -3,3 +3,4 @@ export * from './get-charts.query';
 export * from './get-chart.query';
 export * from './chart-collection';
 export * from './chart-grouping-map';
+export * from './list-charts.query';

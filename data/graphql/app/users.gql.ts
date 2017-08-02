@@ -72,7 +72,7 @@ export const usersGql: GraphqlDefinition = {
                 emails: [UserEmail]
                 profile: UserProfile
                 roles: [String]
-            }           
+            }
             type TokenVerification {
                 isValid: Boolean
             }

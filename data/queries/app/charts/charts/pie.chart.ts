@@ -20,16 +20,16 @@ import {
 } from './';
 import * as Handlebars from 'handlebars';
 
-const basicDefinition = `
-    "plotOptions": {
-        "pie": {
-            "dataLabels": {
-                "enabled": true
+const basicDefinition = {
+    'plotOptions': {
+        'pie': {
+            'dataLabels': {
+                'enabled': true
             },
-            "showInLegend": false
+            'showInLegend': false
         }
     }
-`;
+};
 
 export class PieChart extends UIChartBase implements IUIChart {
 
