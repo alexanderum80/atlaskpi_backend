@@ -19,5 +19,5 @@ pipelines:
             - cp -R resources dist
             - mv dist webapp-backend && tar cvfz webapp-backend.tgz webapp-backend
             - scp webapp-backend.tgz ubuntu@app.kpibi.com:./apps/uploads
-            - ssh ubuntu@app.kpibi.com 'cd apps/uploads && tar xvfz webapp-backend.tgz && cp -R webapp-backend/* ../webapp-backend && rm -Rf webapp-backend* && cd ../webapp-backend && npm install && pm2 restart kpibi-webapp-backend'
+            - ssh ubuntu@app.kpibi.com 'cd apps/uploads && tar xvfz webapp-backend.tgz && cp -R webapp-backend/* ../webapp-backend && rm -Rf webapp-backend* && cd ../webapp-backend && npm install && pm2 restart webapp-backend'
 
