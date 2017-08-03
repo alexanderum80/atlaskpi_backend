@@ -40,6 +40,7 @@ export interface IProduct extends IEntity {
     tax: number;
     tax2: number;
     amount: number;
+    paid: number;
     discount: number;
     from: Date;
     to: Date;
