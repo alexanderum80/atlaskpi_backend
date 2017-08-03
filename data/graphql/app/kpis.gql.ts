@@ -1,3 +1,5 @@
+import { IDateRange } from '../../models/common/date-range';
+import { GetKpisQuery } from '../../queries/app/kpis/get-kpis.query';
 import { CreateKPIMutation, UpdateKPIMutation, RemoveKPIMutation } from '../../mutations/app/kpis';
 import { IQueryResponse } from '../../models/common/query-response';
 import { IPaginationInfo } from '../../models/common/pagination';
@@ -28,11 +30,18 @@ export const kpisGql: GraphqlDefinition = {
             }
             type KPI {
                 _id: String
+                code: String
                 name: String
+                baseKpi: String
                 description: String
-                formula: String
                 group: String
+                groupings: [String]
+                dateRange: DateRange
+                filter: String
+                frequency: String
+                axisSelection: String
                 emptyValueReplacement: String
+                composition: String
             }
             type KPIPagedQueryResult {
                 pagination: PaginationInfo
@@ -40,6 +49,7 @@ export const kpisGql: GraphqlDefinition = {
             }
         `,
         queries: `
+            kpis: [KPI]
             getAllKPIs(details: PaginationDetails): KPIPagedQueryResult
         `,
         mutations: `
@@ -51,6 +61,10 @@ export const kpisGql: GraphqlDefinition = {
 
     resolvers: {
         Query: {
+            kpis(root: any, args: any, ctx: IGraphqlContext) {
+                let query = new GetKpisQuery(ctx.req.identity, ctx.req.appContext);
+                return ctx.queryBus.run('get-kpis', query, args).catch(e => console.error(e));
+            },
             getAllKPIs(root: any, args, ctx: IGraphqlContext) {
                 let query = new GetAllKPIsQuery(ctx.req.identity, ctx.req.appContext.KPI);
                 return ctx.queryBus.run('get-all-kpis', query, args);
@@ -78,5 +92,12 @@ export const kpisGql: GraphqlDefinition = {
             kpi(response: IMutationResponse) { return response.entity; },
             errors(response: IMutationResponse) { return response.errors; }
         },
+        DateRange: {
+            from(dateRange: IDateRange ) { return dateRange.from; },
+            to(dateRange: IDateRange) { return dateRange.to; }
+        },
+        KPI: {
+            dateRange(entity: IKPIDocument) { return entity.dateRange; },
+        }
     }
 };
