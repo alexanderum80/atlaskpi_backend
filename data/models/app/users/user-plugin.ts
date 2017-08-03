@@ -194,7 +194,7 @@ export function accountPlugin(schema: mongoose.Schema, options: any) {
             // create user token response
             let tokenDetails: IUserToken = {
                 issued: new Date(),
-                expires: moment().add('milliseconds', ms(String(config.token.expiresIn))).toDate(),
+                expires: moment().add('milliseconds', ms(String(expiresIn))).toDate(),
                 access_token: token
             };
 
