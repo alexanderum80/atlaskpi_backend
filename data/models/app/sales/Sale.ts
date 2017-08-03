@@ -46,6 +46,7 @@ let ProductSchema = new Schema({
     tax: Number,
     tax2: Number,
     amount: Number,
+    paid: Number,
     discount: Number,
     from: Date,
     to: Date,
