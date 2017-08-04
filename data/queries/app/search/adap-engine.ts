@@ -1,6 +1,11 @@
 import * as Promise from 'bluebird';
 const EngineBuilder: any = require('adaptjs').EngineBuilder;
 
+/*
+    Example:
+    give me last year sales grouped by business unit with a monthly frequency on a bar chart
+ */
+
 export enum AdaptIntents {
     Chart
 }
@@ -15,7 +20,7 @@ export class AdaptEngine {
 
     constructor(intents: AdaptIntents[]) {
         if (!intents || intents.length === 0) {
-            throw new Error('An Adapt Engine with intents it is not useful');
+            throw new Error('An Adapt Engine without intents it is not useful');
         }
 
         const that = this;
