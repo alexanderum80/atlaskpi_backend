@@ -85,6 +85,8 @@ let SalesSchema = new Schema ({
     payment: PaymentSchema
 });
 
+export const SaleSchema = SalesSchema;
+
 // SaleSchema.methods.
 
 // SaleSchema.statics.

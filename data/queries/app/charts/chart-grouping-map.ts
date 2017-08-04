@@ -9,7 +9,8 @@ import * as _ from 'lodash';
 
 export const GroupingMap = {
     location: 'location.name',
-    employee: 'employee.externalId',
+    employee: 'employee.fullName',
+    provider: 'employee.fullName',
     category: 'category.name',
     product: 'product.itemDescription',
     serviceType: 'serviceType',
