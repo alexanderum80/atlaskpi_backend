@@ -82,6 +82,8 @@ let RevenueSchema = new Schema({
     totals: SaleTotalsSchema
 });
 
+export const RevSchema = RevenueSchema;
+
 // SaleSchema.methods.
 
 // SaleSchema.statics.
