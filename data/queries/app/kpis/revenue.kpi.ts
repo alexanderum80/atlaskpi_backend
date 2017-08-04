@@ -28,7 +28,7 @@ export class Revenue extends KpiBase implements IKpiBase {
                 $group: {
                     // dynamic groupings are going to be added here
                     _id: { },
-                    value: { $sum: '$product.amount' }
+                    value: { $sum: '$product.paid' }
                 }
             },
             {
