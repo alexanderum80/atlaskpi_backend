@@ -1,3 +1,4 @@
+import { IDashboardDocument } from '../dashboards';
 import { IAppModels } from '../app-models';
 import { IKPIDocument } from '../kpis';
 import { IChartInput } from './';
@@ -33,6 +34,34 @@ export function resolveKpi(context, kpi: string): Promise<IKPIDocument> {
     });
   });
 }
+
+function resolveDashboard(context, dashboard: any): Promise<IDashboardDocument> {
+  if (typeof dashboard !== 'string') {
+    let err = 'dashboard should be specified as string';
+    return Promise.reject(err);
+  }
+
+  return new Promise<IDashboardDocument>((resolve, reject) => {
+    context.model('Dashboard').findOne({ _id: dashboard }, (err, doc) => {
+      if (err) {
+        console.log('error resolving dashboard: ' + dashboard);
+        return reject(err);
+      }
+
+      if (!doc) {
+        console.log('dashboard not found: ' + dashboard);
+        return resolve(doc);
+      }
+
+      console.log('dashboard found: ' + doc);
+      resolve(doc);
+    });
+  });
+}
+
+
+
+
 
 let Schema = mongoose.Schema;
 
@@ -92,6 +121,56 @@ let ChartSchema = new Schema({
     });
   };
 
+  ChartSchema.methods.detachFromAllDashboards = function(): Promise<boolean> {
+    return new Promise<boolean>((resolve, reject) => {
+      this.model('Dashboard')
+        .find()
+        .populate('charts')
+        .then((dashboards: IDashboardDocument[]) => {
+          if (!dashboards) {
+            console.log('no dashboards found');
+            return resolve(true);
+          }
+
+          let removePomises = [];
+
+          dashboards.forEach(dashboard => {
+            if (dashboard.hasChart(this._id)) {
+                console.log('chart found on dashboard: ' + dashboard._id);
+                removePomises.push(dashboard.removeChart(this._id));
+            }
+          });
+
+          Promise.all(removePomises).then(() => resolve(true))
+                                    .catch(err => reject(err));
+
+      });
+    });
+  };
+
+  ChartSchema.methods.attachToDashboard = function (dashboard: string): Promise<IDashboardDocument> {
+    const model = this;
+    return new Promise<IDashboardDocument>((resolve, reject) => {
+      resolveDashboard(model, dashboard).then((doc: IDashboardDocument) => {
+        if (!doc) {
+          return resolve(doc);
+        }
+
+        if (doc.hasChart(this._id)) {
+          let err = 'chart already exist on the dashboard';
+          console.log(err);
+          return reject(err);
+        }
+
+        doc.charts.push(this._id);
+        doc.save();
+        return resolve(doc);
+      })
+      .catch(err => reject(err));
+    });
+  };
+
+
   ChartSchema.statics.createChart = function(input: IChartInput): Promise<IMutationResponse> {
     const that = this;
 
@@ -144,15 +223,20 @@ let ChartSchema = new Schema({
             }
 
             // adding kpis
-            let kpiPromises = [];
+            let promises = [];
             input.kpis.forEach(k => {
-              kpiPromises.push(chart.addKpi(k));
+              promises.push(chart.addKpi(k));
             });
 
-            Promise.all(kpiPromises).then(kpis => {
-              chart.save();
-              return resolve({ success: true, entity: chart });
-            });
+            if (input.dashboard) {
+                promises.push(chart.attachToDashboard(input.dashboard));
+            }
+
+            Promise.all(promises).then(() => {
+                 chart.save();
+                 return resolve({ success: true, entity: chart });
+            })
+            .catch(err => reject(err));
         });
     });
   };
