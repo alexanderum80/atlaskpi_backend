@@ -31,6 +31,7 @@ export const chartsGql: GraphqlDefinition = {
                 groupings: [String]
                 chartDefinition: String
                 xAxisSource: String
+                dashboard: String
             }
             type ChartEntityResponse {
                 _id: String
