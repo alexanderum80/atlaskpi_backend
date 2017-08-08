@@ -76,7 +76,13 @@ export class GetChartQuery implements IQuery<string> {
                 .findOne({ _id: id })
                 .populate({
                     path: 'kpis',
-                }).then(chartDocument => resolve(chartDocument))
+                }).then(chartDocument => {
+                    chartDocument.appearsIn().then(dashboards => {
+                         const chart: any = chartDocument.toObject();
+                         chart.dashboards = dashboards;
+                         resolve(chart);
+                        });
+                    })
                 .catch(e => reject(e));
         });
     }

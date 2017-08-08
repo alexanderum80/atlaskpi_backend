@@ -18,9 +18,9 @@ export const chartsGql: GraphqlDefinition = {
         types: `
             input GetChartInput {
                 dateRange: ChartDateRangeInput!
-                frequency: String!
+                frequency: String
                 groupings: [String]!
-                xAxisSource: String!
+                xAxisSource: String,
             }
             input ChartAttributesInput {
                 title: String!
@@ -31,7 +31,7 @@ export const chartsGql: GraphqlDefinition = {
                 groupings: [String]
                 chartDefinition: String
                 xAxisSource: String
-                dashboard: String
+                dashboards: [String]
             }
             type ChartEntityResponse {
                 _id: String
@@ -47,6 +47,7 @@ export const chartsGql: GraphqlDefinition = {
                 yFormat: String
                 chartDefinition: String
                 xAxisSource: String
+                dashboards: [Dashboard]
             }
             type ChartMutationResponse {
                 success: Boolean

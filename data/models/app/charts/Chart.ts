@@ -121,52 +121,84 @@ let ChartSchema = new Schema({
     });
   };
 
+  ChartSchema.methods.appearsIn = function(): Promise<IDashboardDocument[]> {
+    const that = this;
+    return new Promise<IDashboardDocument[]>((resolve, reject) => {
+      this.model('Dashboard')
+        .find({ charts: { $in: [that._id] } })
+        .then((dashboards: IDashboardDocument[]) => {
+          if (!dashboards) {
+            console.log('no dashboards found conaining this chart');
+            return resolve(dashboards);
+          }
+          return resolve(dashboards);
+        })
+        .catch(err => reject(err));
+    });
+  };
+
   ChartSchema.methods.detachFromAllDashboards = function(): Promise<boolean> {
     const that = this;
     return new Promise<boolean>((resolve, reject) => {
-      this.model('Dashboard')
-        .find()
-        .populate('charts')
-        .then((dashboards: IDashboardDocument[]) => {
-          if (!dashboards) {
-            console.log('no dashboards found');
-            return resolve(true);
-          }
+      that.appearsIn().then((dashboards: IDashboardDocument[]) => {
+        if (!dashboards) {
+          return resolve(true);
+        }
 
-          let detached = false;
+        let detached = false;
+        let promises = [];
 
-          dashboards.forEach(dashboard => {
-            dashboard.removeChart(that._id, (err, dashboard) => {
-              if (!err && dashboard) {
-                detached = true;
-              }
-            });
-          });
+        dashboards.forEach(d => {
+          promises.push(
+            new Promise((resolve, reject) =>
+              d.removeChart(that._id, (err, dashboard) => {
+                if (err) {
+                  return reject(err);
+                }
+                if (dashboard) {
+                  detached = true;
+                  return resolve(dashboard);
+                }
+              })
+            )
+          );
+        });
+
+        Promise.all(promises).then(() => {
           if (detached) {
-              return Promise.resolve(true);
+            return resolve(true);
           } else {
-              return Promise.resolve(false);
+            return resolve(false);
           }
+        });
       });
     });
   };
 
-  ChartSchema.methods.attachToDashboard = function (dashboard: string): Promise<IChartDocument> {
+  ChartSchema.methods.attachToDashboard = function (dashboards: string[]): Promise<IChartDocument> {
     const model = this;
     return new Promise<IChartDocument>((resolve, reject) => {
-      resolveDashboard(model, dashboard).then((doc: IDashboardDocument) => {
-        if (!doc) {
-          return resolve(null);
-        }
+      let dashboardFromPromises = [];
 
-        doc.addChart(model._id, (err, chart) => {
-          if (err) {
-            let error = 'chart already exist on the dashboard';
-            console.log(error);
-            return reject(error);
+      dashboards.forEach(d => {
+        dashboardFromPromises.push(resolveDashboard(model, d));
+      });
+
+      Promise.all(dashboardFromPromises).then((revolvedDashboards: IDashboardDocument[]) => {
+        let chartAdded;
+        revolvedDashboards.forEach(d => {
+          if (d) {
+            d.addChart(model._id, (err, chart) => {
+              if (err) {
+                let error = 'chart already exist on the dashboard';
+                console.log(error);
+                return reject(error);
+              }
+              chartAdded = chart;
+            });
           }
-          return resolve(chart);
         });
+        return resolve(chartAdded);
       })
       .catch(err => reject(err));
     });
@@ -184,7 +216,6 @@ let ChartSchema = new Schema({
             kpis: requiredAndNotBlank,
             dateRange: requiredAndNotBlank,
             chartDefinition: requiredAndNotBlank,
-            xAxisSource: requiredAndNotBlank
         };
 
         let errors = (<any>validate)((<any>input), constraints, {fullMessages: false});
@@ -215,7 +246,7 @@ let ChartSchema = new Schema({
             xFormat: input.xFormat,
             yFormat: input.yFormat,
             chartDefinition: JSON.parse(input.chartDefinition),
-            xAxisSource: input.xAxisSource
+            xAxisSource: input.xAxisSource,
         };
 
         that.create(newChart, (err, chart: IChartDocument) => {
@@ -230,11 +261,11 @@ let ChartSchema = new Schema({
               promises.push(chart.addKpi(k));
             });
 
-            if (input.dashboard) {
-                promises.push(chart.attachToDashboard(input.dashboard));
+            if (input.dashboards) {
+                promises.push(chart.attachToDashboard(input.dashboards));
             }
 
-            Promise.all(promises).then(() => {
+            return Promise.all(promises).then(() => {
                  return chart.save().then(() => resolve({ success: true, entity: chart }));
             })
             .catch(err => reject(err));
@@ -251,20 +282,33 @@ let ChartSchema = new Schema({
         }
 
         return that.findOne({ _id: id}, (err, chart: IChartDocument) => {
-            if (err) {
-                const errResponse: IMutationResponse = {
-                  success: false,
-                  errors: [ { field: 'id', errors: ['There was an error deleting the chart']}]
-              };
+            let errResponse: IMutationResponse;
 
+            if (err) {
+                errResponse = {
+                  success: false,
+                  errors: [ { field: 'id', errors: ['There was an error deleting the chart']} ]
+                };
+            }
+
+            if (!chart) {
+              errResponse = {
+                  success: false,
+                  errors: [ { field: 'id', errors: ['Chart not found']} ]
+              };
+            }
+
+            if (errResponse) {
               return resolve(errResponse);
             }
 
-             chart.detachFromAllDashboards().then(() => {
-              return chart.remove().then(() => resolve({ success: true }));
+            chart.detachFromAllDashboards().then(() => {
+               chart.remove().then(() =>  {
+                 return resolve({ success: true });
+               });
             });
-          });
         });
+    });
   };
 
   ChartSchema.statics.updateChart = function(id: string, input: IChartInput): Promise<IMutationResponse> {

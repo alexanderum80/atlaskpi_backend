@@ -35,7 +35,7 @@ DashboardSchema.methods.hasChart = function (chartId, done) {
       let hasChart = false;
       obj.charts.forEach(c => {
         if ((c && c._id !== undefined && c._id === chartId) ||
-            String(c) === chartId) {
+            String(c) === String(chartId)) {
            hasChart = true;
         }
       });
@@ -60,16 +60,14 @@ DashboardSchema.methods.addChart = function (chartId, done) {
 
 DashboardSchema.methods.removeChart = function (chartId, done) {
     const obj = this;
-    resolveChart(this, chartId, function (err, chart) {
-      obj.hasChart(chart, function (err, has) {
-        if (err) return done(err);
-        if (!has) return done(null);
-        obj.charts.pull(chart);
-        obj.save(function (err, obj) {
-          done(err, obj);
-        });
+    obj.hasChart(chartId, function (err, has) {
+      if (err) return done(err);
+      if (!has) return done(null);
+      obj.charts.pull(chartId);
+      obj.save(function (err, obj) {
+        done(err, obj);
+      });
     });
-  });
 };
 
 // DashboardSchema.statics.
