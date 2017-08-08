@@ -122,6 +122,7 @@ let ChartSchema = new Schema({
   };
 
   ChartSchema.methods.detachFromAllDashboards = function(): Promise<boolean> {
+    const that = this;
     return new Promise<boolean>((resolve, reject) => {
       this.model('Dashboard')
         .find()
@@ -132,39 +133,40 @@ let ChartSchema = new Schema({
             return resolve(true);
           }
 
-          let removePomises = [];
+          let detached = false;
 
           dashboards.forEach(dashboard => {
-            if (dashboard.hasChart(this._id)) {
-                console.log('chart found on dashboard: ' + dashboard._id);
-                removePomises.push(dashboard.removeChart(this._id));
-            }
+            dashboard.removeChart(that._id, (err, dashboard) => {
+              if (!err && dashboard) {
+                detached = true;
+              }
+            });
           });
-
-          Promise.all(removePomises).then(() => resolve(true))
-                                    .catch(err => reject(err));
-
+          if (detached) {
+              return Promise.resolve(true);
+          } else {
+              return Promise.resolve(false);
+          }
       });
     });
   };
 
-  ChartSchema.methods.attachToDashboard = function (dashboard: string): Promise<IDashboardDocument> {
+  ChartSchema.methods.attachToDashboard = function (dashboard: string): Promise<IChartDocument> {
     const model = this;
-    return new Promise<IDashboardDocument>((resolve, reject) => {
+    return new Promise<IChartDocument>((resolve, reject) => {
       resolveDashboard(model, dashboard).then((doc: IDashboardDocument) => {
         if (!doc) {
-          return resolve(doc);
+          return resolve(null);
         }
 
-        if (doc.hasChart(this._id)) {
-          let err = 'chart already exist on the dashboard';
-          console.log(err);
-          return reject(err);
-        }
-
-        doc.charts.push(this._id);
-        doc.save();
-        return resolve(doc);
+        doc.addChart(model._id, (err, chart) => {
+          if (err) {
+            let error = 'chart already exist on the dashboard';
+            console.log(error);
+            return reject(error);
+          }
+          return resolve(chart);
+        });
       })
       .catch(err => reject(err));
     });
@@ -233,8 +235,7 @@ let ChartSchema = new Schema({
             }
 
             Promise.all(promises).then(() => {
-                 chart.save();
-                 return resolve({ success: true, entity: chart });
+                 return chart.save().then(() => resolve({ success: true, entity: chart }));
             })
             .catch(err => reject(err));
         });
@@ -249,18 +250,19 @@ let ChartSchema = new Schema({
           return Promise.reject({ message: 'There was an error updating the user' });
         }
 
-        that.findByIdAndRemove(id, (err, data) => {
+        return that.findOne({ _id: id}, (err, chart: IChartDocument) => {
             if (err) {
                 const errResponse: IMutationResponse = {
                   success: false,
                   errors: [ { field: 'id', errors: ['There was an error deleting the chart']}]
-                };
+              };
 
-                resolve(errResponse);
-                return;
+              return resolve(errResponse);
             }
 
-            return resolve({ success: true });
+             chart.detachFromAllDashboards().then(() => {
+              return chart.remove().then(() => resolve({ success: true }));
+            });
           });
         });
   };

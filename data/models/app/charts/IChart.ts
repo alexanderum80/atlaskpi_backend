@@ -50,7 +50,7 @@ export interface IChartDocument extends IChart, mongoose.Document {
       hasKpi(kpi: string | IKPIDocument): boolean;
       addKpi(kpi: string): Promise<IKPIDocument>;
       detachFromAllDashboards(): Promise<boolean>;
-      attachToDashboard(dashboard: string): Promise<IDashboardDocument>;
+      attachToDashboard(dashboard: string): Promise<IChartDocument>;
 }
 
 export interface IChartModel extends mongoose.Model<IChartDocument> {
