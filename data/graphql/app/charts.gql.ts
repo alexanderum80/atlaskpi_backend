@@ -57,10 +57,6 @@ export const chartsGql: GraphqlDefinition = {
             type ListChartsQueryResponse {
                 data: [ChartEntityResponse]
             }
-            type DeleteChartMutationResponse {
-                success: Boolean
-                errors: [ErrorDetails]
-            }
         `,
         queries: `
             charts(from: String!, to: String!, preview: Boolean): String
@@ -75,7 +71,7 @@ export const chartsGql: GraphqlDefinition = {
         `,
         mutations: `
             createChart(input: ChartAttributesInput): ChartMutationResponse
-            deleteChart(id: String!): DeleteChartMutationResponse
+            deleteChart(id: String!): ChartMutationResponse
             updateChart(id: String!, input: ChartAttributesInput!): ChartMutationResponse
         `,
     },
@@ -139,7 +135,8 @@ export const chartsGql: GraphqlDefinition = {
         },
         ChartEntityResponse: {
             dateRange(entity: IChart) { return entity.dateRange; },
-            chartDefinition(entity: IChart) { return JSON.stringify(entity.chartDefinition); }
+            chartDefinition(entity: IChart) { return JSON.stringify(entity.chartDefinition); },
+            dashboards(entity: IChart) { return entity.dashboards; }
         },
         ListChartsQueryResponse: {
             data(response: [IChartDocument]) { return response; }

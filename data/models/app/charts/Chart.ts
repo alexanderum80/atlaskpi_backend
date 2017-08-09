@@ -326,7 +326,6 @@ let ChartSchema = new Schema({
             kpis: requiredAndNotBlank,
             dateRange: requiredAndNotBlank,
             chartDefinition: requiredAndNotBlank,
-            xAxisSource: requiredAndNotBlank
         };
 
         let errors = (<any>validate)((<any>input), constraints, {fullMessages: false});
@@ -351,7 +350,6 @@ let ChartSchema = new Schema({
             subtitle: input.subtitle,
             group: input.group,
             dateRange: input.dateRange,
-            // filter: any;
             frequency: input.frequency,
             groupings: input.groupings,
             xFormat: input.xFormat,
@@ -360,19 +358,45 @@ let ChartSchema = new Schema({
             xAxisSource: input.xAxisSource
         };
 
-        that.findByIdAndUpdate(id, updatedChart, (err, entity) => {
-            if (err) {
-                const errResponse: IMutationResponse = {
-                  success: false,
-                  errors: [ { field: 'id', errors: ['There was an error updating the chart']}]
-                };
+        // that.findByIdAndUpdate(id, updatedChart, (err, entity) => {
+        //     if (err) {
+        //         const errResponse: IMutationResponse = {
+        //           success: false,
+        //           errors: [ { field: 'id', errors: ['There was an error updating the chart']}]
+        //         };
 
-                return resolve(errResponse);
-            }
+        //         return resolve(errResponse);
+        //     }
 
-            return resolve({ success: true, entity: entity });
+        //     return resolve({ success: true, entity: entity });
+        //   });
+        // });
+
+        that.findOne({ _id: id}, (err, chart: IChartDocument) => {
+          if (err) {
+            return resolve({  success: false, errors: [ { field: 'id', errors: ['kpi not found'] } ]});
+          }
+
+          let promises = [];
+
+          // sync kpis
+          (<any>chart).kpis = [];
+          input.kpis.forEach(k => {
+              promises.push(chart.addKpi(k));
           });
+
+          Promise.all(promises).then(() => {
+            chart.detachFromAllDashboards().then(() => {
+              chart.attachToDashboard(input.dashboards).then(() => {
+                chart.update(updatedChart).then(() => {
+                  chart.save().then(() => resolve({ success: true, entity: chart }));
+                });
+              });
+            });
+          })
+          .catch(err => reject(err));
         });
+     });
   };
 
 export function getChartModel(m: mongoose.Connection): IChartModel {
