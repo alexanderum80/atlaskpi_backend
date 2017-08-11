@@ -9,11 +9,11 @@ export interface IParticularDBUserRole {
     roleName: string;
 }
 
-export interface IParticularDBUser {
+export interface IAccountDBUser {
     user: string;
     pwd: string;
     roles: IParticularDBUserRole[];
-};
+}
 
 export interface IPersonalInfo {
     fullname: string;
@@ -52,7 +52,7 @@ export interface IAccount {
 export interface IAccountDocument extends IAccount, mongoose.Document {
     getConnectionString(): string;
     getMasterConnectionString(): string;
-    createParticularUser(particularUser: IParticularDBUser): Promise<boolean>;
+    createAccountDbUser(particularUser: IAccountDBUser): Promise<boolean>;
 }
 
 export interface IAccountModel extends mongoose.Model<IAccountDocument> {

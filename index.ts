@@ -7,6 +7,12 @@ import * as bodyParser from 'body-parser';
 import * as winston from 'winston';
 import * as i18n from 'i18n';
 import { config } from './config';
+import * as mongoose from 'mongoose';
+
+// Enable Mongoose Debugging
+if (process.env.NODE_ENV !== 'prod') {
+  mongoose.set('debug', true);
+}
 
 // ACTIVITIES
 import { addActivities } from './activities';

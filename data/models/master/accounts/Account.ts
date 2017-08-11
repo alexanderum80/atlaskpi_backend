@@ -1,7 +1,8 @@
+import { stringify } from 'querystring';
 import { importSpreadSheet } from '../../../google-spreadsheet/google-spreadsheet';
 import mongoose = require('mongoose');
 import * as Promise from 'bluebird';
-import { IAccountModel, IAccountDocument, IAccount, IDatabaseInfo, IParticularDBUser } from './IAccount';
+import { IAccountModel, IAccountDocument, IAccount, IDatabaseInfo, IAccountDBUser } from './IAccount';
 import { IMutationResponse, MutationResponse } from '../..';
 import { getContext, ICreateUserDetails, IUserDocument } from '../../../models';
 import { AccountCreatedNotification, EnrollmentNotification } from '../../../../services/notifications/users';
@@ -63,7 +64,7 @@ accountSchema.statics.createNewAccount = function(ip: string, clientId: string, 
 
         let hash = generateUniqueHash();
 
-        let particularUser = {
+        let accountDbUser = {
             user: `adm-${hash.substr(hash.length - 10, hash.length)}`,
             pwd: hash.substr(0, 10),
             roles: [
@@ -72,7 +73,7 @@ accountSchema.statics.createNewAccount = function(ip: string, clientId: string, 
             ]
         };
 
-        account.database = generateDBObject(accountDatabaseName, particularUser.user, particularUser.pwd);
+        account.database = generateDBObject(accountDatabaseName, accountDbUser.user, accountDbUser.pwd);
 
         let firstUser: ICreateUserDetails = { email: account.personalInfo.email,
                                                 password: hash.substr(hash.length - 10, hash.length) };
@@ -85,10 +86,10 @@ accountSchema.statics.createNewAccount = function(ip: string, clientId: string, 
             getContext(newAccount.getMasterConnectionString()).then((newAccountContext) => {
                return new Promise<boolean>((resolve, reject) => {
                     // Create a db user if it's in production
-                    if (config.isMongoDBAtlas) {
-                        newAccount.createParticularUser(particularUser)
-                        .then((value) => resolve(value))
-                        .catch((err) => reject(err));
+                    if (config.mongoDBAtlasCredentials && config.mongoDBAtlasCredentials.api_key) {
+                        newAccount.createAccountDbUser(accountDbUser)
+                            .then((value) => resolve(value))
+                            .catch((err) => reject(err));
                     }
                     // Local db... no need to create a db user;
                     resolve(true);
@@ -212,17 +213,17 @@ accountSchema.methods.getConnectionString = function() {
 };
 
 accountSchema.methods.getMasterConnectionString = function() {
-    let uriTemplate = Handlebars.compile(config.masterConnectionString);
+    let uriTemplate = Handlebars.compile(config.masterDb);
     return uriTemplate({database: this.database.name});
 };
 
-accountSchema.methods.createParticularUser = function(particularUser: IParticularDBUser): Promise<boolean> {
-    console.log('Creating db specific user');
+accountSchema.methods.createAccountDbUser = function(accountDbUser: IAccountDBUser): Promise<boolean> {
+    winston.info('Creating db specific user: ' + JSON.stringify(accountDbUser));
     let body = {
         databaseName: 'admin',
-        roles: particularUser.roles,
-        username: particularUser.user,
-        password: particularUser.pwd
+        roles: accountDbUser.roles,
+        username: accountDbUser.user,
+        password: accountDbUser.pwd
     };
 
     let options: request.Options = {
@@ -256,12 +257,14 @@ export function getAccountModel(): IAccountModel {
     return <IAccountModel>mongoose.model('Account', accountSchema);
 }
 
-export function generateDBObject(database: string, user?: string, password?: string): IDatabaseInfo {
-    let uriTemplate = Handlebars.compile(config.connectionString);
+function generateDBObject(database: string, username?: string, password?: string): IDatabaseInfo {
+    let uriTemplate = Handlebars.compile(config.newAccountDbUriFormat);
     let data = {
-        user: user,
+        username: username,
         password: password,
         database: database
     };
     return { uri: uriTemplate(data), name: changeCase.paramCase(database) };
 }
+
+
