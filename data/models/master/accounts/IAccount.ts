@@ -29,6 +29,8 @@ export interface IBusinessInfo {
 export interface IDatabaseInfo {
     uri: string;
     name: string;
+    username: string;
+    password: string;
 }
 
 export interface IAudit {

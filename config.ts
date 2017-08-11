@@ -50,7 +50,7 @@ export const config: IAppConfig = {
         expiresIn: process.env.AKPI_TOKEN_EXPIRATION || '10 d'
     },
     masterDb: process.env.AKPI_MASTER_DB_URI || 'mongodb://localhost/kpibi',
-    newAccountDbUriFormat: process.env.AKPI_NEW_ACCOUNT_DB_URI_FORMAT || '',
+    newAccountDbUriFormat: process.env.AKPI_NEW_ACCOUNT_DB_URI_FORMAT || 'mongodb://localhost/{{database}}',
     mongoDBAtlasCredentials: {
         username: process.env.AKPI_MONGODB_ADMIN_USERNAME || '',
         api_key: process.env.AKPI_MONGODB_API_KEY || '',

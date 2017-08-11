@@ -36,6 +36,8 @@ let accountSchema = new mongoose.Schema({
     database: {
         uri: String,
         name: String,
+        username: String,
+        password: String
     },
     audit: {
         createdOn: { type: Date, default: Date.now },
@@ -264,7 +266,12 @@ function generateDBObject(database: string, username?: string, password?: string
         password: password,
         database: database
     };
-    return { uri: uriTemplate(data), name: changeCase.paramCase(database) };
+    return {
+        uri: uriTemplate(data),
+        name: changeCase.paramCase(database),
+        username: username,
+        password: password
+    };
 }
 
 
