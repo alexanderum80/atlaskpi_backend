@@ -19,6 +19,7 @@ import {
     searchUsersActivity,
     updateUserActivity,
     findUserByIdActivity,
+    findAllUsersActivity,
     removeUserActivity,
     verifyEnrollmentActivity,
     // kpis
@@ -50,7 +51,14 @@ import {
     getDashboardActivity,
     getDashboardsActivity,
     // search
-    searchActivity
+    searchActivity,
+
+    // roles
+    findAllRolesActivity,
+    createRoleActivity,
+
+    // permissions
+    findAllPermissionsActivity
 
 } from './app';
 
@@ -74,6 +82,7 @@ export function addActivities() {
         searchUsersActivity,
         updateUserActivity,
         findUserByIdActivity,
+        findAllUsersActivity,
         removeUserActivity,
         verifyEnrollmentActivity,
 
@@ -112,7 +121,14 @@ export function addActivities() {
         getDashboardsActivity,
 
         // search
-        searchActivity
+        searchActivity,
+
+        // roles
+        findAllRolesActivity,
+        createRoleActivity,
+
+        // permissions
+        findAllPermissionsActivity
 
     ]);
 }

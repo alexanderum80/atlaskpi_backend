@@ -1,3 +1,4 @@
+import { FindAllUsersQuery } from '../../queries/app/users/find-all-users.query';
 import { _getHostname } from '../../../middlewares/initialize-contexts.middleware';
 import { IQueryResponse } from '../../models/common/query-response';
 import { FindUserByIdQuery } from '../../queries/app/users/find-user-by-id.query';
@@ -72,6 +73,7 @@ export const usersGql: GraphqlDefinition = {
                 emails: [UserEmail]
                 profile: UserProfile
                 roles: [String]
+                timestamps: String
             }
             type TokenVerification {
                 isValid: Boolean
@@ -103,6 +105,7 @@ export const usersGql: GraphqlDefinition = {
         queries: `
             isResetPasswordTokenValid(token: String!): TokenVerification
             users(details: PaginationDetails): UserPagedQueryResult
+            allUsers(filter: String): [User]
             User(id: String): User
             isEnrollmentTokenValid(token: String!): TokenVerification
         `,
@@ -120,6 +123,10 @@ export const usersGql: GraphqlDefinition = {
             isResetPasswordTokenValid(root: any, args, ctx: IGraphqlContext) {
                 let query = new VerifyResetPasswordQuery(ctx.req.identity, ctx.req.appContext.User);
                 return ctx.queryBus.run('verify-reset-password', query, args);
+            },
+            allUsers(root: any, args, ctx: IGraphqlContext) {
+                let query = new FindAllUsersQuery(ctx.req.identity, ctx.req.appContext.User);
+                return ctx.queryBus.run('find-all-users', query, args);
             },
             users(root: any, args, ctx: IGraphqlContext) {
                 let query = new SearchUsersQuery(ctx.req.identity, ctx.req.appContext.User);
@@ -142,7 +149,7 @@ export const usersGql: GraphqlDefinition = {
                 return ctx.mutationBus.run<IMutationResponse>('create-user', ctx.req, mutation, args);
             },
             updateUser(root: any, args, ctx: IGraphqlContext) {
-                let mutation = new UpdateUserMutation(ctx.req.identity, ctx.req.appContext.User);
+                let mutation = new UpdateUserMutation(ctx.req.identity, ctx.req.appContext.User, ctx.req.appContext.Role);
                 return ctx.mutationBus.run<IMutationResponse>('update-user', ctx.req, mutation, args);
             },
             removeUser(root: any, args, ctx: IGraphqlContext) {

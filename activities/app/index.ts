@@ -5,3 +5,5 @@ export * from './chart';
 export * from './charts';
 export * from './dashboards';
 export * from './search';
+export * from './roles';
+export * from './permissions';

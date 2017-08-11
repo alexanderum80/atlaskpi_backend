@@ -1,3 +1,4 @@
+import { IRoleList } from '../../../../lib/rbac/models';
 import { IAppConfig } from '../../../../configuration/config-models';
 import { IIdentity } from '../identity';
 import { IQueryResponse } from '../../common/query-response';
@@ -77,6 +78,7 @@ export interface IUser {
 export interface IUserDocument extends IUser, mongoose.Document {
     hasRole(role: string, done: (err: any, hasRole: boolean) => void): void;
     addRole(role: string, done?: (err: any, role: IRoleDocument) => void): void;
+    addRoleBatches(role: string, done?: (err: any, role: IRoleDocument) => void): void;
     removeRole(role: string, done: (err: any) => void): void;
     can(action: string, subject: string, done: (err: any, hasPermission: boolean) => void): void;
     canAll(actionsAndSubjects: any[], done: (err: any, hasAll: boolean) => void): void;
@@ -138,7 +140,7 @@ export interface IUserModel extends mongoose.Model<IUserDocument> {
      * @param {ICreateUserDetails} details - updted info information
      * @returns {Promise<IMutationResponse>}
      */
-    updateUser(id: string, details: ICreateUserDetails): Promise<IMutationResponse>;
+    updateUser(id: string, details: ICreateUserDetails, dataRole: IRoleList[]): Promise<IMutationResponse>;
     /**
      * Removes a user.
      * @param { String } id - id of the entity
@@ -252,4 +254,8 @@ export interface IUserModel extends mongoose.Model<IUserDocument> {
      * @return {Promise<IUserDocument>}
      */
     findByIdentity(identity: IIdentity): Promise<IUserDocument>;
+    /**
+     * Find all users
+     */
+    findAllUsers(filter: string): Promise<IQueryResponse<IUserDocument[]>>;
 }
