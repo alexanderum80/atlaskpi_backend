@@ -14,9 +14,13 @@ export class UpdateUserMutation implements IMutation<IMutationResponse> {
 
     run(data): Promise<IMutationResponse> {
         const that = this;
-        return this._RoleModel.findAllRoles('')
-            .then((resp) => {
-                return this._UserModel.updateUser(data.id, data.data, resp );
-            });
+
+       return this._RoleModel.findAllRoles('')
+        .then((resp) => {
+            return Promise.all(resp)
+                .then((r) => {
+                    return this._UserModel.updateUser(data.id, data.data, r);
+                });
+        });
     }
 }
