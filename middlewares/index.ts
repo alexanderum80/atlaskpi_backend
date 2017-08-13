@@ -1,3 +1,4 @@
+export * from './health-check.middleware';
 export * from './extended-request';
 export * from './token-validator.middleware';
 export * from './logger.middleware';

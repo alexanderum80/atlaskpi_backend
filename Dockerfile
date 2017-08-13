@@ -8,7 +8,6 @@ ADD . /usr/src/app
 
 # Install app dependencies
 RUN npm install
-RUN npm run build
 
 EXPOSE 9091
 
