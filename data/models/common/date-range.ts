@@ -32,7 +32,26 @@ export const PredefinedDateRanges = {
     thisMonth: 'this month',
     thisQuarter: 'this quarter',
     thisYear: 'this year',
+    yesterday: 'yesterday',
+    thisWeekToDate: 'this week to date',
+    today: 'today',
+    thisMonthToDate: 'this month to date',
+    thisQuarterToDate: 'this quarter to date',
+    thisYearToDate: 'this year to date',
+    last7Days: 'last 7 days',
+    last14Days: 'last 14 days',
+    last90Days: 'last 90 days',
+    last365Days: 'last 365 days'
 };
+
+export const quarterMonths = {
+    '1': ['Jan', 'Feb', 'Mar'],
+    '2': ['Apr', 'May', 'Jun'],
+    '3': ['Jul', 'Aug', 'Sep'],
+    '4': ['Oct', 'Nov', 'Dec']
+};
+
+const quarterKey = moment().quarter();
 
 export function parsePredifinedDate(textDate: string): IDateRange {
     let from: Date;
@@ -70,7 +89,13 @@ export function parsePredifinedDate(textDate: string): IDateRange {
                 to: moment().startOf('month').subtract(1, 'day').toDate()
             };
         case PredefinedDateRanges.lastQuarter:
-            return;
+            let getStartQuarter = quarterKey - 1;
+            let lStartQuarter = quarterMonths[getStartQuarter][0];
+            let lEndQuarter = quarterMonths[getStartQuarter][2];
+            return {
+                from: moment().month(lStartQuarter).startOf('month').toDate(),
+                to: moment().month(lEndQuarter).endOf('month').toDate()
+            }
         case PredefinedDateRanges.lastYear:
             return {
                 from: moment().startOf('year').subtract(1, 'year').toDate(),
@@ -108,11 +133,67 @@ export function parsePredifinedDate(textDate: string): IDateRange {
             };
         case PredefinedDateRanges.thisQuarter:
             // TODO: Pending
-            return;
+            let sQuater = quarterMonths[quarterKey][0];
+            let eQuarter = quarterMonths[quarterKey][2];
+            return {
+                from: moment().month(sQuater).startOf('month').toDate(),
+                to: moment().month(eQuarter).endOf('month').toDate()
+            }
         case PredefinedDateRanges.thisYear:
             return {
                 from: moment().startOf('year').toDate(),
                 to: moment().endOf('year').subtract(1, 'day').toDate()
+            };
+        case PredefinedDateRanges.yesterday:
+            return {
+                from: moment().subtract(1, 'days').startOf('day').toDate(),
+                to: moment().endOf('day').toDate()
+            };
+        case PredefinedDateRanges.thisWeekToDate:
+            return {
+                from: moment().startOf('isoWeek').toDate(),
+                to: moment().endOf('day').toDate()
+            };
+        case PredefinedDateRanges.today:
+            return {
+                from: moment().startOf('day').toDate(),
+                to: moment().endOf('day').toDate()
+            };
+        case PredefinedDateRanges.thisMonthToDate:
+            return {
+                from: moment().startOf('month').toDate(),
+                to: moment().endOf('day').toDate()
+            };
+        case PredefinedDateRanges.thisQuarterToDate:
+            let qStart = quarterMonths[quarterKey][0];
+            return {
+                from: moment().month(qStart).startOf('month').toDate(),
+                to: moment().endOf('day').toDate()
+            };
+        case PredefinedDateRanges.thisYearToDate:
+            return {
+                from: moment().startOf('year').toDate(),
+                to: moment().endOf('day').toDate()
+            };
+        case PredefinedDateRanges.last7Days:
+            return {
+                from: moment().subtract(7, 'days').toDate(),
+                to: moment().endOf('day').toDate()
+            };
+        case PredefinedDateRanges.last14Days:
+            return {
+                from: moment().subtract(14, 'days').toDate(),
+                to: moment().endOf('day').toDate()
+            };
+        case PredefinedDateRanges.last90Days:
+            return {
+                from: moment().subtract(90, 'days').toDate(),
+                to: moment().endOf('day').toDate()
+            };
+        case PredefinedDateRanges.last365Days:
+            return {
+                from: moment().subtract(365, 'days').toDate(),
+                to: moment().endOf('day').toDate()
             };
     }
 
