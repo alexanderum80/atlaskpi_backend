@@ -93,8 +93,8 @@ export function parsePredifinedDate(textDate: string): IDateRange {
             let lStartQuarter = quarterMonths[getStartQuarter][0];
             let lEndQuarter = quarterMonths[getStartQuarter][2];
             return {
-                from: moment().month(lStartQuarter).startOf('month').toDate(),
-                to: moment().month(lEndQuarter).endOf('month').toDate()
+                from: moment().utc().month(lStartQuarter).startOf('month').toDate(),
+                to: moment().utc().month(lEndQuarter).endOf('month').toDate()
             }
         case PredefinedDateRanges.lastYear:
             return {
@@ -136,13 +136,13 @@ export function parsePredifinedDate(textDate: string): IDateRange {
             let sQuater = quarterMonths[quarterKey][0];
             let eQuarter = quarterMonths[quarterKey][2];
             return {
-                from: moment().month(sQuater).startOf('month').toDate(),
-                to: moment().month(eQuarter).endOf('month').toDate()
+                from: moment().utc().month(sQuater).startOf('month').toDate(),
+                to: moment().utc().month(eQuarter).endOf('month').toDate()
             }
         case PredefinedDateRanges.thisYear:
             return {
                 from: moment().startOf('year').toDate(),
-                to: moment().endOf('year').subtract(1, 'day').toDate()
+                to: moment().endOf('year').toDate()
             };
         case PredefinedDateRanges.yesterday:
             return {
@@ -167,8 +167,8 @@ export function parsePredifinedDate(textDate: string): IDateRange {
         case PredefinedDateRanges.thisQuarterToDate:
             let qStart = quarterMonths[quarterKey][0];
             return {
-                from: moment().month(qStart).startOf('month').toDate(),
-                to: moment().endOf('day').toDate()
+                from: moment().utc().month(qStart).startOf('month').toDate(),
+                to: moment().utc().endOf('day').toDate()
             };
         case PredefinedDateRanges.thisYearToDate:
             return {
