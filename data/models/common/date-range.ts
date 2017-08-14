@@ -16,9 +16,17 @@ export interface IChartDateRange {
 }
 
 export const PredefinedDateRanges = {
-    allTimes: 'all times',
+    today: 'today',
+    yesterday: 'yesterday',
+    thisWeek: 'this week',
+    thisWeekToDate: 'this week to date',
+    thisMonth: 'this month',
+    thisMonthToDate: 'this month to date',
+    thisQuarter: 'this quarter',
+    thisQuarterToDate: 'this quarter to date',
+    thisYear: 'this year',
+    thisYearToDate: 'this year to date',
     lastWeek: 'last week',
-    last30Days: 'last 30 days',
     lastMonth: 'last month',
     last3Months: 'last 3 months',
     last6Months: 'last 6 months',
@@ -28,20 +36,12 @@ export const PredefinedDateRanges = {
     last3Years: 'last 3 years',
     last4Years: 'last 4 years',
     last5Years: 'last 5 years',
-    thisWeek: 'this week',
-    thisMonth: 'this month',
-    thisQuarter: 'this quarter',
-    thisYear: 'this year',
-    yesterday: 'yesterday',
-    thisWeekToDate: 'this week to date',
-    today: 'today',
-    thisMonthToDate: 'this month to date',
-    thisQuarterToDate: 'this quarter to date',
-    thisYearToDate: 'this year to date',
     last7Days: 'last 7 days',
     last14Days: 'last 14 days',
+    last30Days: 'last 30 days',
     last90Days: 'last 90 days',
-    last365Days: 'last 365 days'
+    last365Days: 'last 365 days',
+    allTimes: 'all times'
 };
 
 export const quarterMonths = {
@@ -161,8 +161,8 @@ export function parsePredifinedDate(textDate: string): IDateRange {
             };
         case PredefinedDateRanges.thisMonthToDate:
             return {
-                from: moment().startOf('month').toDate(),
-                to: moment().endOf('day').toDate()
+                from: moment().utc().startOf('month').toDate(),
+                to: moment().utc().endOf('day').toDate()
             };
         case PredefinedDateRanges.thisQuarterToDate:
             let qStart = quarterMonths[quarterKey][0];
