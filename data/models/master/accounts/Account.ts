@@ -111,8 +111,8 @@ accountSchema.statics.createNewAccount = function(ip: string, clientId: string, 
                     })
                     .then(() => {
                         if (account.seedData) {
-                           seedApp(newAccount.getMasterConnectionString());
-                           return importSpreadSheet(newAccount.getMasterConnectionString());
+                           seedApp(newAccount.database.uri);
+                           return importSpreadSheet(newAccount.database.uri);
                         }
                     })
                     .then(() => {
