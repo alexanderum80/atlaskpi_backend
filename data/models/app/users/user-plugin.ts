@@ -678,7 +678,6 @@ export function accountPlugin(schema: mongoose.Schema, options: any) {
 
     schema.statics.forgotPassword = function(email: string, notifier: IForgotPasswordNotifier): Promise<nodemailer.SentMessageInfo> {
         return new Promise<nodemailer.SentMessageInfo>((resolve, reject) => {
-            mongoose.set('debug', true);
             (<IUserModel>this).findOne({ 'emails.address': email }).then((user) => {
                 if (!user) {
                     reject({ name: 'notfound', message: 'Account not found' });

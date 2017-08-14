@@ -7,13 +7,19 @@ import * as bodyParser from 'body-parser';
 import * as winston from 'winston';
 import * as i18n from 'i18n';
 import { config } from './config';
+import * as mongoose from 'mongoose';
+
+// Enable Mongoose Debugging
+if (process.env.NODE_ENV !== 'prod') {
+  mongoose.set('debug', true);
+}
 
 // ACTIVITIES
 import { addActivities } from './activities';
 addActivities();
 
 // middlewares
-import { tokenValidator, logger, initializeContexts, loadUser } from './middlewares';
+import { healthCheck, initializeContexts, loadUser, logger, tokenValidator } from './middlewares';
 
 // Routes
 import { auth, me, log } from './routes';
@@ -24,8 +30,8 @@ winston.add(winston.transports.File, { filename: 'app.log' });
 winston.cli();
 
 // Seeding database
-import seed from './data/seed';
-seed();
+// import seed from './data/seed';
+// seed();
 
 // adding custom validators
 addDuplicateValidator();
@@ -43,6 +49,8 @@ graphQLServer.use(bodyParser.json());
 
 // middlewares
 
+// health check
+graphQLServer.use(healthCheck);
 // enable logger
 graphQLServer.use(logger);
 // validate tokens
