@@ -6,6 +6,7 @@ import { IQuery } from '../..';
 import { IIdentity } from '../../../';
 import { IChart, IChartDocument, IGetChartInput } from '../../../models/app/charts';
 import { IAppModels } from '../../../models/app/app-models';
+import { IDashboardDocument, IDashboardModel } from '../../../models/app/dashboards';
 
 import { ChartFactory } from './charts/chart-factory';
 import { KpiFactory } from '../kpis/kpi.factory';
@@ -76,8 +77,24 @@ export class GetChartQuery implements IQuery<string> {
                 .findOne({ _id: id })
                 .populate({
                     path: 'kpis',
-                }).then(chartDocument => resolve(chartDocument))
+                }).then(chartDocument => {
+                    that._resolveDashboards(chartDocument).then((dashboards) => {
+                        const chart: any = chartDocument.toObject();
+                        chart.dashboards = dashboards;
+                        resolve(chart);
+                        return;
+                    });
+                })
                 .catch(e => reject(e));
+        });
+    }
+
+    private _resolveDashboards(chart): Promise<IDashboardDocument[]> {
+        const that = this;
+        return new Promise<IDashboardDocument[]>((resolve, reject) => {
+            that._ctx.Dashboard.find( { charts: { $in: [chart._id] }}).exec()
+                .then((dashboards) => resolve(dashboards))
+                .catch(err => reject(err));
         });
     }
 }
