@@ -10,8 +10,6 @@ import { config } from './config';
 import * as mongoose from 'mongoose';
 import * as Promise from 'bluebird';
 
-winston.debug(JSON.stringify(config));
-
 // Enable Mongoose Debugging
 (<any>mongoose).Promise = Promise;
 
