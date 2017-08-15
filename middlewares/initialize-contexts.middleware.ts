@@ -5,6 +5,18 @@ import { getMasterContext, getContext, IIdentity } from '../data/models';
 import * as logger from 'winston';
 
 export function initializeContexts(req: ExtendedRequest, res: Response, next) {
+
+    let closeAppContext = function() {
+        if (req.appContext) {
+            if (req.appContext.Connection.readyState === 1) {
+                req.appContext.Connection.close();
+            }
+        }
+    };
+
+    res.once('finish', closeAppContext);
+    res.once('close', closeAppContext);
+
     getMasterContext().then((ctx) => {
         req.masterContext = ctx;
 
