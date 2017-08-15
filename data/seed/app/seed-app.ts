@@ -1,6 +1,5 @@
-import { IAppModels } from '../../models/app/app-models';
 import * as mongoose from  'mongoose';
-import { getContext } from '../../models';
+import { getContext, IAppModels } from '../../models';
 import * as fs from 'fs';
 import * as path from 'path';
 import * as Promise from 'bluebird';
