@@ -10,59 +10,6 @@ import * as Promise from 'bluebird';
 import * as validate from 'validate.js';
 import * as winston from 'winston';
 
-
-export function resolveKpi(context, kpi: string): Promise<IKPIDocument> {
-  if (typeof kpi !== 'string') {
-    let err = 'kpi should be specified as string';
-    return Promise.reject(err);
-  }
-
-  return new Promise<IKPIDocument>((resolve, reject) => {
-    context.model('KPI').findOne({ _id: kpi }, (err, doc) => {
-      if (err) {
-        console.log('error resolving kpi: ' + kpi);
-        return reject(err);
-      }
-
-      if (!doc) {
-        console.log('kpi not found: ' + kpi);
-        return resolve(doc);
-      }
-
-      console.log('kpi found: ' + doc);
-      resolve(doc);
-    });
-  });
-}
-
-function resolveDashboard(context, dashboard: any): Promise<IDashboardDocument> {
-  if (typeof dashboard !== 'string') {
-    let err = 'dashboard should be specified as string';
-    return Promise.reject(err);
-  }
-
-  return new Promise<IDashboardDocument>((resolve, reject) => {
-    context.model('Dashboard').findOne({ _id: dashboard }, (err, doc) => {
-      if (err) {
-        console.log('error resolving dashboard: ' + dashboard);
-        return reject(err);
-      }
-
-      if (!doc) {
-        console.log('dashboard not found: ' + dashboard);
-        return resolve(doc);
-      }
-
-      console.log('dashboard found: ' + doc);
-      resolve(doc);
-    });
-  });
-}
-
-
-
-
-
 let Schema = mongoose.Schema;
 
 let ChartDateRangeSchema = new Schema({
@@ -91,86 +38,6 @@ let ChartSchema = new Schema({
 
     // ChartSchema.methods.
 
- ChartSchema.methods.hasKpi = function(kpi: any): boolean {
-    this.kpis.forEach((k: IKPIDocument) => {
-      if ((kpi instanceof String && k._id === kpi) ||
-          (kpi instanceof Object && kpi._id === k._id)) {
-          return true;
-      }
-    });
-    return false;
-  };
-
- ChartSchema.methods.addKpi = function (kpi: string): Promise<IKPIDocument> {
-    const model = this;
-    return new Promise<IKPIDocument>((resolve, reject) => {
-      resolveKpi(model, kpi).then(doc => {
-        if (!doc) {
-          return resolve(doc);
-        }
-        if (model.hasKpi(doc)) {
-          let err = 'kpi already exist on the chart';
-          console.log(err);
-          return reject(err);
-        }
-
-        model.kpis.push(doc._id);
-        return resolve(doc);
-      })
-      .catch(err => reject(err));
-    });
-  };
-
-  ChartSchema.methods.detachFromAllDashboards = function(): Promise<boolean> {
-    return new Promise<boolean>((resolve, reject) => {
-      this.model('Dashboard')
-        .find()
-        .populate('charts')
-        .then((dashboards: IDashboardDocument[]) => {
-          if (!dashboards) {
-            console.log('no dashboards found');
-            return resolve(true);
-          }
-
-          let removePomises = [];
-
-          dashboards.forEach(dashboard => {
-            if (dashboard.hasChart(this._id)) {
-                console.log('chart found on dashboard: ' + dashboard._id);
-                removePomises.push(dashboard.removeChart(this._id));
-            }
-          });
-
-          Promise.all(removePomises).then(() => resolve(true))
-                                    .catch(err => reject(err));
-
-      });
-    });
-  };
-
-  ChartSchema.methods.attachToDashboard = function (dashboard: string): Promise<IDashboardDocument> {
-    const model = this;
-    return new Promise<IDashboardDocument>((resolve, reject) => {
-      resolveDashboard(model, dashboard).then((doc: IDashboardDocument) => {
-        if (!doc) {
-          return resolve(doc);
-        }
-
-        if (doc.hasChart(this._id)) {
-          let err = 'chart already exist on the dashboard';
-          console.log(err);
-          return reject(err);
-        }
-
-        doc.charts.push(this._id);
-        doc.save();
-        return resolve(doc);
-      })
-      .catch(err => reject(err));
-    });
-  };
-
-
   ChartSchema.statics.createChart = function(input: IChartInput): Promise<IMutationResponse> {
     const that = this;
 
@@ -182,22 +49,11 @@ let ChartSchema = new Schema({
             kpis: requiredAndNotBlank,
             dateRange: requiredAndNotBlank,
             chartDefinition: requiredAndNotBlank,
-            xAxisSource: requiredAndNotBlank
         };
 
         let errors = (<any>validate)((<any>input), constraints, {fullMessages: false});
 
-        // validate if kpi exists before saving the model
-        input.kpis.forEach(k => {
-          resolveKpi(this, k).then(kpi => {
-              if (!kpi) {
-                return resolve({  success: false, errors: [ { field: 'kpis', errors: ['kpi not found'] } ]});
-              }
-          })
-          .catch(err => { return resolve({  success: false, errors: [ { field: 'kpis', errors: ['kpi not found'] } ]}); } );
-         });
-
-         if (errors) {
+        if (errors) {
             resolve(MutationResponse.fromValidationErrors(errors));
             return;
         }
@@ -207,68 +63,27 @@ let ChartSchema = new Schema({
             subtitle: input.subtitle,
             group: input.group,
             dateRange: input.dateRange,
+            kpis: input.kpis,
             // filter: any;
             frequency: input.frequency,
             groupings: input.groupings,
             xFormat: input.xFormat,
             yFormat: input.yFormat,
             chartDefinition: JSON.parse(input.chartDefinition),
-            xAxisSource: input.xAxisSource
+            xAxisSource: input.xAxisSource,
         };
 
-        that.create(newChart, (err, chart: IChartDocument) => {
-            if (err) {
-                reject({ message: 'There was an error creating the chart', error: err });
-                return;
-            }
-
-            // adding kpis
-            let promises = [];
-            input.kpis.forEach(k => {
-              promises.push(chart.addKpi(k));
-            });
-
-            if (input.dashboard) {
-                promises.push(chart.attachToDashboard(input.dashboard));
-            }
-
-            Promise.all(promises).then(() => {
-                 chart.save();
-                 return resolve({ success: true, entity: chart });
-            })
-            .catch(err => reject(err));
-        });
+        return that.create(newChart)
+        .then((chart) => resolve(chart))
+        .catch((err) => reject(err));
     });
   };
 
-  ChartSchema.statics.deleteChart = function(id: string): Promise<IMutationResponse> {
-    const that = this;
 
-    return new Promise<IMutationResponse>((resolve, reject) => {
-        if (!id ) {
-          return Promise.reject({ message: 'There was an error updating the user' });
-        }
-
-        that.findByIdAndRemove(id, (err, data) => {
-            if (err) {
-                const errResponse: IMutationResponse = {
-                  success: false,
-                  errors: [ { field: 'id', errors: ['There was an error deleting the chart']}]
-                };
-
-                resolve(errResponse);
-                return;
-            }
-
-            return resolve({ success: true });
-          });
-        });
-  };
-
-  ChartSchema.statics.updateChart = function(id: string, input: IChartInput): Promise<IMutationResponse> {
+  ChartSchema.statics.updateChart = function(id: string, input: IChartInput): Promise<IChartDocument> {
      const that = this;
 
-     return new Promise<IMutationResponse>((resolve, reject) => {
+     return new Promise<IChartDocument>((resolve, reject) => {
         if (!id ) {
           return Promise.reject({ message: 'There was an error updating the user' });
         }
@@ -280,24 +95,12 @@ let ChartSchema = new Schema({
             kpis: requiredAndNotBlank,
             dateRange: requiredAndNotBlank,
             chartDefinition: requiredAndNotBlank,
-            xAxisSource: requiredAndNotBlank
         };
 
         let errors = (<any>validate)((<any>input), constraints, {fullMessages: false});
 
-        // validate if kpi exists before saving the model
-        input.kpis.forEach(k => {
-          resolveKpi(this, k).then(kpi => {
-              if (!kpi) {
-                return resolve({  success: false, errors: [ { field: 'kpis', errors: ['kpi not found'] } ]});
-              }
-          })
-          .catch(err => { return resolve({  success: false, errors: [ { field: 'kpis', errors: ['kpi not found'] } ]}); } );
-        });
-
         if (errors) {
-            resolve(MutationResponse.fromValidationErrors(errors));
-            return;
+           return reject(errors);
         }
 
         const updatedChart = {
@@ -305,28 +108,20 @@ let ChartSchema = new Schema({
             subtitle: input.subtitle,
             group: input.group,
             dateRange: input.dateRange,
-            // filter: any;
             frequency: input.frequency,
             groupings: input.groupings,
+            kpis: input.kpis,
             xFormat: input.xFormat,
             yFormat: input.yFormat,
             chartDefinition: JSON.parse(input.chartDefinition),
             xAxisSource: input.xAxisSource
         };
 
-        that.findByIdAndUpdate(id, updatedChart, (err, entity) => {
-            if (err) {
-                const errResponse: IMutationResponse = {
-                  success: false,
-                  errors: [ { field: 'id', errors: ['There was an error updating the chart']}]
-                };
-
-                return resolve(errResponse);
-            }
-
-            return resolve({ success: true, entity: entity });
-          });
-        });
+        return that.findOneAndUpdate({_id: id}, updatedChart, { new: true })
+        .exec()
+        .then((chart) => resolve(chart))
+        .catch((err) => reject(err));
+     });
   };
 
 export function getChartModel(m: mongoose.Connection): IChartModel {
