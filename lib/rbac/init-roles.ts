@@ -1,16 +1,28 @@
+import { WSAEINVALIDPROVIDER } from 'constants';
 import * as Promise from 'bluebird';
 import { IAppModels } from '../../data/models';
 import { IRoleDocument } from './models';
+import * as _ from 'lodash';
 
-export function initRoles(ctx: IAppModels, rolesAndPermissions: any, done) {
+export function initRoles(ctx: IAppModels, rolesAndPermissions: any, savedRoles: any[]): Promise<boolean> {
   let count = Object.keys(rolesAndPermissions).length
-    , roles: IRoleDocument[] = []
+    , roles: IRoleDocument[] = [];
 
-    return new Promise((resolve, reject) => {
-        for (let name in rolesAndPermissions) {
+    // just save the roles that do not exist already
+    const roleNamesToAdd = Object.keys(rolesAndPermissions);
+    const savedRoleNames = savedRoles.map(r => r.name);
+    const roleNamesDiff = _.difference(roleNamesToAdd, savedRoleNames);
+
+    if (!roleNamesDiff || roleNamesDiff.length === 0) {
+        return Promise.resolve(true);
+    }
+
+
+    return new Promise<boolean>((resolve, reject) => {
+        roleNamesDiff.forEach(name => {
             let len, role: IRoleDocument;
             // Convert [action, subject] arrays to objects
-            len = rolesAndPermissions[name].length;
+            len = roleNamesDiff.length;
 
             for (let i = 0; i < len; i++) {
                 if (Array.isArray(rolesAndPermissions[name][i])) {
@@ -22,6 +34,8 @@ export function initRoles(ctx: IAppModels, rolesAndPermissions: any, done) {
             }
 
             // Create role
+
+
             role = new ctx.Role({ name: name });
             roles.push(role);
 
@@ -35,10 +49,10 @@ export function initRoles(ctx: IAppModels, rolesAndPermissions: any, done) {
                     // Save role
                     role.save(function (err) {
                         if (err) return reject(err);
-                        --count || done.apply(null, [err].concat(roles));
+                        --count || resolve(true);
                     });
                 });
             });
-        }
+        });
     });
-};
+}

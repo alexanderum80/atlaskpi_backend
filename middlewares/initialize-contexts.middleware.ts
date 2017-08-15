@@ -11,17 +11,8 @@ export function initializeContexts(req: ExtendedRequest, res: Response, next) {
         // try to create the app context based on the identity or the hostname
         let hostname = _getHostname(req);
 
-        // using identity
-        if (req.identity) {
-            logger.debug('creating app context from user identity');
-            let identity = <IIdentity>req.identity;
-            getContext(<string>identity.dbUri).then((ctx) => {
-                req.appContext = ctx;
-                next();
-            });
-        }
         // using hostname
-        else if (hostname) {
+        if (hostname) {
             logger.debug('creating app context from user hostname');
 
             ctx.Account.findAccountByHostname(hostname).then((account: IAccountDocument) => {
