@@ -1,17 +1,44 @@
+import { detachFromDashboards } from './common';
 import { IChartModel } from '../../../models/app/charts';
 import { IIdentity, IMutationResponse } from '../../..';
 import { IMutation, IValidationResult } from '../..';
 import * as Promise from 'bluebird';
-import { AccountCreatedNotification } from '../../../../services';
+import { IDashboardDocument, IDashboardModel } from '../../../models/app/dashboards';
 
 export class DeleteChartMutation implements IMutation<IMutationResponse> {
     constructor(
         public identity: IIdentity,
-        private _chartModel: IChartModel) { }
+        private _chartModel: IChartModel,
+        private _dashboardModel: IDashboardModel) { }
 
     audit = true;
 
     run(data): Promise<IMutationResponse> {
-        return this._chartModel.deleteChart(data.id);
+        const that = this;
+        return new Promise<IMutationResponse>((resolve, reject) => {
+            if (!data.id ) {
+                return reject({ success: false,
+                                 errors: [ { field: 'id', errors: ['Chart not found']} ] });
+              }
+            that._chartModel.findOne({ _id: data.id})
+            .exec()
+            .then((chart) => {
+                if (!chart) {
+                    reject({ success: false,
+                             errors: [ { field: 'id', errors: ['Chart not found']} ] });
+                    return;
+                }
+
+                detachFromDashboards(that._dashboardModel, chart)
+                .then(() => {
+                    chart.remove().then(() =>  {
+                        resolve({ success: true });
+                        return;
+                    });
+                });
+            })
+            .catch(err => reject({ success: false, errors: [ { field: 'id', errors: [err]} ] }));
+        });
+
     }
 }
