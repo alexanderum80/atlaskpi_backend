@@ -20,6 +20,7 @@ export interface IChart {
     yFormat?: string;
     chartDefinition: any;
     xAxisSource: string;
+    dashboards?: IDashboardDocument[];
 }
 
 export interface IChartInput {
@@ -35,7 +36,7 @@ export interface IChartInput {
     yFormat?: string;
     chartDefinition: any;
     xAxisSource: string;
-    dashboard?: string;
+    dashboards?: string[];
 }
 
 export interface IGetChartInput {
@@ -47,10 +48,6 @@ export interface IGetChartInput {
 }
 
 export interface IChartDocument extends IChart, mongoose.Document {
-      hasKpi(kpi: string | IKPIDocument): boolean;
-      addKpi(kpi: string): Promise<IKPIDocument>;
-      detachFromAllDashboards(): Promise<boolean>;
-      attachToDashboard(dashboard: string): Promise<IDashboardDocument>;
 }
 
 export interface IChartModel extends mongoose.Model<IChartDocument> {
@@ -61,16 +58,10 @@ export interface IChartModel extends mongoose.Model<IChartDocument> {
      */
     createChart(input: IChartInput): Promise<IMutationResponse>;
     /**
-     * Delete a Chart
-     * @param { string } id - and input object with the details of the chart
-     * @returns {Promise<IMutationResponse>}
-     */
-    deleteChart(id: string): Promise<IMutationResponse>;
-    /**
      * Update a Chart
      * @param { string } id - and input object with the details of the chart
      * @param { IChartInput } input - and input object with the details of the chart
-     * @returns {Promise<IMutationResponse>}
+     * @returns {Promise<IChartDocument>}
      */
-    updateChart(id: string, input: IChartInput): Promise<IMutationResponse>;
+    updateChart(id: string, input: IChartInput): Promise<IChartDocument>;
 }
