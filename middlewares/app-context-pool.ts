@@ -45,7 +45,10 @@ export class AppContextPool {
                     return resolve(ctxWithSameUri.context);
                 } else {
                     this._removeContext(uri);
-                    return this._createNewContext(uri);
+                    this._createNewContext(uri).then(ctx => {
+                        resolve(ctx);
+                    })
+                    .catch(err => reject(err));
                 }
             }
         });
