@@ -11,17 +11,6 @@ const appContextPool = new AppContextPool();
 
 export function initializeContexts(req: ExtendedRequest, res: Response, next) {
 
-    // let closeAppContext = function() {
-    //     if (req.appContext) {
-    //         if (req.appContext.Connection.readyState === 1) {
-    //             req.appContext.Connection.close();
-    //         }
-    //     }
-    // };
-
-    // res.once('finish', closeAppContext);
-    // res.once('close', closeAppContext);
-
     getMasterContext().then((ctx) => {
         req.masterContext = ctx;
 
@@ -59,12 +48,6 @@ export function initializeContexts(req: ExtendedRequest, res: Response, next) {
 }
 
 export function _getHostname(req: ExtendedRequest): string {
-    //  just for testing
-    // return 'customer2.kpibi.com';
-
-    // check host value from body
-    // let hostname: string = req.body.host || req.hostname || req.subdomain;
-
     let hostname = req.headers['x-hostname'] || req.body.host || req.hostname || req.subdomain;
 
     // stop if not host have been passed
