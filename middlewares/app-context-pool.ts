@@ -32,7 +32,10 @@ export class AppContextPool {
              */
 
             if (!ctxWithSameUri) {
-                return this._createNewContext(uri);
+                this._createNewContext(uri).then(ctx => {
+                    resolve(ctx);
+                })
+                .catch(err => reject(err));
             } else {
                 logger.debug('Ready status connection: ' + ctxWithSameUri.context.Connection.readyState);
                 const ctxConnectionAlive = [1, 2].indexOf(ctxWithSameUri.context.Connection.readyState) !== -1;
