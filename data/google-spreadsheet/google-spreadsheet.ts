@@ -10,6 +10,7 @@ import * as readline from 'readline';
 import * as google from 'googleapis';
 import * as googleAuth from 'google-auth-library';
 import * as Promise from 'bluebird';
+import { ExtendedRequest } from '../../middlewares';
 
 import { importData } from './google-sheet.processor';
 
@@ -18,7 +19,7 @@ let TOKEN_DIR = (process.env.HOME || process.env.HOMEPATH ||
     process.env.USERPROFILE) + '/.credentials/';
 let TOKEN_PATH = TOKEN_DIR + 'sheets.googleapis.com-nodejs-quickstart.json';
 
-export function importSpreadSheet(dbUri: string): Promise<any> {
+export function importSpreadSheet(request: ExtendedRequest): Promise<any> {
     // If modifying these scopes, delete your previously saved credentials
     // at ~/.credentials/sheets.googleapis.com-nodejs-quickstart.json
 
@@ -33,7 +34,7 @@ export function importSpreadSheet(dbUri: string): Promise<any> {
             // Authorize a client with the loaded credentials, then call the
             // Google Sheets API.
             authorize(JSON.parse(content.toString()), function(auth) {
-                importData(auth, dbUri).then(result => {
+                importData(auth, request.appContext).then(result => {
                     resolve(result);
                 }, err => {
                     reject(err);
