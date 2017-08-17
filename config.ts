@@ -44,7 +44,7 @@ import { emailServiceConfig, usersServiceConfig } from './configuration';
 */
 
 export const config: IAppConfig = {
-    subdomain: process.env.AKPI_APP_SUBDOMAIN || 'app.kpibi.com',
+    subdomain: process.env.AKPI_APP_SUBDOMAIN || 'bi.atlaskpi.com',
     token: {
         secret: process.env.AKPI_TOKEN_SECRET || 'jyeu4L?v*FGXmsGAYEXPjp(i',
         expiresIn: process.env.AKPI_TOKEN_EXPIRATION || '10 d'
@@ -52,7 +52,7 @@ export const config: IAppConfig = {
     masterDb: process.env.AKPI_MASTER_DB_URI || 'mongodb://localhost/kpibi',
     newAccountDbUriFormat: process.env.AKPI_NEW_ACCOUNT_DB_URI_FORMAT || 'mongodb://localhost/{{database}}',
     mongoDBAtlasCredentials: {
-        username: process.env.AKPI_MONGODB_ADMIN_USERNAME || '',
+        username: process.env.AKPI_MONGODB_API_USERNAME || '',
         api_key: process.env.AKPI_MONGODB_API_KEY || '',
         uri: process.env.AKPI_MONGODB_API_URI || '',
         groupId: process.env.AKPI_MONGODB_GROUP_ID || ''

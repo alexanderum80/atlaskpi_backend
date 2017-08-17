@@ -20,7 +20,7 @@ export function seedApp(connectionString) {
     ];
 
     // getContext('mongodb://localhost/customer2').then((ctx) => {
-       getContext(connectionString || 'mongodb://localhost/customer2').then((ctx) => {
+       getContext(  connectionString || 'mongodb://localhost/company-test-3002').then((ctx) => {
         // test
         let count = ctx.Sale.find({}).count((err, count) => {
             console.log('Number of records in sales collection: ' + count);

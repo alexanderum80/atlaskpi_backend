@@ -18,9 +18,9 @@ export const chartsGql: GraphqlDefinition = {
         types: `
             input GetChartInput {
                 dateRange: ChartDateRangeInput!
-                frequency: String!
+                frequency: String
                 groupings: [String]!
-                xAxisSource: String!
+                xAxisSource: String,
             }
             input ChartAttributesInput {
                 title: String!
@@ -31,7 +31,7 @@ export const chartsGql: GraphqlDefinition = {
                 groupings: [String]
                 chartDefinition: String
                 xAxisSource: String
-                dashboard: String
+                dashboards: [String]
             }
             type ChartEntityResponse {
                 _id: String
@@ -47,6 +47,7 @@ export const chartsGql: GraphqlDefinition = {
                 yFormat: String
                 chartDefinition: String
                 xAxisSource: String
+                dashboards: [Dashboard]
             }
             type ChartMutationResponse {
                 success: Boolean
@@ -55,10 +56,6 @@ export const chartsGql: GraphqlDefinition = {
             }
             type ListChartsQueryResponse {
                 data: [ChartEntityResponse]
-            }
-            type DeleteChartMutationResponse {
-                success: Boolean
-                errors: [ErrorDetails]
             }
         `,
         queries: `
@@ -74,7 +71,7 @@ export const chartsGql: GraphqlDefinition = {
         `,
         mutations: `
             createChart(input: ChartAttributesInput): ChartMutationResponse
-            deleteChart(id: String!): DeleteChartMutationResponse
+            deleteChart(id: String!): ChartMutationResponse
             updateChart(id: String!, input: ChartAttributesInput!): ChartMutationResponse
         `,
     },
@@ -116,15 +113,17 @@ export const chartsGql: GraphqlDefinition = {
         },
         Mutation: {
             createChart(root: any, args, ctx: IGraphqlContext) {
-                let mutation = new CreateChartMutation(ctx.req.identity, ctx.req.appContext.Chart);
+                let mutation = new CreateChartMutation(ctx.req.identity, ctx.req.appContext.Chart,
+                                                       ctx.req.appContext.KPI, ctx.req.appContext.Dashboard);
                 return ctx.mutationBus.run<IMutationResponse>('create-chart', ctx.req, mutation, args);
             },
             deleteChart(root: any, args, ctx: IGraphqlContext) {
-                let mutation = new DeleteChartMutation(ctx.req.identity, ctx.req.appContext.Chart);
+                let mutation = new DeleteChartMutation(ctx.req.identity, ctx.req.appContext.Chart, ctx.req.appContext.Dashboard);
                 return ctx.mutationBus.run<IMutationResponse>('delete-chart', ctx.req, mutation, args);
             },
             updateChart(root: any, args, ctx: IGraphqlContext) {
-                let mutation = new UpdateChartMutation(ctx.req.identity, ctx.req.appContext.Chart);
+                let mutation = new UpdateChartMutation(ctx.req.identity, ctx.req.appContext.Chart,
+                                                       ctx.req.appContext.KPI, ctx.req.appContext.Dashboard);
                 return ctx.mutationBus.run<IMutationResponse>('delete-chart', ctx.req, mutation, args);
             },
         },
@@ -138,7 +137,8 @@ export const chartsGql: GraphqlDefinition = {
         },
         ChartEntityResponse: {
             dateRange(entity: IChart) { return entity.dateRange; },
-            chartDefinition(entity: IChart) { return JSON.stringify(entity.chartDefinition); }
+            chartDefinition(entity: IChart) { return JSON.stringify(entity.chartDefinition); },
+            dashboards(entity: IChart) { return entity.dashboards; }
         },
         ListChartsQueryResponse: {
             data(response: [IChartDocument]) { return response; }
