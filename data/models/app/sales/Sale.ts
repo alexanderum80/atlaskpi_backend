@@ -70,6 +70,10 @@ let PaymentSchema = new Schema ({
     amount: Number
 });
 
+let BusinessUnitSchema = new Schema({
+    name: String
+});
+
 let SalesSchema = new Schema ({
     source: String,
     externalId: { type: String, unique: true },
@@ -82,10 +86,23 @@ let SalesSchema = new Schema ({
     timestamp: Date,
     concept: String,
     document: DocumentSchema,
-    payment: PaymentSchema
+    payment: PaymentSchema,
+    businessUnit: BusinessUnitSchema,
+    serviceType: String
 });
 
 export const SaleSchema = SalesSchema;
+
+// INDEXES
+
+SaleSchema.index({ 'product.from': 1 });
+SaleSchema.index({ 'product.from': 1, 'location.name': 1 });
+SaleSchema.index({ 'product.from': 1, 'businessUnit.name': 1 });
+SaleSchema.index({ 'product.from': 1, 'serviceType': 1 });
+SaleSchema.index({ 'product.from': 1, 'employee.type': 1, 'location.name': 1 });
+SaleSchema.index({ 'product.from': 1, 'product.itemDescription': 1 });
+SaleSchema.index({ 'product.from': 1, 'category.name': 1 });
+SaleSchema.index({ 'product.from': 1, 'category.service': 1 });
 
 // SaleSchema.methods.
 
