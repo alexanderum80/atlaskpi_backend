@@ -17,10 +17,12 @@ import { ISaleModel } from './sales';
 import { IDashboardModel } from './dashboards';
 import { IExpenseModel } from './expenses';
 import { ILogEntryModel } from './log';
+import * as mongoose from 'mongoose';
 
 import { IRoleModel, IPermissionModel } from '../../../lib/rbac';
 
 export interface IAppModels {
+    Connection: mongoose.Connection;
     // Customer: ICustomerModel;
     // Employee: IEmployeeModel;
     // EmployeeTime: IEmployeeAttendanceModel;
