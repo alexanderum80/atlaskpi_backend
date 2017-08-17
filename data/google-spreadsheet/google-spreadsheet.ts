@@ -1,3 +1,4 @@
+import { IAppModels } from '../models/app/app-models';
 /**
  * Google Credentials
  *
@@ -19,7 +20,7 @@ let TOKEN_DIR = (process.env.HOME || process.env.HOMEPATH ||
     process.env.USERPROFILE) + '/.credentials/';
 let TOKEN_PATH = TOKEN_DIR + 'sheets.googleapis.com-nodejs-quickstart.json';
 
-export function importSpreadSheet(request: ExtendedRequest): Promise<any> {
+export function importSpreadSheet(ctx: IAppModels): Promise<any> {
     // If modifying these scopes, delete your previously saved credentials
     // at ~/.credentials/sheets.googleapis.com-nodejs-quickstart.json
 
@@ -34,7 +35,7 @@ export function importSpreadSheet(request: ExtendedRequest): Promise<any> {
             // Authorize a client with the loaded credentials, then call the
             // Google Sheets API.
             authorize(JSON.parse(content.toString()), function(auth) {
-                importData(auth, request.appContext).then(result => {
+                importData(auth, ctx).then(result => {
                     resolve(result);
                 }, err => {
                     reject(err);
