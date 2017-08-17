@@ -28,7 +28,7 @@ export const spreadsheetGpl: GraphqlDefinition = {
         Query: {},
         Mutation: {
             refreshDataFromSpreadSheet(root: any, args, ctx: IGraphqlContext): Promise<any> {
-                return importSpreadSheet(ctx.req);
+                return importSpreadSheet(ctx.req.appContext);
             },
         }
     }

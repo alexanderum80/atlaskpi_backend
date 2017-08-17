@@ -103,7 +103,7 @@ accountSchema.statics.createNewAccount = function(ip: string, clientId: string, 
                         })
                         .then(() => {
                             if (account.seedData) {
-                                return importSpreadSheet(newAccount.database.uri);
+                                return importSpreadSheet(newAccountContext);
                             } else {
                                 return Promise.resolve(true);
                             }
