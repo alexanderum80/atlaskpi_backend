@@ -1,10 +1,11 @@
-export function detachFromDashboards(dashboardModel, chart): Promise<boolean> {
+import { IDashboardModel } from '../../../models/app/dashboards';
+
+export function detachFromAllDashboards(dashboardModel: IDashboardModel, chartId: string): Promise<boolean> {
     return new Promise<boolean>((resolve, reject) => {
-        // remove references
-        dashboardModel.update({ charts: { $in: [chart._id] } },
-                              { $pull : { charts: chart._id }},
+        dashboardModel.update({ charts: { $in: [chartId]}},
+                              { $pull: { charts: chartId }},
                               { multi: true }).exec()
-        .then(() => {
+        .then(dashboards => {
             resolve(true);
             return;
         })
@@ -12,11 +13,25 @@ export function detachFromDashboards(dashboardModel, chart): Promise<boolean> {
     });
 }
 
-export function attachToDashboards(dashboardModel, dashboards, chart): Promise<boolean> {
-    const ids = dashboards.map(d => d._id);
+export function detachFromDashboards(dashboardModel: IDashboardModel, dashboardsIds: string[], chartId: string): Promise<boolean> {
+    if (!dashboardsIds || dashboardsIds.length < 1 ) { return Promise.resolve(true); }
     return new Promise<boolean>((resolve, reject) => {
-        dashboardModel.update({_id: { $in: ids}},
-                              { $push: { charts: chart._id }},
+        dashboardModel.update({_id: { $in: dashboardsIds}},
+                              { $pull: { charts: chartId }},
+                              { multi: true }).exec()
+        .then(dashboards => {
+            resolve(true);
+            return;
+        })
+        .catch(err => reject(err));
+    });
+}
+
+export function attachToDashboards(dashboardModel: IDashboardModel, dashboardsIds: string[], chartId: string): Promise<boolean> {
+    if (!dashboardsIds || dashboardsIds.length < 1 ) { return Promise.resolve(true); }
+    return new Promise<boolean>((resolve, reject) => {
+        dashboardModel.update({_id: { $in: dashboardsIds}},
+                              { $push: { charts: chartId }},
                               { multi: true }).exec()
         .then(dashboards => {
             resolve(true);
