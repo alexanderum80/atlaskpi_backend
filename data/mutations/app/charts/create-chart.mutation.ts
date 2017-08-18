@@ -28,7 +28,7 @@ export class CreateChartMutation implements IMutation<IMutationResponse> {
                     return resolve({ success: false, errors: [ { field: 'kpis', errors: ['one or more kpis not found'] } ]});
                 }
 
-                // resolve dashboards
+                // resolve dashboards to include the chart
                 that._dashboardModel.find( {_id: { $in: data.input.dashboards }})
                 .then((dashboards) => {
                     if (!dashboards || dashboards.length !== data.input.dashboards.length) {
@@ -40,7 +40,7 @@ export class CreateChartMutation implements IMutation<IMutationResponse> {
                     // create the chart
                     that._chartModel.createChart(data.input)
                     .then((chart) => {
-                        attachToDashboards(that._dashboardModel, dashboards, chart)
+                        attachToDashboards(that._dashboardModel, data.input.dashboards, chart._id)
                         .then(() => {
                             resolve({ entity: chart, success: true });
                             return;
