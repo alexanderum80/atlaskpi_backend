@@ -7,7 +7,7 @@ image: node:6.9.4
 
 pipelines:
   branches:  # Pipelines that run automatically on a commit to a branch
-    master:
+    development:
       - step:
           script: # Modify the commands below to build your repository.
             - mkdir -p ~/.ssh
@@ -18,6 +18,6 @@ pipelines:
             - cp -R configuration/users/templates dist/configuration/users
             - cp -R resources dist
             - mv dist webapp-backend && tar cvfz webapp-backend.tgz webapp-backend
-            - scp webapp-backend.tgz ubuntu@app.kpibi.com:./apps/uploads
-            - ssh ubuntu@app.kpibi.com 'cd apps/uploads && tar xvfz webapp-backend.tgz && cp -R webapp-backend/* ../webapp-backend && rm -Rf webapp-backend* && cd ../webapp-backend && npm install && pm2 restart webapp-backend'
+            - scp webapp-backend.tgz ubuntu@dev.kpibi.com:./apps/uploads
+            - ssh ubuntu@dev.kpibi.com 'cd apps/uploads && tar xvfz webapp-backend.tgz && cp -R webapp-backend/* ../webapp-backend && rm -Rf webapp-backend* && cd ../webapp-backend && npm install && pm2 restart webapp-backend'
 
