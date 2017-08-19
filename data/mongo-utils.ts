@@ -7,7 +7,18 @@ export default function connectToMongoDb(dbUri: string): Promise<mongoose.Connec
     winston.debug(`Conecting to server: ${dbUri}`);
 
     return new Promise<mongoose.Connection>((resolve, reject) => {
-        let conn = mongoose.createConnection(dbUri);
+        const options = {
+            server: {
+                auto_reconnect: true,
+                socketOptions: {
+                    connectTimeoutMS: 3600000,
+                    keepAlive: 3600000,
+                    socketTimeoutMS: 3600000
+                }
+            }
+        };
+
+        let conn = mongoose.createConnection(dbUri, options);
 
         conn.on('connected', () => {
             winston.debug('Mongoose custom connection open to ' + dbUri);

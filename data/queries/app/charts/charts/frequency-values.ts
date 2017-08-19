@@ -106,7 +106,7 @@ export class FrequencyHelper {
                     let tokens = item._id.frequency.split('-');
                     let freqInfo: IFrequencyInfo = {
                         year: +tokens[0],
-                        quarter: +tokens[1]
+                        quarter: +tokens[1][1]
                     };
 
                     // item.frequency = freqInfo;

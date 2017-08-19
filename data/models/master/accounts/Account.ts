@@ -1,7 +1,10 @@
+import { ITokenInfo } from '../../app/users/IUser';
+import { IAppModels } from '../../app/app-models';
+import { stringify } from 'querystring';
 import { importSpreadSheet } from '../../../google-spreadsheet/google-spreadsheet';
 import mongoose = require('mongoose');
 import * as Promise from 'bluebird';
-import { IAccountModel, IAccountDocument, IAccount, IDatabaseInfo, IParticularDBUser } from './IAccount';
+import { IAccountModel, IAccountDocument, IAccount, IDatabaseInfo, IAccountDBUser } from './IAccount';
 import { IMutationResponse, MutationResponse } from '../..';
 import { getContext, ICreateUserDetails, IUserDocument } from '../../../models';
 import { AccountCreatedNotification, EnrollmentNotification } from '../../../../services/notifications/users';
@@ -13,6 +16,7 @@ import * as rolesSetup from './initialRoles';
 import * as changeCase from 'change-case';
 import { generateUniqueHash } from '../../../../lib/utils';
 import { AuthController } from '../../../../controllers';
+import { IUserToken } from '../../common';
 import * as Handlebars from 'handlebars';
 import * as mongodb from 'mongodb';
 
@@ -35,6 +39,8 @@ let accountSchema = new mongoose.Schema({
     database: {
         uri: String,
         name: String,
+        username: String,
+        password: String
     },
     audit: {
         createdOn: { type: Date, default: Date.now },
@@ -45,6 +51,7 @@ let accountSchema = new mongoose.Schema({
 // static methods
 accountSchema.statics.createNewAccount = function(ip: string, clientId: string, clientDetails: string, account: IAccount): Promise<IMutationResponse>   {
     let that = this;
+
     return new Promise<IMutationResponse>((resolve, reject) => {
 
         let accountDatabaseName = changeCase.paramCase(account.name);
@@ -63,7 +70,7 @@ accountSchema.statics.createNewAccount = function(ip: string, clientId: string, 
 
         let hash = generateUniqueHash();
 
-        let particularUser = {
+        let accountDbUser = {
             user: `adm-${hash.substr(hash.length - 10, hash.length)}`,
             pwd: hash.substr(0, 10),
             roles: [
@@ -72,7 +79,7 @@ accountSchema.statics.createNewAccount = function(ip: string, clientId: string, 
             ]
         };
 
-        account.database = generateDBObject(accountDatabaseName, particularUser.user, particularUser.pwd);
+        account.database = generateDBObject(accountDatabaseName, accountDbUser.user, accountDbUser.pwd);
 
         let firstUser: ICreateUserDetails = { email: account.personalInfo.email,
                                                 password: hash.substr(hash.length - 10, hash.length) };
@@ -82,55 +89,38 @@ accountSchema.statics.createNewAccount = function(ip: string, clientId: string, 
                 resolve({ errors: [ {field: 'account', errors: [err.message] } ], entity: null });
                 return;
             }
-            getContext(newAccount.getMasterConnectionString()).then((newAccountContext) => {
-               return new Promise<boolean>((resolve, reject) => {
-                    // Create a db user if it's in production
-                    if (config.isMongoDBAtlas) {
-                        newAccount.createParticularUser(particularUser)
-                        .then((value) => resolve(value))
-                        .catch((err) => reject(err));
-                    }
-                    // Local db... no need to create a db user;
-                    resolve(true);
-                })
-                .then((result) => {
-                    if (result !== true) { throw result; }
-                    newAccountContext.Role.find({}).then((roles) => {
-                        initRoles(newAccountContext, rolesSetup.initialRoles, function (err, admin, readonly) {
-                            console.log(admin);
-                            console.log(readonly);
-                        });
-                    })
-                 .then((rolesCreated) => {
-                    let notifier = new EnrollmentNotification(config, { hostname: newAccount.database.name });
-                    newAccountContext.User.createUser(firstUser, notifier).then((response) => {
-                        (<IUserDocument>response.entity).addRole('admin');
-                    })
-                    .then(() => {
-                        if (account.seedData) {
-                           seedApp(newAccount.getMasterConnectionString());
-                           return importSpreadSheet(newAccount.getMasterConnectionString());
-                        }
-                    })
-                    .then(() => {
-                        const subdomain = `${account.database.name}.${config.subdomain}`;
 
-                        const auth = new AuthController(that, newAccountContext);
-                        // TODO: I need to add the browser details on this request
-                        auth.authenticateUser(subdomain, firstUser.email, firstUser.password, ip, clientId, clientDetails)
-                        .then((tokenInfo) => {
-                            newAccount.subdomain = subdomain;
-                            newAccount.initialToken = tokenInfo;
-                            resolve({ entity: newAccount, success: true });
-                        });
+            createDbUserIfNeeded(newAccount, accountDbUser).then(success => {
+                let databaseObject = generateDBObject(accountDatabaseName, 'atlas', 'yA22wflgDf9dZluW');
+
+                getContext(databaseObject.uri).then((newAccountContext) => {
+                    initializeRolesForAccount(newAccountContext)
+                        .then((rolesCreated) => {
+                            return createAdminUser(newAccountContext, newAccount.database.name, firstUser);
+                        })
+                        .then(() => {
+                            return seedApp(newAccountContext);
+                        })
+                        .then(() => {
+                            if (account.seedData) {
+                                return importSpreadSheet(newAccountContext);
+                            } else {
+                                return Promise.resolve(true);
+                            }
+                        })
+                        .then(() => {
+                            return generateFirstAccountToken(that, newAccountContext, account, firstUser, ip, clientId, clientDetails).then(token => {
+                                newAccount.subdomain = token.subdomain;
+                                newAccount.initialToken = token.tokenInfo;
+
+                                resolve({ entity: newAccount });
+                            });
+                        })
+                        .catch(err => reject(err));
+                    })
+                    .catch((err) => {
+                        resolve({ errors: [ {field: 'account', errors: [err.message] } ], entity: null });
                     });
-                    }, (err) => {
-                        winston.error('Error creating user: ', err);
-                    });
-                 });
-              })
-            .catch((err) => {
-                resolve({ errors: [ {field: 'account', errors: [err.message] } ], entity: null });
             });
         });
 
@@ -212,17 +202,17 @@ accountSchema.methods.getConnectionString = function() {
 };
 
 accountSchema.methods.getMasterConnectionString = function() {
-    let uriTemplate = Handlebars.compile(config.masterConnectionString);
+    let uriTemplate = Handlebars.compile(config.masterDb);
     return uriTemplate({database: this.database.name});
 };
 
-accountSchema.methods.createParticularUser = function(particularUser: IParticularDBUser): Promise<boolean> {
-    console.log('Creating db specific user');
+accountSchema.methods.createAccountDbUser = function(accountDbUser: IAccountDBUser): Promise<boolean> {
+    winston.info('Creating db specific user: ' + JSON.stringify(accountDbUser));
     let body = {
         databaseName: 'admin',
-        roles: particularUser.roles,
-        username: particularUser.user,
-        password: particularUser.pwd
+        roles: accountDbUser.roles,
+        username: accountDbUser.user,
+        password: accountDbUser.pwd
     };
 
     let options: request.Options = {
@@ -256,12 +246,85 @@ export function getAccountModel(): IAccountModel {
     return <IAccountModel>mongoose.model('Account', accountSchema);
 }
 
-export function generateDBObject(database: string, user?: string, password?: string): IDatabaseInfo {
-    let uriTemplate = Handlebars.compile(config.connectionString);
+function generateDBObject(database: string, username?: string, password?: string): IDatabaseInfo {
+    let uriTemplate = Handlebars.compile(config.newAccountDbUriFormat);
     let data = {
-        user: user,
+        username: username,
         password: password,
         database: database
     };
-    return { uri: uriTemplate(data), name: changeCase.paramCase(database) };
+    return {
+        uri: uriTemplate(data),
+        name: changeCase.paramCase(database),
+        username: username,
+        password: password
+    };
 }
+
+function createDbUserIfNeeded(account: IAccountDocument, dbUser): Promise<boolean> {
+    return new Promise<boolean>((resolve, reject) => {
+        // Create a db user if it's in production
+        if (config.mongoDBAtlasCredentials && config.mongoDBAtlasCredentials.api_key) {
+            account.createAccountDbUser(dbUser)
+                .then((value) => resolve(value))
+                .catch((err) => reject(err));
+        } else {
+            // Local db... no need to create a db user;
+            resolve(true);
+        }
+    });
+}
+
+function initializeRolesForAccount(accountContext: IAppModels): Promise<boolean> {
+    return new Promise<boolean>((resolve, reject) => {
+        accountContext.Role.find({}).then((roles) => {
+            initRoles(accountContext, rolesSetup.initialRoles, roles).then(created => {
+                if (created)
+                    resolve(true);
+            })
+            .catch(err => reject(err));
+        })
+        .catch(err => reject(err));
+    });
+}
+
+function createAdminUser(accountContext: IAppModels, databaseName: string, firstUser: ICreateUserDetails): Promise<boolean> {
+    return new Promise<boolean>((resolve, reject) => {
+        let notifier = new EnrollmentNotification(config, { hostname: databaseName });
+        accountContext.User.createUser(firstUser, notifier).then((response) => {
+            (<IUserDocument>response.entity).addRole('admin', (err, role) => {
+                if (err) {
+                    reject(err);
+                } else {
+                    resolve(true);
+                }
+            });
+        })
+        .catch(err => reject(err));
+    });
+}
+
+export interface IFirstTokenInfo {
+    subdomain: string;
+    tokenInfo: IUserToken;
+}
+
+function generateFirstAccountToken(codeContext, acountContext: IAppModels, account, firstUser: ICreateUserDetails,
+    ip: string, clientId: string, clientDetails: string): Promise<IFirstTokenInfo> {
+    const subdomain = `${account.database.name}.${config.subdomain}`;
+    const auth = new AuthController(codeContext, acountContext);
+
+    return new Promise<IFirstTokenInfo>((resolve, reject) => {
+        // TODO: I need to add the browser details on this request
+        auth.authenticateUser(subdomain, firstUser.email, firstUser.password, ip, clientId, clientDetails)
+        .then((tokenInfo) => {
+            resolve({
+                subdomain: subdomain,
+                tokenInfo: tokenInfo
+            });
+        })
+        .catch(err => reject(err));
+    });
+}
+
+

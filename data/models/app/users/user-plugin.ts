@@ -175,8 +175,7 @@ export function accountPlugin(schema: mongoose.Schema, options: any) {
                 firstName: this.profile.firstName,
                 middleName: this.profile.middleName,
                 lastName: this.profile.lastName,
-                roles: this.roles.map((role) => role.name),
-                dbUri: dbUri
+                roles: this.roles.map((role) => role.name)
             };
 
             // workbench tokens should not expire
@@ -656,7 +655,6 @@ export function accountPlugin(schema: mongoose.Schema, options: any) {
 
     schema.statics.forgotPassword = function(email: string, notifier: IForgotPasswordNotifier): Promise<nodemailer.SentMessageInfo> {
         return new Promise<nodemailer.SentMessageInfo>((resolve, reject) => {
-            mongoose.set('debug', true);
             (<IUserModel>this).findOne({ 'emails.address': email }).then((user) => {
                 if (!user) {
                     reject({ name: 'notfound', message: 'Account not found' });

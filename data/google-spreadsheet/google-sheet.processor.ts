@@ -1,3 +1,4 @@
+import { IAppModels } from '../models/app/app-models';
 
 import * as google from 'googleapis';
 import importSpreadSheetData from './kpibi-importer';
@@ -64,7 +65,7 @@ export interface DataContext {
  * Print the names and majors of students in a sample spreadsheet:
  * https://docs.google.com/spreadsheets/d/1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgvE2upms/edit
  */
-export function importData(auth, dbUri: string): Promise<any> {
+export function importData(auth, ctx: IAppModels): Promise<any> {
 
     return new Promise<any>((resolve, reject) => {
         let promises = dataSources.map(source => {
@@ -78,7 +79,7 @@ export function importData(auth, dbUri: string): Promise<any> {
                 dataObject[result.name] = result.data;
             });
 
-            importSpreadSheetData(dataObject, dbUri).then(res => {
+            importSpreadSheetData(dataObject, ctx).then(res => {
                 resolve(res);
             }, err => {
                 reject(err);
