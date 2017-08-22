@@ -1,3 +1,4 @@
+import { QueryBase } from '../../query-base';
 import * as Promise from 'bluebird';
 import { IQuery, IIdentity, IUserModel } from '../../..';
 
@@ -5,11 +6,13 @@ export interface IVerifyResetPasswordTokenMessage {
     token: string;
 }
 
-export class VerifyResetPasswordQuery implements IQuery<boolean> {
+export class VerifyResetPasswordQuery extends QueryBase<boolean> {
 
     constructor(
         public identity: IIdentity,
-        private _UserModel: IUserModel) { }
+        private _UserModel: IUserModel) {
+            super(identity);
+        }
 
     // log = true;
     // audit = true;
