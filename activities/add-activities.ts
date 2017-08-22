@@ -50,7 +50,11 @@ import {
     getDashboardActivity,
     getDashboardsActivity,
     // search
-    searchActivity
+    searchActivity,
+
+    // log
+    createAccessLogActivity,
+    getAllAccessLogsActivity
 
 } from './app';
 
@@ -112,7 +116,11 @@ export function addActivities() {
         getDashboardsActivity,
 
         // search
-        searchActivity
+        searchActivity,
+
+        // log
+        createAccessLogActivity,
+        getAllAccessLogsActivity
 
     ]);
 }
