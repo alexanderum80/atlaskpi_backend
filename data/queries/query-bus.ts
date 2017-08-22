@@ -1,3 +1,4 @@
+import { CreateAccessLogMutation } from '../mutations/app/access-log';
 // import { IValidationResult } from './validation-result';
 import {
     IIdentity,
@@ -10,7 +11,7 @@ import * as Promise from 'bluebird';
 
 
 export interface IQueryBus {
-    run<T>(activityName: string, query: IQuery<T>, data: any): Promise<any>;
+    run<T>(activityName: string, query: IQuery<T>, data: any, request?: any): Promise<any>;
 }
 
 export class QueryBus implements IQueryBus {
@@ -21,7 +22,8 @@ export class QueryBus implements IQueryBus {
 
     constructor(private _enforcer: IEnforcer) { }
 
-    run<T>(activityName: string, query: IQuery<T>, data: any): Promise<any> {
+    run<T>(activityName: string, query: IQuery<T>, data: any, request: any): Promise<any> {
+        const that = this;
         // chack activity authorization
         return this.enforcer.authorizationTo(activityName, query.identity)
             .then((authorized) => {

@@ -80,17 +80,17 @@ export const chartsGql: GraphqlDefinition = {
         Query: {
             charts(root: any, args, ctx: IGraphqlContext) {
                 let query = new GetChartQuery(ctx.req.identity, ctx.req.appContext);
-                return ctx.queryBus.run('get-chart-data', query, args);
+                return ctx.queryBus.run('get-chart-data', query, args, ctx.req);
             },
 
             chartsList(root: any, args, ctx: IGraphqlContext) {
                 let query = new GetChartsQuery(ctx.req.identity, ctx.req.appContext);
-                return ctx.queryBus.run('get-charts', query, args);
+                return ctx.queryBus.run('get-charts', query, args, ctx.req);
             },
 
             chart(root: any, args, ctx: IGraphqlContext) {
                 let query = new GetChartQuery(ctx.req.identity, ctx.req.appContext);
-                return ctx.queryBus.run('get-chart', query, args);
+                return ctx.queryBus.run('get-chart', query, args, ctx.req);
             },
 
             previewChart(root: any, args, ctx: IGraphqlContext) {
@@ -101,14 +101,14 @@ export const chartsGql: GraphqlDefinition = {
                     args.chart = args.input;
                     args.chart.chartDefinition = JSON.parse(args.input.chartDefinition);
                     args.chart.kpis[0] = kpi;
-                    return ctx.queryBus.run('get-chart', query, args);
+                    return ctx.queryBus.run('get-chart', query, args, ctx.req);
                 })
                 .catch(e => { return ctx.queryBus.run('get-chart', query, args); });
             },
 
             listCharts(root: any, args, ctx: IGraphqlContext) {
                 let query = new ListChartsQuery(ctx.req.identity, ctx.req.appContext);
-                return ctx.queryBus.run('list-charts', query, args);
+                return ctx.queryBus.run('list-charts', query, args, ctx.req);
             },
         },
         Mutation: {

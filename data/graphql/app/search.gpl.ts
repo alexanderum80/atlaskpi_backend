@@ -25,7 +25,7 @@ export const searchGql: GraphqlDefinition = {
             search(root: any, args, ctx: IGraphqlContext) {
                 const adaptEngine = new AdaptEngine([AdaptIntents.Chart]);
                 let query = new SearchQuery(ctx.req.identity, ctx.req.appContext, adaptEngine);
-                return ctx.queryBus.run('search', query, args);
+                return ctx.queryBus.run('search', query, args, ctx.req);
             }
         },
         Mutation: {}
