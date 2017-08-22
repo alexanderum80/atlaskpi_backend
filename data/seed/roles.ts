@@ -36,10 +36,7 @@ export default function seedRoles(connectionString) {
                   viewer: [
                     ['create', 'Post'],
                   ]
-                }, function (err, admin, readonly) {
-                  console.log(admin);
-                  console.log(readonly);
-                });
+                }, []);
         });
     });
-};
+}

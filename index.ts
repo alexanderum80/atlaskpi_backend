@@ -8,8 +8,11 @@ import * as winston from 'winston';
 import * as i18n from 'i18n';
 import { config } from './config';
 import * as mongoose from 'mongoose';
+import * as Promise from 'bluebird';
 
 // Enable Mongoose Debugging
+(<any>mongoose).Promise = Promise;
+
 if (process.env.NODE_ENV !== 'prod') {
   mongoose.set('debug', true);
 }
