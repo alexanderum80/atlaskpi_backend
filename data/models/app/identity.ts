@@ -7,5 +7,4 @@ export interface IIdentity {
     lastName: string;
     roles?: string[];
     permissions?: [IPermission];
-    dbUri: string;
 }

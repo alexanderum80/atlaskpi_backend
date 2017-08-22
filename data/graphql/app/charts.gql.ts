@@ -113,15 +113,17 @@ export const chartsGql: GraphqlDefinition = {
         },
         Mutation: {
             createChart(root: any, args, ctx: IGraphqlContext) {
-                let mutation = new CreateChartMutation(ctx.req.identity, ctx.req.appContext.Chart);
+                let mutation = new CreateChartMutation(ctx.req.identity, ctx.req.appContext.Chart,
+                                                       ctx.req.appContext.KPI, ctx.req.appContext.Dashboard);
                 return ctx.mutationBus.run<IMutationResponse>('create-chart', ctx.req, mutation, args);
             },
             deleteChart(root: any, args, ctx: IGraphqlContext) {
-                let mutation = new DeleteChartMutation(ctx.req.identity, ctx.req.appContext.Chart);
+                let mutation = new DeleteChartMutation(ctx.req.identity, ctx.req.appContext.Chart, ctx.req.appContext.Dashboard);
                 return ctx.mutationBus.run<IMutationResponse>('delete-chart', ctx.req, mutation, args);
             },
             updateChart(root: any, args, ctx: IGraphqlContext) {
-                let mutation = new UpdateChartMutation(ctx.req.identity, ctx.req.appContext.Chart);
+                let mutation = new UpdateChartMutation(ctx.req.identity, ctx.req.appContext.Chart,
+                                                       ctx.req.appContext.KPI, ctx.req.appContext.Dashboard);
                 return ctx.mutationBus.run<IMutationResponse>('delete-chart', ctx.req, mutation, args);
             },
         },

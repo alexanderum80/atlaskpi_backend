@@ -45,7 +45,7 @@ export class AuthController {
             let account: IAccountDocument;
             let user: IUserDocument;
 
-            this._Account.findAccountByHostname(hostname)
+            that._Account.findAccountByHostname(hostname)
                 .then((acct: IAccountDocument) => {
                     winston.debug('token: account found');
                     account = acct;
