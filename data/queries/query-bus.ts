@@ -10,10 +10,15 @@ import * as Promise from 'bluebird';
 
 
 export interface IQueryBus {
-    run<T>(activityName: string, query: IQuery<T>, data: any): Promise<any>;
+    run<T>(activityName: string, query: IQuery<T>, data: any, request?: any): Promise<any>;
 }
 
 export class QueryBus implements IQueryBus {
+
+    authorizedValue: any;
+    errorBool: any;
+    errorStr: any;
+    logParams: any;
 
     public get enforcer():  IEnforcer {
         return this._enforcer;
@@ -21,10 +26,12 @@ export class QueryBus implements IQueryBus {
 
     constructor(private _enforcer: IEnforcer) { }
 
-    run<T>(activityName: string, query: IQuery<T>, data: any): Promise<any> {
+    run<T>(activityName: string, query: IQuery<T>, data: any, request: any): Promise<any> {
+        const that = this;
         // chack activity authorization
         return this.enforcer.authorizationTo(activityName, query.identity)
             .then((authorized) => {
+                that.authorizedValue = authorized;
                 if (!authorized) {
                     return Promise.reject(authorized);
                 }
@@ -38,8 +45,29 @@ export class QueryBus implements IQueryBus {
                 }
             })
             .catch((err) => {
+                that.errorStr = err;
                 return Promise.reject(err);
-            });
+            }).finally(() => {
+                if ((query.log === true) && activityName !== 'find-all-access-logs') {
+                    that.logParams = {
+                        timestamp: Date.now(),
+                        accessBy: query.identity.firstName + ' ' + query.identity.lastName,
+                        ipAddress: request.connection.remoteAddress,
+                        event: query.constructor.name,
+                        clientDetails: request.get('User-Agent'),
+                        eventType: 'query',
+                        payload: JSON.stringify(request.body),
+                        results: {
+                            authorized: that.authorizedValue,
+                            status: true,
+                            details: that.errorStr || ('Success executing ' + query.constructor.name)
+                        }
+                    };
+                    let accessLog = new CreateAccessLogMutation(query.identity, request.appContext.AccessModel);
+                    accessLog.run(that.logParams);
+                }
+
+            })
 
     }
 }
