@@ -17,8 +17,6 @@ export class CreateChartMutation extends MutationBase<IMutationResponse> {
             super(identity);
         }
 
-    audit = true;
-
     run(data): Promise<IMutationResponse> {
         const that = this;
 
