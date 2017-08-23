@@ -30,6 +30,7 @@ export function getContext(dbUri: string): Promise<IAppModels> {
     return new Promise<IAppModels>((resolve, reject) => {
         connectToMongoDb(dbUri).then((m) => {
             resolve({
+                Connection: m,
                 // Customer: getCustomerModel(m),
                 // Employee: getEmployeeModel(m),
                 // EmployeeTime: getEmployeeAttendanceModel(m),

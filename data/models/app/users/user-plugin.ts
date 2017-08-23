@@ -180,8 +180,7 @@ export function accountPlugin(schema: mongoose.Schema, options: any) {
                 firstName: this.profile.firstName,
                 middleName: this.profile.middleName,
                 lastName: this.profile.lastName,
-                roles: this.roles.map((role) => role.name),
-                dbUri: dbUri
+                roles: this.roles.map((role) => role.name)
             };
 
             // workbench tokens should not expire
