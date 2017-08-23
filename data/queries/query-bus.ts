@@ -48,7 +48,7 @@ export class QueryBus implements IQueryBus {
                 that.errorStr = err;
                 return Promise.reject(err);
             }).finally(() => {
-                if ((query.log === true) && activityName !== 'find-all-access-logs') {
+                if ((query.log === true) && activityName !== 'get-all-access-logs') {
                     that.logParams = {
                         timestamp: Date.now(),
                         accessBy: query.identity.firstName + ' ' + query.identity.lastName,
