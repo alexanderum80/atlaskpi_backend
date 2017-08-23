@@ -11,8 +11,6 @@ export class RemoveChartFormatMutation extends MutationBase<IMutationResponse> {
             super(identity);
         }
 
-    audit = true;
-
     run(data): Promise<IMutationResponse> {
         return this._ChartFormatModel.removeChartFormat(data.id);
     }
