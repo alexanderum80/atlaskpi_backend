@@ -16,6 +16,7 @@ export const rolesGql: GraphqlDefinition = {
             type IRoleList {
                 _id: String
                 name: String
+                permissions: [String]
             }
             type Role {
                 _id: String
