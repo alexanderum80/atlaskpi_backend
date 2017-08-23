@@ -10,6 +10,7 @@ import {
 import { Enforcer, getEnforcerConfig, IEnforcer } from '../../lib/enforcer';
 import { ExtendedRequest } from '../../middlewares';
 import * as Promise from 'bluebird';
+import { CreateAccessLogMutation } from './app/access-log';
 
 
 export interface IMutationBus {
