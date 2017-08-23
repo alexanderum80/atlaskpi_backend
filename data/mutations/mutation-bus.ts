@@ -71,7 +71,7 @@ export class MutationBus implements IMutationBus {
                         ipAddress: req.connection.remoteAddress,
                         event: mutation.constructor.name,
                         clientDetails: req.get('User-Agent'),
-                        eventType: 'query',
+                        eventType: 'mutation',
                         payload: JSON.stringify(req.body),
                         results: {
                             authorized: that.authorizedValue,
