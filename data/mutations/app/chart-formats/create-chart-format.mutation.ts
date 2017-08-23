@@ -14,8 +14,6 @@ export class CreateChartFormatMutation extends MutationBase<IMutationResponse> {
             super(identity);
         }
 
-    audit = true;
-
     run(data): Promise<IMutationResponse> {
         return this._ChartFormatModel.createChartFormat(data);
     }
