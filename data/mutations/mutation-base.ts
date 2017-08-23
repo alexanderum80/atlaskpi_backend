@@ -2,7 +2,7 @@ import { IIdentity } from '../models/app/identity';
 import { IMutation } from './';
 import * as Promise from 'bluebird';
 
-export abstract class MutationBus<T> implements IMutation<T> {
+export abstract class MutationBase<T> implements IMutation<T> {
     log: boolean;
     audit: boolean;
 
@@ -11,5 +11,5 @@ export abstract class MutationBus<T> implements IMutation<T> {
         this.audit = true;
     }
 
-    abstract run(data: any): Promise<T> {};
+    abstract run(data: any): Promise<T>;
 }

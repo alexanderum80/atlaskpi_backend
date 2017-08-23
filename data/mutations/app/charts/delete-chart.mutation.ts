@@ -1,3 +1,4 @@
+import { MutationBase } from '../../mutation-base';
 import { detachFromDashboards } from './common';
 import { IChartModel } from '../../../models/app/charts';
 import { IIdentity, IMutationResponse } from '../../..';
@@ -5,11 +6,13 @@ import { IMutation, IValidationResult } from '../..';
 import * as Promise from 'bluebird';
 import { IDashboardDocument, IDashboardModel } from '../../../models/app/dashboards';
 
-export class DeleteChartMutation implements IMutation<IMutationResponse> {
+export class DeleteChartMutation extends MutationBase<IMutationResponse> {
     constructor(
         public identity: IIdentity,
         private _chartModel: IChartModel,
-        private _dashboardModel: IDashboardModel) { }
+        private _dashboardModel: IDashboardModel) {
+            super(identity);
+        }
 
     audit = true;
 
