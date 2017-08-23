@@ -58,12 +58,7 @@ export const accessLogGql: GraphqlDefinition = {
                 return ctx.queryBus.run('find-all-access-logs', query, args);
             }
         },
-        // Mutation: {
-        //     createAccessLog(root: any, args, ctx: IGraphqlContext) {
-        //         let mutation = new CreateAccessLogMutation(ctx.req.identity, ctx.req.appContext.AccessModel);
-        //         return ctx.mutationBus.run<IMutationResponse>('create-access-log', ctx.req, mutation, args);
-        //     }
-        // },
+        Mutation: {},
         AccessLogResponse: {
             result(response: IAccessLogDocument) {
                 return response.result;
