@@ -64,7 +64,7 @@ export class MutationBus implements IMutationBus {
                 that.errorStr = err;
                 return Promise.reject(err);
             }).finally(() => {
-                if ((mutation.log === true) && activityName !== 'find-all-access-logs') {
+                if ((mutation.log === true) && activityName !== 'create-access-log') {
                     that.logParams = {
                         timestamp: Date.now(),
                         accessBy: mutation.identity.firstName + ' ' + mutation.identity.lastName,
