@@ -1,3 +1,4 @@
+import * as mongoose from 'mongoose';
 import * as Promise from 'bluebird';
 import * as winston from 'winston';
 import { IMasterModels } from './master-models';
@@ -11,13 +12,14 @@ export function getMasterContext(): Promise<IMasterModels> {
     winston.debug(`Getting master context`);
 
     return new Promise<IMasterModels>((resolve, reject) => {
-        if (masterModels !== null) {
+        if (masterModels !== null && masterModels.Connection.readyState === 1) {
             resolve(masterModels);
             return;
         }
 
         makeDefaultConnection().then(() => {
             masterModels = {
+                Connection: mongoose.connection,
                 Account: getAccountModel(),
                 Industry: getIndustryModel(),
             };
