@@ -1,3 +1,4 @@
+import { MutationBase } from '../../mutation-base';
 import { attachToDashboards, detachFromDashboards } from './common';
 import { IChartModel, IChartInput } from '../../../models/app/charts';
 import { IKPIModel } from '../../../models/app/kpis';
@@ -13,14 +14,14 @@ interface IUpdateChartMutation {
     input: IChartInput;
 }
 
-export class UpdateChartMutation implements IMutation<IMutationResponse> {
+export class UpdateChartMutation extends MutationBase<IMutationResponse> {
     constructor(
         public identity: IIdentity,
         private _chartModel: IChartModel,
         private _kpiModel: IKPIModel,
-        private _dashboardModel: IDashboardModel) { }
-
-    audit = true;
+        private _dashboardModel: IDashboardModel) {
+            super(identity);
+        }
 
     run(data: IUpdateChartMutation): Promise<IMutationResponse> {
         const that = this;

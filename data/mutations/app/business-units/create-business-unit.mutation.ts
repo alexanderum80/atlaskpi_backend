@@ -1,12 +1,15 @@
+import { MutationBase } from '../../mutation-base';
 import { IBusinessUnitModel } from '../../../models/app/business-units/IBusinessUnit';
 import * as Promise from 'bluebird';
 import { IIdentity, IMutationResponse } from '../../..';
 import { IMutation, IValidationResult } from '../..';
 
-export class CreateBusinessUnitMutation implements IMutation<IMutationResponse> {
+export class CreateBusinessUnitMutation extends MutationBase<IMutationResponse> {
 
     constructor(public identity: IIdentity,
-                private _BusinessUnitModel: IBusinessUnitModel) { }
+                private _BusinessUnitModel: IBusinessUnitModel) {
+                    super(identity);
+                }
 
     // log = true;
     // audit = true;
