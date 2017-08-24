@@ -36,8 +36,8 @@ export const rolesGql: GraphqlDefinition = {
         },
         Mutation: {
             createRole(root: any, args, ctx: IGraphqlContext) {
-                let query = new CreateRoleMutation(ctx.req.identity, ctx.req.appContext.Role);
-                return ctx.queryBus.run<IMutationResponse>('create-role', query, args);
+                let mutation = new CreateRoleMutation(ctx.req.identity, ctx.req.appContext.Role);
+                return ctx.mutationBus.run<IMutationResponse>('create-role', ctx.req, mutation, args);
             }
         },
         Role: {
