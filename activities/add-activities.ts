@@ -56,6 +56,8 @@ import {
     // roles
     findAllRolesActivity,
     createRoleActivity,
+    updateRoleActivity,
+    removeRoleActivity,
 
     // permissions
     findAllPermissionsActivity
@@ -126,6 +128,8 @@ export function addActivities() {
         // roles
         findAllRolesActivity,
         createRoleActivity,
+        updateRoleActivity,
+        removeRoleActivity,
 
         // permissions
         findAllPermissionsActivity
