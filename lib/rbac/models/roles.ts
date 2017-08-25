@@ -115,9 +115,9 @@ RoleSchema.pre('save', function (done) {
     });
 });
 
-RoleSchema.statics.createRole = function(data: IRoleCustom): Promise<IMutationResponse> {
+RoleSchema.statics.createRole = function(data: IRoleCustom): Promise<IRoleDocument> {
     const that = this;
-    return new Promise<IMutationResponse>((resolve, reject) => {
+    return new Promise<IRoleDocument>((resolve, reject) => {
 
         let constraints = {
             name: { presence: { message: '^cannot be blank' }},
@@ -126,7 +126,7 @@ RoleSchema.statics.createRole = function(data: IRoleCustom): Promise<IMutationRe
 
         let errors = (<any>validate)((<any>data), constraints, {fullMessages: false});
         if (errors) {
-            resolve(MutationResponse.fromValidationErrors(errors));
+            resolve(errors);
             return;
         };
 
@@ -135,18 +135,18 @@ RoleSchema.statics.createRole = function(data: IRoleCustom): Promise<IMutationRe
                 reject({ message: 'There was an error creating a role', error: err });
                 return;
             }
-            resolve({ entity: role });
+            resolve(role);
         });
     });
 };
 
-RoleSchema.statics.updateRole = function(id: string, data: IRoleResponse): Promise<IMutationResponse> {
+RoleSchema.statics.updateRole = function(id: string, data: IRoleResponse): Promise<IRoleDocument> {
     const that = this;
-    return new Promise<IMutationResponse>((resolve, reject) => {
+    return new Promise<IRoleDocument>((resolve, reject) => {
         let roleError = (<any>validate)({ id: id}, {id: {presence: { message: 'cannot be blank'}}});
 
         if (roleError) {
-            resolve(MutationResponse.fromValidationErrors(roleError));
+            resolve(roleError);
             return;
         }
 
@@ -158,7 +158,7 @@ RoleSchema.statics.updateRole = function(id: string, data: IRoleResponse): Promi
 
             let errors = (<any>validate)(data, constraints, { fullMessages: false });
             if (errors) {
-                resolve(MutationResponse.fromValidationErrors(errors));
+                resolve(errors);
                 return;
             }
 
@@ -171,27 +171,27 @@ RoleSchema.statics.updateRole = function(id: string, data: IRoleResponse): Promi
                     reject({message: 'There was an error updating the role', error: err });
                     return;
                 }
-                resolve({entity: role});
+                resolve(role);
             });
         }).catch((err) => {
-            resolve(MutationResponse.fromValidationErrors({ success: false, reason: err }));
+            resolve(err);
         });
     });
 };
 
-RoleSchema.statics.removeRole = function(id: string, roleExist: boolean): Promise<IMutationResponse> {
+RoleSchema.statics.removeRole = function(id: string, roleExist: boolean): Promise<IRoleDocument> {
     const that = this;
 
     let document: IRoleDocument;
 
-    return new Promise<IMutationResponse>((resolve, reject) => {
+    return new Promise<IRoleDocument>((resolve, reject) => {
         let idError = (<any>validate)({id: id});
         if (idError) {
-            resolve(MutationResponse.fromValidationErrors(idError));
+            resolve(idError);
         };
 
         if (roleExist) {
-            reject(null);
+            reject({ success: false, errors: [ { field: 'role', errors: ['Role is being used'] } ]});
             return;
         }
 
@@ -202,7 +202,7 @@ RoleSchema.statics.removeRole = function(id: string, roleExist: boolean): Promis
 
             let errors = (<any>validate)({id: id, document: role}, constraints, { fullMessages: false });
             if (errors) {
-                resolve(MutationResponse.fromValidationErrors(errors));
+                resolve(errors);
             }
 
             let deleteRole = role;
@@ -212,10 +212,10 @@ RoleSchema.statics.removeRole = function(id: string, roleExist: boolean): Promis
                     reject({ message: 'There was an error removing the role', error: err });
                     return;
                 }
-                resolve({ entity: deleteRole });
+                resolve(deleteRole);
             });
         }).catch((err) => {
-            resolve(MutationResponse.fromValidationErrors(err));
+            resolve(err);
         });
     });
 };
