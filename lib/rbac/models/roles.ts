@@ -132,7 +132,6 @@ RoleSchema.statics.createRole = function(data: IRoleCustom): Promise<IMutationRe
 
         that.create(data, (err, role: IRoleDocument) => {
             if (err) {
-                console.log(err);
                 reject({ message: 'There was an error creating a role', error: err });
                 return;
             }
