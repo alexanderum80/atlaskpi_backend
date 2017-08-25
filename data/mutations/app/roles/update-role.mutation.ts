@@ -10,6 +10,13 @@ export class UpdateRoleMutation implements IMutation<IMutationResponse> {
                 private _RoleModel: IRoleModel) {}
 
     run(data: any): Promise<IMutationResponse> {
-        return this._RoleModel.updateRole(data.id, data.data);
+
+        return new Promise<IMutationResponse>((resolve, reject) => {
+            return this._RoleModel.updateRole(data.id, data.data).then((response) => {
+                return resolve({ success: true, entity: response });
+            }).catch((err) => {
+                return resolve({ success: false, errors: [ { field: 'role', errors: [err] } ]});
+            });
+        });
     }
 }

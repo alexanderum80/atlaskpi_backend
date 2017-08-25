@@ -12,15 +12,21 @@ export class RemoveRoleMutation implements IMutation<IMutationResponse> {
                 private _UserModel: any) {}
 
     run(data: any): Promise<IMutationResponse> {
-        let promises = [];
-        let d = this._UserModel.findOne({ roles: { $in: [data.id] } })
-            .populate('roles', '-_id, name' )
-            .then((role) => {
-                return role ? true : false;
+
+        return new Promise<IMutationResponse>((resolve, reject) => {
+            let promises = [];
+            let d = this._UserModel.findOne({ roles: { $in: [data.id] } })
+                .populate('roles', '-_id, name')
+                .then((role) => {
+                    return role ? true : false;
+                });
+            return Promise.all(promises).then((roleExist) => {
+                return this._RoleModel.removeRole(data.id, roleExist[0]).then((r) => {
+                    return resolve({ success: true, entity: r});
+                }).catch((err) => {
+                    return resolve({ success: false, errors: [ { field: 'role', errors: [err] } ]});
+                });
             });
-        promises.push(d);
-        return Promise.all(promises).then((roleExist) => {
-            return this._RoleModel.removeRole(data.id, roleExist[0]);
         });
 
     }
