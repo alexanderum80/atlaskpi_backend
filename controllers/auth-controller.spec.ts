@@ -120,7 +120,7 @@ describe('AuthController', function() {
                             findAccountStub.should.have.been.calledWith(hostname);
                             done();
                         });
-                })
+                });
 
                 it('should return account not found', function(done) {
                     controller.authenticateUser(hostname, 'username', 'password', 'ip', 'clientId', 'details')
@@ -139,7 +139,7 @@ describe('AuthController', function() {
                     hostname = 'customer2.domain.com';
                     username = 'username';
                     password = 'password';
-                })
+                });
 
                 describe('and credentials are incorrect', function() {
 

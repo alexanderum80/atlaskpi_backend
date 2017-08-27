@@ -63,11 +63,11 @@ export const kpisGql: GraphqlDefinition = {
         Query: {
             kpis(root: any, args: any, ctx: IGraphqlContext) {
                 let query = new GetKpisQuery(ctx.req.identity, ctx.req.appContext);
-                return ctx.queryBus.run('get-kpis', query, args).catch(e => console.error(e));
+                return ctx.queryBus.run('get-kpis', query, args, ctx.req).catch(e => console.error(e));
             },
             getAllKPIs(root: any, args, ctx: IGraphqlContext) {
                 let query = new GetAllKPIsQuery(ctx.req.identity, ctx.req.appContext.KPI);
-                return ctx.queryBus.run('get-all-kpis', query, args);
+                return ctx.queryBus.run('get-all-kpis', query, ctx.req);
             }
         },
         Mutation: {

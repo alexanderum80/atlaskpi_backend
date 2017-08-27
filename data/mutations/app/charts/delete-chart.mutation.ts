@@ -1,4 +1,4 @@
-import { detachFromDashboards } from './common';
+import { detachFromDashboards, detachFromAllDashboards } from './common';
 import { IChartModel } from '../../../models/app/charts';
 import { IIdentity, IMutationResponse } from '../../..';
 import { IMutation, IValidationResult } from '../..';
@@ -29,7 +29,7 @@ export class DeleteChartMutation implements IMutation<IMutationResponse> {
                     return;
                 }
 
-                detachFromDashboards(that._dashboardModel, chart)
+                detachFromAllDashboards(that._dashboardModel, chart._id)
                 .then(() => {
                     chart.remove().then(() =>  {
                         resolve({ success: true });

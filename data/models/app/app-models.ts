@@ -1,3 +1,4 @@
+import { IAccessModel } from './access-log/IAccessLog';
 import { IWorkLogModel } from './work-log/IWorkLog';
 import { IChartModel } from './charts';
 import { IInventoryModel } from './inventory/IInventory';
@@ -44,4 +45,5 @@ export interface IAppModels {
     WorkLog: IWorkLogModel;
     Expense: IExpenseModel;
     LogModel: ILogEntryModel;
+    AccessModel: IAccessModel;
 }
