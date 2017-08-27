@@ -1,3 +1,4 @@
+import { IUserModel } from '../../../data/models/app/users/IUser';
 import { MutationResponse } from '../../../data/models/common';
 import { IMutationResponse } from '../../../data/models/common';
 import { IQueryResponse } from '../../../data/models/common';
@@ -36,6 +37,7 @@ export interface IRoleResponse {
     _id: string;
     name: string;
     permissions: any;
+    roles?: any;
 }
 
 
@@ -43,12 +45,13 @@ export interface IRoleDocument extends IRole, mongoose.Document {
     can(action: string, subject: string, done: (err: any, can: boolean) => void);
     canAll(actionsAndSubjects: any, done: (err: any, can: boolean) => void);
     canAny(actionsAndSubjects: any, done: (err: any, can: boolean) => void);
-    createRole(data: IRoleCustom): Promise<IMutationResponse>;
 }
 
 export interface IRoleModel extends mongoose.Model < IRoleDocument > {
-    findAllRoles(filter: string): Promise<IRoleList[]>;
-    createRole(data: IRoleCustom): Promise<IMutationResponse>;
+    findAllRoles(filter: string): Promise<IRoleDocument[]>;
+    createRole(data: IRoleCustom): Promise<IRoleDocument>;
+    updateRole(id: string, data: IRoleResponse): Promise<IRoleDocument>;
+    removeRole(id: string, roleExist: boolean): Promise<IRoleDocument>;
 }
 
 
@@ -65,7 +68,8 @@ export const RoleSchema = new mongoose.Schema({
     permissions: [{
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Permission'
-    }]
+    }],
+    timestamp: { type: Date, default: Date.now }
 });
 
 
@@ -111,9 +115,9 @@ RoleSchema.pre('save', function (done) {
     });
 });
 
-RoleSchema.statics.createRole = function(data: IRoleCustom): Promise<IMutationResponse> {
+RoleSchema.statics.createRole = function(data: IRoleCustom): Promise<IRoleDocument> {
     const that = this;
-    return new Promise<IMutationResponse>((resolve, reject) => {
+    return new Promise<IRoleDocument>((resolve, reject) => {
 
         let constraints = {
             name: { presence: { message: '^cannot be blank' }},
@@ -122,24 +126,102 @@ RoleSchema.statics.createRole = function(data: IRoleCustom): Promise<IMutationRe
 
         let errors = (<any>validate)((<any>data), constraints, {fullMessages: false});
         if (errors) {
-            resolve(MutationResponse.fromValidationErrors(errors));
+            resolve(errors);
             return;
         };
 
-        that.create(data, (err, role: IRoleCustom) => {
+        that.create(data, (err, role: IRoleDocument) => {
             if (err) {
-                console.log(err);
                 reject({ message: 'There was an error creating a role', error: err });
                 return;
             }
-            console.log(role);
-            resolve({ entity: role });
+            resolve(role);
         });
     });
 };
 
-RoleSchema.statics.findAllRoles = function(filter: string): Promise<IRoleList[]> {
-    return new Promise<IRoleList[]>((resolve, reject) => {
+RoleSchema.statics.updateRole = function(id: string, data: IRoleResponse): Promise<IRoleDocument> {
+    const that = this;
+    return new Promise<IRoleDocument>((resolve, reject) => {
+        let roleError = (<any>validate)({ id: id}, {id: {presence: { message: 'cannot be blank'}}});
+
+        if (roleError) {
+            resolve(roleError);
+            return;
+        }
+
+        (<IRoleModel>this).findById(id).then((role) => {
+            let constraints = {
+                name: { presence: {message: '^cannot be blank' }},
+                permissions: { presence: { message: '^cannot be empty'}}
+            };
+
+            let errors = (<any>validate)(data, constraints, { fullMessages: false });
+            if (errors) {
+                resolve(errors);
+                return;
+            }
+
+            role.permissions = null;
+            role.name = data.name;
+            role.permissions = data.permissions;
+
+            role.save((err, role: IRoleDocument) => {
+                if (err) {
+                    reject({message: 'There was an error updating the role', error: err });
+                    return;
+                }
+                resolve(role);
+            });
+        }).catch((err) => {
+            resolve(err);
+        });
+    });
+};
+
+RoleSchema.statics.removeRole = function(id: string, roleExist: boolean): Promise<IRoleDocument> {
+    const that = this;
+
+    let document: IRoleDocument;
+
+    return new Promise<IRoleDocument>((resolve, reject) => {
+        let idError = (<any>validate)({id: id});
+        if (idError) {
+            resolve(idError);
+        };
+
+        if (roleExist) {
+            reject({ success: false, errors: [ { field: 'role', errors: ['Role is being used'] } ]});
+            return;
+        }
+
+        (<IRoleModel>this).findById(id).then((role) => {
+            let constraints = {
+                document: { presence: {messsage: '^not found'}}
+            };
+
+            let errors = (<any>validate)({id: id, document: role}, constraints, { fullMessages: false });
+            if (errors) {
+                resolve(errors);
+            }
+
+            let deleteRole = role;
+
+            role.remove((err, role: IRoleDocument) => {
+                if (err) {
+                    reject({ message: 'There was an error removing the role', error: err });
+                    return;
+                }
+                resolve(deleteRole);
+            });
+        }).catch((err) => {
+            resolve(err);
+        });
+    });
+};
+
+RoleSchema.statics.findAllRoles = function(filter: string): Promise<IRoleDocument[]> {
+    return new Promise<IRoleDocument[]>((resolve, reject) => {
         (<IRoleModel>this).find()
             .then((roles) => {
                 if (roles) {

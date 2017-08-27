@@ -56,13 +56,15 @@ import {
     // roles
     findAllRolesActivity,
     createRoleActivity,
+    updateRoleActivity,
+    removeRoleActivity,
 
     // permissions
-    findAllPermissionsActivity,
+    findAllPermissionsActivity
 
-  // log
-  createAccessLogActivity,
-  getAllAccessLogsActivity
+    // log
+    createAccessLogActivity,
+    getAllAccessLogsActivity
 
 } from './app';
 
@@ -130,13 +132,15 @@ export function addActivities() {
         // roles
         findAllRolesActivity,
         createRoleActivity,
+        updateRoleActivity,
+        removeRoleActivity,
 
         // permissions
-        findAllPermissionsActivity,
-    
-    // log
-    createAccessLogActivity,
-    getAllAccessLogsActivity
+        findAllPermissionsActivity
+
+        // log
+        createAccessLogActivity,
+        getAllAccessLogsActivity
 
     ]);
 }
