@@ -1,13 +1,16 @@
 import { IRoleModel } from '../../../../lib/rbac/models';
+import { MutationBase } from '../../mutation-base';
 import * as Promise from 'bluebird';
 import { IIdentity, IMutationResponse, ICreateUserDetails, IUserModel, IUserDocument } from '../../..';
 import { IMutation, IValidationResult } from '../..';
 
-export class UpdateUserMutation implements IMutation<IMutationResponse> {
+export class UpdateUserMutation extends MutationBase<IMutationResponse> {
 
     constructor(public identity: IIdentity,
                 private _UserModel: IUserModel,
-                private _RoleModel: IRoleModel) { }
+        private _RoleModel: IRoleModel) {
+                    super(identity);
+                }
 
     // log = true;
     // audit = true;

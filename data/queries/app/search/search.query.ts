@@ -1,3 +1,4 @@
+import { QueryBase } from '../../query-base';
 import { ChartIntentProcessor } from './intent-processors';
 import { GetChartQuery } from '../charts';
 import * as _ from 'lodash';
@@ -43,9 +44,11 @@ export interface ISearchResult {
     data: SearchResultItem[] | string;
 }
 
-export class SearchQuery implements IQuery < ISearchResult[] > {
+export class SearchQuery extends QueryBase< ISearchResult[] > {
 
-    constructor(public identity: IIdentity, private _ctx: IAppModels, private _adaptEngine: AdaptEngine) {}
+    constructor(public identity: IIdentity, private _ctx: IAppModels, private _adaptEngine: AdaptEngine) {
+        super(identity);
+    }
 
     run(data: {
         sections: string[],
