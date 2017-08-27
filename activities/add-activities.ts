@@ -58,7 +58,11 @@ import {
     createRoleActivity,
 
     // permissions
-    findAllPermissionsActivity
+    findAllPermissionsActivity,
+
+  // log
+  createAccessLogActivity,
+  getAllAccessLogsActivity
 
 } from './app';
 
@@ -128,7 +132,11 @@ export function addActivities() {
         createRoleActivity,
 
         // permissions
-        findAllPermissionsActivity
+        findAllPermissionsActivity,
+    
+    // log
+    createAccessLogActivity,
+    getAllAccessLogsActivity
 
     ]);
 }

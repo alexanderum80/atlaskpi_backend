@@ -7,6 +7,7 @@ import { IMutation, IValidationResult } from '../..';
 import * as Promise from 'bluebird';
 import { AccountCreatedNotification } from '../../../../services';
 import * as logger from 'winston';
+import * as _ from 'lodash';
 
 interface IUpdateChartMutation {
     id: string;
@@ -35,21 +36,19 @@ export class UpdateChartMutation implements IMutation<IMutationResponse> {
                     return;
                 }
 
-                // resolve dashboards
-                that._dashboardModel.find( {_id: { $in: data.input.dashboards }})
-                .then((dashboards) => {
-                    if (!dashboards || dashboards.length !== data.input.dashboards.length) {
-                        logger.error('one or more dashboard not found:' + data.id);
-                        resolve({ success: false, errors: [ { field: 'dashboards', errors: ['one or more dashboards not found'] } ]});
-                        return;
-                    }
-
+                // resolve dashboards the chart is in
+                that._dashboardModel.find( {charts: { $in: [data.id]}})
+                .then((chartDashboards) => {
                     // update the chart
                     that._chartModel.updateChart(data.id, data.input)
                     .then((chart) => {
-                        detachFromDashboards(that._dashboardModel, chart)
+                        const currentDashboardIds = chartDashboards.map(d => String(d._id));
+                        const toRemoveDashboardIds = _.difference(currentDashboardIds, data.input.dashboards);
+                        const toAddDashboardIds = _.difference(data.input.dashboards, currentDashboardIds);
+
+                        detachFromDashboards(that._dashboardModel, toRemoveDashboardIds, chart._id)
                         .then(() => {
-                            attachToDashboards(that._dashboardModel, dashboards, chart)
+                            attachToDashboards(that._dashboardModel, toAddDashboardIds, chart._id)
                             .then(() => {
                                 resolve({ entity: chart, success: true });
                                 return;
