@@ -90,7 +90,7 @@ export const businessUnitsGql: GraphqlDefinition = {
         Query: {
             businessUnits(root: any, args, ctx: IGraphqlContext) {
                 let query = new ListAllBusinessUnitsQuery(ctx.req.identity, ctx.req.appContext.BusinessUnit);
-                return ctx.queryBus.run('list-all-business-units', query, args);
+                return ctx.queryBus.run('list-all-business-units', query, args, ctx);
             },
             businessUnit(root: any, args, ctx: IGraphqlContext) {
                 let query = new FindBusinessUnitByIdQuery(ctx.req.identity, ctx.req.appContext.BusinessUnit);

@@ -18,7 +18,7 @@ export class GetAccountQuery implements IQuery<IAccount> {
                 resolve(account);
             }, (err) => {
                 reject(err);
-            })
+            });
         });
     }
 }
