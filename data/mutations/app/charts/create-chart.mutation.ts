@@ -1,3 +1,4 @@
+import { MutationBase } from '../../mutation-base';
 import { attachToDashboards } from './common';
 import { IChartModel } from '../../../models/app/charts';
 import { IIdentity, IMutationResponse } from '../../..';
@@ -7,14 +8,14 @@ import { IDashboardDocument, IDashboardModel } from '../../../models/app/dashboa
 import * as Promise from 'bluebird';
 import * as logger from 'winston';
 
-export class CreateChartMutation implements IMutation<IMutationResponse> {
+export class CreateChartMutation extends MutationBase<IMutationResponse> {
     constructor(
         public identity: IIdentity,
         private _chartModel: IChartModel,
         private _kpiModel: IKPIModel,
-        private _dashboardModel: IDashboardModel) { }
-
-    audit = true;
+        private _dashboardModel: IDashboardModel) {
+            super(identity);
+        }
 
     run(data): Promise<IMutationResponse> {
         const that = this;
