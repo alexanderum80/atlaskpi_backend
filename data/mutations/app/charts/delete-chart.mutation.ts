@@ -5,13 +5,13 @@ import { IMutation, IValidationResult } from '../..';
 import * as Promise from 'bluebird';
 import { IDashboardDocument, IDashboardModel } from '../../../models/app/dashboards';
 
-export class DeleteChartMutation implements IMutation<IMutationResponse> {
+export class DeleteChartMutation extends MutationBase<IMutationResponse> {
     constructor(
         public identity: IIdentity,
         private _chartModel: IChartModel,
-        private _dashboardModel: IDashboardModel) { }
-
-    audit = true;
+        private _dashboardModel: IDashboardModel) {
+            super(identity);
+        }
 
     run(data): Promise<IMutationResponse> {
         const that = this;
