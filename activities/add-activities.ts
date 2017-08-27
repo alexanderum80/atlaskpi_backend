@@ -62,6 +62,10 @@ import {
     // permissions
     findAllPermissionsActivity
 
+    // log
+    createAccessLogActivity,
+    getAllAccessLogsActivity
+
 } from './app';
 
 import { getEnforcerConfig } from '../lib/enforcer';
@@ -133,6 +137,10 @@ export function addActivities() {
 
         // permissions
         findAllPermissionsActivity
+
+        // log
+        createAccessLogActivity,
+        getAllAccessLogsActivity
 
     ]);
 }

@@ -1,3 +1,4 @@
+import { MutationBase } from '../../mutation-base';
 import { IMutationResponse } from '../../../models/common';
 import { IForgotPasswordNotifier } from '../../../../services';
 import { IUserModel, IIdentity } from '../../..';
@@ -5,11 +6,13 @@ import { IMutation } from '../..';
 import * as Promise from 'bluebird';
 import * as nodemailer from 'nodemailer';
 
-export class UserForgotPasswordMutation implements IMutation<IMutationResponse> {
+export class UserForgotPasswordMutation extends MutationBase<IMutationResponse> {
     constructor(
         public identity: IIdentity,
         private _forgotPasswordNotifier: IForgotPasswordNotifier,
-        private _UserModel: IUserModel) { }
+        private _UserModel: IUserModel) {
+            super(identity);
+        }
 
     audit = true;
 
