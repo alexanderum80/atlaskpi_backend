@@ -1,5 +1,5 @@
-import { IRoleModel } from '../../../../lib/rbac/models';
 import { MutationBase } from '../../mutation-base';
+import { IRoleModel } from '../../../../lib/rbac/models';
 import * as Promise from 'bluebird';
 import { IIdentity, IMutationResponse, ICreateUserDetails, IUserModel, IUserDocument } from '../../..';
 import { IMutation, IValidationResult } from '../..';

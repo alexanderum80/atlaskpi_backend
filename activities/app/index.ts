@@ -6,4 +6,5 @@ export * from './charts';
 export * from './dashboards';
 export * from './search';
 export * from './roles';
-export * from './permissions';export * from './access-log';
+export * from './permissions';
+export * from './access-log';
