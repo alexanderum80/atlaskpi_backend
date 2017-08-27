@@ -1,13 +1,16 @@
+import { QueryBase } from '../../query-base';
 import { IChartFormat, IChartFormatModel, IChartFormatDocument } from '../../../models/app/chart-formats';
 import * as Promise from 'bluebird';
 import { IQuery } from '../..';
-import { IIdentity, IUserModel, IPaginationDetails, IPagedQueryResult,IQueryResponse } from '../../../';
+import { IIdentity, IUserModel, IPaginationDetails, IPagedQueryResult, IQueryResponse } from '../../../';
 
-export class GetChartFormatByIdQuery implements IQuery<IQueryResponse<IChartFormatDocument>> {
+export class GetChartFormatByIdQuery extends QueryBase<IQueryResponse<IChartFormatDocument>> {
 
     constructor(
         public identity: IIdentity,
-        private _ChartFormatModel: IChartFormatModel) { }
+        private _ChartFormatModel: IChartFormatModel) {
+            super(identity);
+        }
 
     // log = true;
     // audit = true;
