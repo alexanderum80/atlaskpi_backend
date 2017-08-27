@@ -1,12 +1,15 @@
+import { QueryBase } from '../../query-base';
 import { IBusinessUnit, IBusinessUnitModel } from '../../../';
 import * as Promise from 'bluebird';
 import { IQuery } from '../..';
 import { IIdentity, IPagedQueryResult} from '../../../';
 
-export class ListAllBusinessUnitsQuery implements IQuery<IPagedQueryResult<IBusinessUnit>> {
+export class ListAllBusinessUnitsQuery extends QueryBase<IPagedQueryResult<IBusinessUnit>> {
                                                                                                                                                                                                                                                                                                                                                                                                                                                                           f
     constructor(public identity: IIdentity,
-                private _BusinessUnitModel: IBusinessUnitModel) { }
+                private _BusinessUnitModel: IBusinessUnitModel) {
+                    super(identity);
+                }
 
     // log = true;
     // audit = true;

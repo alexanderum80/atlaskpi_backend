@@ -1,3 +1,4 @@
+import { QueryBase } from '../../query-base';
 import { IChartMetadata } from './charts/chart-metadata';
 import { FrequencyTable } from '../../../models/common/frequency-enum';
 import { FrequencyEnum, IDateRange } from '../../../models/common';
@@ -13,9 +14,11 @@ import { KpiFactory } from '../kpis/kpi.factory';
 import { getGroupingMetadata } from './chart-grouping-map';
 import * as logger from 'winston';
 
-export class GetChartQuery implements IQuery<string> {
+export class GetChartQuery extends QueryBase<string> {
 
-    constructor(public identity: IIdentity, private _ctx: IAppModels) { }
+    constructor(public identity: IIdentity, private _ctx: IAppModels) {
+        super(identity);
+    }
 
     // log = true;
     // audit = true;

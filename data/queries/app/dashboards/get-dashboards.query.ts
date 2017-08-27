@@ -1,3 +1,4 @@
+import { QueryBase } from '../../query-base';
 import { FrequencyTable } from '../../../models/common/frequency-enum';
 import { FrequencyEnum, IDateRange } from '../../../models/common';
 import { IAppModels } from '../../../models/app/app-models';
@@ -6,9 +7,11 @@ import { IQuery } from '../..';
 import { IIdentity } from '../../../';
 import { IDashboard, IDashboardModel } from '../../../models';
 
-export class GetDashboardsQuery implements IQuery<IDashboard[]> {
+export class GetDashboardsQuery extends QueryBase<IDashboard[]> {
 
-    constructor(public identity: IIdentity, private _ctx: IAppModels) { }
+    constructor(public identity: IIdentity, private _ctx: IAppModels) {
+        super(identity);
+    }
 
     // log = true;
     // audit = true;
