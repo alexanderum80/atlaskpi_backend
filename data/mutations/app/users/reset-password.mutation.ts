@@ -1,13 +1,16 @@
+import { MutationBase } from '../../mutation-base';
 import { IIdentity, IUserModel } from '../../..';
 import { IMutationResponse } from '../../..';
 import * as Promise from 'bluebird';
 import { IMutation, IValidationResult } from '../..';
 
-export class ResetPasswordMutation implements IMutation<IMutationResponse> {
+export class ResetPasswordMutation extends MutationBase<IMutationResponse> {
 
     constructor(
         public identity: IIdentity,
-        private _UserModel: IUserModel) { }
+        private _UserModel: IUserModel) {
+            super(identity);
+        }
 
     // log = true;
     // audit = true;
