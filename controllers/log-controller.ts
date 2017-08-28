@@ -12,12 +12,11 @@ import { ILogEntry, ILogEntryModel, ILogEntryDocument, getLogModel } from '../da
 import { config } from '../config';
 
 export interface ILogDetails {
+    timestamp: Date;
     hostname: string;
     ip: string;
-    timestamp: Date;
     clientId: string;
     clientDetails: string;
-
     level: number;
     message: string;
 }
@@ -28,35 +27,18 @@ export class LogController {
 
     processLogEntry(details: ILogDetails): Promise<any> {
 
-        const entryDetails: ILogEntry = {
-            clientId: details.clientId,
-            timestamp: details.timestamp,
-            level: details.level,
-            message: details.message
-        };
-
-        const emailDetails: IssueData = {
-            timestamp: details.timestamp.toUTCString(),
-            ip: details.ip,
-            hostname: details.hostname,
-            clientId: details.clientId,
-            clientDetails: details.clientDetails,
-            level: getIssueLevelPropName(IssueLevelTable[details.level]),
-            message: details.message
-        };
-
         const supportNotifier = new TechnicalSupportIssueNotification(config);
 
         return new Promise<any>((resolve, reject) => {
             let promises = [];
 
             // send emails
-            promises.push(supportNotifier.notify(emailDetails));
+            promises.push(supportNotifier.notify(details));
 
             // send alerts
 
             // save to database;
-            promises.push(this._saveLog(entryDetails));
+            promises.push(this._saveLog(details));
 
             return Promise.all(promises)
                           .then(() => resolve())

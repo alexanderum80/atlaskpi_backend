@@ -7,6 +7,7 @@ import * as nodemailer from 'nodemailer';
 import * as Handlebars from 'handlebars';
 import { sendEmail } from '../..';
 import { IAppConfig } from '../../../configuration';
+import * as _ from 'lodash';
 
 export enum IssueLevelEnum {
     Critical,
@@ -32,13 +33,13 @@ export function getIssueLevelPropName(level: IssueLevelEnum) {
 }
 
 export interface IssueData {
-    timestamp: string;
+    timestamp: string | Date;
     ip: string;
     hostname: string;
     clientId: string;
     clientDetails: string;
 
-    level: string;
+    level: string | number;
     message: string;
 }
 
@@ -47,12 +48,22 @@ export class TechnicalSupportIssueNotification implements ISupportEmailNotifier 
     constructor(private _config: IAppConfig) { }
 
     notify(data: IssueData): Promise<nodemailer.SentMessageInfo> {
+        // copy values
+        const details: IssueData = Object.assign({}, data);
+
+        if (_.isNumber(details.level)) {
+            details.level = getIssueLevelPropName(IssueLevelTable[details.level]);
+        }
+
+        if (_.isDate(details.timestamp)) {
+            details.timestamp = details.timestamp.toUTCString();
+        }
 
         const notifyIssueTemplate =
             Handlebars.compile(this._config.appServices.services.notifySupport.emailTemplate);
 
-        const body = notifyIssueTemplate(data);
+        const body = notifyIssueTemplate(details);
 
-        return sendEmail('technical-support@atlaskpi.com', `Technical Support Issue: ${data.level}`, body);
+        return sendEmail('technical-support@atlaskpi.com', `Technical Support Issue: ${details.level}`, body);
     }
 }
