@@ -16,7 +16,8 @@ export const GroupingMap = {
     serviceType: 'serviceType',
     businessUnit: 'businessUnit.name',
     // expenses
-    concept: 'expense.concept'
+    concept: 'expense.concept',
+    productFrom: 'product.from'
 };
 
 export function getGroupingMetadata(chartDocument: IChart, groupings: string[]) {

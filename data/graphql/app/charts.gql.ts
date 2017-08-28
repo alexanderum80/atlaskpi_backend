@@ -1,3 +1,4 @@
+import { DrillDownQuery } from '../../queries/app/charts/drilldown-query';
 import { IChartDateRange, IDateRange } from '../../models/common/date-range';
 import { IChartDocument } from '../../models/app/charts';
 import { CreateChartMutation, DeleteChartMutation, UpdateChartMutation } from '../../mutations/app/charts';
@@ -33,6 +34,20 @@ export const chartsGql: GraphqlDefinition = {
                 xAxisSource: String
                 dashboards: [String]
             }
+            input DrillDateInput {
+                from: String
+                to: String
+            }
+            input DrillDateRange {
+                custom: DrillDateInput
+                predefined: String
+            }
+            input DrillDownData {
+                dateRange: DrillDateRange
+                frequency: String
+                xAxisSource: String
+                kpis: [String]
+            }
             type ChartEntityResponse {
                 _id: String
                 title: String
@@ -57,6 +72,11 @@ export const chartsGql: GraphqlDefinition = {
             type ListChartsQueryResponse {
                 data: [ChartEntityResponse]
             }
+            type DrillDownResult {
+                success: Boolean
+                entity: [ChartEntityResponse]
+                errors: [ErrorDetails]
+            }
         `,
         queries: `
             charts(from: String!, to: String!, preview: Boolean): String
@@ -68,6 +88,8 @@ export const chartsGql: GraphqlDefinition = {
             previewChart(input: ChartAttributesInput): String
 
             listCharts: ListChartsQueryResponse
+
+            drillDown(id: String, data: DrillDownData): String
         `,
         mutations: `
             createChart(input: ChartAttributesInput): ChartMutationResponse
@@ -110,6 +132,11 @@ export const chartsGql: GraphqlDefinition = {
                 let query = new ListChartsQuery(ctx.req.identity, ctx.req.appContext);
                 return ctx.queryBus.run('list-charts', query, args);
             },
+
+            drillDown(root: any, args, ctx: IGraphqlContext) {
+                let query = new DrillDownQuery(ctx.req.identity, ctx.req.appContext);
+                return ctx.queryBus.run('drill-down', query, args);
+            }
         },
         Mutation: {
             createChart(root: any, args, ctx: IGraphqlContext) {
