@@ -1,7 +1,7 @@
 import { _getHostname } from '../../../middlewares/initialize-contexts.middleware';
 import { IQueryResponse } from '../../models/common/query-response';
 import { FindUserByIdQuery } from '../../queries/app/users/find-user-by-id.query';
-import { ResetPasswordMutation } from '../../mutations/app/users/reset-password.mutation';
+import { ResetPasswordMutation, AddDeviceTokenMutation, RemoveDeviceTokenMutation } from '../../mutations/app/users';
 import { VerifyResetPasswordQuery, SearchUsersQuery, VerifyEnrollmentQuery } from '../../queries';
 import { IMutationResponse, IPagedQueryResult } from '../../models/common';
 import { UserForgotPasswordMutation } from '../../mutations';
@@ -112,6 +112,8 @@ export const usersGql: GraphqlDefinition = {
             removeUser(id: String!): CreateUserResult
             userForgotPassword(email: String!): ForgotPasswordResult
             resetPassword(token: String!, password: String!, enrollment: Boolean): ResetPasswordResult
+            addDeviceToken(token: String): Boolean
+            removeDeviceToken(token: String): Boolean
         `,
     },
 
@@ -157,6 +159,14 @@ export const usersGql: GraphqlDefinition = {
             resetPassword(root: any, args, ctx: IGraphqlContext) {
                 let mutation = new ResetPasswordMutation(ctx.req.identity, ctx.req.appContext.User);
                 return ctx.mutationBus.run<IMutationResponse>('reset-password', ctx.req, mutation, args);
+            },
+            addDeviceToken(root: any, args, ctx: IGraphqlContext) {
+                let mutation = new AddDeviceTokenMutation(ctx.req.identity, ctx.req.appContext.User);
+                return ctx.mutationBus.run<IMutationResponse>('add-device-token', ctx.req, mutation, args);
+            },
+            removeDeviceToken(root: any, args, ctx: IGraphqlContext) {
+                let mutation = new RemoveDeviceTokenMutation(ctx.req.identity, ctx.req.appContext.User);
+                return ctx.mutationBus.run<IMutationResponse>('remove-device-token', ctx.req, mutation, args);
             }
         },
         User: {
