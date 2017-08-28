@@ -23,7 +23,9 @@ export function loadUser(req: ExtendedRequest, res: Response, next) {
     req.appContext.User.findOne(condition, function(err, user) {
         let error = { error: 'Your token has expired or this user does not exist anymore' };
 
-        if (err) {
+        // just becuase there is not an error it doenst mean that findOne returned an user...
+        // so we have to check if there is a user
+        if (err || !user) {
             logger.error(err);
             res.status(401).json(error);
             res.end();

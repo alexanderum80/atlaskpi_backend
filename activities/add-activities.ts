@@ -19,6 +19,7 @@ import {
     searchUsersActivity,
     updateUserActivity,
     findUserByIdActivity,
+    findAllUsersActivity,
     removeUserActivity,
     verifyEnrollmentActivity,
     // kpis
@@ -54,6 +55,18 @@ import {
 
     // drilldown
     drilldownActivity
+    // roles
+    findAllRolesActivity,
+    createRoleActivity,
+    updateRoleActivity,
+    removeRoleActivity,
+
+    // permissions
+    findAllPermissionsActivity
+
+    // log
+    createAccessLogActivity,
+    getAllAccessLogsActivity
 
 } from './app';
 
@@ -77,6 +90,7 @@ export function addActivities() {
         searchUsersActivity,
         updateUserActivity,
         findUserByIdActivity,
+        findAllUsersActivity,
         removeUserActivity,
         verifyEnrollmentActivity,
 
@@ -119,6 +133,18 @@ export function addActivities() {
 
         // drilldown
         drilldownActivity
+        // roles
+        findAllRolesActivity,
+        createRoleActivity,
+        updateRoleActivity,
+        removeRoleActivity,
+
+        // permissions
+        findAllPermissionsActivity
+
+        // log
+        createAccessLogActivity,
+        getAllAccessLogsActivity
 
     ]);
 }
