@@ -1,3 +1,7 @@
+import { IssueData } from '../services/notifications/app';
+import { IIdentity } from '../data/models/app/identity';
+import { TechnicalSupportIssueNotification, IssueLevelEnum, IssueLevelTable, getIssueLevelPropName } from '../services/notifications/app/technical-support-issue.notification';
+import { ISupportEmailNotifier } from '../services/notifications';
 
 import * as Promise from 'bluebird';
 import * as logger from 'winston';
@@ -5,34 +9,62 @@ import * as moment from 'moment';
 import { IAppModels } from '../data/models/app/app-models';
 import connectToMongoDb from '../data/mongo-utils';
 import { ILogEntry, ILogEntryModel, ILogEntryDocument, getLogModel } from '../data/models/app';
+import { config } from '../config';
+
+export interface ILogDetails {
+    hostname: string;
+    ip: string;
+    timestamp: Date;
+    clientId: string;
+    clientDetails: string;
+
+    level: number;
+    message: string;
+}
 
 export class LogController {
 
     constructor(private _appContext: IAppModels) { }
 
-    processLogEntry(clientId: string, timestamp: Date, level: number, message: string): Promise<any> {
+    processLogEntry(details: ILogDetails): Promise<any> {
 
-        let entryDetails: ILogEntry = {
-            clientId: clientId,
-            timestamp: timestamp,
-            level: level,
-            message: message
+        const entryDetails: ILogEntry = {
+            clientId: details.clientId,
+            timestamp: details.timestamp,
+            level: details.level,
+            message: details.message
         };
 
-        return new Promise<any>((resolve, reject) => {
-            // send emails
+        const emailDetails: IssueData = {
+            timestamp: details.timestamp.toUTCString(),
+            ip: details.ip,
+            hostname: details.hostname,
+            clientId: details.clientId,
+            clientDetails: details.clientDetails,
+            level: getIssueLevelPropName(IssueLevelTable[details.level]),
+            message: details.message
+        };
 
-            // send alerts 
+        const supportNotifier = new TechnicalSupportIssueNotification(config);
+
+        return new Promise<any>((resolve, reject) => {
+            let promises = [];
+
+            // send emails
+            promises.push(supportNotifier.notify(emailDetails));
+
+            // send alerts
 
             // save to database;
-            this.save(entryDetails)
-            .then(() =>
-                Promise.resolve())
-            .catch(() => Promise.reject);
+            promises.push(this._saveLog(entryDetails));
+
+            return Promise.all(promises)
+                          .then(() => resolve())
+                          .catch(err => reject(err));
         });
     }
 
-    private save(entry: ILogEntry): Promise<ILogEntryDocument> {
+    private _saveLog(entry: ILogEntry): Promise<ILogEntryDocument> {
         let that = this;
 
         return new Promise<ILogEntryDocument>((resolve, reject) => {
