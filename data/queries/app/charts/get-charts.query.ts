@@ -1,3 +1,4 @@
+import { QueryBase } from '../../query-base';
 import { GetChartQuery } from './get-chart.query';
 import { IAppModels } from '../../../models/app/app-models';
 import { IKPIModel, IKPI } from '../../../models/app/kpis';
@@ -5,11 +6,13 @@ import { IChart } from '../../../models/app/charts';
 import * as Promise from 'bluebird';
 import { IQuery } from '../..';
 import { IIdentity, IUserModel, IPaginationDetails, IPagedQueryResult } from '../../../';
-export class GetChartsQuery implements IQuery<IChart[]> {
+export class GetChartsQuery extends QueryBase<IChart[]> {
 
     constructor(
         public identity: IIdentity,
-        private _ctx: IAppModels) { }
+        private _ctx: IAppModels) {
+            super(identity);
+        }
 
     run(data: { preview: boolean }): Promise<IChart[]> {
         const that = this;
