@@ -60,7 +60,7 @@ import {
     removeRoleActivity,
 
     // permissions
-    findAllPermissionsActivity
+    findAllPermissionsActivity,
 
     // log
     createAccessLogActivity,
@@ -136,7 +136,7 @@ export function addActivities() {
         removeRoleActivity,
 
         // permissions
-        findAllPermissionsActivity
+        findAllPermissionsActivity,
 
         // log
         createAccessLogActivity,
