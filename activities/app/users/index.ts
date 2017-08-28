@@ -9,3 +9,4 @@ export * from './remove-user.activity';
 export * from './verify-enrollment.activity';
 export * from './add-device-token.activity';
 export * from './remove-device-token.activity';
+export * from './find-all-users.activity';
