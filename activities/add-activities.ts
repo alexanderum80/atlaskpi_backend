@@ -50,7 +50,10 @@ import {
     getDashboardActivity,
     getDashboardsActivity,
     // search
-    searchActivity
+    searchActivity,
+
+    // drilldown
+    drilldownActivity
 
 } from './app';
 
@@ -112,7 +115,10 @@ export function addActivities() {
         getDashboardsActivity,
 
         // search
-        searchActivity
+        searchActivity,
+
+        // drilldown
+        drilldownActivity
 
     ]);
 }
