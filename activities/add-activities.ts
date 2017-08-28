@@ -19,6 +19,7 @@ import {
     searchUsersActivity,
     updateUserActivity,
     findUserByIdActivity,
+    findAllUsersActivity,
     removeUserActivity,
     verifyEnrollmentActivity,
     // kpis
@@ -52,6 +53,15 @@ import {
     // search
     searchActivity,
 
+    // roles
+    findAllRolesActivity,
+    createRoleActivity,
+    updateRoleActivity,
+    removeRoleActivity,
+
+    // permissions
+    findAllPermissionsActivity
+
     // log
     createAccessLogActivity,
     getAllAccessLogsActivity,
@@ -82,6 +92,7 @@ export function addActivities() {
         searchUsersActivity,
         updateUserActivity,
         findUserByIdActivity,
+        findAllUsersActivity,
         removeUserActivity,
         verifyEnrollmentActivity,
 
@@ -121,6 +132,15 @@ export function addActivities() {
 
         // search
         searchActivity,
+
+        // roles
+        findAllRolesActivity,
+        createRoleActivity,
+        updateRoleActivity,
+        removeRoleActivity,
+
+        // permissions
+        findAllPermissionsActivity
 
         // log
         createAccessLogActivity,

@@ -1,12 +1,15 @@
+import { MutationBase } from '../../mutation-base';
 import { IMutationResponse } from '../../../models/common';
 import * as Promise from 'bluebird';
 import { IIdentity, IKPIModel } from '../../..';
 import { IMutation, IValidationResult } from '../..';
 
-export class RemoveKPIMutation implements IMutation<IMutationResponse> {
+export class RemoveKPIMutation extends MutationBase<IMutationResponse> {
 
     constructor(public identity: IIdentity,
-                private _KPIModel: IKPIModel) { }
+                private _KPIModel: IKPIModel) {
+                    super(identity);
+                }
 
     // log = true;
     // audit = true;
