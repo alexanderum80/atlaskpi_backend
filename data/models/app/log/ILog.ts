@@ -2,10 +2,13 @@ import * as mongoose from 'mongoose';
 import * as Promise from 'bluebird';
 
 export interface ILogEntry {
+    timestamp: Date;
+    ip: string;
+    hostname: string;
     clientId: string;
+    clientDetails: string;
     level: number;
     message: string;
-    timestamp: Date;
 }
 
 export interface ILogEntryDocument extends mongoose.Document { }
