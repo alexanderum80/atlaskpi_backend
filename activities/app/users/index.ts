@@ -7,3 +7,5 @@ export * from './update-user.activity';
 export * from './find-user-by-id.activity';
 export * from './remove-user.activity';
 export * from './verify-enrollment.activity';
+export * from './add-device-token.activity';
+export * from './remove-device-token.activity';
