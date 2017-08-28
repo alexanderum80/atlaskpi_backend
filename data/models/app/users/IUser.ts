@@ -33,7 +33,7 @@ export interface IUserEmailedToken extends IEmbeddedDocument {
     token: string;
     email: string;
     when: Date;
-};
+}
 
 export interface IUserServices {
     loginTokens?: IUserLoginToken[];
