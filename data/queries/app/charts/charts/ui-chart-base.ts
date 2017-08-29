@@ -165,7 +165,7 @@ export class UIChartBase {
      */
     private _createCategories(data: any, metadata: IChartMetadata): IXAxisCategory[] {
         if (metadata.xAxisSource === 'frequency') {
-           return this.frequencyHelper.getCategories(0);
+           return this.frequencyHelper.getCategories(metadata.frequency);
         }
 
         const uniqueCategories = <string[]> _.uniq(data.map(item => item._id[metadata.xAxisSource]));

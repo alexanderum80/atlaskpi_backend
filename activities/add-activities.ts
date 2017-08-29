@@ -54,7 +54,7 @@ import {
     searchActivity,
 
     // drilldown
-    drilldownActivity
+    drilldownActivity,
     // roles
     findAllRolesActivity,
     createRoleActivity,
@@ -62,7 +62,7 @@ import {
     removeRoleActivity,
 
     // permissions
-    findAllPermissionsActivity
+    findAllPermissionsActivity,
 
     // log
     createAccessLogActivity,
@@ -132,7 +132,7 @@ export function addActivities() {
         searchActivity,
 
         // drilldown
-        drilldownActivity
+        drilldownActivity,
         // roles
         findAllRolesActivity,
         createRoleActivity,
@@ -140,7 +140,7 @@ export function addActivities() {
         removeRoleActivity,
 
         // permissions
-        findAllPermissionsActivity
+        findAllPermissionsActivity,
 
         // log
         createAccessLogActivity,

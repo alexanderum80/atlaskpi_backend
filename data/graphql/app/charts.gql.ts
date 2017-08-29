@@ -45,8 +45,8 @@ export const chartsGql: GraphqlDefinition = {
             input DrillDownData {
                 dateRange: DrillDateRange
                 frequency: String
-                xAxisSource: String
                 kpis: [String]
+                chartDefinition: String
             }
             type ChartEntityResponse {
                 _id: String
