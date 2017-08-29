@@ -36,7 +36,7 @@ export class DrillDownQuery implements IQuery<string> {
                     frequency: _detailData.frequency,
                     dateRange: _detailData.dateRange,
                     groupings: groupings,
-                    xAxisSource: 'frequency'
+                    xAxisSource: chart.xAxisSource
                 };
 
                 uiChart.getDefinition(kpi, definitionParameters).then((response) => {
