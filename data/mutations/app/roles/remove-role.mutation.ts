@@ -20,6 +20,8 @@ export class RemoveRoleMutation implements IMutation<IMutationResponse> {
                 .then((role) => {
                     return role ? true : false;
                 });
+            promises.push(d);
+
             return Promise.all(promises).then((roleExist) => {
                 return this._RoleModel.removeRole(data.id, roleExist[0]).then((r) => {
                     return resolve({ success: true, entity: r});
