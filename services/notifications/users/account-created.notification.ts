@@ -25,4 +25,4 @@ export class AccountCreatedNotification implements IAccountCreatedNotifier {
 
         return sendEmail(email, `${this._config.usersService.app.name}: Account Created`, emailContent);
     }
-};
+}
