@@ -35,7 +35,7 @@ auth.post('/token', function authenticate(req: ExtendedRequest, res: Response) {
 //     return hostTokens.length !== 3 ? null : hostUri.hostname;
 // }
 
-function _getHostname(req: ExtendedRequest): string {
+export function _getHostname(req: ExtendedRequest): string {
     //  just for testing
     // return 'customer2.kpibi.com';
 
