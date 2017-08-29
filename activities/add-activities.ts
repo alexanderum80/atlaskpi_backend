@@ -60,11 +60,16 @@ import {
     removeRoleActivity,
 
     // permissions
-    findAllPermissionsActivity
+    findAllPermissionsActivity,
 
     // log
     createAccessLogActivity,
-    getAllAccessLogsActivity
+    getAllAccessLogsActivity,
+
+    // targets
+    createTargetActivity,
+    findTargetActivity,
+    findAllTargetsActivity
 
 } from './app';
 
@@ -136,11 +141,16 @@ export function addActivities() {
         removeRoleActivity,
 
         // permissions
-        findAllPermissionsActivity
+        findAllPermissionsActivity,
 
         // log
         createAccessLogActivity,
-        getAllAccessLogsActivity
+        getAllAccessLogsActivity,
+
+        // targets
+        createTargetActivity,
+        findTargetActivity,
+        findAllTargetsActivity
 
     ]);
 }
