@@ -6,7 +6,7 @@ import { IIdentity, IMutationResponse } from '../../..';
 import { IMutation, IValidationResult } from '../..';
 import { IAppConfig } from '../../../../configuration';
 
-export class AddMobileDeviceMutation extends MutationBase<IMutationResponse> {
+export class AddMobileDeviceMutation extends MutationBase<boolean> {
 
     constructor(public identity: IIdentity,
                 private _user: IUserDocument,
@@ -14,7 +14,7 @@ export class AddMobileDeviceMutation extends MutationBase<IMutationResponse> {
                     super(identity);
                 }
 
-    run(data: IMobileDevice): Promise<IMutationResponse> {
+    run(data: IMobileDevice): Promise<boolean> {
         return this._UserModel.addMobileDevice(this._user._id, data);
     }
 }
