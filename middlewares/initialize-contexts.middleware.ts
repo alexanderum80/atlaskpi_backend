@@ -1,3 +1,4 @@
+import { getRequestHostname } from '../lib/utils/helpers';
 import { AppContextPool } from './app-context-pool';
 import { IAppModels } from '../data/models/app/app-models';
 import { IAccountDocument } from '../data/models';
@@ -15,7 +16,7 @@ export function initializeContexts(req: ExtendedRequest, res: Response, next) {
         req.masterContext = ctx;
 
         // try to create the app context based on the identity or the hostname
-        let hostname = _getHostname(req);
+        let hostname = getRequestHostname(req);
 
         // using hostname
         if (hostname) {
@@ -52,17 +53,4 @@ export function initializeContexts(req: ExtendedRequest, res: Response, next) {
         logger.error('There was an error getting the master context', err);
         next();
     });
-}
-
-export function _getHostname(req: ExtendedRequest): string {
-    let hostname = req.headers['x-hostname'] || req.body.host || req.hostname || req.subdomain;
-
-    // stop if not host have been passed
-    if (!hostname)
-        return null;
-
-    let hostTokens = hostname.split('.');
-
-    // make sure that we have at least 4 tokens, otherwise there is not a subdomain
-    return hostTokens.length !== 4 ? null : hostname;
 }
