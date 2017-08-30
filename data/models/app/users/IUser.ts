@@ -34,7 +34,7 @@ export interface IUserEmailedToken extends IEmbeddedDocument {
     token: string;
     email: string;
     when: Date;
-};
+}
 
 export interface IUserServices {
     loginTokens?: IUserLoginToken[];
@@ -64,6 +64,12 @@ export interface ITokenInfo {
     clientDetails: string;
 }
 
+export interface IMobileDevice {
+    name: string;
+    network: string;
+    token: string;
+}
+
 export interface IUser {
     username: string;
     password?: string;
@@ -72,6 +78,7 @@ export interface IUser {
     profile: IUserProfile;
     roles?: IRoleDocument[];
     tokens?: ITokenInfo[];
+    mobileDevices?: IMobileDevice[];
 }
 
 // declare interface to mix account and mongo docuemnt properties/methods
@@ -258,4 +265,12 @@ export interface IUserModel extends mongoose.Model<IUserDocument> {
      * Find all users
      */
     findAllUsers(filter: string): Promise<IQueryResponse<IUserDocument[]>>;
+    /**
+     * Adds a new mobile device to a user
+     */
+    addMobileDevice(id: string, info: IMobileDevice): Promise<boolean>;
+    /**
+     * Remove a mobile device from a user
+     */
+    removeMobileDevice(network: string, deviceToken: string): Promise<boolean>;
 }

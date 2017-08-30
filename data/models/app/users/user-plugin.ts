@@ -1,3 +1,4 @@
+import { IMobileDevice } from './IUser';
 import { RoleSchema } from '../../../../lib/rbac/models';
 import { resolveRole } from '../../../../lib/rbac/models';
 import { IRoleDocument } from '../../../../lib/rbac/models/roles';
@@ -92,6 +93,12 @@ export function accountPlugin(schema: mongoose.Schema, options: any) {
         clientDetails: String
     });
 
+    let AddMobileDeviceInfo = new Schema({
+        token: String,
+        network: String,
+        deviceName: String
+    });
+
     schema.add({
         emails: [{
             address: { type: String, required: true },
@@ -105,6 +112,7 @@ export function accountPlugin(schema: mongoose.Schema, options: any) {
         services: ServicesSchema,
         profile: UserProfileSchema,
         tokens: [UserTokenInfo],
+        mobileDevices: [AddMobileDeviceInfo],
         timestamps: { type: Date, default: Date.now }
     });
 
@@ -271,6 +279,7 @@ export function accountPlugin(schema: mongoose.Schema, options: any) {
         });
 
     };
+    
 
     const defaultCreateUserOptions: ICreateUserOptions = {
         notifyUser: true,
@@ -904,6 +913,58 @@ export function accountPlugin(schema: mongoose.Schema, options: any) {
                 }).catch((err) => {
                     reject(err);
                 });
+        });
+    };
+
+    schema.statics.addMobileDevice = function(id: string, info: IMobileDevice): Promise<boolean> {
+        const that: IUserModel = this;
+
+        return new Promise<boolean>((resolve, reject) => {
+            // make sure no one is using the device token we are trying to add for the same network
+            that.findOne({ 'mobileDevices.token': info.token, 'mobileDevices.network': info.network }).then(u => {
+                if (u) {
+                    reject(new Error('This device was already added to the system'));
+                }
+
+                // add device
+                u.mobileDevices.push(info);
+
+                // save changes
+                u.save().then(user => {
+                    resolve(true);
+                })
+                .catch(err => reject(err));
+            })
+            .catch(err => {
+                reject(err);
+            });
+        });
+    };
+
+    schema.statics.removeMobileDevice = function(network: string, deviceToken: string): Promise<boolean> {
+        const that: IUserModel = this;
+
+        return new Promise<boolean>((resolve, reject) => {
+            // make sure no one is using the device token we are trying to add for the same network
+            that.findOne({ 'mobileDevices.token': deviceToken, 'mobileDevices.network': network }).then(u => {
+                if (u) {
+                    reject(new Error('This device was already added to the system'));
+                }
+
+                // remove device
+                _.remove(u.mobileDevices, d => {
+                    return d.token === deviceToken && d.network === network;
+                });
+
+                // save changes
+                u.save().then(user => {
+                    resolve(true);
+                })
+                .catch(err => reject(err));
+            })
+            .catch(err => {
+                reject(err);
+            });
         });
     };
 

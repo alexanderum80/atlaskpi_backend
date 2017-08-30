@@ -44,6 +44,7 @@ import { emailServiceConfig, usersServiceConfig } from './configuration';
 */
 
 export const config: IAppConfig = {
+    impersonateHost: 'customer2.g.kpibi.com',
     subdomain: process.env.AKPI_APP_SUBDOMAIN || 'bi.atlaskpi.com',
     token: {
         secret: process.env.AKPI_TOKEN_SECRET || 'jyeu4L?v*FGXmsGAYEXPjp(i',
