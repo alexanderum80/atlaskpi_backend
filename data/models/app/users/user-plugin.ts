@@ -927,10 +927,7 @@ export function accountPlugin(schema: mongoose.Schema, options: any) {
                 }
 
                 // add device
-                u.mobileDevices.push(info);
-
-                // save changes
-                u.save().then(user => {
+                that.update({ _id: u._id }, { $push: { mobileDevices: info } }).then((res) => {
                     resolve(true);
                 })
                 .catch(err => reject(err));
@@ -951,13 +948,7 @@ export function accountPlugin(schema: mongoose.Schema, options: any) {
                     reject(new Error('This device was already added to the system'));
                 }
 
-                // remove device
-                _.remove(u.mobileDevices, d => {
-                    return d.token === deviceToken && d.network === network;
-                });
-
-                // save changes
-                u.save().then(user => {
+                that.update({ _id: u._id }, { $pull: { mobileDevices: { network: network, token: deviceToken } } }).then((res) => {
                     resolve(true);
                 })
                 .catch(err => reject(err));

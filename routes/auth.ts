@@ -21,20 +21,4 @@ auth.post('/token', function authenticate(req: ExtendedRequest, res: Response) {
         });
 });
 
-// function _getHostname(req: Request): string {
-//     // check host value from body
-//     let companySubdomain: string = req.body.host || req.hostname;
-
-//     // stop if not host have been passed
-//     if (!companySubdomain)
-//         return null;
-
-//     let hostUri = url.parse(companySubdomain);
-
-//     let hostTokens = hostUri.hostname.split('.');
-
-//     // make sure that we have at least 4 tokens, otherwise there is not a subdomain
-//     return hostTokens.length !== 3 ? null : hostUri.hostname;
-// }
-
 export { auth };
