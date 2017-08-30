@@ -899,7 +899,7 @@ export function accountPlugin(schema: mongoose.Schema, options: any) {
         });
     };
 
-    schema.statics.findAllUsers = function(filter: string): Promise<IQueryResponse<IUserDocument[]>> {
+    schema.statics.findAllUsers = function(filter: string): Promise<IUserDocument[]> {
         return new Promise<IUserDocument[]>((resolve, reject) => {
 
             (<IUserModel>this).find()
