@@ -20,22 +20,22 @@ export function initializeContexts(req: ExtendedRequest, res: Response, next) {
 
         // using hostname
         if (hostname) {
-            logger.debug('creating app context from user hostname');
+            logger.debug('creating app context for hostname: ' + hostname);
 
             ctx.Account.findAccountByHostname(hostname).then((account: IAccountDocument) => {
                 // I not always need to create a new connection I may be able to re-use an existent one
                 appContextPool.getContext(account.getConnectionString()).then((ctx) => {
                     req.appContext = ctx;
-                    next();
+                    return next();
                 })
                 .catch(err => {
                     logger.error('There was an error getting the app context', err);
-                    next();
+                    return next();
                 });
             })
             .catch(err => {
                 logger.error('There was an error get account by hostname: ' + hostname, err);
-                next();
+                return next();
             });
         } else {
             logger.debug('no app context will be created for this request');
@@ -43,10 +43,10 @@ export function initializeContexts(req: ExtendedRequest, res: Response, next) {
             // request should not have and identity if it desn't have a hostname
             if (req.identity) {
                 res.status(401).json('a hostname is needed for fullfilling this request');
-                res.end();
+                return res.end();
             }
 
-            next();
+            return next();
         }
     })
     .catch(err => {
