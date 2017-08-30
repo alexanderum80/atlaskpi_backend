@@ -1,3 +1,4 @@
+import { IDatabaseInfo } from '../../master/accounts';
 import { IMobileDevice } from './IUser';
 import { RoleSchema } from '../../../../lib/rbac/models';
 import { resolveRole } from '../../../../lib/rbac/models';
@@ -179,11 +180,12 @@ export function accountPlugin(schema: mongoose.Schema, options: any) {
         });
     };
 
-    schema.methods.generateToken = function(dbUri: string, username: string, password: string, ip: string, clientId: string, clientDetails: string): Promise<IUserToken> {
+    schema.methods.generateToken = function(accountName: string, username: string, password: string, ip: string, clientId: string, clientDetails: string): Promise<IUserToken> {
         return new Promise<IUserToken>((resolve, reject) => {
 
             // create user identity
             let identity: IIdentity = {
+                accountName: accountName,
                 username: this.username,
                 firstName: this.profile.firstName,
                 middleName: this.profile.middleName,
@@ -215,7 +217,7 @@ export function accountPlugin(schema: mongoose.Schema, options: any) {
                 if (success) {
                     resolve(tokenDetails);
                 } else {
-                    reject(new Error('There was an error saving the user token'));
+                    reject('There was an error saving the user token');
                 }
             });
         });
@@ -279,7 +281,6 @@ export function accountPlugin(schema: mongoose.Schema, options: any) {
         });
 
     };
-    
 
     const defaultCreateUserOptions: ICreateUserOptions = {
         notifyUser: true,
