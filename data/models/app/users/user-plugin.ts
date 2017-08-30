@@ -928,7 +928,7 @@ export function accountPlugin(schema: mongoose.Schema, options: any) {
 
                 // add device
                 that.update({ _id: id }, { $push: { mobileDevices: data.details } }).then((res) => {
-                    resolve(true);
+                    return resolve(true);
                 })
                 .catch(err => reject(err));
             })
