@@ -176,11 +176,11 @@ export const usersGql: GraphqlDefinition = {
             },
             addMobileDevice(root: any, args, ctx: IGraphqlContext) {
                 let mutation = new AddMobileDeviceMutation(ctx.req.identity, ctx.req.user, ctx.req.appContext.User);
-                return ctx.mutationBus.run<IMutationResponse>('add-device-token', ctx.req, mutation, args);
+                return ctx.mutationBus.run<boolean>('add-device-token', ctx.req, mutation, args);
             },
             removeMobileDevice(root: any, args, ctx: IGraphqlContext) {
                 let mutation = new RemoveMobileDeviceMutation(ctx.req.identity, ctx.req.appContext.User);
-                return ctx.mutationBus.run<IMutationResponse>('remove-device-token', ctx.req, mutation, args);
+                return ctx.mutationBus.run<boolean>('remove-device-token', ctx.req, mutation, args);
             }
         },
         User: {
