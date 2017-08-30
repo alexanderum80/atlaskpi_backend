@@ -96,7 +96,7 @@ export function accountPlugin(schema: mongoose.Schema, options: any) {
     let AddMobileDeviceInfo = new Schema({
         token: String,
         network: String,
-        deviceName: String
+        name: String
     });
 
     schema.add({
@@ -916,18 +916,18 @@ export function accountPlugin(schema: mongoose.Schema, options: any) {
         });
     };
 
-    schema.statics.addMobileDevice = function(id: string, info: IMobileDevice): Promise<boolean> {
+    schema.statics.addMobileDevice = function(id: string, data: { details: IMobileDevice }): Promise<boolean> {
         const that: IUserModel = this;
 
         return new Promise<boolean>((resolve, reject) => {
             // make sure no one is using the device token we are trying to add for the same network
-            that.findOne({ 'mobileDevices.token': info.token, 'mobileDevices.network': info.network }).then(u => {
+            that.findOne({ 'mobileDevices.token': data.details.token, 'mobileDevices.network': data.details.network }).then(u => {
                 if (u) {
-                    reject(new Error('This device was already added to the system'));
+                    return reject('This device was already added to the system');
                 }
 
                 // add device
-                that.update({ _id: u._id }, { $push: { mobileDevices: info } }).then((res) => {
+                that.update({ _id: id }, { $push: { mobileDevices: data.details } }).then((res) => {
                     resolve(true);
                 })
                 .catch(err => reject(err));
@@ -938,17 +938,17 @@ export function accountPlugin(schema: mongoose.Schema, options: any) {
         });
     };
 
-    schema.statics.removeMobileDevice = function(network: string, deviceToken: string): Promise<boolean> {
+    schema.statics.removeMobileDevice = function(network: string, token: string): Promise<boolean> {
         const that: IUserModel = this;
 
         return new Promise<boolean>((resolve, reject) => {
             // make sure no one is using the device token we are trying to add for the same network
-            that.findOne({ 'mobileDevices.token': deviceToken, 'mobileDevices.network': network }).then(u => {
-                if (u) {
-                    reject(new Error('This device was already added to the system'));
+            that.findOne({ 'mobileDevices.token': token, 'mobileDevices.network': network }).then(u => {
+                if (!u) {
+                    return reject('Device not found');
                 }
 
-                that.update({ _id: u._id }, { $pull: { mobileDevices: { network: network, token: deviceToken } } }).then((res) => {
+                that.update({ _id: u._id }, { $pull: { mobileDevices: { network: network, token: token } } }).then((res) => {
                     resolve(true);
                 })
                 .catch(err => reject(err));
