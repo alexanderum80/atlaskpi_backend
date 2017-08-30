@@ -39,6 +39,13 @@ export function initializeContexts(req: ExtendedRequest, res: Response, next) {
             });
         } else {
             logger.debug('no app context will be created for this request');
+
+            // request should not have and identity if it desn't have a hostname
+            if (req.identity) {
+                res.status(401).json('a hostname is needed for fullfilling this request');
+                res.end();
+            }
+
             next();
         }
     })

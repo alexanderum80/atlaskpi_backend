@@ -1,5 +1,5 @@
 import { IAppConfig } from './configuration';
-import { emailServiceConfig, usersServiceConfig } from './configuration';
+import { emailServiceConfig, usersServiceConfig, appServicesConfig } from './configuration';
 
 /*
 
@@ -59,5 +59,6 @@ export const config: IAppConfig = {
         groupId: process.env.AKPI_MONGODB_GROUP_ID || ''
     },
     emailService: emailServiceConfig,
-    usersService: usersServiceConfig
+    usersService: usersServiceConfig,
+    appServices: appServicesConfig
 };
