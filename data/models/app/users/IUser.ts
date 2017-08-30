@@ -1,3 +1,4 @@
+import { IDatabaseInfo } from '../../master/accounts';
 import { IRoleList } from '../../../../lib/rbac/models';
 import { IAppConfig } from '../../../../configuration/config-models';
 import { IIdentity } from '../identity';
@@ -95,7 +96,7 @@ export interface IUserDocument extends IUser, mongoose.Document {
     hasEmail(email): Boolean;
     addResetPasswordToken(email: string): void;
     addEnrollmentEmail(email: string): void;
-    generateToken(dbUri: string, username: string, password: string, ip: string, clientId: string, clientDetails: string): Promise<IUserToken>;
+    generateToken(accountName: string, username: string, password: string, ip: string, clientId: string, clientDetails: string): Promise<IUserToken>;
 }
 
 export interface ITokenVerification {
