@@ -12,7 +12,7 @@ export class RemoveMobileDeviceMutation extends MutationBase<IMutationResponse> 
                     super(identity);
                 }
 
-    run(data: { network: string, deviceToken: string }): Promise<IMutationResponse> {
-        return this._UserModel.removeMobileDevice(data.network, data.deviceToken);
+    run(data: { network: string, token: string }): Promise<IMutationResponse> {
+        return this._UserModel.removeMobileDevice(data.network, data.token);
     }
 }
