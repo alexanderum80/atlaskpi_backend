@@ -1,3 +1,4 @@
+import { IUser } from '../users/IUser';
 import { IChart, IChartDocument } from '../charts';
 // import { IWidget } from '../widgets';
 import * as mongoose from 'mongoose';
@@ -7,6 +8,9 @@ export interface IDashboard {
     name: string;
     group: string;
     charts: IChart[];
+    owner: IUser;
+    users: IUser[];
+
     // widgets: IWidget[];
 }
 

@@ -99,7 +99,8 @@ export function accountPlugin(schema: mongoose.Schema, options: any) {
         }],
         username: {
             type: String,
-            required: false
+            required: false,
+            unique: true
         },
         password: String,
         services: ServicesSchema,
