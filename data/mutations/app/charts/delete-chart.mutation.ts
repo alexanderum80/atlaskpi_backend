@@ -1,4 +1,4 @@
-import { MutationBase } from '../..';
+import { MutationBase } from '../../mutation-base';
 import { detachFromDashboards, detachFromAllDashboards } from './common';
 import { IChartModel } from '../../../models/app/charts';
 import { IIdentity, IMutationResponse } from '../../..';
