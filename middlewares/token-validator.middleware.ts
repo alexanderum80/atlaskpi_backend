@@ -16,10 +16,10 @@ export function tokenValidator(req: ExtendedRequest, res: Response, next) {
             } else {
                 req.identity = identity;
                 winston.debug('Signin request (adding identity)', { identity: req.identity });
-                next();
+                return next();
             }
         });
     } else {
-        next();
+        return next();
     }
 }

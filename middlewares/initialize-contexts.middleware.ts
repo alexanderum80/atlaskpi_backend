@@ -1,3 +1,4 @@
+import { getRequestHostname } from '../lib/utils/helpers';
 import { AppContextPool } from './app-context-pool';
 import { IAppModels } from '../data/models/app/app-models';
 import { IAccountDocument } from '../data/models';
@@ -15,54 +16,58 @@ export function initializeContexts(req: ExtendedRequest, res: Response, next) {
         req.masterContext = ctx;
 
         // try to create the app context based on the identity or the hostname
-        let hostname = _getHostname(req);
+        // only initialize contexts when we have identity
+        let hostname = getRequestHostname(req);
 
-        // using hostname
-        if (hostname) {
-            logger.debug('creating app context from user hostname');
+        if (!req.identity && !hostname) {
+            return next();
+        }
 
-            ctx.Account.findAccountByHostname(hostname).then((account: IAccountDocument) => {
-                // I not always need to create a new connection I may be able to re-use an existent one
-                appContextPool.getContext(account.getConnectionString()).then((ctx) => {
-                    req.appContext = ctx;
-                    next();
-                })
-                .catch(err => {
-                    logger.error('There was an error getting the app context', err);
-                    next();
-                });
-            })
-            .catch(err => {
-                logger.error('There was an error get account by hostname: ' + hostname, err);
-                next();
-            });
-        } else {
-            logger.debug('no app context will be created for this request');
+        const accountName = (req.identity && req.identity.accountName) || hostname;
 
-            // request should not have and identity if it desn't have a hostname
-            if (req.identity) {
-                res.status(401).json('a hostname is needed for fullfilling this request');
-                res.end();
+        if (!accountName) {
+            res.status(401).json('an account name is needed either from the identity or from the hostname');
+            return res.end();
+        }
+
+        logger.debug('creating app context for account name: ' + accountName);
+
+        ctx.Account.findAccountByHostname(accountName).then((account: IAccountDocument) => {
+            // I not always need to create a new connection I may be able to re-use an existent one
+            if (!account) {
+                logger.debug('account not found, ending the request...');
+                res.status(404).json({ message: 'account not found.' });
+                return res.end();
             }
 
-            next();
-        }
+            appContextPool.getContext(account.getConnectionString()).then((ctx) => {
+                req.appContext = ctx;
+                return next();
+            })
+            .catch(err => {
+                logger.error('There was an error getting the app context', err);
+                return next();
+            });
+        })
+        .catch(err => {
+            logger.error('There was an error get account by hostname: ' + accountName, err);
+            return next();
+        });
+
+        // } else {
+        //     logger.debug('no app context will be created for this request');
+
+        //     // request should not have and identity if it desn't have a hostname
+        //     if (req.identity) {
+        //         res.status(401).json('a hostname is needed for fullfilling this request');
+        //         return res.end();
+        //     }
+
+        //     return next();
+        // }
     })
     .catch(err => {
         logger.error('There was an error getting the master context', err);
         next();
     });
-}
-
-export function _getHostname(req: ExtendedRequest): string {
-    let hostname = req.headers['x-hostname'] || req.body.host || req.hostname || req.subdomain;
-
-    // stop if not host have been passed
-    if (!hostname)
-        return null;
-
-    let hostTokens = hostname.split('.');
-
-    // make sure that we have at least 4 tokens, otherwise there is not a subdomain
-    return hostTokens.length !== 4 ? null : hostname;
 }

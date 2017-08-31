@@ -13,8 +13,8 @@ const LocationAlias = {
 
 let LocationSchema = new Schema({
     name: String,
-    address: new Schema(Address),
-    aliases: new Schema(LocationAlias)
+    address: Address,
+    aliases: LocationAlias
 });
 
 // LocationSchema.methods.
