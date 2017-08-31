@@ -2,7 +2,7 @@ import { IAccountModel, IIndustryModel} from '../models/master';
 import seedAccounts from './accounts';
 import seedCustomer2 from './customer1';
 import seedRoles from './roles';
-import seedBusinessUnit from './business-units';
+// import seedBusinessUnit from './business-units';
 import seedIndustries from './industries';
 
 import { getMasterContext, getContext } from '../models';
@@ -18,5 +18,5 @@ export default function seed() {
     seedIndustries(connectionString);
     seedCustomer2(connectionString);
     seedApp(connectionString);
-    seedBusinessUnit(connectionString);
+    // seedBusinessUnit(connectionString);
 }

@@ -34,6 +34,12 @@ export function initializeContexts(req: ExtendedRequest, res: Response, next) {
 
         ctx.Account.findAccountByHostname(accountName).then((account: IAccountDocument) => {
             // I not always need to create a new connection I may be able to re-use an existent one
+            if (!account) {
+                logger.debug('account not found, ending the request...');
+                res.status(404).json({ message: 'account not found.' });
+                return res.end();
+            }
+
             appContextPool.getContext(account.getConnectionString()).then((ctx) => {
                 req.appContext = ctx;
                 return next();

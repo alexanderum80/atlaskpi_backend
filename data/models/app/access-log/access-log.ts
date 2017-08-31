@@ -21,7 +21,7 @@ let AccessLogSchema = new Schema({
     eventType: String,
     event: String,
     payload: String,
-    results: ResultSchema
+    result: ResultSchema
 });
 
 AccessLogSchema.statics.createLog = function(details: IAccessLogEntry): Promise<IMutationResponse> {

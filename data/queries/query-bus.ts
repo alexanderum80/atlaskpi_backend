@@ -68,7 +68,7 @@ export class QueryBus implements IQueryBus {
                     accessLog.run(that.logParams);
                 }
 
-            })
+            });
 
     }
 }
