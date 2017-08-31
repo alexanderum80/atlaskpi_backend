@@ -7,10 +7,10 @@ export interface IAddress {
 }
 
 export const Address = {
-    street1: { type: String },
-    street2: { type: String },
-    city: { type: String },
-    state: { type: String },
-    country: { type: String },
-    zipCode: { type: String },
+    street1: String,
+    street2: String,
+    city: String,
+    state: String,
+    country: String,
+    zipCode: String
 };
