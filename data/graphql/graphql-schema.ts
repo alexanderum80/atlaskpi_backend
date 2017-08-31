@@ -8,7 +8,9 @@ import * as logger from 'winston';
 
 // import definitions
 import { accountsGql } from './master';
-import { usersGql, kpisGql, commonGql, businessUnitsGql, chartFormatGql, chartsGql, dashboardGql, searchGql, rolesGql, permissionGql } from './app';
+import { usersGql, kpisGql, commonGql,
+         // businessUnitsGql,
+         chartFormatGql, chartsGql, dashboardGql, searchGql, rolesGql, permissionGql } from './app';
 
 // let files = getGlobbedFiles(path.join(__dirname, '**', '*.gql.ts'));
 let definitions: GraphqlDefinition[] = [];
@@ -16,7 +18,7 @@ definitions.push(commonGql);
 definitions.push(accountsGql);
 definitions.push(usersGql);
 definitions.push(kpisGql);
-definitions.push(businessUnitsGql);
+// definitions.push(businessUnitsGql);
 definitions.push(chartFormatGql);
 definitions.push(chartsGql);
 definitions.push(dashboardGql);
