@@ -69,7 +69,11 @@ import {
     // targets
     createTargetActivity,
     findTargetActivity,
-    findAllTargetsActivity
+    findAllTargetsActivity,
+    
+    // device tokens
+    addDeviceTokenActivity,
+    removeDeviceTokenActivity
 
 } from './app';
 
@@ -150,7 +154,11 @@ export function addActivities() {
         // targets
         createTargetActivity,
         findTargetActivity,
-        findAllTargetsActivity
+        findAllTargetsActivity,
+        
+        // device tokens
+        addDeviceTokenActivity,
+        removeDeviceTokenActivity
 
     ]);
 }

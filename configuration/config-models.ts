@@ -1,6 +1,7 @@
 import { ITokenInfo } from '../data/models/app/users';
 import { IEmailServiceConfig }from './email-service.config';
 import { IUsersServiceConfig } from './users';
+import { IAppServicesConfig } from './';
 
 /*
 
@@ -31,6 +32,7 @@ export interface ITokenConfig {
 }
 
 export interface IAppConfig {
+    impersonateHost: string;
     subdomain: string;
     token: ITokenConfig;
     masterDb: string;
@@ -38,4 +40,5 @@ export interface IAppConfig {
     mongoDBAtlasCredentials?: IMongoDBAtlasCredentials;
     emailService: IEmailServiceConfig;
     usersService: IUsersServiceConfig;
+    appServices: IAppServicesConfig;
 }

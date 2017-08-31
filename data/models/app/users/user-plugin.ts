@@ -1,3 +1,5 @@
+import { IDatabaseInfo } from '../../master/accounts';
+import { IMobileDevice } from './IUser';
 import { RoleSchema } from '../../../../lib/rbac/models';
 import { resolveRole } from '../../../../lib/rbac/models';
 import { IRoleDocument } from '../../../../lib/rbac/models/roles';
@@ -92,6 +94,12 @@ export function accountPlugin(schema: mongoose.Schema, options: any) {
         clientDetails: String
     });
 
+    let AddMobileDeviceInfo = new Schema({
+        token: String,
+        network: String,
+        name: String
+    });
+
     schema.add({
         emails: [{
             address: { type: String, required: true },
@@ -105,6 +113,7 @@ export function accountPlugin(schema: mongoose.Schema, options: any) {
         services: ServicesSchema,
         profile: UserProfileSchema,
         tokens: [UserTokenInfo],
+        mobileDevices: [AddMobileDeviceInfo],
         timestamps: { type: Date, default: Date.now }
     });
 
@@ -171,11 +180,12 @@ export function accountPlugin(schema: mongoose.Schema, options: any) {
         });
     };
 
-    schema.methods.generateToken = function(dbUri: string, username: string, password: string, ip: string, clientId: string, clientDetails: string): Promise<IUserToken> {
+    schema.methods.generateToken = function(accountName: string, username: string, password: string, ip: string, clientId: string, clientDetails: string): Promise<IUserToken> {
         return new Promise<IUserToken>((resolve, reject) => {
 
             // create user identity
             let identity: IIdentity = {
+                accountName: accountName,
                 username: this.username,
                 firstName: this.profile.firstName,
                 middleName: this.profile.middleName,
@@ -207,7 +217,7 @@ export function accountPlugin(schema: mongoose.Schema, options: any) {
                 if (success) {
                     resolve(tokenDetails);
                 } else {
-                    reject(new Error('There was an error saving the user token'));
+                    reject('There was an error saving the user token');
                 }
             });
         });
@@ -904,6 +914,49 @@ export function accountPlugin(schema: mongoose.Schema, options: any) {
                 }).catch((err) => {
                     reject(err);
                 });
+        });
+    };
+
+    schema.statics.addMobileDevice = function(id: string, data: { details: IMobileDevice }): Promise<boolean> {
+        const that: IUserModel = this;
+
+        return new Promise<boolean>((resolve, reject) => {
+            // make sure no one is using the device token we are trying to add for the same network
+            that.findOne({ 'mobileDevices.token': data.details.token, 'mobileDevices.network': data.details.network }).then(u => {
+                if (u) {
+                    return reject('This device was already added to the system');
+                }
+
+                // add device
+                that.update({ _id: id }, { $push: { mobileDevices: data.details } }).then((res) => {
+                    return resolve(true);
+                })
+                .catch(err => reject(err));
+            })
+            .catch(err => {
+                reject(err);
+            });
+        });
+    };
+
+    schema.statics.removeMobileDevice = function(network: string, token: string): Promise<boolean> {
+        const that: IUserModel = this;
+
+        return new Promise<boolean>((resolve, reject) => {
+            // make sure no one is using the device token we are trying to add for the same network
+            that.findOne({ 'mobileDevices.token': token, 'mobileDevices.network': network }).then(u => {
+                if (!u) {
+                    return reject('Device not found');
+                }
+
+                that.update({ _id: u._id }, { $pull: { mobileDevices: { network: network, token: token } } }).then((res) => {
+                    resolve(true);
+                })
+                .catch(err => reject(err));
+            })
+            .catch(err => {
+                reject(err);
+            });
         });
     };
 

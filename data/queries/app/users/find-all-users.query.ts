@@ -4,7 +4,7 @@ import * as Promise from 'bluebird';
 import { IQuery } from '../..';
 import { IIdentity } from '../../../';
 
-export class FindAllUsersQuery implements IQueryResponse<IUserDocument[]>{
+export class FindAllUsersQuery {
     constructor(public identity: IIdentity,
                 private _IUserModel: IUserModel) {}
 
