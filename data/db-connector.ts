@@ -8,8 +8,17 @@ export default function makeDefaultConnection(): Promise<boolean> {
   return new Promise<boolean>((resolve, reject) => {
     let dbUri = config.masterDb; // 'mongodb://localhost/kpibi';
 
-    // if the connection is open, leave this block
-    if (mongoose.connection.readyState === 1) {
+    // if the connection is open, leave this function
+    /**
+     * Connection ready state
+     * 0 = disconnected
+     * 1 = connected
+     * 2 = connecting
+     * 3 = disconnecting
+     * Each state change emits its associated event name.
+     */
+
+    if ([1, 2].indexOf(mongoose.connection.readyState) !== -1) {
       resolve(true);
       return;
     }

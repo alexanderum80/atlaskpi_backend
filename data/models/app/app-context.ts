@@ -1,3 +1,4 @@
+import { getAccessLogModel } from './access-log';
 import { getSaleModel } from './sales/Sale';
 import { getExpenseModel } from './expenses/Expenses';
 import { getInventoryModel } from './inventory/Inventory';
@@ -30,6 +31,7 @@ export function getContext(dbUri: string): Promise<IAppModels> {
     return new Promise<IAppModels>((resolve, reject) => {
         connectToMongoDb(dbUri).then((m) => {
             resolve({
+                Connection: m,
                 // Customer: getCustomerModel(m),
                 // Employee: getEmployeeModel(m),
                 // EmployeeTime: getEmployeeAttendanceModel(m),
@@ -50,7 +52,8 @@ export function getContext(dbUri: string): Promise<IAppModels> {
                 Dashboard: getDashboardModel(m),
                 Expense: getExpenseModel(m),
                 WorkLog: getWorkLogModel(m),
-                LogModel: getLogModel(m)
+                LogModel: getLogModel(m),
+                AccessModel: getAccessLogModel(m)
             });
         }, (err) => reject(err));
     });

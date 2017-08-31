@@ -1,3 +1,4 @@
+import { IAppModels } from '../models/app/app-models';
 import { getContext } from '../../data/models/app/app-context';
 import * as util from 'util';
 import { DataContext, DataTable } from './google-sheet.processor';
@@ -6,13 +7,13 @@ import * as Promise from 'bluebird';
 import { my_guid } from '../extentions';
 
 
-export default function importSpreadSheetData(data: any, dbUri = 'mongodb://localhost/customer2'): Promise<any> {
+export default function importSpreadSheetData(data: any, ctx: IAppModels): Promise<any> {
 
     return new Promise<any>((resolve, reject) => {
         async.parallel([
-            async.apply(importSales, data, dbUri),
-            async.apply(importWorklog, data, dbUri),
-            async.apply(importExpenses, data, dbUri)
+            async.apply(importSales, data, ctx),
+            async.apply(importWorklog, data, ctx),
+            async.apply(importExpenses, data, ctx)
         ], function(err, results) {
             if (err) {
                 console.log('There was an error: ' + err.toString());
@@ -24,32 +25,30 @@ export default function importSpreadSheetData(data: any, dbUri = 'mongodb://loca
     });
 }
 
-function importSales(data: DataContext, dbUri: string, cb) {
-    getContext(dbUri).then(ctx => {
-        const sales = data.sales;
-        // map the data
-        const mappedSales = sales.map(s => {
-            return {
-                externalId: my_guid(),
-                location: getLocation(data.location, s.location),
-                customer: getCustomer(data.customer, s.customer),
-                employee: getEmployee(data.employee, s.employee),
-                product: getProduct(data.product, s.product, +s.price, new Date(s.date)),
-                category: getCategory(data.category, s.category),
-                timestamp: new Date(s.date)
-            };
-        });
+function importSales(data: DataContext, ctx: IAppModels, cb) {
+    const sales = data.sales;
+    // map the data
+    const mappedSales = sales.map(s => {
+        return {
+            externalId: my_guid(),
+            location: getLocation(data.location, s.location),
+            customer: getCustomer(data.customer, s.customer),
+            employee: getEmployee(data.employee, s.employee),
+            product: getProduct(data.product, s.product, +s.price, new Date(s.date)),
+            category: getCategory(data.category, s.category),
+            timestamp: new Date(s.date)
+        };
+    });
 
-        ctx.Sale.remove({}).then(res => {
-            ctx.Sale.insertMany(mappedSales, (err, result) => {
-                if (err) {
-                    console.error('Error inserting sales', err);
-                    cb(err, null);
-                } else {
-                    console.info(`${result.length} sales inserted`);
-                    cb(null, { name: 'sales', total: result.length });
-                }
-            });
+    ctx.Sale.remove({}).then(res => {
+        ctx.Sale.insertMany(mappedSales, (err, result) => {
+            if (err) {
+                console.error('Error inserting sales', err);
+                cb(err, null);
+            } else {
+                console.info(`${result.length} sales inserted`);
+                cb(null, { name: 'sales', total: result.length });
+            }
         });
     });
 }

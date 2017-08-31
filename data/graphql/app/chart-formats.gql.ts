@@ -35,7 +35,7 @@ export const chartFormatGql: GraphqlDefinition = {
             type ChartFormatPagedQueryResult {
                 pagination: PaginationInfo
                 data: [ChartFormat]
-            },  
+            },
             type ChartFormat {
                 _id: String
                 name: String
@@ -54,7 +54,7 @@ export const chartFormatGql: GraphqlDefinition = {
             getChartFormatById(id:String): ChartFormatQueryResult
         `,
         mutations: `
-            createChartFormat(details: ChartFormatDetails): ChartFormatMutationResult 
+            createChartFormat(details: ChartFormatDetails): ChartFormatMutationResult
             updateChartFormat(id: String, data: ChartFormatDetails): ChartFormatMutationResult
             removeChartFormat(id: String): ChartFormatMutationResult
         `,
@@ -65,11 +65,11 @@ export const chartFormatGql: GraphqlDefinition = {
         Query: {
             getAllChartFormats(root: any, args, ctx: IGraphqlContext) {
                 let query = new GetAllChartFormatsQuery(ctx.req.identity, ctx.req.appContext.ChartFormat);
-                return ctx.queryBus.run('get-all-chart-formats', query, args);
+                return ctx.queryBus.run('get-all-chart-formats', query, args, ctx.req);
             },
             getChartFormatById(root: any, args, ctx: IGraphqlContext) {
                 let query = new GetChartFormatByIdQuery(ctx.req.identity, ctx.req.appContext.ChartFormat);
-                return ctx.queryBus.run('get-chart-format-by-id', query, args);
+                return ctx.queryBus.run('get-chart-format-by-id', query, args, ctx.req);
             }
         },
         Mutation: {

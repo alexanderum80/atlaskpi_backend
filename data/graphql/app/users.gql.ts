@@ -1,7 +1,8 @@
-import { _getHostname } from '../../../middlewares/initialize-contexts.middleware';
+import { getRequestHostname } from '../../../lib/utils/helpers';
+import { FindAllUsersQuery } from '../../queries/app/users/find-all-users.query';
 import { IQueryResponse } from '../../models/common/query-response';
 import { FindUserByIdQuery } from '../../queries/app/users/find-user-by-id.query';
-import { ResetPasswordMutation } from '../../mutations/app/users/reset-password.mutation';
+import { ResetPasswordMutation, AddMobileDeviceMutation, RemoveMobileDeviceMutation } from '../../mutations/app/users';
 import { VerifyResetPasswordQuery, SearchUsersQuery, VerifyEnrollmentQuery } from '../../queries';
 import { IMutationResponse, IPagedQueryResult } from '../../models/common';
 import { UserForgotPasswordMutation } from '../../mutations';
@@ -27,6 +28,13 @@ export const usersGql: GraphqlDefinition = {
                 email: String!,
                 roles: [String]!
             }
+
+            input AddMobileDeviceDetails {
+                name: String,
+                network: String,
+                token: String
+            }
+
             type UserEmail {
                 _id: String
                 address: String
@@ -72,6 +80,7 @@ export const usersGql: GraphqlDefinition = {
                 emails: [UserEmail]
                 profile: UserProfile
                 roles: [String]
+                timestamps: String
             }
             type TokenVerification {
                 isValid: Boolean
@@ -103,6 +112,7 @@ export const usersGql: GraphqlDefinition = {
         queries: `
             isResetPasswordTokenValid(token: String!): TokenVerification
             users(details: PaginationDetails): UserPagedQueryResult
+            allUsers(filter: String): [User]
             User(id: String): User
             isEnrollmentTokenValid(token: String!): TokenVerification
         `,
@@ -112,6 +122,8 @@ export const usersGql: GraphqlDefinition = {
             removeUser(id: String!): CreateUserResult
             userForgotPassword(email: String!): ForgotPasswordResult
             resetPassword(token: String!, password: String!, enrollment: Boolean): ResetPasswordResult
+            addMobileDevice(details: AddMobileDeviceDetails!): Boolean
+            removeMobileDevice(network: String!, token: String!): Boolean
         `,
     },
 
@@ -119,20 +131,24 @@ export const usersGql: GraphqlDefinition = {
         Query: {
             isResetPasswordTokenValid(root: any, args, ctx: IGraphqlContext) {
                 let query = new VerifyResetPasswordQuery(ctx.req.identity, ctx.req.appContext.User);
-                return ctx.queryBus.run('verify-reset-password', query, args);
+                return ctx.queryBus.run('verify-reset-password', query, args, ctx.req);
+            },
+            allUsers(root: any, args, ctx: IGraphqlContext) {
+                let query = new FindAllUsersQuery(ctx.req.identity, ctx.req.appContext.User);
+                return ctx.queryBus.run('find-all-users', query, args);
             },
             users(root: any, args, ctx: IGraphqlContext) {
                 let query = new SearchUsersQuery(ctx.req.identity, ctx.req.appContext.User);
-                return ctx.queryBus.run('search-users', query, args);
+                return ctx.queryBus.run('search-users', query, args, ctx.req);
             },
             User(root: any, args, ctx: IGraphqlContext) {
                 if (!ctx.req.identity || !ctx.req.appContext.User) { return null; }
                 let query = new FindUserByIdQuery(ctx.req.identity, ctx.req.appContext.User);
-                return ctx.queryBus.run('find-user-by-id', query, args);
+                return ctx.queryBus.run('find-user-by-id', query, args, ctx.req);
             },
             isEnrollmentTokenValid(root: any, args, ctx: IGraphqlContext) {
                 let query = new VerifyEnrollmentQuery(ctx.req.identity, ctx.req.appContext.User);
-                return ctx.queryBus.run('verify-enrollment', query, args);
+                return ctx.queryBus.run('verify-enrollment', query, args, ctx.req);
             },
         },
         Mutation: {
@@ -142,7 +158,7 @@ export const usersGql: GraphqlDefinition = {
                 return ctx.mutationBus.run<IMutationResponse>('create-user', ctx.req, mutation, args);
             },
             updateUser(root: any, args, ctx: IGraphqlContext) {
-                let mutation = new UpdateUserMutation(ctx.req.identity, ctx.req.appContext.User);
+                let mutation = new UpdateUserMutation(ctx.req.identity, ctx.req.appContext.User, ctx.req.appContext.Role);
                 return ctx.mutationBus.run<IMutationResponse>('update-user', ctx.req, mutation, args);
             },
             removeUser(root: any, args, ctx: IGraphqlContext) {
@@ -150,13 +166,21 @@ export const usersGql: GraphqlDefinition = {
                 return ctx.mutationBus.run<IMutationResponse>('remove-user', ctx.req, mutation, args);
             },
             userForgotPassword(root: any, args, ctx: IGraphqlContext) {
-                let notifier = new UserForgotPasswordNotification(ctx.config, { hostname: _getHostname(ctx.req) });
+                let notifier = new UserForgotPasswordNotification(ctx.config, { hostname: getRequestHostname(ctx.req) });
                 let mutation = new UserForgotPasswordMutation(ctx.req.identity, notifier, ctx.req.appContext.User);
                 return ctx.mutationBus.run<IMutationResponse>('user-forgot-password', ctx.req, mutation, args);
             },
             resetPassword(root: any, args, ctx: IGraphqlContext) {
                 let mutation = new ResetPasswordMutation(ctx.req.identity, ctx.req.appContext.User);
                 return ctx.mutationBus.run<IMutationResponse>('reset-password', ctx.req, mutation, args);
+            },
+            addMobileDevice(root: any, args, ctx: IGraphqlContext) {
+                let mutation = new AddMobileDeviceMutation(ctx.req.identity, ctx.req.user, ctx.req.appContext.User);
+                return ctx.mutationBus.run<boolean>('add-device-token', ctx.req, mutation, args);
+            },
+            removeMobileDevice(root: any, args, ctx: IGraphqlContext) {
+                let mutation = new RemoveMobileDeviceMutation(ctx.req.identity, ctx.req.appContext.User);
+                return ctx.mutationBus.run<boolean>('remove-device-token', ctx.req, mutation, args);
             }
         },
         User: {

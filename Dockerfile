@@ -1,16 +1,14 @@
 FROM node:boron
 
 # Create app directory
-RUN mkdir -p /usr/src/app
 WORKDIR /usr/src/app
 
-# Install app dependencies
-COPY package.json /usr/src/app/
-RUN npm install
+# copy source code
+ADD . /usr/src/app
 
-# Bundle app source
-COPY . /usr/src/app
+# Install app dependencies
+RUN npm install
 
 EXPOSE 9091
 
-CMD [ "npm", "start" ]
+CMD [ "node", "index.js" ]

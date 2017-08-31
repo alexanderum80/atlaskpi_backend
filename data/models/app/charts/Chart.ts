@@ -12,14 +12,15 @@ import * as winston from 'winston';
 
 let Schema = mongoose.Schema;
 
-let ChartDateRangeSchema = new Schema({
-    predefined: String,
-    custom: {
-        from: Date,
-        to: Date,
-    }
-});
+const customDateRangeSchema = {
+    from: Date,
+    to: Date
+};
 
+let ChartDateRangeSchema = {
+    predefined: String,
+    custom: customDateRangeSchema
+};
 
 let ChartSchema = new Schema({
     title: String,
@@ -38,10 +39,10 @@ let ChartSchema = new Schema({
 
     // ChartSchema.methods.
 
-  ChartSchema.statics.createChart = function(input: IChartInput): Promise<IMutationResponse> {
+  ChartSchema.statics.createChart = function(input: IChartInput): Promise<IChartDocument> {
     const that = this;
 
-    return new Promise<IMutationResponse>((resolve, reject) => {
+    return new Promise<IChartDocument>((resolve, reject) => {
         const requiredAndNotBlank =  { presence: { message: '^cannot be blank' } };
 
         let constraints = {
@@ -54,7 +55,7 @@ let ChartSchema = new Schema({
         let errors = (<any>validate)((<any>input), constraints, {fullMessages: false});
 
         if (errors) {
-            resolve(MutationResponse.fromValidationErrors(errors));
+            reject(errors);
             return;
         }
 
@@ -73,7 +74,7 @@ let ChartSchema = new Schema({
             xAxisSource: input.xAxisSource,
         };
 
-        return that.create(newChart)
+        that.create(newChart)
         .then((chart) => resolve(chart))
         .catch((err) => reject(err));
     });
@@ -117,7 +118,7 @@ let ChartSchema = new Schema({
             xAxisSource: input.xAxisSource
         };
 
-        return that.findOneAndUpdate({_id: id}, updatedChart, { new: true })
+        that.findOneAndUpdate({_id: id}, updatedChart, { new: true })
         .exec()
         .then((chart) => resolve(chart))
         .catch((err) => reject(err));

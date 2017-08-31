@@ -54,9 +54,9 @@ export interface IChartModel extends mongoose.Model<IChartDocument> {
     /**
      * Create a Chart
      * @param { IChartInput } input - and input object with the details of the chart
-     * @returns {Promise<IMutationResponse>}
+     * @returns {Promise<IChartDocument>}
      */
-    createChart(input: IChartInput): Promise<IMutationResponse>;
+    createChart(input: IChartInput): Promise<IChartDocument>;
     /**
      * Update a Chart
      * @param { string } id - and input object with the details of the chart
