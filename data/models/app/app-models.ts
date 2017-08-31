@@ -1,3 +1,4 @@
+import { ITargetModel } from './targets/ITarget';
 import { IAccessModel } from './access-log/IAccessLog';
 import { IWorkLogModel } from './work-log/IWorkLog';
 import { IChartModel } from './charts';
@@ -46,4 +47,5 @@ export interface IAppModels {
     Expense: IExpenseModel;
     LogModel: ILogEntryModel;
     AccessModel: IAccessModel;
+    Target: ITargetModel;
 }
