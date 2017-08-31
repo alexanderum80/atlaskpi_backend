@@ -1,5 +1,5 @@
+import { getRequestHostname } from '../lib/utils/helpers';
 import { ILogDetails } from '../controllers/log-controller';
-import { _getHostname } from './auth';
 import * as url from 'url';
 import * as express from 'express';
 import { Request, Response } from 'express';
@@ -25,7 +25,7 @@ log.post('/log', function user(req: ExtendedRequest, res: Response) {
     const logDetails: ILogDetails = {
         timestamp:  new Date(req.headers['timestamp']),
         ip: req.headers['x-forwarded-for'] || req.connection.remoteAddress,
-        hostname: _getHostname(req),
+        hostname: getRequestHostname(req),
         clientId: req.headers['user-agent'],
         clientDetails: req.headers['client-details'],
 

@@ -35,7 +35,7 @@ export const chartFormatGql: GraphqlDefinition = {
             type ChartFormatPagedQueryResult {
                 pagination: PaginationInfo
                 data: [ChartFormat]
-            },  
+            },
             type ChartFormat {
                 _id: String
                 name: String
@@ -54,7 +54,7 @@ export const chartFormatGql: GraphqlDefinition = {
             getChartFormatById(id:String): ChartFormatQueryResult
         `,
         mutations: `
-            createChartFormat(details: ChartFormatDetails): ChartFormatMutationResult 
+            createChartFormat(details: ChartFormatDetails): ChartFormatMutationResult
             updateChartFormat(id: String, data: ChartFormatDetails): ChartFormatMutationResult
             removeChartFormat(id: String): ChartFormatMutationResult
         `,

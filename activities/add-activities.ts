@@ -64,7 +64,11 @@ import {
 
     // log
     createAccessLogActivity,
-    getAllAccessLogsActivity
+    getAllAccessLogsActivity,
+
+    // device tokens
+    addDeviceTokenActivity,
+    removeDeviceTokenActivity
 
 } from './app';
 
@@ -140,7 +144,11 @@ export function addActivities() {
 
         // log
         createAccessLogActivity,
-        getAllAccessLogsActivity
+        getAllAccessLogsActivity,
+
+        // device tokens
+        addDeviceTokenActivity,
+        removeDeviceTokenActivity
 
     ]);
 }

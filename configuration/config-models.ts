@@ -32,6 +32,7 @@ export interface ITokenConfig {
 }
 
 export interface IAppConfig {
+    impersonateHost: string;
     subdomain: string;
     token: ITokenConfig;
     masterDb: string;
