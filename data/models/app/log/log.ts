@@ -5,10 +5,13 @@ import { ILogEntry, ILogEntryDocument, ILogEntryModel } from './ILog';
 let Schema = mongoose.Schema;
 
 let LogEntrySchema = new Schema({
+    timestamp: Date,
+    hostname: String,
+    ip: String,
     clientId: String,
+    clientDetails: String,
     level: Number,
     message: String,
-    timestamp: Date
 });
 
 export function getLogModel(m: mongoose.Connection): ILogEntryModel {

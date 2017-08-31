@@ -1,3 +1,4 @@
+import { getAccessLogModel } from './access-log';
 import { getSaleModel } from './sales/Sale';
 import { getExpenseModel } from './expenses/Expenses';
 import { getInventoryModel } from './inventory/Inventory';
@@ -51,7 +52,8 @@ export function getContext(dbUri: string): Promise<IAppModels> {
                 Dashboard: getDashboardModel(m),
                 Expense: getExpenseModel(m),
                 WorkLog: getWorkLogModel(m),
-                LogModel: getLogModel(m)
+                LogModel: getLogModel(m),
+                AccessModel: getAccessLogModel(m)
             });
         }, (err) => reject(err));
     });

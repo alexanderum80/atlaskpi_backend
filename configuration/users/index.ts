@@ -1,4 +1,4 @@
-import * as fs from 'fs';
+import { readTemplate } from '../configuration-utils';
 
 export interface IUsersServiceConfig {
     app: {
@@ -31,10 +31,6 @@ export interface IUsersServiceConfig {
     };
 }
 
-function readTemplate(name: string) {
-    return fs.readFileSync(__dirname + '/templates/' + name + '.template.hbs', 'utf8');
-}
-
 export const usersServiceConfig = {
     app: {
         name: 'Application Name',
@@ -48,20 +44,20 @@ export const usersServiceConfig = {
     },
     services: {
         createUser: {
-            emailTemplate: readTemplate('account-created'),
+            emailTemplate: readTemplate('users', 'account-created'),
             // https://github.com/zeit/ms
             expiresIn: '7 days'
         },
         verifyEmail: {
-            emailTemplate: readTemplate('verify-email'),
+            emailTemplate: readTemplate('users', 'verify-email'),
             expiresIn: '7 days'
         },
         forgotPassword: {
-            emailTemplate: readTemplate('forgot-password'),
+            emailTemplate: readTemplate('users', 'forgot-password'),
             expiresIn: '1d'
         },
         enrollment: {
-            emailTemplate: readTemplate('new-enrollment'),
+            emailTemplate: readTemplate('users', 'new-enrollment'),
             expiresIn: '7 days'
         }
     }
