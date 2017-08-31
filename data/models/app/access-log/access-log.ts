@@ -7,11 +7,11 @@ import { IAccessLogEntry } from './';
 
 let Schema = mongoose.Schema;
 
-let ResultSchema = new Schema({
+let ResultSchema = {
     authorized: Schema.Types.Boolean,
     status: Schema.Types.Boolean,
     details: Schema.Types.String
-});
+};
 
 let AccessLogSchema = new Schema({
     timestamp: Schema.Types.Date,
