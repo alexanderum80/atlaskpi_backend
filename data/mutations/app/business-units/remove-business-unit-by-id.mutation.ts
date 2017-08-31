@@ -1,17 +1,20 @@
-import { IBusinessUnitModel } from '../../../models/app/business-units/IBusinessUnit';
-import * as Promise from 'bluebird';
-import { IIdentity, IMutationResponse } from '../../..';
-import { IMutation, IValidationResult } from '../..';
+// import { MutationBase } from '../../mutation-base';
+// import { IBusinessUnitModel } from '../../../models/app/business-units/IBusinessUnit';
+// import * as Promise from 'bluebird';
+// import { IIdentity, IMutationResponse } from '../../..';
+// import { IMutation, IValidationResult } from '../..';
 
-export class RemoveBusinessUnitByIdMutation implements IMutation<IMutationResponse> {
+// export class RemoveBusinessUnitByIdMutation extends MutationBase<IMutationResponse> {
 
-    constructor(public identity: IIdentity,
-                private _IBusinessUnitModel: IBusinessUnitModel) { }
+//     constructor(public identity: IIdentity,
+//                 private _IBusinessUnitModel: IBusinessUnitModel) {
+//                     super(identity);
+//                 }
 
-    // log = true;
-    // audit = true;
+//     // log = true;
+//     // audit = true;
 
-    run(data): Promise<IMutationResponse> {
-        return this._IBusinessUnitModel.removeBusinessUnitById(data.id);
-    }
-}
+//     run(data): Promise<IMutationResponse> {
+//         return this._IBusinessUnitModel.removeBusinessUnitById(data.id);
+//     }
+// }

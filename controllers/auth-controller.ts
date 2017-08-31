@@ -45,14 +45,14 @@ export class AuthController {
             let account: IAccountDocument;
             let user: IUserDocument;
 
-            this._Account.findAccountByHostname(hostname)
+            that._Account.findAccountByHostname(hostname)
                 .then((acct: IAccountDocument) => {
                     winston.debug('token: account found');
                     account = acct;
                     return that._appContext.User.authenticate(username, password);
                 })
                 .then((u: IUserDocument) => {
-                    return u.generateToken(account.getConnectionString(), username, password, ip, clientId, clientDetails);
+                    return u.generateToken(account.database.name, username, password, ip, clientId, clientDetails);
                 })
                 .then((userToken: IUserToken) => {
                     resolve(userToken);

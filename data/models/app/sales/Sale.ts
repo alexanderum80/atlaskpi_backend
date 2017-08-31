@@ -4,12 +4,12 @@ import * as Promise from 'bluebird';
 
 let Schema = mongoose.Schema;
 
-let EntitySchema = new Schema({
+let EntitySchema = {
     externalId: String,
     name: String,
-});
+};
 
-let LocationSchema =  new Schema ({
+let LocationSchema = {
     externalId: String,
     identifier: String,
     name: String,
@@ -19,25 +19,25 @@ let LocationSchema =  new Schema ({
 
     type: String,
     size: String
-});
+};
 
-let CustomerSchema = new Schema ({
+let CustomerSchema = {
         externalId: String,
         city: String,
         state: String,
         zip: String,
         gender: String,
-});
+};
 
-let EmployeeSchema = new Schema({
+let EmployeeSchema = {
     externalId: String,
     fullName: String,
     role: String,
     type: String, // full time (f), part time (p)
     workedTime: Number // time in seconds
-});
+};
 
-let ProductSchema = new Schema({
+let ProductSchema = {
     externalId: String,
     itemCode: String,
     itemDescription: String,
@@ -51,24 +51,28 @@ let ProductSchema = new Schema({
     from: Date,
     to: Date,
     type: String
-});
+};
 
-let CategorySchema = new Schema ({
+let CategorySchema = {
     externalId: String,
     name: String,
     service: Number,
-});
+};
 
-let DocumentSchema = new Schema ({
+let DocumentSchema = {
     type: String,
     indentifier: String,
-});
+};
 
-let PaymentSchema = new Schema ({
+let PaymentSchema = {
     method: String,
     type: String,
     amount: Number
-});
+};
+
+let BusinessUnitSchema = {
+    name: String
+};
 
 let SalesSchema = new Schema ({
     source: String,
@@ -82,10 +86,23 @@ let SalesSchema = new Schema ({
     timestamp: Date,
     concept: String,
     document: DocumentSchema,
-    payment: PaymentSchema
+    payment: PaymentSchema,
+    businessUnit: BusinessUnitSchema,
+    serviceType: String
 });
 
 export const SaleSchema = SalesSchema;
+
+// INDEXES
+
+SaleSchema.index({ 'product.from': 1 });
+SaleSchema.index({ 'product.from': 1, 'location.name': 1 });
+SaleSchema.index({ 'product.from': 1, 'businessUnit.name': 1 });
+SaleSchema.index({ 'product.from': 1, 'serviceType': 1 });
+SaleSchema.index({ 'product.from': 1, 'employee.type': 1, 'location.name': 1 });
+SaleSchema.index({ 'product.from': 1, 'product.itemDescription': 1 });
+SaleSchema.index({ 'product.from': 1, 'category.name': 1 });
+SaleSchema.index({ 'product.from': 1, 'category.service': 1 });
 
 // SaleSchema.methods.
 
