@@ -1,3 +1,5 @@
+import { IDatabaseInfo } from '../../master/accounts';
+import { IRoleList } from '../../../../lib/rbac/models';
 import { IAppConfig } from '../../../../configuration/config-models';
 import { IIdentity } from '../identity';
 import { IQueryResponse } from '../../common/query-response';
@@ -33,7 +35,7 @@ export interface IUserEmailedToken extends IEmbeddedDocument {
     token: string;
     email: string;
     when: Date;
-};
+}
 
 export interface IUserServices {
     loginTokens?: IUserLoginToken[];
@@ -63,6 +65,12 @@ export interface ITokenInfo {
     clientDetails: string;
 }
 
+export interface IMobileDevice {
+    name: string;
+    network: string;
+    token: string;
+}
+
 export interface IUser {
     username: string;
     password?: string;
@@ -71,12 +79,14 @@ export interface IUser {
     profile: IUserProfile;
     roles?: IRoleDocument[];
     tokens?: ITokenInfo[];
+    mobileDevices?: IMobileDevice[];
 }
 
 // declare interface to mix account and mongo docuemnt properties/methods
 export interface IUserDocument extends IUser, mongoose.Document {
     hasRole(role: string, done: (err: any, hasRole: boolean) => void): void;
     addRole(role: string, done?: (err: any, role: IRoleDocument) => void): void;
+    addRoleBatches(role: string, done?: (err: any, role: IRoleDocument) => void): void;
     removeRole(role: string, done: (err: any) => void): void;
     can(action: string, subject: string, done: (err: any, hasPermission: boolean) => void): void;
     canAll(actionsAndSubjects: any[], done: (err: any, hasAll: boolean) => void): void;
@@ -86,7 +96,7 @@ export interface IUserDocument extends IUser, mongoose.Document {
     hasEmail(email): Boolean;
     addResetPasswordToken(email: string): void;
     addEnrollmentEmail(email: string): void;
-    generateToken(dbUri: string, username: string, password: string, ip: string, clientId: string, clientDetails: string): Promise<IUserToken>;
+    generateToken(accountName: string, username: string, password: string, ip: string, clientId: string, clientDetails: string): Promise<IUserToken>;
 }
 
 export interface ITokenVerification {
@@ -138,7 +148,7 @@ export interface IUserModel extends mongoose.Model<IUserDocument> {
      * @param {ICreateUserDetails} details - updted info information
      * @returns {Promise<IMutationResponse>}
      */
-    updateUser(id: string, details: ICreateUserDetails): Promise<IMutationResponse>;
+    updateUser(id: string, details: ICreateUserDetails, dataRole: IRoleList[]): Promise<IMutationResponse>;
     /**
      * Removes a user.
      * @param { String } id - id of the entity
@@ -252,4 +262,16 @@ export interface IUserModel extends mongoose.Model<IUserDocument> {
      * @return {Promise<IUserDocument>}
      */
     findByIdentity(identity: IIdentity): Promise<IUserDocument>;
+    /**
+     * Find all users
+     */
+    findAllUsers(filter: string): Promise<IQueryResponse<IUserDocument[]>>;
+    /**
+     * Adds a new mobile device to a user
+     */
+    addMobileDevice(id: string, info: IMobileDevice): Promise<boolean>;
+    /**
+     * Remove a mobile device from a user
+     */
+    removeMobileDevice(network: string, deviceToken: string): Promise<boolean>;
 }

@@ -52,7 +52,7 @@ export class AuthController {
                     return that._appContext.User.authenticate(username, password);
                 })
                 .then((u: IUserDocument) => {
-                    return u.generateToken(account.getConnectionString(), username, password, ip, clientId, clientDetails);
+                    return u.generateToken(account.database.name, username, password, ip, clientId, clientDetails);
                 })
                 .then((userToken: IUserToken) => {
                     resolve(userToken);

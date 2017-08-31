@@ -1,4 +1,8 @@
-
+import { IDatabaseInfo } from '../../master/accounts';
+import { IMobileDevice } from './IUser';
+import { RoleSchema } from '../../../../lib/rbac/models';
+import { resolveRole } from '../../../../lib/rbac/models';
+import { IRoleDocument } from '../../../../lib/rbac/models/roles';
 import * as jwt from 'jsonwebtoken';
 import { IIdentity } from '../identity';
 import { IQueryResponse } from '../../common/query-response';
@@ -11,6 +15,7 @@ import * as logger from 'winston';
 import * as mongoose from 'mongoose';
 import * as bcrypt from 'bcrypt';
 import * as validate from 'validate.js';
+import * as async from 'async';
 import * as winston from 'winston';
 import { generateUniqueHash } from '../../../../lib/utils';
 import {
@@ -39,6 +44,7 @@ import {
 } from '../../';
 import { config } from '../../../../config';
 import { IErrorData } from '../..';
+
 
 export function accountPlugin(schema: mongoose.Schema, options: any) {
     options || (options = {});
@@ -88,6 +94,12 @@ export function accountPlugin(schema: mongoose.Schema, options: any) {
         clientDetails: String
     });
 
+    let AddMobileDeviceInfo = new Schema({
+        token: String,
+        network: String,
+        name: String
+    });
+
     schema.add({
         emails: [{
             address: { type: String, required: true },
@@ -100,7 +112,9 @@ export function accountPlugin(schema: mongoose.Schema, options: any) {
         password: String,
         services: ServicesSchema,
         profile: UserProfileSchema,
-        tokens: [UserTokenInfo]
+        tokens: [UserTokenInfo],
+        mobileDevices: [AddMobileDeviceInfo],
+        timestamps: { type: Date, default: Date.now }
     });
 
     // encrypt passowrd on save
@@ -166,11 +180,12 @@ export function accountPlugin(schema: mongoose.Schema, options: any) {
         });
     };
 
-    schema.methods.generateToken = function(dbUri: string, username: string, password: string, ip: string, clientId: string, clientDetails: string): Promise<IUserToken> {
+    schema.methods.generateToken = function(accountName: string, username: string, password: string, ip: string, clientId: string, clientDetails: string): Promise<IUserToken> {
         return new Promise<IUserToken>((resolve, reject) => {
 
             // create user identity
             let identity: IIdentity = {
+                accountName: accountName,
                 username: this.username,
                 firstName: this.profile.firstName,
                 middleName: this.profile.middleName,
@@ -193,7 +208,7 @@ export function accountPlugin(schema: mongoose.Schema, options: any) {
             // create user token response
             let tokenDetails: IUserToken = {
                 issued: new Date(),
-                expires: moment().add('milliseconds', ms(String(config.token.expiresIn))).toDate(),
+                expires: moment().add('milliseconds', ms(String(expiresIn))).toDate(),
                 access_token: token
             };
 
@@ -202,7 +217,7 @@ export function accountPlugin(schema: mongoose.Schema, options: any) {
                 if (success) {
                     resolve(tokenDetails);
                 } else {
-                    reject(new Error('There was an error saving the user token'));
+                    reject('There was an error saving the user token');
                 }
             });
         });
@@ -361,8 +376,19 @@ export function accountPlugin(schema: mongoose.Schema, options: any) {
                 });
         });
     };
-
-    schema.statics.updateUser = function(id: string, data: ICreateUserDetails): Promise<IMutationResponse> {
+    function addRole(data, user) {
+        if (data.roles) {
+            user.roles = [];
+            data.roles.forEach((role) => {
+                user.addRole(role, (err, role) => {
+                    if (err) {
+                        logger.error('Error adding role: ', err);
+                    }
+                });
+            });
+        }
+    }
+    schema.statics.updateUser = function(id: string, data: ICreateUserDetails, dataRoles: any): Promise<IMutationResponse> {
         let that = this;
 
         return new Promise<IMutationResponse>((resolve, reject) => {
@@ -408,30 +434,36 @@ export function accountPlugin(schema: mongoose.Schema, options: any) {
                 if (data.lastName) { user.profile.lastName = data.lastName; }
                 if (data.middleName) { user.profile.middleName = data.middleName; }
                 if (data.password) { user.password = data.password; }
+                if (data.email) {
+                    user.emails[0].address = data.email;
+                    user.username = data.email;
+                }
 
-                // add user roles
-                if (data.roles && data.roles.length > 0) {
+                if (data.roles) {
                     user.roles = [];
-                    data.roles.forEach((role) => {
-                        user.addRole(role, (err, role) => {
-                            if (err) {
-                                logger.error('Error adding role: ', err);
-                            }
-                        });
+                    let roles = dataRoles.filter((val) => {
+                        if (data.roles.indexOf(val.name) !== -1) {
+                            return val;
+                        }
                     });
-                };
+                    roles.forEach((r) => {
+                        user.roles.push(r._id);
+                    });
 
-                user.save( (err, user: IUser) => {
-                    if (err) {
-                        reject({ message: 'There was an error updating the user', error: err });
-                        return;
-                    }
-                    resolve({ entity: user });
-                });
+                    user.save((err, user: IUser) => {
+                        if (err) {
+                            reject({ message: 'There was an error updating the user', error: err });
+                            return;
+                        }
+                        resolve({entity: user});
+                    });
+                }
+
             }).catch((err) => {
-                resolve(MutationResponse.fromValidationErrors({ success: false, reason: err }));
-            });
+               resolve(MutationResponse.fromValidationErrors({ success: false, reason: err }));
         });
+        });
+
     };
 
     schema.statics.removeUser = function(id: string): Promise<IMutationResponse> {
@@ -864,6 +896,66 @@ export function accountPlugin(schema: mongoose.Schema, options: any) {
                 }
             }).catch(() => {
                 resolve(null);
+            });
+        });
+    };
+
+    schema.statics.findAllUsers = function(filter: string): Promise<IUserDocument[]> {
+        return new Promise<IUserDocument[]>((resolve, reject) => {
+
+            (<IUserModel>this).find()
+                .populate('roles', '-_id, name')
+                .then((users) => {
+                    if (users) {
+                        resolve(users.slice(1));
+                    } else {
+                        reject('Roles not found');
+                    }
+                }).catch((err) => {
+                    reject(err);
+                });
+        });
+    };
+
+    schema.statics.addMobileDevice = function(id: string, data: { details: IMobileDevice }): Promise<boolean> {
+        const that: IUserModel = this;
+
+        return new Promise<boolean>((resolve, reject) => {
+            // make sure no one is using the device token we are trying to add for the same network
+            that.findOne({ 'mobileDevices.token': data.details.token, 'mobileDevices.network': data.details.network }).then(u => {
+                if (u) {
+                    return reject('This device was already added to the system');
+                }
+
+                // add device
+                that.update({ _id: id }, { $push: { mobileDevices: data.details } }).then((res) => {
+                    return resolve(true);
+                })
+                .catch(err => reject(err));
+            })
+            .catch(err => {
+                reject(err);
+            });
+        });
+    };
+
+    schema.statics.removeMobileDevice = function(network: string, token: string): Promise<boolean> {
+        const that: IUserModel = this;
+
+        return new Promise<boolean>((resolve, reject) => {
+            // make sure no one is using the device token we are trying to add for the same network
+            that.findOne({ 'mobileDevices.token': token, 'mobileDevices.network': network }).then(u => {
+                if (!u) {
+                    return reject('Device not found');
+                }
+
+                that.update({ _id: u._id }, { $pull: { mobileDevices: { network: network, token: token } } }).then((res) => {
+                    resolve(true);
+                })
+                .catch(err => reject(err));
+            })
+            .catch(err => {
+                reject(err);
             });
         });
     };
