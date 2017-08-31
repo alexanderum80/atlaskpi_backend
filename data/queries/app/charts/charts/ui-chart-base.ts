@@ -1,3 +1,4 @@
+import { ITarget, ITargetDocument } from '../../../../models/app/targets/ITarget';
 import { parsePredifinedDate } from '../../../../models/common/date-range';
 import { IKPIDocument, IAppModels } from '../../../../models/app';
 import { IKpiBase, IKPIResult } from '../../kpis/kpi-base';
@@ -35,7 +36,7 @@ export interface IXAxisCategory {
 // }
 
 export interface IUIChart {
-    getDefinition?(kpiBase: IKpiBase, metadata?: IChartMetadata): Promise<any>;
+    getDefinition?(kpiBase: IKpiBase, metadata?: IChartMetadata, target?: ITargetDocument[]): Promise<any>;
 }
 
 export class UIChartBase {
@@ -44,6 +45,9 @@ export class UIChartBase {
     protected groupings: string[];
     protected categories: IXAxisCategory[];
     protected series: any[];
+
+    targetData: any[];
+    commonField: any[];
 
     chartPreProcessor: ChartPreProcessorExtention;
 
@@ -58,7 +62,7 @@ export class UIChartBase {
      * @param kpi kpi to run
      * @param metadata chart metadata
      */
-    protected processChartData(kpi: IKpiBase, metadata?: IChartMetadata): Promise < void > {
+    protected processChartData(kpi: IKpiBase, metadata?: IChartMetadata, target?: ITargetDocument[]): Promise < void > {
         logger.debug('processChartData for: ' + this.constructor.name + ' - kpi: ' + kpi.constructor.name);
         const that = this;
 
@@ -67,7 +71,29 @@ export class UIChartBase {
         return that.getKPIData(kpi, metadata).then(data => {
             logger.debug('data received, for chart: ' + this.constructor.name + ' - kpi: ' + kpi.constructor.name);
             that.data = data;
+
             that.groupings = that._getGroupingFields(data);
+
+            that.commonField = _.filter(that.groupings, (v, k) => {
+                return v !== 'frequency';
+            });
+
+            // // checks if target array is empty
+            if (target.length) {
+                that.targetData = _.map(target, (v, k) => {
+                    return {
+                        _id: {
+                            frequency: moment(v.datepicker).format('YYYY-MM'),
+                            [that.commonField[0]]: 'Target'
+                        },
+                        value: (<any>v).target
+                    };
+                });
+                that.targetData.forEach((val) => {
+                    that.data.push(val);
+                });
+            }
+
             that.frequencyHelper.decomposeFrequencyInfo(data, metadata.frequency);
 
             // xAxisSource name can be empty when there is only one grouping
@@ -98,6 +124,7 @@ export class UIChartBase {
 
         definition.title = { text: `${this.chart.title} (${dateRangeText})` };
         definition.subtitle = { text: this.chart.subtitle };
+
         definition.series = this.series;
 
         if (!definition.xAxis) {
@@ -288,6 +315,9 @@ export class UIChartBase {
                 name: serieName || 'Other',
                 data: []
             };
+            if (serieName === 'Target') {
+                serie['type'] = 'spline';
+            }
 
             categories.forEach(cat => {
                 let dataItem = _.find(groupedData[serieName], (item: any) => {
@@ -302,4 +332,5 @@ export class UIChartBase {
 
         return series;
     }
+
 }

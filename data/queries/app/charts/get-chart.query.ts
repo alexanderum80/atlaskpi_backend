@@ -44,6 +44,13 @@ export class GetChartQuery extends QueryBase<string> {
                         return reject(null);
                     }
 
+                    let targetData = this._ctx.Target.find({chart: {$in: [data.id]}})
+                        .then((response) => {
+                            return response;
+                        });
+                    let promises = [];
+                    promises.push(targetData);
+
                     let uiChart = ChartFactory.getInstance(chart);
                     let kpi = KpiFactory.getInstance(chart.kpis[0], that._ctx);
                     let groupings = getGroupingMetadata(chart, data.input ? data.input.groupings : []);
@@ -60,13 +67,19 @@ export class GetChartQuery extends QueryBase<string> {
                         definitionParameters.dateRange = data.input.dateRange;
                     }
 
-                    uiChart.getDefinition(kpi, definitionParameters).then((definition) => {
-                        logger.debug('chart definition received for id: ' + data.id);
-                        chart.chartDefinition = definition;
-                        resolve(JSON.stringify(chart));
-                    }).catch(e => {
-                        console.error(e);
-                        reject(e);
+                    Promise.all(promises)
+                        .then((resp) => {
+                            let targetMetatdata = resp.length ? resp[0] : null;
+
+                        uiChart.getDefinition(kpi, definitionParameters, targetMetatdata).then((definition) => {
+                            logger.debug('chart definition received for id: ' + data.id);
+                            chart.chartDefinition = definition;
+                            resolve(JSON.stringify(chart));
+                        }).catch(e => {
+                            console.error(e);
+                            reject(e);
+                        });
+
                     });
                 });
         });

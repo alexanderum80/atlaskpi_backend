@@ -1,3 +1,4 @@
+import { ITarget, ITargetDocument } from '../../../../models/app/targets/ITarget';
 import * as Promise from 'bluebird';
 import {
     IDateRange
@@ -37,10 +38,10 @@ export class PieChart extends UIChartBase implements IUIChart {
         super(chart, frequencyHelper);
     }
 
-    getDefinition(kpi: IKpiBase, metadata?: IChartMetadata): Promise < any > {
+    getDefinition(kpi: IKpiBase, metadata?: IChartMetadata, target?: ITargetDocument[]): Promise < any > {
         const that = this;
 
-        return this.processChartData(kpi, metadata).then(() => {
+        return this.processChartData(kpi, metadata, target).then(() => {
             return that.buildDefinition(basicDefinition);
         });
     }

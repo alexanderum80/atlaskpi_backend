@@ -1,7 +1,7 @@
 import * as mongoose from 'mongoose';
 import * as Promise from 'bluebird';
 
-export interface IRole {
+export interface ITarget {
     datepicker: Date;
     active: boolean;
     vary: string;
@@ -10,12 +10,16 @@ export interface IRole {
     period: string;
     notify: string[];
     visible: string[];
+    delete?: boolean;
+    owner: string;
 }
 
-export interface IRoleDocument extends IRole, mongoose.Document {}
+export interface ITargetDocument extends ITarget, mongoose.Document {}
 
-export interface IRoleModel extends mongoose.Model<IRoleDocument> {
-    findTarget(id: string): Promise<IRoleDocument>;
-    findAllTargets(id: string): Promise<IRoleDocument[]>;
-    createTarget(data: IRole): Promise<IRoleDocument>;
+export interface ITargetModel extends mongoose.Model<ITargetDocument> {
+    findTarget(id: string): Promise<ITargetDocument>;
+    findAllTargets(): Promise<ITargetDocument[]>;
+    createTarget(data: ITarget): Promise<ITargetDocument>;
+    updateTarget(id: string, data: ITarget): Promise<ITargetDocument>;
+    removeTarget(id: string, authorized: boolean): Promise<ITargetDocument>;
 }
