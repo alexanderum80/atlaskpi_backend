@@ -51,18 +51,18 @@ export function accountPlugin(schema: mongoose.Schema, options: any) {
 
     let Schema = mongoose.Schema;
 
-    let EmailSchema = new Schema({
+    let EmailSchema = {
         address: { type: String, required: true },
         verified: Boolean
-    });
+    };
 
-    let EmailedTokenSchema = new Schema({
+    let EmailedTokenSchema = {
         token: { type: String, required: true },
         email: { type: String, required: true },
         when: { type: Date, required: true }
-    });
+    };
 
-    let ServicesSchema = new Schema({
+    let ServicesSchema = {
         loginTokens: [{
             when: Date,
             hashedToken: String,
@@ -75,30 +75,30 @@ export function accountPlugin(schema: mongoose.Schema, options: any) {
             verificationTokens: [EmailedTokenSchema],
             enrollment: [EmailedTokenSchema]
         }
-    });
+    };
 
-    let UserProfileSchema = new Schema({
+    let UserProfileSchema = {
         firstName: String,
         middleName: String,
         lastName: String,
         sex: String,
         dob: Date
-    });
+    };
 
-    let UserTokenInfo = new Schema({
+    let UserTokenInfo = {
         ip: String,
         token: String,
         issued: Date,
         expires: Date,
         clientId: String,
         clientDetails: String
-    });
+    };
 
-    let AddMobileDeviceInfo = new Schema({
+    let AddMobileDeviceInfo = {
         token: String,
         network: String,
         name: String
-    });
+    };
 
     schema.add({
         emails: [{
