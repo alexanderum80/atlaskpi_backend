@@ -52,7 +52,7 @@ export class QueryBus implements IQueryBus {
                 if ((query.log === true) && activityName !== 'get-all-access-logs') {
                     that.logParams = {
                         timestamp: Date.now(),
-                        accessBy: query.identity.firstName + ' ' + query.identity.lastName,
+                        accessBy: query.identity.username,
                         ipAddress: request.connection.remoteAddress,
                         event: query.constructor.name,
                         clientDetails: request.get('User-Agent'),
