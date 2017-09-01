@@ -29,7 +29,7 @@ export const dashboardGql: GraphqlDefinition = {
                 return ctx.queryBus.run('get-dashboards', query, args, ctx.req).catch(e => console.error(e));
             },
             dashboard(root: any, args: any, ctx: IGraphqlContext) {
-                let query = new GetDashboardQuery(ctx.req.identity, ctx.req.appContext);
+                let query = new GetDashboardQuery(ctx.req.identity, ctx.req.appContext, ctx.req.user);
                 return ctx.queryBus.run('get-dashboard', query, args, ctx.req).catch(e => console.error(e));
             }
         },
