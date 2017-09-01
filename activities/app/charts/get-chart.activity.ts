@@ -1,3 +1,4 @@
+import { BasicRoleChecker } from '../basic-role-checker';
 import { IIdentity } from '../../../data';
 import { IActivity } from '../../../lib/enforcer';
 
