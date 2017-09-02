@@ -47,7 +47,7 @@ export class QueryBus implements IQueryBus {
             })
             .catch((err) => {
                 that.errorStr = err;
-                return Promise.reject(err);
+                return Promise.resolve(err);
             }).finally(() => {
                 if ((query.log === true) && activityName !== 'get-all-access-logs') {
                     that.logParams = {
@@ -67,7 +67,6 @@ export class QueryBus implements IQueryBus {
                     let accessLog = new CreateAccessLogMutation(query.identity, request.appContext.AccessModel);
                     accessLog.run(that.logParams);
                 }
-
             });
 
     }
