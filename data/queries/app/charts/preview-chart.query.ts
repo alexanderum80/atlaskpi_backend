@@ -26,8 +26,11 @@ export class PreviewChartsQuery extends QueryBase<string> {
                 data.chart = data.input;
                 data.chart.chartDefinition = JSON.parse(data.input.chartDefinition);
                 data.chart.kpis[0] = kpi;
-                return that._ctx.queryBus.run('get-chart', query, data, that._ctx.req);
-            });
+                return that._ctx.queryBus.run('get-chart', query, data, that._ctx.req)
+                .then(result => resolve(result))
+                .catch(err => reject(err));
+            })
+            .catch(err => reject(err));
         });
     }
 }
