@@ -12,15 +12,15 @@ import * as winston from 'winston';
 
 let Schema = mongoose.Schema;
 
-const customDateRangeSchema = new Schema({
+const customDateRangeSchema = {
     from: Date,
     to: Date
-});
+};
 
-let ChartDateRangeSchema = new Schema({
+let ChartDateRangeSchema = {
     predefined: String,
     custom: customDateRangeSchema
-});
+};
 
 let ChartSchema = new Schema({
     title: String,

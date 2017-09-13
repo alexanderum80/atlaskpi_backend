@@ -52,7 +52,14 @@ export class MutationBus implements IMutationBus {
                 return Promise.resolve(true);
             })
             .then((validated: boolean) => {
-                return mutation.run(data);
+                return new Promise<any>((resolve, reject) => {
+                    mutation.run(data).then(res => {
+                        resolve(res);
+                    })
+                    .catch(e => {
+                        resolve({ erros: [e.message] });
+                    });
+                });
             })
             .then((res: T) => {
                 if (res instanceof MutationResponse) {
@@ -66,9 +73,12 @@ export class MutationBus implements IMutationBus {
                 return Promise.reject(err);
             }).finally(() => {
                 if ((mutation.log === true) && activityName !== 'create-access-log') {
+                    const identity = mutation.identity;
+                    const accessBy = identity ? identity.firstName + ' ' + identity.lastName : '';
+
                     that.logParams = {
                         timestamp: Date.now(),
-                        accessBy: mutation.identity.firstName + ' ' + mutation.identity.lastName,
+                        accessBy: accessBy,
                         ipAddress: req.connection.remoteAddress,
                         event: mutation.constructor.name,
                         clientDetails: req.get('User-Agent'),
@@ -84,7 +94,7 @@ export class MutationBus implements IMutationBus {
                     accessLog.run(that.logParams);
                 }
 
-            })
+            });
     }
 }
 

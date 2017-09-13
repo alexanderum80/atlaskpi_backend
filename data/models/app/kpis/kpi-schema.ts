@@ -15,13 +15,13 @@ import { IKPI, IKPIDocument, IKPIModel, IKPIDetails } from '.';
 
 let Schema = mongoose.Schema;
 
-let ChartDateRangeSchema = new Schema({
+let ChartDateRangeSchema = {
     predefined: String,
     custom: {
         from: Date,
         to: Date,
     }
-});
+};
 
 let KPISchema = new Schema({
     _id: String,
