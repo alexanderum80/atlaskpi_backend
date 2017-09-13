@@ -1,4 +1,4 @@
-import { ITarget, ITargetDocument } from '../../../../models/app/targets/ITarget';
+import { ITargetDocument } from '../../../../models/app/targets/ITarget';
 import { parsePredifinedDate } from '../../../../models/common/date-range';
 import { IKPIDocument, IAppModels } from '../../../../models/app';
 import { IKpiBase, IKPIResult } from '../../kpis/kpi-base';
@@ -80,13 +80,26 @@ export class UIChartBase {
 
             // // checks if target array is empty
             if (target.length) {
+                let count = 0;
                 that.targetData = _.map(target, (v, k) => {
-                    return {
+                    count = count + 1;
+                    return (<any>v).stackName ? {
                         _id: {
                             frequency: moment(v.datepicker).format('YYYY-MM'),
-                            [that.commonField[0]]: 'Target'
+                            [that.commonField[0]]: 'Target Stack ' + count,
+                            stackName: (<any>v).stackName,
+                            targetId: v._id
                         },
-                        value: (<any>v).target
+                        value: (<any>v).target,
+                        targetId: v._id
+                    } : {
+                        _id: {
+                            frequency: moment(v.datepicker).format('YYYY-MM'),
+                            [that.commonField[0]]: 'Target ' + count,
+                            targetId: v._id
+                        },
+                        value: (<any>v).target,
+                        targetId: v._id
                     };
                 });
                 that.targetData.forEach((val) => {
@@ -115,6 +128,7 @@ export class UIChartBase {
      */
     protected buildDefinition(customOptions: any): string {
         let definition = Object.assign({}, customOptions, this.chart.chartDefinition);
+        let chartInfo = this.chart;
         let shortDateFormat = 'MM/DD/YY';
         const dateRange = this.dateRange || this.chart.dateRange;
 
@@ -132,6 +146,11 @@ export class UIChartBase {
         }
 
         definition.xAxis.categories = this.categories ? this.categories.map(c => c.name) : [];
+        // if (definition.hasOwnProperty('xAxis') && definition.xAxis.hasOwnProperty('categories')) {
+        //     definition.xAxis.categories = definition.xAxis.categories.filter((val) => {
+        //         return (val !== null) && (!val.match(/stack/i));
+        //     });
+        // }
 
         return definition;
     }
@@ -294,7 +313,14 @@ export class UIChartBase {
         /**
          * First I need to group the results using the next groupig field
          */
-        let groupedData: Dictionary<any> = _.groupBy(data, '_id.' + groupByField);
+        // let groupedData: Dictionary<any> = _.groupBy(data, '_id.' + groupByField);
+        let groupedData: Dictionary<any> = _.groupBy(data, (val) => {
+            if (val['_id'].hasOwnProperty('stackName')) {
+                return val._id[groupByField] + '_' + val._id['stackName'];
+            }
+            return val._id[groupByField];
+        });
+
         let series: IChartSerie[] = [];
         let matchField: string;
 
@@ -312,15 +338,25 @@ export class UIChartBase {
 
         for (let serieName in groupedData) {
             let serie: IChartSerie = {
-                name: serieName || 'Other',
+                name: (serieName.match(/_[a-z]+/i)) ?
+                        ( serieName.replace(serieName, serieName.match(/[^_a-z]+/i)[0]) ) :
+                        (serieName || 'Other'),
                 data: []
             };
-            if (serieName === 'Target') {
+            // adds spline and targetId to series
+            // use targetId for edit/delete
+            if (groupedData[serieName][0].hasOwnProperty('targetId')) {
                 serie['type'] = 'spline';
+                serie['targetId'] = groupedData[serieName][0].targetId;
             }
 
             categories.forEach(cat => {
                 let dataItem = _.find(groupedData[serieName], (item: any) => {
+                    if (item._id.hasOwnProperty('stackName') && item._id.stackName) {
+                        // when it is a stacked column, move value in data array to correct xAxis category
+                        // if category is in first index, value in moved to the first index of the data array
+                        return item._id.stackName === cat.id;
+                    }
                     return item._id[matchField] === cat.id;
                 });
 
@@ -333,4 +369,12 @@ export class UIChartBase {
         return series;
     }
 
+    private _stackCategories(definition) {
+        return definition.xAxis.categories.search('Target') === -1;
+    }
+
+    private _isStacked(definition: any, chart: any) {
+        return chart.hasOwnProperty('xAxisSource') ? ((definition.chart.type === 'column') &&
+        (chart.groupings[0] === chart.xAxisSource)) : false;
+    }
 }

@@ -1,3 +1,4 @@
+import { RemoveTargetMutation } from '../../mutations/app/targets/remove-target.mutation';
 import { UpdateTargetMutation } from '../../mutations/app/targets/update-target.mutation';
 import { IMutationResponse } from '../../models/common';
 import { CreateTargetMutation } from '../../mutations/app/targets';
@@ -22,8 +23,13 @@ export const targetGql: GraphqlDefinition = {
                 visible: [String]
                 owner: String
                 chart: [String]
+                stackName: String
+            }
+            input TargetOwner {
+                owner: String
             }
             type TargetResponse {
+                _id: String
                 datepicker: String
                 active: Boolean
                 vary: String
@@ -36,6 +42,7 @@ export const targetGql: GraphqlDefinition = {
                 visible: [String]
                 owner: String
                 chart: [String]
+                stackName: String
             }
             type TargetResult {
                 success: Boolean
@@ -54,6 +61,7 @@ export const targetGql: GraphqlDefinition = {
         mutations: `
             createTarget(data: TargetInput): TargetResult
             updateTarget(id: String, data: TargetInput): TargetResult
+            removeTarget(id: String): TargetResult
         `
     },
     resolvers: {
@@ -73,13 +81,13 @@ export const targetGql: GraphqlDefinition = {
                 return ctx.mutationBus.run<IMutationResponse>('create-target', ctx.req, mutation, args);
             },
             updateTarget(root: any, args, ctx: IGraphqlContext) {
-                let mutation = new UpdateTargetMutation(ctx.req.identity, ctx.req.appContext.Target, ctx.req.appContext.User);
+                let mutation = new UpdateTargetMutation(ctx.req.identity, ctx.req.appContext.Target, ctx.req.appContext);
                 return ctx.mutationBus.run<IMutationResponse>('update-target', ctx.req, mutation, args);
+            },
+            removeTarget(root: any, args, ctx: IGraphqlContext) {
+                let mutation = new RemoveTargetMutation(ctx.req.identity, ctx.req.appContext.Target, ctx.req.appContext);
+                return ctx.mutationBus.run<IMutationResponse>('remove-target', ctx.req, mutation, args);
             }
-            // deleteTarget(root: any, args, ctx: IGraphqlContext) {
-            //     let mutation = new UpdateTargetMutation(ctx.req.identity, ctx.req.appContext.Target, ctx.req.appContext.User);
-            //     return ctx.mutationBus.run<IMutationResponse>('remove-target', ctx.req, mutation, args);
-            // }
         },
         TargetResult: {
             success(response: IMutationResponse) { return response.success; },

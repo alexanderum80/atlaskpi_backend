@@ -68,6 +68,8 @@ import {
 
     // targets
     createTargetActivity,
+    updateTargetActivity,
+    deleteTargetActivity,
     findTargetActivity,
     findAllTargetsActivity,
     
@@ -153,6 +155,8 @@ export function addActivities() {
 
         // targets
         createTargetActivity,
+        updateTargetActivity,
+        deleteTargetActivity,
         findTargetActivity,
         findAllTargetsActivity,
         
