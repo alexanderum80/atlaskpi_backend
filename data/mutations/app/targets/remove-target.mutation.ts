@@ -1,26 +1,30 @@
-import { IUser } from '../../../models/app/users';
+import { IAppModels } from '../../../models/app/app-models';
 import { ITargetModel } from '../../../models/app/targets/ITarget';
 import { IIdentity } from '../../../models/app/identity';
 import { IMutationResponse } from '../../../models/common';
 import { MutationBase } from '../..';
+import * as Promise from 'bluebird';
 
-export class RemoveTargetMutation /*extends MutationBase<IMutationResponse>*/ {
+export class RemoveTargetMutation extends MutationBase<IMutationResponse> {
     constructor(public identity: IIdentity,
                 private _TargetModel: ITargetModel,
-                private _UserModel: IUser) {
-                    // super(identity);
+                private _ctx: IAppModels) {
+                    super(identity);
                 }
 
-    // run(data: string): Promise<IMutationResponse> {
-    //     const that = this;
-    //     return new Promise<IMutationResponse>((resolve, reject) => {
-    //         let promises = [];
-    //         let currentUser = this._UserModel.findById('')
-    //             .then((user) => {
-    //                 return user ? true : false;
-    //             });
-    //         promises.push(currentUser);
+    run(data: any): Promise<IMutationResponse> {
+        const that = this;
+        let _data = data.hasOwnProperty('data') ? data.data : data;
 
-    //     });
-    // }
+        return new Promise<IMutationResponse>((resolve, reject) => {
+            that._TargetModel.removeTarget(data.id, that.identity.username, (that.identity.roles.indexOf('admin') !== -1))
+                .then((deletedTarget) => {
+                    resolve({ success: true, entity: deletedTarget});
+                    return;
+                }).catch((err) => {
+                    resolve({ success: false, errors: [ {field: 'target', errors: [err]} ] });
+                    return;
+                });
+        });
+    }
 }

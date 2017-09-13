@@ -1,6 +1,3 @@
-import { FrequencyTable } from '../../../models/common';
-import { getGroupingMetadata } from '../../../queries/app/charts';
-import { ChartFactory } from '../../../queries/app/charts/charts/chart-factory';
 import { KpiFactory } from '../../../queries/app/kpis';
 import { IDateRange } from '../../../models/common';
 import { parsePredifinedDate } from '../../../models/common';
@@ -16,6 +13,7 @@ import * as moment from 'moment';
 export class CreateTargetMutation extends MutationBase<IMutationResponse> {
 
     chartInfo: any;
+    isStacked: any;
 
     constructor(public identity: IIdentity,
                 private _TargetModel: ITargetModel,
@@ -42,22 +40,6 @@ export class CreateTargetMutation extends MutationBase<IMutationResponse> {
 
                     that._TargetModel.createTarget(_data)
                         .then((target) => {
-                            let uiChart = ChartFactory.getInstance(that.chartInfo);
-                            let kpi = KpiFactory.getInstance(that.chartInfo.kpis[0], that._ctx);
-                            let groupings = getGroupingMetadata(that.chartInfo, data.input ? data.input.groupings : []);
-
-                            let frequency = FrequencyTable[(data.input && data.input.frequency) ? data.input.frequency : that.chartInfo.frequency];
-                            let definitionParameters = {
-                                filter: that.chartInfo.filter,
-                                frequency: frequency,
-                                groupings: groupings,
-                                xAxisSource: that.chartInfo.xAxisSource
-                            };
-
-                            uiChart.getDefinition(kpi, definitionParameters, [target])
-                                .then((definition) => {
-                                    that.chartInfo.chartDefinition = definition;
-                                });
                             resolve({ entity: target, success: true });
                             return;
                         }).catch((err) => {
@@ -72,6 +54,7 @@ export class CreateTargetMutation extends MutationBase<IMutationResponse> {
 
         return new Promise<any>((resolve, reject) => {
             const that = this;
+
             let promises = [];
             let p = that._ctx.Chart.findById(data.chart[0])
                 .populate({
@@ -80,14 +63,21 @@ export class CreateTargetMutation extends MutationBase<IMutationResponse> {
                 .then((chart) => {
                     return chart;
                 });
+
             promises.push(p);
+
             return Promise.all(promises)
                 .then((chart) => {
                     that.chartInfo = chart;
+                    that.isStacked = ((chart[0].chartDefinition.chart.type === 'column') &&
+                        (chart[0].groupings[0] === chart[0].xAxisSource)) ?
+                        true : false;
+
                     let kpi = KpiFactory.getInstance(chart[0].kpis[0], that._ctx);
                     let options = {
                         filter: chart[0].filter
                     };
+
                     kpi.getData(that._getDate(data.period), options).then((response) => {
                         resolve(response);
                     }).catch((err) => {
@@ -147,20 +137,3 @@ export class CreateTargetMutation extends MutationBase<IMutationResponse> {
         return parsePredifinedDate(period);
     }
 }
-
-
-/*
-    {
-        _id: {
-            frequency: '2017-12',
-            year: 2017,
-            month: 5
-        }
-    }
-
-    {
-        id: month in number,
-        name: month in name
-    }
-
-*/

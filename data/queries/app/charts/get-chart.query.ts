@@ -44,7 +44,7 @@ export class GetChartQuery extends QueryBase<string> {
                         return reject(null);
                     }
 
-                    let targetData = this._ctx.Target.find({chart: {$in: [data.id]}})
+                    let targetData = this._ctx.Target.find({delete: 0, active: 1, chart: {$in: [data.id]}})
                         .then((response) => {
                             return response;
                         });
@@ -54,6 +54,8 @@ export class GetChartQuery extends QueryBase<string> {
                     let uiChart = ChartFactory.getInstance(chart);
                     let kpi = KpiFactory.getInstance(chart.kpis[0], that._ctx);
                     let groupings = getGroupingMetadata(chart, data.input ? data.input.groupings : []);
+                    let stackedChart = ((chart.chartDefinition.chart.type === 'column') && (chart.groupings[0] === chart.xAxisSource)) ?
+                        true : false;
 
                     let frequency = FrequencyTable[(data.input && data.input.frequency) ? data.input.frequency : chart.frequency];
                     let definitionParameters: IChartMetadata = {

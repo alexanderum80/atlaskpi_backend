@@ -18,16 +18,18 @@ let TargetSchema = new Schema({
     delete: Boolean,    // true, false
     owner: String,      // username, determine if user allow to create
     target: Number,     // the target set to met
-    chart: [{ type: mongoose.Schema.Types.String, ref: 'Chart'}]
+    stackName: String, // if is stack column use to compare in ui-chart-base
+    chart: [{ type: mongoose.Schema.Types.String, ref: 'Chart'}],
+    timestamp: { type: Date, default: Date.now }
 });
 
 TargetSchema.statics.createTarget = function(data: ITarget): Promise<ITargetDocument> {
     const that = this;
     return new Promise<ITargetDocument>((resolve, reject) => {
         let constraints = {
-            datepicker: { presence: {
-                message: 'Datepicker cannot be empty' }
-            },
+            // datepicker: { presence: {
+            //     message: 'Datepicker cannot be empty' }
+            // },
             active: { presence: {
                 message: 'Active/Inactive cannot be empty' }
             },
@@ -83,14 +85,14 @@ TargetSchema.statics.updateTarget = function(id: string, data: ITarget): Promise
 
         (<ITargetModel>this).findById(id)
             .then((target) => {
-                let documentError = (<any>validate)( {
-                    target: target },
-                    { target: { prescence: { message: '^not found' }}});
+                // let documentError = (<any>validate)( {
+                //     target: target },
+                //     { target: { prescence: { message: '^not found' }}});
 
-                if (documentError) {
-                    resolve(<any>{ success: false, errors: documentError, entity: null});
-                    return;
-                }
+                // if (documentError) {
+                //     resolve(<any>{ success: false, errors: documentError, entity: null});
+                //     return;
+                // }
 
                 if (data.notify) {
                     target.notify = [];
@@ -105,36 +107,27 @@ TargetSchema.statics.updateTarget = function(id: string, data: ITarget): Promise
                     }
                 }
 
-                target.save((err, target: ITarget) => {
+                target.save((err, target: ITargetDocument) => {
                     if (err) {
                         reject({ success: false, entity: null, errors: err });
                         return;
                     }
-                    resolve(<any>{ success: true, entity: target, errors: null });
+                    resolve(target);
                 });
 
             }).catch((err) => {
-                resolve(<any>{ success: false, entity: null, errors: err} );
+                resolve(err);
             });
     });
 };
 
-TargetSchema.statics.removeTarget = function(id: string, authorized: boolean): Promise<ITargetDocument> {
+TargetSchema.statics.removeTarget = function(id: string, username: string, isAdmin: boolean): Promise<ITargetDocument> {
     const that = this;
     return new Promise<ITargetDocument>((resolve, reject) => {
-        if (authorized === true) {
-            reject({ success: false, errors: [ {field: 'target', errors: ['Not authorized to remove role'] } ] });
-            return;
-        }
-
         (<ITargetModel>this).findById(id)
             .then((target) => {
-                let documentError = (<any>validate)( {
-                    target: target },
-                    { target: { prescence: { message: '^not found' }}});
-
-                if (documentError) {
-                    resolve(<any>{ success: false, errors: documentError, entity: null});
+                if ((target.owner !== username) || !isAdmin) {
+                    reject({ success: false, entity: null, errors: 'Not authorized to remove target'});
                     return;
                 }
                 target.delete = true;
@@ -144,10 +137,10 @@ TargetSchema.statics.removeTarget = function(id: string, authorized: boolean): P
                         reject({ success: false, entity: null, errors: err });
                         return;
                     }
-                    resolve(<any>{ success: true, entity: deleteTarget, errors: null });
+                    resolve(target);
                 });
             }).catch((err) => {
-                resolve(<any>{ success: false, entity: null, errors: err });
+                resolve(err);
             });
     });
 };
@@ -158,7 +151,7 @@ TargetSchema.statics.findTarget = function(id: string): Promise<ITargetDocument>
         (<ITargetModel>this).findById(id)
             .then((target) => {
                 if (target) {
-                    resolve(<any>{ success: true, errors: null, data: target });
+                    resolve(target);
                     return;
                 }
                 resolve(<any>{ errors: [ { field: 'target', errors: ['Not found'] } ], data: null });
@@ -174,7 +167,7 @@ TargetSchema.statics.findAllTargets = function(): Promise<ITargetDocument[]> {
         (<ITargetModel>this).find()
             .then((targets) => {
                 if (targets) {
-                    resolve(<any>{ success: true, errors: null, data: targets });
+                    resolve(targets);
                     return;
                 }
                 resolve(<any>{ errors: [ { field: 'target', errors: ['Not found'] } ], data: null });
