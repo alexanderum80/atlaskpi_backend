@@ -3,14 +3,14 @@ import * as mongoose from 'mongoose';
 
 const Schema = mongoose.Schema;
 
-let IdNameSchema = new Schema({
+let IdNameSchema = {
     id: String,
     name: String,
-});
+};
 
-let BusinessUnitSchema = new Schema({
+let BusinessUnitSchema = {
     name: String
-});
+};
 
 const ExpenseSchema = new Schema({
     source: String,

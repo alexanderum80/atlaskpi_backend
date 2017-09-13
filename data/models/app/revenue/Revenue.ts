@@ -10,30 +10,30 @@ let idName = {
     name: { type: String }
 };
 
-let SaleEmployeeSchema = new Schema({
+let SaleEmployeeSchema = {
     id: String,
     name: String,
     type: String,
     role: String,
     percent: Number,
     amount: Number,
-});
+};
 
-let SaleItem = new Schema({
+let SaleItem = {
     cost: Number,
     price: Number,
     tax: Number,
-});
+};
 
-let SalePaymentSchema = new Schema({
+let SalePaymentSchema = {
     transactionId: String,
     paymentMethod: String,
     amount: Number,
     tax: Number,
     total: Number
-});
+};
 
-let SaleCouponSchema = new Schema({
+let SaleCouponSchema = {
     type: String, //  generic clasification for the coupon, not a big deal I think
     name: String,
     value: new Schema({
@@ -41,20 +41,20 @@ let SaleCouponSchema = new Schema({
         amount: Number,
     }),
     discount: Number
-});
+};
 
-let SaleTotalsSchema = new Schema({
+let SaleTotalsSchema = {
     subtotal: Number,
     salesTax: Number,
     discount: Number,
     total: Number,
-});
+};
 
-let GlobalDiscountSchema = new Schema({
+let GlobalDiscountSchema = {
     type: String,
     value: Number,
     discount: Number
-});
+};
 
 let RevenueSchema = new Schema({
     externalId: String,
