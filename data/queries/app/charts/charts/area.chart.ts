@@ -21,12 +21,18 @@ import {
 
 export class AreaChart extends UIChartBase implements IUIChart {
 
+    private basicDefinition = { 'chart'       : { 'type': 'area', 'inverted': false }};
+
     constructor(chart: IChart, frequencyHelper: FrequencyHelper) {
         super(chart, frequencyHelper);
     }
 
     getDefinition(kpi: IKpiBase, metadata?: IChartMetadata): Promise < string > {
-        return this.processChartData(kpi, metadata).then(res => JSON.stringify(res));
+        const that = this;
+
+        return this.processChartData(kpi, metadata).then(() => {
+            return that.buildDefinition(this.basicDefinition);
+        });
     }
 
 }
