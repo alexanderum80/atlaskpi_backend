@@ -36,7 +36,7 @@ export const kpisGql: GraphqlDefinition = {
                 description: String
                 group: String
                 groupings: [String]
-                dateRange: DateRange
+                dateRange: ChartDateRange
                 filter: String
                 frequency: String
                 axisSelection: String
@@ -98,6 +98,7 @@ export const kpisGql: GraphqlDefinition = {
         },
         KPI: {
             dateRange(entity: IKPIDocument) { return entity.dateRange; },
+            filter(entity: IKPIDocument) { return JSON.stringify(entity.filter); }
         }
     }
 };
