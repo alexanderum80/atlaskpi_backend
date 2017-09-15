@@ -69,7 +69,10 @@ import {
 
     // device tokens
     addDeviceTokenActivity,
-    removeDeviceTokenActivity
+    removeDeviceTokenActivity,
+
+    // data sources
+    getDataSources
 
 } from './app';
 
@@ -150,7 +153,10 @@ export function addActivities() {
 
         // device tokens
         addDeviceTokenActivity,
-        removeDeviceTokenActivity
+        removeDeviceTokenActivity,
+
+        // data sources
+        getDataSources,
 
     ]);
 }
