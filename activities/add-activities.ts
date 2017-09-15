@@ -72,7 +72,7 @@ import {
     removeDeviceTokenActivity,
 
     // data sources
-    getDataSources
+    getDataSourcesActivity,
 
 } from './app';
 
@@ -156,7 +156,7 @@ export function addActivities() {
         removeDeviceTokenActivity,
 
         // data sources
-        getDataSources,
+        getDataSourcesActivity,
 
     ]);
 }
