@@ -2,6 +2,7 @@ import * as mongoose from 'mongoose';
 import * as Promise from 'bluebird';
 
 export interface ITarget {
+    name: string;
     datepicker: string;
     active: boolean;
     vary: string;
@@ -21,5 +22,5 @@ export interface ITargetModel extends mongoose.Model<ITargetDocument> {
     findAllTargets(): Promise<ITargetDocument[]>;
     createTarget(data: ITarget): Promise<ITargetDocument>;
     updateTarget(id: string, data: ITarget): Promise<ITargetDocument>;
-    removeTarget(id: string, username: string, isAdmin: boolean): Promise<ITargetDocument>;
+    removeTarget(id: string, username: string): Promise<ITargetDocument>;
 }

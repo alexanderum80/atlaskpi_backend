@@ -12,6 +12,7 @@ export const targetGql: GraphqlDefinition = {
     schema: {
         types: `
             input TargetInput {
+                name: String
                 datepicker: String
                 active: Boolean
                 vary: String
@@ -24,12 +25,14 @@ export const targetGql: GraphqlDefinition = {
                 owner: String
                 chart: [String]
                 stackName: String
+                nonStackName: String
             }
             input TargetOwner {
                 owner: String
             }
             type TargetResponse {
                 _id: String
+                name: String
                 datepicker: String
                 active: Boolean
                 vary: String
@@ -43,6 +46,7 @@ export const targetGql: GraphqlDefinition = {
                 owner: String
                 chart: [String]
                 stackName: String
+                nonStackName: String
             }
             type TargetResult {
                 success: Boolean

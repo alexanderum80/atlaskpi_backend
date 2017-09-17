@@ -41,7 +41,7 @@ export class LineChart extends UIChartBase implements IUIChart {
         const that = this;
 
         return this.processChartData(kpi, metadata, target).then(() => {
-            return that.buildDefinition(basicDefinition);
+            return that.buildDefinition(basicDefinition, target);
         });
     }
 
