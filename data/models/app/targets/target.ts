@@ -6,6 +6,7 @@ import * as validate from 'validate.js';
 let Schema = mongoose.Schema;
 
 let TargetSchema = new Schema({
+    name: String,
     datepicker: Date,   // 09/30/2017
     active: Boolean,    // true, false
     vary: String,       // fixed, increase, decrease
@@ -19,6 +20,7 @@ let TargetSchema = new Schema({
     owner: String,      // username, determine if user allow to create
     target: Number,     // the target set to met
     stackName: String, // if is stack column use to compare in ui-chart-base
+    nonStackName: String,
     chart: [{ type: mongoose.Schema.Types.String, ref: 'Chart'}],
     timestamp: { type: Date, default: Date.now }
 });
@@ -46,7 +48,6 @@ TargetSchema.statics.createTarget = function(data: ITarget): Promise<ITargetDocu
             return;
         }
 
-        // set delete when user removes one
         data.delete = false;
 
         that.create(data, (err, target: ITargetDocument) => {
@@ -85,14 +86,6 @@ TargetSchema.statics.updateTarget = function(id: string, data: ITarget): Promise
 
         (<ITargetModel>this).findById(id)
             .then((target) => {
-                // let documentError = (<any>validate)( {
-                //     target: target },
-                //     { target: { prescence: { message: '^not found' }}});
-
-                // if (documentError) {
-                //     resolve(<any>{ success: false, errors: documentError, entity: null});
-                //     return;
-                // }
 
                 if (data.notify) {
                     target.notify = [];
@@ -102,7 +95,7 @@ TargetSchema.statics.updateTarget = function(id: string, data: ITarget): Promise
                 }
 
                 for (let i in data) {
-                    if (data[i]) {
+                    if (i) {
                         target[i] = data[i];
                     }
                 }
@@ -121,12 +114,12 @@ TargetSchema.statics.updateTarget = function(id: string, data: ITarget): Promise
     });
 };
 
-TargetSchema.statics.removeTarget = function(id: string, username: string, isAdmin: boolean): Promise<ITargetDocument> {
+TargetSchema.statics.removeTarget = function(id: string, username: string): Promise<ITargetDocument> {
     const that = this;
     return new Promise<ITargetDocument>((resolve, reject) => {
         (<ITargetModel>this).findById(id)
             .then((target) => {
-                if ((target.owner !== username) || !isAdmin) {
+                if (target.owner !== username) {
                     reject({ success: false, entity: null, errors: 'Not authorized to remove target'});
                     return;
                 }
@@ -145,10 +138,11 @@ TargetSchema.statics.removeTarget = function(id: string, username: string, isAdm
     });
 };
 
-TargetSchema.statics.findTarget = function(id: string): Promise<ITargetDocument> {
+TargetSchema.statics.findTarget = function(id: string): Promise<ITargetDocument[]> {
     const that = this;
-    return new Promise<ITargetDocument>((resolve, reject) => {
-        (<ITargetModel>this).findById(id)
+    return new Promise<ITargetDocument[]>((resolve, reject) => {
+      //  (<ITargetModel>this).findById(id)
+      (<ITargetModel>this).find({_id: id, delete: 0})
             .then((target) => {
                 if (target) {
                     resolve(target);

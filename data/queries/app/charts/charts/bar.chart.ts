@@ -31,7 +31,7 @@ export class BarChart extends UIChartBase implements IUIChart {
         const that = this;
 
         return this.processChartData(kpi, metadata, target).then(() => {
-            return that.buildDefinition(this.basicDefinition);
+            return that.buildDefinition(this.basicDefinition, target);
         });
     }
 

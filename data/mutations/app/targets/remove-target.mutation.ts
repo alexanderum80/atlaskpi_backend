@@ -17,7 +17,7 @@ export class RemoveTargetMutation extends MutationBase<IMutationResponse> {
         let _data = data.hasOwnProperty('data') ? data.data : data;
 
         return new Promise<IMutationResponse>((resolve, reject) => {
-            that._TargetModel.removeTarget(data.id, that.identity.username, (that.identity.roles.indexOf('admin') !== -1))
+            that._TargetModel.removeTarget(data.id, that.identity.username)
                 .then((deletedTarget) => {
                     resolve({ success: true, entity: deletedTarget});
                     return;

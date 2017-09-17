@@ -24,8 +24,7 @@ export class UpdateTargetMutation extends MutationBase<IMutationResponse> {
         let _data = data.hasOwnProperty('data') ? data.data : data;
         return new Promise<IMutationResponse>((resolve, reject) => {
             let promises = [];
-            let owner = (_data.owner === that.identity.username) ||
-                        (that.identity.roles.indexOf('admin') !== -1);
+            let owner = _data.owner === that.identity.username;
             promises.push(owner);
 
             return Promise.all(promises)
