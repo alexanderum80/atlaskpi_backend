@@ -7,19 +7,19 @@ let Schema = mongoose.Schema;
 
 let TargetSchema = new Schema({
     name: String,
-    datepicker: Date,   // 09/30/2017
-    active: Boolean,    // true, false
-    vary: String,       // fixed, increase, decrease
-    amount: Number,     // 10
-    amountBy: String,   // percent, fixed
-    type: String,       // spline, dot
-    period: String,     // last week, last month, last year
-    notify: [String],   // [jfin@gmail.com, fzed@me.com]
-    visible: [String],  // [jfin@gmail.com, fzed@me.com]
-    delete: Boolean,    // true, false
-    owner: String,      // username, determine if user allow to create
-    target: Number,     // the target set to met
-    stackName: String, // if is stack column use to compare in ui-chart-base
+    datepicker: Date,
+    active: Boolean,
+    vary: String,
+    amount: Number,
+    amountBy: String,
+    type: String,
+    period: String,
+    notify: [String],
+    visible: [String],
+    delete: Boolean,
+    owner: String,
+    target: Number,
+    stackName: String,
     nonStackName: String,
     chart: [{ type: mongoose.Schema.Types.String, ref: 'Chart'}],
     timestamp: { type: Date, default: Date.now }
@@ -29,9 +29,6 @@ TargetSchema.statics.createTarget = function(data: ITarget): Promise<ITargetDocu
     const that = this;
     return new Promise<ITargetDocument>((resolve, reject) => {
         let constraints = {
-            // datepicker: { presence: {
-            //     message: 'Datepicker cannot be empty' }
-            // },
             active: { presence: {
                 message: 'Active/Inactive cannot be empty' }
             },
@@ -61,7 +58,7 @@ TargetSchema.statics.createTarget = function(data: ITarget): Promise<ITargetDocu
     });
 };
 
-TargetSchema.statics.updateTarget = function(id: string, data: ITarget): Promise<ITargetDocument> {
+TargetSchema.statics.updateTarget = function(id: string, data: ITarget, username: string): Promise<ITargetDocument> {
     const that = this;
     return new Promise<ITargetDocument>((resolve, reject) => {
         let constraints = {
@@ -86,6 +83,10 @@ TargetSchema.statics.updateTarget = function(id: string, data: ITarget): Promise
 
         (<ITargetModel>this).findById(id)
             .then((target) => {
+                if (target.owner !== username) {
+                    reject({ success: false, entity: null, errors: 'Not authorized to update target'});
+                    return;
+                }
 
                 if (data.notify) {
                     target.notify = [];
@@ -141,7 +142,6 @@ TargetSchema.statics.removeTarget = function(id: string, username: string): Prom
 TargetSchema.statics.findTarget = function(id: string): Promise<ITargetDocument[]> {
     const that = this;
     return new Promise<ITargetDocument[]>((resolve, reject) => {
-      //  (<ITargetModel>this).findById(id)
       (<ITargetModel>this).find({_id: id, delete: 0})
             .then((target) => {
                 if (target) {
