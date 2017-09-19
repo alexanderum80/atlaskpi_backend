@@ -53,7 +53,7 @@ export class KpiBase {
             if (options.filter)
                 that._injectFilter(options.filter);
             if (options.stackName && options.groupings)
-                that._injectCustomMatch(options.groupings, options.stackName);
+                that._injectTargetStackFilter(options.groupings, options.stackName);
             if (options.frequency >= 0)
                 that._injectFrequency(options.frequency, dateField);
             if (options.groupings)
@@ -134,7 +134,7 @@ export class KpiBase {
         });
     }
 
-    private _injectCustomMatch(field: any, stackName: any) {
+    private _injectTargetStackFilter(field: any, stackName: any) {
         let matchStage = this.findStage('filter', '$match');
         if (!matchStage) {
             throw 'KpiBase#_injectDataRange: Cannot inject filter because a dateRange/$match stage could not be found';

@@ -110,11 +110,11 @@ export class UpdateTargetMutation extends MutationBase<IMutationResponse> {
 
         return new Promise((resolve, reject) => {
             let promises = [];
-            let left = this._periodData(data)
+            let dataCompare = this._periodData(data)
                 .then((response) => {
                     return response[0].value;
                 });
-            promises.push(left);
+            promises.push(dataCompare);
 
             return Promise.all(promises)
                 .then((response) => {
@@ -153,8 +153,6 @@ export class UpdateTargetMutation extends MutationBase<IMutationResponse> {
     }
 
     private _getDate(period: string): IDateRange {
-        console.log('TARGET DATE RANGE HELP');
-        console.log(parsePredifinedDate(period));
         return parsePredifinedDate(period);
     }
 }
