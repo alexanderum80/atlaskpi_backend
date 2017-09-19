@@ -12,6 +12,7 @@ import * as Promise from 'bluebird';
 export class UpdateTargetMutation extends MutationBase<IMutationResponse> {
 
     chartInfo: any;
+    isStacked: any;
 
     constructor(public identity: IIdentity,
                 private _TargetModel: ITargetModel,
@@ -56,7 +57,7 @@ export class UpdateTargetMutation extends MutationBase<IMutationResponse> {
         });
     }
 
-    private _leftHand(data: any): Promise<any> {
+    private _periodData(data: any): Promise<any> {
 
         return new Promise<any>((resolve, reject) => {
             const that = this;
@@ -76,15 +77,31 @@ export class UpdateTargetMutation extends MutationBase<IMutationResponse> {
                 .then((chart) => {
                     that.chartInfo = chart;
                     let kpi = KpiFactory.getInstance(chart[0].kpis[0], that._ctx);
+                    that.isStacked = ((chart[0].chartDefinition.chart.type === 'column') &&
+                        (chart[0].groupings[0] === chart[0].xAxisSource)) ?
+                        true : false;
 
-                    let options = {
-                        filter: chart[0].filter
-                    };
-                    kpi.getData(that._getDate(data.period), options).then((response) => {
-                        resolve(response);
-                    }).catch((err) => {
-                        reject(err);
-                    });
+                    if (that.isStacked) {
+                        let options = {
+                            filter: chart[0].filter,
+                            groupings: [chart[0].groupings[0] + '.name'],
+                            stackName: data.stackName || null
+                        };
+                        kpi.getTargetData(that._getDate(data.period), options).then((response) => {
+                            resolve(response);
+                        }).catch((err) => {
+                            reject(err);
+                        });
+                    } else {
+                        let options = {
+                            filter: chart[0].filter
+                        };
+                        kpi.getData(that._getDate(data.period), options).then((response) => {
+                            resolve(response);
+                        }).catch((err) => {
+                            reject(err);
+                        });
+                    }
                 });
         });
     }
@@ -93,7 +110,7 @@ export class UpdateTargetMutation extends MutationBase<IMutationResponse> {
 
         return new Promise((resolve, reject) => {
             let promises = [];
-            let left = this._leftHand(data)
+            let left = this._periodData(data)
                 .then((response) => {
                     return response[0].value;
                 });
@@ -136,6 +153,8 @@ export class UpdateTargetMutation extends MutationBase<IMutationResponse> {
     }
 
     private _getDate(period: string): IDateRange {
+        console.log('TARGET DATE RANGE HELP');
+        console.log(parsePredifinedDate(period));
         return parsePredifinedDate(period);
     }
 }
