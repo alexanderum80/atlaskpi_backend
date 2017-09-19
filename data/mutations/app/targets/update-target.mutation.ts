@@ -40,7 +40,7 @@ export class UpdateTargetMutation extends MutationBase<IMutationResponse> {
                             .then((dataTarget) => {
                                  _data.target = dataTarget[0];
 
-                                that._TargetModel.updateTarget(data.id, _data)
+                                that._TargetModel.updateTarget(data.id, _data, that.identity.username)
                                     .then((theTarget) => {
                                         resolve({ success: true, entity: theTarget });
                                         return;
