@@ -422,13 +422,4 @@ export class UIChartBase {
         }
         return series;
     }
-
-    private _stackCategories(definition) {
-        return definition.xAxis.categories.search('Target') === -1;
-    }
-
-    private _isStacked(definition: any, chart: any) {
-        return chart.hasOwnProperty('xAxisSource') ? ((definition.chart.type === 'column') &&
-        (chart.groupings[0] === chart.xAxisSource)) : false;
-    }
 }
