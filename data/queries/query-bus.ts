@@ -49,6 +49,7 @@ export class QueryBus implements IQueryBus {
                 that.errorStr = err;
                 return Promise.resolve(err);
             }).finally(() => {
+                // sometimes when using Apollo Chrome Extension the request object is undefined
                 if ((query.log === true) && activityName !== 'get-all-access-logs' && request) {
                     that.logParams = {
                         timestamp: Date.now(),
