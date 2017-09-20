@@ -1,3 +1,4 @@
+import { dataSourcesGql } from './app/data-sources.gql';
 import { industriesGql } from './master/industries.gql';
 import { spreadsheetGpl } from './master/import-from-spreadsheet';
 // from: https://gist.github.com/icebob/553c1f9f1a9478d828bcb7a08d06790a
@@ -27,6 +28,7 @@ definitions.push(industriesGql);
 definitions.push(searchGql);
 definitions.push(rolesGql);
 definitions.push(permissionGql);
+definitions.push(dataSourcesGql);
 
 let moduleQueries = [];
 let moduleTypes = [];
