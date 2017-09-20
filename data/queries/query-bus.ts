@@ -49,11 +49,11 @@ export class QueryBus implements IQueryBus {
                 that.errorStr = err;
                 return Promise.resolve(err);
             }).finally(() => {
-                if ((query.log === true) && activityName !== 'get-all-access-logs') {
+                if ((query.log === true) && activityName !== 'get-all-access-logs' && request) {
                     that.logParams = {
                         timestamp: Date.now(),
                         accessBy: query.identity.username,
-                        ipAddress: request.connection.remoteAddress,
+                        ipAddress: request.connection ? request.connection.remoteAddress : '',
                         event: query.constructor.name,
                         clientDetails: request.get('User-Agent'),
                         eventType: 'query',
