@@ -63,7 +63,7 @@ export class GetDataSourcesQuery extends QueryBase<IDataSource[]> {
             key => { return { path: key, type: flattenedSchema[key] }; }
         );
 
-        const filteredFiels = fields.filter(field => {
+        const filteredFields = fields.filter(field => {
             const blackListed = BlackListedFieldNames.find(name => name === field.path);
             if (blackListed) {
                 return null;
@@ -71,7 +71,7 @@ export class GetDataSourcesQuery extends QueryBase<IDataSource[]> {
             return field;
         });
 
-        return filteredFiels;
+        return filteredFields;
     }
 
     private _getGroupingsForSchema(schemaName: string) {
