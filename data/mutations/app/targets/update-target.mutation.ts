@@ -30,7 +30,6 @@ export class UpdateTargetMutation extends MutationBase<IMutationResponse> {
 
             targetService.caculateFormat(mutationData, that._ctx)
                 .then((dataTarget) => {
-                    console.log(dataTarget);
                     mutationData.target = dataTarget;
                     that._TargetModel.updateTarget(data.id, mutationData)
                         .then((theTarget) => {

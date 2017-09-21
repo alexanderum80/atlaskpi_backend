@@ -71,31 +71,32 @@ export class TargetService {
         return new Promise((resolve, reject) => {
             this.periodData(data, ctx)
                 .then((response) => {
-                    let _amount = parseFloat(data.amount);
+                    let dataAmount = parseFloat(data.amount);
+                    let responseValue = response[0].value;
                     switch (data.vary) {
 
                         case 'fixed':
-                            return resolve(_amount);
+                            return resolve(dataAmount);
 
                         case 'increase':
                             switch (data.amountBy) {
                                 case 'percent':
-                                    let increasePercentResult = response[0] + (response[0] * (_amount / 100) );
+                                    let increasePercentResult = responseValue + (responseValue * (dataAmount / 100) );
                                     return resolve(increasePercentResult);
 
                                 case 'dollar':
-                                    let increaseDollarResult = response[0] + _amount;
+                                    let increaseDollarResult = responseValue + dataAmount;
                                     return resolve(increaseDollarResult);
 
                             }
                         case 'decrease':
                             switch (data.amountBy) {
                                 case 'percent':
-                                    let decreasePercentResult = response[0] - (response[0] * (_amount / 100) );
+                                    let decreasePercentResult = responseValue - (responseValue * (dataAmount / 100) );
                                     return resolve(decreasePercentResult);
 
                                 case 'dollar':
-                                    let descreaseDollarResult = response[0] - _amount;
+                                    let descreaseDollarResult = responseValue - dataAmount;
                                     return resolve(descreaseDollarResult);
 
                             }
