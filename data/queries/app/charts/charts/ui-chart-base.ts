@@ -75,38 +75,7 @@ export class UIChartBase {
 
             that.groupings = that._getGroupingFields(data);
 
-            that.commonField = _.filter(that.groupings, (v, k) => {
-                return v !== 'frequency';
-            });
-
-            // // checks if target array is empty
-            if (target.length) {
-                let filterTarget = target.filter((val) => {
-                    return val.active !== false;
-                });
-
-                that.targetData = _.map(filterTarget, (v, k) => {
-                    return (<any>v).stackName ? {
-                        _id: {
-                            frequency: moment(v.datepicker).format('YYYY-MM'),
-                            [that.commonField[0]]: (<any>v).name,
-                            stackName: (<any>v).stackName,
-                            targetId: v._id
-                        },
-                        value: (<any>v).target,
-                        targetId: v._id
-                    } : {
-                        _id: {
-                            frequency: moment(v.datepicker).format('YYYY-MM'),
-                            [that.commonField[0]]: (<any>v).name,
-                            targetId: v._id
-                        },
-                        value: (<any>v).target,
-                        targetId: v._id
-                    };
-                });
-                that.frequencyHelper.decomposeFrequencyInfo(that.targetData, metadata.frequency);
-            }
+            this._formatTarget(target, metadata, that.groupings);
 
             that.frequencyHelper.decomposeFrequencyInfo(data, metadata.frequency);
 
@@ -119,13 +88,7 @@ export class UIChartBase {
             that.categories = that._createCategories(data, metadata);
             that.series = that._createSeries(data, metadata, that.categories, that.groupings);
 
-            that.targets = that._injectTargets(that.targetData, metadata, that.categories, that.groupings);
-
-            if (that.targets) {
-                that.targets.forEach((targetObject) => {
-                    that.series.push(targetObject);
-                });
-            }
+            that._injectTargets(that.targetData, metadata, that.categories, that.groupings, that.series);
 
             return;
         }).catch(e => e );
@@ -355,9 +318,49 @@ export class UIChartBase {
         return series;
     }
 
-    private _injectTargets(data: any[], meta: IChartMetadata, categories: IXAxisCategory[], groupings: string[]): any[] {
+    private _formatTarget(target: any[], metadata: any, groupings: any) {
+        this.commonField = _.filter(groupings, (v, k) => {
+            return v !== 'frequency';
+        });
+
+        if (target.length) {
+            let filterTarget = target.filter((val) => {
+                return val.active !== false;
+            });
+
+            this.targetData = _.map(filterTarget, (v, k) => {
+                return (<any>v).stackName ? {
+                    _id: {
+                        frequency: moment(v.datepicker).format('YYYY-MM'),
+                        [this.commonField[0]]: (<any>v).name,
+                        stackName: (<any>v).stackName,
+                        targetId: v._id
+                    },
+                    value: (<any>v).target,
+                    targetId: v._id
+                } : {
+                    _id: {
+                        frequency: moment(v.datepicker).format('YYYY-MM'),
+                        [this.commonField[0]]: (<any>v).name,
+                        targetId: v._id
+                    },
+                    value: (<any>v).target,
+                    targetId: v._id
+                };
+            });
+            this.frequencyHelper.decomposeFrequencyInfo(this.targetData, metadata.frequency);
+        }
+    }
+
+    private _injectTargets(data: any[], meta: IChartMetadata, categories: IXAxisCategory[], groupings: string[], series: any[]) {
         let groupDifference = _.difference(groupings, [meta.xAxisSource]);
-        return this._targetGrouping(data, groupDifference.length, groupDifference[0], meta, categories);
+        this.targets = this._targetGrouping(data, groupDifference.length, groupDifference[0], meta, categories);
+
+        if (this.targets) {
+            this.targets.forEach((target) => {
+                series.push(target);
+            });
+        }
     }
 
     private _targetGrouping(data: any[], length: number, groupings: string, meta: IChartMetadata, categories: IXAxisCategory[]): any {
@@ -422,4 +425,5 @@ export class UIChartBase {
         }
         return series;
     }
+
 }

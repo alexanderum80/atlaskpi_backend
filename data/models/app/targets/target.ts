@@ -58,16 +58,16 @@ TargetSchema.statics.createTarget = function(data: ITarget): Promise<ITargetDocu
     });
 };
 
-TargetSchema.statics.updateTarget = function(id: string, data: ITarget, username: string): Promise<ITargetDocument> {
+TargetSchema.statics.updateTarget = function(id: string, data: ITarget): Promise<ITargetDocument> {
     const that = this;
     return new Promise<ITargetDocument>((resolve, reject) => {
         let constraints = {
             datepicker: { presence: {
                 message: 'Datepicker cannot be empty' }
             },
-            active: { presence: {
-                message: 'Active/Inactive cannot be empty' }
-            },
+            // active: { presence: {
+            //     message: 'Active/Inactive cannot be empty' }
+            // },
             vary: { presence: {
                 messsage: 'Vary cannot be empty' }
             },
@@ -83,11 +83,6 @@ TargetSchema.statics.updateTarget = function(id: string, data: ITarget, username
 
         (<ITargetModel>this).findById(id)
             .then((target) => {
-                if (target.owner !== username) {
-                    reject({ success: false, entity: null, errors: 'Not authorized to update target'});
-                    return;
-                }
-
                 if (data.notify) {
                     target.notify = [];
                 }
@@ -115,15 +110,11 @@ TargetSchema.statics.updateTarget = function(id: string, data: ITarget, username
     });
 };
 
-TargetSchema.statics.removeTarget = function(id: string, username: string): Promise<ITargetDocument> {
+TargetSchema.statics.removeTarget = function(id: string): Promise<ITargetDocument> {
     const that = this;
     return new Promise<ITargetDocument>((resolve, reject) => {
         (<ITargetModel>this).findById(id)
             .then((target) => {
-                if (target.owner !== username) {
-                    reject({ success: false, entity: null, errors: 'Not authorized to remove target'});
-                    return;
-                }
                 target.delete = true;
                 let deleteTarget = target;
                 target.save((err, target: ITargetDocument) => {
@@ -168,6 +159,24 @@ TargetSchema.statics.findAllTargets = function(): Promise<ITargetDocument[]> {
             }).catch((err) => {
                 resolve(<any>{ errors: [ { field: 'target', errors: ['Not found'] } ], data: null });
             });
+    });
+};
+
+TargetSchema.statics.findVisibleTargets = function(chartId: string, userId: string): Promise<ITargetDocument[]> {
+    const that = this;
+    return new Promise<ITargetDocument[]>((resolve, reject) => {
+        (<ITargetModel>this).find(
+            { delete: 0, visible: { $in: [userId] },
+              chart: { $in: [chartId] } }
+        ).then((targets) => {
+            if (targets) {
+                resolve(targets);
+                return;
+            }
+            resolve(<any>{ errors: [ { field: 'target', errors: ['Not found'] } ], data: null });
+        }).catch((err) => {
+            resolve(<any>{ errors: [ { field: 'target', errors: [err] } ], data: null });
+        });
     });
 };
 

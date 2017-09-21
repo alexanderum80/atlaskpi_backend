@@ -1,9 +1,9 @@
-import { IIdentity } from '../../../data';
+import { ExtendedRequest } from '../../../middlewares/extended-request';
 import { IActivity } from '../../../lib/enforcer';
 
 export const findTargetActivity: IActivity = {
     may: 'find-target',
-    when(identity: IIdentity, cb:(err: any, authorized: boolean) => void) {
+    when(request: ExtendedRequest, cb:(err: any, authorized: boolean) => void) {
         cb(null, true);
     }
 }
