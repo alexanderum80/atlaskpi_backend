@@ -1,5 +1,5 @@
 import { IAppConfig } from './configuration';
-import { emailServiceConfig, usersServiceConfig } from './configuration';
+import { emailServiceConfig, usersServiceConfig, appServicesConfig } from './configuration';
 
 /*
 
@@ -44,6 +44,7 @@ import { emailServiceConfig, usersServiceConfig } from './configuration';
 */
 
 export const config: IAppConfig = {
+    impersonateHost: null,
     subdomain: process.env.AKPI_APP_SUBDOMAIN || 'bi.atlaskpi.com',
     token: {
         secret: process.env.AKPI_TOKEN_SECRET || 'jyeu4L?v*FGXmsGAYEXPjp(i',
@@ -58,5 +59,6 @@ export const config: IAppConfig = {
         groupId: process.env.AKPI_MONGODB_GROUP_ID || ''
     },
     emailService: emailServiceConfig,
-    usersService: usersServiceConfig
+    usersService: usersServiceConfig,
+    appServices: appServicesConfig
 };

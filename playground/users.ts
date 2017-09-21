@@ -1,11 +1,47 @@
+import { IUser } from '../data/models/app/users';
 import { EnrollmentNotification, UserForgotPasswordNotification } from '../services';
 import { config } from '../config';
 
 import * as logger from 'winston';
+import * as moment from 'moment';
 import { getContext } from '../data';
 
 export function playWithUsers() {
     getContext('mongodb://localhost/customer2').then((ctx) => {
+        let newUser: IUser = {
+            profile: {
+                firstName: 'Tracee',
+                lastName: 'Lolofie'
+            },
+            password: 'P@$$word2017',
+            username: 'tracee@atlaskpi.com',
+            emails: [{
+                address: 'tracee@atlaskpi.com',
+                verified: true
+            }],
+            services: {
+                email: {
+                    verificationTokens: [{
+                        token: 'asdasdasdad',
+                        email: 'tracee@atlaskpi.com',
+                        when: moment.utc().toDate()
+                    }]
+                },
+                password: {
+                    reset: {
+                        token: 'asdasdasd',
+                        email: 'tracee@atlaskpi.com',
+                        when: moment.utc().toDate()
+                    }
+                }
+            }
+        };
+
+        ctx.User.create(newUser).then(user => {
+            console.log('user created');
+        })
+        .catch(err => console.log(err));
+
         // ctx.User.addEmail('58793095a64a973946d41bfe', 'orlaqp@email.com')
         //     .then((result) => {
         //         if (result.success) {
@@ -60,4 +96,5 @@ export function playWithUsers() {
         //     });
 
     });
-};
+}
+

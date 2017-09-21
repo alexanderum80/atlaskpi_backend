@@ -1,3 +1,5 @@
+import { getRequestHostname } from '../lib/utils/helpers';
+import { ILogDetails } from '../controllers/log-controller';
 import * as url from 'url';
 import * as express from 'express';
 import { Request, Response } from 'express';
@@ -18,13 +20,20 @@ log.post('/log', function user(req: ExtendedRequest, res: Response) {
         return res.status(401).json({ error: 'Invalid token' }).end();
     }
 
-    let timestamp = new Date(req.headers['timestamp']);
-    let clientId = req.headers['user-agent'];
-    let level = req.body.level;
-    let message = req.body.message;
+    const log = new LogController(req.appContext);
 
-    let log = new LogController(req.appContext);
-    log.processLogEntry(clientId, timestamp, level, message).then((entry) => {
+    const logDetails: ILogDetails = {
+        timestamp:  new Date(req.headers['timestamp']),
+        ip: req.headers['x-forwarded-for'] || req.connection.remoteAddress,
+        hostname: getRequestHostname(req),
+        clientId: req.headers['user-agent'],
+        clientDetails: req.headers['client-details'],
+
+        level: Number(req.body.level),
+        message: req.body.message
+    };
+
+    log.processLogEntry(logDetails).then(() => {
         logger.debug('log entry processed sucessfully');
         res.status(200).send();
         return;

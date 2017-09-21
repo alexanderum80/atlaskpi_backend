@@ -167,11 +167,7 @@ accountSchema.statics.findAccountByHostname = function(hostname: string): Promis
                 return;
             }
 
-            if (account) {
-                resolve(account);
-            } else {
-                throw { code: 404, message: 'Account not found' };
-            }
+            resolve(account);
         });
     });
 

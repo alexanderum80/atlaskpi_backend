@@ -25,11 +25,11 @@ export const dashboardGql: GraphqlDefinition = {
     resolvers: {
         Query: {
             dashboards(root: any, args: any, ctx: IGraphqlContext) {
-                let query = new GetDashboardsQuery(ctx.req.identity, ctx.req.appContext);
+                let query = new GetDashboardsQuery(ctx.req.identity, ctx.req.appContext, ctx.req.user);
                 return ctx.queryBus.run('get-dashboards', query, args, ctx.req).catch(e => console.error(e));
             },
             dashboard(root: any, args: any, ctx: IGraphqlContext) {
-                let query = new GetDashboardQuery(ctx.req.identity, ctx.req.appContext);
+                let query = new GetDashboardQuery(ctx.req.identity, ctx.req.appContext, ctx.req.user);
                 return ctx.queryBus.run('get-dashboard', query, args, ctx.req).catch(e => console.error(e));
             }
         },

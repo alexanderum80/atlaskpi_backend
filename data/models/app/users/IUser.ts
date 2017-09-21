@@ -1,3 +1,4 @@
+import { IDatabaseInfo } from '../../master/accounts';
 import { IRoleList } from '../../../../lib/rbac/models';
 import { IAppConfig } from '../../../../configuration/config-models';
 import { IIdentity } from '../identity';
@@ -34,7 +35,7 @@ export interface IUserEmailedToken extends IEmbeddedDocument {
     token: string;
     email: string;
     when: Date;
-};
+}
 
 export interface IUserServices {
     loginTokens?: IUserLoginToken[];
@@ -64,6 +65,12 @@ export interface ITokenInfo {
     clientDetails: string;
 }
 
+export interface IMobileDevice {
+    name: string;
+    network: string;
+    token: string;
+}
+
 export interface IUser {
     username: string;
     password?: string;
@@ -72,6 +79,7 @@ export interface IUser {
     profile: IUserProfile;
     roles?: IRoleDocument[];
     tokens?: ITokenInfo[];
+    mobileDevices?: IMobileDevice[];
 }
 
 // declare interface to mix account and mongo docuemnt properties/methods
@@ -88,7 +96,7 @@ export interface IUserDocument extends IUser, mongoose.Document {
     hasEmail(email): Boolean;
     addResetPasswordToken(email: string): void;
     addEnrollmentEmail(email: string): void;
-    generateToken(dbUri: string, username: string, password: string, ip: string, clientId: string, clientDetails: string): Promise<IUserToken>;
+    generateToken(accountName: string, username: string, password: string, ip: string, clientId: string, clientDetails: string): Promise<IUserToken>;
 }
 
 export interface ITokenVerification {
@@ -258,4 +266,12 @@ export interface IUserModel extends mongoose.Model<IUserDocument> {
      * Find all users
      */
     findAllUsers(filter: string): Promise<IQueryResponse<IUserDocument[]>>;
+    /**
+     * Adds a new mobile device to a user
+     */
+    addMobileDevice(id: string, info: IMobileDevice): Promise<boolean>;
+    /**
+     * Remove a mobile device from a user
+     */
+    removeMobileDevice(network: string, deviceToken: string): Promise<boolean>;
 }

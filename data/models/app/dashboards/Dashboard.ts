@@ -9,7 +9,9 @@ let Schema = mongoose.Schema;
 let DashboardSchema = new Schema({
     name: String,
     group: String,
-    charts: [{ type: Schema.Types.String, ref: 'Chart' }]
+    charts: [{ type: Schema.Types.String, ref: 'Chart' }],
+    owner: { type: Schema.Types.String, ref: 'User' },
+    users: [{ type: Schema.Types.String, ref: 'User' }]
 });
 
 // DashboardSchema.methods.

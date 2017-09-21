@@ -5,7 +5,7 @@ import * as Promise from 'bluebird';
 import { IQuery } from '../..';
 import { IIdentity } from '../../../';
 
-export class GetPermissionsQuery implements IQueryResponse<IPermissionInfo[]> {
+export class GetPermissionsQuery {
     constructor(public identity: IIdentity, private _IPermissionModel: IPermissionModel) {}
 
     run(data: any): Promise<IPermissionInfo[]> {

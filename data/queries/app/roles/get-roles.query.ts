@@ -5,7 +5,7 @@ import * as Promise from 'bluebird';
 import { IQuery } from '../..';
 import { IIdentity } from '../../../';
 
-export class GetRolesQuery implements IQueryResponse<IRoleList[]> {
+export class GetRolesQuery {
     constructor(public identity: IIdentity, private _IRoleModel: IRoleModel) {}
 
     run(data: any): Promise<IRoleList[]> {
