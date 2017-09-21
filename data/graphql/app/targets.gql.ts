@@ -65,7 +65,7 @@ export const targetGql: GraphqlDefinition = {
         mutations: `
             createTarget(data: TargetInput): TargetResult
             updateTarget(id: String, data: TargetInput): TargetResult
-            removeTarget(id: String): TargetResult
+            removeTarget(id: String, owner: String): TargetResult
         `
     },
     resolvers: {

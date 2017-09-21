@@ -1,9 +1,10 @@
-import { IIdentity } from '../../../data/models/app/identity';
+import { ExtendedRequest } from '../../../middlewares/extended-request';
 import { IActivity } from '../../../lib/enforcer';
 
 export const updateTargetActivity: IActivity = {
     may: 'update-target',
-    when(identity: IIdentity, cb: (err: any, authorized: boolean) => void) {
-        cb(null, true);
+    when(request: ExtendedRequest, cb: (err: any, authorized: boolean) => void) {
+        const checkAllowed = request.body.variables.data.owner === request.identity.username;
+        cb(null, checkAllowed);
     }
-}
+};

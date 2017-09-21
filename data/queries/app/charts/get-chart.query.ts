@@ -1,3 +1,5 @@
+import { IUserDocument } from '../../../models/app/users/index';
+import { TargetService } from '../../../services/targets/target.service';
 import { QueryBase } from '../../query-base';
 import { IChartMetadata } from './charts/chart-metadata';
 import { FrequencyTable } from '../../../models/common/frequency-enum';
@@ -16,7 +18,7 @@ import * as logger from 'winston';
 
 export class GetChartQuery extends QueryBase<string> {
 
-    constructor(public identity: IIdentity, private _ctx: IAppModels) {
+    constructor(public identity: IIdentity, private _ctx: IAppModels, private _user?: IUserDocument) {
         super(identity);
     }
 
@@ -44,58 +46,34 @@ export class GetChartQuery extends QueryBase<string> {
                         return reject(null);
                     }
 
-                    let targetData;
-                    let promises = [];
-                    let users = this._ctx.User.findAllUsers('')
-                        .then((response) => {
-                            return response;
+                let targetService = new TargetService(this._ctx.User, this._ctx.Target, this._ctx.Chart);
+
+                let uiChart = ChartFactory.getInstance(chart);
+                let kpi = KpiFactory.getInstance(chart.kpis[0], that._ctx);
+                let groupings = getGroupingMetadata(chart, data.input ? data.input.groupings : []);
+
+                let frequency = FrequencyTable[(data.input && data.input.frequency) ? data.input.frequency : chart.frequency];
+                let definitionParameters: IChartMetadata = {
+                    filter: (data.input && data.input.filter)  ? data.input.filter : chart.filter,
+                    frequency: frequency,
+                    groupings: groupings,
+                    xAxisSource: (data.input && data.input.xAxisSource) ? data.input.xAxisSource : chart.xAxisSource
+                };
+
+                if (data.input && data.input.dateRange) {
+                    definitionParameters.dateRange = data.input.dateRange;
+                }
+                targetService.getTargets(data.id, that._user._id)
+                    .then((resp) => {
+                        uiChart.getDefinition(kpi, definitionParameters, resp).then((definition) => {
+                            logger.debug('chart definition received for id: ' + data.id);
+                            chart.chartDefinition = definition;
+                            resolve(JSON.stringify(chart));
+                        }).catch(e => {
+                            console.error(e);
+                            reject(e);
                         });
-
-                    Promise.all(users)
-                        .then((user) => {
-                            user.map((val) => {
-                                targetData = this._ctx.Target.find(
-                                    { delete: 0, visible: { $in: [val._id] },
-                                    chart: { $in: [data.id] } }
-                                )
-                                .then((response) => {
-                                    return response;
-                                });
-                            promises.push(targetData);
-
-                            let uiChart = ChartFactory.getInstance(chart);
-                            let kpi = KpiFactory.getInstance(chart.kpis[0], that._ctx);
-                            let groupings = getGroupingMetadata(chart, data.input ? data.input.groupings : []);
-
-                            let frequency = FrequencyTable[(data.input && data.input.frequency) ? data.input.frequency : chart.frequency];
-                            let definitionParameters: IChartMetadata = {
-                                filter: (data.input && data.input.filter)  ? data.input.filter : chart.filter,
-                                frequency: frequency,
-                                groupings: groupings,
-                                xAxisSource: (data.input && data.input.xAxisSource) ? data.input.xAxisSource : chart.xAxisSource
-                            };
-
-                            if (data.input && data.input.dateRange) {
-                                definitionParameters.dateRange = data.input.dateRange;
-                            }
-
-
-                        Promise.all(promises)
-                            .then((resp) => {
-                                let targetMetatdata = resp.length ? resp[0] : null;
-
-                            uiChart.getDefinition(kpi, definitionParameters, targetMetatdata).then((definition) => {
-                                logger.debug('chart definition received for id: ' + data.id);
-                                chart.chartDefinition = definition;
-                                resolve(JSON.stringify(chart));
-                            }).catch(e => {
-                                console.error(e);
-                                reject(e);
-                            });
-
-                        });
-                    });
-                });
+               });
             });
         });
     }

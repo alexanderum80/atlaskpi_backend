@@ -1,11 +1,12 @@
 import { IPermission } from '../rbac';
 import * as _ from 'lodash';
 import { IIdentity } from '../../data/models';
+import { ExtendedRequest } from '../../middlewares/extended-request';
 
 export interface IActivity {
     may: String;
     hasPermissions?: IPermission[];
-    when?(identity: IIdentity, cb: (err: any, authorized: boolean) => void);
+    when?(request: ExtendedRequest, cb: (err: any, authorized: boolean) => void);
 }
 
 export class ActivityCollection {

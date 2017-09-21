@@ -20,7 +20,8 @@ export interface ITargetDocument extends ITarget, mongoose.Document {}
 export interface ITargetModel extends mongoose.Model<ITargetDocument> {
     findTarget(id: string): Promise<ITargetDocument>;
     findAllTargets(): Promise<ITargetDocument[]>;
+    findVisibleTargets(chartId: string, userId: string): Promise<ITargetDocument[]>;
     createTarget(data: ITarget): Promise<ITargetDocument>;
-    updateTarget(id: string, data: ITarget, username: string): Promise<ITargetDocument>;
-    removeTarget(id: string, username: string): Promise<ITargetDocument>;
+    updateTarget(id: string, data: ITarget): Promise<ITargetDocument>;
+    removeTarget(id: string): Promise<ITargetDocument>;
 }

@@ -33,7 +33,7 @@ export class MutationBus implements IMutationBus {
     run<T>(activityName: string, req: ExtendedRequest, mutation: IMutation<T>, data: any): Promise<any> {
         const that = this;
         // chack activity authorization
-        return this.enforcer.authorizationTo(activityName, mutation.identity)
+        return this.enforcer.authorizationTo(activityName, req)
             .then((authorized) => {
                 that.authorizedValue = authorized;
                 if (!authorized) {
