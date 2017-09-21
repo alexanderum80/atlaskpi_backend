@@ -7,21 +7,21 @@ import { IAccessLogEntry } from './';
 
 let Schema = mongoose.Schema;
 
-let ResultSchema = new Schema({
-    authorized: Boolean,
-    status: Boolean,
-    details: String
-});
+let ResultSchema = {
+    authorized: Schema.Types.Boolean,
+    status: Schema.Types.Boolean,
+    details: Schema.Types.String
+};
 
 let AccessLogSchema = new Schema({
-    timestamp: Date,
-    accessBy: String,
-    ipAddress: String,
-    clientDetails: String,
-    eventType: String,
-    event: String,
-    payload: String,
-    results: ResultSchema
+    timestamp: Schema.Types.Date,
+    accessBy: Schema.Types.String,
+    ipAddress: Schema.Types.String,
+    clientDetails: Schema.Types.String,
+    eventType: Schema.Types.String,
+    event: Schema.Types.String,
+    payload: Schema.Types.String,
+    result: ResultSchema
 });
 
 AccessLogSchema.statics.createLog = function(details: IAccessLogEntry): Promise<IMutationResponse> {

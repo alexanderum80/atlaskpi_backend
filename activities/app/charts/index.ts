@@ -6,3 +6,4 @@ export * from './list-charts.activity';
 export * from './delete-chart.activity';
 export * from './update-chart.activity';
 export * from './drilldown.activity';
+export * from './preview-chart.activity';

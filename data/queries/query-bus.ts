@@ -47,12 +47,12 @@ export class QueryBus implements IQueryBus {
             })
             .catch((err) => {
                 that.errorStr = err;
-                return Promise.reject(err);
+                return Promise.resolve(err);
             }).finally(() => {
                 if ((query.log === true) && activityName !== 'get-all-access-logs') {
                     that.logParams = {
                         timestamp: Date.now(),
-                        accessBy: query.identity.firstName + ' ' + query.identity.lastName,
+                        accessBy: query.identity.username,
                         ipAddress: request.connection.remoteAddress,
                         event: query.constructor.name,
                         clientDetails: request.get('User-Agent'),
@@ -67,8 +67,7 @@ export class QueryBus implements IQueryBus {
                     let accessLog = new CreateAccessLogMutation(query.identity, request.appContext.AccessModel);
                     accessLog.run(that.logParams);
                 }
-
-            })
+            });
 
     }
 }

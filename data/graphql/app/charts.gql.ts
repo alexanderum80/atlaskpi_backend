@@ -1,3 +1,4 @@
+import { PreviewChartsQuery } from '../../queries/app/charts/preview-chart.query';
 import { DrillDownQuery } from '../../queries/app/charts/drilldown-query';
 import { IChartDateRange, IDateRange } from '../../models/common/date-range';
 import { IChartDocument } from '../../models/app/charts';
@@ -116,16 +117,8 @@ export const chartsGql: GraphqlDefinition = {
             },
 
             previewChart(root: any, args, ctx: IGraphqlContext) {
-                let query = new GetChartQuery(ctx.req.identity, ctx.req.appContext);
-                return ctx.req.appContext.KPI.findOne({ _id: args.input.kpis[0]})
-                .then(kpi => {
-                    // GetChartQuery is expecting a the input parameter as chart
-                    args.chart = args.input;
-                    args.chart.chartDefinition = JSON.parse(args.input.chartDefinition);
-                    args.chart.kpis[0] = kpi;
-                    return ctx.queryBus.run('get-chart', query, args, ctx.req);
-                })
-                .catch(e => { return ctx.queryBus.run('get-chart', query, args); });
+                let query = new PreviewChartsQuery(ctx.req.identity, ctx);
+                return ctx.queryBus.run('preview-chart', query, args, ctx.req);
             },
 
             listCharts(root: any, args, ctx: IGraphqlContext) {
