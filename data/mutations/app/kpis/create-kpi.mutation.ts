@@ -2,7 +2,6 @@ import { MutationBase } from '../../mutation-base';
 import { IMutationResponse } from '../../../models/common';
 import * as Promise from 'bluebird';
 import { IIdentity, IKPIModel } from '../../..';
-import { IMutation, IValidationResult } from '../..';
 
 export class CreateKPIMutation extends MutationBase<IMutationResponse> {
 
@@ -15,6 +14,14 @@ export class CreateKPIMutation extends MutationBase<IMutationResponse> {
     // audit = true;
 
     run(data): Promise<IMutationResponse> {
-        return this._KPIModel.createKPI(data.data);
+        const that = this;
+
+        return new Promise<IMutationResponse>((resolve, reject) => {
+            that._KPIModel.createKPI(data.input).then((kpiDocument) => {
+                resolve({ entity: kpiDocument, success: true });
+                return;
+            })
+            .catch(err => resolve({ success: false, errors: [ { field: 'kpi', errors: [err]}]}));
+        });
     }
 }
