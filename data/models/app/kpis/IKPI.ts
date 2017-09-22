@@ -3,6 +3,44 @@ import { IChartDateRange, IPagedQueryResult, IPaginationDetails, IQueryResponse 
 import * as mongoose from 'mongoose';
 import * as Promise from 'bluebird';
 
+export enum KPITypeEnum {
+    Simple,
+    Complex,
+    Compound
+}
+
+export const KPITypeTable = {
+    simple: KPITypeEnum.Simple,
+    complex: KPITypeEnum.Complex,
+    compound: KPITypeEnum.Compound,
+};
+
+export function getKPITypePropName(type: KPITypeEnum) {
+    switch (type) {
+        case KPITypeEnum.Simple:
+            return 'simple';
+        case KPITypeEnum.Complex:
+            return 'complex';
+        case KPITypeEnum.Compound:
+            return 'compound';
+    }
+}
+
+export interface IKPIFilter {
+    order?: number;
+    field: string;
+    operator: string;
+    criteria: string;
+}
+
+export interface IKPISimpleDefinition {
+    dataSource: string;
+    function: string;
+    field: string;
+    operator?: string;
+    value?: string;
+}
+
 export interface IKPI {
     code: string;
     name: string;
@@ -15,9 +53,9 @@ export interface IKPI {
     axisSelection?: string;
     emptyValueReplacement?: string;
     composition?: string;
+    type?: string;
+    expression?: string;
 }
-
-export interface IKPIDetails extends IKPI { }
 
 export interface IKPIDocument extends IKPI, mongoose.Document { }
 
@@ -31,12 +69,12 @@ export interface IKPIModel extends mongoose.Model<IKPIDocument> {
     /**
      * Create a KPI providing all its elements
      */
-    createKPI(data: IKPIDetails): Promise<IMutationResponse>;
+    createKPI(data: IKPI): Promise<IMutationResponse>;
 
     /**
      * Update a KPI by its id
      */
-    updateKPI(id: string, data: IKPIDetails): Promise<IMutationResponse>;
+    updateKPI(id: string, data: IKPI): Promise<IMutationResponse>;
 
      /**
      * Remove a KPI by its id

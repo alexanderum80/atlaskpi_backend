@@ -4,7 +4,7 @@
         "title": "Total sales by day by location",
         "subtitle": "Show total sales grouped by day",
         "group": "Finance",
-        "kpis": ["1"],
+        "kpis": ["59c3bd0c3da88e92a1703fd6"],
         "dateRange": {
             "predefined": "last month"
         },
@@ -23,7 +23,7 @@
         "title": "Total Revenue by business unit",
         "subtitle": "Show the grand total of sales by business unit",
         "group": "Finance",
-        "kpis": ["1"],
+        "kpis": ["59c3bd0c3da88e92a1703fd6"],
         "dateRange": {
             "predefined": "this year"
         },
@@ -42,7 +42,7 @@
         "title": "Total Revenue by business unit",
         "subtitle": "Show the grand total of sales by business unit",
         "group": "Finance",
-        "kpis": ["1"],
+        "kpis": ["59c3bd0c3da88e92a1703fd6"],
         "dateRange": {
             "predefined": "this year"
         },
@@ -63,7 +63,7 @@
         "title": "Total revenue over time",
         "subtitle": "Total revenue of all times grouped by busines unit (revenue source)",
         "group": "Finance",
-        "kpis": ["1"],
+        "kpis": ["59c3bd0c3da88e92a1703fd6"],
         "dateRange": {
             "predefined": "all times"
         },
@@ -82,7 +82,7 @@
         "title": "Net Collected Revenue per Full Time Employee by location",
         "subtitle": "Revenue collected for full time employees grouped by location",
         "group": "Finance",
-        "kpis": ["1"],
+        "kpis": ["59c3bd0c3da88e92a1703fd6"],
         "dateRange": {
             "predefined": "this year"
         },
@@ -101,7 +101,7 @@
         "title": "Total Expense by business unit",
         "subtitle": "Expenses grouped by business unit",
         "group": "Finance",
-        "kpis": ["2"],
+        "kpis": ["59c3bdd43da88e92a1703fd7"],
         "dateRange": {
             "predefined": "this year"
         },
@@ -116,7 +116,7 @@
         "title": "Ebitda by business unit",
         "subtitle": "Ebitda by business unit",
         "group": "Finance",
-        "kpis": ["30"],
+        "kpis": ["59c3bdfa3da88e92a1703fda"],
         "dateRange": {
             "predefined": "this year"
         },
@@ -131,7 +131,7 @@
         "title": "Total Expenses Over Time by business unit",
         "subtitle": "Total Expenses Over Time by business unit",
         "group": "Finance",
-        "kpis": ["2"],
+        "kpis": ["59c3bdd43da88e92a1703fd7"],
         "dateRange": {
             "predefined": "last 2 years"
         },
@@ -146,7 +146,7 @@
         "title": "Revenue By Service Type",
         "subtitle": "Revenue By Service Type",
         "group": "Finance",
-        "kpis": ["1"],
+        "kpis": ["59c3bd0c3da88e92a1703fd6"],
         "dateRange": {
             "predefined": "this quarter"
         },
@@ -163,7 +163,7 @@
         "title": "Sales By Product",
         "subtitle": "Sales By Product",
         "group": "Finance",
-        "kpis": ["1"],
+        "kpis": ["59c3bd0c3da88e92a1703fd6"],
         "dateRange": {
             "predefined": "this month"
         },
@@ -183,7 +183,7 @@
         "title": "Retail Sales",
         "subtitle": "Retail Sales",
         "group": "Finance",
-        "kpis": ["1"],
+        "kpis": ["59c3bd0c3da88e92a1703fd6"],
         "dateRange": {
             "predefined": "this year"
         },
@@ -202,7 +202,7 @@
         "title": "Expense By Category",
         "subtitle": "Expense By Category",
         "group": "Finance",
-        "kpis": ["2"],
+        "kpis": ["59c3bdd43da88e92a1703fd7"],
         "filter": {
             "top": {
                 "field": "expense",
@@ -221,7 +221,7 @@
         "title": "Expense Ratio",
         "subtitle": "Expense Ratio",
         "group": "Finance",
-        "kpis": ["31"],
+        "kpis": ["59c3be043da88e92a1703fdb"],
         "dateRange": {
             "predefined": "this year"
         },
@@ -234,7 +234,7 @@
         "title": "Payroll Expense Ratio",
         "subtitle": "Payroll Expense Ratio",
         "group": "Finance",
-        "kpis": ["32"],
+        "kpis": ["59c3be0e3da88e92a1703fdc"],
         "dateRange": {
             "predefined": "last 2 years"
         },

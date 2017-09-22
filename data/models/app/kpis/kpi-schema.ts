@@ -1,3 +1,4 @@
+import { KPIExpressionHelper } from './kpi-expression.helper';
 import { IPagedQueryResult, PaginationDetailsDefault, Paginator } from '../../common/pagination';
 import {
     IMutationResponse,
@@ -10,7 +11,7 @@ import mongoose = require('mongoose');
 import * as Promise from 'bluebird';
 import validate = require('validate.js');
 // import validate from 'validate.js';
-import { IKPI, IKPIDocument, IKPIModel, IKPIDetails } from '.';
+import { IKPI, IKPIDocument, IKPIModel } from '.';
 
 
 let Schema = mongoose.Schema;
@@ -24,7 +25,6 @@ let ChartDateRangeSchema = {
 };
 
 let KPISchema = new Schema({
-    _id: String,
     code: String,
     name: String!,
     baseKpi: String,
@@ -36,34 +36,35 @@ let KPISchema = new Schema({
     frequency: String,
     axisSelection: String,
     emptyValueReplacement: String,
-    composition: String
+    expression: String,
+    type: String,
 });
 
-KPISchema.statics.createKPI = function(data: IKPIDetails): Promise<IMutationResponse> {
+KPISchema.statics.createKPI = function(input: IKPI): Promise<IKPIDocument> {
     let that = this;
 
-
-    return new Promise<IMutationResponse>((resolve, reject) => {
+    return new Promise<IKPIDocument>((resolve, reject) => {
         let constraints = {
             name: { presence: { message: '^cannot be blank' }},
-            formula: { presence: { message: '^cannot be blank' }},
-        };
-        let errors = (<any>validate)((<any>data), constraints, {fullMessages: false});
-        // let errors = (<any>validate)((<any>details).details, constraints, {fullMessages: false});
-        if (errors) {
-            resolve(MutationResponse.fromValidationErrors(errors));
-            return;
-        }
-        let newKPI: IKPI = {
-                ...data
+            rawExpression: { presence: { message: '^cannot be blank' } },
+            type: { presence: { message: '^cannot be blank' } }
         };
 
-        that.create(newKPI, (err, kpi: IKPI) => {
+        let errors = (<any>validate)((<any>input), constraints, {fullMessages: false});
+        if (errors) {
+            reject(errors);
+            return;
+        }
+
+        let t = KPIExpressionHelper.ConvertToExpression(input.type, input.expression);
+
+
+        that.create(input, (err, kpi: IKPIDocument) => {
             if (err) {
                 reject({ message: 'There was an error creating the kpi', error: err });
                 return;
             }
-            resolve({ entity: kpi });
+            resolve(kpi);
         });
     });
 };
@@ -160,8 +161,6 @@ KPISchema.statics.removeKPI = function(id: string): Promise<IMutationResponse> {
     });
 
 };
-
-
 
 KPISchema.statics.getAllKPIs = function(details: IPaginationDetails): Promise<IPagedQueryResult<IKPIDocument>> {
     let paginator = new Paginator<IKPIDocument>(this, ['name']);

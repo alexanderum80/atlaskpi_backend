@@ -17,12 +17,16 @@ export const kpisGql: GraphqlDefinition = {
     name: 'kpis',
     schema: {
         types: `
-            input KPIDetails {
+            input KPIAttributesInput {
                 name: String!
-                description: String
-                formula: String!
                 group: String
-                emptyValueReplacement: String
+                description: String
+                dateRange: ChartDateRangeInput
+                frequency: String
+                groupings: [String]
+                type: String
+                expression: String
+                filter: String
             },
             type KPIResult {
                 kpi: KPI
@@ -41,7 +45,8 @@ export const kpisGql: GraphqlDefinition = {
                 frequency: String
                 axisSelection: String
                 emptyValueReplacement: String
-                composition: String
+                expression: String
+                type: String
             }
             type KPIPagedQueryResult {
                 pagination: PaginationInfo
@@ -53,8 +58,8 @@ export const kpisGql: GraphqlDefinition = {
             getAllKPIs(details: PaginationDetails): KPIPagedQueryResult
         `,
         mutations: `
-            createKPI(data: KPIDetails): KPIResult
-            updateKPI(id: String, data: KPIDetails): KPIResult
+            createKPI(input: KPIAttributesInput): KPIResult
+            updateKPI(id: String, input: KPIAttributesInput): KPIResult
             removeKPI(id: String): KPIResult
         `,
     },
