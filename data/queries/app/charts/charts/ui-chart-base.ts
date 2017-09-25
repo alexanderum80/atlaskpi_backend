@@ -144,7 +144,8 @@ export class UIChartBase {
         // return chartDateRange.custom && chartDateRange.custom.from ?
         //     { from: new Date(chartDateRange.custom.from), to: new Date(chartDateRange.custom.to) }
         //     : parsePredifinedDate(chartDateRange.predefined);
-
+        console.log('CHECKING DATE RANGE');
+        console.log(chartDateRange);
         if (chartDateRange.custom && Array.isArray(chartDateRange.custom)) {
             return (<any>chartDateRange.custom).map((rangeDate) => {
                 return { from: new Date(rangeDate.from), to: new Date(rangeDate.to) };
