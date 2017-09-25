@@ -22,7 +22,7 @@ export const chartsGql: GraphqlDefinition = {
                 dateRange: ChartDateRangeInput!
                 frequency: String
                 groupings: [String]!
-                xAxisSource: String,
+                xAxisSource: String
             }
             input ChartAttributesInput {
                 title: String!
@@ -40,14 +40,14 @@ export const chartsGql: GraphqlDefinition = {
                 to: String
             }
             input DrillDateRange {
-                custom: DrillDateInput
+                custom: [DrillDateInput]
                 predefined: String
             }
             input DrillDownData {
                 dateRange: DrillDateRange
                 frequency: String
-                kpis: [String]
-                chartDefinition: String
+                groupings: [String]!
+                xAxisSource: String
             }
             type ChartEntityResponse {
                 _id: String
@@ -128,7 +128,7 @@ export const chartsGql: GraphqlDefinition = {
 
             drillDown(root: any, args, ctx: IGraphqlContext) {
                 let query = new DrillDownQuery(ctx.req.identity, ctx.req.appContext);
-                return ctx.queryBus.run('drill-down', query, args);
+                return ctx.queryBus.run('drill-down', query, args, ctx.req);
             }
         },
         Mutation: {
