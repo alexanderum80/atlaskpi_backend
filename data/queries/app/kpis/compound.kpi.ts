@@ -24,7 +24,7 @@ export class CompositeKpi implements IKpiBase {
     constructor(private _kpi: IKPIDocument, private ctx: IAppModels) { }
 
     getData(): Promise<any> {
-        const exp: jsep.IExpression = jsep(this._kpi.composition);
+        const exp: jsep.IExpression = jsep(this._kpi.expression);
         return this._processExpression(exp);
     }
 

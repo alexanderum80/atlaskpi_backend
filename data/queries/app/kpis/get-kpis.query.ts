@@ -1,3 +1,4 @@
+import { KPIExpressionHelper } from '../../../models/app/kpis/kpi-expression.helper';
 import { QueryBase } from '../../query-base';
 import { IKPIModel, IKPI } from '../../../models/app/kpis';
 import * as Promise from 'bluebird';
@@ -22,6 +23,9 @@ export class GetKpisQuery extends QueryBase<IKPI[]> {
              return that._ctx.KPI
                    .find()
                    .then((kpis) => {
+                       kpis.forEach(k => {
+                           k.expression = KPIExpressionHelper.PrepareExpressionField(k.type, k.expression);
+                       });
                        resolve(kpis);
                    })
                    .catch(e => reject(e));
