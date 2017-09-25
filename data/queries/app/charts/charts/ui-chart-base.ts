@@ -141,9 +141,19 @@ export class UIChartBase {
      * @param chartDateRange data range that includes a predefined or a custom data range
      */
     private _processChartDateRange(chartDateRange: IChartDateRange): IDateRange {
-        return chartDateRange.custom && chartDateRange.custom.from ?
-            { from: new Date(chartDateRange.custom.from), to: new Date(chartDateRange.custom.to) }
-            : parsePredifinedDate(chartDateRange.predefined);
+        // return chartDateRange.custom && chartDateRange.custom.from ?
+        //     { from: new Date(chartDateRange.custom.from), to: new Date(chartDateRange.custom.to) }
+        //     : parsePredifinedDate(chartDateRange.predefined);
+
+        if (chartDateRange.custom && Array.isArray(chartDateRange.custom)) {
+            return (<any>chartDateRange.custom).map((rangeDate) => {
+                return { from: new Date(rangeDate.from), to: new Date(rangeDate.to) };
+            });
+        } else {
+            return chartDateRange.custom && chartDateRange.custom.from ?
+                { from: new Date(chartDateRange.custom.from), to: new Date(chartDateRange.custom.to) }
+                : parsePredifinedDate(chartDateRange.predefined);
+        }
     }
 
     /**
