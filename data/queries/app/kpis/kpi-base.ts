@@ -110,9 +110,23 @@ export class KpiBase {
             throw 'KpiBase#_injectDataRange: Cannot inject date range because a dateRange/$match stage could not be found';
         }
 
-        // apply date range
-        if (dateRange) {
-            matchStage.$match[field] = { '$gte': dateRange.from, '$lte': dateRange.to };
+        if (Array.isArray(dateRange) && dateRange.length) {
+            dateRange.map((dateParams) => {
+                matchStage.$match = {
+                    $or: [
+                        {
+                            [field]: { '$gte': dateParams.from, '$lte': dateParams.to }
+                        }
+                    ]
+                };
+            });
+
+        } else {
+            // apply date range
+            if (dateRange) {
+                matchStage.$match[field] = { '$gte': dateRange.from, '$lte': dateRange.to };
+
+            }
         }
     }
 
