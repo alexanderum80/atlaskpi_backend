@@ -1,3 +1,4 @@
+import { KPIFilterHelper } from './../../../models/app/kpis/kpi-filter.helper';
 import { KPIExpressionHelper } from '../../../models/app/kpis/kpi-expression.helper';
 import { QueryBase } from '../../query-base';
 import { IKPIModel, IKPI } from '../../../models/app/kpis';
@@ -25,6 +26,7 @@ export class GetKpisQuery extends QueryBase<IKPI[]> {
                    .then((kpis) => {
                        kpis.forEach(k => {
                            k.expression = KPIExpressionHelper.PrepareExpressionField(k.type, k.expression);
+                           k.filter = KPIFilterHelper.PrepareFilterField(k.type, k.filter);
                        });
                        resolve(kpis);
                    })
