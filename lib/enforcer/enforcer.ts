@@ -32,7 +32,7 @@ export class Enforcer implements IEnforcer {
             logger.debug('Checking allow authorization');
             // first call the global allow and deny callbacks
             if (this._config.allow) {
-                this._config.allow(request.identity, activityName, (err, authorized) => {
+                this._config.allow(request.user, activityName, (err, authorized) => {
                     if (err) {
                         throw err;
                     }
@@ -45,7 +45,7 @@ export class Enforcer implements IEnforcer {
 
             logger.debug('Checking deny authorization');
             if (this._config.deny) {
-                this._config.deny(request.identity, activityName, (err, deny) => {
+                this._config.deny(request.user, activityName, (err, deny) => {
                     if (err) {
                         throw err;
                     }
@@ -86,7 +86,7 @@ export class Enforcer implements IEnforcer {
                 let hasPermission = true;
 
                 activity.hasPermissions.forEach((permission) => {
-                    let permissionFound = _.find(request.identity.permissions, {
+                    let permissionFound = _.find((<any>request).user.permissions, {
                         subject: permission.subject,
                         action: permission.action,
                     });

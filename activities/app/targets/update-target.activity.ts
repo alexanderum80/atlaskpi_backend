@@ -4,7 +4,7 @@ import { IActivity } from '../../../lib/enforcer';
 export const updateTargetActivity: IActivity = {
     may: 'update-target',
     when(request: ExtendedRequest, cb: (err: any, authorized: boolean) => void) {
-        const checkAllowed = request.body.variables.data.owner === request.identity.username;
+        const checkAllowed = request.body.variables.data.owner === request.user.username;
         cb(null, checkAllowed);
     }
 };
