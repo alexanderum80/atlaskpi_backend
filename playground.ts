@@ -107,5 +107,8 @@ import * as mongoose from 'mongoose';
 //  }, config);
 
 
-let a = KPIExpressionHelper.DecomposeExpression(KPITypeEnum.Simple, 'SUM(sales.product.paid) * 0.1');
+let a = KPIExpressionHelper.DecomposeExpression(KPITypeEnum.Simple, 'sum(expenses.concept.amout) - 0.15');
 console.dir(a);
+
+let b = KPIExpressionHelper.ComposeExpression(KPITypeEnum.Simple, JSON.stringify(a));
+console.dir(b);

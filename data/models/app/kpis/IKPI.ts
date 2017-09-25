@@ -69,12 +69,12 @@ export interface IKPIModel extends mongoose.Model<IKPIDocument> {
     /**
      * Create a KPI providing all its elements
      */
-    createKPI(data: IKPI): Promise<IMutationResponse>;
+    createKPI(input: IKPI): Promise<IKPIDocument>;
 
     /**
      * Update a KPI by its id
      */
-    updateKPI(id: string, data: IKPI): Promise<IMutationResponse>;
+    updateKPI(id: string, input: IKPI): Promise<IKPIDocument>;
 
      /**
      * Remove a KPI by its id

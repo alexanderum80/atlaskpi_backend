@@ -18,25 +18,37 @@ const ExpressionTreeTypes = {
 };
 
 export class KPIExpressionHelper {
-    public static ComposeExpression(kpiType: KPITypeEnum | string, json: string): string {
-        const type = KPITypeTable[kpiType] || kpiType;
+    public static ComposeExpression(kpiType: KPITypeEnum, expression: string): string {
 
-        switch (type) {
+        switch (kpiType) {
             case KPITypeEnum.Simple:
-                return KPIExpressionHelper._composeSimpleExpression(json);
+                return KPIExpressionHelper._composeSimpleExpression(expression);
+
+            default:
+                return expression;
+        }
+    }
+
+    public static DecomposeExpression(kpiType: KPITypeEnum, expression: string): IKPISimpleDefinition | any {
+
+        switch (kpiType) {
+            case KPITypeEnum.Simple:
+                return KPIExpressionHelper._decomposeSimpleExpression(expression);
             default:
                 return null;
         }
     }
 
-    public static DecomposeExpression(kpiType: KPITypeEnum | string, expression: string): IKPISimpleDefinition | any {
-        const type = KPITypeTable[kpiType] || kpiType;
+    public static PrepareExpressionField(type: string, expression: string): string {
+        const kpiType = KPITypeTable[type];
 
-        switch (type) {
+        switch (kpiType) {
             case KPITypeEnum.Simple:
-                return KPIExpressionHelper._decomposeSimpleExpression(expression);
+                return JSON.stringify(KPIExpressionHelper.DecomposeExpression(kpiType, expression));
+
             default:
-                return null;
+                return expression;
+
         }
     }
 
@@ -59,9 +71,7 @@ export class KPIExpressionHelper {
     private static _decomposeSimpleExpression(expression: string): IKPISimpleDefinition {
         const tree: jsep.IExpression = jsep(expression);
 
-        const definition = KPIExpressionHelper._processExpression(<jsep.IExpression>tree);
-
-        return definition;
+        return KPIExpressionHelper._processExpression(<jsep.IExpression>tree);
     }
 
     private static _getSimpleKPIFromCallExp(callExp: ICallExpression): IKPISimpleDefinition {
@@ -70,6 +80,8 @@ export class KPIExpressionHelper {
         let field;
 
         const fullField = String(KPIExpressionHelper._processExpression(callExp.arguments[0]));
+
+        if (!fullField) return null;
 
         // get collections
         const collections = Object.keys(GroupingMap);
@@ -81,7 +93,8 @@ export class KPIExpressionHelper {
            }
         }
 
-        const simple: IKPISimpleDefinition = { dataSource: dataSource,
+        const simple: IKPISimpleDefinition = {
+                                               dataSource: dataSource,
                                                function: func,
                                                field: field
                                              };
@@ -123,7 +136,5 @@ export class KPIExpressionHelper {
     private static _processMemberExpression(e: jsep.IMemberExpression): any {
         return this._processExpression(e.object) + '.' + this._processExpression(e.property);
     }
-
-
 
 }

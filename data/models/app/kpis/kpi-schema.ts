@@ -1,3 +1,4 @@
+import { KPITypeTable } from './IKPI';
 import { KPIExpressionHelper } from './kpi-expression.helper';
 import { IPagedQueryResult, PaginationDetailsDefault, Paginator } from '../../common/pagination';
 import {
@@ -41,12 +42,12 @@ let KPISchema = new Schema({
 });
 
 KPISchema.statics.createKPI = function(input: IKPI): Promise<IKPIDocument> {
-    let that = this;
+    const that = this;
 
     return new Promise<IKPIDocument>((resolve, reject) => {
         let constraints = {
             name: { presence: { message: '^cannot be blank' }},
-            rawExpression: { presence: { message: '^cannot be blank' } },
+            expression: { presence: { message: '^cannot be blank' } },
             type: { presence: { message: '^cannot be blank' } }
         };
 
@@ -55,9 +56,9 @@ KPISchema.statics.createKPI = function(input: IKPI): Promise<IKPIDocument> {
             reject(errors);
             return;
         }
-
-        let t = KPIExpressionHelper.ConvertToExpression(input.type, input.expression);
-
+        input.code = input.name;
+        let kpiType = KPITypeTable[input.type];
+        input.expression = KPIExpressionHelper.ComposeExpression(kpiType, input.expression);
 
         that.create(input, (err, kpi: IKPIDocument) => {
             if (err) {
@@ -69,59 +70,33 @@ KPISchema.statics.createKPI = function(input: IKPI): Promise<IKPIDocument> {
     });
 };
 
-// KPISchema.statics.updateKPI = function(id: string, data: IKPIDetails): Promise<IMutationResponse> {
-//     let that = this;
 
-//     let document: IKPIDocument;
-//     let promises = [];
+KPISchema.statics.updateKPI = function(id: string, input: IKPI): Promise<IKPIDocument> {
+    const that = this;
 
-//     return new Promise<IMutationResponse>((resolve, reject) => {
+    return new Promise<IKPIDocument>((resolve, reject) => {
+        let constraints = {
+            name: { presence: { message: '^cannot be blank' }},
+            expression: { presence: { message: '^cannot be blank' } },
+            type: { presence: { message: '^cannot be blank' } }
+        };
 
-//         let idError = (<any>validate)({ id: id },
-//          { id: { presence: { message: '^cannot be blank' } } });
+        let errors = (<any>validate)((<any>input), constraints, {fullMessages: false});
+        if (errors) {
+            reject(errors);
+            return;
+        }
 
-//         if (idError) {
-//             resolve(MutationResponse.fromValidationErrors(idError));
-//             return;
-//         }
+        input.code = input.name;
+        let kpiType = KPITypeTable[input.type];
+        input.expression = KPIExpressionHelper.ComposeExpression(kpiType, input.expression);
 
-//         let dataError = (<any>validate)({ data: data},
-//         { data: { presence : { message: '^cannot be empty' }}});
-
-//         if (dataError) {
-//             resolve(MutationResponse.fromValidationErrors(dataError));
-//             return;
-//         }
-
-//         (<IKPIModel>this).findById(id).then((kpi) => {
-//             let constraints = {
-//                 document: { presence: { message: '^not found' }}
-//             };
-
-//             let errors = (<any>validate)({id: id, document: kpi}, constraints, {fullMessages: false});
-//             if (errors) {
-//                 resolve(MutationResponse.fromValidationErrors(errors));
-//                 return;
-//             }
-
-//             //mods
-//             if (data.name) { kpi.name = data.name; };
-//             if (data.description) { kpi.description = data.description; };
-//             if (data.group) { kpi.group = data.group; };
-//             if (data.formula) { kpi.formula = data.formula; };
-//             if (data.emptyValueReplacement) { kpi.emptyValueReplacement = data.emptyValueReplacement; };
-
-//             kpi.save( (err, kpi: IKPI) => {
-//                 if (err) {
-//                     reject({ message: 'There was an error updating the kpi', error: err });
-//                     return;
-//                 }
-//                 resolve({ entity: kpi });
-//             });
-//         });
-//     });
-
-// };
+        that.findOneAndUpdate({_id: id}, input, {new: true })
+        .exec()
+        .then((kpiDocument) => resolve(kpiDocument))
+        .catch((err) => reject(err));
+    });
+};
 
 KPISchema.statics.removeKPI = function(id: string): Promise<IMutationResponse> {
     let that = this;

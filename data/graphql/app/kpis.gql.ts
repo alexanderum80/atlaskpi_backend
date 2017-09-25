@@ -1,3 +1,4 @@
+import { GetKpiQuery } from './../../queries/app/kpis/get-kpi.query';
 import { IDateRange } from '../../models/common/date-range';
 import { GetKpisQuery } from '../../queries/app/kpis/get-kpis.query';
 import { CreateKPIMutation, UpdateKPIMutation, RemoveKPIMutation } from '../../mutations/app/kpis';
@@ -18,6 +19,7 @@ export const kpisGql: GraphqlDefinition = {
     schema: {
         types: `
             input KPIAttributesInput {
+                code: String
                 name: String!
                 group: String
                 description: String
@@ -28,9 +30,10 @@ export const kpisGql: GraphqlDefinition = {
                 expression: String
                 filter: String
             },
-            type KPIResult {
-                kpi: KPI
+            type KPIMutationResponse {
+                entity: KPI
                 errors: [ErrorDetails]
+                success: Boolean
             }
             type KPI {
                 _id: String
@@ -56,25 +59,30 @@ export const kpisGql: GraphqlDefinition = {
         queries: `
             kpis: [KPI]
             getAllKPIs(details: PaginationDetails): KPIPagedQueryResult
+            kpi(id: String): KPI
         `,
         mutations: `
-            createKPI(input: KPIAttributesInput): KPIResult
-            updateKPI(id: String, input: KPIAttributesInput): KPIResult
-            removeKPI(id: String): KPIResult
+            createKPI(input: KPIAttributesInput): KPIMutationResponse
+            updateKPI(id: String, input: KPIAttributesInput): KPIMutationResponse
+            removeKPI(id: String): KPIMutationResponse
         `,
     },
 
     resolvers: {
         Query: {
-            kpis(root: any, args: any, ctx: IGraphqlContext) {
+            kpis(root: any, args, ctx: IGraphqlContext) {
                 let query = new GetKpisQuery(ctx.req.identity, ctx.req.appContext);
                 return ctx.queryBus.run('get-kpis', query, args, ctx.req).catch(e => console.error(e));
             },
             getAllKPIs(root: any, args, ctx: IGraphqlContext) {
                 let query = new GetAllKPIsQuery(ctx.req.identity, ctx.req.appContext.KPI);
                 return ctx.queryBus.run('get-all-kpis', query, ctx.req);
+            },
+            kpi(root: any, args, ctx: IGraphqlContext) {
+                let query = new GetKpiQuery(ctx.req.identity, ctx.req.appContext.KPI);
+                return ctx.queryBus.run('get-kpi', query, args, ctx.req);
             }
-        },
+         },
         Mutation: {
             createKPI(root: any, args, ctx: IGraphqlContext) {
                 let mutation = new CreateKPIMutation(ctx.req.identity, ctx.req.appContext.KPI);
@@ -93,8 +101,8 @@ export const kpisGql: GraphqlDefinition = {
             pagination(res: IPagedQueryResult<IKPI>) { return res.pagination; },
             data(res: IPagedQueryResult<IKPI>) { return res.data; }
         },
-        KPIResult: {
-            kpi(response: IMutationResponse) { return response.entity; },
+        KPIMutationResponse: {
+            entity(response: IMutationResponse) { return response.entity; },
             errors(response: IMutationResponse) { return response.errors; }
         },
         DateRange: {

@@ -1,3 +1,5 @@
+import { KPIExpressionHelper } from './../../../models/app/kpis/kpi-expression.helper';
+import { IKPI } from '../../../models/app/kpis';
 import { MutationBase } from '../../mutation-base';
 import { IMutationResponse } from '../../../models/common';
 import * as Promise from 'bluebird';
@@ -13,11 +15,12 @@ export class CreateKPIMutation extends MutationBase<IMutationResponse> {
     // log = true;
     // audit = true;
 
-    run(data): Promise<IMutationResponse> {
+    run(data: {input: IKPI}): Promise<IMutationResponse> {
         const that = this;
 
         return new Promise<IMutationResponse>((resolve, reject) => {
             that._KPIModel.createKPI(data.input).then((kpiDocument) => {
+                kpiDocument.expression = KPIExpressionHelper.PrepareExpressionField(kpiDocument.type, kpiDocument.expression);
                 resolve({ entity: kpiDocument, success: true });
                 return;
             })
