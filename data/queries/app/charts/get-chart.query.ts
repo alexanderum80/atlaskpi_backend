@@ -63,17 +63,29 @@ export class GetChartQuery extends QueryBase<string> {
                 if (data.input && data.input.dateRange) {
                     definitionParameters.dateRange = data.input.dateRange;
                 }
-                targetService.getTargets(data.id, that._user._id)
-                    .then((resp) => {
-                        uiChart.getDefinition(kpi, definitionParameters, resp).then((definition) => {
-                            logger.debug('chart definition received for id: ' + data.id);
-                            chart.chartDefinition = definition;
-                            resolve(JSON.stringify(chart));
-                        }).catch(e => {
-                            console.error(e);
-                            reject(e);
-                        });
-               });
+
+                if (data.id && that._user) {
+                    targetService.getTargets(data.id, that._user._id)
+                        .then((resp) => {
+                            uiChart.getDefinition(kpi, definitionParameters, resp).then((definition) => {
+                                logger.debug('chart definition received for id: ' + data.id);
+                                chart.chartDefinition = definition;
+                                resolve(JSON.stringify(chart));
+                            }).catch(e => {
+                                console.error(e);
+                                reject(e);
+                            });
+                    });
+                } else {
+                    uiChart.getDefinition(kpi, definitionParameters, []).then((definition) => {
+                        logger.debug('chart definition received for id: ' + data.id);
+                        chart.chartDefinition = definition;
+                        resolve(JSON.stringify(chart));
+                    }).catch(e => {
+                        console.error(e);
+                        reject(e);
+                    });
+                }
             });
         });
     }
