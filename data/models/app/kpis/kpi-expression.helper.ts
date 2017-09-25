@@ -52,6 +52,7 @@ export class KPIExpressionHelper {
         }
     }
 
+
     private static _composeSimpleExpression(rawExpression: string): string {
         const simple: IKPISimpleDefinition = JSON.parse(rawExpression);
 

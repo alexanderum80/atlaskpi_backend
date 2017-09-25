@@ -39,6 +39,19 @@ export class KPIFilterHelper {
         }
     }
 
+    public static PrepareFilterField(type: string, filter: string): string {
+        const kpiType = KPITypeTable[type];
+
+        switch (kpiType) {
+            case KPITypeEnum.Simple:
+                return KPIFilterHelper.DecomposeFilter(kpiType, filter);
+
+            default:
+                return filter;
+
+        }
+    }
+
     private static _composeSimpleFilter(filterArray: IKPIFilter[]): string {
         if (filterArray.length < 1) { return null; }
 

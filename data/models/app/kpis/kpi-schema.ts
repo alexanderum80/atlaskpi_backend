@@ -1,3 +1,4 @@
+import { KPIFilterHelper } from './kpi-filter.helper';
 import { KPITypeTable } from './IKPI';
 import { KPIExpressionHelper } from './kpi-expression.helper';
 import { IPagedQueryResult, PaginationDetailsDefault, Paginator } from '../../common/pagination';
@@ -56,9 +57,11 @@ KPISchema.statics.createKPI = function(input: IKPI): Promise<IKPIDocument> {
             reject(errors);
             return;
         }
+
         input.code = input.name;
         let kpiType = KPITypeTable[input.type];
         input.expression = KPIExpressionHelper.ComposeExpression(kpiType, input.expression);
+        input.filter = KPIFilterHelper.ComposeFilter(kpiType, input.filter);
 
         that.create(input, (err, kpi: IKPIDocument) => {
             if (err) {
@@ -90,8 +93,7 @@ KPISchema.statics.updateKPI = function(id: string, input: IKPI): Promise<IKPIDoc
         input.code = input.name;
         let kpiType = KPITypeTable[input.type];
         input.expression = KPIExpressionHelper.ComposeExpression(kpiType, input.expression);
-
-        if (input.filter) {}
+        input.filter = KPIFilterHelper.ComposeFilter(kpiType, input.filter);
 
         that.findOneAndUpdate({_id: id}, input, {new: true })
         .exec()
