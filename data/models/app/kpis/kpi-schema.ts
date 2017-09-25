@@ -91,6 +91,8 @@ KPISchema.statics.updateKPI = function(id: string, input: IKPI): Promise<IKPIDoc
         let kpiType = KPITypeTable[input.type];
         input.expression = KPIExpressionHelper.ComposeExpression(kpiType, input.expression);
 
+        if (input.filter) {}
+
         that.findOneAndUpdate({_id: id}, input, {new: true })
         .exec()
         .then((kpiDocument) => resolve(kpiDocument))

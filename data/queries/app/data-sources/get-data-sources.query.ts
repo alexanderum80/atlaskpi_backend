@@ -33,7 +33,7 @@ const BlackListedFieldNames = [
 
 export class GetDataSourcesQuery extends QueryBase<IDataSource[]> {
 
-    constructor(public identity: IIdentity, private _ctx: IAppModels) {
+    constructor(public identity: IIdentity) {
         super(identity);
     }
 
