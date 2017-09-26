@@ -70,14 +70,10 @@ export class KPIFilterHelper {
 
     private static _decomposeSimpleFilter(filter: any): IKPIFilter[] {
         const deserialized = KPIFilterHelper._deserializeFilter(filter);
-
-        const manyCriterias = deserialized['$and'];
-
-        if (!manyCriterias) {
-            return  [KPIFilterHelper._transform2KPIFilter(deserialized)];
+        if (deserialized['$and']) {
+            return deserialized['$and'].map(c => KPIFilterHelper._transform2KPIFilter(c));
         }
-
-        return manyCriterias.map(c => KPIFilterHelper._transform2KPIFilter(KPIFilterHelper._deserializeFilter(c)));
+        return [KPIFilterHelper._transform2KPIFilter(deserialized)];
     }
 
     private static _deserializeFilter(filter: any): any {
@@ -105,6 +101,10 @@ export class KPIFilterHelper {
 
             if (!_.isArray(value) && _.isObject(value)) {
                 value = KPIFilterHelper._serializer(value, operation);
+            } else if (_.isArray(value)) {
+                for (let i = 0; i < value.length; i++) {
+                    value[i] = this._serializer(value[i], operation);
+                }
             }
 
             newFilter[newKey] = value;
