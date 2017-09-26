@@ -48,7 +48,7 @@ export class GetDashboardQuery extends QueryBase<IDashboard> {
 
                     // process charts
                     let promises = dashboard.charts.map(c => {
-                        let chartQuery = new GetChartQuery(that.identity, that._ctx);
+                        let chartQuery = new GetChartQuery(that.identity, that._ctx, that._user);
                         return chartQuery.run({ id: (<any>c)._id });
                     });
 
