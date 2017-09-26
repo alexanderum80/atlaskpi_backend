@@ -35,7 +35,7 @@ export class KPIFilterHelper {
                 if (!filter) { return null; }
                 return KPIFilterHelper._decomposeSimpleFilter(filter);
             default:
-                return null;
+                return filter;
         }
     }
 

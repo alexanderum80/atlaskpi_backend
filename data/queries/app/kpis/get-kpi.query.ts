@@ -25,7 +25,6 @@ export class GetKpiQuery extends QueryBase<IKPIDocument> {
             that._KPIModel
                 .findOne({ _id: data.id })
                 .then((kpiDocument) => {
-                    kpiDocument.expression = KPIExpressionHelper.PrepareExpressionField(kpiDocument.type, kpiDocument.expression);
                     resolve(kpiDocument);
                 })
                 .catch(e => reject(e));

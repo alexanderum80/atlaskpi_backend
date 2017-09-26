@@ -21,8 +21,6 @@ export class CreateKPIMutation extends MutationBase<IMutationResponse> {
 
         return new Promise<IMutationResponse>((resolve, reject) => {
             that._KPIModel.createKPI(data.input).then((kpiDocument) => {
-                kpiDocument.expression = KPIExpressionHelper.PrepareExpressionField(kpiDocument.type, kpiDocument.expression);
-                kpiDocument.filter = KPIFilterHelper.PrepareFilterField(kpiDocument.type, kpiDocument.filter);
                 resolve({ entity: kpiDocument, success: true });
                 return;
             })
