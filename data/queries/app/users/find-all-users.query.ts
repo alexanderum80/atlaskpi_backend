@@ -1,14 +1,16 @@
-import { IQueryResponse } from '../../../models/common';
+
 import { IUserDocument, IUserModel } from '../../../models/app/users/IUser';
 import * as Promise from 'bluebird';
-import { IQuery } from '../..';
 import { IIdentity } from '../../../';
+import { QueryBase } from '../../query-base';
 
-export class FindAllUsersQuery {
+export class FindAllUsersQuery extends QueryBase<IUserDocument[]> {
     constructor(public identity: IIdentity,
-                private _IUserModel: IUserModel) {}
+                private _IUserModel: IUserModel) {
+                    super(identity);
+                }
 
-    run(data: any): Promise<IQueryResponse<IUserDocument[]>> {
+    run(data: any): Promise<IUserDocument[]> {
         return this._IUserModel.findAllUsers(data);
     }
 }

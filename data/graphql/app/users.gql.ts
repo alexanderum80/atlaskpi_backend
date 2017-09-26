@@ -133,10 +133,6 @@ export const usersGql: GraphqlDefinition = {
                 let query = new VerifyResetPasswordQuery(ctx.req.identity, ctx.req.appContext.User);
                 return ctx.queryBus.run('verify-reset-password', query, args, ctx.req);
             },
-            allUsers(root: any, args, ctx: IGraphqlContext) {
-                let query = new FindAllUsersQuery(ctx.req.identity, ctx.req.appContext.User);
-                return ctx.queryBus.run('find-all-users', query, args);
-            },
             users(root: any, args, ctx: IGraphqlContext) {
                 let query = new SearchUsersQuery(ctx.req.identity, ctx.req.appContext.User);
                 return ctx.queryBus.run('search-users', query, args, ctx.req);
@@ -145,6 +141,10 @@ export const usersGql: GraphqlDefinition = {
                 if (!ctx.req.identity || !ctx.req.appContext.User) { return null; }
                 let query = new FindUserByIdQuery(ctx.req.identity, ctx.req.appContext.User);
                 return ctx.queryBus.run('find-user-by-id', query, args, ctx.req);
+            },
+            allUsers(root: any, args, ctx: IGraphqlContext) {
+                let query = new FindAllUsersQuery(ctx.req.identity, ctx.req.appContext.User);
+                return ctx.queryBus.run('find-all-users', query, args, ctx.req);
             },
             isEnrollmentTokenValid(root: any, args, ctx: IGraphqlContext) {
                 let query = new VerifyEnrollmentQuery(ctx.req.identity, ctx.req.appContext.User);
