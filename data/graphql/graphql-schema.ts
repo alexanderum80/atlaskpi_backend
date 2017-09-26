@@ -10,7 +10,7 @@ import * as logger from 'winston';
 import { accountsGql } from './master';
 import { usersGql, kpisGql, commonGql,
          // businessUnitsGql,
-         chartFormatGql, chartsGql, dashboardGql, searchGql, rolesGql, permissionGql } from './app';
+         chartFormatGql, chartsGql, dashboardGql, searchGql, rolesGql, permissionGql, targetGql } from './app';
 
 // let files = getGlobbedFiles(path.join(__dirname, '**', '*.gql.ts'));
 let definitions: GraphqlDefinition[] = [];
@@ -27,6 +27,7 @@ definitions.push(industriesGql);
 definitions.push(searchGql);
 definitions.push(rolesGql);
 definitions.push(permissionGql);
+definitions.push(targetGql);
 
 let moduleQueries = [];
 let moduleTypes = [];

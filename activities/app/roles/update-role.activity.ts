@@ -1,14 +1,10 @@
-import { IIdentity } from '../../../data';
+import { BasicRoleChecker } from '../basic-role-checker';
+import { ExtendedRequest } from '../../../middlewares/extended-request';
 import { IActivity } from '../../../lib/enforcer';
 
 export const updateRoleActivity: IActivity = {
     may: 'update-role',
-    when(identity: IIdentity, cb: (err: any, authorized: boolean) => void) {
-        let d = true;
-        let roles = identity.roles;
-        if (roles.indexOf('admin') === -1) {
-            d = false;
-        }
-        cb(null, d);
+    when(request: ExtendedRequest, cb: (err: any, authorized: boolean) => void) {
+        cb(null, BasicRoleChecker.isAdmin(request.user));
     }
 };

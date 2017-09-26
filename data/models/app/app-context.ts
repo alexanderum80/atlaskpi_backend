@@ -1,3 +1,4 @@
+import { getTargetModel } from './targets/target';
 import { getAccessLogModel } from './access-log';
 import { getSaleModel } from './sales/Sale';
 import { getExpenseModel } from './expenses/Expenses';
@@ -53,7 +54,8 @@ export function getContext(dbUri: string): Promise<IAppModels> {
                 Expense: getExpenseModel(m),
                 WorkLog: getWorkLogModel(m),
                 LogModel: getLogModel(m),
-                AccessModel: getAccessLogModel(m)
+                AccessModel: getAccessLogModel(m),
+                Target: getTargetModel(m)
             });
         }, (err) => reject(err));
     });

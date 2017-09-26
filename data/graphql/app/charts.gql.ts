@@ -102,7 +102,7 @@ export const chartsGql: GraphqlDefinition = {
     resolvers: {
         Query: {
             charts(root: any, args, ctx: IGraphqlContext) {
-                let query = new GetChartQuery(ctx.req.identity, ctx.req.appContext);
+                let query = new GetChartQuery(ctx.req.identity, ctx.req.appContext, ctx.req.user);
                 return ctx.queryBus.run('get-chart-data', query, args, ctx.req);
             },
 
@@ -112,7 +112,7 @@ export const chartsGql: GraphqlDefinition = {
             },
 
             chart(root: any, args, ctx: IGraphqlContext) {
-                let query = new GetChartQuery(ctx.req.identity, ctx.req.appContext);
+                let query = new GetChartQuery(ctx.req.identity, ctx.req.appContext, ctx.req.user);
                 return ctx.queryBus.run('get-chart', query, args, ctx.req);
             },
 

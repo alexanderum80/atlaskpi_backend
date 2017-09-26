@@ -1,9 +1,10 @@
+import { ExtendedRequest } from '../../middlewares/extended-request';
 import { IIdentity } from '../../data/models';
 import { IActivity, ActivityCollection } from './activity';
 import { IEnforcerConfig } from './enforcer-config';
 import * as Promise from 'bluebird';
 import * as _ from 'lodash';
-import * as logger from  'winston';
+import * as logger from 'winston';
 
 export interface IAuthorizationResult {
     err?: any;
@@ -11,7 +12,7 @@ export interface IAuthorizationResult {
 }
 
 export interface IEnforcer {
-    authorizationTo(activityName: String, identity: IIdentity): Promise<boolean>;
+    authorizationTo(activityName: String, request: ExtendedRequest): Promise<boolean>;
 }
 
 export class Enforcer implements IEnforcer {
@@ -26,12 +27,12 @@ export class Enforcer implements IEnforcer {
         this._config = config;
     }
 
-    authorizationTo(activityName: String, identity: IIdentity): Promise<boolean> {
+    authorizationTo(activityName: String, request: ExtendedRequest): Promise<boolean> {
         return new Promise<boolean>((resolve, reject) => {
             logger.debug('Checking allow authorization');
             // first call the global allow and deny callbacks
             if (this._config.allow) {
-                this._config.allow(identity, activityName, (err, authorized) => {
+                this._config.allow(request.user, activityName, (err, authorized) => {
                     if (err) {
                         throw err;
                     }
@@ -44,7 +45,7 @@ export class Enforcer implements IEnforcer {
 
             logger.debug('Checking deny authorization');
             if (this._config.deny) {
-                this._config.deny(identity, activityName, (err, deny) => {
+                this._config.deny(request.user, activityName, (err, deny) => {
                     if (err) {
                         throw err;
                     }
@@ -63,7 +64,7 @@ export class Enforcer implements IEnforcer {
                 console.log('activity not found');
                 reject({err: new Error(`Activity ${activityName} was not found`), authorized: false });
             }
-            this._checkAuthorization(activity, identity).then((authorized) => {
+            this._checkAuthorization(activity, request).then((authorized) => {
                 resolve(authorized);
             }).catch((err) => {
                 reject(err);
@@ -71,7 +72,7 @@ export class Enforcer implements IEnforcer {
         });
     }
 
-    private _checkAuthorization(activity: IActivity, identity: IIdentity): Promise<boolean> {
+    private _checkAuthorization(activity: IActivity, request: ExtendedRequest): Promise<boolean> {
         return new Promise<boolean>((resolve, reject) => {
 
             if (!activity) {
@@ -85,7 +86,7 @@ export class Enforcer implements IEnforcer {
                 let hasPermission = true;
 
                 activity.hasPermissions.forEach((permission) => {
-                    let permissionFound = _.find(identity.permissions, {
+                    let permissionFound = _.find((<any>request).user.permissions, {
                         subject: permission.subject,
                         action: permission.action,
                     });
@@ -101,7 +102,7 @@ export class Enforcer implements IEnforcer {
                 }
             }
 
-            activity.when(identity, (err, authorized) => {
+            activity.when(request, (err, authorized) => {
                 if (err) {
                     throw err;
                 }
