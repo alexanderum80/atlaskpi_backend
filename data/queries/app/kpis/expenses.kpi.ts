@@ -43,6 +43,10 @@ export class Expenses extends KpiBase implements IKpiBase {
         return this.executeQuery('timestamp', dateRange, options);
     }
 
+    getTargetData(dateRange?: IDateRange, options?: IGetDataOptions): Promise<any> {
+        return this.executeQuery('timestamp', dateRange, options);
+    }
+
     getSeries(dateRange: IDateRange, frequency: FrequencyEnum) {}
 
 }
