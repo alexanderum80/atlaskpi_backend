@@ -1,3 +1,7 @@
+import { KPIExpressionHelper } from '../../models/app/kpis/kpi-expression.helper';
+import { KPIFilterHelper } from './../../models/app/kpis/kpi-filter.helper';
+import { KPIGroupingsHelper } from '../../models/app/kpis/kpi-groupings.helper';
+import { DataSourcesHelper } from '../../queries/app/data-sources/datasource.helper';
 import { GetKpiQuery } from './../../queries/app/kpis/get-kpi.query';
 import { IDateRange } from '../../models/common/date-range';
 import { GetKpisQuery } from '../../queries/app/kpis/get-kpis.query';
@@ -50,6 +54,7 @@ export const kpisGql: GraphqlDefinition = {
                 emptyValueReplacement: String
                 expression: String
                 type: String
+                availableGroupings: [String]
             }
             type KPIPagedQueryResult {
                 pagination: PaginationInfo
@@ -111,7 +116,9 @@ export const kpisGql: GraphqlDefinition = {
         },
         KPI: {
             dateRange(entity: IKPIDocument) { return entity.dateRange; },
-            filter(entity: IKPIDocument) { return JSON.stringify(entity.filter); }
+            expression(entity: IKPIDocument) { return KPIExpressionHelper.PrepareExpressionField(entity.type, entity.expression); },
+            filter(entity: IKPIDocument) { return JSON.stringify(KPIFilterHelper.PrepareFilterField(entity.type, entity.filter)); },
+            availableGroupings(entity: IKPIDocument) { return KPIGroupingsHelper.GetAvailableGroupings(entity); }
         }
     }
 };
