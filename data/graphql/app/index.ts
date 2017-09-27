@@ -8,4 +8,5 @@ export * from './dashboards.gql';
 export * from './search.gpl';
 export * from './roles.gql';
 export * from './permissions.gql';
+export * from './data-sources.gql';
 export * from './targets.gql';

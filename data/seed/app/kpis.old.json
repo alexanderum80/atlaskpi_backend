@@ -1,293 +1,81 @@
-[{
+[
+    {
         "_id": "1",
-        "code": "RevenueByServiceLine",
-        "name": "Revenue By Service Line",
-        "description": "Revenue Collected by Service Line",
-        "formula": "Sum(Revenue.employees.amount)",
-        "grouping": { "id": "$employees.id", "employee": "$employees.name" },
-        "filter": "employees.type == 'f'",
-        "axisSelection": "employee",
-        "outputType": "list"
+        "code": "Revenue",
+        "name": "Revenue",
+        "description": "Revenue",
+        "groupings": [],
+        "filter": ""
     },
     {
         "_id": "2",
-        "code": "NetRevenueByFTE",
-        "name": "Net Collected Revenue per Full Time Employee (FTE)",
-        "description": "Net Collected Revenue per Full Time Employee (FTE)",
-        "formula": "Sum(Revenue.employees.amount)",
-        "grouping": { "id": "$employees.id", "employee": "$employees.name" },
-        "filter": "employees.type == 'f'",
-        "axisSelection": "employee",
-        "outputType": "list"
+        "code": "Expenses",
+        "name": "Expenses",
+        "description": "Expenses",
+        "groupings": [],
+        "filter": ""
+    },
+    
+    {
+        "_id": "10",
+        "baseKpi": "Revenue",
+        "name": "This year sales grouped by location with a monthly frequency",
+        "description": "Revenue",
+        "dateRange": {
+            "predefined": "this year"
+        },
+        "filter": {
+            "product__dot__itemCode": { "__dollar__ne": "TIP" }
+        },
+        "frequency": "monthly",
+        "groupings": ["businessUnit"]   
     },
     {
-        "_id": "3",
-        "code": "AvgRevenueByFTPhysician",
-        "name": "Average Revenue per FTE Physician",
-        "description": "Average Revenue per FTE Physician",
-        "formula": "Sum(Revenue.employees.amount)",
-        "grouping": { "id": "$employees.id", "employee": "$employees.name" },
-        "filter": "employees.type == 'f'",
-        "axisSelection": "employee",
-        "outputType": "value"
+        "_id": "11",
+        "baseKpi": "Expenses",
+        "name": "This year expenses grouped by location with a monthly frequency",
+        "description": "Revenue",
+        "dateRange": {
+            "predefined": "this year"
+        },
+        "frequency": "monthly",
+        "groupings": ["businessUnit"]   
     },
     {
-        "_id": "4",
-        "code": "AvgRevenueByFTNonPhysician",
-        "name": "Total Non Physician Rev/Total # of Non Physicians",
-        "description": "Total Non Physician Rev/Total # of Non Physicians",
-        "formula": "Sum(Revenue.employees.amount)",
-        "grouping": { "id": "$employees.id", "employee": "$employees.name" },
-        "filter": "employees.type == 'f'",
-        "axisSelection": "employee",
-        "outputType": "value"
+        "_id": "12",
+        "baseKpi": "Expenses",
+        "name": "Payroll Expenses",
+        "description": "Payroll Expenses",
+        "filter": {
+            "expense__dot__concept": { "__dollar__regex": "/^Payroll/" }
+        },
+        "dateRange": {
+            "predefined": "last 2 years"
+        },
+        "frequency": "monthly",
+        "groupings": ["businessUnit"] 
+    },
+    
+    {
+        "_id": "30",
+        "code": "Ebitda by business unit",
+        "name": "Ebitda by business unit ",
+        "description": "Ebitda by business unit ",
+        "composition": "kpi10 - kpi11"
     },
     {
-        "_id": "5",
-        "code": "AvgRevenueByFTAesthetician",
-        "name": "Total Aesthetician Rev/Total # of Aestheticians",
-        "description": "Total Aesthetician Rev/Total # of Aestheticians",
-        "formula": "Sum(Revenue.employees.amount)",
-        "grouping": { "id": "$employees.id", "employee": "$employees.name" },
-        "filter": "employees.type == 'f'",
-        "axisSelection": "employee",
-        "outputType": "value"
-    },
-
-    {
-        "_id": "6",
-        "code": "SalesByProduct",
-        "name": "Total of sales by individual product",
-        "description": "Total of sales by individual product",
-        "formula": "Sum(Revenue.employees.amount)",
-        "grouping": { "id": "$employees.id", "employee": "$employees.name" },
-        "filter": "employees.type == 'f'",
-        "axisSelection": "employee",
-        "outputType": "list"
-    },
-    {
-        "_id": "7",
-        "code": "TotalRevenue",
-        "name": "Total Revenue",
-        "description": "Total Revenue",
-        "formula": "Sum(Revenue.employees.amount)",
-        "grouping": { "id": "$employees.id", "employee": "$employees.name" },
-        "filter": "employees.type == 'f'",
-        "axisSelection": "employee",
-        "outputType": "value"
-    },
-    {
-        "_id": "8",
-        "code": "RetailSales",
-        "name": "Total Retail Sales",
-        "description": "Total Retail Sales",
-        "formula": "Sum(Revenue.employees.amount)",
-        "grouping": { "id": "$employees.id", "employee": "$employees.name" },
-        "filter": "employees.type == 'f'",
-        "axisSelection": "employee",
-        "outputType": "value"
-    },
-
-    {
-        "_id": "100",
-        "code": "AestheticianRevenueRatePerHour",
-        "name": "Total Physician Rev",
-        "description": "Total Aesthetician Revenue/@Total of Aesthetician Hours Worked",
-        "formula": "Sum(Revenue.value.amount)/Sum(Employees.Hours)",
-        "grouping": { "id": "$employees.id", "employee": "$employees.name" },
-        "filter": "employees.role == 'Aesthetician'",
-        "axisSelection": "employee",
-        "outputType": "list"
-    },
-    {
-        "_id": "101",
-        "code": "AmbulatorySurgeryCenterSales",
-        "name": "Ambulatory Surgery Center Sales",
-        "description": "Total Sales on Ambulatory Surgery Centre",
-        "formula": "Sum(Revenue.value.amount)",
-        "grouping": { "id": "$location.externalId" },
-        "filter": "Revenue.location  == 'Ambulatory Surgery Center'",
-        "axisSelection": "location",
-        "outputType": "value"
-    },
-    {
-        "_id": "102",
-        "code": "ConsultingResearchSales",
-        "name": "Total Consulting and Research Sales",
-        "description": "Total Consulting and Research Sales",
-        "formula": "Sum(Revenue.value.amount)/Sum(Employees.Hours)",
-        "grouping": { "id": "$location.externalId" },
-        "filter": "Revenue.concept == 'consulting' || Revenue.concept == 'research'",
-        "axisSelection": "location",
-        "outputType": "value"
-    },
-    {
-        "_id": "103",
-        "code": "IndividualNonPhysicianRevenueRatePerHour",
-        "name": "Individual Non Physician Revenue Rate per Hour",
-        "description": "Individual Non Physician Revenue Rate per Hour",
-        "formula": "Sum(Revenue.value.amount)/Sum(Employees.Hours)",
-        "grouping": { "id": "$location.externalId" },
-        "filter": "employees.role != 'Physician'",
-        "axisSelection": "location",
-        "outputType": "value"
-    },
-    {
-        "_id": "104",
-        "code": "ProfesionalServiceSales",
-        "name": "Profesional Service Sales",
-        "description": "Profesional Service Sales",
-        "formula": "Sum(Revenue.value.amount)",
-        "grouping": { "id": "$location.externalId" },
-        "filter": "Revenue.concept == 'service'",
-        "axisSelection": "location",
-        "outputType": "value"
-    },
-
-
-
-    {
-        "_id": "200",
-        "code": "RetailSalesRatio",
-        "name": "Retail Sales Ratio",
-        "description": "Retail Sales Ratio",
-        "formula": "Retail Sales/Total Revenue x 100",
-        "grouping": null,
-        "filter": null,
-        "axisSelection": "retail",
-        "outputType": "value"
-    },
-    {
-        "_id": "201",
-        "code": "ProfesionalSalesRatio",
-        "name": "Profesional Sales Ratio",
-        "description": "Profesional Sales Ratio",
-        "formula": "Prof Service/Total Revenue x 100",
-        "grouping": null,
-        "filter": null,
-        "axisSelection": "retail",
-        "outputType": "value"
-    },
-    {
-        "_id": "202",
-        "code": "ConsultingResearchServiceRatio",
-        "name": "Consulting Research Service Ratio",
-        "description": "Consulting Research Service Ratio",
-        "formula": "Consulting and Research/Total Revenue x 100",
-        "grouping": null,
-        "filter": null,
-        "axisSelection": "retail",
-        "outputType": "value"
-    },
-    {
-        "_id": "203",
-        "code": "AmbulatorySurgeryCenterServiceRatio",
-        "name": "Ambulatory Surgery Center Service Ratio",
-        "description": "AmbulatorySurgeryCenterServiceRatio",
-        "formula": "Ambulatory Surgery Centre/Total Revenue x 100",
-        "grouping": null,
-        "filter": null,
-        "axisSelection": "retail",
-        "outputType": "value"
-    },
-    {
-        "_id": "204",
-        "code": "OtherSalesRatio",
-        "name": "Other Sales Ratio",
-        "description": "Other Sales Ratio",
-        "formula": "Other/Total Revenue x 100",
-        "grouping": null,
-        "filter": null,
-        "axisSelection": "retail",
-        "outputType": "value"
-    },
-    {
-        "_id": "301",
-        "code": "TotalExpense",
-        "name": "Total Expense",
-        "description": "Total Expense",
-        "formula": "Sum(Expenses.amount)",
-        "grouping": null,
-        "filter": null,
-        "axisSelection": "expense",
-        "outputType": "value"
-    },
-    {
-        "_id": "302",
-        "code": "CostOfGoodSold",
-        "name": "Cost Of Goods Sold",
-        "description": "Cost of Goods Sold",
-        "formula": "Sum(Expense.amount)",
-        "grouping": null,
-        "filter": null,
-        "axisSelection": "expense",
-        "outputType": "value"
-    },
-    {
-        "_id": "303",
-        "code": "ExpenseByCategory",
-        "name": "Expense By Category",
-        "description": "Expense By Category",
-        "formula": "Sum(Expense.amount)",
-        "grouping": null,
-        "filter": null,
-        "axisSelection": "expense",
-        "outputType": "value"
-    },
-    {
-        "_id": "304",
-        "code": "ExpenseRatio",
+        "_id": "31",
+        "code": "Expense Ratio",
         "name": "Expense Ratio",
         "description": "Expense Ratio",
-        "formula": "Total Expense / Total Revenue * 100",
-        "grouping": null,
-        "filter": null,
-        "axisSelection": "expense",
-        "outputType": "value"
+        "composition": "kpi11 - kpi10 * 100"
     },
     {
-        "_id": "305",
-        "code": "PayrollExpenseRatio",
+        "_id": "32",
+        "code": "Payrol Expense Ratio",
         "name": "Payroll Expense Ratio",
-        "description": "Payroll Expense Ratio",
-        "formula": "Total Payroll / Total Revenue * 100",
-        "grouping": null,
-        "filter": null,
-        "axisSelection": "expense",
-        "outputType": "value"
-    },
-    {
-        "_id": "306",
-        "code": "RevenueByUnits",
-        "name": "Revenue By Units",
-        "description": "Revenue By Units",
-        "formula": "Total Sales",
-        "grouping": null,
-        "filter": null,
-        "axisSelection": "sales",
-        "outputType": "value"
-    },
-    {
-        "_id": "307",
-        "code": "TotalSalesByDayByLocation",
-        "name": "Total Sales By Day By Location",
-        "description": "Sale By Day Per Location",
-        "formula": "Total Sales",
-        "grouping": null,
-        "filter": null,
-        "axisSelection": "sales",
-        "outputType": "value"
-    },
-    {
-        "_id": "308",
-        "code": "RevenueByUnitPie",
-        "name": "Revenue By Unit Pie",
-        "description": "Revenue By Unit Pie",
-        "formula": "Total Sales",
-        "grouping": null,
-        "filter": null,
-        "axisSelection": "sales",
-        "outputType": "value"
+        "description": "Expense Ratio",
+        "composition": "kpi12 - kpi10 * 100"
     }
 
 ]
