@@ -1,5 +1,5 @@
 import { KPIExpressionHelper } from './../../../models/app/kpis/kpi-expression.helper';
-import { IKPIDocument, KPITypeTable } from './../../../models/app/kpis/IKPI';
+import { IKPIDocument, KPITypeMap } from './../../../models/app/kpis/IKPI';
 import { QueryBase } from '../../query-base';
 import { IKPI, IKPIModel, KPITypeEnum } from '../../../models/app/kpis';
 import * as Promise from 'bluebird';
