@@ -27,7 +27,7 @@ let ChartSchema = new Schema({
     subtitle: String,
     group: String,
     kpis: [{ type: mongoose.Schema.Types.String, ref: 'KPI' }],
-    dateRange: ChartDateRangeSchema,
+    dateRange: [ChartDateRangeSchema],
     filter: Schema.Types.Mixed,
     frequency: String,
     groupings: [String],
