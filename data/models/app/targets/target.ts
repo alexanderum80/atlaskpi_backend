@@ -5,6 +5,12 @@ import * as validate from 'validate.js';
 
 let Schema = mongoose.Schema;
 
+let NotifySchema = new Schema({
+    userId: [{ type: mongoose.Schema.Types.String, ref: 'User' }],
+    days: String,
+    notifyTime: Date
+});
+
 let TargetSchema = new Schema({
     name: String,
     datepicker: Date,
@@ -14,7 +20,7 @@ let TargetSchema = new Schema({
     amountBy: String,
     type: String,
     period: String,
-    notify: [String],
+    notify: [NotifySchema],
     visible: [String],
     delete: Boolean,
     owner: String,

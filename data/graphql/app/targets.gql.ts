@@ -11,6 +11,11 @@ export const targetGql: GraphqlDefinition = {
     name: 'target',
     schema: {
         types: `
+            input NotifyInput {
+                userId: String
+                days: String
+                notifyTime: String
+            }
             input TargetInput {
                 name: String
                 datepicker: String
@@ -20,7 +25,7 @@ export const targetGql: GraphqlDefinition = {
                 amountBy: String
                 type: String
                 period: String
-                notify: [String]
+                notify: [NotifyInput]
                 visible: [String]
                 owner: String
                 chart: [String]
@@ -29,6 +34,12 @@ export const targetGql: GraphqlDefinition = {
             }
             input TargetOwner {
                 owner: String
+            }
+
+            type NotifyResponse {
+                userId: String
+                days: String
+                notifyTime: String
             }
             type TargetResponse {
                 _id: String
@@ -41,7 +52,7 @@ export const targetGql: GraphqlDefinition = {
                 target: Float
                 type: String
                 period: String
-                notify: [String]
+                notify: [NotifyResponse]
                 visible: [String]
                 owner: String
                 chart: [String]
