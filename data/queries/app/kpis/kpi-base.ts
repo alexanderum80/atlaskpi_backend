@@ -51,8 +51,6 @@ export class KpiBase {
 
             if (dateRange)
                 that._injectDataRange(dateRange, dateField);
-            if (that.kpi && that.kpi.filter)
-                that._injectFilter(that.kpi.filter);
             if (options.filter)
                 that._injectFilter(options.filter);
             if (options.frequency >= 0)
@@ -135,7 +133,7 @@ export class KpiBase {
         });
     }
 
-    private _cleanFilter(filter: any): any {
+    protected _cleanFilter(filter: any): any {
         let newFilter = {};
         let replacementString = [
             { key: '__dot__', value: '.' },
