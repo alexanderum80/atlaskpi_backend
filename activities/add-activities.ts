@@ -54,8 +54,6 @@ import {
     // search
     searchActivity,
 
-    // drilldown
-    drilldownActivity,
     // roles
     findAllRolesActivity,
     createRoleActivity,
@@ -144,8 +142,6 @@ export function addActivities() {
         // search
         searchActivity,
 
-        // drilldown
-        drilldownActivity,
         // roles
         findAllRolesActivity,
         createRoleActivity,

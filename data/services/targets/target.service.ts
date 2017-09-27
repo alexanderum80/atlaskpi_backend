@@ -18,7 +18,7 @@ export class TargetService {
 
     getTargets(chartId: string, userId: string): Promise<any> {
         return new Promise((resolve, reject) => {
-            this._target.findVisibleTargets(chartId, userId)
+            this._target.findUserVisibleTargets(chartId, userId)
                 .then((targets) => {
                     resolve(targets);
                     return;
@@ -47,20 +47,30 @@ export class TargetService {
                             groupings: [chart.groupings[0] + '.name'],
                             stackName: data.stackName || null
                         };
-                        kpi.getTargetData(that.getDate(data.period), options).then((response) => {
-                            resolve(response);
-                        }).catch((err) => {
-                            reject(err);
-                        });
+
+                        if (data.period) {
+                            kpi.getTargetData([that.getDate(data.period)], options).then((response) => {
+                                resolve(response);
+                            }).catch((err) => {
+                                reject(err);
+                            });
+                        } else {
+                            resolve([{ value: 0}]);
+                        }
                     } else {
                         let options = {
                             filter: chart.filter
                         };
-                        kpi.getData(that.getDate(data.period), options).then((response) => {
-                            resolve(response);
-                        }).catch((err) => {
-                            reject(err);
-                        });
+
+                        if (data.period) {
+                            kpi.getData([that.getDate(data.period)], options).then((response) => {
+                                resolve(response);
+                            }).catch((err) => {
+                                reject(err);
+                            });
+                        } else {
+                            resolve([{ value: 0}]);
+                        }
                     }
                 });
         });

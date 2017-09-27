@@ -1,5 +1,4 @@
 import { PreviewChartsQuery } from '../../queries/app/charts/preview-chart.query';
-import { DrillDownQuery } from '../../queries/app/charts/drilldown-query';
 import { IChartDateRange, IDateRange } from '../../models/common/date-range';
 import { IChartDocument } from '../../models/app/charts';
 import { CreateChartMutation, DeleteChartMutation, UpdateChartMutation } from '../../mutations/app/charts';
@@ -19,35 +18,22 @@ export const chartsGql: GraphqlDefinition = {
     schema: {
         types: `
             input GetChartInput {
-                dateRange: ChartDateRangeInput!
+                dateRange: [ChartDateRangeInput]!
                 frequency: String
                 groupings: [String]!
                 xAxisSource: String
+                isDrillDown: Boolean
             }
             input ChartAttributesInput {
                 title: String!
                 subtitle: String
                 kpis: [String]
-                dateRange: ChartDateRangeInput
+                dateRange: [ChartDateRangeInput]
                 frequency: String
                 groupings: [String]
                 chartDefinition: String
                 xAxisSource: String
                 dashboards: [String]
-            }
-            input DrillDateInput {
-                from: String
-                to: String
-            }
-            input DrillDateRange {
-                custom: [DrillDateInput]
-                predefined: String
-            }
-            input DrillDownData {
-                dateRange: DrillDateRange
-                frequency: String
-                groupings: [String]!
-                xAxisSource: String
             }
             type ChartEntityResponse {
                 _id: String
@@ -73,11 +59,6 @@ export const chartsGql: GraphqlDefinition = {
             type ListChartsQueryResponse {
                 data: [ChartEntityResponse]
             }
-            type DrillDownResult {
-                success: Boolean
-                entity: [ChartEntityResponse]
-                errors: [ErrorDetails]
-            }
         `,
         queries: `
             charts(from: String!, to: String!, preview: Boolean): String
@@ -89,8 +70,6 @@ export const chartsGql: GraphqlDefinition = {
             previewChart(input: ChartAttributesInput): String
 
             listCharts: ListChartsQueryResponse
-
-            drillDown(id: String, data: DrillDownData): String
         `,
         mutations: `
             createChart(input: ChartAttributesInput): ChartMutationResponse
@@ -124,11 +103,6 @@ export const chartsGql: GraphqlDefinition = {
             listCharts(root: any, args, ctx: IGraphqlContext) {
                 let query = new ListChartsQuery(ctx.req.identity, ctx.req.appContext);
                 return ctx.queryBus.run('list-charts', query, args, ctx.req);
-            },
-
-            drillDown(root: any, args, ctx: IGraphqlContext) {
-                let query = new DrillDownQuery(ctx.req.identity, ctx.req.appContext);
-                return ctx.queryBus.run('drill-down', query, args, ctx.req);
             }
         },
         Mutation: {
@@ -152,8 +126,10 @@ export const chartsGql: GraphqlDefinition = {
             errors(response: IMutationResponse) { return response.errors; }
         },
         ChartDateRange: {
-            predefined(dateRange: IChartDateRange) { return dateRange.predefined; },
-            custom(dateRange: IChartDateRange) { return dateRange.custom; }
+            predefined(dateRange: IChartDateRange) {
+                return dateRange.predefined; },
+            custom(dateRange: IChartDateRange) {
+                return dateRange.custom; }
         },
         ChartEntityResponse: {
             dateRange(entity: IChart) { return entity.dateRange; },
