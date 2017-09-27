@@ -1,3 +1,4 @@
+import { ITarget, ITargetDocument } from '../../../../models/app/targets/ITarget';
 import * as Promise from 'bluebird';
 import {
     IDateRange
@@ -25,8 +26,8 @@ export class DonutChart extends UIChartBase implements IUIChart {
         super(chart, frequencyHelper);
     }
 
-    getDefinition(kpi: IKpiBase, metadata?: IChartMetadata): Promise < string > {
-        return this.processChartData(kpi, metadata).then(res => JSON.stringify(res));
+    getDefinition(kpi: IKpiBase, metadata?: IChartMetadata, target?: ITargetDocument[]): Promise < string > {
+        return this.processChartData(kpi, metadata, target).then(res => JSON.stringify(res));
     }
 
 }

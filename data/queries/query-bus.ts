@@ -8,10 +8,11 @@ import {
 } from '..';
 import { Enforcer, getEnforcerConfig, IEnforcer } from '../../lib/enforcer';
 import * as Promise from 'bluebird';
+import { ExtendedRequest } from '../../middlewares/extended-request';
 
 
 export interface IQueryBus {
-    run<T>(activityName: string, query: IQuery<T>, data: any, request?: any): Promise<any>;
+    run<T>(activityName: string, query: IQuery<T>, data: any, request?: ExtendedRequest): Promise<any>;
 }
 
 export class QueryBus implements IQueryBus {
@@ -27,12 +28,11 @@ export class QueryBus implements IQueryBus {
 
     constructor(private _enforcer: IEnforcer) { }
 
-    run<T>(activityName: string, query: IQuery<T>, data: any, request: any): Promise<any> {
+    run<T>(activityName: string, query: IQuery<T>, data: any, request: ExtendedRequest): Promise<any> {
         const that = this;
         // chack activity authorization
-        return this.enforcer.authorizationTo(activityName, query.identity)
+        return this.enforcer.authorizationTo(activityName, request)
             .then((authorized) => {
-                that.authorizedValue = authorized;
                 if (!authorized) {
                     return Promise.reject(authorized);
                 }
@@ -40,6 +40,7 @@ export class QueryBus implements IQueryBus {
                 return Promise.resolve(true);
             })
             .then((authorized: boolean) => {
+                that.authorizedValue = authorized;
                 if (authorized) {
                     console.log('trying to run query: ' + query.constructor.name);
                     return query.run(data);

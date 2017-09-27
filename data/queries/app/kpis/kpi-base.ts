@@ -26,10 +26,12 @@ export interface IGetDataOptions {
     filter?: any;
     frequency?: FrequencyEnum;
     groupings?: string[];
+    stackName?: any;
 }
 
 export interface IKpiBase {
     getData(dateRange?: IDateRange, options?: IGetDataOptions): Promise<any>;
+    getTargetData?(dateRange?: IDateRange, options?: IGetDataOptions): Promise<any>;
     getSeries?(dateRange: IDateRange, frequency: FrequencyEnum);
 }
 
@@ -48,11 +50,12 @@ export class KpiBase {
         let that = this;
 
         return new Promise<any>((resolve, reject) => {
-
             if (dateRange)
                 that._injectDataRange(dateRange, dateField);
             if (options.filter)
                 that._injectFilter(options.filter);
+            if (options.stackName && options.groupings)
+                that._injectTargetStackFilter(options.groupings, options.stackName);
             if (options.frequency >= 0)
                 that._injectFrequency(options.frequency, dateField);
             if (options.groupings)
@@ -131,6 +134,17 @@ export class KpiBase {
             if (filterKey === 'top') return;
             matchStage.$match[filterKey] = cleanFilter[filterKey];
         });
+    }
+
+    private _injectTargetStackFilter(field: any, stackName: any) {
+        let matchStage = this.findStage('filter', '$match');
+        if (!matchStage) {
+            throw 'KpiBase#_injectDataRange: Cannot inject filter because a dateRange/$match stage could not be found';
+        }
+
+        if (field && stackName) {
+            matchStage.$match[field[0]] = stackName;
+        }
     }
 
     protected _cleanFilter(filter: any): any {

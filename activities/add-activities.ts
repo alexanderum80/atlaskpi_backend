@@ -68,6 +68,13 @@ import {
     createAccessLogActivity,
     getAllAccessLogsActivity,
 
+    // targets
+    createTargetActivity,
+    updateTargetActivity,
+    deleteTargetActivity,
+    findTargetActivity,
+    findAllTargetsActivity,
+    
     // device tokens
     addDeviceTokenActivity,
     removeDeviceTokenActivity,
@@ -153,6 +160,13 @@ export function addActivities() {
         createAccessLogActivity,
         getAllAccessLogsActivity,
 
+        // targets
+        createTargetActivity,
+        updateTargetActivity,
+        deleteTargetActivity,
+        findTargetActivity,
+        findAllTargetsActivity,
+        
         // device tokens
         addDeviceTokenActivity,
         removeDeviceTokenActivity,
