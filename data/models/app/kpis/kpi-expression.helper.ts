@@ -1,6 +1,6 @@
 import { GroupingMap } from './../../../queries/app/charts';
 import * as jsep from 'jsep';
-import { KPITypeTable, KPITypeEnum, getKPITypePropName, IKPISimpleDefinition } from './IKPI';
+import { KPITypeMap, KPITypeEnum, getKPITypePropName, IKPISimpleDefinition } from './IKPI';
 
 interface ICallExpression extends jsep.IExpression {
     type: 'CallExpression';
@@ -40,7 +40,7 @@ export class KPIExpressionHelper {
     }
 
     public static PrepareExpressionField(type: string, expression: string): string {
-        const kpiType = KPITypeTable[type];
+        const kpiType = KPITypeMap[type];
 
         switch (kpiType) {
             case KPITypeEnum.Simple:
