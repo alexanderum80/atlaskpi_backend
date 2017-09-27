@@ -27,7 +27,7 @@ export const commonGql: GraphqlDefinition = {
         }
         input ChartDateRangeInput {
             predefined: String
-            custom: [DateRangeInput]
+            custom: DateRangeInput
         }
         type DateRange {
             from: String

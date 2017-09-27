@@ -162,7 +162,7 @@ TargetSchema.statics.findAllTargets = function(): Promise<ITargetDocument[]> {
     });
 };
 
-TargetSchema.statics.findVisibleTargets = function(chartId: string, userId: string): Promise<ITargetDocument[]> {
+TargetSchema.statics.findUserVisibleTargets = function(chartId: string, userId: string): Promise<ITargetDocument[]> {
     const that = this;
     return new Promise<ITargetDocument[]>((resolve, reject) => {
         (<ITargetModel>this).find(

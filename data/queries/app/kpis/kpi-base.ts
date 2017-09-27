@@ -12,7 +12,6 @@ export interface IKPIMetadata {
     code?: string;
     dateRange: IDateRange;
     frequency: FrequencyEnum;
-    drillDown?: boolean;
 }
 
 export interface IKPIResult {
@@ -21,7 +20,7 @@ export interface IKPIResult {
 }
 
 export interface IGetDataOptions {
-    dateRange?: IChartDateRange;
+    dateRange?: [IChartDateRange];
     filter?: any;
     frequency?: FrequencyEnum;
     groupings?: string[];
@@ -29,8 +28,8 @@ export interface IGetDataOptions {
 }
 
 export interface IKpiBase {
-    getData(dateRange?: IDateRange, options?: IGetDataOptions): Promise<any>;
-    getTargetData?(dateRange?: IDateRange, options?: IGetDataOptions): Promise<any>;
+    getData(dateRange?: IDateRange[], options?: IGetDataOptions): Promise<any>;
+    getTargetData?(dateRange?: IDateRange[], options?: IGetDataOptions): Promise<any>;
     getSeries?(dateRange: IDateRange, frequency: FrequencyEnum);
 }
 
@@ -39,7 +38,7 @@ export class KpiBase {
 
     constructor(public model: any, public aggregate: AggregateStage[]) { }
 
-    executeQuery(dateField: string, dateRange?: IDateRange, options?: IGetDataOptions): Promise<any> {
+    executeQuery(dateField: string, dateRange?: IDateRange[], options?: IGetDataOptions): Promise<any> {
         logger.debug('executing query: ' + this.constructor.name);
 
         if (!this.model) throw 'A model is required to execute kpi query';
@@ -106,29 +105,28 @@ export class KpiBase {
         return operator;
     }
 
-    private _injectDataRange(dateRange: IDateRange, field: string) {
+    private _injectDataRange(dateRange: IDateRange[], field: string) {
         let matchStage = this.findStage('filter', '$match');
 
         if (!matchStage) {
             throw 'KpiBase#_injectDataRange: Cannot inject date range because a dateRange/$match stage could not be found';
         }
 
-        if (Array.isArray(dateRange) && dateRange.length) {
-            dateRange.map((dateParams) => {
-                matchStage.$match = {
-                    $or: [
-                        {
-                            [field]: { '$gte': dateParams.from, '$lte': dateParams.to }
-                        }
-                    ]
-                };
-            });
-
-        } else {
-            // apply date range
-            if (dateRange) {
-                matchStage.$match[field] = { '$gte': dateRange.from, '$lte': dateRange.to };
-
+        if (dateRange &&
+            dateRange.hasOwnProperty('length') &&
+            (<any>dateRange).length) {
+            if ((<any>dateRange).length === 1) {
+                matchStage.$match[field] = { '$gte': dateRange[0].from, '$lte': dateRange[0].to };
+            } else {
+                (<any>dateRange).map((dateParams) => {
+                    matchStage.$match = {
+                        $or: [
+                            {
+                                [field]: { '$gte': dateParams.from, '$lte': dateParams.to }
+                            }
+                        ]
+                    };
+                });
             }
         }
     }
