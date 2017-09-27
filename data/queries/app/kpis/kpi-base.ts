@@ -1,3 +1,4 @@
+import { IKPI } from '../../../models/app/kpis';
 import { IChartOptions } from '../charts/charts';
 import { AggregateStage } from './aggregate';
 import { IAppModels } from '../../../models/app/app-models';
@@ -36,6 +37,7 @@ export interface IKpiBase {
 
 export class KpiBase {
     frequency: FrequencyEnum;
+    protected kpi: IKPI;
 
     constructor(public model: any, public aggregate: AggregateStage[]) { }
 
@@ -145,7 +147,7 @@ export class KpiBase {
         }
     }
 
-    private _cleanFilter(filter: any): any {
+    protected _cleanFilter(filter: any): any {
         let newFilter = {};
         let replacementString = [
             { key: '__dot__', value: '.' },
@@ -163,6 +165,10 @@ export class KpiBase {
 
             if (!_.isArray(value) && _.isObject(value)) {
                 value = this._cleanFilter(value);
+            } else if (_.isArray(value)) {
+                for (let i = 0; i < value.length; i++) {
+                    value[i] = this._cleanFilter(value[i]);
+                }
             }
 
             newFilter[newKey] = value;

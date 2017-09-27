@@ -1,3 +1,5 @@
+import { SimpleKPI } from './simple-kpi';
+import { KPITypeTable, KPITypeEnum } from './../../../models/app/kpis/IKPI';
 import { IKpiBase } from './kpi-base';
 import { CompositeKpi } from './compound.kpi';
 import { Expenses } from './expenses.kpi';
@@ -8,8 +10,12 @@ import { IKPIDocument } from '../../../models/app/kpis';
 export class KpiFactory {
 
     static getInstance(kpiDocument: IKPIDocument, ctx: IAppModels): IKpiBase {
-        if (kpiDocument.composition)
+        if (kpiDocument.type && KPITypeTable[kpiDocument.type] === KPITypeEnum.Compound)
             return new CompositeKpi(kpiDocument, ctx);
+
+        if (kpiDocument.type && KPITypeTable[kpiDocument.type] === KPITypeEnum.Simple) {
+            return SimpleKPI.CreateFromExpression(ctx, kpiDocument);
+        }
 
         const searchBy = kpiDocument.baseKpi || kpiDocument.code;
 

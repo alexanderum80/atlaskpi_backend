@@ -8,4 +8,5 @@ export * from './search';
 export * from './roles';
 export * from './permissions';
 export * from './access-log';
+export * from './data-sources';
 export * from './targets';
