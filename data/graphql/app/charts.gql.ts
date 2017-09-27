@@ -126,13 +126,11 @@ export const chartsGql: GraphqlDefinition = {
             errors(response: IMutationResponse) { return response.errors; }
         },
         ChartDateRange: {
-            predefined(dateRange: IChartDateRange) {
-                return dateRange.predefined; },
-            custom(dateRange: IChartDateRange) {
-                return dateRange.custom; }
+            predefined(dateRange: IChartDateRange) { return dateRange.predefined; },
+            custom(dateRange: IChartDateRange) { return dateRange.custom; }
         },
         ChartEntityResponse: {
-            dateRange(entity: IChart) { return entity.dateRange; },
+            dateRange(entity: IChart) { return entity.dateRange[0] || null; },
             chartDefinition(entity: IChart) { return JSON.stringify(entity.chartDefinition); },
             dashboards(entity: IChart) { return entity.dashboards; }
         },
