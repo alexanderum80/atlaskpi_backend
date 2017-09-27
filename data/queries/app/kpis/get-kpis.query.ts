@@ -1,3 +1,6 @@
+import { KPIGroupingsHelper } from '../../../models/app/kpis/kpi-groupings.helper';
+import { KPIFilterHelper } from './../../../models/app/kpis/kpi-filter.helper';
+import { KPIExpressionHelper } from '../../../models/app/kpis/kpi-expression.helper';
 import { QueryBase } from '../../query-base';
 import { IKPIModel, IKPI } from '../../../models/app/kpis';
 import * as Promise from 'bluebird';

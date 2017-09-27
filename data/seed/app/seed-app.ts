@@ -12,10 +12,12 @@ function resolveContext(obj: string | IAppModels): Promise<IAppModels> {
         }
 
         if (typeof obj === 'string') {
-            return getContext(obj);
+            getContext(obj).then(ctx => {
+                resolve(ctx);
+            });
+        } else {
+            resolve(<IAppModels>obj);
         }
-
-        resolve(obj);
     });
 }
 
@@ -52,11 +54,11 @@ export function seedApp(obj: string | IAppModels): Promise<any> {
                 let model = ctx[data.model];
 
                 promises.push(seedDataFile(data, model));
-
-                Promise.all(promises)
-                .then(() => resolve())
-                .catch(err => reject(err));
             }
+
+            Promise.all(promises)
+            .then(() => resolve())
+            .catch(err => reject(err));
         });
     });
 }

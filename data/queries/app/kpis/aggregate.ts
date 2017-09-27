@@ -1,5 +1,6 @@
 export interface AggregateStage {
     filter?: boolean;
+    postGroupFilter?: boolean;
     frequency?: boolean;
 
     $match?: any;

@@ -12,7 +12,7 @@ let BusinessUnitSchema = {
     name: String
 };
 
-const ExpenseSchema = new Schema({
+export const ExpenseSchema = new Schema({
     source: String,
     externalId: { type: String, unique: true },
     location: IdNameSchema,
@@ -27,6 +27,7 @@ const ExpenseSchema = new Schema({
         identifier: String
     }
 });
+
 
 // INDEXS
 
