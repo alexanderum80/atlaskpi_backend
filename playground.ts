@@ -1,14 +1,20 @@
+import { KPIFilterHelper } from './data/models/app/kpis/kpi-filter.helper';
+import { readMongooseSchema } from './lib/utils';
+import { KPITypeEnum, IKPIFilter } from './data/models/app/kpis/IKPI';
+import { KPIExpressionHelper } from './data/models/app/kpis/kpi-expression.helper';
 import { SaleSchema } from './data/models/app/sales/Sale';
 import * as mongoose from 'mongoose';
+import * as _ from 'lodash';
+
 // import { testMongoosePerformance } from './playground/mongoose-performance';
-import { playWithUsers } from './playground/index';
+// import { playWithUsers } from './playground/index';
 // import { TestReportingProcessor } from './playground/reporting-processor';
 // import { executeKpis } from './playground/execute-kpis';
 
 // import { fillEmployeeHours } from './playground/time-tracking-simulator';
 // import { fixEmployeesRoles } from './playground/fix-saltz-employee-roles';
 
-playWithUsers();
+// playWithUsers();
 
 // TestReportingProcessor();
 // testMongoosePerformance();
@@ -50,7 +56,7 @@ playWithUsers();
 // }
 
 
-// let b = readMongooseSchema(SaleSchema);
+// console.log(b);
 
 // console.log('done');
 // import * as request from 'request';
@@ -102,3 +108,51 @@ playWithUsers();
 //     ]
 //  }, config);
 
+
+// let a = KPIExpressionHelper.DecomposeExpression(KPITypeEnum.Simple, 'sum(expenses.concept.amout) - 0.15');
+// console.dir(a);
+
+// let b = KPIExpressionHelper.ComposeExpression(KPITypeEnum.Simple, JSON.stringify(a));
+// console.dir(b);
+
+
+let filters: IKPIFilter[] = [
+    {
+        field: 'product.paid',
+        operator: 'gte',
+        criteria: ''
+    },
+    {
+        field: 'employee.externalId',
+        operator: 'eq',
+        criteria: '4260'
+    },
+    {
+        field: 'product.itemCode',
+        operator: 'in',
+        criteria: '2345,5678,8912'
+    }
+];
+
+
+let singleFilter: IKPIFilter[] = [
+    {
+        field: 'product.paid',
+        operator: 'gte',
+        criteria: ''
+    }
+];
+
+
+
+let f = KPIFilterHelper.ComposeFilter(KPITypeEnum.Simple, JSON.stringify(filters) );
+console.log(JSON.stringify(f));
+
+let g = KPIFilterHelper.ComposeFilter(KPITypeEnum.Simple, JSON.stringify(singleFilter) );
+console.log(JSON.stringify(g));
+
+let h = KPIFilterHelper.DecomposeFilter(KPITypeEnum.Simple, JSON.parse('{"__dollar__and":[{"product__dot__paid":{"__dollar__gte":0}},{"employee__dot__externalId":{"__dollar__eq":"4260"}},{"product__dot__itemCode":{"__dollar__in":["2345","5678","8912"]}}]}'));
+console.log(JSON.stringify(h));
+
+let i = KPIFilterHelper.DecomposeFilter(KPITypeEnum.Simple, JSON.parse('{"product__dot__paid":{"__dollar__gte":0}}'));
+console.log(JSON.stringify(i));
