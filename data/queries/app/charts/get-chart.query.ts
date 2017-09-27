@@ -1,3 +1,5 @@
+import { IUserDocument } from '../../../models/app/users/index';
+import { TargetService } from '../../../services/targets/target.service';
 import { QueryBase } from '../../query-base';
 import { IChartMetadata } from './charts/chart-metadata';
 import { FrequencyTable } from '../../../models/common/frequency-enum';
@@ -16,7 +18,7 @@ import * as logger from 'winston';
 
 export class GetChartQuery extends QueryBase<string> {
 
-    constructor(public identity: IIdentity, private _ctx: IAppModels) {
+    constructor(public identity: IIdentity, private _ctx: IAppModels, private _user?: IUserDocument) {
         super(identity);
     }
 
@@ -44,23 +46,38 @@ export class GetChartQuery extends QueryBase<string> {
                         return reject(null);
                     }
 
-                    let uiChart = ChartFactory.getInstance(chart);
-                    let kpi = KpiFactory.getInstance(chart.kpis[0], that._ctx);
-                    let groupings = getGroupingMetadata(chart, data.input ? data.input.groupings : []);
+                let targetService = new TargetService(this._ctx.User, this._ctx.Target, this._ctx.Chart);
 
-                    let frequency = FrequencyTable[(data.input && data.input.frequency) ? data.input.frequency : chart.frequency];
-                    let definitionParameters: IChartMetadata = {
-                        filter: (data.input && data.input.filter)  ? data.input.filter : chart.filter,
-                        frequency: frequency,
-                        groupings: groupings,
-                        xAxisSource: (data.input && data.input.xAxisSource) ? data.input.xAxisSource : chart.xAxisSource
-                    };
+                let uiChart = ChartFactory.getInstance(chart);
+                let kpi = KpiFactory.getInstance(chart.kpis[0], that._ctx);
+                let groupings = getGroupingMetadata(chart, data.input ? data.input.groupings : []);
 
-                    if (data.input && data.input.dateRange) {
-                        definitionParameters.dateRange = data.input.dateRange;
-                    }
+                let frequency = FrequencyTable[(data.input && data.input.frequency) ? data.input.frequency : chart.frequency];
+                let definitionParameters: IChartMetadata = {
+                    filter: (data.input && data.input.filter)  ? data.input.filter : chart.filter,
+                    frequency: frequency,
+                    groupings: groupings,
+                    xAxisSource: (data.input && data.input.xAxisSource) ? data.input.xAxisSource : chart.xAxisSource
+                };
 
-                    uiChart.getDefinition(kpi, definitionParameters).then((definition) => {
+                if (data.input && data.input.dateRange) {
+                    definitionParameters.dateRange = data.input.dateRange;
+                }
+
+                if (data.id && that._user) {
+                    targetService.getTargets(data.id, that._user._id)
+                        .then((resp) => {
+                            uiChart.getDefinition(kpi, definitionParameters, resp).then((definition) => {
+                                logger.debug('chart definition received for id: ' + data.id);
+                                chart.chartDefinition = definition;
+                                resolve(JSON.stringify(chart));
+                            }).catch(e => {
+                                console.error(e);
+                                reject(e);
+                            });
+                    });
+                } else {
+                    uiChart.getDefinition(kpi, definitionParameters, []).then((definition) => {
                         logger.debug('chart definition received for id: ' + data.id);
                         chart.chartDefinition = definition;
                         resolve(JSON.stringify(chart));
@@ -68,7 +85,8 @@ export class GetChartQuery extends QueryBase<string> {
                         console.error(e);
                         reject(e);
                     });
-                });
+                }
+            });
         });
     }
 

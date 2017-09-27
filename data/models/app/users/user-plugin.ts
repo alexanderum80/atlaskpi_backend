@@ -908,7 +908,7 @@ export function accountPlugin(schema: mongoose.Schema, options: any) {
                 .populate('roles', '-_id, name')
                 .then((users) => {
                     if (users) {
-                        resolve(users.slice(1));
+                        resolve(users);
                     } else {
                         reject('Roles not found');
                     }

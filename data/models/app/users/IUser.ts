@@ -265,7 +265,7 @@ export interface IUserModel extends mongoose.Model<IUserDocument> {
     /**
      * Find all users
      */
-    findAllUsers(filter: string): Promise<IQueryResponse<IUserDocument[]>>;
+    findAllUsers(filter: string): Promise<IUserDocument[]>;
     /**
      * Adds a new mobile device to a user
      */
