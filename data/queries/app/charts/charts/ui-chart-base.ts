@@ -1,3 +1,4 @@
+import { TargetService } from '../../../../services/targets/target.service';
 import { ITargetDocument } from '../../../../models/app/targets/ITarget';
 import { parsePredifinedDate } from '../../../../models/common/date-range';
 import { IKPIDocument, IAppModels } from '../../../../models/app';
@@ -325,6 +326,9 @@ export class UIChartBase {
             return v !== 'frequency';
         });
 
+        console.log('GETTING FREQUENCY HELP');
+        console.log(metadata.frequency);
+
         if (target.length) {
             let filterTarget = target.filter((val) => {
                 return val.active !== false;
@@ -333,7 +337,7 @@ export class UIChartBase {
             this.targetData = _.map(filterTarget, (v, k) => {
                 return (<any>v).stackName ? {
                     _id: {
-                        frequency: moment(v.datepicker).format('YYYY-MM'),
+                        frequency: TargetService.formatFrequency(metadata.frequency, v.datepicker), // moment(v.datepicker).format('YYYY-MM'),
                         [this.commonField[0]]: (<any>v).name,
                         stackName: (<any>v).stackName,
                         targetId: v._id
@@ -342,7 +346,7 @@ export class UIChartBase {
                     targetId: v._id
                 } : {
                     _id: {
-                        frequency: moment(v.datepicker).format('YYYY-MM'),
+                        frequency: TargetService.formatFrequency(metadata.frequency, v.datepicker),
                         [this.commonField[0]]: (<any>v).name,
                         targetId: v._id
                     },
@@ -358,7 +362,7 @@ export class UIChartBase {
         let groupDifference = _.difference(groupings, [meta.xAxisSource]);
         this.targets = this._targetGrouping(data, groupDifference.length, groupDifference[0], meta, categories);
 
-        if (this.targets) {
+        if (this.targets && this.targets.length) {
             this.targets.forEach((target) => {
                 series.push(target);
             });
