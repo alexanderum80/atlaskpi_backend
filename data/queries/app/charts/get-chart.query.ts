@@ -64,6 +64,10 @@ export class GetChartQuery extends QueryBase<string> {
                     definitionParameters.dateRange = data.input.dateRange;
                 }
 
+                if (data.input && data.input.isDrillDown) {
+                    definitionParameters.isDrillDown = data.input.isDrillDown;
+                }
+
                 let checkDrillDown = (data.input && data.input.isDrillDown);
 
                 if (data.id && that._user && !checkDrillDown) {
