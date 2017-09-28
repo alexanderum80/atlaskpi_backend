@@ -1,7 +1,7 @@
 import { DataSourcesHelper } from './../../../queries/app/data-sources/datasource.helper';
 import { KPIExpressionHelper } from './kpi-expression.helper';
 import { GroupingMap } from './../../../queries/app/charts/chart-grouping-map';
-import { IKPIDocument, KPITypeTable, KPITypeEnum, IKPISimpleDefinition } from './IKPI';
+import { IKPIDocument, KPITypeMap, KPITypeEnum, IKPISimpleDefinition } from './IKPI';
 import * as _ from 'lodash';
 
 export class KPIGroupingsHelper {
@@ -11,7 +11,7 @@ export class KPIGroupingsHelper {
 
         let bySimpleKPIGroupings;
 
-        if (kpi.type && KPITypeTable[kpi.type] === KPITypeEnum.Simple) {
+        if (kpi.type && KPITypeMap[kpi.type] === KPITypeEnum.Simple) {
             bySimpleKPIGroupings = this._getGroupingsForSimpleKPI(kpi.expression);
         }
 
