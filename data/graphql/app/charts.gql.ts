@@ -18,16 +18,17 @@ export const chartsGql: GraphqlDefinition = {
     schema: {
         types: `
             input GetChartInput {
-                dateRange: ChartDateRangeInput!
+                dateRange: [ChartDateRangeInput]!
                 frequency: String
                 groupings: [String]!
-                xAxisSource: String,
+                xAxisSource: String
+                isDrillDown: Boolean
             }
             input ChartAttributesInput {
                 title: String!
                 subtitle: String
                 kpis: [String]
-                dateRange: ChartDateRangeInput
+                dateRange: [ChartDateRangeInput]
                 frequency: String
                 groupings: [String]
                 chartDefinition: String
@@ -102,7 +103,7 @@ export const chartsGql: GraphqlDefinition = {
             listCharts(root: any, args, ctx: IGraphqlContext) {
                 let query = new ListChartsQuery(ctx.req.identity, ctx.req.appContext);
                 return ctx.queryBus.run('list-charts', query, args, ctx.req);
-            },
+            }
         },
         Mutation: {
             createChart(root: any, args, ctx: IGraphqlContext) {
@@ -129,7 +130,7 @@ export const chartsGql: GraphqlDefinition = {
             custom(dateRange: IChartDateRange) { return dateRange.custom; }
         },
         ChartEntityResponse: {
-            dateRange(entity: IChart) { return entity.dateRange; },
+            dateRange(entity: IChart) { return entity.dateRange[0] || null; },
             chartDefinition(entity: IChart) { return JSON.stringify(entity.chartDefinition); },
             dashboards(entity: IChart) { return entity.dashboards; }
         },
