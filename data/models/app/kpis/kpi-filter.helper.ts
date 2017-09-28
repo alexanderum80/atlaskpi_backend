@@ -1,7 +1,7 @@
 import { flatten, readMongooseSchema } from '../../../../lib/utils';
 import { SaleSchema } from '../../../models/app/sales';
 import { ExpenseSchema } from '../../../models/app/expenses';
-import { KPITypeTable, KPITypeEnum, getKPITypePropName, IKPISimpleDefinition, IKPIFilter } from './IKPI';
+import { KPITypeMap, KPITypeEnum, getKPITypePropName, IKPISimpleDefinition, IKPIFilter } from './IKPI';
 import * as _ from 'lodash';
 
 const Schemas = [
@@ -40,7 +40,7 @@ export class KPIFilterHelper {
     }
 
     public static PrepareFilterField(type: string, filter: string): string {
-        const kpiType = KPITypeTable[type];
+        const kpiType = KPITypeMap[type];
 
         switch (kpiType) {
             case KPITypeEnum.Simple:
