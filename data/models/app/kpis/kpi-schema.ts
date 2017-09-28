@@ -1,5 +1,5 @@
 import { KPIFilterHelper } from './kpi-filter.helper';
-import { KPITypeTable } from './IKPI';
+import { KPITypeMap } from './IKPI';
 import { KPIExpressionHelper } from './kpi-expression.helper';
 import { IPagedQueryResult, PaginationDetailsDefault, Paginator } from '../../common/pagination';
 import {
@@ -59,7 +59,7 @@ KPISchema.statics.createKPI = function(input: IKPI): Promise<IKPIDocument> {
         }
 
         input.code = input.name;
-        let kpiType = KPITypeTable[input.type];
+        let kpiType = KPITypeMap[input.type];
         input.expression = KPIExpressionHelper.ComposeExpression(kpiType, input.expression);
         input.filter = KPIFilterHelper.ComposeFilter(kpiType, input.filter);
 
@@ -91,7 +91,7 @@ KPISchema.statics.updateKPI = function(id: string, input: IKPI): Promise<IKPIDoc
         }
 
         input.code = input.name;
-        let kpiType = KPITypeTable[input.type];
+        let kpiType = KPITypeMap[input.type];
         input.expression = KPIExpressionHelper.ComposeExpression(kpiType, input.expression);
         input.filter = KPIFilterHelper.ComposeFilter(kpiType, input.filter);
 

@@ -9,7 +9,7 @@ export enum KPITypeEnum {
     Compound
 }
 
-export const KPITypeTable = {
+export const KPITypeMap = {
     simple: KPITypeEnum.Simple,
     complex: KPITypeEnum.Complex,
     compound: KPITypeEnum.Compound,
