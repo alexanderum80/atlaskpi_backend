@@ -106,13 +106,13 @@ export class UIChartBase {
 
         let dateRangeText = dateRange.predefined ?
             dateRange.predefined
-            : moment(dateRange.custom.from).format(shortDateFormat) + ' - ' + moment(dateRange.custom.to).format(shortDateFormat);
+            : moment(dateRange.custom[0].from).utc().format(shortDateFormat) + ' - ' + moment(dateRange.custom[0].to).utc().format(shortDateFormat);
 
         definition.title = { text: `${this.chart.title} (${dateRangeText})` };
         definition.subtitle = { text: this.chart.subtitle };
 
         definition.series = this.series;
-        definition.targetList = targetList;
+        this.chart.targetList = targetList;
 
         if (!definition.xAxis) {
             definition.xAxis = {};
@@ -132,18 +132,18 @@ export class UIChartBase {
     protected getKPIData(kpi: IKpiBase, metadata?: IChartMetadata): Promise<any[]> {
         logger.debug('trying to get kpi data for: ' + this.chart.title);
         // const dateRange = this.dateRange ? this. dateRange.custom : null;
-        return kpi.getData(this.dateRange.custom, metadata);
+        return kpi.getData((<any>this.dateRange).custom, metadata);
     }
 
     /**
      * Returns the data range to be used for the chart
      * @param metadataDateRange data range that includes a predefined or a custom data range
      */
-    private _getDateRange(metadataDateRange: IChartDateRange): IChartDateRange {
+    private _getDateRange(metadataDateRange: IChartDateRange[]): IChartDateRange {
         let dateRange: IDateRange;
 
         return {
-            predefined: metadataDateRange ? metadataDateRange.predefined : this.chart.dateRange.predefined,
+            predefined: (metadataDateRange && metadataDateRange.length) ? metadataDateRange[0].predefined : this.chart.dateRange[0].predefined,
             custom: metadataDateRange ?
                 this._processChartDateRange(metadataDateRange)
                 : this._processChartDateRange(this.chart.dateRange)
@@ -154,10 +154,12 @@ export class UIChartBase {
      * Understand how to convert a chart data range interface into a simple date range
      * @param chartDateRange data range that includes a predefined or a custom data range
      */
-    private _processChartDateRange(chartDateRange: IChartDateRange): IDateRange {
-        return chartDateRange.custom && chartDateRange.custom.from ?
-            { from: new Date(chartDateRange.custom.from), to: new Date(chartDateRange.custom.to) }
-            : parsePredifinedDate(chartDateRange.predefined);
+    private _processChartDateRange(chartDateRange: IChartDateRange[]): IDateRange {
+        return (<any>chartDateRange).map((dateRange) => {
+            return dateRange.custom && dateRange.custom.from ?
+                { from: new Date(dateRange.custom.from), to: new Date(dateRange.custom.to) }
+                : parsePredifinedDate(dateRange.predefined);
+        });
     }
 
     /**

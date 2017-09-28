@@ -12,7 +12,7 @@ export interface IChart {
     subtitle?: string;
     group?: string;
     kpis: [IKPIDocument];
-    dateRange: IChartDateRange;
+    dateRange: [IChartDateRange];
     filter?: any;
     frequency?: string;
     groupings?: string[];
@@ -21,6 +21,7 @@ export interface IChart {
     chartDefinition: any;
     xAxisSource: string;
     dashboards?: IDashboardDocument[];
+    targetList?: any[];
 }
 
 export interface IChartInput {
@@ -28,7 +29,7 @@ export interface IChartInput {
     subtitle?: string;
     group?: string;
     kpis: [string];
-    dateRange: IChartDateRange;
+    dateRange: [IChartDateRange];
     filter?: any;
     frequency?: string;
     groupings?: string[];
@@ -40,11 +41,12 @@ export interface IChartInput {
 }
 
 export interface IGetChartInput {
-    dateRange: IChartDateRange;
+    dateRange: [IChartDateRange];
     frequency: string;
     groupings: [string];
     xAxisSource: string;
     filter?: string;
+    isDrillDown?: boolean;
 }
 
 export interface IChartDocument extends IChart, mongoose.Document {

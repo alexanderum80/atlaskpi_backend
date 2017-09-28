@@ -64,7 +64,9 @@ export class GetChartQuery extends QueryBase<string> {
                     definitionParameters.dateRange = data.input.dateRange;
                 }
 
-                if (data.id && that._user) {
+                let checkDrillDown = (data.input && data.input.isDrillDown);
+
+                if (data.id && that._user && !checkDrillDown) {
                     targetService.getTargets(data.id, that._user._id)
                         .then((resp) => {
                             uiChart.getDefinition(kpi, definitionParameters, resp).then((definition) => {
