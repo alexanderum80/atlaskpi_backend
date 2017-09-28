@@ -13,7 +13,7 @@ export const targetGql: GraphqlDefinition = {
         types: `
             input NotifyInput {
                 userId: String
-                days: String
+                notifyDigit: String
                 notifyTime: String
             }
             input TargetInput {
@@ -38,7 +38,7 @@ export const targetGql: GraphqlDefinition = {
 
             type NotifyResponse {
                 userId: String
-                days: String
+                notifyDigit: String
                 notifyTime: String
             }
             type TargetResponse {
@@ -104,10 +104,17 @@ export const targetGql: GraphqlDefinition = {
                 return ctx.mutationBus.run<IMutationResponse>('remove-target', ctx.req, mutation, args);
             }
         },
+        TargetResponse: {
+            notify(response: any) { return response.notify; }
+        },
         TargetResult: {
             success(response: IMutationResponse) { return response.success; },
             entity(response: IMutationResponse) { return response.entity; },
             errors(response: IMutationResponse) { return response.errors; }
+        },
+        TargetQueryResult: {
+            target(response: any) { return response.target; },
+            errors(response: any) { return response.errors; }
         }
     }
 };

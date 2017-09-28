@@ -7,8 +7,8 @@ let Schema = mongoose.Schema;
 
 let NotifySchema = new Schema({
     userId: [{ type: mongoose.Schema.Types.String, ref: 'User' }],
-    days: String,
-    notifyTime: Date
+    notifyDigit: String,
+    notifyTime: String
 });
 
 let TargetSchema = new Schema({

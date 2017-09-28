@@ -1,10 +1,11 @@
 import { IAppModels } from '../../models/app/app-models';
 import { IChartModel } from '../../models/app/charts/index';
 import { KpiFactory } from '../../queries/app/kpis/index';
-import { IDateRange, parsePredifinedDate } from '../../models/common/index';
+import { FrequencyEnum, IDateRange, parsePredifinedDate } from '../../models/common/index';
 import { ITargetModel } from '../../models/app/targets/ITarget';
 import { IUserModel } from '../../models/app/users/index';
 import * as Promise from 'bluebird';
+import * as moment from 'moment';
 
 
 export class TargetService {
@@ -117,5 +118,15 @@ export class TargetService {
 
     getDate(period: string): IDateRange {
         return parsePredifinedDate(period);
+    }
+
+    static formatFrequency(frequency: number, targetDate: string) {
+        switch (frequency) {
+            // case FrequencyEnum.Daily:
+            case FrequencyEnum.Monthly:
+                return moment(targetDate).format('YYYY-MM');
+            case FrequencyEnum.Yearly:
+                return moment(targetDate).format('YYYY');
+        };
     }
 }
