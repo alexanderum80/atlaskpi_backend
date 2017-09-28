@@ -26,6 +26,7 @@ export interface IGetDataOptions {
     frequency?: FrequencyEnum;
     groupings?: string[];
     stackName?: any;
+    isDrillDown?: boolean;
 }
 
 export interface IKpiBase {
@@ -49,7 +50,7 @@ export class KpiBase {
         let that = this;
 
         return new Promise<any>((resolve, reject) => {
-            if (dateRange)
+            if (dateRange && dateRange.hasOwnProperty('length') && dateRange.length)
                 that._injectDataRange(dateRange, dateField);
             if (options.filter)
                 that._injectFilter(options.filter);
@@ -115,7 +116,6 @@ export class KpiBase {
         }
 
         if (dateRange &&
-            dateRange.hasOwnProperty('length') &&
             (<any>dateRange).length) {
             if ((<any>dateRange).length === 1) {
                 matchStage.$match[field] = { '$gte': dateRange[0].from, '$lte': dateRange[0].to };
