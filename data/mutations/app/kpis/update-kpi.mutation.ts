@@ -1,3 +1,6 @@
+import { KPIFilterHelper } from './../../../models/app/kpis/kpi-filter.helper';
+import { KPIExpressionHelper } from './../../../models/app/kpis/kpi-expression.helper';
+import { IKPI } from './../../../models/app/kpis/IKPI';
 import { MutationBase } from '../../mutation-base';
 import { IMutationResponse } from '../../../models/common';
 import * as Promise from 'bluebird';
@@ -14,7 +17,15 @@ export class UpdateKPIMutation extends MutationBase<IMutationResponse> {
     // log = true;
     // audit = true;
 
-    run(data): Promise<IMutationResponse> {
-        return this._KPIModel.updateKPI(data.id, data.data);
+    run(data: {id: string, input: IKPI}): Promise<IMutationResponse> {
+        const that = this;
+        return new Promise<IMutationResponse>((resolve, reject) => {
+            that._KPIModel.updateKPI(data.id, data.input)
+            .then((kpiDocument) => {
+                resolve({entity: kpiDocument, success: true });
+                return;
+            })
+            .catch((err) => resolve({ success: false, errors: [ { field: 'id', errors: [err]}] }));
+        });
     }
 }

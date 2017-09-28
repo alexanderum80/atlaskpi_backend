@@ -1,5 +1,5 @@
 import { IMutationResponse } from '../../common';
-import mongoose = require('mongoose');
+import * as mongoose from 'mongoose';
 import * as Promise from 'bluebird';
 
 export interface ISubIndustry {
