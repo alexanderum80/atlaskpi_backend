@@ -105,8 +105,8 @@ export class UIChartBase {
         let shortDateFormat = 'MM/DD/YY';
         const dateRange = this.dateRange || this.chart.dateRange;
 
-        let dateRangeText = dateRange.predefined ?
-            dateRange.predefined
+        let dateRangeText = (<any>dateRange).predefined ?
+            (<any>dateRange).predefined
             : moment(dateRange.custom[0].from).utc().format(shortDateFormat) + ' - ' + moment(dateRange.custom[0].to).utc().format(shortDateFormat);
 
         definition.title = { text: `${this.chart.title} (${dateRangeText})` };
