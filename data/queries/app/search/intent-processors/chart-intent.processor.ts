@@ -48,7 +48,7 @@ export class ChartIntentProcessor {
         return {
             title: `${intent.DateRange} ${intent.Collection}`,
             kpis: intent.Collection === 'sales' ? [SalesKPI] : [ExpensesKPI],
-            dateRange: { predefined: intent.DateRange },
+            dateRange: [{ predefined: intent.DateRange }],
             filter: '',
             frequency: intent.Frequency,
             groupings: this._processGrouping(intent.Grouping),
