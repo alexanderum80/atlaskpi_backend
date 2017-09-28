@@ -1,3 +1,8 @@
+import { KPIExpressionHelper } from '../../models/app/kpis/kpi-expression.helper';
+import { KPIFilterHelper } from './../../models/app/kpis/kpi-filter.helper';
+import { KPIGroupingsHelper } from '../../models/app/kpis/kpi-groupings.helper';
+import { DataSourcesHelper } from '../../queries/app/data-sources/datasource.helper';
+import { GetKpiQuery } from './../../queries/app/kpis/get-kpi.query';
 import { IDateRange } from '../../models/common/date-range';
 import { GetKpisQuery } from '../../queries/app/kpis/get-kpis.query';
 import { CreateKPIMutation, UpdateKPIMutation, RemoveKPIMutation } from '../../mutations/app/kpis';
@@ -17,16 +22,22 @@ export const kpisGql: GraphqlDefinition = {
     name: 'kpis',
     schema: {
         types: `
-            input KPIDetails {
+            input KPIAttributesInput {
+                code: String
                 name: String!
-                description: String
-                formula: String!
                 group: String
-                emptyValueReplacement: String
+                description: String
+                dateRange: ChartDateRangeInput
+                frequency: String
+                groupings: [String]
+                type: String
+                expression: String
+                filter: String
             },
-            type KPIResult {
-                kpi: KPI
+            type KPIMutationResponse {
+                entity: KPI
                 errors: [ErrorDetails]
+                success: Boolean
             }
             type KPI {
                 _id: String
@@ -36,12 +47,14 @@ export const kpisGql: GraphqlDefinition = {
                 description: String
                 group: String
                 groupings: [String]
-                dateRange: DateRange
+                dateRange: ChartDateRange
                 filter: String
                 frequency: String
                 axisSelection: String
                 emptyValueReplacement: String
-                composition: String
+                expression: String
+                type: String
+                availableGroupings: [String]
             }
             type KPIPagedQueryResult {
                 pagination: PaginationInfo
@@ -51,25 +64,30 @@ export const kpisGql: GraphqlDefinition = {
         queries: `
             kpis: [KPI]
             getAllKPIs(details: PaginationDetails): KPIPagedQueryResult
+            kpi(id: String): KPI
         `,
         mutations: `
-            createKPI(data: KPIDetails): KPIResult
-            updateKPI(id: String, data: KPIDetails): KPIResult
-            removeKPI(id: String): KPIResult
+            createKPI(input: KPIAttributesInput): KPIMutationResponse
+            updateKPI(id: String, input: KPIAttributesInput): KPIMutationResponse
+            removeKPI(id: String): KPIMutationResponse
         `,
     },
 
     resolvers: {
         Query: {
-            kpis(root: any, args: any, ctx: IGraphqlContext) {
+            kpis(root: any, args, ctx: IGraphqlContext) {
                 let query = new GetKpisQuery(ctx.req.identity, ctx.req.appContext);
                 return ctx.queryBus.run('get-kpis', query, args, ctx.req).catch(e => console.error(e));
             },
             getAllKPIs(root: any, args, ctx: IGraphqlContext) {
                 let query = new GetAllKPIsQuery(ctx.req.identity, ctx.req.appContext.KPI);
                 return ctx.queryBus.run('get-all-kpis', query, ctx.req);
+            },
+            kpi(root: any, args, ctx: IGraphqlContext) {
+                let query = new GetKpiQuery(ctx.req.identity, ctx.req.appContext.KPI);
+                return ctx.queryBus.run('get-kpi', query, args, ctx.req);
             }
-        },
+         },
         Mutation: {
             createKPI(root: any, args, ctx: IGraphqlContext) {
                 let mutation = new CreateKPIMutation(ctx.req.identity, ctx.req.appContext.KPI);
@@ -88,8 +106,8 @@ export const kpisGql: GraphqlDefinition = {
             pagination(res: IPagedQueryResult<IKPI>) { return res.pagination; },
             data(res: IPagedQueryResult<IKPI>) { return res.data; }
         },
-        KPIResult: {
-            kpi(response: IMutationResponse) { return response.entity; },
+        KPIMutationResponse: {
+            entity(response: IMutationResponse) { return response.entity; },
             errors(response: IMutationResponse) { return response.errors; }
         },
         DateRange: {
@@ -98,6 +116,9 @@ export const kpisGql: GraphqlDefinition = {
         },
         KPI: {
             dateRange(entity: IKPIDocument) { return entity.dateRange; },
+            expression(entity: IKPIDocument) { return KPIExpressionHelper.PrepareExpressionField(entity.type, entity.expression); },
+            filter(entity: IKPIDocument) { return JSON.stringify(KPIFilterHelper.PrepareFilterField(entity.type, entity.filter)); },
+            availableGroupings(entity: IKPIDocument) { return KPIGroupingsHelper.GetAvailableGroupings(entity); }
         }
     }
 };

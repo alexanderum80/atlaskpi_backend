@@ -28,6 +28,7 @@ import {
     createKPIActivity,
     updateKPIActivity,
     removeKPIActivity,
+    getKpiActivity,
 
     // business unit
     createBusinessUnitActivity,
@@ -76,7 +77,10 @@ import {
     
     // device tokens
     addDeviceTokenActivity,
-    removeDeviceTokenActivity
+    removeDeviceTokenActivity,
+
+    // data sources
+    getDataSourcesActivity,
 
 } from './app';
 
@@ -110,6 +114,7 @@ export function addActivities() {
         updateKPIActivity,
         removeKPIActivity,
         getKpisActivity,
+        getKpiActivity,
 
         // businessUnits
         createBusinessUnitActivity,
@@ -164,7 +169,10 @@ export function addActivities() {
         
         // device tokens
         addDeviceTokenActivity,
-        removeDeviceTokenActivity
+        removeDeviceTokenActivity,
+
+        // data sources
+        getDataSourcesActivity,
 
     ]);
 }
