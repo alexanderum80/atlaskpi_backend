@@ -90,8 +90,8 @@ export class UIChartBase {
             }
 
             that.categories = that._createCategories(data, metadata);
-            that.series = that._createSeries(data, metadata, that.categories, that.groupings);
 
+            that.series = that._createSeries(data, metadata, that.categories, that.groupings);
             that._injectTargets(that.targetData, metadata, that.categories, that.groupings, that.series);
 
             return;
@@ -340,9 +340,6 @@ export class UIChartBase {
             return v !== 'frequency';
         });
 
-        console.log('GETTING FREQUENCY HELP');
-        console.log(metadata.frequency);
-
         if (target.length) {
             let filterTarget = target.filter((val) => {
                 return val.active !== false;
@@ -351,7 +348,7 @@ export class UIChartBase {
             this.targetData = _.map(filterTarget, (v, k) => {
                 return (<any>v).stackName ? {
                     _id: {
-                        frequency: TargetService.formatFrequency(metadata.frequency, v.datepicker), // moment(v.datepicker).format('YYYY-MM'),
+                        frequency: TargetService.formatFrequency(metadata.frequency, v.datepicker),
                         [this.commonField[0]]: (<any>v).name,
                         stackName: (<any>v).stackName,
                         targetId: v._id
@@ -396,6 +393,23 @@ export class UIChartBase {
     }
 
     private _targetMetaData(meta: any, groupByField: any, data: any[], categories: IXAxisCategory[]) {
+        let targetCategories = [];
+        if (meta.frequency === 4) {
+            data.forEach((target) => {
+                targetCategories.push({
+                    id: target._id.year,
+                    name: target._id.frequency
+                });
+            });
+            let missingCategories = this._addMissingDates(categories);
+            console.log(JSON.stringify(missingCategories));
+            categories = _.union(categories, targetCategories);
+            categories = _.union(categories, missingCategories);
+            categories = _.uniqBy(categories, 'name');
+
+            this.categories = categories;
+        }
+
         let groupedData: Dictionary<any> = _.groupBy(data, (val) => {
             if (val['_id'].hasOwnProperty('stackName')) {
                 return val._id[groupByField] + '_' + val._id['stackName'];
@@ -413,6 +427,23 @@ export class UIChartBase {
         }
 
         return this._targetFormatData(groupedData, categories, matchField);
+    }
+
+    private _addMissingDates(categories) {
+        for (let i = 1; i < categories.length; i++) {
+            if (categories[i].id - categories[i - 1].id !== 1) {
+                let diff = categories[i].id - categories[i - 1].id;
+                let j = 1;
+                while (j < diff) {
+                    categories.push({
+                        id: categories[i - 1].id + j,
+                        title: <String>(categories[i - 1].id + 1)
+                    });
+                    j++;
+                }
+            }
+        }
+        return categories;
     }
 
     private _targetFormatData(groupedData: Dictionary<any>, categories: IXAxisCategory[], matchField: string) {
