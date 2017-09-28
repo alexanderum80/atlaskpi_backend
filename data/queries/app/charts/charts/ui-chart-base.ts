@@ -43,11 +43,12 @@ export interface IUIChart {
 
 export class UIChartBase {
     protected data: any[];
-    protected dateRange: IChartDateRange;
+    protected dateRange: IChartDateRange[];
     protected groupings: string[];
     protected categories: IXAxisCategory[];
     protected series: any[];
     protected targets: any;
+    protected drilldown: any;
 
     targetData: any[];
     commonField: any[];
@@ -70,6 +71,7 @@ export class UIChartBase {
         const that = this;
 
         this.dateRange = this._getDateRange(metadata.dateRange);
+        this.drilldown = metadata.isDrillDown;
 
         return that.getKPIData(kpi, metadata).then(data => {
             logger.debug('data received, for chart: ' + this.constructor.name + ' - kpi: ' + kpi.constructor.name);
@@ -106,9 +108,15 @@ export class UIChartBase {
         let shortDateFormat = 'MM/DD/YY';
         const dateRange = this.dateRange || this.chart.dateRange;
 
-        let dateRangeText = (<any>dateRange).predefined ?
-            (<any>dateRange).predefined
+        let dateRangeText;
+
+        if (!this.drilldown) {
+            dateRangeText = (<any>dateRange)[0].predefined ?
+            (<any>dateRange)[0].predefined
             : moment(dateRange[0].custom.from).utc().format(shortDateFormat) + ' - ' + moment(dateRange[0].custom.to).utc().format(shortDateFormat);
+        } else {
+            dateRangeText = 'Drilldown';
+        }
 
         definition.title = { text: `${this.chart.title} (${dateRangeText})` };
         definition.subtitle = { text: this.chart.subtitle };
@@ -134,34 +142,39 @@ export class UIChartBase {
     protected getKPIData(kpi: IKpiBase, metadata?: IChartMetadata): Promise<any[]> {
         logger.debug('trying to get kpi data for: ' + this.chart.title);
         // const dateRange = this.dateRange ? this. dateRange.custom : null;
-        return kpi.getData((<any>this.dateRange).custom, metadata);
+        const isDateRangeCustomEmpty = this.dateRange || this.dateRange.filter((range) => range.custom !== undefined);
+        const dateRange = isDateRangeCustomEmpty.length ? this.dateRange.map((range) => range.custom) : [];
+        return kpi.getData((<any>dateRange), metadata);
     }
 
     /**
      * Returns the data range to be used for the chart
      * @param metadataDateRange data range that includes a predefined or a custom data range
      */
-    private _getDateRange(metadataDateRange: IChartDateRange[]): IChartDateRange {
-        let dateRange: IDateRange;
-
-        return {
-            predefined: (metadataDateRange && metadataDateRange.length) ? metadataDateRange[0].predefined : this.chart.dateRange[0].predefined,
-            custom: metadataDateRange ?
-                this._processChartDateRange(metadataDateRange)
-                : this._processChartDateRange(this.chart.dateRange)
-        };
+    private _getDateRange(metadataDateRange: IChartDateRange[]): IChartDateRange[] {
+        return metadataDateRange ?
+            metadataDateRange.map((dateRange) => {
+                return {
+                    predefined: dateRange.predefined,
+                    custom: this._processChartDateRange(dateRange)
+                };
+            })
+            : this.chart.dateRange.map((dateRange) => {
+                return {
+                    predefined: dateRange.predefined,
+                    custom: this._processChartDateRange(dateRange)
+                };
+            });
     }
 
     /**
      * Understand how to convert a chart data range interface into a simple date range
      * @param chartDateRange data range that includes a predefined or a custom data range
      */
-    private _processChartDateRange(chartDateRange: IChartDateRange[]): IDateRange {
-        return (<any>chartDateRange).map((dateRange) => {
-            return dateRange.custom && dateRange.custom.from ?
-                { from: new Date(dateRange.custom.from), to: new Date(dateRange.custom.to) }
-                : parsePredifinedDate(dateRange.predefined);
-        });
+    private _processChartDateRange(chartDateRange: IChartDateRange): IDateRange {
+        return chartDateRange.custom && chartDateRange.custom.from ?
+                { from: new Date(chartDateRange.custom.from), to: new Date(chartDateRange.custom.to) }
+                : parsePredifinedDate(chartDateRange.predefined);
     }
 
     /**
