@@ -59,6 +59,10 @@ export const targetGql: GraphqlDefinition = {
                 stackName: String
                 nonStackName: String
             }
+            type TargetRemoveResponse {
+                _id: String
+                owner: String
+            }
             type TargetResult {
                 success: Boolean
                 entity: TargetResponse
@@ -66,6 +70,12 @@ export const targetGql: GraphqlDefinition = {
             }
             type TargetQueryResult {
                 target: TargetResponse
+                errors: [ErrorDetails]
+            }
+
+            type TargetRemoveResult {
+                success: Boolean
+                entity: TargetRemoveResponse
                 errors: [ErrorDetails]
             }
         `,
@@ -76,7 +86,7 @@ export const targetGql: GraphqlDefinition = {
         mutations: `
             createTarget(data: TargetInput): TargetResult
             updateTarget(id: String, data: TargetInput): TargetResult
-            removeTarget(id: String, owner: String): TargetResult
+            removeTarget(id: String, owner: String): TargetRemoveResult
         `
     },
     resolvers: {
@@ -108,6 +118,11 @@ export const targetGql: GraphqlDefinition = {
             notify(response: any) { return response.notify; }
         },
         TargetResult: {
+            success(response: IMutationResponse) { return response.success; },
+            entity(response: IMutationResponse) { return response.entity; },
+            errors(response: IMutationResponse) { return response.errors; }
+        },
+        TargetRemoveResult: {
             success(response: IMutationResponse) { return response.success; },
             entity(response: IMutationResponse) { return response.entity; },
             errors(response: IMutationResponse) { return response.errors; }
