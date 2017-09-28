@@ -72,7 +72,7 @@ export class SimpleKPI extends KpiBase implements IKpiBase {
             this._injectPostGroupStageFilters(deserializedFilter, definition.field);
     }
 
-    getData(dateRange: IDateRange, options?: IGetDataOptions): Promise<any> {
+    getData(dateRange: IDateRange[], options?: IGetDataOptions): Promise<any> {
         return this.executeQuery('timestamp', dateRange, options);
     }
 
