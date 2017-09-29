@@ -401,10 +401,10 @@ export class UIChartBase {
                     name: target._id.frequency
                 });
             });
-            let missingCategories = this._addMissingDates(categories);
-            console.log(JSON.stringify(missingCategories));
+            // let missingCategories = this._addMissingDates(categories);
+            // console.log(JSON.stringify(missingCategories));
             categories = _.union(categories, targetCategories);
-            categories = _.union(categories, missingCategories);
+            // categories = _.union(categories, missingCategories);
             categories = _.uniqBy(categories, 'name');
 
             this.categories = categories;

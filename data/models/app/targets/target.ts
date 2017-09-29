@@ -2,13 +2,15 @@ import { ITarget, ITargetDocument, ITargetModel } from './ITarget';
 import * as mongoose from 'mongoose';
 import * as Promise from 'bluebird';
 import * as validate from 'validate.js';
+import * as moment from 'moment';
 
 let Schema = mongoose.Schema;
 
 let NotifySchema = new Schema({
     userId: [{ type: mongoose.Schema.Types.String, ref: 'User' }],
     notifyDigit: String,
-    notifyTime: String
+    notifyTime: String,
+    notification: Date
 });
 
 let TargetSchema = new Schema({
@@ -50,6 +52,19 @@ TargetSchema.statics.createTarget = function(data: ITarget): Promise<ITargetDocu
             reject({ success: false, message: 'Not permitted to add target', error: errors });
             return;
         }
+
+        data.notify.map((notifying) => {
+            let notificationTime;
+            if (notifying.notifyTime === 'weeks') {
+                notificationTime = moment(data.datepicker).subtract(notifying.notifyDigit / 7, 'days').format('YYYY-MM-DD');
+            }
+            if (notifying.notifyTime === 'days') {
+                notificationTime = moment(data.datepicker).subtract(notifying.notifyDigit, 'days').format('YYYY-MM-DD');
+            }
+            Object.assign({}, notifying, {
+                notification: notifying
+            });
+        });
 
         data.delete = false;
 
