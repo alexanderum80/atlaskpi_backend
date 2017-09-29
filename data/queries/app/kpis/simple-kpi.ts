@@ -30,6 +30,7 @@ export class SimpleKPI extends KpiBase implements IKpiBase {
             {
                 frequency: true,
                 $project: {
+                    'product': 1,
                     '_id': 0
                 }
             },
@@ -45,7 +46,7 @@ export class SimpleKPI extends KpiBase implements IKpiBase {
             },
             {
                 $sort: {
-                    frequency: 1
+                    '_id.frequency': 1
                 }
             }
         ];
@@ -73,7 +74,7 @@ export class SimpleKPI extends KpiBase implements IKpiBase {
     }
 
     getData(dateRange: IDateRange[], options?: IGetDataOptions): Promise<any> {
-        return this.executeQuery('timestamp', dateRange, options);
+        return this.executeQuery('product.from', dateRange, options);
     }
 
     getSeries(dateRange: IDateRange, frequency: FrequencyEnum) {}
