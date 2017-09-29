@@ -12,16 +12,31 @@ import * as changeCase from 'change-case';
 
 import * as _ from 'lodash';
 
-const CollectionModelTableMapping = {
-    sales: 'Sale',
-    expenses: 'Expense'
+interface ICollection {
+    modelName: string;
+    timestampField: string;
+}
+
+const CollectionsMapping = {
+    sales: {
+        modelName: 'Sale',
+        timestampField: 'product.from'
+    },
+    expenses: {
+        modelName: 'Expense',
+        timestampField: 'timestamp'
+    }
 };
 
 export class SimpleKPI extends KpiBase implements IKpiBase {
 
     public static CreateFromExpression(models: IAppModels, kpi: IKPIDocument): SimpleKPI {
         const simpleKPIDefinition: IKPISimpleDefinition = KPIExpressionHelper.DecomposeExpression(KPITypeEnum.Simple, kpi.expression);
-        const model = models[CollectionModelTableMapping[simpleKPIDefinition.dataSource]];
+
+        const collection: ICollection = CollectionsMapping[simpleKPIDefinition.dataSource];
+        if (!collection) { return null; }
+
+        const model = models[collection.modelName];
         const aggregateSkeleton: AggregateStage[] = [
             {
                 filter: true,
@@ -45,14 +60,14 @@ export class SimpleKPI extends KpiBase implements IKpiBase {
             },
             {
                 $sort: {
-                    frequency: 1
+                    '_id.frequency': 1
                 }
             }
         ];
-        return new SimpleKPI(model, aggregateSkeleton, simpleKPIDefinition, kpi);
+        return new SimpleKPI(model, aggregateSkeleton, simpleKPIDefinition, kpi, collection);
     }
 
-    private constructor(model: any, baseAggregate: any, definition: IKPISimpleDefinition, kpi: IKPI) {
+    private constructor(model: any, baseAggregate: any, definition: IKPISimpleDefinition, kpi: IKPI, private collection: ICollection) {
         super(model, baseAggregate);
 
         this.kpi = kpi;
@@ -73,17 +88,22 @@ export class SimpleKPI extends KpiBase implements IKpiBase {
     }
 
     getData(dateRange: IDateRange[], options?: IGetDataOptions): Promise<any> {
-        return this.executeQuery('timestamp', dateRange, options);
+        return this.executeQuery(this.collection.timestampField, dateRange, options);
     }
 
     getSeries(dateRange: IDateRange, frequency: FrequencyEnum) {}
 
     private _injectFieldToProjection(fieldName: string) {
         const  projectStage = this.findStage('frequency', '$project');
-
         const fieldTokens = fieldName.split('.');
 
         projectStage.$project[fieldTokens[0]] = 1;
+
+        // we check where the timestamp field is, if is not in the projection then we add it
+        const timestampFieldTokens = this.collection.timestampField.split('.');
+        if (fieldTokens[0] !== timestampFieldTokens[0]) {
+            projectStage.$project[timestampFieldTokens[0]] = 1;
+        }
     }
 
     private _injectAcumulatorFunctionAndArgs(definition: IKPISimpleDefinition) {
