@@ -8,7 +8,7 @@ let Schema = mongoose.Schema;
 
 let NotifySchema = new Schema({
     userId: [{ type: mongoose.Schema.Types.String, ref: 'User' }],
-    notifyDigit: String,
+    notifyDigit: Number,
     notifyTime: String,
     notification: Date
 });
@@ -56,14 +56,12 @@ TargetSchema.statics.createTarget = function(data: ITarget): Promise<ITargetDocu
         data.notify.map((notifying) => {
             let notificationTime;
             if (notifying.notifyTime === 'weeks') {
-                notificationTime = moment(data.datepicker).subtract(notifying.notifyDigit / 7, 'days').format('YYYY-MM-DD');
+                notificationTime = moment(data.datepicker).utc().subtract(notifying.notifyDigit * 7, 'day').startOf('day').format();
             }
             if (notifying.notifyTime === 'days') {
-                notificationTime = moment(data.datepicker).subtract(notifying.notifyDigit, 'days').format('YYYY-MM-DD');
+                notificationTime = moment(data.datepicker).utc().subtract(notifying.notifyDigit, 'day').startOf('day').format();
             }
-            Object.assign({}, notifying, {
-                notification: notifying
-            });
+            notifying.notification = notificationTime;
         });
 
         data.delete = false;
