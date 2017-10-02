@@ -52,17 +52,20 @@ export function accountPlugin(schema: mongoose.Schema, options: any) {
     let Schema = mongoose.Schema;
 
     let EmailSchema = {
+        _id: { auto: false },
         address: { type: String, required: true },
         verified: Boolean
     };
 
     let EmailedTokenSchema = {
-        token: { type: String, required: true },
-        email: { type: String, required: true },
-        when: { type: Date, required: true }
+        _id: { auto: false },
+        token: { type: String },
+        email: { type: String },
+        when: { type: Date }
     };
 
     let ServicesSchema = {
+        _id: { auto: false },
         loginTokens: [{
             when: Date,
             hashedToken: String,
@@ -377,6 +380,7 @@ export function accountPlugin(schema: mongoose.Schema, options: any) {
                 });
         });
     };
+
     function addRole(data, user) {
         if (data.roles) {
             user.roles = [];
@@ -718,7 +722,7 @@ export function accountPlugin(schema: mongoose.Schema, options: any) {
                 query = { 'services.password.reset.token': token };
             } else {
                 query = { 'services.email.enrollment': { $elemMatch: { 'token': token} } };
-            };
+            }
 
             (<IUserModel>this).findOne(query)
                 .then((user) => {

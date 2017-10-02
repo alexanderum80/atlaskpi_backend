@@ -192,7 +192,7 @@ export interface IUserModel extends mongoose.Model<IUserDocument> {
      * Remove an email address for a user. Use this instead of updating the database directly.
      * @param {string} userId - the is of the user to update
      * @param {email} email - the email address to remove
-     * 
+     *
      */
     removeEmail(userId: string, email: string): Promise<IMutationResponse>;
     /**
