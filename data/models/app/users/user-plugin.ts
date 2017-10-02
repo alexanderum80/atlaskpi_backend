@@ -52,20 +52,17 @@ export function accountPlugin(schema: mongoose.Schema, options: any) {
     let Schema = mongoose.Schema;
 
     let EmailSchema = {
-        _id: { auto: false },
         address: { type: String, required: true },
         verified: Boolean
     };
 
     let EmailedTokenSchema = {
-        _id: { auto: false },
         token: { type: String },
         email: { type: String },
         when: { type: Date }
     };
 
     let ServicesSchema = {
-        _id: { auto: false },
         loginTokens: [{
             when: Date,
             hashedToken: String,
@@ -891,16 +888,16 @@ export function accountPlugin(schema: mongoose.Schema, options: any) {
     schema.statics.findByIdentity = function(identity: IIdentity): Promise<IUserDocument> {
         return new Promise<IUserDocument>((resolve, reject) => {
             (<IUserModel>this).findOne({ 'username': identity.username })
-                .populate('roles', '-_id, name' )
-                .populate('services', '-id')
+                .populate('roles', 'name' )
                 .then((user) => {
                 if (user) {
                     resolve(user);
                 } else {
                     resolve(null);
                 }
-            }).catch(() => {
-                resolve(null);
+            }).catch((err) => {
+                winston.error('Error retrieving the user by the identity: ' + err);
+                resolve(err);
             });
         });
     };
