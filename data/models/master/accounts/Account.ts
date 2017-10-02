@@ -1,3 +1,4 @@
+import { IsNullOrWhiteSpace } from '../../../extentions';
 import { ITokenInfo } from '../../app/users/IUser';
 import { IAppModels } from '../../app/app-models';
 import { stringify } from 'querystring';
@@ -260,7 +261,7 @@ function generateDBObject(database: string, username?: string, password?: string
 function createDbUserIfNeeded(account: IAccountDocument, dbUser): Promise<boolean> {
     return new Promise<boolean>((resolve, reject) => {
         // Create a db user if it's in production
-        if (config.mongoDBAtlasCredentials && config.mongoDBAtlasCredentials.api_key) {
+        if (config.mongoDBAtlasCredentials && !IsNullOrWhiteSpace(config.mongoDBAtlasCredentials.api_key)) {
             account.createAccountDbUser(dbUser)
                 .then((value) => resolve(value))
                 .catch((err) => reject(err));
