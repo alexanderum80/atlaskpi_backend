@@ -262,11 +262,13 @@ function createDbUserIfNeeded(account: IAccountDocument, dbUser): Promise<boolea
     return new Promise<boolean>((resolve, reject) => {
         // Create a db user if it's in production
         if (config.mongoDBAtlasCredentials && !IsNullOrWhiteSpace(config.mongoDBAtlasCredentials.api_key)) {
+            winston.debug('MongoDBAtlas api_key found, creating MongoDBAtlas user...');
             account.createAccountDbUser(dbUser)
                 .then((value) => resolve(value))
                 .catch((err) => reject(err));
         } else {
             // Local db... no need to create a db user;
+            winston.debug('MongoDBAtlas api_key not found, assuming backend is not in prod_mode...');
             resolve(true);
         }
     });
