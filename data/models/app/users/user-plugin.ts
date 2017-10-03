@@ -837,8 +837,9 @@ export function accountPlugin(schema: mongoose.Schema, options: any) {
     };
 
     schema.statics.verifyResetPasswordToken = function(token: string): Promise<ITokenVerification> {
+        const that = this;
         return new Promise<ITokenVerification>((resolve, reject) => {
-            (<IUserModel>this).findOne({ 'services.password.reset.token': token }).then((user) => {
+            (<IUserModel>that).findOne({ 'services.password.reset.token': token }).then((user) => {
                 if (!user) {
                     resolve({ isValid: false});
                     return;
@@ -865,8 +866,9 @@ export function accountPlugin(schema: mongoose.Schema, options: any) {
     };
 
     schema.statics.verifyEnrollmentToken = function(token: string): Promise<ITokenVerification> {
+        const that = this;
         return new Promise<ITokenVerification>((resolve, reject) => {
-            (<IUserModel>this).findOne({ 'services.email.enrollment': { $elemMatch: { 'token': token} } }).then((user) => {
+            (<IUserModel>that).findOne({ 'services.email.enrollment': { $elemMatch: { 'token': token} } }).then((user) => {
                 if (!user) {
                     resolve({ isValid: false});
                     return;
