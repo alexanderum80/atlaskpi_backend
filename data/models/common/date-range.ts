@@ -60,7 +60,7 @@ export function parsePredifinedDate(textDate: string): IDateRange {
     switch (textDate) {
         case PredefinedDateRanges.allTimes:
             return {
-                from: (<any>moment).min(moment().subtract(10, 'years'), moment().subtract(1, 'years')).startOf('year').toDate(),
+                from: (<any>moment).min(moment().subtract(30, 'years'), moment().subtract(1, 'years')).startOf('year').toDate(),
                 to: moment().toDate()
             };
         case PredefinedDateRanges.lastWeek:
