@@ -15,6 +15,7 @@ import { ChartFactory } from './charts/chart-factory';
 import { KpiFactory } from '../kpis/kpi.factory';
 import { getGroupingMetadata } from './chart-grouping-map';
 import * as logger from 'winston';
+import * as moment from 'moment';
 
 export class GetChartQuery extends QueryBase<string> {
 
@@ -60,7 +61,7 @@ export class GetChartQuery extends QueryBase<string> {
                     xAxisSource: (data.input && data.input.xAxisSource) ? data.input.xAxisSource : chart.xAxisSource
                 };
 
-                if (data.input && data.input.dateRange) {
+                if (data.input && data.input.dateRange && !data.input.isFutureTarget) {
                     definitionParameters.dateRange = data.input.dateRange;
                 }
 
@@ -68,11 +69,22 @@ export class GetChartQuery extends QueryBase<string> {
                     definitionParameters.isDrillDown = data.input.isDrillDown;
                 }
 
+                if (data.input && data.input.hasOwnProperty('isFutureTarget')) {
+                    definitionParameters.isFutureTarget = data.input.isFutureTarget;
+                }
+
                 let checkDrillDown = (data.input && data.input.isDrillDown);
 
                 if (data.id && that._user && !checkDrillDown) {
                     targetService.getTargets(data.id, that._user._id)
                         .then((resp) => {
+                            if (definitionParameters.isFutureTarget &&
+                                chart.frequency !== 'yearly') {
+                                definitionParameters.dateRange = definitionParameters.dateRange ||
+                                    [{ predefined: null,
+                                        custom: TargetService.futureTargets(resp) }];
+                            }
+
                             uiChart.getDefinition(kpi, definitionParameters, resp).then((definition) => {
                                 logger.debug('chart definition received for id: ' + data.id);
                                 chart.chartDefinition = definition;

@@ -30,4 +30,5 @@ export interface ITargetModel extends mongoose.Model<ITargetDocument> {
     createTarget(data: ITarget): Promise<ITargetDocument>;
     updateTarget(id: string, data: ITarget): Promise<ITargetDocument>;
     removeTarget(id: string): Promise<ITargetDocument>;
+    removeTargetFromChart(id: string): Promise<ITargetDocument>;
 }
