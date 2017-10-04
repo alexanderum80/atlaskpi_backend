@@ -57,9 +57,9 @@ export function accountPlugin(schema: mongoose.Schema, options: any) {
     };
 
     let EmailedTokenSchema = {
-        token: { type: String, required: true },
-        email: { type: String, required: true },
-        when: { type: Date, required: true }
+        token: { type: String },
+        email: { type: String },
+        when: { type: Date }
     };
 
     let ServicesSchema = {
@@ -260,7 +260,7 @@ export function accountPlugin(schema: mongoose.Schema, options: any) {
             let usernameField = config.usersService.usernameField;
 
             if (usernameField === 'email') {
-                condition['emails.address'] = username;
+                condition['emails'] = { $elemMatch: { address: username  } };
             } else {
                 condition['username'] = username;
             }
@@ -377,6 +377,7 @@ export function accountPlugin(schema: mongoose.Schema, options: any) {
                 });
         });
     };
+
     function addRole(data, user) {
         if (data.roles) {
             user.roles = [];
@@ -687,8 +688,18 @@ export function accountPlugin(schema: mongoose.Schema, options: any) {
     };
 
     schema.statics.forgotPassword = function(email: string, notifier: IForgotPasswordNotifier): Promise<nodemailer.SentMessageInfo> {
+        const that = this;
         return new Promise<nodemailer.SentMessageInfo>((resolve, reject) => {
-            (<IUserModel>this).findOne({ 'emails.address': email }).then((user) => {
+            let condition = {};
+            let usernameField = config.usersService.usernameField;
+
+            if (usernameField === 'email') {
+                condition['emails'] = { $elemMatch: { address: email  } };
+            } else {
+                condition['username'] = email;
+            }
+
+            (<IUserModel>that).findOne(condition).then((user) => {
                 if (!user) {
                     reject({ name: 'notfound', message: 'Account not found' });
                     return;
@@ -718,7 +729,7 @@ export function accountPlugin(schema: mongoose.Schema, options: any) {
                 query = { 'services.password.reset.token': token };
             } else {
                 query = { 'services.email.enrollment': { $elemMatch: { 'token': token} } };
-            };
+            }
 
             (<IUserModel>this).findOne(query)
                 .then((user) => {
@@ -730,10 +741,10 @@ export function accountPlugin(schema: mongoose.Schema, options: any) {
                     user.password = newPassword;
 
                     if (!enrollment) {
-                        user.services.password.reset.remove();
+                        user.services.password.reset = null;
                     } else {
                         user.services.email.enrollment = [];
-                    };
+                    }
 
                     user.save().then((user) => {
                         resolve({ success: true });
@@ -825,58 +836,61 @@ export function accountPlugin(schema: mongoose.Schema, options: any) {
        });
     };
 
-    schema.statics.verifyResetasswordToken = function(token: string): Promise<ITokenVerification> {
-        let defer = Promise.defer<ITokenVerification>();
+    schema.statics.verifyResetPasswordToken = function(token: string): Promise<ITokenVerification> {
+        const that = this;
+        return new Promise<ITokenVerification>((resolve, reject) => {
+            (<IUserModel>that).findOne({ 'services.password.reset.token': token }).then((user) => {
+                if (!user) {
+                    resolve({ isValid: false});
+                    return;
+                }
 
-        (<IUserModel>this).findOne({ 'services.password.reset.token': token }).then((user) => {
-            if (!user) {
-                defer.resolve({ isValid: false});
-            }
+                let expirationDate = moment(user.services.password.reset.when)
+                    .add('milliseconds', ms(String(config.usersService.services.forgotPassword.expiresIn)));
 
-            let expirationDate = moment(user.services.password.reset.when)
-                .add('milliseconds', ms(String(config.usersService.services.forgotPassword.expiresIn)));
+                if (moment().isAfter(expirationDate)) {
+                    // remove token because it is not useful any way
+                    user.services.password.reset = null;
+                    user.save();
 
-            if (moment().isAfter(expirationDate)) {
-                // remove token because it is not useful any way
-                user.services.password.reset.remove();
-                user.save();
-
-                defer.resolve({ isValid: false});
-            }
-
-            defer.resolve({ isValid: true });
-        }, (err) => {
-            defer.resolve({ isValid: false });
+                    resolve({ isValid: false});
+                    return;
+                }
+                resolve({ isValid: true });
+                return;
+            }, (err) => {
+                resolve({ isValid: false });
+                return;
+            });
         });
-
-        return defer.promise;
     };
 
     schema.statics.verifyEnrollmentToken = function(token: string): Promise<ITokenVerification> {
-        let defer = Promise.defer<ITokenVerification>();
+        const that = this;
+        return new Promise<ITokenVerification>((resolve, reject) => {
+            (<IUserModel>that).findOne({ 'services.email.enrollment': { $elemMatch: { 'token': token} } }).then((user) => {
+                if (!user) {
+                    resolve({ isValid: false});
+                    return;
+                }
 
-        (<IUserModel>this).findOne({ 'services.email.enrollment': { $elemMatch: { 'token': token} } }).then((user) => {
-            if (!user) {
-                defer.resolve({ isValid: false});
-            }
+                let expirationDate = moment(user.services.email.enrollment[0].when)
+                    .add('milliseconds', ms(String(config.usersService.services.forgotPassword.expiresIn)));
+                if (moment().isAfter(expirationDate)) {
+                    // remove token because it is not useful any way
+                    user.services.email.enrollment[0].remove();
+                    user.save();
+                    resolve({ isValid: false});
+                    return;
+                }
 
-            let expirationDate = moment(user.services.email.enrollment[0].when)
-                .add('milliseconds', ms(String(config.usersService.services.forgotPassword.expiresIn)));
-
-            if (moment().isAfter(expirationDate)) {
-                // remove token because it is not useful any way
-                user.services.email.enrollment[0].remove();
-                user.save();
-
-                defer.resolve({ isValid: false});
-            }
-
-            defer.resolve({ isValid: true });
-        }, (err) => {
-            defer.resolve({ isValid: false });
+                resolve({ isValid: true });
+                return;
+            }, (err) => {
+                resolve({ isValid: false });
+                return;
+            });
         });
-
-        return defer.promise;
     };
 
     schema.statics.search = function(details: IPaginationDetails): Promise<IPagedQueryResult<IUserDocument>> {
@@ -887,16 +901,16 @@ export function accountPlugin(schema: mongoose.Schema, options: any) {
     schema.statics.findByIdentity = function(identity: IIdentity): Promise<IUserDocument> {
         return new Promise<IUserDocument>((resolve, reject) => {
             (<IUserModel>this).findOne({ 'username': identity.username })
-                .populate('roles', '-_id, name' )
-                .populate('services', '-id')
+                .populate('roles', 'name' )
                 .then((user) => {
                 if (user) {
                     resolve(user);
                 } else {
                     resolve(null);
                 }
-            }).catch(() => {
-                resolve(null);
+            }).catch((err) => {
+                winston.error('Error retrieving the user by the identity: ' + err);
+                resolve(err);
             });
         });
     };
