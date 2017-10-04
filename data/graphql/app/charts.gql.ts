@@ -23,6 +23,7 @@ export const chartsGql: GraphqlDefinition = {
                 groupings: [String]!
                 xAxisSource: String
                 isDrillDown: Boolean
+                isFutureTarget: Boolean
             }
             input ChartAttributesInput {
                 title: String!
