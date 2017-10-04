@@ -48,7 +48,8 @@ export class UIChartBase {
     protected categories: IXAxisCategory[];
     protected series: any[];
     protected targets: any;
-    protected drilldown: any;
+    protected drilldown: boolean;
+    protected futureTarget: boolean;
 
     targetData: any[];
     commonField: any[];
@@ -72,10 +73,13 @@ export class UIChartBase {
 
         this.dateRange = this._getDateRange(metadata.dateRange);
         this.drilldown = metadata.isDrillDown;
+        this.futureTarget = metadata.isFutureTarget;
 
         return that.getKPIData(kpi, metadata).then(data => {
             logger.debug('data received, for chart: ' + this.constructor.name + ' - kpi: ' + kpi.constructor.name);
             that.data = data;
+
+            that._dummyData(data, metadata, target);
 
             that.groupings = that._getGroupingFields(data);
 
@@ -90,8 +94,8 @@ export class UIChartBase {
             }
 
             that.categories = that._createCategories(data, metadata);
-
             that.series = that._createSeries(data, metadata, that.categories, that.groupings);
+
             that._injectTargets(that.targetData, metadata, that.categories, that.groupings, that.series);
 
             return;
@@ -118,11 +122,14 @@ export class UIChartBase {
             dateRangeText = 'Drilldown';
         }
 
+        dateRangeText = this.futureTarget ? 'Next Year' : dateRangeText;
+
         definition.title = { text: `${this.chart.title} (${dateRangeText})` };
         definition.subtitle = { text: this.chart.subtitle };
 
         definition.series = this.series;
         this.chart.targetList = targetList;
+        this.chart.futureTarget = this.futureTarget;
 
         if (!definition.xAxis) {
             definition.xAxis = {};
@@ -336,14 +343,32 @@ export class UIChartBase {
     }
 
     private _formatTarget(target: any[], metadata: any, groupings: any) {
-        this.commonField = _.filter(groupings, (v, k) => {
-            return v !== 'frequency';
-        });
+        if (groupings && groupings.length) {
+            this.commonField = _.filter(groupings, (v, k) => {
+                return v !== 'frequency';
+            });
+        }
 
         if (target.length) {
             let filterTarget = target.filter((val) => {
                 return val.active !== false;
             });
+
+            if (metadata.frequency !== 4) {
+                if (this.futureTarget) {
+                    filterTarget = filterTarget.filter((targ) => {
+                        let futureDate = new Date(targ.datepicker);
+                        let endDate = new Date(moment().endOf('year').toDate());
+                        return endDate < futureDate;
+                    });
+                } else {
+                    filterTarget = filterTarget.filter((targ) => {
+                        let futureDate = new Date(targ.datepicker);
+                        let endDate = new Date(moment().endOf('year').toDate());
+                        return endDate > futureDate;
+                    });
+                }
+            }
 
             this.targetData = _.map(filterTarget, (v, k) => {
                 return (<any>v).stackName ? {
@@ -401,13 +426,18 @@ export class UIChartBase {
                     name: target._id.frequency
                 });
             });
-            // let missingCategories = this._addMissingDates(categories);
-            // console.log(JSON.stringify(missingCategories));
+
+            let missingCategories = this._addMissingDates(categories);
             categories = _.union(categories, targetCategories);
-            // categories = _.union(categories, missingCategories);
+
+            categories = _.union(categories, missingCategories);
             categories = _.uniqBy(categories, 'name');
 
             this.categories = categories;
+        }
+
+        if (!categories || !categories.length) {
+            this.categories = this._createCategories(data, meta);
         }
 
         let groupedData: Dictionary<any> = _.groupBy(data, (val) => {
@@ -439,7 +469,7 @@ export class UIChartBase {
                         id: categories[i - 1].id + j,
                         title: <String>(categories[i - 1].id + 1)
                     });
-                    j++;
+                    j = j + 1;
                 }
             }
         }
@@ -475,6 +505,50 @@ export class UIChartBase {
             series.push(serie);
         }
         return series;
+    }
+
+    private _dummyData(data: any[], metadata: any, target: any[]) {
+        if (!data.length) {
+            let tempData = getFrequencySequence(metadata.frequency);
+            if (!this.commonField || !this.commonField.length) {
+                this.commonField = this.chart.groupings;
+            }
+            let isStackedName;
+
+            let getDate = target.find(t => {
+                isStackedName = t.stackName;
+                let endDate = new Date(moment().endOf('year').toDate());
+                let nextYear = new Date(moment(t.datepicker).endOf('year').toDate());
+                return endDate < nextYear;
+            });
+            let frequencyFormat;
+            switch (metadata.frequency) {
+                case FrequencyEnum.Monthly:
+                    frequencyFormat = moment(getDate.datepicker).add(1, 'month').format('YYYY-MM');
+                    break;
+                case FrequencyEnum.Quartely:
+                    frequencyFormat = moment(getDate.datepicker).format('YYYY') + '-Q' + moment().add(1, 'quarter').format('Q');
+                    break;
+                case FrequencyEnum.Yearly:
+                    frequencyFormat = moment(getDate.datepicker).format('YYYY');
+                    break;
+                case FrequencyEnum.Daily:
+                    frequencyFormat = moment(getDate.datepicker).format('YYYY-MM-DD');
+                    break;
+                case FrequencyEnum.Weekly:
+                    frequencyFormat = moment(getDate).isoWeek();
+                    break;
+            }
+            tempData.forEach((d) => {
+                data.push({
+                    _id: {
+                        frequency: frequencyFormat,
+                        [this.commonField[0]]: isStackedName ? isStackedName : ''
+                    },
+                    value: 0
+                });
+            });
+        }
     }
 
 }

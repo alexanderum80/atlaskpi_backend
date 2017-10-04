@@ -1,3 +1,4 @@
+import { RemoveTargetFromChart } from '../../mutations/app/targets/remove-target-from-chart.mutation';
 import { RemoveTargetMutation } from '../../mutations/app/targets/remove-target.mutation';
 import { UpdateTargetMutation } from '../../mutations/app/targets/update-target.mutation';
 import { IMutationResponse } from '../../models/common';
@@ -61,7 +62,6 @@ export const targetGql: GraphqlDefinition = {
             }
             type TargetRemoveResponse {
                 _id: String
-                owner: String
             }
             type TargetResult {
                 success: Boolean
@@ -72,7 +72,6 @@ export const targetGql: GraphqlDefinition = {
                 target: TargetResponse
                 errors: [ErrorDetails]
             }
-
             type TargetRemoveResult {
                 success: Boolean
                 entity: TargetRemoveResponse
@@ -87,6 +86,7 @@ export const targetGql: GraphqlDefinition = {
             createTarget(data: TargetInput): TargetResult
             updateTarget(id: String, data: TargetInput): TargetResult
             removeTarget(id: String, owner: String): TargetRemoveResult
+            removeTargetFromChart(id: String): TargetRemoveResult
         `
     },
     resolvers: {
@@ -112,6 +112,10 @@ export const targetGql: GraphqlDefinition = {
             removeTarget(root: any, args, ctx: IGraphqlContext) {
                 let mutation = new RemoveTargetMutation(ctx.req.identity, ctx.req.appContext.Target, ctx.req.appContext);
                 return ctx.mutationBus.run<IMutationResponse>('remove-target', ctx.req, mutation, args);
+            },
+            removeTargetFromChart(root: any, args, ctx: IGraphqlContext) {
+                let mutation = new RemoveTargetFromChart(ctx.req.identity, ctx.req.appContext.Target);
+                return ctx.mutationBus.run<IMutationResponse>('remove-target-from-chart', ctx.req, mutation, args);
             }
         },
         TargetResponse: {

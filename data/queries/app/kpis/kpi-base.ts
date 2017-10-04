@@ -27,6 +27,7 @@ export interface IGetDataOptions {
     groupings?: string[];
     stackName?: any;
     isDrillDown?: boolean;
+    isFutureTarget?: boolean;
 }
 
 export interface IKpiBase {

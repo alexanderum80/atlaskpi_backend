@@ -22,6 +22,7 @@ export interface IChart {
     xAxisSource: string;
     dashboards?: IDashboardDocument[];
     targetList?: any[];
+    futureTarget?: boolean;
 }
 
 export interface IChartInput {
@@ -47,6 +48,7 @@ export interface IGetChartInput {
     xAxisSource: string;
     filter?: string;
     isDrillDown?: boolean;
+    isFutureTarget?: boolean;
 }
 
 export interface IChartDocument extends IChart, mongoose.Document {
