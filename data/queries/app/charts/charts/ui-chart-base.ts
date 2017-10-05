@@ -1,6 +1,6 @@
 import { TargetService } from '../../../../services/targets/target.service';
 import { ITargetDocument } from '../../../../models/app/targets/ITarget';
-import { parsePredifinedDate } from '../../../../models/common/date-range';
+import { parseComparisonDateRange, parsePredifinedDate } from '../../../../models/common/date-range';
 import { IKPIDocument, IAppModels } from '../../../../models/app';
 import { IKpiBase, IKPIResult } from '../../kpis/kpi-base';
 import { IChart, IChartDocument } from '../../../../models/app/charts';
@@ -22,8 +22,19 @@ import * as mongoose from 'mongoose';
 import * as logger from 'winston';
 import 'datejs';
 
-
 import { ChartPostProcessingExtention } from './chart-postprocessing-extention';
+
+export enum IKPIOutputType {
+    NONE,
+    MAIN,
+    COMPARISON
+}
+
+interface IKpiOutput {
+    type: IKPIOutputType;
+    id: string;
+    promise: Promise<any>;
+}
 
 interface Dictionary<T> { [key: string]: T; }
 
@@ -50,6 +61,7 @@ export class UIChartBase {
     protected targets: any;
     protected drilldown: boolean;
     protected futureTarget: boolean;
+    protected comparison: IDateRange[];
 
     targetData: any[];
     commonField: any[];
@@ -60,6 +72,36 @@ export class UIChartBase {
         if (!chart.kpis || chart.kpis.length < 1) {
             throw 'A chart cannot be created without a KPI';
         }
+    }
+
+    /**
+     * Process the chart data to it's most basic definition, it's the first step on the chart definition creation pipeline
+     * @param kpi
+     * @param metadata
+     */
+    protected processPureChartData(kpi: IKpiBase, metadata?: IChartMetadata): Promise<void> {
+        logger.debug('processPureChartData for: ' + this.constructor.name + ' - kpi: ' + kpi.constructor.name);
+
+        // set up all elements for retrieving the data
+        this.dateRange = this._getDateRange(metadata.dateRange);
+        this.comparison = this._getComparisonDateRanges(this.dateRange, metadata.comparison);
+
+        const mainPromiseName = this.dateRange[0].predefined ? this.dateRange[0].predefined : 'custom';
+
+        const dataPromises = {
+            mainPromiseName: kpi.getData([this.dateRange[0].custom], metadata),
+        };
+
+        this.comparison.forEach((comparison, index) => {
+            dataPromises[metadata.comparison[index]] = kpi.getData([comparison], metadata);
+        });
+
+        Promise.props(dataPromises).then(output => {
+            
+
+        });
+
+        return null;
     }
 
     /**
@@ -549,6 +591,19 @@ export class UIChartBase {
                 });
             });
         }
+    }
+
+    /**
+    * Returns the data range to be used for the chart
+    * @param dateRange date range object
+    * @param metadataDateRange data range that includes a predefined or a custom data range
+    */
+    private _getComparisonDateRanges(dateRange: IChartDateRange[], comparisonOptions: string[]): IDateRange[] {
+       if (!dateRange || !comparisonOptions) return null;
+
+       return comparisonOptions.map(c =>
+            parseComparisonDateRange(this._processChartDateRange(dateRange[0]), c)
+       );
     }
 
 }
