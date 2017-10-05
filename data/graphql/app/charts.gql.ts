@@ -24,6 +24,7 @@ export const chartsGql: GraphqlDefinition = {
                 xAxisSource: String
                 comparison: [String]
                 isDrillDown: Boolean
+                isFutureTarget: Boolean
             }
             input ChartAttributesInput {
                 title: String!
