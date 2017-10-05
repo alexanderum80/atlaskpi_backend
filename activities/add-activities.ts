@@ -74,6 +74,7 @@ import {
     deleteTargetActivity,
     findTargetActivity,
     findAllTargetsActivity,
+    RemoveTargetFromChartActivity,
 
     // device tokens
     addDeviceTokenActivity,
@@ -169,6 +170,7 @@ export function addActivities() {
         deleteTargetActivity,
         findTargetActivity,
         findAllTargetsActivity,
+        RemoveTargetFromChartActivity,
 
         // device tokens
         addDeviceTokenActivity,

@@ -1,3 +1,4 @@
+import { TargetService } from '../../../../services/targets/target.service';
 import { ITargetDocument } from '../../../../models/app/targets/ITarget';
 import { parsePredifinedDate } from '../../../../models/common/date-range';
 import { IKPIDocument, IAppModels } from '../../../../models/app';
@@ -47,7 +48,8 @@ export class UIChartBase {
     protected categories: IXAxisCategory[];
     protected series: any[];
     protected targets: any;
-    protected drilldown: any;
+    protected drilldown: boolean;
+    protected futureTarget: boolean;
 
     targetData: any[];
     commonField: any[];
@@ -71,10 +73,13 @@ export class UIChartBase {
 
         this.dateRange = this._getDateRange(metadata.dateRange);
         this.drilldown = metadata.isDrillDown;
+        this.futureTarget = metadata.isFutureTarget;
 
         return that.getKPIData(kpi, metadata).then(data => {
             logger.debug('data received, for chart: ' + this.constructor.name + ' - kpi: ' + kpi.constructor.name);
             that.data = data;
+
+            that._dummyData(data, metadata, target);
 
             that.groupings = that._getGroupingFields(data);
 
@@ -117,11 +122,14 @@ export class UIChartBase {
             dateRangeText = 'Drilldown';
         }
 
+        dateRangeText = this.futureTarget ? 'Next Year' : dateRangeText;
+
         definition.title = { text: `${this.chart.title} (${dateRangeText})` };
         definition.subtitle = { text: this.chart.subtitle };
 
         definition.series = this.series;
         this.chart.targetList = targetList;
+        this.chart.futureTarget = this.futureTarget;
 
         if (!definition.xAxis) {
             definition.xAxis = {};
@@ -335,19 +343,37 @@ export class UIChartBase {
     }
 
     private _formatTarget(target: any[], metadata: any, groupings: any) {
-        this.commonField = _.filter(groupings, (v, k) => {
-            return v !== 'frequency';
-        });
+        if (groupings && groupings.length) {
+            this.commonField = _.filter(groupings, (v, k) => {
+                return v !== 'frequency';
+            });
+        }
 
         if (target.length) {
             let filterTarget = target.filter((val) => {
                 return val.active !== false;
             });
 
+            if (metadata.frequency !== 4) {
+                if (this.futureTarget) {
+                    filterTarget = filterTarget.filter((targ) => {
+                        let futureDate = new Date(targ.datepicker);
+                        let endDate = new Date(moment().endOf('year').toDate());
+                        return endDate < futureDate;
+                    });
+                } else {
+                    filterTarget = filterTarget.filter((targ) => {
+                        let futureDate = new Date(targ.datepicker);
+                        let endDate = new Date(moment().endOf('year').toDate());
+                        return endDate > futureDate;
+                    });
+                }
+            }
+
             this.targetData = _.map(filterTarget, (v, k) => {
                 return (<any>v).stackName ? {
                     _id: {
-                        frequency: moment(v.datepicker).format('YYYY-MM'),
+                        frequency: TargetService.formatFrequency(metadata.frequency, v.datepicker),
                         [this.commonField[0]]: (<any>v).name,
                         stackName: (<any>v).stackName,
                         targetId: v._id
@@ -356,7 +382,7 @@ export class UIChartBase {
                     targetId: v._id
                 } : {
                     _id: {
-                        frequency: moment(v.datepicker).format('YYYY-MM'),
+                        frequency: TargetService.formatFrequency(metadata.frequency, v.datepicker),
                         [this.commonField[0]]: (<any>v).name,
                         targetId: v._id
                     },
@@ -372,7 +398,7 @@ export class UIChartBase {
         let groupDifference = _.difference(groupings, [meta.xAxisSource]);
         this.targets = this._targetGrouping(data, groupDifference.length, groupDifference[0], meta, categories);
 
-        if (this.targets) {
+        if (this.targets && this.targets.length) {
             this.targets.forEach((target) => {
                 series.push(target);
             });
@@ -392,6 +418,28 @@ export class UIChartBase {
     }
 
     private _targetMetaData(meta: any, groupByField: any, data: any[], categories: IXAxisCategory[]) {
+        let targetCategories = [];
+        if (meta.frequency === 4) {
+            data.forEach((target) => {
+                targetCategories.push({
+                    id: target._id.year,
+                    name: target._id.frequency
+                });
+            });
+
+            let missingCategories = this._addMissingDates(categories);
+            categories = _.union(categories, targetCategories);
+
+            categories = _.union(categories, missingCategories);
+            categories = _.uniqBy(categories, 'name');
+
+            this.categories = categories;
+        }
+
+        if (!categories || !categories.length) {
+            this.categories = this._createCategories(data, meta);
+        }
+
         let groupedData: Dictionary<any> = _.groupBy(data, (val) => {
             if (val['_id'].hasOwnProperty('stackName')) {
                 return val._id[groupByField] + '_' + val._id['stackName'];
@@ -409,6 +457,23 @@ export class UIChartBase {
         }
 
         return this._targetFormatData(groupedData, categories, matchField);
+    }
+
+    private _addMissingDates(categories) {
+        for (let i = 1; i < categories.length; i++) {
+            if (categories[i].id - categories[i - 1].id !== 1) {
+                let diff = categories[i].id - categories[i - 1].id;
+                let j = 1;
+                while (j < diff) {
+                    categories.push({
+                        id: categories[i - 1].id + j,
+                        title: <String>(categories[i - 1].id + 1)
+                    });
+                    j = j + 1;
+                }
+            }
+        }
+        return categories;
     }
 
     private _targetFormatData(groupedData: Dictionary<any>, categories: IXAxisCategory[], matchField: string) {
@@ -440,6 +505,50 @@ export class UIChartBase {
             series.push(serie);
         }
         return series;
+    }
+
+    private _dummyData(data: any[], metadata: any, target: any[]) {
+        if (!data.length) {
+            let tempData = getFrequencySequence(metadata.frequency);
+            if (!this.commonField || !this.commonField.length) {
+                this.commonField = this.chart.groupings;
+            }
+            let isStackedName;
+
+            let getDate = target.find(t => {
+                isStackedName = t.stackName;
+                let endDate = new Date(moment().endOf('year').toDate());
+                let nextYear = new Date(moment(t.datepicker).endOf('year').toDate());
+                return endDate < nextYear;
+            });
+            let frequencyFormat;
+            switch (metadata.frequency) {
+                case FrequencyEnum.Monthly:
+                    frequencyFormat = moment(getDate.datepicker).add(1, 'month').format('YYYY-MM');
+                    break;
+                case FrequencyEnum.Quartely:
+                    frequencyFormat = moment(getDate.datepicker).format('YYYY') + '-Q' + moment().add(1, 'quarter').format('Q');
+                    break;
+                case FrequencyEnum.Yearly:
+                    frequencyFormat = moment(getDate.datepicker).format('YYYY');
+                    break;
+                case FrequencyEnum.Daily:
+                    frequencyFormat = moment(getDate.datepicker).format('YYYY-MM-DD');
+                    break;
+                case FrequencyEnum.Weekly:
+                    frequencyFormat = moment(getDate).isoWeek();
+                    break;
+            }
+            tempData.forEach((d) => {
+                data.push({
+                    _id: {
+                        frequency: frequencyFormat,
+                        [this.commonField[0]]: isStackedName ? isStackedName : ''
+                    },
+                    value: 0
+                });
+            });
+        }
     }
 
 }
