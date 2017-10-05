@@ -22,6 +22,7 @@ export const chartsGql: GraphqlDefinition = {
                 frequency: String
                 groupings: [String]!
                 xAxisSource: String
+                comparison: [String]
                 isDrillDown: Boolean
             }
             input ChartAttributesInput {
@@ -33,6 +34,7 @@ export const chartsGql: GraphqlDefinition = {
                 groupings: [String]
                 chartDefinition: String
                 xAxisSource: String
+                comparison: [String]
                 dashboards: [String]
             }
             type ChartEntityResponse {
@@ -49,6 +51,7 @@ export const chartsGql: GraphqlDefinition = {
                 yFormat: String
                 chartDefinition: String
                 xAxisSource: String
+                comparison: [String]
                 dashboards: [Dashboard]
             }
             type ChartMutationResponse {

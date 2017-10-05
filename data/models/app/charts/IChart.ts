@@ -20,6 +20,7 @@ export interface IChart {
     yFormat?: string;
     chartDefinition: any;
     xAxisSource: string;
+    comparison: string[];
     dashboards?: IDashboardDocument[];
     targetList?: any[];
 }
@@ -37,6 +38,7 @@ export interface IChartInput {
     yFormat?: string;
     chartDefinition: any;
     xAxisSource: string;
+    comparison: string[];
     dashboards?: string[];
 }
 
@@ -45,6 +47,7 @@ export interface IGetChartInput {
     frequency: string;
     groupings: [string];
     xAxisSource: string;
+    comparison?: [string];
     filter?: string;
     isDrillDown?: boolean;
 }

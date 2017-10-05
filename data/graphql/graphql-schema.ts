@@ -1,3 +1,4 @@
+import { dateRangesGql } from './app/date-ranges.gql';
 import { dataSourcesGql } from './app/data-sources.gql';
 import { industriesGql } from './master/industries.gql';
 import { spreadsheetGpl } from './master/import-from-spreadsheet';
@@ -30,6 +31,7 @@ definitions.push(rolesGql);
 definitions.push(permissionGql);
 definitions.push(dataSourcesGql);
 definitions.push(targetGql);
+definitions.push(dateRangesGql);
 
 let moduleQueries = [];
 let moduleTypes = [];
