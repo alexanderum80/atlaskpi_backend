@@ -58,6 +58,7 @@ export class GetChartQuery extends QueryBase<string> {
                     filter: (data.input && data.input.filter)  ? data.input.filter : chart.filter,
                     frequency: frequency,
                     groupings: groupings,
+                    comparison: (data.input && data.input.comparison)  ? data.input.comparison : chart.comparison,
                     xAxisSource: (data.input && data.input.xAxisSource) ? data.input.xAxisSource : chart.xAxisSource
                 };
 

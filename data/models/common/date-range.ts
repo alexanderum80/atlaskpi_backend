@@ -324,10 +324,10 @@ export function parseComparisonDateRange(dateRange: IDateRange, comparisonString
         case 'lastYear':
             return backInTime(dateRange, 1, 'year');
 
-        case '2YearsAgo':
+        case 'twoYearsAgo':
             return backInTime(dateRange, 2, 'year');
 
-        case '3YearsAgo':
+        case 'threeYearsAgo':
             return backInTime(dateRange, 3, 'year');
 
         case 'lastQuarter':
