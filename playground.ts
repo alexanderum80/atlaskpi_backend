@@ -1,3 +1,4 @@
+import { DateRangeHelper } from './data/queries/app/date-ranges/date-range.helper';
 import seed from './data/seed';
 import { KPIFilterHelper } from './data/models/app/kpis/kpi-filter.helper';
 import { readMongooseSchema } from './lib/utils';
@@ -159,3 +160,6 @@ import * as _ from 'lodash';
 // console.log(JSON.stringify(i));
 
 // seed();
+
+const dateRanges = DateRangeHelper.GetDateRangeItems();
+console.dir(dateRanges);
