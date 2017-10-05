@@ -20,7 +20,7 @@ export interface IChart {
     yFormat?: string;
     chartDefinition: any;
     xAxisSource: string;
-    comparison: string[];
+    comparison?: string[];
     dashboards?: IDashboardDocument[];
     targetList?: any[];
     futureTarget?: boolean;
