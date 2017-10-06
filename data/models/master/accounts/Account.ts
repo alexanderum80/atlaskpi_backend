@@ -83,6 +83,7 @@ accountSchema.statics.createNewAccount = function(ip: string, clientId: string, 
         account.database = generateDBObject(accountDatabaseName, accountDbUser.user, accountDbUser.pwd);
         let fullName;
         if (account.personalInfo.fullname) {
+            // fullname i.e. John.Doe
             fullName = account.personalInfo.fullname.split('.');
             account.personalInfo.fullname = account.personalInfo.fullname.split('.').join(' ');
         }
