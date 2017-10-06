@@ -34,6 +34,13 @@ export const usersGql: GraphqlDefinition = {
                 network: String,
                 token: String
             }
+            input InputUserProfile {
+                firstName: String
+                middleName: String
+                lastName: String
+                sex: String
+                dob: String
+            }
 
             type UserEmail {
                 _id: String
@@ -84,6 +91,7 @@ export const usersGql: GraphqlDefinition = {
             }
             type TokenVerification {
                 isValid: Boolean
+                profile: UserProfile
             }
             type ValidationError {
                 field: String
@@ -121,7 +129,7 @@ export const usersGql: GraphqlDefinition = {
             updateUser(id: String!, data: UserDetails): CreateUserResult
             removeUser(id: String!): CreateUserResult
             userForgotPassword(email: String!): ForgotPasswordResult
-            resetPassword(token: String!, password: String!, enrollment: Boolean): ResetPasswordResult
+            resetPassword(token: String!, password: String!, profile: InputUserProfile, enrollment: Boolean): ResetPasswordResult
             addMobileDevice(details: AddMobileDeviceDetails!): Boolean
             removeMobileDevice(network: String!, token: String!): Boolean
         `,
