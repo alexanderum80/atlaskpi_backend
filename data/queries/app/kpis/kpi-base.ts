@@ -40,7 +40,7 @@ export interface IKpiBase {
 export class KpiBase {
     frequency: FrequencyEnum;
     protected kpi: IKPI;
-    private pristineAggregate: AggregateStage[];
+    protected pristineAggregate: AggregateStage[];
 
     constructor(public model: any, public aggregate: AggregateStage[]) {
         // for multimple executeQuery iterations in the same instance we need to preserve the aggregate
