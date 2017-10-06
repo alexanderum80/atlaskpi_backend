@@ -16,6 +16,7 @@ import { KpiFactory } from '../kpis/kpi.factory';
 import { getGroupingMetadata } from './chart-grouping-map';
 import * as logger from 'winston';
 import * as moment from 'moment';
+import * as _ from 'lodash';
 
 export class GetChartQuery extends QueryBase<string> {
 
@@ -58,7 +59,7 @@ export class GetChartQuery extends QueryBase<string> {
                     filter: (data.input && data.input.filter)  ? data.input.filter : chart.filter,
                     frequency: frequency,
                     groupings: groupings,
-                    comparison: (data.input && data.input.comparison)  ? data.input.comparison : chart.comparison,
+                    comparison: (data.input && !_.isEmpty(data.input.comparison))  ? data.input.comparison : chart.comparison,
                     xAxisSource: (data.input && data.input.xAxisSource) ? data.input.xAxisSource : chart.xAxisSource
                 };
 

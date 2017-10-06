@@ -22,7 +22,7 @@ export class DateRangeHelper {
         const items = Object.keys(PredefinedDateRanges).map(k => {
            const item: IDateRangeItem = {
                dateRange: { predefined: PredefinedDateRanges[k] },
-               comparisonItems: DateRangeHelper._getComparisonItemsFor(k)
+               comparisonItems: DateRangeHelper.getComparisonItemsForDateRangeString(k)
            };
 
            return item;
@@ -31,7 +31,7 @@ export class DateRangeHelper {
         return items;
     }
 
-    private static _getComparisonItemsFor(dateRangeString: string): IDateRangeComparisonItem[] {
+    public static getComparisonItemsForDateRangeString(dateRangeString: string): IDateRangeComparisonItem[] {
         if (!dateRangeString) { return []; }
 
         const comparisonElements = PredefinedComparisonDateRanges[getDateRangeIdentifier(dateRangeString)];
