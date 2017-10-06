@@ -1,3 +1,10 @@
+import { DateRangeHelper } from './../../date-ranges/date-range.helper';
+import {
+    getDateRangeIdentifier,
+    getDateRangeIdFromString,
+    PredefinedComparisonDateRanges,
+    PredefinedDateRanges,
+} from './../../../../models/common/date-range';
 import { TargetService } from '../../../../services/targets/target.service';
 import { ITargetDocument } from '../../../../models/app/targets/ITarget';
 import { parseComparisonDateRange, parsePredifinedDate } from '../../../../models/common/date-range';
@@ -21,6 +28,7 @@ import * as moment from 'moment';
 import * as mongoose from 'mongoose';
 import * as logger from 'winston';
 import 'datejs';
+import * as changeCase from 'change-case';
 
 import { ChartPostProcessingExtention } from './chart-postprocessing-extention';
 
@@ -602,7 +610,7 @@ export class UIChartBase {
         });
     }
 
-    protected getDefinitionOfComparisonChart(kpi, metadata): Promise<any> {
+    protected getDefinitionOfComparisonChart(kpi, metadata: IChartMetadata): Promise<any> {
         const mainPromiseName = this.dateRange[0].predefined ? this.dateRange[0].predefined : 'custom';
         const chartDefinitions = {
             main: this.getDefinitionForDateRange(kpi, metadata, [])
@@ -614,32 +622,67 @@ export class UIChartBase {
         });
 
         return Promise.props(chartDefinitions).then(output => {
-            return Promise.resolve(this._mergeMultipleChartDefinitions(output));
+            return Promise.resolve(this._mergeMultipleChartDefinitions(output, metadata));
         });
     }
 
-    private _mergeMultipleChartDefinitions(definitions: any): any {
+    private _mergeMultipleChartDefinitions(definitions: any, metadata: IChartMetadata): any {
         const mainDefinition = definitions['main'] || {};
-        mainDefinition.series.forEach(s => {
-            s.stack = 'main';
-        });
 
-        Object.keys(definitions).forEach(k => {
-            if (k === 'main') return;
-            if (definitions[k].series && definitions[k].series.length > 0) {
-                    definitions[k].series.forEach(s => {
-                        const newSerie = {
-                            name: `${s.name}(${k})`,
-                            data: s.data,
-                            stack: k
-                        };
-                        mainDefinition.series.push(newSerie);
-                    });
-            }
-        });
+        let mergedSeries = [];
 
-        mainDefinition.title = `${mainDefinition.title} (Comparison)`;
+        mergedSeries = mergedSeries.concat(this._getComparisonSeries(definitions));
+        mergedSeries = mergedSeries.concat(this._getMainComparisonSeries(definitions));
+
+        mainDefinition.series = mergedSeries;
+
         return mainDefinition;
     }
 
+    private _getComparisonSeries(definitions: any): any {
+        const that = this;
+
+        const definitionsIds = Object.keys(definitions).filter(d => d !== 'main');
+
+        if (!definitionsIds || definitionsIds.length < 1) return [];
+
+        const series = [];
+
+        for (let i = definitionsIds.length; i > 0; i--) {
+            if (definitions[definitionsIds[i - 1]].series && definitions[definitionsIds[i - 1]].series.length > 0) {
+                const definitionKey = definitionsIds[i - 1];
+                definitions[definitionKey].series.forEach(serie => {
+                    const dateRangeId = getDateRangeIdFromString(that.chart.dateRange[0].predefined);
+                    const comparisonString = PredefinedComparisonDateRanges[dateRangeId][definitionKey];
+                    const serieElement = {
+                        name: `${serie.name}(${comparisonString})`,
+                        data: serie.data,
+                        stack: definitionKey
+                    };
+                    series.push(serieElement);
+                });
+            }
+        }
+
+        return series;
+    }
+
+    private _getMainComparisonSeries(definitions: any): any {
+        const that = this;
+        const main = definitions['main'];
+
+        const series = [];
+
+        main.series.forEach(serie => {
+            const comparisonString = that.chart.dateRange[0].predefined;
+            const serieElement = {
+                name: `${serie.name}(${comparisonString})`,
+                data: serie.data,
+                stack: 'main'
+            };
+            series.push(serieElement);
+        });
+
+        return series;
+    }
 }

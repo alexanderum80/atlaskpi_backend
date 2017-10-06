@@ -1,3 +1,4 @@
+import { PredefinedDateRanges } from './date-range';
 import * as moment from 'moment';
 
 export interface IDateRange {
@@ -16,6 +17,7 @@ export interface IChartDateRange {
 }
 
 export const PredefinedDateRanges = {
+    custom: 'custom',
     today: 'today',
     yesterday: 'yesterday',
     thisWeek: 'this week',
@@ -195,6 +197,11 @@ export function parsePredifinedDate(textDate: string): IDateRange {
                 from: moment().subtract(365, 'days').toDate(),
                 to: moment().endOf('day').toDate()
             };
+        case PredefinedDateRanges.custom:
+            return {
+                from: undefined,
+                to: undefined
+            };
     }
 
 }
@@ -303,6 +310,18 @@ export function getDateRangeIdentifier(text: string): string {
     return null;
 }
 
+export function getDateRangeIdFromString(text: string): string {
+    const dateRangesKeys = Object.keys(PredefinedDateRanges);
+
+    for (let i = 0; i < dateRangesKeys.length; i++) {
+        if (PredefinedDateRanges[dateRangesKeys[i]] === text) {
+            return dateRangesKeys[i];
+        }
+    }
+
+    return null;
+}
+
 
 export function parseComparisonDateRange(dateRange: IDateRange, comparisonString: string): IDateRange {
 
@@ -341,3 +360,4 @@ export function parseComparisonDateRange(dateRange: IDateRange, comparisonString
 
     return null;
 }
+
