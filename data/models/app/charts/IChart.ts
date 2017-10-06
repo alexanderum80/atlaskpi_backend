@@ -24,6 +24,7 @@ export interface IChart {
     dashboards?: IDashboardDocument[];
     targetList?: any[];
     futureTarget?: boolean;
+    availableComparison?: string[];
 }
 
 export interface IChartInput {

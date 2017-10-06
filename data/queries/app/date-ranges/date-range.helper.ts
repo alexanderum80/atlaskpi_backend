@@ -1,6 +1,7 @@
 import { IDateRangeComparisonItem } from './date-range.helper';
 import {
     getDateRangeIdentifier,
+    getDateRangeIdFromString,
     IChartDateRange,
     PredefinedComparisonDateRanges,
     PredefinedDateRanges,
@@ -35,6 +36,16 @@ export class DateRangeHelper {
         if (!dateRangeString) { return []; }
 
         const comparisonElements = PredefinedComparisonDateRanges[getDateRangeIdentifier(dateRangeString)];
+
+        if (!comparisonElements || comparisonElements.length === 0) { return []; }
+
+        return Object.keys(comparisonElements).map(k => { return { key: k, value: comparisonElements[k] }; });
+    }
+
+    public static getComparisonItemsForDateRangeIdentifier(identifier: string): IDateRangeComparisonItem[] {
+        if (!identifier) { return []; }
+
+        const comparisonElements = PredefinedComparisonDateRanges[getDateRangeIdFromString(identifier)];
 
         if (!comparisonElements || comparisonElements.length === 0) { return []; }
 

@@ -1,3 +1,4 @@
+import { DateRangeHelper } from '../../queries/app/date-ranges/date-range.helper';
 import { PreviewChartsQuery } from '../../queries/app/charts/preview-chart.query';
 import { IChartDateRange, IDateRange } from '../../models/common/date-range';
 import { IChartDocument } from '../../models/app/charts';
@@ -53,6 +54,7 @@ export const chartsGql: GraphqlDefinition = {
                 chartDefinition: String
                 xAxisSource: String
                 comparison: [String]
+                availableComparison: [String]
                 dashboards: [Dashboard]
             }
             type ChartMutationResponse {
@@ -136,7 +138,7 @@ export const chartsGql: GraphqlDefinition = {
         ChartEntityResponse: {
             dateRange(entity: IChart) { return entity.dateRange[0] || null; },
             chartDefinition(entity: IChart) { return JSON.stringify(entity.chartDefinition); },
-            dashboards(entity: IChart) { return entity.dashboards; }
+            dashboards(entity: IChart) { return entity.dashboards; },
         },
         ListChartsQueryResponse: {
             data(response: [IChartDocument]) { return response; }
