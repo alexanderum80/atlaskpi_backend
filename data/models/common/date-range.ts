@@ -1,4 +1,3 @@
-import { PredefinedDateRanges } from './date-range';
 import * as moment from 'moment';
 
 export interface IDateRange {
