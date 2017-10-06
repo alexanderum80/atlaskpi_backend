@@ -182,9 +182,7 @@ export function accountPlugin(schema: mongoose.Schema, options: any) {
     };
 
     schema.methods.generateToken = function(accountName: string, username: string, password: string, ip: string, clientId: string, clientDetails: string): Promise<IUserToken> {
-        const that = this;
         return new Promise<IUserToken>((resolve, reject) => {
-            const test = this;
             // create user identity
             let identity: IIdentity = {
                 accountName: accountName,
@@ -893,7 +891,7 @@ export function accountPlugin(schema: mongoose.Schema, options: any) {
                 let verifyResponse = {
                     isValid: true
                 };
-                console.log(JSON.stringify(user));
+
                 if (user.profile && user.profile.hasOwnProperty('firstName') &&
                     user.profile.hasOwnProperty('lastName')) {
                     (<any>verifyResponse).profile = {
