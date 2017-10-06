@@ -1,3 +1,4 @@
+import { DateRangeHelper } from './../date-ranges/date-range.helper';
 import { IUserDocument } from '../../../models/app/users/index';
 import { TargetService } from '../../../services/targets/target.service';
 import { QueryBase } from '../../query-base';
@@ -75,6 +76,11 @@ export class GetChartQuery extends QueryBase<string> {
                     definitionParameters.isFutureTarget = data.input.isFutureTarget;
                 }
 
+                if (!chart.comparison || chart.comparison.length < 1) {
+                    chart.availableComparison = DateRangeHelper.getComparisonItemsForDateRangeIdentifier(chart.dateRange[0].predefined || 'custom')
+                                                               .map(item => item.key);
+                }
+
                 let checkDrillDown = (data.input && data.input.isDrillDown);
 
                 if (data.id && that._user && !checkDrillDown) {
@@ -122,6 +128,8 @@ export class GetChartQuery extends QueryBase<string> {
                     that._resolveDashboards(chartDocument).then((dashboards) => {
                         const chart: any = chartDocument.toObject();
                         chart.dashboards = dashboards;
+                        chart.availableComparison = DateRangeHelper.getComparisonItemsForDateRangeString(chart.dateRange[0].predefined || 'custom')
+                                                                   .map(item => item.key);
                         resolve(chart);
                         return;
                     });
