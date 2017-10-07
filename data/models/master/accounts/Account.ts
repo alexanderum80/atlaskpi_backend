@@ -81,9 +81,19 @@ accountSchema.statics.createNewAccount = function(ip: string, clientId: string, 
         };
 
         account.database = generateDBObject(accountDatabaseName, accountDbUser.user, accountDbUser.pwd);
+        let fullName;
+        if (account.personalInfo.fullname) {
+            // fullname i.e. John.Doe
+            fullName = account.personalInfo.fullname.split('.');
+            account.personalInfo.fullname = account.personalInfo.fullname.split('.').join(' ');
+        }
 
         let firstUser: ICreateUserDetails = { email: account.personalInfo.email,
-                                                password: hash.substr(hash.length - 10, hash.length) };
+                                                password: hash.substr(hash.length - 10, hash.length)};
+        if (fullName) {
+            firstUser.firstName = fullName[0];
+            firstUser.lastName = fullName[1];
+        }
 
         that.create(account, (err, newAccount: IAccountDocument) => {
             if (err) {

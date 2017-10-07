@@ -15,7 +15,7 @@ export const accountsGql: GraphqlDefinition = {
                 country: String
                 phoneNumber: String
             }
-            input PersonalInfoDetails    {
+            input PersonalInfoDetails {
                 fullname: String
                 email: String
             }

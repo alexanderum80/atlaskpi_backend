@@ -1,5 +1,5 @@
 import { IDatabaseInfo } from '../../master/accounts';
-import { IMobileDevice } from './IUser';
+import { IMobileDevice, IUserProfile } from './IUser';
 import { RoleSchema } from '../../../../lib/rbac/models';
 import { resolveRole } from '../../../../lib/rbac/models';
 import { IRoleDocument } from '../../../../lib/rbac/models/roles';
@@ -183,7 +183,6 @@ export function accountPlugin(schema: mongoose.Schema, options: any) {
 
     schema.methods.generateToken = function(accountName: string, username: string, password: string, ip: string, clientId: string, clientDetails: string): Promise<IUserToken> {
         return new Promise<IUserToken>((resolve, reject) => {
-
             // create user identity
             let identity: IIdentity = {
                 accountName: accountName,
@@ -721,7 +720,7 @@ export function accountPlugin(schema: mongoose.Schema, options: any) {
         });
     };
 
-    schema.statics.resetPassword = function(token: string, newPassword: string, enrollment = false, logoutOtherSessions?: boolean): Promise<IMutationResponse> {
+    schema.statics.resetPassword = function(token: string, newPassword: string, profile: IUserProfile, enrollment = false, logoutOtherSessions?: boolean): Promise<IMutationResponse> {
         return new Promise<IMutationResponse>((resolve, reject) => {
             let query: any;
 
@@ -744,6 +743,11 @@ export function accountPlugin(schema: mongoose.Schema, options: any) {
                         user.services.password.reset = null;
                     } else {
                         user.services.email.enrollment = [];
+                    }
+
+                    if (profile) {
+                        user.profile.firstName = profile.firstName;
+                        user.profile.lastName = profile.lastName;
                     }
 
                     user.save().then((user) => {
@@ -884,7 +888,19 @@ export function accountPlugin(schema: mongoose.Schema, options: any) {
                     return;
                 }
 
-                resolve({ isValid: true });
+                let verifyResponse = {
+                    isValid: true
+                };
+
+                if (user.profile && user.profile.hasOwnProperty('firstName') &&
+                    user.profile.hasOwnProperty('lastName')) {
+                    (<any>verifyResponse).profile = {
+                        firstName: user.profile.firstName,
+                        lastName: user.profile.lastName
+                    };
+                }
+
+                resolve(verifyResponse);
                 return;
             }, (err) => {
                 resolve({ isValid: false });
