@@ -101,6 +101,7 @@ export interface IUserDocument extends IUser, mongoose.Document {
 
 export interface ITokenVerification {
     isValid: boolean;
+    profile?: IUserProfile;
 }
 
 /**
@@ -114,6 +115,7 @@ export interface ICreateUserDetails {
     username?: string;
     password?: string;
     roles?: string[];
+    fullname?: string;
 }
 
 /**
@@ -222,7 +224,7 @@ export interface IUserModel extends mongoose.Model<IUserDocument> {
      * @param {boolean} logoutOtherSessions - (Optional) Logout other sessions for this user. (default: true)
      * @returns {Promise<IMutationResponse>}
      */
-    resetPassword(token: string, newPassword: string, enrollment?: boolean, logoutOtherSessions?: boolean): Promise<IMutationResponse>;
+    resetPassword(token: string, newPassword: string, profile?: IUserProfile, enrollment?: boolean, logoutOtherSessions?: boolean): Promise<IMutationResponse>;
     /**
      * Forcibly change the password for a user.
      * @param {string} userId - the id of the user to update
