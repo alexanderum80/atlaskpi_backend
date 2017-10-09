@@ -1,3 +1,4 @@
+import { ListChartsByGroupQuery } from '../../queries/app/charts/list-charts-by-group.query';
 import { PreviewChartsQuery } from '../../queries/app/charts/preview-chart.query';
 import { IChartDateRange, IDateRange } from '../../models/common/date-range';
 import { IChartDocument } from '../../models/app/charts';
@@ -70,6 +71,8 @@ export const chartsGql: GraphqlDefinition = {
             previewChart(input: ChartAttributesInput): String
 
             listCharts: ListChartsQueryResponse
+
+            listChartsByGroup(group: String!): ListChartsQueryResponse
         `,
         mutations: `
             createChart(input: ChartAttributesInput): ChartMutationResponse
@@ -103,6 +106,10 @@ export const chartsGql: GraphqlDefinition = {
             listCharts(root: any, args, ctx: IGraphqlContext) {
                 let query = new ListChartsQuery(ctx.req.identity, ctx.req.appContext);
                 return ctx.queryBus.run('list-charts', query, args, ctx.req);
+            },
+            listChartsByGroup(root: any, args, ctx: IGraphqlContext) {
+                let query = new ListChartsByGroupQuery(ctx.req.identity, ctx.req.appContext.Chart);
+                return ctx.queryBus.run('list-charts-by-group', query, args, ctx.req);
             }
         },
         Mutation: {

@@ -1,3 +1,10 @@
+import { listChartsByGroupActivity } from './app/charts/list-charts-by-group.activity';
+import { SlideshowByGroupActivity } from './app/slideshow/slideshows-by-group.activity';
+import { DeleteSlideshowActivity } from './app/slideshow/delete-slideshow.activity';
+import { UpdateSlideshowActivity } from './app/slideshow/update-slideshow.activity';
+import { SlideshowByIdActivity } from './app/slideshow/slideshow-by-id.activity';
+import { ListSlideshowActivity } from './app/slideshow/list-slideshows.activity';
+import { CreateSlideshowActivity } from './app/slideshow/create-slideshow.activity';
 import { previewChartActivity } from './app/charts/preview-chart.activity';
 import { updateChartActivity } from './app/charts/update-chart.activity';
 import { deleteChartActivity } from './app/charts/delete-chart.activity';
@@ -74,7 +81,7 @@ import {
     deleteTargetActivity,
     findTargetActivity,
     findAllTargetsActivity,
-    
+
     // device tokens
     addDeviceTokenActivity,
     removeDeviceTokenActivity,
@@ -139,6 +146,8 @@ export function addActivities() {
         deleteChartActivity,
         updateChartActivity,
         previewChartActivity,
+        /// made by me for a test
+        listChartsByGroupActivity,
 
         // dashboards
         getDashboardActivity,
@@ -166,13 +175,21 @@ export function addActivities() {
         deleteTargetActivity,
         findTargetActivity,
         findAllTargetsActivity,
-        
+
         // device tokens
         addDeviceTokenActivity,
         removeDeviceTokenActivity,
 
         // data sources
         getDataSourcesActivity,
+
+        // slideshow
+        CreateSlideshowActivity,
+        ListSlideshowActivity,
+        SlideshowByIdActivity,
+        UpdateSlideshowActivity,
+        DeleteSlideshowActivity,
+        SlideshowByGroupActivity
 
     ]);
 }
