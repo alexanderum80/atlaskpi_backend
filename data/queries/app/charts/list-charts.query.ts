@@ -6,6 +6,8 @@ import { IChartDocument } from '../../../models/app/charts';
 import * as Promise from 'bluebird';
 import { IQuery } from '../..';
 import { IIdentity, IUserModel } from '../../../';
+
+
 export class ListChartsQuery extends QueryBase<IChartDocument[]> {
 
     constructor(

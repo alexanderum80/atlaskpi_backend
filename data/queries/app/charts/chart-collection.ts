@@ -1,3 +1,5 @@
+import { GetChartsQuery } from './get-charts.query';
+import { IChartFormatDocument } from '../../../models/app/chart-formats';
 import * as Promise from 'bluebird';
 // import { ChartProcessor } from './chart-processor';
 import { IAppModels } from '../../../models/app/app-models';
@@ -32,5 +34,4 @@ export class ChartCollection {
 
         });
     }
-
 }
