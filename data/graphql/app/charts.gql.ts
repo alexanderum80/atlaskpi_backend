@@ -1,3 +1,6 @@
+import { GetChartsByGroupQuery } from '../../queries/app/charts/get-charts-by-group.query';
+import { GetChartsGroupQuery } from '../../queries/app/charts/get-charts-groups.query';
+import { getGroupingMetadata } from '../../queries/app/charts';
 import { PreviewChartsQuery } from '../../queries/app/charts/preview-chart.query';
 import { IChartDateRange, IDateRange } from '../../models/common/date-range';
 import { IChartDocument } from '../../models/app/charts';
@@ -59,17 +62,21 @@ export const chartsGql: GraphqlDefinition = {
             type ListChartsQueryResponse {
                 data: [ChartEntityResponse]
             }
+            type ChartsGroupResponse {
+                group: [String]
+            }
+            type ChartsGroup {
+                data: [String]
+            }
         `,
         queries: `
             charts(from: String!, to: String!, preview: Boolean): String
-
             chartsList(preview: Boolean): String
-
             chart(id: String, input: GetChartInput): String
-
             previewChart(input: ChartAttributesInput): String
-
             listCharts: ListChartsQueryResponse
+            getChartsGroup: ChartsGroupResponse
+            getChartsByGroup(group: String): ListChartsQueryResponse
         `,
         mutations: `
             createChart(input: ChartAttributesInput): ChartMutationResponse
@@ -103,6 +110,16 @@ export const chartsGql: GraphqlDefinition = {
             listCharts(root: any, args, ctx: IGraphqlContext) {
                 let query = new ListChartsQuery(ctx.req.identity, ctx.req.appContext);
                 return ctx.queryBus.run('list-charts', query, args, ctx.req);
+            },
+
+            getChartsGroup(root: any, args, ctx: IGraphqlContext) {
+                let query = new GetChartsGroupQuery(ctx.req.identity, ctx.req.appContext);
+                return ctx.queryBus.run('get-charts-groups', query, args, ctx.req);
+            },
+
+            getChartsByGroup(root: any, args, ctx: IGraphqlContext) {
+                let query = new GetChartsByGroupQuery(ctx.req.identity, ctx.req.appContext);
+                return ctx.queryBus.run('get-charts-by-group', query, args, ctx.req);
             }
         },
         Mutation: {
@@ -137,6 +154,6 @@ export const chartsGql: GraphqlDefinition = {
         ListChartsQueryResponse: {
             data(response: [IChartDocument]) { return response; }
         }
+
     }
 };
-

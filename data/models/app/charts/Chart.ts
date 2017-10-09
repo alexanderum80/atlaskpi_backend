@@ -9,6 +9,8 @@ import * as mongoose from 'mongoose';
 import * as Promise from 'bluebird';
 import * as validate from 'validate.js';
 import * as winston from 'winston';
+import * as _ from 'lodash';
+
 
 let Schema = mongoose.Schema;
 
