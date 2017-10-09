@@ -35,6 +35,7 @@ let ChartSchema = new Schema({
     yFormat: { type: mongoose.Schema.Types.ObjectId, ref: 'ChartFormat' },
     chartDefinition: Schema.Types.Mixed,
     xAxisSource: String,
+    comparison: [String]
 });
 
     // ChartSchema.methods.
@@ -72,6 +73,7 @@ let ChartSchema = new Schema({
             yFormat: input.yFormat,
             chartDefinition: JSON.parse(input.chartDefinition),
             xAxisSource: input.xAxisSource,
+            comparison: input.comparison
         };
 
         that.create(newChart)
@@ -115,7 +117,8 @@ let ChartSchema = new Schema({
             xFormat: input.xFormat,
             yFormat: input.yFormat,
             chartDefinition: JSON.parse(input.chartDefinition),
-            xAxisSource: input.xAxisSource
+            xAxisSource: input.xAxisSource,
+            comparison: input.comparison
         };
 
         that.findOneAndUpdate({_id: id}, updatedChart, { new: true })
