@@ -85,6 +85,8 @@ export class SimpleKPI extends KpiBase implements IKpiBase {
 
         if (deserializedFilter)
             this._injectPostGroupStageFilters(deserializedFilter, definition.field);
+
+        this.pristineAggregate = _.cloneDeep(baseAggregate);
     }
 
     getData(dateRange: IDateRange[], options?: IGetDataOptions): Promise<any> {

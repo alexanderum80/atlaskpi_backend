@@ -1,6 +1,13 @@
+import { DateRangeHelper } from './../../date-ranges/date-range.helper';
+import {
+    getDateRangeIdentifier,
+    getDateRangeIdFromString,
+    PredefinedComparisonDateRanges,
+    PredefinedDateRanges,
+} from './../../../../models/common/date-range';
 import { TargetService } from '../../../../services/targets/target.service';
 import { ITargetDocument } from '../../../../models/app/targets/ITarget';
-import { parsePredifinedDate } from '../../../../models/common/date-range';
+import { parseComparisonDateRange, parsePredifinedDate } from '../../../../models/common/date-range';
 import { IKPIDocument, IAppModels } from '../../../../models/app';
 import { IKpiBase, IKPIResult } from '../../kpis/kpi-base';
 import { IChart, IChartDocument } from '../../../../models/app/charts';
@@ -21,7 +28,7 @@ import * as moment from 'moment';
 import * as mongoose from 'mongoose';
 import * as logger from 'winston';
 import 'datejs';
-
+import * as changeCase from 'change-case';
 
 import { ChartPostProcessingExtention } from './chart-postprocessing-extention';
 
@@ -42,6 +49,7 @@ export interface IUIChart {
 }
 
 export class UIChartBase {
+    protected basicDefinition: any;
     protected data: any[];
     protected dateRange: IChartDateRange[];
     protected groupings: string[];
@@ -50,6 +58,7 @@ export class UIChartBase {
     protected targets: any;
     protected drilldown: boolean;
     protected futureTarget: boolean;
+    protected comparison: IDateRange[];
 
     targetData: any[];
     commonField: any[];
@@ -60,6 +69,35 @@ export class UIChartBase {
         if (!chart.kpis || chart.kpis.length < 1) {
             throw 'A chart cannot be created without a KPI';
         }
+    }
+
+    /**
+     * Process the chart data to it's most basic definition, it's the first step on the chart definition creation pipeline
+     * @param kpi
+     * @param metadata
+     */
+    protected processPureChartData(kpi: IKpiBase, metadata?: IChartMetadata): Promise<void> {
+        logger.debug('processPureChartData for: ' + this.constructor.name + ' - kpi: ' + kpi.constructor.name);
+
+        // set up all elements for retrieving the data
+        this.dateRange = this._getDateRange(metadata.dateRange);
+        this.comparison = this._getComparisonDateRanges(this.dateRange, metadata.comparison);
+
+        const mainPromiseName = this.dateRange[0].predefined ? this.dateRange[0].predefined : 'custom';
+
+        const dataPromises = {
+            mainPromiseName: kpi.getData([this.dateRange[0].custom], metadata),
+        };
+
+        this.comparison.forEach((comparison, index) => {
+            dataPromises[metadata.comparison[index]] = kpi.getData([comparison], metadata);
+        });
+
+        Promise.props(dataPromises).then(output => {
+
+        });
+
+        return null;
     }
 
     /**
@@ -158,7 +196,7 @@ export class UIChartBase {
      * Returns the data range to be used for the chart
      * @param metadataDateRange data range that includes a predefined or a custom data range
      */
-    private _getDateRange(metadataDateRange: IChartDateRange[]): IChartDateRange[] {
+    protected _getDateRange(metadataDateRange: IChartDateRange[]): IChartDateRange[] {
         return metadataDateRange ?
             metadataDateRange.map((dateRange) => {
                 return {
@@ -551,4 +589,100 @@ export class UIChartBase {
         }
     }
 
+    /**
+    * Returns the data range to be used for the chart
+    * @param dateRange date range object
+    * @param metadataDateRange data range that includes a predefined or a custom data range
+    */
+    protected _getComparisonDateRanges(dateRange: IChartDateRange[], comparisonOptions: string[]): IDateRange[] {
+       if (!dateRange || !comparisonOptions) return;
+
+       return comparisonOptions.map(c => {
+            if (_.isEmpty(c)) return;
+            return parseComparisonDateRange(this._processChartDateRange(dateRange[0]), c);
+       });
+    }
+
+    protected getDefinitionForDateRange(kpi, metadata, target): Promise<any> {
+        const that = this;
+        return this.processChartData(kpi, metadata, target).then(() => {
+            return that.buildDefinition(this.basicDefinition, target);
+        });
+    }
+
+    protected getDefinitionOfComparisonChart(kpi, metadata: IChartMetadata): Promise<any> {
+        const mainPromiseName = this.dateRange[0].predefined ? this.dateRange[0].predefined : 'custom';
+        const chartDefinitions = {
+            main: this.getDefinitionForDateRange(kpi, metadata, [])
+        };
+
+        this.comparison.forEach((comparisonDateRange, index) => {
+            metadata.dateRange = [{ custom: comparisonDateRange }];
+            chartDefinitions[metadata.comparison[index]] = this.getDefinitionForDateRange(kpi, metadata, []);
+        });
+
+        return Promise.props(chartDefinitions).then(output => {
+            return Promise.resolve(this._mergeMultipleChartDefinitions(output, metadata));
+        });
+    }
+
+    private _mergeMultipleChartDefinitions(definitions: any, metadata: IChartMetadata): any {
+        const mainDefinition = definitions['main'] || {};
+
+        let mergedSeries = [];
+
+        mergedSeries = mergedSeries.concat(this._getComparisonSeries(definitions));
+        mergedSeries = mergedSeries.concat(this._getMainComparisonSeries(definitions));
+
+        mainDefinition.series = mergedSeries;
+
+        return mainDefinition;
+    }
+
+    private _getComparisonSeries(definitions: any): any {
+        const that = this;
+
+        const definitionsIds = Object.keys(definitions).filter(d => d !== 'main');
+
+        if (!definitionsIds || definitionsIds.length < 1) return [];
+
+        const series = [];
+
+        for (let i = definitionsIds.length; i > 0; i--) {
+            if (definitions[definitionsIds[i - 1]].series && definitions[definitionsIds[i - 1]].series.length > 0) {
+                const definitionKey = definitionsIds[i - 1];
+                definitions[definitionKey].series.forEach(serie => {
+                    const dateRangeId = getDateRangeIdFromString(that.chart.dateRange[0].predefined);
+                    const comparisonString = PredefinedComparisonDateRanges[dateRangeId][definitionKey];
+                    const serieElement = {
+                        name: `${serie.name}(${comparisonString})`,
+                        data: serie.data,
+                        stack: definitionKey
+                    };
+                    series.push(serieElement);
+                });
+            }
+        }
+
+        return series;
+    }
+
+    private _getMainComparisonSeries(definitions: any): any {
+        const that = this;
+        const main = definitions['main'];
+
+        const series = [];
+
+        main.series.forEach(serie => {
+            const comparisonString = that.chart.dateRange[0].predefined;
+            const serieElement = {
+                name: `${serie.name}(${comparisonString})`,
+                data: serie.data,
+                stack: 'main'
+            };
+            series.push(serieElement);
+        });
+
+        return series;
+    }
 }

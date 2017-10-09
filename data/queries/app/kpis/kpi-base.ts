@@ -28,6 +28,7 @@ export interface IGetDataOptions {
     stackName?: any;
     isDrillDown?: boolean;
     isFutureTarget?: boolean;
+    comparison?: string[];
 }
 
 export interface IKpiBase {
@@ -39,10 +40,17 @@ export interface IKpiBase {
 export class KpiBase {
     frequency: FrequencyEnum;
     protected kpi: IKPI;
+    protected pristineAggregate: AggregateStage[];
 
-    constructor(public model: any, public aggregate: AggregateStage[]) { }
+    constructor(public model: any, public aggregate: AggregateStage[]) {
+        // for multimple executeQuery iterations in the same instance we need to preserve the aggregate
+        this.pristineAggregate = _.cloneDeep(aggregate);
+    }
 
     executeQuery(dateField: string, dateRange?: IDateRange[], options?: IGetDataOptions): Promise<any> {
+        // for multimple executeQuery iterations in the same instance we need to preserve the aggregate
+        this.aggregate = _.cloneDeep(this.pristineAggregate);
+
         logger.debug('executing query: ' + this.constructor.name);
 
         if (!this.model) throw 'A model is required to execute kpi query';

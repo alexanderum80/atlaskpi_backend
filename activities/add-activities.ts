@@ -83,6 +83,9 @@ import {
     // data sources
     getDataSourcesActivity,
 
+    // date ranges
+    getDateRangesActivity
+
 } from './app';
 
 import { getEnforcerConfig } from '../lib/enforcer';
@@ -175,6 +178,9 @@ export function addActivities() {
 
         // data sources
         getDataSourcesActivity,
+
+        // date ranges
+        getDateRangesActivity,
 
     ]);
 }
