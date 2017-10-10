@@ -26,7 +26,7 @@ export class RemoveRoleMutation implements IMutation<IMutationResponse> {
                 return this._RoleModel.removeRole(data.id, roleExist[0]).then((r) => {
                     return resolve({ success: true, entity: r});
                 }).catch((err) => {
-                    return resolve({ success: false, errors: [ { field: 'role', errors: [err] } ]});
+                    return resolve({ success: false, errors: [ { field: 'role', errors: [err.errors[0].errors] } ]});
                 });
             });
         });
