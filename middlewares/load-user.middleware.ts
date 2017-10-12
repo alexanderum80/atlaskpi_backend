@@ -23,6 +23,10 @@ export function loadUser(req: ExtendedRequest, res: Response, next) {
 
     let error = { error: 'Your token has expired or this user does not exist anymore' };
 
+    req.appContext.KPI.findOne({}, (err, res) => {
+        const k = res;
+    });
+
     req.appContext.User.findOne(condition)
                         .populate('roles')
                         .then(user => {
