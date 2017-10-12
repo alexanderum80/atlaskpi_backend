@@ -1,3 +1,4 @@
+import { IUserEmail, IUserProfile } from '../../../data/models/app/users/index';
 import { IUserModel } from '../../../data/models/app/users/IUser';
 import { MutationResponse } from '../../../data/models/common';
 import { IMutationResponse } from '../../../data/models/common';
@@ -40,6 +41,13 @@ export interface IRoleResponse {
     roles?: any;
 }
 
+export interface IUserRole {
+    roles?: IRoleResponse;
+    username: string;
+    emails: IUserEmail[];
+    profile: IUserProfile;
+}
+
 
 export interface IRoleDocument extends IRole, mongoose.Document {
     can(action: string, subject: string, done: (err: any, can: boolean) => void);
@@ -51,7 +59,7 @@ export interface IRoleModel extends mongoose.Model < IRoleDocument > {
     findAllRoles(filter: string): Promise<IRoleDocument[]>;
     createRole(data: IRoleCustom): Promise<IRoleDocument>;
     updateRole(id: string, data: IRoleResponse): Promise<IRoleDocument>;
-    removeRole(id: string, roleExist: boolean): Promise<IRoleDocument>;
+    removeRole(id: string, roleExist: any[]): Promise<IRoleDocument>;
 }
 
 
@@ -179,7 +187,7 @@ RoleSchema.statics.updateRole = function(id: string, data: IRoleResponse): Promi
     });
 };
 
-RoleSchema.statics.removeRole = function(id: string, roleExist: boolean): Promise<IRoleDocument> {
+RoleSchema.statics.removeRole = function(id: string, roleExist: any[]): Promise<IRoleDocument> {
     const that = this;
 
     let document: IRoleDocument;
@@ -190,8 +198,8 @@ RoleSchema.statics.removeRole = function(id: string, roleExist: boolean): Promis
             resolve(idError);
         };
 
-        if (roleExist) {
-            reject({ success: false, errors: [ { field: 'role', errors: ['Role is being used'] } ]});
+        if (roleExist && roleExist.length) {
+            reject({ success: false, entity: roleExist, errors: [ { field: 'role', errors: ['Role is being used by'] } ]});
             return;
         }
 

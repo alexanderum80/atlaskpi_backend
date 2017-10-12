@@ -291,9 +291,13 @@ function initializeRolesForAccount(accountContext: IAppModels): Promise<boolean>
                 if (created)
                     resolve(true);
             })
-            .catch(err => reject(err));
+            .catch(err => {
+                reject(err);
+            });
         })
-        .catch(err => reject(err));
+        .catch(err => {
+            reject(err);
+        });
     });
 }
 
