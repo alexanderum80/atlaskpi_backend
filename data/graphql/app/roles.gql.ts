@@ -70,7 +70,7 @@ export const rolesGql: GraphqlDefinition = {
             success(response: IMutationResponse) {
                 return response.success; },
             entity(response: IMutationResponse) {
-                return response.entity;
+                return Array.isArray(response.entity) ? response.entity : [response.entity];
             },
             errors(response: IMutationResponse) {
                 return response.errors; }
