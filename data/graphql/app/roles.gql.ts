@@ -1,7 +1,8 @@
+import { IUser, IUserProfile } from '../../models/app/users/index';
 import { RemoveRoleMutation } from '../../mutations/app/roles/remove-role.mutation';
 import { UpdateRoleMutation } from '../../mutations/app/roles/update-role.mutation';
 import { IMutationResponse } from '../../models/common';
-import { IRoleCustom, IRoleResponse } from '../../../lib/rbac/models/roles';
+import { IRole, IRoleCustom, IRoleResponse, IUserRole } from '../../../lib/rbac/models/roles';
 import { CreateRoleMutation } from '../../mutations/app/roles';
 import { GetRolesQuery } from '../../queries/app/roles/get-roles.query';
 import { GraphqlDefinition } from '../graphql-definition';
@@ -11,36 +12,36 @@ export const rolesGql: GraphqlDefinition = {
     name: 'roles',
     schema: {
         types: `
-            input RoleList {
-                _id: String
+            input RoleDetailsInput {
                 name: String
                 permissions: [String]
             }
-            input RoleDetails {
-                name: String
-                permissions: [String]
-            }
-            type IRoleList {
+            type RoleList {
                 _id: String
                 name: String
                 permissions: [String]
                 timestamp: String
             }
+           type Permission {
+                _id: String
+                action: String
+                subject: String
+            }
             type Role {
                 _id: String
                 name: String
-                permissions: [String]
+                permissions: [Permission]
             }
             type RoleResult {
                 success: Boolean
-                entity: Role
+                entity: [User]
                 errors: [ErrorDetails]
             }
         `,
-        queries: `findAllRoles(filter: String): [IRoleList]`,
+        queries: `findAllRoles(filter: String): [RoleList]`,
         mutations: `
-            createRole(data: RoleDetails): Role
-            updateRole(id: String, data: RoleDetails): Role
+            createRole(data: RoleDetailsInput): Role
+            updateRole(id: String, data: RoleDetailsInput): Role
             removeRole(id: String): RoleResult
         `
     },
@@ -66,9 +67,13 @@ export const rolesGql: GraphqlDefinition = {
             }
         },
         RoleResult: {
-            success(response: IMutationResponse) { return response.success; },
-            entity(response: IMutationResponse) { return response.entity; },
-            errors(response: IMutationResponse) { return response.errors; }
+            success(response: IMutationResponse) {
+                return response.success; },
+            entity(response: IMutationResponse) {
+                return response.entity;
+            },
+            errors(response: IMutationResponse) {
+                return response.errors; }
         }
     }
 };

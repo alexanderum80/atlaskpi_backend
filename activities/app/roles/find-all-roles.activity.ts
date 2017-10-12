@@ -5,6 +5,6 @@ import { IActivity } from '../../../lib/enforcer';
 export const findAllRolesActivity: IActivity = {
     may: 'find-all-roles',
     when(request: ExtendedRequest, cb: (err: any, authorized: boolean) => void) {
-        cb(null, BasicRoleChecker.isAdmin(request.user));
+        cb(null, true);
     }
 };

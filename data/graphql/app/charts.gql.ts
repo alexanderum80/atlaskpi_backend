@@ -141,7 +141,8 @@ export const chartsGql: GraphqlDefinition = {
             dashboards(entity: IChart) { return entity.dashboards; },
         },
         ListChartsQueryResponse: {
-            data(response: [IChartDocument]) { return response; }
+            data(response: [IChartDocument]) {
+                return response; }
         }
     }
 };
