@@ -1,7 +1,7 @@
 import * as mongoose from 'mongoose';
-import * as async from 'async';
 import * as Promise from 'bluebird';
 import { IQueryResponse } from '../../../data/models/common';
+import * as _ from 'lodash';
 
 export interface IPermission {
     subject: String;
@@ -11,7 +11,7 @@ export interface IPermission {
 }
 
 export interface IPermissionInfo {
-  _id: string;
+  _id?: string;
   action: string;
   subject: string;
 }
@@ -19,7 +19,8 @@ export interface IPermissionInfo {
 export interface IPermissionDocument extends IPermission, mongoose.Document {}
 
 export interface IPermissionModel extends mongoose.Model<IPermissionDocument> {
-  findOrCreate(permission: any, callback);
+  findOrCreateOne(permission: IPermissionInfo): Promise<IPermissionDocument>;
+  findOrCreate(permissions: IPermissionInfo[] | IPermissionInfo): Promise<IPermissionDocument[]>;
   findAllPermissions(filter: string): Promise<IPermissionInfo[]>;
 }
 
@@ -30,31 +31,47 @@ export const PermissionSchema = new mongoose.Schema({
   description: String
 });
 
-PermissionSchema.statics.findOrCreate = function (params: any[], callback) {
+PermissionSchema.statics.findOrCreateOne = function(params: IPermissionInfo): Promise<IPermissionDocument> {
+  const that = this;
+
+  return new Promise<IPermissionDocument>((resolve, reject) => {
+     that.findOne(params, function (err, permission) {
+      if (err) return reject(err);
+      if (permission) return resolve(permission);
+      that.create(params, (err, perm: IPermissionDocument) => {
+        if (err) {
+          return reject(err);
+        }
+        resolve(perm);
+      });
+
+    });
+  });
+};
+
+PermissionSchema.statics.findOrCreate = function (permissions: IPermissionInfo[] | IPermissionInfo): Promise<IPermissionDocument[]> {
   let that = this;
 
-  function findOrCreateOne(params, callback) {
-    that.findOne(params, function (err, permission) {
-      if (err) return callback(err);
-      if (permission) return callback(null, permission);
-      that.create(params, callback);
-    });
+  if (!Array.isArray(permissions)) {
+    permissions = [permissions];
   }
 
-  if (Array.isArray(params)) {
-    let permissions = [];
-    (<any>async).forEachSeries(params, function (param, next) {
-      findOrCreateOne(param, function (err, permission) {
-        permissions.push(permission);
-        next(err);
-      });
-    }, function (err) {
-      callback.apply(null, [err].concat(permissions));
+  return new Promise<IPermissionDocument[]>((resolve, reject) => {
+    const permissionPromises = [];
+
+    (<IPermissionInfo[]>permissions).forEach(p => {
+      permissionPromises.push(that.findOrCreateOne(p));
     });
-  }
-  else {
-    findOrCreateOne(params, callback);
-  }
+
+    Promise.all(permissionPromises).then(values => {
+      return resolve(values);
+    })
+    .catch(err => {
+      return reject(err);
+    });
+
+  });
+
 };
 
 PermissionSchema.statics.findAllPermissions = function(filter: string): Promise<IPermissionInfo[]> {

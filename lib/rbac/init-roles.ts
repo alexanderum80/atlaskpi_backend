@@ -3,6 +3,7 @@ import * as Promise from 'bluebird';
 import { IAppModels } from '../../data/models';
 import { IRoleDocument } from './models';
 import * as _ from 'lodash';
+import { initAllPermissions } from '../../data/models/master/accounts/initialRoles';
 
 export function initRoles(ctx: IAppModels, rolesAndPermissions: any, savedRoles: any[]): Promise<boolean> {
   let count = Object.keys(rolesAndPermissions).length
@@ -19,40 +20,32 @@ export function initRoles(ctx: IAppModels, rolesAndPermissions: any, savedRoles:
 
 
     return new Promise<boolean>((resolve, reject) => {
-        roleNamesDiff.forEach(name => {
-            let len, role: IRoleDocument;
-            // Convert [action, subject] arrays to objects
-            len = roleNamesDiff.length;
+        setTimeout(() => {
+        ctx.Permission.findOrCreate(initAllPermissions)
+            .then(resp => {
+                if (resp) {
+                    roleNamesDiff.forEach(name => {
+                        let len, role: IRoleDocument;
+                        len = roleNamesDiff.length;
 
-            for (let i = 0; i < len; i++) {
-                if (Array.isArray(rolesAndPermissions[name][i])) {
-                    rolesAndPermissions[name][i] = {
-                        action: rolesAndPermissions[name][i][0],
-                        subject: rolesAndPermissions[name][i][1]
-                    };
-                }
-            }
-
-            // Create role
-
-
-            role = new ctx.Role({ name: name });
-            roles.push(role);
-
-            role.save(function (err, role) {
-                if (err) return reject(err);
-                // Create role's permissions if they do not exist
-                ctx.Permission.findOrCreate(rolesAndPermissions[role.name], function (err) {
-                    if (err) return reject(err);
-                    // Add permissions to role
-                    role.permissions = Array.prototype.slice.call(arguments, 1);
-                    // Save role
-                    role.save(function (err) {
-                        if (err) return reject(err);
-                        --count || resolve(true);
+                        role = new ctx.Role({ name: name});
+                        if (rolesAndPermissions[name]) {
+                            _.forEach(rolesAndPermissions[name], (perm) => {
+                                _.forEach(resp, (v) => {
+                                    if ((v.action === perm.action) && (v.subject === perm.subject)) {
+                                        role.permissions.push(v._id);
+                                        role.save((err) => {
+                                            if (err) return reject(err);
+                                            resolve(true);
+                                        });
+                                    }
+                                });
+                            });
+                        }
                     });
-                });
-            });
-        });
+                }
+            }).catch(err => reject(err));
+    }, 20);
+
     });
 }
