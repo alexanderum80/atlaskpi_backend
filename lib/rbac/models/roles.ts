@@ -230,7 +230,7 @@ RoleSchema.statics.removeRole = function(id: string, roleExist: any[]): Promise<
 
 RoleSchema.statics.findAllRoles = function(filter: string): Promise<IRoleDocument[]> {
     return new Promise<IRoleDocument[]>((resolve, reject) => {
-        (<IRoleModel>this).find()
+        (<IRoleModel>this).find({ name: {$ne: 'owner'} })
             .then((roles) => {
                 if (roles) {
                     resolve(roles);
