@@ -1,4 +1,5 @@
 export const initialRoles  = {
+    owner: [],
     admin: [
             { action: 'View', subject: 'Chart' },
             { action: 'Delete Company Wide', subject: 'Chart' },

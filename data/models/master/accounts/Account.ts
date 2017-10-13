@@ -305,7 +305,7 @@ function createAdminUser(accountContext: IAppModels, databaseName: string, first
     return new Promise<boolean>((resolve, reject) => {
         let notifier = new EnrollmentNotification(config, { hostname: databaseName });
         accountContext.User.createUser(firstUser, notifier).then((response) => {
-            (<IUserDocument>response.entity).addRole('admin', (err, role) => {
+            (<IUserDocument>response.entity).addRole('owner', (err, role) => {
                 if (err) {
                     reject(err);
                 } else {
