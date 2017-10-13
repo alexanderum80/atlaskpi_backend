@@ -30,13 +30,17 @@ function importSales(data: DataContext, ctx: IAppModels, cb) {
     // map the data
     const mappedSales = sales.map(s => {
         return {
+            source: 'demo - google spreassheet',
+            concept: 'Test Revenue',
             externalId: my_guid(),
             location: getLocation(data.location, s.location),
             customer: getCustomer(data.customer, s.customer),
             employee: getEmployee(data.employee, s.employee),
             product: getProduct(data.product, s.product, +s.price, new Date(s.date)),
             category: getCategory(data.category, s.category),
-            timestamp: new Date(s.date)
+            timestamp: new Date(s.date),
+            serviceType: s.category.name,
+            businessUnit: { name: 'Plastic Surgery' }
         };
     });
 
@@ -53,34 +57,31 @@ function importSales(data: DataContext, ctx: IAppModels, cb) {
     });
 }
 
-function importWorklog(data: DataContext, dbUri: string,  cb) {
-    getContext(dbUri).then(ctx => {
-        const worklog = data.worklog;
+function importWorklog(data: DataContext, ctx: IAppModels,  cb) {
+    const worklog = data.worklog;
 
-        const mappedWorklog = worklog.map(w => {
-            return {
-                externalId: getEmployee(data.employee, w.employee).externalId.toString(),
-                date: w.date,
-                workTime: w.seconds
-            };
-        });
+    const mappedWorklog = worklog.map(w => {
+        return {
+            externalId: getEmployee(data.employee, w.employee).externalId.toString(),
+            date: w.date,
+            workTime: w.seconds
+        };
+    });
 
-        ctx.WorkLog.remove({}).then(res => {
-            ctx.WorkLog.insertMany(mappedWorklog, (err, result) => {
-                if (err) {
-                    console.error('Error inserting worklog', err);
-                    cb(err, null);
-                } else {
-                    console.info(`${result.length} workklog inserted`);
-                    cb(null, { name: 'worklogs', total: result.length });
-                }
-            });
+    ctx.WorkLog.remove({}).then(res => {
+        ctx.WorkLog.insertMany(mappedWorklog, (err, result) => {
+            if (err) {
+                console.error('Error inserting worklog', err);
+                cb(err, null);
+            } else {
+                console.info(`${result.length} workklog inserted`);
+                cb(null, { name: 'worklogs', total: result.length });
+            }
         });
     });
 }
 
-function importExpenses(data: DataContext, dbUri: string, cb) {
-    getContext(dbUri).then(ctx => {
+function importExpenses(data: DataContext, ctx: IAppModels, cb) {
         const expenses = data.expense;
 
         const mappedExpenses = expenses.map(e => {
@@ -107,7 +108,6 @@ function importExpenses(data: DataContext, dbUri: string, cb) {
                 }
             });
         });
-    });
 }
 
 
