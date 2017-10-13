@@ -1,7 +1,6 @@
 import { BasicRoleChecker } from '../basic-role-checker';
 import { ExtendedRequest } from '../../../middlewares/extended-request';
 import { IActivity } from '../../../lib/enforcer';
-import * as mongoose from 'mongoose';
 
 export const removeRoleActivity: IActivity = {
     may: 'remove-role',
