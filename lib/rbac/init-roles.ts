@@ -1,7 +1,7 @@
 import { WSAEINVALIDPROVIDER } from 'constants';
 import * as Promise from 'bluebird';
 import { IAppModels } from '../../data/models';
-import { IRoleDocument } from './models';
+import { IPermissionInfo, IRoleDocument } from './models';
 import * as _ from 'lodash';
 import { initAllPermissions } from '../../data/models/master/accounts/initialRoles';
 
@@ -21,7 +21,7 @@ export function initRoles(ctx: IAppModels, rolesAndPermissions: any, savedRoles:
 
     return new Promise<boolean>((resolve, reject) => {
         setTimeout(() => {
-        ctx.Permission.findOrCreate(initAllPermissions)
+        ctx.Permission.getOrCreate(initAllPermissions)
             .then(resp => {
                 if (resp) {
                     roleNamesDiff.forEach(name => {
@@ -30,7 +30,7 @@ export function initRoles(ctx: IAppModels, rolesAndPermissions: any, savedRoles:
 
                         role = new ctx.Role({ name: name});
                         if (rolesAndPermissions[name]) {
-                            _.forEach(rolesAndPermissions[name], (perm) => {
+                            _.forEach(rolesAndPermissions[name], (perm: IPermissionInfo) => {
                                 _.forEach(resp, (v) => {
                                     if ((v.action === perm.action) && (v.subject === perm.subject)) {
                                         role.permissions.push(v._id);
