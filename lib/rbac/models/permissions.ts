@@ -20,7 +20,7 @@ export interface IPermissionDocument extends IPermission, mongoose.Document {}
 
 export interface IPermissionModel extends mongoose.Model<IPermissionDocument> {
   findOrCreateOne(permission: IPermissionInfo): Promise<IPermissionDocument>;
-  findOrCreate(permissions: IPermissionInfo[] | IPermissionInfo): Promise<IPermissionDocument[]>;
+  getOrCreate(permissions: IPermissionInfo[] | IPermissionInfo): Promise<IPermissionDocument[]>;
   findAllPermissions(filter: string): Promise<IPermissionInfo[]>;
 }
 
@@ -49,7 +49,7 @@ PermissionSchema.statics.findOrCreateOne = function(params: IPermissionInfo): Pr
   });
 };
 
-PermissionSchema.statics.findOrCreate = function (permissions: IPermissionInfo[] | IPermissionInfo): Promise<IPermissionDocument[]> {
+PermissionSchema.statics.getOrCreate = function (permissions: IPermissionInfo[] | IPermissionInfo): Promise<IPermissionDocument[]> {
   let that = this;
 
   if (!Array.isArray(permissions)) {
