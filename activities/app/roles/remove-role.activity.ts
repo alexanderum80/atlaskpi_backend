@@ -5,6 +5,6 @@ import { IActivity } from '../../../lib/enforcer';
 export const removeRoleActivity: IActivity = {
     may: 'remove-role',
     when(request: ExtendedRequest, cb: (err: any, authorized: boolean) => void) {
-        cb(null, BasicRoleChecker.isAdmin(request.user));
+        cb(null, true);
     }
 };

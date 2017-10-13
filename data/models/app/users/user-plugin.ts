@@ -431,8 +431,10 @@ export function accountPlugin(schema: mongoose.Schema, options: any) {
                   return;
                 }
 
-                if (data.firstName) { user.profile.firstName = data.firstName; }
-                if (data.lastName) { user.profile.lastName = data.lastName; }
+                if (data.firstName) {
+                    user.profile.firstName = data.firstName; }
+                if (data.lastName) {
+                    user.profile.lastName = data.lastName; }
                 if (data.middleName) { user.profile.middleName = data.middleName; }
                 if (data.password) { user.password = data.password; }
                 if (data.email) {
@@ -536,7 +538,15 @@ export function accountPlugin(schema: mongoose.Schema, options: any) {
     schema.statics.findUserById = function(id: string): Promise<IQueryResponse<IUserDocument>> {
         return new Promise<IQueryResponse<IUserDocument>>((resolve, reject) => {
             (<IUserModel>this).findOne({ '_id': id })
-                .populate('roles', '-_id, name' )
+                // .populate('roles', '-_id, name' )
+                .populate({
+                    path: 'roles',
+                    model: 'Role',
+                    populate: {
+                        path: 'permissions',
+                        model: 'Permission'
+                    }
+                })
                 .then((user) => {
                 if (user) {
                     resolve({ errors: null, data: user });
@@ -917,7 +927,15 @@ export function accountPlugin(schema: mongoose.Schema, options: any) {
     schema.statics.findByIdentity = function(identity: IIdentity): Promise<IUserDocument> {
         return new Promise<IUserDocument>((resolve, reject) => {
             (<IUserModel>this).findOne({ 'username': identity.username })
-                .populate('roles', 'name' )
+                // .populate('roles', 'name' )
+                .populate({
+                    path: 'roles',
+                    model: 'Role',
+                    populate: {
+                        path: 'permissions',
+                        model: 'Permission'
+                    }
+                })
                 .then((user) => {
                 if (user) {
                     resolve(user);

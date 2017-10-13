@@ -1,5 +1,5 @@
 import { IDatabaseInfo } from '../../master/accounts';
-import { IRoleList } from '../../../../lib/rbac/models';
+import { IRoleList, IPermissionInfo } from '../../../../lib/rbac/models';
 import { IAppConfig } from '../../../../configuration/config-models';
 import { IIdentity } from '../identity';
 import { IQueryResponse } from '../../common/query-response';
@@ -81,6 +81,7 @@ export interface IUser {
     tokens?: ITokenInfo[];
     mobileDevices?: IMobileDevice[];
 }
+
 
 // declare interface to mix account and mongo docuemnt properties/methods
 export interface IUserDocument extends IUser, mongoose.Document {

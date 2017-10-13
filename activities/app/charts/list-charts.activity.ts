@@ -5,6 +5,6 @@ import { IActivity } from '../../../lib/enforcer';
 export const listChartsActivity: IActivity = {
     may: 'list-charts',
     when(request: ExtendedRequest, cb: (err: any, authorized: boolean) => void) {
-        cb(null, BasicRoleChecker.isAdmin(request.user));
+        cb(null, true);
     }
 };
