@@ -1,3 +1,4 @@
+import { IsNullOrWhiteSpace } from '../../../extentions';
 import { ITokenInfo } from '../../app/users/IUser';
 import { IAppModels } from '../../app/app-models';
 import { stringify } from 'querystring';
@@ -80,9 +81,19 @@ accountSchema.statics.createNewAccount = function(ip: string, clientId: string, 
         };
 
         account.database = generateDBObject(accountDatabaseName, accountDbUser.user, accountDbUser.pwd);
+        let fullName;
+        if (account.personalInfo.fullname) {
+            // fullname i.e. John.Doe
+            fullName = account.personalInfo.fullname.split('.');
+            account.personalInfo.fullname = account.personalInfo.fullname.split('.').join(' ');
+        }
 
         let firstUser: ICreateUserDetails = { email: account.personalInfo.email,
-                                                password: hash.substr(hash.length - 10, hash.length) };
+                                                password: hash.substr(hash.length - 10, hash.length)};
+        if (fullName) {
+            firstUser.firstName = fullName[0];
+            firstUser.lastName = fullName[1];
+        }
 
         that.create(account, (err, newAccount: IAccountDocument) => {
             if (err) {
@@ -102,11 +113,11 @@ accountSchema.statics.createNewAccount = function(ip: string, clientId: string, 
                             return seedApp(newAccountContext);
                         })
                         .then(() => {
-                            if (account.seedData) {
-                                return importSpreadSheet(newAccountContext);
-                            } else {
-                                return Promise.resolve(true);
-                            }
+                            // if (account.seedData) {
+                            return importSpreadSheet(newAccountContext);
+                            // } else {
+                                // return Promise.resolve(true);
+                            // }
                         })
                         .then(() => {
                             return generateFirstAccountToken(that, newAccountContext, account, firstUser, ip, clientId, clientDetails).then(token => {
@@ -260,12 +271,14 @@ function generateDBObject(database: string, username?: string, password?: string
 function createDbUserIfNeeded(account: IAccountDocument, dbUser): Promise<boolean> {
     return new Promise<boolean>((resolve, reject) => {
         // Create a db user if it's in production
-        if (config.mongoDBAtlasCredentials && config.mongoDBAtlasCredentials.api_key) {
+        if (config.mongoDBAtlasCredentials && !IsNullOrWhiteSpace(config.mongoDBAtlasCredentials.api_key)) {
+            winston.debug('MongoDBAtlas api_key found, creating MongoDBAtlas user...');
             account.createAccountDbUser(dbUser)
                 .then((value) => resolve(value))
                 .catch((err) => reject(err));
         } else {
             // Local db... no need to create a db user;
+            winston.debug('MongoDBAtlas api_key not found, assuming backend is not in prod_mode...');
             resolve(true);
         }
     });
@@ -278,9 +291,13 @@ function initializeRolesForAccount(accountContext: IAppModels): Promise<boolean>
                 if (created)
                     resolve(true);
             })
-            .catch(err => reject(err));
+            .catch(err => {
+                reject(err);
+            });
         })
-        .catch(err => reject(err));
+        .catch(err => {
+            reject(err);
+        });
     });
 }
 

@@ -74,22 +74,28 @@ let BusinessUnitSchema = {
     name: String
 };
 
+
+
+
 let SalesSchema = new Schema ({
     source: String,
     externalId: { type: String, unique: true },
-    location: LocationSchema,
+    location: new Schema(LocationSchema),
     customer: CustomerSchema,
-    employee: EmployeeSchema,
-    product: ProductSchema,
+    employee: new Schema(EmployeeSchema),
+    product: new Schema(ProductSchema),
     category: CategorySchema,
 
     timestamp: Date,
     concept: String,
     document: DocumentSchema,
     payment: PaymentSchema,
-    businessUnit: BusinessUnitSchema,
+    businessUnit: new Schema(BusinessUnitSchema),
     serviceType: String
 });
+
+
+
 
 export const SaleSchema = SalesSchema;
 

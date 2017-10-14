@@ -6,6 +6,8 @@ import { IChart } from '../../../models/app/charts';
 import * as Promise from 'bluebird';
 import { IQuery } from '../..';
 import { IIdentity, IUserModel, IPaginationDetails, IPagedQueryResult } from '../../../';
+
+
 export class GetChartsQuery extends QueryBase<IChart[]> {
 
     constructor(

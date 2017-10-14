@@ -1,6 +1,7 @@
 import { IAppModels } from '../models/app/app-models';
 
 import * as google from 'googleapis';
+import * as logger from 'winston';
 import importSpreadSheetData from './kpibi-importer';
 
 
@@ -84,6 +85,9 @@ export function importData(auth, ctx: IAppModels): Promise<any> {
             }, err => {
                 reject(err);
             });
+        })
+        .catch(err => {
+            logger.error(err);
         });
     });
 }

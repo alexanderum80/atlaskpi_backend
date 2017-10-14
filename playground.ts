@@ -1,3 +1,5 @@
+import { DateRangeHelper } from './data/queries/app/date-ranges/date-range.helper';
+import seed from './data/seed';
 import { KPIFilterHelper } from './data/models/app/kpis/kpi-filter.helper';
 import { readMongooseSchema } from './lib/utils';
 import { KPITypeEnum, IKPIFilter } from './data/models/app/kpis/IKPI';
@@ -116,43 +118,48 @@ import * as _ from 'lodash';
 // console.dir(b);
 
 
-let filters: IKPIFilter[] = [
-    {
-        field: 'product.paid',
-        operator: 'gte',
-        criteria: ''
-    },
-    {
-        field: 'employee.externalId',
-        operator: 'eq',
-        criteria: '4260'
-    },
-    {
-        field: 'product.itemCode',
-        operator: 'in',
-        criteria: '2345,5678,8912'
-    }
-];
+// let filters: IKPIFilter[] = [
+//     {
+//         field: 'product.paid',
+//         operator: 'gte',
+//         criteria: ''
+//     },
+//     {
+//         field: 'employee.externalId',
+//         operator: 'eq',
+//         criteria: '4260'
+//     },
+//     {
+//         field: 'product.itemCode',
+//         operator: 'in',
+//         criteria: '2345,5678,8912'
+//     }
+// ];
 
 
-let singleFilter: IKPIFilter[] = [
-    {
-        field: 'product.paid',
-        operator: 'gte',
-        criteria: ''
-    }
-];
+// let singleFilter: IKPIFilter[] = [
+//     {
+//         field: 'product.paid',
+//         operator: 'gte',
+//         criteria: ''
+//     }
+// ];
 
 
 
-let f = KPIFilterHelper.ComposeFilter(KPITypeEnum.Simple, JSON.stringify(filters) );
-console.log(JSON.stringify(f));
+// let f = KPIFilterHelper.ComposeFilter(KPITypeEnum.Simple, JSON.stringify(filters) );
+// console.log(JSON.stringify(f));
 
-let g = KPIFilterHelper.ComposeFilter(KPITypeEnum.Simple, JSON.stringify(singleFilter) );
-console.log(JSON.stringify(g));
+// let g = KPIFilterHelper.ComposeFilter(KPITypeEnum.Simple, JSON.stringify(singleFilter) );
+// console.log(JSON.stringify(g));
 
-let h = KPIFilterHelper.DecomposeFilter(KPITypeEnum.Simple, JSON.parse('{"__dollar__and":[{"product__dot__paid":{"__dollar__gte":0}},{"employee__dot__externalId":{"__dollar__eq":"4260"}},{"product__dot__itemCode":{"__dollar__in":["2345","5678","8912"]}}]}'));
-console.log(JSON.stringify(h));
+// let h = KPIFilterHelper.DecomposeFilter(KPITypeEnum.Simple, JSON.parse('{"__dollar__and":[{"product__dot__paid":{"__dollar__gte":0}},{"employee__dot__externalId":{"__dollar__eq":"4260"}},{"product__dot__itemCode":{"__dollar__in":["2345","5678","8912"]}}]}'));
+// console.log(JSON.stringify(h));
 
-let i = KPIFilterHelper.DecomposeFilter(KPITypeEnum.Simple, JSON.parse('{"product__dot__paid":{"__dollar__gte":0}}'));
-console.log(JSON.stringify(i));
+// let i = KPIFilterHelper.DecomposeFilter(KPITypeEnum.Simple, JSON.parse('{"product__dot__paid":{"__dollar__gte":0}}'));
+// console.log(JSON.stringify(i));
+
+// seed();
+
+const dateRanges = DateRangeHelper.GetDateRangeItems();
+console.dir(dateRanges);

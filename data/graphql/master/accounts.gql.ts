@@ -15,7 +15,7 @@ export const accountsGql: GraphqlDefinition = {
                 country: String
                 phoneNumber: String
             }
-            input PersonalInfoDetails    {
+            input PersonalInfoDetails {
                 fullname: String
                 email: String
             }
@@ -110,12 +110,15 @@ export const accountsGql: GraphqlDefinition = {
         },
 
         AccountResult: {
-            account(response: IMutationResponse) { return response.entity; },
-            errors(response: IMutationResponse) { return response.errors; }
+            account(response: IMutationResponse) {
+                return response.entity; },
+            errors(response: IMutationResponse) {
+                return response.errors; }
         },
 
         AccountNameAvailability: {
-            isAvailable(response: Boolean) { return response; }
+            isAvailable(response: Boolean) {
+                return response; }
         }
     }
 };

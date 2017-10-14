@@ -55,3 +55,4 @@ export function getGroupingMetadata(chartDocument: IChart, groupings: string[]) 
 
     return result;
 }
+
