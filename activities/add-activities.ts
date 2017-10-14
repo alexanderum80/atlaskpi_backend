@@ -1,3 +1,8 @@
+import { getChartsByGroupActivity } from './app/charts/get-charts-by-group.activity';
+import { deleteDashboardActivity } from './app/dashboards/delete-dashboard.activity';
+import { updateDashboardActivity } from './app/dashboards/update-dashboard.activity';
+import { getChartsGroupsActivity } from './app/charts/get-charts-groups.activity';
+import { createDashboardActivity } from './app/dashboards/create-dashboard.activity';
 import { previewChartActivity } from './app/charts/preview-chart.activity';
 import { updateChartActivity } from './app/charts/update-chart.activity';
 import { deleteChartActivity } from './app/charts/delete-chart.activity';
@@ -143,10 +148,15 @@ export function addActivities() {
         deleteChartActivity,
         updateChartActivity,
         previewChartActivity,
+        getChartsGroupsActivity,
+        getChartsByGroupActivity,
 
         // dashboards
         getDashboardActivity,
         getDashboardsActivity,
+        createDashboardActivity,
+        updateDashboardActivity,
+        deleteDashboardActivity,
 
         // search
         searchActivity,
