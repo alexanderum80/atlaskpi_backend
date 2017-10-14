@@ -6,6 +6,7 @@ import * as Promise from 'bluebird';
 
 export interface IDashboard {
     name: string;
+    description: string;
     group: string;
     charts: IChart[];
     owner: IUser;
@@ -19,9 +20,12 @@ export interface IDashboardDocument extends IDashboard, mongoose.Document {
     // addChart(id: string): Promise<IChartDocument>;
     // removeChart(id: string): Promise<boolean>;
 
-    hasChart(chartId: string, done: (err: any, hasChart: boolean) => void): void;
-    addChart(chartId: string, done?: (err: any, chart: IChartDocument) => void): void;
-    removeChart(chartId: string, done: (err: any, dashboard: IDashboardDocument) => void): void;
+    // addChart(chartId: string, done?: (err: any, chart: IChartDocument) => void): void;
+    // removeChart(chartId: string, done: (err: any, dashboard: IDashboardDocument) => void): void;
 }
 
-export interface IDashboardModel extends mongoose.Model<IDashboardDocument> { }
+export interface IDashboardModel extends mongoose.Model<IDashboardDocument> {
+    createDashboard(name: string, description: string, group: string, charts: string[]): Promise<IDashboardDocument>;
+    updateDashboard(_id: string, name: string, description: string, group: string, charts: string[]): Promise<IDashboardDocument>;
+    deleteDashboard(_id: string): Promise<IDashboardDocument>;
+ }
