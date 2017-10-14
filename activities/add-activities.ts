@@ -79,6 +79,7 @@ import {
     deleteTargetActivity,
     findTargetActivity,
     findAllTargetsActivity,
+    RemoveTargetFromChartActivity,
 
     // device tokens
     addDeviceTokenActivity,
@@ -86,6 +87,9 @@ import {
 
     // data sources
     getDataSourcesActivity,
+
+    // date ranges
+    getDateRangesActivity,
 
 } from './app';
 
@@ -176,6 +180,7 @@ export function addActivities() {
         deleteTargetActivity,
         findTargetActivity,
         findAllTargetsActivity,
+        RemoveTargetFromChartActivity,
 
         // device tokens
         addDeviceTokenActivity,
@@ -183,6 +188,9 @@ export function addActivities() {
 
         // data sources
         getDataSourcesActivity,
+
+        // date ranges
+        getDateRangesActivity
 
     ]);
 }

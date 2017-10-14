@@ -2,8 +2,16 @@ import { ITarget, ITargetDocument, ITargetModel } from './ITarget';
 import * as mongoose from 'mongoose';
 import * as Promise from 'bluebird';
 import * as validate from 'validate.js';
+import * as moment from 'moment';
 
 let Schema = mongoose.Schema;
+
+let NotifySchema = new Schema({
+    userId: { type: mongoose.Schema.Types.String, ref: 'User' },
+    notifyDigit: Number,
+    notifyTime: String,
+    notification: Date
+});
 
 let TargetSchema = new Schema({
     name: String,
@@ -14,7 +22,7 @@ let TargetSchema = new Schema({
     amountBy: String,
     type: String,
     period: String,
-    notify: [String],
+    notify: [NotifySchema],
     visible: [String],
     delete: Boolean,
     owner: String,
@@ -44,6 +52,17 @@ TargetSchema.statics.createTarget = function(data: ITarget): Promise<ITargetDocu
             reject({ success: false, message: 'Not permitted to add target', error: errors });
             return;
         }
+
+        data.notify.map((notifying) => {
+            let notificationTime;
+            if (notifying.notifyTime === 'weeks') {
+                notificationTime = moment(data.datepicker).utc().subtract(notifying.notifyDigit * 7, 'day').startOf('day').format();
+            }
+            if (notifying.notifyTime === 'days') {
+                notificationTime = moment(data.datepicker).utc().subtract(notifying.notifyDigit, 'day').startOf('day').format();
+            }
+            notifying.notification = notificationTime;
+        });
 
         data.delete = false;
 
@@ -90,6 +109,21 @@ TargetSchema.statics.updateTarget = function(id: string, data: ITarget): Promise
                     target.visible = [];
                 }
 
+                data.notify.map((notifying) => {
+                    let notificationTime;
+                    if (notifying.notifyTime === 'weeks') {
+                        notificationTime = moment(data.datepicker).utc().subtract(notifying.notifyDigit * 7, 'day').startOf('day').toISOString();
+                    }
+                    if (notifying.notifyTime === 'days') {
+                        notificationTime = moment(data.datepicker).utc().subtract(notifying.notifyDigit, 'day').startOf('day').toISOString();
+                    }
+                    notifying.notification = notificationTime;
+                });
+
+                if (data.vary === 'fixed') {
+                    data.period = '';
+                }
+
                 for (let i in data) {
                     if (i) {
                         target[i] = data[i];
@@ -126,6 +160,24 @@ TargetSchema.statics.removeTarget = function(id: string): Promise<ITargetDocumen
                 });
             }).catch((err) => {
                 resolve(err);
+            });
+    });
+};
+
+TargetSchema.statics.removeTargetFromChart = function(id: string): Promise<ITargetDocument> {
+    const that = this;
+    return new Promise<ITargetDocument>((resolve, reject) => {
+        (<ITargetModel>this).findOne({ chart: { $in: [id] } })
+            .then((target) => {
+                target.delete = true;
+                let deleteTarget = target;
+                target.save((err, target: ITargetDocument) => {
+                    if (err) {
+                        reject({ success: false, entity: null, errors: err});
+                        return;
+                    }
+                    resolve(target);
+                });
             });
     });
 };

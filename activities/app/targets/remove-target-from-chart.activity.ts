@@ -1,10 +1,9 @@
-import { BasicRoleChecker } from '../basic-role-checker';
 import { ExtendedRequest } from '../../../middlewares/extended-request';
-import { IActivity } from '../../../lib/enforcer';
+import { IActivity } from '../../../lib/enforcer/index';
 
-export const listChartsActivity: IActivity = {
-    may: 'list-charts',
+export const RemoveTargetFromChartActivity: IActivity = {
+    may: 'remove-target-from-chart',
     when(request: ExtendedRequest, cb: (err: any, authorized: boolean) => void) {
         cb(null, true);
     }
-};
+}

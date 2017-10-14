@@ -1,3 +1,4 @@
+import { DateRangeHelper } from './../date-ranges/date-range.helper';
 import { IUserDocument } from '../../../models/app/users/index';
 import { TargetService } from '../../../services/targets/target.service';
 import { QueryBase } from '../../query-base';
@@ -15,6 +16,8 @@ import { ChartFactory } from './charts/chart-factory';
 import { KpiFactory } from '../kpis/kpi.factory';
 import { getGroupingMetadata } from './chart-grouping-map';
 import * as logger from 'winston';
+import * as moment from 'moment';
+import * as _ from 'lodash';
 
 export class GetChartQuery extends QueryBase<string> {
 
@@ -57,11 +60,25 @@ export class GetChartQuery extends QueryBase<string> {
                     filter: (data.input && data.input.filter)  ? data.input.filter : chart.filter,
                     frequency: frequency,
                     groupings: groupings,
+                    comparison: (data.input && !_.isEmpty(data.input.comparison))  ? data.input.comparison : chart.comparison,
                     xAxisSource: (data.input && data.input.xAxisSource) ? data.input.xAxisSource : chart.xAxisSource
                 };
 
-                if (data.input && data.input.dateRange) {
+                if (data.input && data.input.dateRange && !data.input.isFutureTarget) {
                     definitionParameters.dateRange = data.input.dateRange;
+                }
+
+                if (data.input && data.input.isDrillDown) {
+                    definitionParameters.isDrillDown = data.input.isDrillDown;
+                }
+
+                if (data.input && data.input.hasOwnProperty('isFutureTarget')) {
+                    definitionParameters.isFutureTarget = data.input.isFutureTarget;
+                }
+
+                if (!chart.comparison || chart.comparison.length < 1) {
+                    chart.availableComparison = DateRangeHelper.getComparisonItemsForDateRangeIdentifier(chart.dateRange[0].predefined || 'custom')
+                                                               .map(item => item.key);
                 }
 
                 let checkDrillDown = (data.input && data.input.isDrillDown);
@@ -69,6 +86,13 @@ export class GetChartQuery extends QueryBase<string> {
                 if (data.id && that._user && !checkDrillDown) {
                     targetService.getTargets(data.id, that._user._id)
                         .then((resp) => {
+                            if (definitionParameters.isFutureTarget &&
+                                chart.frequency !== 'yearly') {
+                                definitionParameters.dateRange = definitionParameters.dateRange ||
+                                    [{ predefined: null,
+                                        custom: TargetService.futureTargets(resp) }];
+                            }
+
                             uiChart.getDefinition(kpi, definitionParameters, resp).then((definition) => {
                                 logger.debug('chart definition received for id: ' + data.id);
                                 chart.chartDefinition = definition;
@@ -104,6 +128,8 @@ export class GetChartQuery extends QueryBase<string> {
                     that._resolveDashboards(chartDocument).then((dashboards) => {
                         const chart: any = chartDocument.toObject();
                         chart.dashboards = dashboards;
+                        chart.availableComparison = DateRangeHelper.getComparisonItemsForDateRangeString(chart.dateRange[0].predefined || 'custom')
+                                                                   .map(item => item.key);
                         resolve(chart);
                         return;
                     });

@@ -9,6 +9,11 @@ export function getRequestHostname(req: ExtendedRequest): string {
     // check host value from body
     let hostname: string = req.body.host || req.hostname;
 
+    // sometimes the hostname is localhost, in that case let's get the gostname from the headers
+    if (hostname === 'localhost') {
+        hostname = req.headers['x-hostname'];
+    }
+
     // stop if not host have been passed
     if (!hostname)
         return null;

@@ -1,7 +1,7 @@
 import mongoose = require('mongoose');
 import * as Promise from 'bluebird';
 import { IUser, IUserDocument, IUserModel } from '.';
-import * as bcrypt from 'bcryptjs';
+import * as bcrypt from 'bcrypt';
 import { rbacPlugin } from '../../../../lib/rbac';
 import { accountPlugin } from './user-plugin';
 

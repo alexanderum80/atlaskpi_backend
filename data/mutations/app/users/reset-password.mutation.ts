@@ -1,3 +1,4 @@
+import { IUserProfile } from '../../../models/app/users/IUser';
 import { MutationBase } from '../../mutation-base';
 import { IIdentity, IUserModel } from '../../..';
 import { IMutationResponse } from '../../..';
@@ -15,7 +16,7 @@ export class ResetPasswordMutation extends MutationBase<IMutationResponse> {
     // log = true;
     // audit = true;
 
-    run(data: { token: string, password: string, enrollment?: boolean }): Promise<IMutationResponse> {
-        return this._UserModel.resetPassword(data.token, data.password, data.enrollment || false);
+    run(data: { token: string, password: string, profile?: IUserProfile, enrollment?: boolean }): Promise<IMutationResponse> {
+        return this._UserModel.resetPassword(data.token, data.password, data.profile, data.enrollment || false);
     }
 }
