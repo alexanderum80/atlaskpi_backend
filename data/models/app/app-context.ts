@@ -1,3 +1,4 @@
+import { getAppointmentModel } from './appointments/appointment';
 import { getTargetModel } from './targets/target';
 import { getAccessLogModel } from './access-log';
 import { getSaleModel } from './sales/Sale';
@@ -8,7 +9,6 @@ import { getEmployeeAttendanceModel } from './employees-attendance/';
 import * as Promise from 'bluebird';
 import connectToMongoDb from '../../mongo-utils';
 import { IAppModels } from './app-models';
-
 import { getCustomerModel } from './customers';
 import { getEmployeeModel } from './employees';
 import { getLocationModel } from './locations';
@@ -55,7 +55,8 @@ export function getContext(dbUri: string): Promise<IAppModels> {
                 WorkLog: getWorkLogModel(m),
                 LogModel: getLogModel(m),
                 AccessModel: getAccessLogModel(m),
-                Target: getTargetModel(m)
+                Target: getTargetModel(m),
+                AppointmentModel: getAppointmentModel(m),
             });
         }, (err) => reject(err));
     });
