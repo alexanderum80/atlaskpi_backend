@@ -1,3 +1,4 @@
+import { IAppointmentModel } from './appointments/IAppointment';
 import { ITargetModel } from './targets/ITarget';
 import { IAccessModel } from './access-log/IAccessLog';
 import { IWorkLogModel } from './work-log/IWorkLog';
@@ -48,4 +49,5 @@ export interface IAppModels {
     LogModel: ILogEntryModel;
     AccessModel: IAccessModel;
     Target: ITargetModel;
+    AppointmentModel: IAppointmentModel;
 }
