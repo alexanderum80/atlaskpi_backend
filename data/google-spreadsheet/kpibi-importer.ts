@@ -171,6 +171,7 @@ function getProduct(products, name, price, date) {
         unitPrice: price,
         quantity: 1,
         amount: price,
+        paid: price,
         tax: 0.7,
         tax2: 0,
         type: p.type.toLowerCase(),
