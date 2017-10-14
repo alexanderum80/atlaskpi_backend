@@ -22,8 +22,12 @@ export class ListChartsQuery extends QueryBase<IChartDocument[]> {
         return new Promise<IChartDocument[]>((resolve, reject) => {
             that._ctx.Chart
             .find()
-            .then(chartDocuments => resolve(chartDocuments))
-            .catch(err => reject(err));
+            .then(chartDocuments => {
+                return resolve(chartDocuments)
+            })
+            .catch(err => {
+                return reject(err)
+            });
         });
     }
 }

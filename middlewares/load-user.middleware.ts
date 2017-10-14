@@ -16,12 +16,16 @@ export function loadUser(req: ExtendedRequest, res: Response, next) {
     let usernameField = config.usersService.usernameField;
 
     if (usernameField === 'email') {
-        condition['emails.address'] = req.identity.username;
+        condition['emails'] = { $elemMatch: { address: req.identity.username  } };
     } else {
         condition['username'] = req.identity.username;
     }
 
     let error = { error: 'Your token has expired or this user does not exist anymore' };
+
+    req.appContext.KPI.findOne({}, (err, res) => {
+        const k = res;
+    });
 
     req.appContext.User.findOne(condition)
                         .populate('roles')

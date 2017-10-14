@@ -13,7 +13,7 @@ import * as Promise from 'bluebird';
 
 export class ColumnChart extends UIChartBase implements IUIChart {
 
-    private basicDefinition = {
+    protected basicDefinition = {
         chart: { type: 'column' },
         yAxis: {
             min: 0,
@@ -28,9 +28,12 @@ export class ColumnChart extends UIChartBase implements IUIChart {
     getDefinition(kpi: IKpiBase, metadata?: IChartMetadata, target?: ITargetDocument[]): Promise < any > {
         const that = this;
 
-        return this.processChartData(kpi, metadata, target).then(() => {
-            return that.buildDefinition(this.basicDefinition, target);
-        });
+        this.dateRange = this._getDateRange(metadata.dateRange);
+        this.comparison = this._getComparisonDateRanges(this.dateRange, metadata.comparison);
+        console.dir(this.comparison);
+        return (this.comparison && this.comparison.length > 0)
+            ? this.getDefinitionOfComparisonChart(kpi, metadata)
+            : this.getDefinitionForDateRange(kpi, metadata, target);
     }
 
     // getDefinition(kpi: IKpiBase, dateRange: IDateRange, metadata?: IChartMetadata): Promise<string> {
