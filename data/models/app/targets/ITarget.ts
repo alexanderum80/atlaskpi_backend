@@ -1,6 +1,12 @@
 import * as mongoose from 'mongoose';
 import * as Promise from 'bluebird';
 
+export interface INotify {
+    notifyDigit: number;
+    notifyTime: string;
+    notification?: Date;
+}
+
 export interface ITarget {
     name: string;
     datepicker: string;
@@ -9,7 +15,7 @@ export interface ITarget {
     amount: number;
     amountBy: string;
     period: string;
-    notify: string[];
+    notify: INotify[];
     visible: string[];
     delete?: boolean;
     owner: string;
@@ -24,4 +30,5 @@ export interface ITargetModel extends mongoose.Model<ITargetDocument> {
     createTarget(data: ITarget): Promise<ITargetDocument>;
     updateTarget(id: string, data: ITarget): Promise<ITargetDocument>;
     removeTarget(id: string): Promise<ITargetDocument>;
+    removeTargetFromChart(id: string): Promise<ITargetDocument>;
 }

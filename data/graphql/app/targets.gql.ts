@@ -1,3 +1,4 @@
+import { RemoveTargetFromChart } from '../../mutations/app/targets/remove-target-from-chart.mutation';
 import { RemoveTargetMutation } from '../../mutations/app/targets/remove-target.mutation';
 import { UpdateTargetMutation } from '../../mutations/app/targets/update-target.mutation';
 import { IMutationResponse } from '../../models/common';
@@ -11,6 +12,11 @@ export const targetGql: GraphqlDefinition = {
     name: 'target',
     schema: {
         types: `
+            input NotifyInput {
+                userId: String
+                notifyDigit: String
+                notifyTime: String
+            }
             input TargetInput {
                 name: String
                 datepicker: String
@@ -20,7 +26,7 @@ export const targetGql: GraphqlDefinition = {
                 amountBy: String
                 type: String
                 period: String
-                notify: [String]
+                notify: [NotifyInput]
                 visible: [String]
                 owner: String
                 chart: [String]
@@ -29,6 +35,12 @@ export const targetGql: GraphqlDefinition = {
             }
             input TargetOwner {
                 owner: String
+            }
+
+            type NotifyResponse {
+                userId: String
+                notifyDigit: String
+                notifyTime: String
             }
             type TargetResponse {
                 _id: String
@@ -41,12 +53,15 @@ export const targetGql: GraphqlDefinition = {
                 target: Float
                 type: String
                 period: String
-                notify: [String]
+                notify: [NotifyResponse]
                 visible: [String]
                 owner: String
                 chart: [String]
                 stackName: String
                 nonStackName: String
+            }
+            type TargetRemoveResponse {
+                _id: String
             }
             type TargetResult {
                 success: Boolean
@@ -57,6 +72,11 @@ export const targetGql: GraphqlDefinition = {
                 target: TargetResponse
                 errors: [ErrorDetails]
             }
+            type TargetRemoveResult {
+                success: Boolean
+                entity: TargetRemoveResponse
+                errors: [ErrorDetails]
+            }
         `,
         queries: `
             findTarget(id: String): TargetResponse
@@ -65,7 +85,8 @@ export const targetGql: GraphqlDefinition = {
         mutations: `
             createTarget(data: TargetInput): TargetResult
             updateTarget(id: String, data: TargetInput): TargetResult
-            removeTarget(id: String, owner: String): TargetResult
+            removeTarget(id: String, owner: String): TargetRemoveResult
+            removeTargetFromChart(id: String): TargetRemoveResult
         `
     },
     resolvers: {
@@ -91,12 +112,28 @@ export const targetGql: GraphqlDefinition = {
             removeTarget(root: any, args, ctx: IGraphqlContext) {
                 let mutation = new RemoveTargetMutation(ctx.req.identity, ctx.req.appContext.Target, ctx.req.appContext);
                 return ctx.mutationBus.run<IMutationResponse>('remove-target', ctx.req, mutation, args);
+            },
+            removeTargetFromChart(root: any, args, ctx: IGraphqlContext) {
+                let mutation = new RemoveTargetFromChart(ctx.req.identity, ctx.req.appContext.Target);
+                return ctx.mutationBus.run<IMutationResponse>('remove-target-from-chart', ctx.req, mutation, args);
             }
+        },
+        TargetResponse: {
+            notify(response: any) { return response.notify; }
         },
         TargetResult: {
             success(response: IMutationResponse) { return response.success; },
             entity(response: IMutationResponse) { return response.entity; },
             errors(response: IMutationResponse) { return response.errors; }
+        },
+        TargetRemoveResult: {
+            success(response: IMutationResponse) { return response.success; },
+            entity(response: IMutationResponse) { return response.entity; },
+            errors(response: IMutationResponse) { return response.errors; }
+        },
+        TargetQueryResult: {
+            target(response: any) { return response.target; },
+            errors(response: any) { return response.errors; }
         }
     }
 };

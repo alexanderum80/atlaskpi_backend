@@ -21,7 +21,7 @@ import {
 } from './';
 
 export class BarChart extends UIChartBase implements IUIChart {
-    private basicDefinition = { 'chart'       : { 'type': 'bar' } };
+    protected basicDefinition = { 'chart'       : { 'type': 'bar' } };
 
     constructor(chart: IChart, frequencyHelper: FrequencyHelper) {
         super(chart, frequencyHelper);
@@ -30,9 +30,12 @@ export class BarChart extends UIChartBase implements IUIChart {
     getDefinition(kpi: IKpiBase, metadata?: IChartMetadata, target?: ITargetDocument[]): Promise < any > {
         const that = this;
 
-        return this.processChartData(kpi, metadata, target).then(() => {
-            return that.buildDefinition(this.basicDefinition, target);
-        });
+        this.dateRange = this._getDateRange(metadata.dateRange);
+        this.comparison = this._getComparisonDateRanges(this.dateRange, metadata.comparison);
+        console.dir(this.comparison);
+        return (this.comparison && this.comparison.length > 0)
+            ? this.getDefinitionOfComparisonChart(kpi, metadata)
+            : this.getDefinitionForDateRange(kpi, metadata, target);
     }
 
 }

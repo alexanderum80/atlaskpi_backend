@@ -10,6 +10,11 @@ import * as mongoose from 'mongoose';
 
 const appContextPool = new AppContextPool();
 
+const graphqlOperationExceptions = [
+    'AccountNameAvailable',
+    'CreateAccount'
+];
+
 export function initializeContexts(req: ExtendedRequest, res: Response, next) {
 
     getMasterContext().then((ctx) => {
@@ -19,7 +24,7 @@ export function initializeContexts(req: ExtendedRequest, res: Response, next) {
         // only initialize contexts when we have identity
         let hostname = getRequestHostname(req);
 
-        if (!req.identity && !hostname) {
+        if (!req.identity && !hostname || graphqlOperationExceptions.indexOf(req.body.operationName) !== -1) {
             return next();
         }
 
