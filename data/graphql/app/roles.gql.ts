@@ -22,11 +22,6 @@ export const rolesGql: GraphqlDefinition = {
                 permissions: [String]
                 timestamp: String
             }
-           type Permission {
-                _id: String
-                action: String
-                subject: String
-            }
             type Role {
                 _id: String
                 name: String
