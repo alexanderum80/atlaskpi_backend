@@ -5,6 +5,7 @@ import { DataContext, DataTable } from './google-sheet.processor';
 import * as async from 'async';
 import * as Promise from 'bluebird';
 import { my_guid } from '../extentions';
+import * as logger from 'winston';
 
 
 export default function importSpreadSheetData(data: any, ctx: IAppModels): Promise<any> {
@@ -115,6 +116,11 @@ function importExpenses(data: DataContext, ctx: IAppModels, cb) {
 
 function getLocation(locations, name) {
     const l = locations.find(loc => loc.name === name);
+
+    if (!l) {
+        logger.error('Location not found: ' + name);
+    }
+
     return {
         identifier: l.id,
         name: l.name,
@@ -165,6 +171,7 @@ function getProduct(products, name, price, date) {
         unitPrice: price,
         quantity: 1,
         amount: price,
+        paid: price,
         tax: 0.7,
         tax2: 0,
         type: p.type.toLowerCase(),
