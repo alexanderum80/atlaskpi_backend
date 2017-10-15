@@ -90,7 +90,7 @@ let SalesSchema = new Schema ({
     concept: String,
     document: DocumentSchema,
     payment: PaymentSchema,
-    businessUnit: new Schema(BusinessUnitSchema),
+    businessUnit: BusinessUnitSchema,
     serviceType: String
 });
 
