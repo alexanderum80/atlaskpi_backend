@@ -23,10 +23,10 @@ export class ListChartsQuery extends QueryBase<IChartDocument[]> {
             that._ctx.Chart
             .find()
             .then(chartDocuments => {
-                return resolve(chartDocuments)
+                return resolve(chartDocuments);
             })
             .catch(err => {
-                return reject(err)
+                return reject(err);
             });
         });
     }
