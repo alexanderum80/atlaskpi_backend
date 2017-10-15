@@ -51,7 +51,7 @@ export const chartsGql: GraphqlDefinition = {
                 dateRange: ChartDateRange
                 filter: String
                 frequency: String
-                groupings: String
+                groupings: [String]
                 xFormat: String
                 yFormat: String
                 chartDefinition: String
@@ -155,7 +155,7 @@ export const chartsGql: GraphqlDefinition = {
         ChartEntityResponse: {
             dateRange(entity: IChart) { return entity.dateRange[0] || null; },
             chartDefinition(entity: IChart) { return JSON.stringify(entity.chartDefinition); },
-            dashboards(entity: IChart) { return entity.dashboards; },
+            dashboards(entity: IChart) { return entity.dashboards; }
         },
         ListChartsQueryResponse: {
             data(response: [IChartDocument]) {
