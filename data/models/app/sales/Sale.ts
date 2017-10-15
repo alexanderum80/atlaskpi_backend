@@ -80,10 +80,10 @@ let BusinessUnitSchema = {
 let SalesSchema = new Schema ({
     source: String,
     externalId: { type: String, unique: true },
-    location: new Schema(LocationSchema),
+    location: LocationSchema,
     customer: CustomerSchema,
-    employee: new Schema(EmployeeSchema),
-    product: new Schema(ProductSchema),
+    employee: EmployeeSchema,
+    product: ProductSchema,
     category: CategorySchema,
 
     timestamp: Date,
