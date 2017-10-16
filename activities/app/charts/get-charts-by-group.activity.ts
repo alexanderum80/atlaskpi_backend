@@ -5,6 +5,6 @@ import { IActivity } from '../../../lib/enforcer';
 export const getChartsByGroupActivity: IActivity = {
     may: 'get-charts-by-group',
     when(request: ExtendedRequest, cb: (err: any, authorized: boolean) => void) {
-        cb(null, BasicRoleChecker.isAdmin(request.user));
+        cb(null, BasicRoleChecker.hasPermission(request.user, 'View' , 'Chart'));
     }
 };
