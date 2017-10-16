@@ -23,7 +23,7 @@ export function getRequestHostname(req: ExtendedRequest): string {
     let hostname: string = req.body.host || req.hostname;
 
     // sometimes the hostname is localhost, in that case let's get the gostname from the headers
-    if (hostname === 'localhost') {
+    if (hostname === 'localhost' || hostname.split('.').length < 3) {
         hostname = req.headers['x-hostname'];
     }
 
