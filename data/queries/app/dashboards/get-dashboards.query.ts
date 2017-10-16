@@ -23,7 +23,7 @@ export class GetDashboardsQuery extends QueryBase<IDashboard[]> {
 
         // lets prepare the query for the dashboards
         let query = {};
-        if (this._user.roles.find(r => r.name === 'admin')) {
+        if (this._user.roles.find(r => r.name === 'owner')) {
             query = {};
         } else {
             query = { $or: [ { owner: that._user._id }, { users: { $in: [that._user._id]} } ]};

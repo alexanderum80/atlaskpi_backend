@@ -110,6 +110,7 @@ export function accountPlugin(schema: mongoose.Schema, options: any) {
             required: false,
             unique: true
         },
+        owner: Boolean,
         password: String,
         services: ServicesSchema,
         profile: UserProfileSchema,
@@ -538,7 +539,6 @@ export function accountPlugin(schema: mongoose.Schema, options: any) {
     schema.statics.findUserById = function(id: string): Promise<IQueryResponse<IUserDocument>> {
         return new Promise<IQueryResponse<IUserDocument>>((resolve, reject) => {
             (<IUserModel>this).findOne({ '_id': id })
-                // .populate('roles', '-_id, name' )
                 .populate({
                     path: 'roles',
                     model: 'Role',
@@ -927,7 +927,6 @@ export function accountPlugin(schema: mongoose.Schema, options: any) {
     schema.statics.findByIdentity = function(identity: IIdentity): Promise<IUserDocument> {
         return new Promise<IUserDocument>((resolve, reject) => {
             (<IUserModel>this).findOne({ 'username': identity.username })
-                // .populate('roles', 'name' )
                 .populate({
                     path: 'roles',
                     model: 'Role',
