@@ -35,11 +35,23 @@ export function initRoles(ctx: IAppModels, rolesAndPermissions: any, savedRoles:
                                     if ((v.action === perm.action) && (v.subject === perm.subject)) {
                                         role.permissions.push(v._id);
                                         role.save((err) => {
-                                            if (err) return reject(err);
-                                            resolve(true);
+                                            if (err) {
+                                                reject(err);
+                                            } else {
+                                                resolve(true);
+                                            }
                                         });
                                     }
                                 });
+                            });
+                        }
+
+                        if (name === 'owner') {
+                            role.save((err) => {
+                                if (err) {
+                                    reject(err);
+                                }
+                                resolve(true);
                             });
                         }
                     });
