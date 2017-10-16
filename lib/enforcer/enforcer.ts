@@ -30,6 +30,15 @@ export class Enforcer implements IEnforcer {
     authorizationTo(activityName: String, request: ExtendedRequest): Promise<boolean> {
         return new Promise<boolean>((resolve, reject) => {
             logger.debug('Checking allow authorization');
+
+            if (request && request.hasOwnProperty('user')) {
+                const findOwner = request.user.roles.find(role => role.name === 'owner');
+                const checkOwner = findOwner !== undefined;
+
+                if (checkOwner) {
+                    return resolve(true);
+                }
+            }
             // first call the global allow and deny callbacks
             if (this._config.allow) {
                 this._config.allow(request.user, activityName, (err, authorized) => {

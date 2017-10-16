@@ -28,7 +28,14 @@ export function loadUser(req: ExtendedRequest, res: Response, next) {
     });
 
     req.appContext.User.findOne(condition)
-                        .populate('roles')
+                        .populate({
+                            path: 'roles',
+                            model: 'Role',
+                            populate: {
+                                path: 'permissions',
+                                model: 'Permission'
+                            }
+                        })
                         .then(user => {
         // just becuase there is not an error it doenst mean that findOne returned an user...
         // so we have to check if there is a user

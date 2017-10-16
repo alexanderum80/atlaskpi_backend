@@ -1,4 +1,4 @@
-import { IPermission, IRole } from '../../../lib/rbac';
+import { IPermission, IRole, IRoleDocument } from '../../../lib/rbac';
 
 export interface IIdentity {
     accountName: string;
@@ -6,6 +6,6 @@ export interface IIdentity {
     firstName: string;
     middleName: string;
     lastName: string;
-    roles?: string[];
+    roles?: [IRoleDocument];
     permissions?: [IPermission];
 }
