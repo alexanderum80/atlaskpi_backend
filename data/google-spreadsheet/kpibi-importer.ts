@@ -146,9 +146,9 @@ function getCustomer(customers, name) {
 
 function getEmployee(employees, name) {
     const e = employees.find(emp => emp.name === name);
-    if (!e) return logger.error(`Employee "${name}" not found`);
 
     if (!e) {
+        logger.error(`Employee "${name}" not found`);
         return {
             externalId: 0,
             fullName: ''
