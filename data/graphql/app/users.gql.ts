@@ -150,19 +150,35 @@ export const usersGql: GraphqlDefinition = {
     resolvers: {
         Query: {
             isResetPasswordTokenValid(root: any, args, ctx: IGraphqlContext) {
+                if (!ctx.req.appContext) {
+                    throw new Error('No app context available');
+                }
+
                 let query = new VerifyResetPasswordQuery(ctx.req.identity, ctx.req.appContext.User);
                 return ctx.queryBus.run('verify-reset-password', query, args, ctx.req);
             },
             users(root: any, args, ctx: IGraphqlContext) {
+                if (!ctx.req.appContext) {
+                    throw new Error('No app context available');
+                }
+
                 let query = new SearchUsersQuery(ctx.req.identity, ctx.req.appContext.User);
                 return ctx.queryBus.run('search-users', query, args, ctx.req);
             },
             User(root: any, args, ctx: IGraphqlContext) {
+                if (!ctx.req.appContext) {
+                    throw new Error('No app context available');
+                }
+
                 if (!ctx.req.identity || !ctx.req.appContext.User) { return null; }
                 let query = new FindUserByIdQuery(ctx.req.identity, ctx.req.appContext.User);
                 return ctx.queryBus.run('find-user-by-id', query, args, ctx.req);
             },
             allUsers(root: any, args, ctx: IGraphqlContext) {
+                if (!ctx.req.appContext) {
+                    throw new Error('No app context available');
+                }
+
                 let query = new FindAllUsersQuery(ctx.req.identity, ctx.req.appContext.User);
                 return ctx.queryBus.run('find-all-users', query, args, ctx.req);
             },

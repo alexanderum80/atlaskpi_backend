@@ -15,6 +15,8 @@ const graphqlOperationExceptions = [
     'CreateAccount',
 ];
 
+const loggerSuffix = '(MIDDLEWARE initializeContexts)';
+
 export function initializeContexts(req: ExtendedRequest, res: Response, next) {
 
     getMasterContext().then((ctx) => {
@@ -23,15 +25,18 @@ export function initializeContexts(req: ExtendedRequest, res: Response, next) {
         // try to create the app context based on the identity or the hostname
         // only initialize contexts when we have identity
         let hostname = getRequestHostname(req);
+        logger.debug(`${loggerSuffix} Hostname: ${hostname}`);
 
         if (!req.identity && !hostname || graphqlOperationExceptions.indexOf(req.body.operationName) !== -1) {
+            logger.debug(`${loggerSuffix} Not trying to create app context because of the lack of identity, hostname or the operation is not part the exception list`);
             return next();
         }
 
         const accountName = (req.identity && req.identity.accountName) || hostname;
 
         if (!accountName) {
-            res.status(401).json('an account name is needed either from the identity or from the hostname');
+            logger.debug(`${loggerSuffix} No account name found: ${accountName}`);
+            res.status(401).json('An account name is needed either from the identity or from the hostname');
             return res.end();
         }
 
@@ -45,8 +50,10 @@ export function initializeContexts(req: ExtendedRequest, res: Response, next) {
                 return res.end();
             }
 
+            logger.debug(`${loggerSuffix} Account found`);
             appContextPool.getContext(account.getConnectionString()).then((ctx) => {
                 req.appContext = ctx;
+                logger.debug(`${loggerSuffix} App context assigned to request`);
                 return next();
             })
             .catch(err => {
