@@ -71,6 +71,11 @@ export const slideshowGql: GraphqlDefinition = {
                 let mutation = new DeleteSlideshowMutation(ctx.req.identity, ctx.req.appContext.SlideshowModel);
                 return ctx.mutationBus.run<IMutationResponse>('delete-slideshow', ctx.req, mutation, args);
             }
+        },
+        SlideshowResponse: {
+            success(response: IMutationResponse) { return response.success; },
+            entity(response: IMutationResponse) { return response.entity; },
+            errors(response: IMutationResponse) { return response.errors; }
         }
     }
 };
