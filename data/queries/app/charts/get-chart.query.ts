@@ -72,7 +72,7 @@ export class GetChartQuery extends QueryBase<string> {
                     definitionParameters.isDrillDown = data.input.isDrillDown;
                 }
 
-                if (data.input && data.input.hasOwnProperty('isFutureTarget')) {
+                if (data.input && data.input['isFutureTarget']) {
                     definitionParameters.isFutureTarget = data.input.isFutureTarget;
                 }
 

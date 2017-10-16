@@ -12,7 +12,7 @@ const appContextPool = new AppContextPool();
 
 const graphqlOperationExceptions = [
     'AccountNameAvailable',
-    'CreateAccount'
+    'CreateAccount',
 ];
 
 export function initializeContexts(req: ExtendedRequest, res: Response, next) {
