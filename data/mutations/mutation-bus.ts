@@ -11,6 +11,7 @@ import { Enforcer, getEnforcerConfig, IEnforcer } from '../../lib/enforcer';
 import { ExtendedRequest } from '../../middlewares';
 import * as Promise from 'bluebird';
 import { CreateAccessLogMutation } from './app/access-log';
+import * as logger from 'winston';
 
 
 export interface IMutationBus {
@@ -57,6 +58,7 @@ export class MutationBus implements IMutationBus {
                         resolve(res);
                     })
                     .catch(e => {
+                        logger.error(mutation.constructor.name, e);
                         resolve({ erros: [e.message] });
                     });
                 });
