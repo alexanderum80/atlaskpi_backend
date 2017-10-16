@@ -203,7 +203,7 @@ export function addActivities() {
         SlideshowByIdActivity,
         UpdateSlideshowActivity,
         DeleteSlideshowActivity,
-        SlideshowByGroupActivity
+        SlideshowByGroupActivity,
 
         // date ranges
         getDateRangesActivity
