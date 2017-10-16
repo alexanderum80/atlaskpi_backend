@@ -27,7 +27,7 @@ export function initializeContexts(req: ExtendedRequest, res: Response, next) {
         let hostname = getRequestHostname(req);
         logger.debug(`${loggerSuffix} Hostname: ${hostname}`);
 
-        if (!req.identity && !hostname || graphqlOperationExceptions.indexOf(req.body.operationName) !== -1) {
+        if ((!req.identity && !hostname) || graphqlOperationExceptions.indexOf(req.body.operationName) !== -1) {
             logger.debug(`${loggerSuffix} Not trying to create app context because of the lack of identity, hostname or the operation is not part the exception list`);
             return next();
         }
