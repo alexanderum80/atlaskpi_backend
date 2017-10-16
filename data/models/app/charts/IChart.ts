@@ -73,6 +73,8 @@ export interface IChartModel extends mongoose.Model<IChartDocument> {
      */
     updateChart(id: string, input: IChartInput): Promise<IChartDocument>;
 
+    listChartByGroup(group: string): Promise<IChartDocument[]>;
+
     getChartsGroup(): Promise<IChartDocument[]>;
 
 }

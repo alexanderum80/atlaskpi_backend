@@ -2,6 +2,7 @@ import { GetChartsByGroupQuery } from '../../queries/app/charts/get-charts-by-gr
 import { GetChartsGroupQuery } from '../../queries/app/charts/get-charts-groups.query';
 import { getGroupingMetadata } from '../../queries/app/charts';
 import { DateRangeHelper } from '../../queries/app/date-ranges/date-range.helper';
+import { ListChartsByGroupQuery } from '../../queries/app/charts/list-charts-by-group.query';
 import { PreviewChartsQuery } from '../../queries/app/charts/preview-chart.query';
 import { IChartDateRange, IDateRange } from '../../models/common/date-range';
 import { IChartDocument } from '../../models/app/charts';
@@ -81,6 +82,8 @@ export const chartsGql: GraphqlDefinition = {
             chart(id: String, input: GetChartInput): String
             previewChart(input: ChartAttributesInput): String
             listCharts: ListChartsQueryResponse
+
+            listChartsByGroup(group: String!): ListChartsQueryResponse
             getChartsGroup: ChartsGroupResponse
             getChartsByGroup(group: String): ListChartsQueryResponse
         `,
@@ -126,7 +129,12 @@ export const chartsGql: GraphqlDefinition = {
             getChartsByGroup(root: any, args, ctx: IGraphqlContext) {
                 let query = new GetChartsByGroupQuery(ctx.req.identity, ctx.req.appContext);
                 return ctx.queryBus.run('get-charts-by-group', query, args, ctx.req);
-            }
+            },
+       // orlando: this is duplicated
+       listChartsByGroup(root: any, args, ctx: IGraphqlContext) {
+         let query = new ListChartsByGroupQuery(ctx.req.identity, ctx.req.appContext.Chart);
+         return ctx.queryBus.run('list-charts-by-group', query, args, ctx.req);
+       }
         },
         Mutation: {
             createChart(root: any, args, ctx: IGraphqlContext) {

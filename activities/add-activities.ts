@@ -1,3 +1,10 @@
+import { listChartsByGroupActivity } from './app/charts/list-charts-by-group.activity';
+import { SlideshowByGroupActivity } from './app/slideshow/slideshows-by-group.activity';
+import { DeleteSlideshowActivity } from './app/slideshow/delete-slideshow.activity';
+import { UpdateSlideshowActivity } from './app/slideshow/update-slideshow.activity';
+import { SlideshowByIdActivity } from './app/slideshow/slideshow-by-id.activity';
+import { ListSlideshowActivity } from './app/slideshow/list-slideshows.activity';
+import { CreateSlideshowActivity } from './app/slideshow/create-slideshow.activity';
 import { getChartsByGroupActivity } from './app/charts/get-charts-by-group.activity';
 import { deleteDashboardActivity } from './app/dashboards/delete-dashboard.activity';
 import { updateDashboardActivity } from './app/dashboards/update-dashboard.activity';
@@ -148,6 +155,7 @@ export function addActivities() {
         deleteChartActivity,
         updateChartActivity,
         previewChartActivity,
+        listChartsByGroupActivity,
         getChartsGroupsActivity,
         getChartsByGroupActivity,
 
@@ -188,6 +196,14 @@ export function addActivities() {
 
         // data sources
         getDataSourcesActivity,
+
+        // slideshow
+        CreateSlideshowActivity,
+        ListSlideshowActivity,
+        SlideshowByIdActivity,
+        UpdateSlideshowActivity,
+        DeleteSlideshowActivity,
+        SlideshowByGroupActivity
 
         // date ranges
         getDateRangesActivity
