@@ -37,11 +37,11 @@ function importSales(data: DataContext, ctx: IAppModels, cb) {
             location: getLocation(data.location, s.location),
             customer: getCustomer(data.customer, s.customer),
             employee: getEmployee(data.employee, s.employee),
-            product: getProduct(data.product, s.product, +s.price, new Date(s.date)),
+            product: getProduct(data.product, s.product, s.price, new Date(s.date)),
             category: getCategory(data.category, s.category),
             timestamp: new Date(s.date),
             serviceType: s.category.name,
-            businessUnit: { name: 'Plastic Surgery' }
+            businessUnit: getBusinessUnit(data.businessUnit, s.businessUnit)
         };
     });
 
@@ -92,7 +92,7 @@ function importExpenses(data: DataContext, ctx: IAppModels, cb) {
                 exployee: getEmployee(data.employee, e.employee),
                 expense: {
                     concept: e.category,
-                    amount: +e.amount
+                    amount: +((<string>e.amount).replace(/[$,]/g, ''))
                 },
                 timestamp: new Date(e.date)
             };
@@ -118,7 +118,7 @@ function getLocation(locations, name) {
     const l = locations.find(loc => loc.name === name);
 
     if (!l) {
-        logger.error('Location not found: ' + name);
+        logger.error(`Location ${name} not found`);
     }
 
     return {
@@ -132,6 +132,7 @@ function getLocation(locations, name) {
 
 function getCustomer(customers, name) {
     const c = customers.find(cus => cus.name === name);
+    if (!c) logger.error(`Customer ${name} not found`);
 
     return {
         externalId: c.id,
@@ -145,6 +146,7 @@ function getCustomer(customers, name) {
 
 function getEmployee(employees, name) {
     const e = employees.find(emp => emp.name === name);
+    if (!e) logger.error(`Employee ${name} not found`);
 
     if (!e) {
         return {
@@ -163,6 +165,9 @@ function getEmployee(employees, name) {
 
 function getProduct(products, name, price, date) {
     const p = products.find(prod => prod.name === name);
+    if (!p) logger.error(`Product ${name} not found`);
+
+    price = +((<string>price).replace(/[$,]/g, ''));
 
     return {
         externalId: p.id + my_guid(),
@@ -182,10 +187,18 @@ function getProduct(products, name, price, date) {
 
 function getCategory(categories, name) {
     const c = categories.find(cat => cat.name === name);
+    if (!c) logger.error(`Category ${name} not found`);
 
     return {
         externalId: c.id,
         name: c.name,
         service: c.service
     };
+}
+
+function getBusinessUnit(businessUnits, name) {
+    const bu = businessUnits.find(bu => bu.name === name);
+    if (!bu) logger.error(`Business Unit ${name} not found`);
+
+    return { name: bu.name };
 }
