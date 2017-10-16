@@ -7,7 +7,7 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "npm run build:live",
     "build:live": "nodemon --exec ./node_modules/.bin/ts-node -- ./index.ts",
-    "copy-json-files": "cp package.json dist/ && cp data/google-spreadsheet/client_secret.json dist/data/google-spreadsheet && cp -R configuration/users/templates dist/configuration/users && cp -R configuration/app/templates dist/configuration/app && cp -R resources dist && cp data/seed/app/*.json dist/data/seed/app",
+    "copy-json-files": "cp package.json dist/ && cp data/google-spreadsheet/*.json dist/data/google-spreadsheet && cp -R configuration/users/templates dist/configuration/users && cp -R configuration/app/templates dist/configuration/app && cp -R resources dist && cp data/seed/app/*.json dist/data/seed/app",
     "build": "tsc -p . --outDir dist && npm run copy-json-files && cp Dockerfile dist",
     "build-and-upload": "tsc -p . --outDir dist && tar cvfz webapp-backend.tgz dist && scp -i ../scripts/kpibi-first-instance.pem webapp-backend.tgz ubuntu@app.kpibi.com:./releases"
   },
@@ -51,7 +51,7 @@
     "sinon-chai": "^2.8.0",
     "ts-node": "^1.7.0",
     "tslint": "^5.4.3",
-    "typescript": "^2.3.4"
+    "typescript": "2.3.4"
   },
   "dependencies": {
     "@types/i18n": "^0.5.20",
@@ -89,7 +89,6 @@
     "nodemailer-mailgun-transport": "^1.2.4",
     "object-mapper": "^3.0.1",
     "request-promise": "^4.1.1",
-    "typescript": "^2.3.4",
     "validate.js": "^0.11.1",
     "winston": "^2.3.0"
   }
