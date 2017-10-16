@@ -10,4 +10,5 @@ export * from './roles.gql';
 export * from './permissions.gql';
 export * from './data-sources.gql';
 export * from './targets.gql';
+export * from './slideshow.gql';
 export * from './date-ranges.gql';

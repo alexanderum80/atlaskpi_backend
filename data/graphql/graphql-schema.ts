@@ -1,3 +1,4 @@
+import { slideshowGql } from './app/slideshow.gql';
 import { dateRangesGql } from './app/date-ranges.gql';
 import { dataSourcesGql } from './app/data-sources.gql';
 import { industriesGql } from './master/industries.gql';
@@ -31,6 +32,7 @@ definitions.push(rolesGql);
 definitions.push(permissionGql);
 definitions.push(dataSourcesGql);
 definitions.push(targetGql);
+definitions.push(slideshowGql);
 definitions.push(dateRangesGql);
 
 let moduleQueries = [];

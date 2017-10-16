@@ -6,3 +6,4 @@ export * from './charts';
 export * from './dashboards';
 export * from './search';
 export * from './data-sources';
+export * from './slideshow';
