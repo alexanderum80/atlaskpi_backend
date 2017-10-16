@@ -82,6 +82,9 @@ import {
     // data sources
     getDataSourcesActivity,
 
+    // users-log
+    getUsersLogActivity,
+
 } from './app';
 
 import { getEnforcerConfig } from '../lib/enforcer';
@@ -173,6 +176,9 @@ export function addActivities() {
 
         // data sources
         getDataSourcesActivity,
+
+        // users-log
+        getUsersLogActivity
 
     ]);
 }

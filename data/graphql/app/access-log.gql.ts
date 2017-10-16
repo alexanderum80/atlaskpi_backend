@@ -16,7 +16,7 @@ export const accessLogGql: GraphqlDefinition = {
                 details: Boolean
             }
             input IAccessLogInput {
-                timestamp: Date
+                timestamp: String
                 accessBy: String
                 ipAddress: String
                 clientDetails: String
@@ -31,7 +31,7 @@ export const accessLogGql: GraphqlDefinition = {
                 details: Boolean                
             }
             type AccessLogResponse {
-                timestamp: Date
+                timestamp: String
                 accessBy: String
                 ipAddress: String
                 clientDetails: String
@@ -49,13 +49,13 @@ export const accessLogGql: GraphqlDefinition = {
         queries: `
             accessLogs(filter: String): AccessLogResponse
         `,
-        mutations: ``
+        mutations: ``,
     },
     resolvers: {
         Query: {
             accessLogs(root: any, args, ctx: IGraphqlContext) {
                 let query = new FindAllAcessLogsQuery(ctx.req.identity, ctx.req.appContext.AccessModel);
-                return ctx.queryBus.run('find-all-access-logs', query, args);
+                return ctx.queryBus.run('find-all-users', query, args, ctx.req);
             }
         },
         Mutation: {},
