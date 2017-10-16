@@ -118,7 +118,7 @@ function getLocation(locations, name) {
     const l = locations.find(loc => loc.name === name);
 
     if (!l) {
-        logger.error(`Location ${name} not found`);
+        return logger.error(`Location "${name}" not found`);
     }
 
     return {
@@ -132,7 +132,7 @@ function getLocation(locations, name) {
 
 function getCustomer(customers, name) {
     const c = customers.find(cus => cus.name === name);
-    if (!c) logger.error(`Customer ${name} not found`);
+    if (!c) return logger.error(`Customer "${name}" not found`);
 
     return {
         externalId: c.id,
@@ -146,9 +146,9 @@ function getCustomer(customers, name) {
 
 function getEmployee(employees, name) {
     const e = employees.find(emp => emp.name === name);
-    if (!e) logger.error(`Employee ${name} not found`);
 
     if (!e) {
+        logger.error(`Employee "${name}" not found`);
         return {
             externalId: 0,
             fullName: ''
@@ -165,7 +165,7 @@ function getEmployee(employees, name) {
 
 function getProduct(products, name, price, date) {
     const p = products.find(prod => prod.name === name);
-    if (!p) logger.error(`Product ${name} not found`);
+    if (!p) return logger.error(`Product "${name}" not found`);
 
     price = +((<string>price).replace(/[$,]/g, ''));
 
@@ -187,7 +187,7 @@ function getProduct(products, name, price, date) {
 
 function getCategory(categories, name) {
     const c = categories.find(cat => cat.name === name);
-    if (!c) logger.error(`Category ${name} not found`);
+    if (!c) logger.error(`Category "${name}" not found`);
 
     return {
         externalId: c.id,
@@ -198,7 +198,7 @@ function getCategory(categories, name) {
 
 function getBusinessUnit(businessUnits, name) {
     const bu = businessUnits.find(bu => bu.name === name);
-    if (!bu) logger.error(`Business Unit ${name} not found`);
+    if (!bu) logger.error(`Business Unit "${name}" not found`);
 
     return { name: bu.name };
 }
