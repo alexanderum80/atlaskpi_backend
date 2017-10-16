@@ -167,6 +167,10 @@ export const usersGql: GraphqlDefinition = {
                 return ctx.queryBus.run('find-all-users', query, args, ctx.req);
             },
             isEnrollmentTokenValid(root: any, args, ctx: IGraphqlContext) {
+                if (!ctx.req.appContext) {
+                    throw new Error('No app context available');
+                }
+
                 let query = new VerifyEnrollmentQuery(ctx.req.identity, ctx.req.appContext.User);
                 return ctx.queryBus.run('verify-enrollment', query, args, ctx.req);
             }
