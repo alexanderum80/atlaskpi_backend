@@ -10,3 +10,4 @@ export * from './permissions';
 export * from './access-log';
 export * from './data-sources';
 export * from './targets';
+export * from './users-log';
