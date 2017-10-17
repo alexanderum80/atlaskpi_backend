@@ -21,7 +21,7 @@ let DashboardSchema = new Schema({
 
 // DashboardSchema.statics.
 
-DashboardSchema.statics.createDashboard = function(name: string, description: string, group: string, charts: string[]):
+DashboardSchema.statics.createDashboard = function(name: string, description: string, group: string, charts: string[], users: string[]):
     Promise<IDashboardDocument> {
 
     const that = <IDashboardModel> this;
@@ -31,12 +31,17 @@ DashboardSchema.statics.createDashboard = function(name: string, description: st
             return reject('Information not valid');
         }
 
-        that.create({
+        const newDashboardData = {
             name: name,
             description: description,
-            group: group,
-            charts: charts
-        }).then(dashboard => {
+            group: group
+        };
+
+        if (users && users.length) {
+            newDashboardData['users'] = users;
+        }
+
+        that.create(newDashboardData).then(dashboard => {
             resolve(dashboard);
         }).catch(err => {
             logger.error(err);
@@ -45,7 +50,7 @@ DashboardSchema.statics.createDashboard = function(name: string, description: st
     });
 };
 
-DashboardSchema.statics.updateDashboard = function(_id: string, name: string, description: string, group: string, charts: string[]):
+DashboardSchema.statics.updateDashboard = function(_id: string, name: string, description: string, group: string, charts: string[], users: string[]):
     Promise<IDashboardDocument> {
 
     const that = <IDashboardModel> this;
@@ -55,12 +60,19 @@ DashboardSchema.statics.updateDashboard = function(_id: string, name: string, de
             return reject('Information not valid');
         }
 
-        that.findByIdAndUpdate(_id, {
+        const updateDashboardData = {
             name: name,
             description: description,
             group: group,
             charts: charts
-        }).then(dashboard => {
+        };
+
+        if (users && users.length) {
+            updateDashboardData['users'] = [];
+            updateDashboardData['users'] = users;
+        }
+
+        that.findByIdAndUpdate(_id, updateDashboardData).then(dashboard => {
             resolve(dashboard);
         }).catch(err => {
             logger.error(err);
