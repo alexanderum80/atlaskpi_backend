@@ -14,13 +14,14 @@ const SlideshowSchema = new mongoose.Schema({
 
 SlideshowSchema.statics.createSlideshow = function(input: ISlideshowInput): Promise<ISlideshowDocument> {
     const that = <ISlideshowModel> this;
-    const newSlideshow = {
-        name: input.name,
-        description: input.description,
-        charts: input.charts
-    };
 
     return new Promise<ISlideshowDocument>((resolve, reject) => {
+        const newSlideshow = {
+            name: input.name,
+            description: input.description,
+            charts: input.charts
+        };
+
         if (!newSlideshow.name || !newSlideshow.description || !newSlideshow.charts || !(newSlideshow.charts.length > 0)) {
             return reject('Information not valid');
         }
@@ -33,15 +34,17 @@ SlideshowSchema.statics.createSlideshow = function(input: ISlideshowInput): Prom
         });
     });
 };
+
 SlideshowSchema.statics.updateSlideshow = function(_id: string, input: ISlideshowInput): Promise<ISlideshowDocument>{
     const that = <ISlideshowModel> this;
-    const newSlideshow = {
-        name: input.name,
-        description: input.description,
-        charts: input.charts
-    };
 
      return new Promise<ISlideshowDocument>((resolve, reject) => {
+        const newSlideshow = {
+            name: input.name,
+            description: input.description,
+            charts: input.charts
+        };
+
         if (!_id || !newSlideshow.name || !newSlideshow.description || !newSlideshow.charts) {
             return reject('Information not valid');
         }
@@ -53,6 +56,7 @@ SlideshowSchema.statics.updateSlideshow = function(_id: string, input: ISlidesho
         });
      });
 };
+
 SlideshowSchema.statics.deleteSlideshow = function(_id: string): Promise<ISlideshowDocument>{
     const that = <ISlideshowModel> this;
     return new Promise<ISlideshowDocument>((resolve, reject) => {
@@ -68,6 +72,7 @@ SlideshowSchema.statics.deleteSlideshow = function(_id: string): Promise<ISlides
 
     });
 };
+
 SlideshowSchema.statics.slideshows = function(): Promise<ISlideshowDocument[]>{
     const that = <ISlideshowModel> this;
 
@@ -80,6 +85,7 @@ SlideshowSchema.statics.slideshows = function(): Promise<ISlideshowDocument[]>{
         });
     });
 };
+
 SlideshowSchema.statics.slideshowById = function(id: string): Promise<ISlideshowDocument> {
     const that = <ISlideshowModel> this;
 
@@ -105,6 +111,7 @@ SlideshowSchema.statics.slideshowByGroupChart = function(group: string): Promise
         });
     });
 };
+
 export function getSlideshowModel(m: mongoose.Connection): ISlideshowModel {
     return <ISlideshowModel>m.model('Slideshow', SlideshowSchema, 'slideshows');
 }
