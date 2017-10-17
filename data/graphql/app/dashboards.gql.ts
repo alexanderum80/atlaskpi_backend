@@ -19,6 +19,7 @@ export const dashboardGql: GraphqlDefinition = {
                 description: String
                 group: String
                 charts: [String]
+                users: [String]
             },
             type DashboardResponse
             {
@@ -32,8 +33,8 @@ export const dashboardGql: GraphqlDefinition = {
             dashboard(id: String!): Dashboard
         `,
         mutations: `
-            createDashboard(name: String!, description: String!, group: String!, charts: [String]!): Dashboard
-            updateDashboard(_id: String!, name: String!, description: String!, group: String!, charts: [String]!): DashboardResponse
+            createDashboard(name: String!, description: String!, group: String!, charts: [String]!, users: [String]): Dashboard
+            updateDashboard(_id: String!, name: String!, description: String!, group: String!, charts: [String]!, users: [String]): DashboardResponse
             deleteDashboard(_id: String!): DashboardResponse
         `,
     },
@@ -62,6 +63,14 @@ export const dashboardGql: GraphqlDefinition = {
                 let mutation = new DeleteDashboardMutation(ctx.req.identity, ctx.req.appContext.Dashboard);
                 return ctx.mutationBus.run<IMutationResponse>('delete-dashboard', ctx.req, mutation, args);
             }
+        },
+        DashboardResponse: {
+            success(response: IMutationResponse) {
+                return response.success; },
+            entity(response: IMutationResponse) {
+                return response.entity; },
+            errors(response: IMutationResponse) {
+                return response.errors; }
         }
     }
 };

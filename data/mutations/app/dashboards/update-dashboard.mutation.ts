@@ -15,11 +15,12 @@ export class UpdateDashboardMutation extends MutationBase<IMutationResponse> {
             super(identity);
         }
 
-    run(data): Promise<IMutationResponse> {
+    run(data: { _id: string, name: string, description: string, group: string, charts: any[], users?: string[] }): Promise<IMutationResponse> {
         const that = this;
 
         return new Promise<IMutationResponse>((resolve, reject) => {
-           that._DashboardModel.updateDashboard(data._id, data.name, data.description, data.group, data.charts).then(dashboard => {
+           that._DashboardModel.updateDashboard(data._id, data.name, data.description,
+            data.group, data.charts, data.users).then(dashboard => {
                 resolve({
                     success: true,
                     entity: dashboard
