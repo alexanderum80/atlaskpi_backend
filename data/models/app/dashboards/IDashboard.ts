@@ -25,7 +25,7 @@ export interface IDashboardDocument extends IDashboard, mongoose.Document {
 }
 
 export interface IDashboardModel extends mongoose.Model<IDashboardDocument> {
-    createDashboard(name: string, description: string, group: string, charts: string[]): Promise<IDashboardDocument>;
-    updateDashboard(_id: string, name: string, description: string, group: string, charts: string[]): Promise<IDashboardDocument>;
+    createDashboard(name: string, description: string, group: string, charts: string[], user?: string[]): Promise<IDashboardDocument>;
+    updateDashboard(_id: string, name: string, description: string, group: string, charts: string[], user?: string[]): Promise<IDashboardDocument>;
     deleteDashboard(_id: string): Promise<IDashboardDocument>;
  }
