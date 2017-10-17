@@ -13,20 +13,13 @@ export const dashboardGql: GraphqlDefinition = {
     name: 'dashboards',
     schema: {
         types: `
-            input DashboardInput {
-                _id: String!
-                name: String!
-                description: String!
-                group: String!
-                charts: [String]!
-                users: [String]
-            }
             type Dashboard {
                 _id: String
                 name: String
                 description: String
                 group: String
                 charts: [String]
+                users: [String]
             },
             type DashboardResponse
             {

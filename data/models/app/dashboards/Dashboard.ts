@@ -34,7 +34,8 @@ DashboardSchema.statics.createDashboard = function(name: string, description: st
         const newDashboardData = {
             name: name,
             description: description,
-            group: group
+            group: group,
+            charts: charts
         };
 
         if (users && users.length) {
