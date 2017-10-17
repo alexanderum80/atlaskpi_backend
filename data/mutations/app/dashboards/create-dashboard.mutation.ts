@@ -15,12 +15,13 @@ export class CreateDashboardMutation extends MutationBase<IMutationResponse> {
             super(identity);
         }
 
-    run(data): Promise<IMutationResponse> {
+    run(data: { name: string, description: string, group: string, charts: any[], users?: string[]}): Promise<IMutationResponse> {
         const that = this;
 
         // resolve kpis
         return new Promise<IMutationResponse>((resolve, reject) => {
-            that._dashboardModel.createDashboard(data.name, data.description, data.group, data.charts)
+            that._dashboardModel.createDashboard(data.name, data.description,
+                                                data.group, data.charts, data.users)
             .then(dashboard => {
                     resolve({
                         success: true,
