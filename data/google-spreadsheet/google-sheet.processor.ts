@@ -33,19 +33,19 @@ const dataSources: DataSource[] = [{
     schema: { name: 'category', fields: ['id', 'name', 'service'] }
 }, {
     range: 'Products!A2:D',
-    schema: { name: 'product', fields: ['id', 'name', 'type', 'category'] }
+    schema: { name: 'product', fields: ['id', 'name', 'type', 'category', 'quantity', 'cost', 'markup'] }
 }, {
     range: 'Employees!A2:D',
     schema: { name: 'employee', fields: ['id', 'name', 'role', 'fte'] }
 }, {
     range: 'Customer!A2:E',
-    schema: { name: 'customer', fields: ['id', 'name', 'state', 'city', 'zip'] }
+    schema: { name: 'customer', fields: ['id', 'name', 'gender', 'zip', 'state'] }
 }, {
     range: 'Expense Category!A2:B',
     schema: { name: 'expense-category', fields: ['id', 'name'] }
 }, {
-    range: 'Sales!A2:H',
-    schema: { name: 'sales', fields: ['date', 'location', 'employee', 'category', 'product', 'customer', 'price', 'businessUnit'] }
+    range: 'Sales!A2:I',
+    schema: { name: 'sales', fields: ['date', 'location', 'employee', 'category', 'product', 'quantity', 'customer', 'price', 'businessUnit'] }
 }, {
     range: 'Expenses!A2:F',
     schema: { name: 'expense', fields: ['date', 'location', 'category', 'amount', 'employee', 'businessUnit'] }
@@ -125,11 +125,6 @@ function convertSheetsToObjects(auth, spreadsheetId: string, source: DataSource)
             }
 
             dataTable.data = rows.map(r => rowToObject(r, source.schema));
-                // for (let i = 0; i < rows.length; i++) {
-                //     dataTable.data.push(rowToObject(rows[i], source.schema));
-                // }
-            // }
-
             resolve(dataTable);
         });
     });
