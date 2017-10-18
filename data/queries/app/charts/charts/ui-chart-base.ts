@@ -611,17 +611,18 @@ export class UIChartBase {
     }
 
     protected getDefinitionOfComparisonChart(kpi, metadata: IChartMetadata): Promise<any> {
-        const mainPromiseName = this.dateRange[0].predefined ? this.dateRange[0].predefined : 'custom';
-        const chartDefinitions = {
+        const chartPromises = {
             main: this.getDefinitionForDateRange(kpi, metadata, [])
         };
 
         this.comparison.forEach((comparisonDateRange, index) => {
-            metadata.dateRange = [{ custom: comparisonDateRange }];
-            chartDefinitions[metadata.comparison[index]] = this.getDefinitionForDateRange(kpi, metadata, []);
+            const newChart = _.cloneDeep(this);
+            const newMetadata = _.cloneDeep(metadata);
+            newMetadata.dateRange = [ { custom: comparisonDateRange } ];
+            chartPromises[metadata.comparison[index]] = newChart.getDefinitionForDateRange(kpi, newMetadata, []);
         });
 
-        return Promise.props(chartDefinitions).then(output => {
+        return Promise.props(chartPromises).then(output => {
             return Promise.resolve(this._mergeMultipleChartDefinitions(output, metadata));
         });
     }
@@ -633,7 +634,6 @@ export class UIChartBase {
 
         mergedSeries = mergedSeries.concat(this._getComparisonSeries(definitions));
         mergedSeries = mergedSeries.concat(this._getMainComparisonSeries(definitions));
-
         mainDefinition.series = mergedSeries;
 
         return mainDefinition;
