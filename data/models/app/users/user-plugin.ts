@@ -13,7 +13,7 @@ import * as Promise from 'bluebird';
 import ms = require('ms');
 import * as logger from 'winston';
 import * as mongoose from 'mongoose';
-import * as bcrypt from 'bcryptjs';
+import * as bcrypt from 'bcrypt';
 import * as validate from 'validate.js';
 import * as async from 'async';
 import * as winston from 'winston';
