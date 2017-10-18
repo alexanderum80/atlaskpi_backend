@@ -26,6 +26,9 @@ export interface IGetDataOptions {
     frequency?: FrequencyEnum;
     groupings?: string[];
     stackName?: any;
+    isDrillDown?: boolean;
+    isFutureTarget?: boolean;
+    comparison?: string[];
 }
 
 export interface IKpiBase {
@@ -37,10 +40,17 @@ export interface IKpiBase {
 export class KpiBase {
     frequency: FrequencyEnum;
     protected kpi: IKPI;
+    protected pristineAggregate: AggregateStage[];
 
-    constructor(public model: any, public aggregate: AggregateStage[]) { }
+    constructor(public model: any, public aggregate: AggregateStage[]) {
+        // for multimple executeQuery iterations in the same instance we need to preserve the aggregate
+        this.pristineAggregate = _.cloneDeep(aggregate);
+    }
 
     executeQuery(dateField: string, dateRange?: IDateRange[], options?: IGetDataOptions): Promise<any> {
+        // for multimple executeQuery iterations in the same instance we need to preserve the aggregate
+        this.aggregate = _.cloneDeep(this.pristineAggregate);
+
         logger.debug('executing query: ' + this.constructor.name);
 
         if (!this.model) throw 'A model is required to execute kpi query';
@@ -49,7 +59,7 @@ export class KpiBase {
         let that = this;
 
         return new Promise<any>((resolve, reject) => {
-            if (dateRange)
+            if (dateRange && dateRange.hasOwnProperty('length') && dateRange.length)
                 that._injectDataRange(dateRange, dateField);
             if (options.filter)
                 that._injectFilter(options.filter);
@@ -115,7 +125,6 @@ export class KpiBase {
         }
 
         if (dateRange &&
-            dateRange.hasOwnProperty('length') &&
             (<any>dateRange).length) {
             if ((<any>dateRange).length === 1) {
                 matchStage.$match[field] = { '$gte': dateRange[0].from, '$lte': dateRange[0].to };

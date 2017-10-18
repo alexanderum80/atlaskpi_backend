@@ -1,10 +1,11 @@
 import { IAppModels } from '../../models/app/app-models';
-import { IChartModel } from '../../models/app/charts/index';
+import { IChartModel, IGetChartInput } from '../../models/app/charts/index';
 import { KpiFactory } from '../../queries/app/kpis/index';
-import { IDateRange, parsePredifinedDate } from '../../models/common/index';
-import { ITargetModel } from '../../models/app/targets/ITarget';
+import { FrequencyEnum, IChartDateRange, IDateRange, parsePredifinedDate } from '../../models/common/index';
+import { ITargetDocument, ITargetModel } from '../../models/app/targets/ITarget';
 import { IUserModel } from '../../models/app/users/index';
 import * as Promise from 'bluebird';
+import * as moment from 'moment';
 
 
 export class TargetService {
@@ -41,6 +42,7 @@ export class TargetService {
                         true : false;
 
                     let kpi = KpiFactory.getInstance(chart.kpis[0], ctx);
+
                     if (that.isStacked) {
                         let options = {
                             filter: chart.filter,
@@ -117,5 +119,37 @@ export class TargetService {
 
     getDate(period: string): IDateRange {
         return parsePredifinedDate(period);
+    }
+
+    static formatFrequency(frequency: number, targetDate: string) {
+        switch (frequency) {
+            case FrequencyEnum.Monthly:
+                return moment(targetDate).format('YYYY-MM');
+            case FrequencyEnum.Yearly:
+                return moment(targetDate).format('YYYY');
+            case FrequencyEnum.Quartely:
+                return moment(targetDate).format('YYYY') + '-Q' + moment(targetDate).format('Q');
+            case FrequencyEnum.Daily:
+                return moment(targetDate).format('YYYY-MM-DD');
+            case FrequencyEnum.Weekly:
+                return moment(targetDate).isoWeek();
+        };
+    }
+
+    static futureTargets(targets: ITargetDocument[]) {
+        let futureDateRange;
+        if (targets && targets.length) {
+            targets.forEach((target) => {
+                const datepicker = moment(target.datepicker).format('YYYY-MM-DD');
+                const currentYear = moment().endOf('year').format('YYYY-MM-DD');
+                if (moment(datepicker).isAfter(currentYear)) {
+                    futureDateRange = {
+                        from: moment().add(1, 'year').startOf('year').toDate(),
+                        to: moment().add(1, 'year').endOf('year').toDate()
+                    };
+                }
+            });
+            return futureDateRange;
+        }
     }
 }

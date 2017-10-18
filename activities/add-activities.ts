@@ -1,3 +1,15 @@
+import { listChartsByGroupActivity } from './app/charts/list-charts-by-group.activity';
+import { SlideshowByGroupActivity } from './app/slideshow/slideshows-by-group.activity';
+import { DeleteSlideshowActivity } from './app/slideshow/delete-slideshow.activity';
+import { UpdateSlideshowActivity } from './app/slideshow/update-slideshow.activity';
+import { SlideshowByIdActivity } from './app/slideshow/slideshow-by-id.activity';
+import { ListSlideshowActivity } from './app/slideshow/list-slideshows.activity';
+import { CreateSlideshowActivity } from './app/slideshow/create-slideshow.activity';
+import { getChartsByGroupActivity } from './app/charts/get-charts-by-group.activity';
+import { deleteDashboardActivity } from './app/dashboards/delete-dashboard.activity';
+import { updateDashboardActivity } from './app/dashboards/update-dashboard.activity';
+import { getChartsGroupsActivity } from './app/charts/get-charts-groups.activity';
+import { createDashboardActivity } from './app/dashboards/create-dashboard.activity';
 import { previewChartActivity } from './app/charts/preview-chart.activity';
 import { updateChartActivity } from './app/charts/update-chart.activity';
 import { deleteChartActivity } from './app/charts/delete-chart.activity';
@@ -74,13 +86,17 @@ import {
     deleteTargetActivity,
     findTargetActivity,
     findAllTargetsActivity,
-    
+    RemoveTargetFromChartActivity,
+
     // device tokens
     addDeviceTokenActivity,
     removeDeviceTokenActivity,
 
     // data sources
     getDataSourcesActivity,
+
+    // date ranges
+    getDateRangesActivity,
 
     // users-log
     getUsersLogActivity,
@@ -142,10 +158,16 @@ export function addActivities() {
         deleteChartActivity,
         updateChartActivity,
         previewChartActivity,
+        listChartsByGroupActivity,
+        getChartsGroupsActivity,
+        getChartsByGroupActivity,
 
         // dashboards
         getDashboardActivity,
         getDashboardsActivity,
+        createDashboardActivity,
+        updateDashboardActivity,
+        deleteDashboardActivity,
 
         // search
         searchActivity,
@@ -169,13 +191,25 @@ export function addActivities() {
         deleteTargetActivity,
         findTargetActivity,
         findAllTargetsActivity,
-        
+        RemoveTargetFromChartActivity,
+
         // device tokens
         addDeviceTokenActivity,
         removeDeviceTokenActivity,
 
         // data sources
         getDataSourcesActivity,
+
+        // slideshow
+        CreateSlideshowActivity,
+        ListSlideshowActivity,
+        SlideshowByIdActivity,
+        UpdateSlideshowActivity,
+        DeleteSlideshowActivity,
+        SlideshowByGroupActivity,
+
+        // date ranges
+        getDateRangesActivity
 
         // users-log
         getUsersLogActivity

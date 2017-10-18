@@ -15,4 +15,5 @@ export * from './app-context';
 export * from './identity';
 export * from './log';
 export * from './data-sources';
+export * from './slideshow';
 export * from './users-log';

@@ -45,10 +45,10 @@ import { emailServiceConfig, usersServiceConfig, appServicesConfig } from './con
 
 export const config: IAppConfig = {
     impersonateHost: null,
-    subdomain: process.env.AKPI_APP_SUBDOMAIN || 'bi.atlaskpi.com',
+    subdomain: process.env.AKPI_APP_SUBDOMAIN || 'd.atlaskpi.com',
     token: {
         secret: process.env.AKPI_TOKEN_SECRET || 'jyeu4L?v*FGXmsGAYEXPjp(i',
-        expiresIn: process.env.AKPI_TOKEN_EXPIRATION || '10 d'
+        expiresIn: process.env.AKPI_TOKEN_EXPIRATION || '90 d'
     },
     masterDb: process.env.AKPI_MASTER_DB_URI || 'mongodb://localhost/kpibi',
     newAccountDbUriFormat: process.env.AKPI_NEW_ACCOUNT_DB_URI_FORMAT || 'mongodb://localhost/{{database}}',

@@ -1,5 +1,5 @@
 import { IDatabaseInfo } from '../../master/accounts';
-import { IRoleList } from '../../../../lib/rbac/models';
+import { IRoleList, IPermissionInfo } from '../../../../lib/rbac/models';
 import { IAppConfig } from '../../../../configuration/config-models';
 import { IIdentity } from '../identity';
 import { IQueryResponse } from '../../common/query-response';
@@ -82,6 +82,7 @@ export interface IUser {
     mobileDevices?: IMobileDevice[];
 }
 
+
 // declare interface to mix account and mongo docuemnt properties/methods
 export interface IUserDocument extends IUser, mongoose.Document {
     hasRole(role: string, done: (err: any, hasRole: boolean) => void): void;
@@ -101,6 +102,7 @@ export interface IUserDocument extends IUser, mongoose.Document {
 
 export interface ITokenVerification {
     isValid: boolean;
+    profile?: IUserProfile;
 }
 
 /**
@@ -114,6 +116,7 @@ export interface ICreateUserDetails {
     username?: string;
     password?: string;
     roles?: string[];
+    fullname?: string;
 }
 
 /**
@@ -192,7 +195,7 @@ export interface IUserModel extends mongoose.Model<IUserDocument> {
      * Remove an email address for a user. Use this instead of updating the database directly.
      * @param {string} userId - the is of the user to update
      * @param {email} email - the email address to remove
-     * 
+     *
      */
     removeEmail(userId: string, email: string): Promise<IMutationResponse>;
     /**
@@ -222,7 +225,7 @@ export interface IUserModel extends mongoose.Model<IUserDocument> {
      * @param {boolean} logoutOtherSessions - (Optional) Logout other sessions for this user. (default: true)
      * @returns {Promise<IMutationResponse>}
      */
-    resetPassword(token: string, newPassword: string, enrollment?: boolean, logoutOtherSessions?: boolean): Promise<IMutationResponse>;
+    resetPassword(token: string, newPassword: string, profile?: IUserProfile, enrollment?: boolean, logoutOtherSessions?: boolean): Promise<IMutationResponse>;
     /**
      * Forcibly change the password for a user.
      * @param {string} userId - the id of the user to update
