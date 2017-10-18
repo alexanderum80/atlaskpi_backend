@@ -4,3 +4,4 @@ export * from './kpis';
 export * from './chart-formats';
 export * from './charts';
 export * from './targets';
+export * from './slideshow';

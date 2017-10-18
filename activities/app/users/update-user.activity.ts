@@ -5,6 +5,6 @@ import { IActivity } from '../../../lib/enforcer';
 export const updateUserActivity: IActivity = {
     may: 'update-user',
     when(request: ExtendedRequest, cb: (err: any, authorized: boolean) => void) {
-        cb(null, BasicRoleChecker.isAdmin(request.user));
+        cb(null, BasicRoleChecker.hasPermission(request.user, 'Manage Access Levels', 'Users'));
     }
 };

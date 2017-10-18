@@ -1,3 +1,5 @@
+import { connection } from 'mongoose';
+import { getSlideshowModel } from './slideshow/Slideshow';
 import { getTargetModel } from './targets/target';
 import { getAccessLogModel } from './access-log';
 import { getSaleModel } from './sales/Sale';
@@ -59,8 +61,8 @@ export function getContext(dbUri: string): Promise<IAppModels> {
                 LogModel: getLogModel(m),
                 AccessModel: getAccessLogModel(m),
                 Target: getTargetModel(m),
-                UserslogModel: getUsersLogModel(m)
-
+                SlideshowModel: getSlideshowModel(m),
+        UserslogModel: getUsersLogModel(m)
             });
         }, (err) => reject(err));
     });
