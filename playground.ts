@@ -1,3 +1,4 @@
+import { getContext } from './data/models/app/app-context';
 import { DateRangeHelper } from './data/queries/app/date-ranges/date-range.helper';
 import seed from './data/seed';
 import { KPIFilterHelper } from './data/models/app/kpis/kpi-filter.helper';
@@ -161,5 +162,11 @@ import * as _ from 'lodash';
 
 // seed();
 
-const dateRanges = DateRangeHelper.GetDateRangeItems();
-console.dir(dateRanges);
+// const dateRanges = DateRangeHelper.GetDateRangeItems();
+// console.dir(dateRanges);
+
+getContext('mongodb://localhost/company-test-3002').then(ctx => {
+    ctx.Widget.listWidgets().then(w =>  {
+        console.dir(w);
+    });
+});
