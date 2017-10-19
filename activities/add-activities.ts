@@ -104,7 +104,10 @@ import {
     getDataSourcesActivity,
 
     // date ranges
-    getDateRangesActivity
+    getDateRangesActivity,
+
+    // widgets
+    listWidgetsActivity
 
 } from './app';
 
@@ -222,7 +225,10 @@ export function addActivities() {
         SlideshowByGroupActivity,
 
         // date ranges
-        getDateRangesActivity
+        getDateRangesActivity,
+
+        // widgets
+        listWidgetsActivity
 
     ]);
 }

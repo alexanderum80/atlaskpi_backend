@@ -1,3 +1,5 @@
+import { initialRoles } from './data/models/master/accounts/initialRoles';
+import { initRoles } from './lib/rbac/init-roles';
 import { IWidgetInput } from './data/models/app/widgets';
 import { getContext } from './data/models/app/app-context';
 import { DateRangeHelper } from './data/queries/app/date-ranges/date-range.helper';
@@ -171,21 +173,24 @@ getContext('mongodb://localhost/company-test-3002').then(ctx => {
         console.dir(w);
     });
 
-    const input: IWidgetInput = {
-        name: 'Test Widget Updated',
-        order: 1,
-        description: 'just testing the update',
-        type: 'numeric',
-        size: 'big',
-        color: 'purple',
-        numericAttributes: {
-            kpi: '59c3bd0c3da88e92a1703fd6',
-            dateRange: { predefined: 'this month' },
-        }
-    };
+    // const input: IWidgetInput = {
+    //     name: 'Test Widget Updated',
+    //     order: 1,
+    //     description: 'just testing the update',
+    //     type: 'numeric',
+    //     size: 'big',
+    //     color: 'purple',
+    //     numericAttributes: {
+    //         kpi: '59c3bd0c3da88e92a1703fd6',
+    //         dateRange: { predefined: 'this month' },
+    //     }
+    // };
 
-    ctx.Widget.updateWidget('59e8faf95825025957b9f549', input).then(widget => {
-        console.dir(widget);
-    });
+    // ctx.Widget.updateWidget('59e8faf95825025957b9f549', input).then(widget => {
+    //     console.dir(widget);
+    // });
+
+    initRoles(ctx,
+        initialRoles, []);
 
 });

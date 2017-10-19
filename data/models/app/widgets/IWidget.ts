@@ -76,8 +76,8 @@ export interface IWidget {
     size: string;
     color: string;
     format?: string; // string interpolation ex: "${value}" | "{value} kms"
-    numericAttributes?: INumericWidgetAttributes;
-    chartAttributes?: IChartWidgetAttributes;
+    numericWidgetAttributes?: INumericWidgetAttributes;
+    chartWidgetAttributes?: IChartWidgetAttributes;
 }
 
 export interface IWidgetInput {
@@ -88,8 +88,8 @@ export interface IWidgetInput {
     size: string;
     color: string;
     format?: string;
-    numericAttributes?: INumericWidgetAttributes;
-    chartAttributes?: IChartWidgetAttributes;
+    numericWidgetAttributes?: INumericWidgetAttributes;
+    chartWidgetAttributes?: IChartWidgetAttributes;
 }
 
 export interface IWidgetDocument extends IWidget, mongoose.Document { }
@@ -97,13 +97,14 @@ export interface IWidgetDocument extends IWidget, mongoose.Document { }
 export interface IWidgetModel extends mongoose.Model<IWidgetDocument> {
     /**
      * retrieves all widgets
+     * @returns {Promise<IWidgetDocument[]>}
      */
     listWidgets(): Promise<IWidgetDocument[]>;
 
     /**
      * Create a Widget
      * @param { IWidgetInput } input - and input object with the details of the widget
-     * @returns {Promise<IChartDocument>}
+     * @returns {Promise<IWidgetDocument>}
      */
     createWidget(input: IWidgetInput): Promise<IWidgetDocument>;
 
@@ -111,7 +112,14 @@ export interface IWidgetModel extends mongoose.Model<IWidgetDocument> {
      * Update a Widget
      * @param { String } id - the id of the widget you want to update
      * @param { IWidgetInput } input - and input object with the details of the widget
-     * @returns {Promise<IChartDocument>}
+     * @returns { Promise<IWidgetDocument> }
      */
     updateWidget(id: string, input: IWidgetInput): Promise<IWidgetDocument>;
+
+    /**
+     * Remove a Widget by its id
+     * @param { String } id - the id of the widget
+     * @returns { Promise<IWidgetDocument> }
+     */
+    removeWidget(id: string): Promise<IWidgetDocument>;
 }
