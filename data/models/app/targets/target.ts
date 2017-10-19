@@ -169,6 +169,7 @@ TargetSchema.statics.removeTargetFromChart = function(id: string): Promise<ITarg
     return new Promise<ITargetDocument>((resolve, reject) => {
         (<ITargetModel>this).findOne({ chart: { $in: [id] } })
             .then((target) => {
+                if (!target) { return; } // raul added this line, sometimes there were no tarjet and it caused an exception
                 target.delete = true;
                 let deleteTarget = target;
                 target.save((err, target: ITargetDocument) => {
