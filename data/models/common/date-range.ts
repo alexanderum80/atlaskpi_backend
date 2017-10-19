@@ -1,5 +1,12 @@
 import * as moment from 'moment';
 
+
+/**
+ * TODO:
+ * - fix all daterange functions to work work with utc time (depends on a timezone cofiguraiton).
+ * - make an understanding about where or not to show "previous period" when dateranges represents whole months, weeks, quarter
+ */
+
 export interface IDateRange {
     from: Date;
     to: Date;
@@ -14,6 +21,7 @@ export interface IChartDateRange {
     predefined?: string;
     custom?: IDateRange;
 }
+
 
 export const PredefinedDateRanges = {
     custom: 'custom',
@@ -96,7 +104,7 @@ export function parsePredifinedDate(textDate: string): IDateRange {
             return {
                 from: moment().utc().month(lStartQuarter).startOf('month').toDate(),
                 to: moment().utc().month(lEndQuarter).endOf('month').toDate()
-            }
+            };
         case PredefinedDateRanges.lastYear:
             return {
                 from: moment().startOf('year').subtract(1, 'year').toDate(),
@@ -183,8 +191,8 @@ export function parsePredifinedDate(textDate: string): IDateRange {
             };
         case PredefinedDateRanges.last14Days:
             return {
-                from: moment().subtract(14, 'days').toDate(),
-                to: moment().endOf('day').toDate()
+                from: moment().utc().subtract(14, 'days').toDate(),
+                to: moment().utc().endOf('day').toDate()
             };
         case PredefinedDateRanges.last90Days:
             return {
@@ -208,68 +216,126 @@ export function parsePredifinedDate(textDate: string): IDateRange {
 
 export const PredefinedComparisonDateRanges = {
     today: {
-        yesterday: 'yesterday',
+        previousPeriod: 'previous period',
         lastWeek: 'last week',
         lastMonth: 'last month',
         lastYear: 'last year',
     },
     yesterday: {
+        previousPeriod: 'previous period',
         lastWeek: 'last week',
         lastMonth: 'last month',
         lastYear: 'last year',
     },
     thisWeek: {
+        previousPeriod: 'previous period',
         lastMonth: 'last month',
         lastYear: 'last year',
     },
     thisWeekToDate: {
+        previousPeriod: 'previous period',
         lastMonth: 'last month',
         lastYear: 'last year',
     },
     lastWeek: {
+        previousPeriod: 'previous period',
         lastMonth: 'last month',
         lastYear: 'last year',
     },
     thisMonth: {
+        previousPeriod: 'previous period',
         lastMonth: 'last month',
         lastYear: 'last year',
     },
     thisMonthToDate: {
+        previousPeriod: 'previous period',
+        lastMonth: 'last month',
         lastYear: 'last year',
+        twoYearsAgo: '2 years ago'
     },
     lastMonth: {
+        previousPeriod: 'previous period',
         lastYear: 'last year',
         twoYearsAgo: '2 years ago',
     },
     thisQuarter: {
+        previousPeriod: 'previous period',
         lastQuarter: 'last quarter',
         lastYear: 'last year',
+        twoYearsAgo: '2 years ago',
     },
     lastQuarter: {
+        previousPeriod: 'previous period',
         lastYear: 'last year',
         twoYearsAgo: '2 years ago',
     },
     last3Months: {
+        previousPeriod: 'previous period',
         lastYear: 'last year',
         twoYearsAgo: '2 years ago'
     },
     last6Months: {
+         previousPeriod: 'previous period',
          lastYear: 'last year',
          twoYearsAgo: '2 years ago',
     },
     thisYear: {
+        previousPeriod: 'previous period',
         lastYear: 'last year',
         twoYearsAgo: '2 years ago',
         threeYearsAgo: '3 years ago',
     },
     thisYearToDate: {
+        previousPeriod: 'previous period',
         lastYear: 'last year',
         twoYearsAgo: '2 years ago',
         threeYearsAgo: '3 years ago',
     },
     lastYear: {
+         previousPeriod: 'previous period',
          twoYearsAgo: '2 years ago',
          threeYearsAgo: '3 years ago',
+    },
+    last2Years: {
+        previousPeriod: 'previous period'
+    },
+    last3Years: {
+        previousPeriod: 'previous period'
+    },
+    last4Years: {
+        previousPeriod: 'previous period'
+    },
+    last5Years: {
+        previousPeriod: 'previous period'
+    },
+    last7Days: {
+        previousPeriod: 'previous period',
+        lastYear: 'last year',
+        twoYearsAgo: '2 years ago',
+        threeYearsAgo: '3 years ago'
+    },
+    last14Days: {
+        previousPeriod: 'previous period',
+        lastYear: 'last year',
+        twoYearsAgo: '2 years ago',
+        threeYearsAgo: '3 years ago'
+    },
+    last30Days: {
+        previousPeriod: 'previous period',
+        lastYear: 'last year',
+        twoYearsAgo: '2 years ago',
+        threeYearsAgo: '3 years ago'
+    },
+    last90Days: {
+        previousPeriod: 'previous period',
+        lastYear: 'last year',
+        twoYearsAgo: '2 years ago',
+        threeYearsAgo: '3 years ago'
+    },
+    last365Days: {
+        previousPeriod: 'previous period',
+        twoYearsAgo: '2 years ago',
+        threeYearsAgo: '3 years ago'
     },
     custom: {
         previousPeriod: 'previous period',
