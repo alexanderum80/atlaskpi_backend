@@ -80,6 +80,18 @@ export interface IWidget {
     chartAttributes?: IChartWidgetAttributes;
 }
 
+export interface IWidgetInput {
+    order: number;
+    name: string;
+    description?: string;
+    type: string;
+    size: string;
+    color: string;
+    format?: string;
+    numericAttributes?: INumericWidgetAttributes;
+    chartAttributes?: IChartWidgetAttributes;
+}
+
 export interface IWidgetDocument extends IWidget, mongoose.Document { }
 
 export interface IWidgetModel extends mongoose.Model<IWidgetDocument> {
@@ -87,4 +99,19 @@ export interface IWidgetModel extends mongoose.Model<IWidgetDocument> {
      * retrieves all widgets
      */
     listWidgets(): Promise<IWidgetDocument[]>;
+
+    /**
+     * Create a Widget
+     * @param { IWidgetInput } input - and input object with the details of the widget
+     * @returns {Promise<IChartDocument>}
+     */
+    createWidget(input: IWidgetInput): Promise<IWidgetDocument>;
+
+    /**
+     * Update a Widget
+     * @param { String } id - the id of the widget you want to update
+     * @param { IWidgetInput } input - and input object with the details of the widget
+     * @returns {Promise<IChartDocument>}
+     */
+    updateWidget(id: string, input: IWidgetInput): Promise<IWidgetDocument>;
 }
