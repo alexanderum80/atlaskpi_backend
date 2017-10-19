@@ -11,4 +11,3 @@ export * from './access-log';
 export * from './data-sources';
 export * from './targets';
 export * from './date-ranges';
-export * from './users-log';
