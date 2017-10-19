@@ -1,3 +1,8 @@
+import { GetChartsByGroupQuery } from '../../queries/app/charts/get-charts-by-group.query';
+import { GetChartsGroupQuery } from '../../queries/app/charts/get-charts-groups.query';
+import { getGroupingMetadata } from '../../queries/app/charts';
+import { DateRangeHelper } from '../../queries/app/date-ranges/date-range.helper';
+import { ListChartsByGroupQuery } from '../../queries/app/charts/list-charts-by-group.query';
 import { PreviewChartsQuery } from '../../queries/app/charts/preview-chart.query';
 import { IChartDateRange, IDateRange } from '../../models/common/date-range';
 import { IChartDocument } from '../../models/app/charts';
@@ -20,9 +25,11 @@ export const chartsGql: GraphqlDefinition = {
             input GetChartInput {
                 dateRange: [ChartDateRangeInput]!
                 frequency: String
-                groupings: [String]!
+                groupings: [String]
                 xAxisSource: String
+                comparison: [String]
                 isDrillDown: Boolean
+                isFutureTarget: Boolean
             }
             input ChartAttributesInput {
                 title: String!
@@ -33,6 +40,7 @@ export const chartsGql: GraphqlDefinition = {
                 groupings: [String]
                 chartDefinition: String
                 xAxisSource: String
+                comparison: [String]
                 dashboards: [String]
             }
             type ChartEntityResponse {
@@ -44,11 +52,13 @@ export const chartsGql: GraphqlDefinition = {
                 dateRange: ChartDateRange
                 filter: String
                 frequency: String
-                groupings: String
+                groupings: [String]
                 xFormat: String
                 yFormat: String
                 chartDefinition: String
                 xAxisSource: String
+                comparison: [String]
+                availableComparison: [String]
                 dashboards: [Dashboard]
             }
             type ChartMutationResponse {
@@ -59,17 +69,23 @@ export const chartsGql: GraphqlDefinition = {
             type ListChartsQueryResponse {
                 data: [ChartEntityResponse]
             }
+            type ChartsGroupResponse {
+                group: [String]
+            }
+            type ChartsGroup {
+                data: [String]
+            }
         `,
         queries: `
             charts(from: String!, to: String!, preview: Boolean): String
-
             chartsList(preview: Boolean): String
-
             chart(id: String, input: GetChartInput): String
-
             previewChart(input: ChartAttributesInput): String
-
             listCharts: ListChartsQueryResponse
+
+            listChartsByGroup(group: String!): ListChartsQueryResponse
+            getChartsGroup: ChartsGroupResponse
+            getChartsByGroup(group: String): ListChartsQueryResponse
         `,
         mutations: `
             createChart(input: ChartAttributesInput): ChartMutationResponse
@@ -103,7 +119,22 @@ export const chartsGql: GraphqlDefinition = {
             listCharts(root: any, args, ctx: IGraphqlContext) {
                 let query = new ListChartsQuery(ctx.req.identity, ctx.req.appContext);
                 return ctx.queryBus.run('list-charts', query, args, ctx.req);
-            }
+            },
+
+            getChartsGroup(root: any, args, ctx: IGraphqlContext) {
+                let query = new GetChartsGroupQuery(ctx.req.identity, ctx.req.appContext);
+                return ctx.queryBus.run('get-charts-groups', query, args, ctx.req);
+            },
+
+            getChartsByGroup(root: any, args, ctx: IGraphqlContext) {
+                let query = new GetChartsByGroupQuery(ctx.req.identity, ctx.req.appContext);
+                return ctx.queryBus.run('get-charts-by-group', query, args, ctx.req);
+            },
+       // orlando: this is duplicated
+       listChartsByGroup(root: any, args, ctx: IGraphqlContext) {
+         let query = new ListChartsByGroupQuery(ctx.req.identity, ctx.req.appContext.Chart);
+         return ctx.queryBus.run('list-charts-by-group', query, args, ctx.req);
+       }
         },
         Mutation: {
             createChart(root: any, args, ctx: IGraphqlContext) {
@@ -135,8 +166,9 @@ export const chartsGql: GraphqlDefinition = {
             dashboards(entity: IChart) { return entity.dashboards; }
         },
         ListChartsQueryResponse: {
-            data(response: [IChartDocument]) { return response; }
+            data(response: [IChartDocument]) {
+                return response; }
         }
+
     }
 };
-

@@ -1,3 +1,4 @@
+import { getCustomerSchema, getEmployeeSchema, getLocationSchema, getProductSchema } from '../../common';
 import { ISaleModel } from './ISale';
 import * as mongoose from 'mongoose';
 import * as Promise from 'bluebird';
@@ -74,20 +75,21 @@ let BusinessUnitSchema = {
     name: String
 };
 
+
 let SalesSchema = new Schema ({
     source: String,
     externalId: { type: String, unique: true },
-    location: LocationSchema,
-    customer: CustomerSchema,
-    employee: EmployeeSchema,
-    product: ProductSchema,
+    location: (<any>getLocationSchema()),
+    customer: (<any>getCustomerSchema()),
+    employee: (<any>getEmployeeSchema()),
+    product: (<any>getProductSchema()),
     category: CategorySchema,
 
     timestamp: Date,
     concept: String,
     document: DocumentSchema,
     payment: PaymentSchema,
-    businessUnit: BusinessUnitSchema,
+    businessUnit: (<any>BusinessUnitSchema),
     serviceType: String
 });
 

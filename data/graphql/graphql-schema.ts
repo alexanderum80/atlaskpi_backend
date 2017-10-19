@@ -1,3 +1,5 @@
+import { slideshowGql } from './app/slideshow.gql';
+import { dateRangesGql } from './app/date-ranges.gql';
 import { appointmentsGql } from './app/appointments.gql';
 import { dataSourcesGql } from './app/data-sources.gql';
 import { industriesGql } from './master/industries.gql';
@@ -12,7 +14,7 @@ import * as logger from 'winston';
 import { accountsGql } from './master';
 import { usersGql, kpisGql, commonGql,
          // businessUnitsGql,
-         chartFormatGql, chartsGql, dashboardGql, searchGql, rolesGql, permissionGql, targetGql } from './app';
+         chartFormatGql, chartsGql, dashboardGql, searchGql, rolesGql, permissionGql, targetGql, accessLogGql } from './app';
 
 // let files = getGlobbedFiles(path.join(__dirname, '**', '*.gql.ts'));
 let definitions: GraphqlDefinition[] = [];
@@ -31,6 +33,9 @@ definitions.push(rolesGql);
 definitions.push(permissionGql);
 definitions.push(dataSourcesGql);
 definitions.push(targetGql);
+definitions.push(slideshowGql);
+definitions.push(dateRangesGql);
+definitions.push(accessLogGql);
 definitions.push(appointmentsGql);
 
 let moduleQueries = [];

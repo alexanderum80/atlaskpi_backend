@@ -9,6 +9,7 @@ import {
 import { Enforcer, getEnforcerConfig, IEnforcer } from '../../lib/enforcer';
 import * as Promise from 'bluebird';
 import { ExtendedRequest } from '../../middlewares/extended-request';
+import * as logger from 'winston';
 
 
 export interface IQueryBus {
@@ -43,7 +44,11 @@ export class QueryBus implements IQueryBus {
                 that.authorizedValue = authorized;
                 if (authorized) {
                     console.log('trying to run query: ' + query.constructor.name);
-                    return query.run(data);
+                    return query.run(data)
+                        .then(data => data)
+                        .catch(err => {
+                            logger.error(query.constructor.name, err);
+                        });
                 }
             })
             .catch((err) => {
@@ -51,10 +56,10 @@ export class QueryBus implements IQueryBus {
                 return Promise.resolve(err);
             }).finally(() => {
                 // sometimes when using Apollo Chrome Extension the request object is undefined
-                if ((query.log === true) && activityName !== 'get-all-access-logs' && request) {
+                if ((query.log === true) && activityName !== 'get-all-access-logs' && request && request.identity) {
                     that.logParams = {
                         timestamp: Date.now(),
-                        accessBy: query.identity.username,
+                        accessBy: query.identity.username || '',
                         ipAddress: request.connection ? request.connection.remoteAddress : '',
                         event: query.constructor.name,
                         clientDetails: request.get('User-Agent'),
