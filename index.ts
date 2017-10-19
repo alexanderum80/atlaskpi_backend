@@ -46,8 +46,8 @@ const graphQLServer = express();
 graphQLServer.use('*', cors());
 
 // enable parsing
-graphQLServer.use(bodyParser.urlencoded({ extended: false }));
-graphQLServer.use(bodyParser.json());
+graphQLServer.use(bodyParser.urlencoded({ extended: false, limit: '50mb' }));
+graphQLServer.use(bodyParser.json({ limit: '50mb' }));
 
 
 // middlewares
