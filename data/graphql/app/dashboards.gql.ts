@@ -20,7 +20,8 @@ export const dashboardGql: GraphqlDefinition = {
                 group: String
                 charts: [String]
                 users: [String]
-            },
+            }
+
             type DashboardResponse
             {
                 success: Boolean
