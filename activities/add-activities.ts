@@ -96,7 +96,7 @@ import {
     getDataSourcesActivity,
 
     // date ranges
-    getDateRangesActivity,
+    getDateRangesActivity
 
 } from './app';
 

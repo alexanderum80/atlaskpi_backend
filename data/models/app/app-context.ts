@@ -25,6 +25,9 @@ import { getChartModel } from './charts';
 import { getDashboardModel } from './dashboards';
 import { getWorkLogModel } from './work-log/WorkLog';
 import { getLogModel } from './log';
+import { getUsersLogModel } from './users-log'
+
+
 
 import * as winston from 'winston';
 
@@ -58,7 +61,8 @@ export function getContext(dbUri: string): Promise<IAppModels> {
                 LogModel: getLogModel(m),
                 AccessModel: getAccessLogModel(m),
                 Target: getTargetModel(m),
-                SlideshowModel: getSlideshowModel(m)
+                SlideshowModel: getSlideshowModel(m),
+        UserslogModel: getUsersLogModel(m)
             });
         }, (err) => reject(err));
     });

@@ -5,4 +5,4 @@ export const getAllAccessLogsActivity: IActivity = {
     when(request: ExtendedRequest, cb: (err: any, authorized) => void) {
         cb(null, true);
     }
-}
+};
