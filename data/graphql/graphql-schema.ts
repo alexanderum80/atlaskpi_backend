@@ -13,7 +13,7 @@ import * as logger from 'winston';
 import { accountsGql } from './master';
 import { usersGql, kpisGql, commonGql,
          // businessUnitsGql,
-         chartFormatGql, chartsGql, dashboardGql, searchGql, rolesGql, permissionGql, targetGql, userslogGql, accessLogGql } from './app';
+         chartFormatGql, chartsGql, dashboardGql, searchGql, rolesGql, permissionGql, targetGql, accessLogGql } from './app';
 
 // let files = getGlobbedFiles(path.join(__dirname, '**', '*.gql.ts'));
 let definitions: GraphqlDefinition[] = [];
@@ -34,7 +34,6 @@ definitions.push(dataSourcesGql);
 definitions.push(targetGql);
 definitions.push(slideshowGql);
 definitions.push(dateRangesGql);
-definitions.push(userslogGql);
 definitions.push(accessLogGql);
 
 let moduleQueries = [];
