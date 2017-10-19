@@ -96,10 +96,7 @@ import {
     getDataSourcesActivity,
 
     // date ranges
-    getDateRangesActivity,
-
-    // users-log
-    getUsersLogActivity,
+    getDateRangesActivity
 
 } from './app';
 
@@ -210,9 +207,6 @@ export function addActivities() {
 
         // date ranges
         getDateRangesActivity
-
-        // users-log
-        getUsersLogActivity
 
     ]);
 }
