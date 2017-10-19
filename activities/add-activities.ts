@@ -10,12 +10,20 @@ import { deleteDashboardActivity } from './app/dashboards/delete-dashboard.activ
 import { updateDashboardActivity } from './app/dashboards/update-dashboard.activity';
 import { getChartsGroupsActivity } from './app/charts/get-charts-groups.activity';
 import { createDashboardActivity } from './app/dashboards/create-dashboard.activity';
+import { listAppointmentsActivity } from './app/appointments/list-appointment.activity';
 import { previewChartActivity } from './app/charts/preview-chart.activity';
 import { updateChartActivity } from './app/charts/update-chart.activity';
 import { deleteChartActivity } from './app/charts/delete-chart.activity';
 import { listChartsActivity } from './app/charts/list-charts.activity';
 import { createChartActivity } from './app/charts/create-chart.activity';
 import { getKpisActivity } from './app/kpis/get-kpis.activity';
+import { deleteAppointmentActivity } from './app/appointments/delete-appointment.activity';
+import { updateAppointmentActivity } from './app/appointments/update-appointment.activity';
+import { AppointmentByIdActivity } from './app/appointments/appointment-by-id.activity';
+import { AppointmentByDescriptionActivity } from './app/appointments/appointment-by-description.activity'; 
+import { createAppointmentActivity } from './app/appointments/create-appointment.activity';
+
+
 import {
     createAccountActivity,
     getAccountActivity,
@@ -92,7 +100,7 @@ import {
     addDeviceTokenActivity,
     removeDeviceTokenActivity,
 
-    // data sources
+      // data sources
     getDataSourcesActivity,
 
     // date ranges
@@ -193,6 +201,14 @@ export function addActivities() {
         // device tokens
         addDeviceTokenActivity,
         removeDeviceTokenActivity,
+
+        // appointments
+        createAppointmentActivity,
+        AppointmentByIdActivity,
+        AppointmentByDescriptionActivity,
+        updateAppointmentActivity,
+        deleteAppointmentActivity,
+        listAppointmentsActivity,
 
         // data sources
         getDataSourcesActivity,
