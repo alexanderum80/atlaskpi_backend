@@ -12,6 +12,7 @@ import * as google from 'googleapis';
 import * as googleAuth from 'google-auth-library';
 import * as Promise from 'bluebird';
 import { ExtendedRequest } from '../../middlewares';
+import * as logger from 'winston';
 
 import { importData } from './google-sheet.processor';
 
@@ -38,6 +39,7 @@ export function importSpreadSheet(ctx: IAppModels): Promise<any> {
                 importData(auth, ctx).then(result => {
                     resolve(result);
                 }, err => {
+                    logger.error('There was an error importing data from the google sheets', err);
                     reject(err);
                 });
             } );

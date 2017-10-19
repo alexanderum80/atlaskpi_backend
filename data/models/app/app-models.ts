@@ -1,3 +1,4 @@
+import { ISlideshowModel } from './slideshow/ISlideshow';
 import { IAppointmentModel } from './appointments/IAppointment';
 import { ITargetModel } from './targets/ITarget';
 import { IAccessModel } from './access-log/IAccessLog';
@@ -33,10 +34,11 @@ export interface IAppModels {
     // Product: IProductModel;
     // Revenue: IRevenueModel;
     // Expense: IExpenseModel;
+
+    Permission: IPermissionModel;
+    Role: IRoleModel;
     Sale: ISaleModel;
     User: IUserModel;
-    Role: IRoleModel;
-    Permission: IPermissionModel;
     KPI: IKPIModel;
     Survey: ISurveyModel;
     Inventory: IInventoryModel;
@@ -49,5 +51,6 @@ export interface IAppModels {
     LogModel: ILogEntryModel;
     AccessModel: IAccessModel;
     Target: ITargetModel;
+    SlideshowModel: ISlideshowModel;
     AppointmentModel: IAppointmentModel;
 }

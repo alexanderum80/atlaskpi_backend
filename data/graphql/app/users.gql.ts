@@ -1,3 +1,5 @@
+import { IRole } from '../../../lib/rbac/models/roles';
+import { IPermissionInfo } from '../../../lib/rbac/models/permissions';
 import { getRequestHostname } from '../../../lib/utils/helpers';
 import { FindAllUsersQuery } from '../../queries/app/users/find-all-users.query';
 import { IQueryResponse } from '../../models/common/query-response';
@@ -33,6 +35,13 @@ export const usersGql: GraphqlDefinition = {
                 name: String,
                 network: String,
                 token: String
+            }
+            input InputUserProfile {
+                firstName: String
+                middleName: String
+                lastName: String
+                sex: String
+                dob: String
             }
 
             type UserEmail {
@@ -74,16 +83,27 @@ export const usersGql: GraphqlDefinition = {
                 sex: String
                 dob: String
             }
+            type Permission {
+                _id: String
+                action: String
+                subject: String
+            }
+            type Role {
+                _id: String
+                name: String
+                permissions: [Permission]
+            }
             type User {
                 _id: String
                 username: String
                 emails: [UserEmail]
                 profile: UserProfile
-                roles: [String]
+                roles: [Role]
                 timestamps: String
             }
             type TokenVerification {
                 isValid: Boolean
+                profile: UserProfile
             }
             type ValidationError {
                 field: String
@@ -121,7 +141,7 @@ export const usersGql: GraphqlDefinition = {
             updateUser(id: String!, data: UserDetails): CreateUserResult
             removeUser(id: String!): CreateUserResult
             userForgotPassword(email: String!): ForgotPasswordResult
-            resetPassword(token: String!, password: String!, enrollment: Boolean): ResetPasswordResult
+            resetPassword(token: String!, password: String!, profile: InputUserProfile, enrollment: Boolean): ResetPasswordResult
             addMobileDevice(details: AddMobileDeviceDetails!): Boolean
             removeMobileDevice(network: String!, token: String!): Boolean
         `,
@@ -130,26 +150,46 @@ export const usersGql: GraphqlDefinition = {
     resolvers: {
         Query: {
             isResetPasswordTokenValid(root: any, args, ctx: IGraphqlContext) {
+                if (!ctx.req.appContext) {
+                    throw new Error('No app context available');
+                }
+
                 let query = new VerifyResetPasswordQuery(ctx.req.identity, ctx.req.appContext.User);
                 return ctx.queryBus.run('verify-reset-password', query, args, ctx.req);
             },
             users(root: any, args, ctx: IGraphqlContext) {
+                if (!ctx.req.appContext) {
+                    throw new Error('No app context available');
+                }
+
                 let query = new SearchUsersQuery(ctx.req.identity, ctx.req.appContext.User);
                 return ctx.queryBus.run('search-users', query, args, ctx.req);
             },
             User(root: any, args, ctx: IGraphqlContext) {
+                if (!ctx.req.appContext) {
+                    throw new Error('No app context available');
+                }
+
                 if (!ctx.req.identity || !ctx.req.appContext.User) { return null; }
                 let query = new FindUserByIdQuery(ctx.req.identity, ctx.req.appContext.User);
                 return ctx.queryBus.run('find-user-by-id', query, args, ctx.req);
             },
             allUsers(root: any, args, ctx: IGraphqlContext) {
+                if (!ctx.req.appContext) {
+                    throw new Error('No app context available');
+                }
+
                 let query = new FindAllUsersQuery(ctx.req.identity, ctx.req.appContext.User);
                 return ctx.queryBus.run('find-all-users', query, args, ctx.req);
             },
             isEnrollmentTokenValid(root: any, args, ctx: IGraphqlContext) {
+                if (!ctx.req.appContext) {
+                    throw new Error('No app context available');
+                }
+
                 let query = new VerifyEnrollmentQuery(ctx.req.identity, ctx.req.appContext.User);
                 return ctx.queryBus.run('verify-enrollment', query, args, ctx.req);
-            },
+            }
         },
         Mutation: {
             createUser(root: any, args, ctx: IGraphqlContext) {
@@ -184,10 +224,12 @@ export const usersGql: GraphqlDefinition = {
             }
         },
         User: {
-            emails(user: IUserDocument) { return user.emails; },
-            // services(user: IUserDocument) { return user.services; },
-            profile(user: IUserDocument) { return user.profile; },
-            roles(user: IUserDocument) { return user.roles.map((role) => role.name ); }
+            emails(user: IUserDocument) {
+                return user.emails; },
+            profile(user: IUserDocument) {
+                return user.profile; },
+            roles(user: IUserDocument) {
+                return user.roles; }
         },
         UserServices: {
             loginTokens(userServices: IUserServices) { return userServices.loginTokens; },

@@ -3,8 +3,13 @@ import { IActivity } from '../../lib/enforcer';
 import * as _ from 'lodash';
 
 export class BasicRoleChecker {
-    public static  isAdmin(user: any) {
-        const isAdmin = user.roles.find(r => r.name === 'admin');
-        return isAdmin !== undefined;
+    public static hasPermission(user: any, action: string, subject: string) {
+        const isAllowed = user.roles.find(role => {
+            return role.permissions.find(perm => {
+                return (perm.action === action) && (perm.subject === subject);
+            });
+        });
+
+        return isAllowed !== undefined;
     }
 }

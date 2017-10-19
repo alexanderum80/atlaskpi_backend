@@ -40,11 +40,6 @@ export function seedApp(obj: string | IAppModels): Promise<any> {
 
         resolveContext(obj || 'mongodb://localhost/company-test-3002')
         .then(ctx => {
-            // test
-            let count = ctx.Sale.find({}).count((err, count) => {
-                console.log('Number of records in sales collection: ' + count);
-            });
-
             // seed promises
             let promises = [];
 

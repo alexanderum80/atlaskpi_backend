@@ -1,5 +1,5 @@
 import { IDatabaseInfo } from '../../master/accounts';
-import { IMobileDevice } from './IUser';
+import { IMobileDevice, IUserProfile } from './IUser';
 import { RoleSchema } from '../../../../lib/rbac/models';
 import { resolveRole } from '../../../../lib/rbac/models';
 import { IRoleDocument } from '../../../../lib/rbac/models/roles';
@@ -13,7 +13,7 @@ import * as Promise from 'bluebird';
 import ms = require('ms');
 import * as logger from 'winston';
 import * as mongoose from 'mongoose';
-import * as bcrypt from 'bcryptjs';
+import * as bcrypt from 'bcrypt';
 import * as validate from 'validate.js';
 import * as async from 'async';
 import * as winston from 'winston';
@@ -57,9 +57,9 @@ export function accountPlugin(schema: mongoose.Schema, options: any) {
     };
 
     let EmailedTokenSchema = {
-        token: { type: String, required: true },
-        email: { type: String, required: true },
-        when: { type: Date, required: true }
+        token: { type: String },
+        email: { type: String },
+        when: { type: Date }
     };
 
     let ServicesSchema = {
@@ -110,6 +110,7 @@ export function accountPlugin(schema: mongoose.Schema, options: any) {
             required: false,
             unique: true
         },
+        owner: Boolean,
         password: String,
         services: ServicesSchema,
         profile: UserProfileSchema,
@@ -183,7 +184,6 @@ export function accountPlugin(schema: mongoose.Schema, options: any) {
 
     schema.methods.generateToken = function(accountName: string, username: string, password: string, ip: string, clientId: string, clientDetails: string): Promise<IUserToken> {
         return new Promise<IUserToken>((resolve, reject) => {
-
             // create user identity
             let identity: IIdentity = {
                 accountName: accountName,
@@ -260,7 +260,7 @@ export function accountPlugin(schema: mongoose.Schema, options: any) {
             let usernameField = config.usersService.usernameField;
 
             if (usernameField === 'email') {
-                condition['emails.address'] = username;
+                condition['emails'] = { $elemMatch: { address: username  } };
             } else {
                 condition['username'] = username;
             }
@@ -377,6 +377,7 @@ export function accountPlugin(schema: mongoose.Schema, options: any) {
                 });
         });
     };
+
     function addRole(data, user) {
         if (data.roles) {
             user.roles = [];
@@ -431,8 +432,10 @@ export function accountPlugin(schema: mongoose.Schema, options: any) {
                   return;
                 }
 
-                if (data.firstName) { user.profile.firstName = data.firstName; }
-                if (data.lastName) { user.profile.lastName = data.lastName; }
+                if (data.firstName) {
+                    user.profile.firstName = data.firstName; }
+                if (data.lastName) {
+                    user.profile.lastName = data.lastName; }
                 if (data.middleName) { user.profile.middleName = data.middleName; }
                 if (data.password) { user.password = data.password; }
                 if (data.email) {
@@ -536,7 +539,14 @@ export function accountPlugin(schema: mongoose.Schema, options: any) {
     schema.statics.findUserById = function(id: string): Promise<IQueryResponse<IUserDocument>> {
         return new Promise<IQueryResponse<IUserDocument>>((resolve, reject) => {
             (<IUserModel>this).findOne({ '_id': id })
-                .populate('roles', '-_id, name' )
+                .populate({
+                    path: 'roles',
+                    model: 'Role',
+                    populate: {
+                        path: 'permissions',
+                        model: 'Permission'
+                    }
+                })
                 .then((user) => {
                 if (user) {
                     resolve({ errors: null, data: user });
@@ -687,8 +697,18 @@ export function accountPlugin(schema: mongoose.Schema, options: any) {
     };
 
     schema.statics.forgotPassword = function(email: string, notifier: IForgotPasswordNotifier): Promise<nodemailer.SentMessageInfo> {
+        const that = this;
         return new Promise<nodemailer.SentMessageInfo>((resolve, reject) => {
-            (<IUserModel>this).findOne({ 'emails.address': email }).then((user) => {
+            let condition = {};
+            let usernameField = config.usersService.usernameField;
+
+            if (usernameField === 'email') {
+                condition['emails'] = { $elemMatch: { address: email  } };
+            } else {
+                condition['username'] = email;
+            }
+
+            (<IUserModel>that).findOne(condition).then((user) => {
                 if (!user) {
                     reject({ name: 'notfound', message: 'Account not found' });
                     return;
@@ -710,7 +730,7 @@ export function accountPlugin(schema: mongoose.Schema, options: any) {
         });
     };
 
-    schema.statics.resetPassword = function(token: string, newPassword: string, enrollment = false, logoutOtherSessions?: boolean): Promise<IMutationResponse> {
+    schema.statics.resetPassword = function(token: string, newPassword: string, profile: IUserProfile, enrollment = false, logoutOtherSessions?: boolean): Promise<IMutationResponse> {
         return new Promise<IMutationResponse>((resolve, reject) => {
             let query: any;
 
@@ -718,7 +738,7 @@ export function accountPlugin(schema: mongoose.Schema, options: any) {
                 query = { 'services.password.reset.token': token };
             } else {
                 query = { 'services.email.enrollment': { $elemMatch: { 'token': token} } };
-            };
+            }
 
             (<IUserModel>this).findOne(query)
                 .then((user) => {
@@ -730,10 +750,15 @@ export function accountPlugin(schema: mongoose.Schema, options: any) {
                     user.password = newPassword;
 
                     if (!enrollment) {
-                        user.services.password.reset.remove();
+                        user.services.password.reset = null;
                     } else {
                         user.services.email.enrollment = [];
-                    };
+                    }
+
+                    if (profile) {
+                        user.profile.firstName = profile.firstName;
+                        user.profile.lastName = profile.lastName;
+                    }
 
                     user.save().then((user) => {
                         resolve({ success: true });
@@ -825,58 +850,73 @@ export function accountPlugin(schema: mongoose.Schema, options: any) {
        });
     };
 
-    schema.statics.verifyResetasswordToken = function(token: string): Promise<ITokenVerification> {
-        let defer = Promise.defer<ITokenVerification>();
+    schema.statics.verifyResetPasswordToken = function(token: string): Promise<ITokenVerification> {
+        const that = this;
+        return new Promise<ITokenVerification>((resolve, reject) => {
+            (<IUserModel>that).findOne({ 'services.password.reset.token': token }).then((user) => {
+                if (!user) {
+                    resolve({ isValid: false});
+                    return;
+                }
 
-        (<IUserModel>this).findOne({ 'services.password.reset.token': token }).then((user) => {
-            if (!user) {
-                defer.resolve({ isValid: false});
-            }
+                let expirationDate = moment(user.services.password.reset.when)
+                    .add('milliseconds', ms(String(config.usersService.services.forgotPassword.expiresIn)));
 
-            let expirationDate = moment(user.services.password.reset.when)
-                .add('milliseconds', ms(String(config.usersService.services.forgotPassword.expiresIn)));
+                if (moment().isAfter(expirationDate)) {
+                    // remove token because it is not useful any way
+                    user.services.password.reset = null;
+                    user.save();
 
-            if (moment().isAfter(expirationDate)) {
-                // remove token because it is not useful any way
-                user.services.password.reset.remove();
-                user.save();
-
-                defer.resolve({ isValid: false});
-            }
-
-            defer.resolve({ isValid: true });
-        }, (err) => {
-            defer.resolve({ isValid: false });
+                    resolve({ isValid: false});
+                    return;
+                }
+                resolve({ isValid: true });
+                return;
+            }, (err) => {
+                resolve({ isValid: false });
+                return;
+            });
         });
-
-        return defer.promise;
     };
 
     schema.statics.verifyEnrollmentToken = function(token: string): Promise<ITokenVerification> {
-        let defer = Promise.defer<ITokenVerification>();
+        const that = this;
+        return new Promise<ITokenVerification>((resolve, reject) => {
+            (<IUserModel>that).findOne({ 'services.email.enrollment': { $elemMatch: { 'token': token} } }).then((user) => {
+                if (!user) {
+                    resolve({ isValid: false});
+                    return;
+                }
 
-        (<IUserModel>this).findOne({ 'services.email.enrollment': { $elemMatch: { 'token': token} } }).then((user) => {
-            if (!user) {
-                defer.resolve({ isValid: false});
-            }
+                let expirationDate = moment(user.services.email.enrollment[0].when)
+                    .add('milliseconds', ms(String(config.usersService.services.forgotPassword.expiresIn)));
+                if (moment().isAfter(expirationDate)) {
+                    // remove token because it is not useful any way
+                    user.services.email.enrollment[0].remove();
+                    user.save();
+                    resolve({ isValid: false});
+                    return;
+                }
 
-            let expirationDate = moment(user.services.email.enrollment[0].when)
-                .add('milliseconds', ms(String(config.usersService.services.forgotPassword.expiresIn)));
+                let verifyResponse = {
+                    isValid: true
+                };
 
-            if (moment().isAfter(expirationDate)) {
-                // remove token because it is not useful any way
-                user.services.email.enrollment[0].remove();
-                user.save();
+                if (user.profile && user.profile.hasOwnProperty('firstName') &&
+                    user.profile.hasOwnProperty('lastName')) {
+                    (<any>verifyResponse).profile = {
+                        firstName: user.profile.firstName,
+                        lastName: user.profile.lastName
+                    };
+                }
 
-                defer.resolve({ isValid: false});
-            }
-
-            defer.resolve({ isValid: true });
-        }, (err) => {
-            defer.resolve({ isValid: false });
+                resolve(verifyResponse);
+                return;
+            }, (err) => {
+                resolve({ isValid: false });
+                return;
+            });
         });
-
-        return defer.promise;
     };
 
     schema.statics.search = function(details: IPaginationDetails): Promise<IPagedQueryResult<IUserDocument>> {
@@ -887,16 +927,23 @@ export function accountPlugin(schema: mongoose.Schema, options: any) {
     schema.statics.findByIdentity = function(identity: IIdentity): Promise<IUserDocument> {
         return new Promise<IUserDocument>((resolve, reject) => {
             (<IUserModel>this).findOne({ 'username': identity.username })
-                .populate('roles', '-_id, name' )
-                .populate('services', '-id')
+                .populate({
+                    path: 'roles',
+                    model: 'Role',
+                    populate: {
+                        path: 'permissions',
+                        model: 'Permission'
+                    }
+                })
                 .then((user) => {
                 if (user) {
                     resolve(user);
                 } else {
                     resolve(null);
                 }
-            }).catch(() => {
-                resolve(null);
+            }).catch((err) => {
+                winston.error('Error retrieving the user by the identity: ' + err);
+                resolve(err);
             });
         });
     };

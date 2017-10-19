@@ -1,5 +1,12 @@
 import * as moment from 'moment';
 
+
+/**
+ * TODO:
+ * - fix all daterange functions to work work with utc time (depends on a timezone cofiguraiton).
+ * - make an understanding about where or not to show "previous period" when dateranges represents whole months, weeks, quarter
+ */
+
 export interface IDateRange {
     from: Date;
     to: Date;
@@ -15,7 +22,9 @@ export interface IChartDateRange {
     custom?: IDateRange;
 }
 
+
 export const PredefinedDateRanges = {
+    custom: 'custom',
     today: 'today',
     yesterday: 'yesterday',
     thisWeek: 'this week',
@@ -60,7 +69,7 @@ export function parsePredifinedDate(textDate: string): IDateRange {
     switch (textDate) {
         case PredefinedDateRanges.allTimes:
             return {
-                from: moment().subtract(10000, 'year').toDate(),
+                from: (<any>moment).min(moment().subtract(30, 'years'), moment().subtract(1, 'years')).startOf('year').toDate(),
                 to: moment().toDate()
             };
         case PredefinedDateRanges.lastWeek:
@@ -95,7 +104,7 @@ export function parsePredifinedDate(textDate: string): IDateRange {
             return {
                 from: moment().utc().month(lStartQuarter).startOf('month').toDate(),
                 to: moment().utc().month(lEndQuarter).endOf('month').toDate()
-            }
+            };
         case PredefinedDateRanges.lastYear:
             return {
                 from: moment().startOf('year').subtract(1, 'year').toDate(),
@@ -138,7 +147,7 @@ export function parsePredifinedDate(textDate: string): IDateRange {
             return {
                 from: moment().utc().month(sQuater).startOf('month').toDate(),
                 to: moment().utc().month(eQuarter).endOf('month').toDate()
-            }
+            };
         case PredefinedDateRanges.thisYear:
             return {
                 from: moment().startOf('year').toDate(),
@@ -182,8 +191,8 @@ export function parsePredifinedDate(textDate: string): IDateRange {
             };
         case PredefinedDateRanges.last14Days:
             return {
-                from: moment().subtract(14, 'days').toDate(),
-                to: moment().endOf('day').toDate()
+                from: moment().utc().subtract(14, 'days').toDate(),
+                to: moment().utc().endOf('day').toDate()
             };
         case PredefinedDateRanges.last90Days:
             return {
@@ -195,6 +204,225 @@ export function parsePredifinedDate(textDate: string): IDateRange {
                 from: moment().subtract(365, 'days').toDate(),
                 to: moment().endOf('day').toDate()
             };
+        case PredefinedDateRanges.custom:
+            return {
+                from: undefined,
+                to: undefined
+            };
     }
 
 }
+
+
+export const PredefinedComparisonDateRanges = {
+    today: {
+        previousPeriod: 'previous period',
+        lastWeek: 'last week',
+        lastMonth: 'last month',
+        lastYear: 'last year',
+    },
+    yesterday: {
+        previousPeriod: 'previous period',
+        lastWeek: 'last week',
+        lastMonth: 'last month',
+        lastYear: 'last year',
+    },
+    thisWeek: {
+        previousPeriod: 'previous period',
+        lastMonth: 'last month',
+        lastYear: 'last year',
+    },
+    thisWeekToDate: {
+        previousPeriod: 'previous period',
+        lastMonth: 'last month',
+        lastYear: 'last year',
+    },
+    lastWeek: {
+        previousPeriod: 'previous period',
+        lastMonth: 'last month',
+        lastYear: 'last year',
+    },
+    thisMonth: {
+        previousPeriod: 'previous period',
+        lastMonth: 'last month',
+        lastYear: 'last year',
+    },
+    thisMonthToDate: {
+        previousPeriod: 'previous period',
+        lastMonth: 'last month',
+        lastYear: 'last year',
+        twoYearsAgo: '2 years ago'
+    },
+    lastMonth: {
+        previousPeriod: 'previous period',
+        lastYear: 'last year',
+        twoYearsAgo: '2 years ago',
+    },
+    thisQuarter: {
+        previousPeriod: 'previous period',
+        lastQuarter: 'last quarter',
+        lastYear: 'last year',
+        twoYearsAgo: '2 years ago',
+    },
+    lastQuarter: {
+        previousPeriod: 'previous period',
+        lastYear: 'last year',
+        twoYearsAgo: '2 years ago',
+    },
+    last3Months: {
+        previousPeriod: 'previous period',
+        lastYear: 'last year',
+        twoYearsAgo: '2 years ago'
+    },
+    last6Months: {
+         previousPeriod: 'previous period',
+         lastYear: 'last year',
+         twoYearsAgo: '2 years ago',
+    },
+    thisYear: {
+        previousPeriod: 'previous period',
+        lastYear: 'last year',
+        twoYearsAgo: '2 years ago',
+        threeYearsAgo: '3 years ago',
+    },
+    thisYearToDate: {
+        previousPeriod: 'previous period',
+        lastYear: 'last year',
+        twoYearsAgo: '2 years ago',
+        threeYearsAgo: '3 years ago',
+    },
+    lastYear: {
+         previousPeriod: 'previous period',
+         twoYearsAgo: '2 years ago',
+         threeYearsAgo: '3 years ago',
+    },
+    last2Years: {
+        previousPeriod: 'previous period'
+    },
+    last3Years: {
+        previousPeriod: 'previous period'
+    },
+    last4Years: {
+        previousPeriod: 'previous period'
+    },
+    last5Years: {
+        previousPeriod: 'previous period'
+    },
+    last7Days: {
+        previousPeriod: 'previous period',
+        lastYear: 'last year',
+        twoYearsAgo: '2 years ago',
+        threeYearsAgo: '3 years ago'
+    },
+    last14Days: {
+        previousPeriod: 'previous period',
+        lastYear: 'last year',
+        twoYearsAgo: '2 years ago',
+        threeYearsAgo: '3 years ago'
+    },
+    last30Days: {
+        previousPeriod: 'previous period',
+        lastYear: 'last year',
+        twoYearsAgo: '2 years ago',
+        threeYearsAgo: '3 years ago'
+    },
+    last90Days: {
+        previousPeriod: 'previous period',
+        lastYear: 'last year',
+        twoYearsAgo: '2 years ago',
+        threeYearsAgo: '3 years ago'
+    },
+    last365Days: {
+        previousPeriod: 'previous period',
+        twoYearsAgo: '2 years ago',
+        threeYearsAgo: '3 years ago'
+    },
+    custom: {
+        previousPeriod: 'previous period',
+        lastYear: 'last year',
+        twoYearsAgo: '2 years ago'
+    }
+};
+
+
+export function backInTime(dateRange: IDateRange, amount: any, timespan: string): IDateRange {
+    return {
+        from: moment(dateRange.from).subtract(amount, timespan).toDate(),
+        to: moment(dateRange.to).subtract(amount, timespan).toDate()
+    };
+}
+
+export function previousPeriod(dateRange: IDateRange): IDateRange {
+    const start = moment(dateRange.from);
+    const end = moment(dateRange.to);
+    const duration = end.diff(start);
+
+    return {
+        from: start.subtract(duration).toDate(),
+        to: end.subtract(duration).toDate()
+    };
+}
+
+export function getDateRangeIdentifier(text: string): string {
+    const dateRangesKeys = Object.keys(PredefinedDateRanges);
+
+    for (let i = 0; i < dateRangesKeys.length; i++) {
+        if (dateRangesKeys[i] === text) {
+            return dateRangesKeys[i];
+        }
+    }
+
+    return null;
+}
+
+export function getDateRangeIdFromString(text: string): string {
+    const dateRangesKeys = Object.keys(PredefinedDateRanges);
+
+    for (let i = 0; i < dateRangesKeys.length; i++) {
+        if (PredefinedDateRanges[dateRangesKeys[i]] === text) {
+            return dateRangesKeys[i];
+        }
+    }
+
+    return null;
+}
+
+
+export function parseComparisonDateRange(dateRange: IDateRange, comparisonString: string): IDateRange {
+
+    switch (comparisonString) {
+
+        // today cases
+        case 'yesterday':
+            return backInTime(dateRange, 1, 'day');
+
+        case 'lastWeek':
+            return backInTime(dateRange, 1, 'week');
+
+        case 'lastMonth':
+            return backInTime(dateRange, 1, 'month');
+
+        case '3YearsAgo':
+            return backInTime(dateRange, 3, 'year');
+
+        case 'lastYear':
+            return backInTime(dateRange, 1, 'year');
+
+        case 'twoYearsAgo':
+            return backInTime(dateRange, 2, 'year');
+
+        case 'threeYearsAgo':
+            return backInTime(dateRange, 3, 'year');
+
+        case 'lastQuarter':
+            // TODO: we have to calculate the previous Q, just back in time 90 days for now
+            return backInTime(dateRange, 90, 'days');
+
+        case 'previousPeriod':
+            return previousPeriod(dateRange);
+
+    }
+
+    return null;
+}
+
