@@ -1,11 +1,11 @@
-import { IWidgetModel, IWidgetDocument, IWidgetInput } from './IWidget';
+import { IWidgetModel, IWidgetDocument, IWidgetInput, WidgetTypeMap, WidgetSizeMap, BestValueMap } from './IWidget';
 import * as mongoose from 'mongoose';
 import * as validate from 'validate.js';
 
 const Schema = mongoose.Schema;
 
 const ChartWidgetSchema = {
-    chart: String!
+    chart: {type: String, ref: 'Chart'}
 };
 
 const ChartDateRangeSchema = {
@@ -20,20 +20,23 @@ const NumericWidgetSchema = {
     kpi: String!,
     dateRange: ChartDateRangeSchema!,
     comparison: [String],
-    bestValue: String,
+    bestValue: { type: String, enum: Object.keys(BestValueMap) },
     trending: String
 };
 
 const WidgetSchema = new Schema({
     order: Number!,
-    name: String!,
+    name: {
+        type: String!,
+        unique: true
+    },
     description: String,
-    type: String!,
-    size: String!,
+    type: { type: String!, enum: Object.keys(WidgetTypeMap) },
+    size: { type: String!, enum: Object.keys(WidgetSizeMap) },
     color: String!,
     format: String,
-    chartAttributes: ChartWidgetSchema,
-    numericAttributes: NumericWidgetSchema
+    numericWidgetAttributes: NumericWidgetSchema,
+    chartWidgetAttributes: ChartWidgetSchema
 });
 
 WidgetSchema.statics.listWidgets = function(): Promise<IWidgetDocument[]> {
@@ -67,10 +70,10 @@ WidgetSchema.statics.createWidget = function(input: IWidgetInput): Promise<IWidg
             return;
         }
 
-        if (input.chartAttributes) {
+        if (input.chartWidgetAttributes) {
             // validate chart attributes
             const chartAttributesConstraints = { chart: requiredAndNotBlank };
-            const errors = (<any>validate)(input.chartAttributes, chartAttributesConstraints, { fullMessages: false });
+            const errors = (<any>validate)(input.chartWidgetAttributes, chartAttributesConstraints, { fullMessages: false });
 
             if (errors) {
                 reject(errors);
@@ -78,20 +81,22 @@ WidgetSchema.statics.createWidget = function(input: IWidgetInput): Promise<IWidg
             }
         }
 
-        if (input.numericAttributes) {
+        if (input.numericWidgetAttributes) {
             // validate chart attributes
             const numericAttributesConstraints = {
                 kpi: requiredAndNotBlank,
                 dateRange: requiredAndNotBlank,
             };
 
-            const errors = (<any>validate)(input.numericAttributes, numericAttributesConstraints, { fullMessages: false });
+            const errors = (<any>validate)(input.numericWidgetAttributes, numericAttributesConstraints, { fullMessages: false });
 
             if (errors) {
                 reject(errors);
                 return;
             }
         }
+
+        console.dir(input);
 
         that.create(input)
             .then(widgetDocument => resolve(widgetDocument))
@@ -125,10 +130,10 @@ WidgetSchema.statics.updateWidget = function(id: string, input: IWidgetInput): P
             return;
         }
 
-        if (input.chartAttributes) {
+        if (input.chartWidgetAttributes) {
             // validate chart attributes
             const chartAttributesConstraints = { chart: requiredAndNotBlank };
-            const errors = (<any>validate)(input.chartAttributes, chartAttributesConstraints, { fullMessages: false });
+            const errors = (<any>validate)(input.chartWidgetAttributes, chartAttributesConstraints, { fullMessages: false });
 
             if (errors) {
                 reject(errors);
@@ -136,14 +141,14 @@ WidgetSchema.statics.updateWidget = function(id: string, input: IWidgetInput): P
             }
         }
 
-        if (input.numericAttributes) {
+        if (input.numericWidgetAttributes) {
             // validate chart attributes
             const numericAttributesConstraints = {
                 kpi: requiredAndNotBlank,
                 dateRange: requiredAndNotBlank,
             };
 
-            const errors = (<any>validate)(input.numericAttributes, numericAttributesConstraints, { fullMessages: false });
+            const errors = (<any>validate)(input.numericWidgetAttributes, numericAttributesConstraints, { fullMessages: false });
 
             if (errors) {
                 reject(errors);
@@ -151,12 +156,60 @@ WidgetSchema.statics.updateWidget = function(id: string, input: IWidgetInput): P
             }
         }
 
-        that.findOneAndUpdate({_id: id}, input, { new: true })
-            .exec()
-            .then(widgetDocument => resolve(widgetDocument))
-            .catch(err => reject(err));
+        console.dir(input);
+
+        that.findByIdAndUpdate({_id: id}, input, { upsert: false, new: true }, (err, result) => {
+            if (err) {
+                console.log(err);
+                reject(err);
+                return;
+            }
+
+            if (result) {
+                console.log(result);
+                resolve(result);
+                return;
+            }
+
+            console.log('error updating widget');
+            reject('There was an error updating the widget');
+        });
     });
 };
+
+WidgetSchema.statics.removeWidget = function(id: string): Promise<IWidgetDocument> {
+    const that = this;
+
+    return new Promise<IWidgetDocument>((resolve, reject) => {
+        if (!id ) {
+            Promise.reject({ message: 'There was an error removing the widget' });
+            return;
+        }
+
+        that.findOne({ _id: id })
+        .exec()
+        .then((widget) => {
+            if (!widget) {
+                reject('Widget not found');
+                return;
+            }
+
+            widget.remove((err, deleted) => {
+                if (err) {
+                    reject(err);
+                    return;
+                }
+
+                resolve(widget);
+                return;
+            });
+        });
+    });
+};
+
+// INDEXES
+
+WidgetSchema.index({ 'name': 1 });
 
 export function getWidgetModel(m: mongoose.Connection): IWidgetModel {
     return <IWidgetModel>m.model('Widget', WidgetSchema, 'widgets');
