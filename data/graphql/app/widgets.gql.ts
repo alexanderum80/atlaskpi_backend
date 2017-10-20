@@ -59,6 +59,11 @@ export const widgetsGql: GraphqlDefinition = {
                 format: String,
                 numericWidgetAttributes: NumericWidgetAttributes,
                 chartWidgetAttributes: ChartWidgetAttributes
+
+                value: String,
+                direction: String,
+                trending: String,
+                chartDefinition: String
             }
 
             type WidgetMutationResponse {
@@ -79,7 +84,7 @@ export const widgetsGql: GraphqlDefinition = {
     resolvers: {
         Query: {
             listWidgets(root: any, args, ctx: IGraphqlContext) {
-                const query = new ListWidgetsQuery(ctx.req.identity, ctx.req.appContext.Widget);
+                const query = new ListWidgetsQuery(ctx.req.identity, ctx.req.appContext);
                 return ctx.queryBus.run('list-widgets', query, args, ctx.req);
             }
          },

@@ -31,9 +31,9 @@ export const ExpenseSchema = new Schema({
 
 // INDEXS
 
-ExpenseSchema.index({ 'timestamp': 1 });
-ExpenseSchema.index({ 'timestamp': 1, 'businessUnit.name': 1 });
-ExpenseSchema.index({ 'timestamp': 1, 'expense.concept': 1 });
+// ExpenseSchema.index({ 'timestamp': 1 });
+// ExpenseSchema.index({ 'timestamp': 1, 'businessUnit.name': 1 });
+// ExpenseSchema.index({ 'timestamp': 1, 'expense.concept': 1 });
 
 export function getExpenseModel(m: mongoose.Connection): IExpenseModel {
     return <IExpenseModel>m.model('Expense', ExpenseSchema, 'expenses');
