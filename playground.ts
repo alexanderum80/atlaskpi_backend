@@ -1,3 +1,4 @@
+import { NumericWidget } from './data/models/app/widgets/numeric-widget';
 import { initialRoles } from './data/models/master/accounts/initialRoles';
 import { initRoles } from './lib/rbac/init-roles';
 import { IWidgetInput } from './data/models/app/widgets';
@@ -169,8 +170,13 @@ import * as _ from 'lodash';
 // console.dir(dateRanges);
 
 getContext('mongodb://localhost/company-test-3002').then(ctx => {
-    ctx.Widget.listWidgets().then(w =>  {
+    ctx.Widget.findOne({ _id: '59ea71b1e323909308aec307' }).then(w =>  {
         console.dir(w);
+
+        const UIw = new NumericWidget((<any>w.toObject()), ctx);
+        UIw.materialize().then(materialized => {
+            console.log(materialized.value);
+        });
     });
 
     // const input: IWidgetInput = {
@@ -190,7 +196,7 @@ getContext('mongodb://localhost/company-test-3002').then(ctx => {
     //     console.dir(widget);
     // });
 
-    initRoles(ctx,
-        initialRoles, []);
+    
+
 
 });

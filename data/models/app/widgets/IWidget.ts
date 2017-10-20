@@ -78,6 +78,12 @@ export interface IWidget {
     format?: string; // string interpolation ex: "${value}" | "{value} kms"
     numericWidgetAttributes?: INumericWidgetAttributes;
     chartWidgetAttributes?: IChartWidgetAttributes;
+
+    // virtual properties ( result of calcs, chart definitions, trending)
+    value?: number;
+    direction?: string;
+    trending?: any;
+    chartDefinition?: any;
 }
 
 export interface IWidgetInput {
