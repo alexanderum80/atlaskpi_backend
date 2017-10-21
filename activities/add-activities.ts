@@ -1,3 +1,4 @@
+import { endOfDayReportActivity } from './app/reports/emd-of-day-report.activity';
 import { listChartsByGroupActivity } from './app/charts/list-charts-by-group.activity';
 import { SlideshowByGroupActivity } from './app/slideshow/slideshows-by-group.activity';
 import { DeleteSlideshowActivity } from './app/slideshow/delete-slideshow.activity';
@@ -222,7 +223,10 @@ export function addActivities() {
         SlideshowByGroupActivity,
 
         // date ranges
-        getDateRangesActivity
+        getDateRangesActivity,
+
+        // reports
+        endOfDayReportActivity
 
     ]);
 }
