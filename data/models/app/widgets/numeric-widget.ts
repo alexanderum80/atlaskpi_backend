@@ -56,7 +56,7 @@ export class NumericWidget extends UIWidgetBase implements IUIWidget {
         const that = this;
 
         return new Promise<IKpiBase>((resolve, reject) => {
-            this.ctx.KPI.findOne({_id: this.numericWidgetAttributes.kpi })
+            this.ctx.KPI.findOne({_id: that.numericWidgetAttributes.kpi })
             .then(kpiDocument => {
                 const kpi = KpiFactory.getInstance(kpiDocument, that.ctx);
                 if (kpi) {

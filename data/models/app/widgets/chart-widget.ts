@@ -1,3 +1,7 @@
+import { getGroupingMetadata } from '../../../queries/app/charts/chart-grouping-map';
+import { IChartMetadata } from './../../../queries/app/charts/charts/chart-metadata';
+import { FrequencyTable } from './../../common/frequency-enum';
+import { IChart } from './../charts/IChart';
 import { IAppModels } from '../app-models';
 import { ChartFactory } from './../../../queries/app/charts/charts/chart-factory';
 import { UIChartBase } from '../../../queries/app/charts/charts';
@@ -7,7 +11,7 @@ import { IWidget } from './';
 import { IUIWidget, UIWidgetBase } from './ui-widget-base';
 
 export class ChartWidget extends UIWidgetBase implements IUIWidget {
-    chart: UIChartBase;
+    chart: string; // stringified representation of an IChart with its definition
 
     constructor(widget: IWidget, ctx: IAppModels) {
         super(widget, ctx);
@@ -18,7 +22,56 @@ export class ChartWidget extends UIWidgetBase implements IUIWidget {
     }
 
     materialize(): Promise<IUIWidget> {
-        // not implemented;
-        return Promise.resolve(this);
+        const that = this;
+
+        return new Promise<IUIWidget>((resolve, reject) => {
+            that._resolveUIChart().then(resolvedUIChart => {
+                if (!resolvedUIChart) {
+                    reject('could not resolve ui chart');
+                    return;
+                }
+                that.chart = JSON.stringify(resolvedUIChart);
+                console.log(that.chart);
+                resolve(that);
+                return;
+            });
+        });
+    }
+
+    private _resolveUIChart(): Promise<IChart> {
+        const that = this;
+
+        return new Promise<IChart>((resolve, reject) => {
+            that.ctx.Chart
+                .findOne({ _id: that.chartWidgetAttributes.chart })
+                .populate({ path: 'kpis' })
+                .then(chartDocument => {
+                    if (!chartDocument) {
+                        console.log('could not resolve a chart object for the kpi');
+                        return resolve(null);
+                    }
+                    const chartObject = <IChart>chartDocument.toObject();
+                    const uiChart = ChartFactory.getInstance(chartObject);
+                    const kpi = KpiFactory.getInstance(chartObject.kpis[0], that.ctx);
+                    const groupings = getGroupingMetadata(chartDocument, []);
+                    const chartParameters: IChartMetadata = {
+                        filter: chartObject.filter,
+                        frequency: FrequencyTable[chartObject.frequency],
+                        groupings: groupings,
+                        comparison: chartObject.comparison,
+                        xAxisSource: chartObject.xAxisSource
+                    };
+
+                    uiChart.getDefinition(kpi, chartParameters, [])
+                            .then(definition => {
+                            console.log('chart definition received for id: ' + chartDocument._id);
+                            chartObject.chartDefinition = definition;
+                            resolve(chartObject);
+                            return;
+                    })
+                    .catch(err => reject(err));
+                })
+                .catch(err => reject(err));
+        });
     }
 }

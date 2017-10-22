@@ -1,3 +1,4 @@
+import { IChart } from './../charts/IChart';
 import { IChartDateRange } from './../../common/date-range';
 import * as mongoose from 'mongoose';
 
@@ -83,7 +84,7 @@ export interface IWidget {
     value?: number;
     direction?: string;
     trending?: any;
-    chartDefinition?: any;
+    chart?: string;
 }
 
 export interface IWidgetInput {

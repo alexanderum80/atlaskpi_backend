@@ -63,7 +63,7 @@ export const widgetsGql: GraphqlDefinition = {
                 value: String,
                 direction: String,
                 trending: String,
-                chartDefinition: String
+                chart: String
             }
 
             type WidgetMutationResponse {
