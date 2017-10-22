@@ -21,7 +21,7 @@ export class UIWidgetBase {
     // virtual properties ( result of calcs, chart definitions, trending)
     public value?: number;
     public trending?: any;
-    public chartDefinition?: any;
+    public chart?: any;
 
     constructor(private widget: IWidget, protected ctx: IAppModels) {
         Object.assign(this, widget);
