@@ -1,10 +1,10 @@
 import { IAppModels } from '../app-models';
-import { IWidgetDocument } from './';
+import { IWidgetDocument, IWidgetMaterializedFields } from './';
 import { IWidget, INumericWidgetAttributes, IChartWidgetAttributes } from './IWidget';
+import * as Promise from 'bluebird';
 
 export interface IUIWidget extends UIWidgetBase {
     materialize(): Promise<IUIWidget>;
-    materializedValue?(): string;
 }
 
 export class UIWidgetBase {
@@ -19,9 +19,7 @@ export class UIWidgetBase {
     protected chartWidgetAttributes?: IChartWidgetAttributes;
 
     // virtual properties ( result of calcs, chart definitions, trending)
-    public value?: number;
-    public trending?: any;
-    public chart?: any;
+    materialized?: IWidgetMaterializedFields;
 
     constructor(private widget: IWidget, protected ctx: IAppModels) {
         Object.assign(this, widget);

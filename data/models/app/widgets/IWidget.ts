@@ -22,27 +22,27 @@ export function getWidgetTypePropName(type: WidgetTypeEnum) {
     }
 }
 
-export enum BestValueEnum {
+export enum ComparisonDirectionArrowEnum {
     Undefined,
     None,
-    Positive,
-    Negative
+    Up,
+    Down
 }
 
-export const BestValueMap = {
-    none: BestValueEnum.None,
-    positive: BestValueEnum.Positive,
-    negative: BestValueEnum.Negative
+export const ComparisonDirectionArrowMap = {
+    none: ComparisonDirectionArrowEnum.None,
+    up: ComparisonDirectionArrowEnum.Up,
+    down: ComparisonDirectionArrowEnum.Down
 };
 
-export function getBestValuePropName(type: BestValueEnum) {
+export function getComparisonDirectionArrow(type: ComparisonDirectionArrowEnum) {
     switch (type) {
-        case BestValueEnum.None:
+        case ComparisonDirectionArrowEnum.None:
             return 'none';
-        case BestValueEnum.Positive:
-            return 'positive';
-        case BestValueEnum.Negative:
-            return 'negative';
+        case ComparisonDirectionArrowEnum.Up:
+            return 'up';
+        case ComparisonDirectionArrowEnum.Down:
+            return 'down';
     }
 }
 
@@ -65,8 +65,21 @@ export interface INumericWidgetAttributes {
     kpi: string;
     dateRange: IChartDateRange;
     comparison?: [string];
-    bestValue?: string;
+    comparisonArrowDirection?: string;
     trending?: string;
+}
+
+export interface IMaterializedComparison {
+    period: string;
+    value: number;
+    arrowDirection?: string;
+}
+
+export interface IWidgetMaterializedFields {
+    value?: number;
+    comparison?: IMaterializedComparison;
+    trending?: any;
+    chart?: string;
 }
 
 export interface IWidget {
@@ -81,10 +94,7 @@ export interface IWidget {
     chartWidgetAttributes?: IChartWidgetAttributes;
 
     // virtual properties ( result of calcs, chart definitions, trending)
-    value?: number;
-    direction?: string;
-    trending?: any;
-    chart?: string;
+    materialized?: IWidgetMaterializedFields;
 }
 
 export interface IWidgetInput {

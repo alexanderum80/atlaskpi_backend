@@ -25,6 +25,7 @@ export class WidgetsService {
 
                 Promise.all(uiWidgetsPromises).then(materializedWidgets => {
                     resolve(materializedWidgets);
+                    return;
                 })
                 .catch(err => reject(err));
 
@@ -41,8 +42,12 @@ export class WidgetsService {
             const uiWidget = WidgetFactory.getInstance(data, that._ctx);
             uiWidget.materialize().then(materializedWidget => {
                 resolve(materializedWidget);
+                return;
             })
-            .catch(err => reject(err));
+            .catch(err => {
+                console.log('error when previewing the widget: ' + err);
+                return reject(err);
+            });
         });
     }
 

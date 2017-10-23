@@ -2,8 +2,7 @@ import { PreviewWidgetQuery } from './../../queries/app/widgets/preview-widget.q
 import { WidgetsService } from './../../services/widgets/widgets.service';
 import { RemoveWidgetMutation } from '../../mutations/app/widgets/remove-widget.mutation';
 import { UpdateWidgetMutation } from './../../mutations/app/widgets/update-widget.mutation';
-import { IWidget } from '../../models/app/widgets';
-import { INumericWidgetAttributes } from './../../models/app/widgets/IWidget';
+import { IWidget, IWidgetMaterializedFields, INumericWidgetAttributes, IMaterializedComparison } from './../../models/app/widgets/IWidget';
 import { IMutationResponse } from './../../models/common/mutation-response';
 import { CreateWidgetMutation } from '../../mutations/app/widgets/create-widget.mutation';
 import { IGraphqlContext } from './../graphql-context';
@@ -22,7 +21,7 @@ export const widgetsGql: GraphqlDefinition = {
                 kpi: String!,
                 dateRange: ChartDateRangeInput!,
                 comparison: [String],
-                bestValue: String,
+                comparisonArrowDirection: String,
                 trending: String
             }
 
@@ -48,7 +47,7 @@ export const widgetsGql: GraphqlDefinition = {
                 kpi: String,
                 dateRange: ChartDateRange,
                 comparison: [String],
-                bestValue: String,
+                comparisonArrowDirection: String
                 trending: String
             }
 
@@ -63,11 +62,21 @@ export const widgetsGql: GraphqlDefinition = {
                 format: String,
                 numericWidgetAttributes: NumericWidgetAttributes,
                 chartWidgetAttributes: ChartWidgetAttributes
+                materialized: WidgetMaterializedFields
+            }
 
+            type WidgetMaterializedFields {
                 value: String,
-                direction: String,
+                comparisonValue: String,
+                comparison: WidgetMaterializedComparison,
                 trending: String,
                 chart: String
+            }
+
+            type WidgetMaterializedComparison {
+                period: String,
+                value: String,
+                arrowDirection: String
             }
 
             type WidgetMutationResponse {
@@ -130,7 +139,11 @@ export const widgetsGql: GraphqlDefinition = {
         },
         Widget: {
             numericWidgetAttributes(entity: IWidget) { return entity.numericWidgetAttributes; },
-            chartWidgetAttributes(entity: IWidget) { return entity.chartWidgetAttributes; }
+            chartWidgetAttributes(entity: IWidget) { return entity.chartWidgetAttributes; },
+            materialized(entity: IWidget) { return entity.materialized; }
+        },
+        WidgetMaterializedFields: {
+            comparison(materialized: IWidgetMaterializedFields) { return materialized.comparison; }
         }
     }
 };
