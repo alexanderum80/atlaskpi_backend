@@ -1,3 +1,5 @@
+import { PreviewWidgetQuery } from './../../queries/app/widgets/preview-widget.query';
+import { WidgetsService } from './../../services/widgets/widgets.service';
 import { RemoveWidgetMutation } from '../../mutations/app/widgets/remove-widget.mutation';
 import { UpdateWidgetMutation } from './../../mutations/app/widgets/update-widget.mutation';
 import { IWidget } from '../../models/app/widgets';
@@ -25,7 +27,7 @@ export const widgetsGql: GraphqlDefinition = {
             }
 
             input WidgetInput {
-                order: Int!,
+                order: Int,
                 name: String!,
                 description: String,
                 type: String!,
@@ -33,7 +35,9 @@ export const widgetsGql: GraphqlDefinition = {
                 color: String!,
                 format: String,
                 numericWidgetAttributes: NumericWidgetAttributesInput,
-                chartWidgetAttributes: ChartWidgetAttributesInput
+                chartWidgetAttributes: ChartWidgetAttributesInput,
+
+                preview: Boolean
             }
 
             type ChartWidgetAttributes {
@@ -74,6 +78,7 @@ export const widgetsGql: GraphqlDefinition = {
         `,
         queries: `
             listWidgets: [Widget]
+            previewWidget(input: WidgetInput): Widget
         `,
         mutations: `
             createWidget(input: WidgetInput!): WidgetMutationResponse
@@ -84,8 +89,14 @@ export const widgetsGql: GraphqlDefinition = {
     resolvers: {
         Query: {
             listWidgets(root: any, args, ctx: IGraphqlContext) {
-                const query = new ListWidgetsQuery(ctx.req.identity, ctx.req.appContext);
+                const widgetService = new WidgetsService(ctx.req.appContext);
+                const query = new ListWidgetsQuery(ctx.req.identity, widgetService);
                 return ctx.queryBus.run('list-widgets', query, args, ctx.req);
+            },
+            previewWidget(root: any, args, ctx: IGraphqlContext) {
+                const widgetService = new WidgetsService(ctx.req.appContext);
+                const query = new PreviewWidgetQuery(ctx.req.identity, widgetService);
+                return ctx.queryBus.run('preview-widget', query, args, ctx.req);
             }
          },
         Mutation: {
