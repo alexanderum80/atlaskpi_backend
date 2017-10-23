@@ -97,6 +97,7 @@ export interface IWidgetInput {
     format?: string;
     numericWidgetAttributes?: INumericWidgetAttributes;
     chartWidgetAttributes?: IChartWidgetAttributes;
+    preview?: boolean;
 }
 
 export interface IWidgetDocument extends IWidget, mongoose.Document { }
