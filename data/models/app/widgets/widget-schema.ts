@@ -1,4 +1,4 @@
-import { IWidgetModel, IWidgetDocument, IWidgetInput, WidgetTypeMap, WidgetSizeMap, BestValueMap } from './IWidget';
+import { IWidgetModel, IWidgetDocument, IWidgetInput, WidgetTypeMap, WidgetSizeMap, ComparisonDirectionArrowMap } from './IWidget';
 import * as mongoose from 'mongoose';
 import * as validate from 'validate.js';
 
@@ -20,7 +20,7 @@ const NumericWidgetSchema = {
     kpi: String!,
     dateRange: ChartDateRangeSchema!,
     comparison: [String],
-    bestValue: { type: String, enum: Object.keys(BestValueMap) },
+    comparisonArrowDirection: { type: String, enum: Object.keys(ComparisonDirectionArrowMap) },
     trending: String
 };
 

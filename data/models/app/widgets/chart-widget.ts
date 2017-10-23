@@ -7,8 +7,9 @@ import { ChartFactory } from './../../../queries/app/charts/charts/chart-factory
 import { UIChartBase } from '../../../queries/app/charts/charts';
 import { KpiFactory } from '../../../queries/app/kpis/kpi.factory';
 import { KpiBase } from '../../../queries/app/kpis/kpi-base';
-import { IWidget } from './';
+import { IWidget, IWidgetMaterializedFields } from './';
 import { IUIWidget, UIWidgetBase } from './ui-widget-base';
+import * as Promise from 'bluebird';
 
 export class ChartWidget extends UIWidgetBase implements IUIWidget {
     chart: string; // stringified representation of an IChart with its definition
@@ -30,8 +31,11 @@ export class ChartWidget extends UIWidgetBase implements IUIWidget {
                     reject('could not resolve ui chart');
                     return;
                 }
-                that.chart = JSON.stringify(resolvedUIChart);
-                console.log(that.chart);
+                const materialized: IWidgetMaterializedFields = {
+                    chart: JSON.stringify(resolvedUIChart)
+                };
+                that.materialized = materialized;
+                console.log(that.materialized.chart);
                 resolve(that);
                 return;
             });

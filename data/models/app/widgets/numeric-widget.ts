@@ -1,10 +1,20 @@
 import { IUIChart } from '../../../queries/app/charts/charts';
-import { IChartDateRange, IDateRange, parsePredifinedDate } from '../../common';
+import {
+    getComparisonDateRanges,
+    getDateRangeIdFromString,
+    IChartDateRange,
+    IDateRange,
+    parsePredifinedDate,
+    PredefinedComparisonDateRanges,
+    PredefinedDateRanges,
+} from '../../common';
 import { IKpiBase } from './../../../queries/app/kpis/kpi-base';
 import { IAppModels } from '../app-models';
 import { KpiFactory } from './../../../queries/app/kpis/kpi.factory';
-import { IWidget } from './IWidget';
+import { IWidget, IWidgetMaterializedFields, ComparisonDirectionArrowMap, ComparisonDirectionArrowEnum, IMaterializedComparison } from './IWidget';
 import { IUIWidget, UIWidgetBase } from './ui-widget-base';
+import * as Promise from 'bluebird';
+import * as _ from 'lodash';
 
 export class NumericWidget extends UIWidgetBase implements IUIWidget {
 
@@ -22,8 +32,9 @@ export class NumericWidget extends UIWidgetBase implements IUIWidget {
         const that = this;
 
         const dateRange = this._processChartDateRange(this.numericWidgetAttributes.dateRange);
+        const comparison = getComparisonDateRanges([this.numericWidgetAttributes.dateRange], this.numericWidgetAttributes.comparison);
 
-        return new Promise<IUIChart>((resolve, reject) => {
+        return new Promise<IUIWidget>((resolve, reject) => {
             that._resolveKpi().then((resolvedKpi) => {
                 if (!resolvedKpi) {
                     reject('could not resolve a kpi');
@@ -35,18 +46,18 @@ export class NumericWidget extends UIWidgetBase implements IUIWidget {
                     return null;
                 }
 
-                resolvedKpi.getData([dateRange], { filter: null }).then(result => {
-                    if (result && result.length > 0) {
-                        console.log(`value recieved for widget(${that.name}): ${result[0].value}`);
-                        that.value = result[0].value;
-                        resolve(that);
-                        return;
-                    }
-                    console.log(`value not recieved for widget(${that.name}), displaying 0 as value`);
-                    that.value = 0;
-                    return resolve(that);
-                })
-                .catch(err => reject(err));
+                const widgetPromises = {
+                    main: that._getKpiData(resolvedKpi, dateRange)
+                };
+
+                comparison.forEach((comparisonDateRange, index) => {
+                    widgetPromises[that.numericWidgetAttributes.comparison[index]] = that._getKpiData(resolvedKpi, comparisonDateRange);
+                });
+
+                Promise.props(widgetPromises).then(output => {
+                    resolve(that._generateUIWidgetFromPromisesOutput(output, this.numericWidgetAttributes.dateRange));
+                    return;
+                });
             })
             .catch(err => reject(err));
         });
@@ -76,8 +87,76 @@ export class NumericWidget extends UIWidgetBase implements IUIWidget {
                 : parsePredifinedDate(chartDateRange.predefined);
     }
 
-    materializedValue(): string {
-        return String(this.value);
+    private _getKpiData(kpi: IKpiBase, dateRange: IDateRange): Promise<any> {
+        const kpiClone = _.cloneDeep(kpi);
+
+        const that = this;
+        return new Promise<any>((resolve, reject) => {
+            return kpiClone.getData([dateRange], { filter: null }).then(result => {
+                if (result && result.length > 0) {
+                    console.log(`value recieved for widget(${that.name}): ${result[0].value}`);
+                    resolve(result[0].value);
+                    return;
+                }
+                console.log(`value not recieved for widget(${that.name}), displaying 0 as value`);
+                return resolve(0);
+            })
+            .catch(err => reject(err));
+        });
+    }
+
+    private _generateUIWidgetFromPromisesOutput(output, widgetDateRange: IChartDateRange): IUIWidget {
+        const value = Number(output['main']);
+        const comparisonsIds = Object.keys(output).filter(d => d !== 'main');
+        const compareValue = Number(output[comparisonsIds[0]]) || 0;
+
+        let comparisonValue: string;
+        let comparisonDirection: string;
+        let comparisonObject: IMaterializedComparison;
+
+        if (comparisonsIds.length) {
+            const dateRangeId = getDateRangeIdFromString(widgetDateRange.predefined);
+            const comparisonString = PredefinedComparisonDateRanges[dateRangeId][comparisonsIds[0]];
+            comparisonObject = { period: comparisonString, value: compareValue };
+        }
+
+        if (comparisonObject &&
+            this.numericWidgetAttributes.comparisonArrowDirection &&
+            this.numericWidgetAttributes.comparisonArrowDirection !== 'none') {
+                comparisonObject.arrowDirection = this._getComparisonDirection(value, compareValue);
+        }
+
+        const materialized: IWidgetMaterializedFields = {
+            value: value,
+            comparison:  comparisonObject
+        };
+
+        this.materialized = materialized;
+
+        return this;
+    }
+
+    private _getComparisonDirection(value: number, compareValue: number): string {
+        switch (ComparisonDirectionArrowMap[this.numericWidgetAttributes.comparisonArrowDirection]) {
+            case ComparisonDirectionArrowEnum.Down:
+                if (value - compareValue > 0) {
+                    return 'down';
+                } else if (value - compareValue < 0) {
+                    return 'up';
+                }
+                return null;
+
+            case ComparisonDirectionArrowEnum.Up:
+                if (value - compareValue < 0) {
+                    return 'down';
+                } else if (value - compareValue > 0) {
+                    return 'up';
+                }
+                return null;
+
+            default:
+                return null;
+        }
     }
 
 }
