@@ -242,12 +242,13 @@ export class UIChartBase {
     private _createCategories(data: any, metadata: IChartMetadata): IXAxisCategory[] {
         if (metadata.xAxisSource === 'frequency') {
             let categoryHelper;
-            if (!metadata.groupings.length) {
+            let noGrouping = !metadata.groupings || !metadata.groupings.length || !metadata.groupings[0];
+            if (noGrouping && this.chart.chartDefinition.chart.type !== ChartType.Pie) {
                 let dateRange = metadata.dateRange || this.dateRange;
                 categoryHelper = this._noGroupingsCategoryHelper(dateRange, metadata.frequency);
-            }
-            if (categoryHelper && categoryHelper.length) {
-                return categoryHelper;
+                if (categoryHelper && categoryHelper.length) {
+                    return categoryHelper;
+                }
             }
             return this.frequencyHelper.getCategories(metadata.frequency);
         }
