@@ -70,7 +70,7 @@ let ChartSchema = new Schema({
             kpis: input.kpis,
             // filter: any;
             frequency: input.frequency,
-            groupings: input.groupings,
+            groupings: input.groupings[0] ? input.groupings : [],
             xFormat: input.xFormat,
             yFormat: input.yFormat,
             chartDefinition: JSON.parse(input.chartDefinition),
@@ -114,7 +114,7 @@ let ChartSchema = new Schema({
             group: input.group,
             dateRange: input.dateRange,
             frequency: input.frequency,
-            groupings: input.groupings,
+            groupings: input.groupings[0] ? input.groupings : [],
             kpis: input.kpis,
             xFormat: input.xFormat,
             yFormat: input.yFormat,
