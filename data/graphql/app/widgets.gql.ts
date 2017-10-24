@@ -1,3 +1,4 @@
+import { GetWidgetQuery } from './../../queries/app/widgets/get-widget.query';
 import { PreviewWidgetQuery } from './../../queries/app/widgets/preview-widget.query';
 import { WidgetsService } from './../../services/widgets/widgets.service';
 import { RemoveWidgetMutation } from '../../mutations/app/widgets/remove-widget.mutation';
@@ -18,8 +19,8 @@ export const widgetsGql: GraphqlDefinition = {
             }
 
             input NumericWidgetAttributesInput {
-                kpi: String!,
-                dateRange: ChartDateRangeInput!,
+                kpi: String,
+                dateRange: ChartDateRangeInput,
                 comparison: [String],
                 comparisonArrowDirection: String,
                 trending: String
@@ -88,6 +89,7 @@ export const widgetsGql: GraphqlDefinition = {
         queries: `
             listWidgets: [Widget]
             previewWidget(input: WidgetInput): Widget
+            widget(id: String!): Widget
         `,
         mutations: `
             createWidget(input: WidgetInput!): WidgetMutationResponse
@@ -106,7 +108,12 @@ export const widgetsGql: GraphqlDefinition = {
                 const widgetService = new WidgetsService(ctx.req.appContext);
                 const query = new PreviewWidgetQuery(ctx.req.identity, widgetService);
                 return ctx.queryBus.run('preview-widget', query, args, ctx.req);
-            }
+            },
+            widget(root: any, args, ctx: IGraphqlContext) {
+                const widgetService = new WidgetsService(ctx.req.appContext);
+                const query = new GetWidgetQuery(ctx.req.identity, widgetService);
+                return ctx.queryBus.run('get-widget', query, args, ctx.req);
+            },
          },
         Mutation: {
             createWidget(root: any, args, ctx: IGraphqlContext) {
