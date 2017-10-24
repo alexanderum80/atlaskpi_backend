@@ -241,7 +241,14 @@ export class UIChartBase {
      */
     private _createCategories(data: any, metadata: IChartMetadata): IXAxisCategory[] {
         if (metadata.xAxisSource === 'frequency') {
-           return this.frequencyHelper.getCategories(metadata.frequency);
+            let categoryHelper;
+            if (!metadata.groupings.length) {
+                categoryHelper = this._noGroupingsCategoryHelper(metadata.dateRange, metadata.frequency);
+            }
+            if (categoryHelper && categoryHelper.length) {
+                return categoryHelper;
+            }
+            return this.frequencyHelper.getCategories(metadata.frequency);
         }
 
         const uniqueCategories = <string[]> _.uniq(data.map(item => item._id[metadata.xAxisSource]));
@@ -252,6 +259,45 @@ export class UIChartBase {
                 name: category
             };
         });
+    }
+
+    /**
+     * this is used in _createCategories for last(2-5) years predefined range to duplicate categories
+     * when groupings is selected and is by frequency
+     * @param dateRange ichartdaterange, getting predefined property
+     * @param frequency used for frequency enum value
+     */
+
+    private _noGroupingsCategoryHelper(dateRange: IChartDateRange[], frequency: number): any[] {
+        const predefined = dateRange[0].predefined;
+        let duplicateCategories: any[] = [];
+
+        switch (predefined) {
+            case PredefinedDateRanges.last2Years:
+                [1, 2].forEach(iterator => {
+                    duplicateCategories.push(this.frequencyHelper.getCategories(frequency));
+                });
+                break;
+            case PredefinedDateRanges.last3Years:
+                [1, 2, 3].forEach(iterator => {
+                    duplicateCategories.push(this.frequencyHelper.getCategories(frequency));
+                });
+                break;
+            case PredefinedDateRanges.last4Years:
+                [1, 2, 3, 4].forEach(iterator => {
+                    duplicateCategories.push(this.frequencyHelper.getCategories(frequency));
+                });
+                break;
+            case PredefinedDateRanges.last5Years:
+                [1, 2, 3, 4, 5].forEach(iterator => {
+                    duplicateCategories.push(this.frequencyHelper.getCategories(frequency));
+                });
+                break;
+        }
+        if (duplicateCategories.length) {
+            duplicateCategories = _.flatten(duplicateCategories);
+        }
+        return duplicateCategories;
     }
 
     /**
