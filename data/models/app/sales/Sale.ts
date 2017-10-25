@@ -1,7 +1,15 @@
-import { getCustomerSchema, getEmployeeSchema, getLocationSchema, getProductSchema } from '../../common';
+import { ISaleDocument } from './';
+import {
+    getCustomerSchema,
+    getEmployeeSchema,
+    getLocationSchema,
+    getProductSchema,
+    parsePredifinedDate,
+} from '../../common';
 import { ISaleModel } from './ISale';
 import * as mongoose from 'mongoose';
 import * as Promise from 'bluebird';
+import * as logger from 'winston';
 
 let Schema = mongoose.Schema;
 
@@ -109,6 +117,21 @@ export const SaleSchema = SalesSchema;
 // SaleSchema.methods.
 
 // SaleSchema.statics.
+SalesSchema.statics.findByPredefinedDateRange = function(predefinedDateRange: string): Promise<ISaleDocument[]> {
+    const SalesModel = (<ISaleModel>this);
+    const dateRange = parsePredifinedDate(predefinedDateRange);
+
+    return new Promise<ISaleDocument[]>((resolve, reject) => {
+        SalesModel.find({ 'product.from': { '$gte': dateRange.from, '$lte': dateRange.to } })
+        .then(sales => {
+            resolve(sales);
+        })
+        .catch(err => {
+            logger.error('There was an error retrieving sales by predefined data range', err);
+            reject(err);
+        });
+    });
+};
 
 export function getSaleModel(m: mongoose.Connection): ISaleModel {
     return <ISaleModel>m.model('Sale', SalesSchema, 'sales');

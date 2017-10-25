@@ -1,4 +1,7 @@
+import { endOfDayReportActivity } from './app/reports/emd-of-day-report.activity';
 import { previewWidgetActivity } from './app/widgets/preview-widget.activity';
+import { createWidgetActivity } from './app/widgets/create-widget.activity';
+import { getWidgetActivity } from './app/widgets/get-widget.activity';
 import { createWidgetActivity } from './app/widgets/create-widget.activity';
 import { getWidgetActivity } from './app/widgets/get-widget.activity';
 import { listChartsByGroupActivity } from './app/charts/list-charts-by-group.activity';
@@ -230,6 +233,8 @@ export function addActivities() {
         // date ranges
         getDateRangesActivity,
 
+        // reports
+        endOfDayReportActivity
         // widgets
         listWidgetsActivity,
         getWidgetActivity,
