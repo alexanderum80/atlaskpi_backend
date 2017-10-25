@@ -105,14 +105,14 @@ export const SaleSchema = SalesSchema;
 
 // INDEXES
 
-// SaleSchema.index({ 'product.from': 1 });
-// SaleSchema.index({ 'product.from': 1, 'location.name': 1 });
-// SaleSchema.index({ 'product.from': 1, 'businessUnit.name': 1 });
-// SaleSchema.index({ 'product.from': 1, 'serviceType': 1 });
-// SaleSchema.index({ 'product.from': 1, 'employee.type': 1, 'location.name': 1 });
-// SaleSchema.index({ 'product.from': 1, 'product.itemDescription': 1 });
-// SaleSchema.index({ 'product.from': 1, 'category.name': 1 });
-// SaleSchema.index({ 'product.from': 1, 'category.service': 1 });
+SaleSchema.index({ 'product.from': 1 });
+SaleSchema.index({ 'product.from': 1, 'location.name': 1 });
+SaleSchema.index({ 'product.from': 1, 'businessUnit.name': 1 });
+SaleSchema.index({ 'product.from': 1, 'serviceType': 1 });
+SaleSchema.index({ 'product.from': 1, 'employee.type': 1, 'location.name': 1 });
+SaleSchema.index({ 'product.from': 1, 'product.itemDescription': 1 });
+SaleSchema.index({ 'product.from': 1, 'category.name': 1 });
+SaleSchema.index({ 'product.from': 1, 'category.service': 1 });
 
 // SaleSchema.methods.
 

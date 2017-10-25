@@ -33,9 +33,9 @@ export const ExpenseSchema = new Schema({
 
 // INDEXS
 
-// ExpenseSchema.index({ 'timestamp': 1 });
-// ExpenseSchema.index({ 'timestamp': 1, 'businessUnit.name': 1 });
-// ExpenseSchema.index({ 'timestamp': 1, 'expense.concept': 1 });
+ExpenseSchema.index({ 'timestamp': 1 });
+ExpenseSchema.index({ 'timestamp': 1, 'businessUnit.name': 1 });
+ExpenseSchema.index({ 'timestamp': 1, 'expense.concept': 1 });
 
 ExpenseSchema.statics.findByPredefinedDateRange = function(predefinedDateRange: string): Promise<IExpenseDocument[]> {
     const ExpenseModel = (<IExpenseModel>this);
