@@ -21,7 +21,8 @@ const NumericWidgetSchema = {
     dateRange: ChartDateRangeSchema!,
     comparison: [String],
     comparisonArrowDirection: { type: String, enum: Object.keys(ComparisonDirectionArrowMap) },
-    trending: String
+    trending: String,
+    format: String,
 };
 
 const WidgetSchema = new Schema({
@@ -34,7 +35,6 @@ const WidgetSchema = new Schema({
     type: { type: String!, enum: Object.keys(WidgetTypeMap) },
     size: { type: String!, enum: Object.keys(WidgetSizeMap) },
     color: String!,
-    format: String,
     numericWidgetAttributes: NumericWidgetSchema,
     chartWidgetAttributes: ChartWidgetSchema
 });

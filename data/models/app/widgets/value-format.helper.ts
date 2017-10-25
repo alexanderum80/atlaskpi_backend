@@ -1,6 +1,29 @@
 import * as Handlebars from 'handlebars';
 
-const Formats  = {
+export enum FormatEnum {
+    Undefined,
+    Percent,
+    Dollar,
+    Libra,
+    Euro,
+}
+
+export function getFormatPropName(format: FormatEnum) {
+    switch (format) {
+        case FormatEnum.Percent:
+            return 'percent';
+        case FormatEnum.Dollar:
+            return 'dollar';
+        case FormatEnum.Dollar:
+            return 'dollar';
+        case FormatEnum.Libra:
+            return 'libra';
+        case FormatEnum.Euro:
+            return 'euro';
+    }
+}
+
+const FormatsMap  = {
     percent: '{{v}}%',
     dollar: '${{v}}',
     libra: '£{{v}}',
@@ -8,8 +31,7 @@ const Formats  = {
 };
 
 export class ValueFormatHelper {
-    public static ApplyFormat(value: string, format: string) {
-        const template = Handlebars.compile(Formats[format]);
-        return template({ v: value });
+    public static ApplyFormat(value: string, format: string): string {
+        return String(format).replace('{{v}}', value);
     }
 }
