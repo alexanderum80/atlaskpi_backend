@@ -16,6 +16,14 @@ import { deleteChartActivity } from './app/charts/delete-chart.activity';
 import { listChartsActivity } from './app/charts/list-charts.activity';
 import { createChartActivity } from './app/charts/create-chart.activity';
 import { getKpisActivity } from './app/kpis/get-kpis.activity';
+
+// Employees
+import { deleteEmployeeActivity } from './app/employees/delete-employee.activity';
+import { updateEmployeeActivity } from './app/employees/update-employee.activity';
+import { employeeByIdActivity } from './app/employees/employee-by-id.activity';
+import { listEmployeesActivity } from './app/employees/list-employees.activity';
+import { createEmployeeActivity } from './app/employees/create-employee.activity';
+
 import {
     createAccountActivity,
     getAccountActivity,
@@ -204,6 +212,13 @@ export function addActivities() {
         UpdateSlideshowActivity,
         DeleteSlideshowActivity,
         SlideshowByGroupActivity,
+
+        // Employees
+        createEmployeeActivity,
+        deleteEmployeeActivity,
+        listEmployeesActivity,
+        employeeByIdActivity,
+        updateEmployeeActivity,
 
         // date ranges
         getDateRangesActivity
