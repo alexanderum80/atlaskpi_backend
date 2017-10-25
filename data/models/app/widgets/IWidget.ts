@@ -67,6 +67,7 @@ export interface INumericWidgetAttributes {
     comparison?: [string];
     comparisonArrowDirection?: string;
     trending?: string;
+    format?: string; // string interpolation ex: "${value}" | "{value} kms"
 }
 
 export interface IMaterializedComparison {
@@ -89,7 +90,6 @@ export interface IWidget {
     type: string;
     size: string;
     color: string;
-    format?: string; // string interpolation ex: "${value}" | "{value} kms"
     numericWidgetAttributes?: INumericWidgetAttributes;
     chartWidgetAttributes?: IChartWidgetAttributes;
 
@@ -104,7 +104,6 @@ export interface IWidgetInput {
     type: string;
     size: string;
     color: string;
-    format?: string;
     numericWidgetAttributes?: INumericWidgetAttributes;
     chartWidgetAttributes?: IChartWidgetAttributes;
     preview?: boolean;

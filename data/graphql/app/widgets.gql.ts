@@ -24,6 +24,7 @@ export const widgetsGql: GraphqlDefinition = {
                 comparison: [String],
                 comparisonArrowDirection: String,
                 trending: String
+                format: String,
             }
 
             input WidgetInput {
@@ -33,10 +34,8 @@ export const widgetsGql: GraphqlDefinition = {
                 type: String!,
                 size: String!,
                 color: String!,
-                format: String,
                 numericWidgetAttributes: NumericWidgetAttributesInput,
                 chartWidgetAttributes: ChartWidgetAttributesInput,
-
                 preview: Boolean
             }
 
@@ -50,6 +49,7 @@ export const widgetsGql: GraphqlDefinition = {
                 comparison: [String],
                 comparisonArrowDirection: String
                 trending: String
+                format: String,
             }
 
             type Widget {
@@ -60,7 +60,6 @@ export const widgetsGql: GraphqlDefinition = {
                 type: String,
                 size: String,
                 color: String,
-                format: String,
                 numericWidgetAttributes: NumericWidgetAttributes,
                 chartWidgetAttributes: ChartWidgetAttributes
                 materialized: WidgetMaterializedFields
