@@ -14,6 +14,7 @@ export class WidgetsService {
         return new Promise<IUIWidget[]>((resolve, reject) => {
             that._ctx.Widget
             .find()
+            .sort({ order: 1, name: 1 })
             .then(documents => {
                 const uiWidgetsPromises = [];
 

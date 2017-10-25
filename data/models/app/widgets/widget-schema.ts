@@ -187,7 +187,6 @@ WidgetSchema.statics.removeWidget = function(id: string): Promise<IWidgetDocumen
         }
 
         that.findOne({ _id: id })
-        .exec()
         .then((widget) => {
             if (!widget) {
                 reject('Widget not found');

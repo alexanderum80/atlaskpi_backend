@@ -15,7 +15,7 @@ export const widgetsGql: GraphqlDefinition = {
     schema: {
         types: `
             input ChartWidgetAttributesInput {
-                chart: String!
+                chart: String
             }
 
             input NumericWidgetAttributesInput {
