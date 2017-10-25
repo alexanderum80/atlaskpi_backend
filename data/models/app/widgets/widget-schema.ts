@@ -208,7 +208,7 @@ WidgetSchema.statics.removeWidget = function(id: string): Promise<IWidgetDocumen
 
 // INDEXES
 
-WidgetSchema.index({ 'name': 1 });
+// WidgetSchema.index({ 'name': 1 });
 
 export function getWidgetModel(m: mongoose.Connection): IWidgetModel {
     return <IWidgetModel>m.model('Widget', WidgetSchema, 'widgets');

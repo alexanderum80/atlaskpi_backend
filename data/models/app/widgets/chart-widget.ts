@@ -34,9 +34,10 @@ export class ChartWidget extends UIWidgetBase implements IUIWidget {
                 const materialized: IWidgetMaterializedFields = {
                     chart: JSON.stringify(resolvedUIChart)
                 };
-                that.materialized = materialized;
-                console.log(that.materialized.chart);
-                resolve(that);
+
+                const result = Object.assign({}, this.widget, { materialized: materialized });
+                console.log(materialized.chart);
+                resolve(<any>result);
                 return;
             });
         });
