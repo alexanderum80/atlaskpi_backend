@@ -21,7 +21,7 @@ export class UIWidgetBase {
     // virtual properties ( result of calcs, chart definitions, trending)
     materialized?: IWidgetMaterializedFields;
 
-    constructor(private widget: IWidget, protected ctx: IAppModels) {
+    constructor(protected widget: IWidget, protected ctx: IAppModels) {
         Object.assign(this, widget);
         this.ctx = ctx;
     }

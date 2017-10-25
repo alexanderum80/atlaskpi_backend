@@ -19,6 +19,7 @@ export const dashboardGql: GraphqlDefinition = {
                 description: String
                 group: String
                 charts: [String]
+                widgets: [String]
                 users: [String]
             }
 

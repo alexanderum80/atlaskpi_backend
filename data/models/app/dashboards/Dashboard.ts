@@ -13,6 +13,7 @@ let DashboardSchema = new Schema({
     description: String,
     group: String,
     charts: [{ type: Schema.Types.String, ref: 'Chart' }],
+    widgets: [{ type: Schema.Types.String, ref: 'Widget' }],
     owner: { type: Schema.Types.String, ref: 'User' },
     users: [{ type: Schema.Types.String, ref: 'User' }]
 });

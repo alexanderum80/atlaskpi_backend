@@ -1,3 +1,4 @@
+import { IWidget } from './../widgets/IWidget';
 import { IUser } from '../users/IUser';
 import { IChart, IChartDocument } from '../charts';
 // import { IWidget } from '../widgets';
@@ -9,6 +10,7 @@ export interface IDashboard {
     description: string;
     group: string;
     charts: IChart[];
+    widgets: IWidget[];
     owner: IUser;
     users: IUser[];
 

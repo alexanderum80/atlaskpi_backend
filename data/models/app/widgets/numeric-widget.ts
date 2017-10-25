@@ -131,9 +131,9 @@ export class NumericWidget extends UIWidgetBase implements IUIWidget {
             comparison:  comparisonObject
         };
 
-        this.materialized = materialized;
+        const result = Object.assign({}, this.widget, { materialized: materialized });
 
-        return this;
+        return <any>result;
     }
 
     private _getComparisonDirection(value: number, compareValue: number): string {

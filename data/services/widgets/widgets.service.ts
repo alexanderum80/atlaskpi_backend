@@ -1,5 +1,5 @@
 import { WidgetFactory } from './../../models/app/widgets/widget-factory';
-import { IWidget } from './../../models/app/widgets/IWidget';
+import { IWidget, IWidgetDocument } from './../../models/app/widgets/IWidget';
 import { IUIWidget } from './../../models/app/widgets/ui-widget-base';
 import { IAppModels } from './../../models/app/app-models';
 import * as Promise from 'bluebird';
@@ -16,20 +16,11 @@ export class WidgetsService {
             .find()
             .sort({ order: 1, name: 1 })
             .then(documents => {
-                const uiWidgetsPromises = [];
-
-                documents.forEach(d => {
-                    const widgetAsObject = <IWidget>d.toObject();
-                    const uiWidget = WidgetFactory.getInstance(widgetAsObject, that._ctx);
-                    uiWidgetsPromises.push(uiWidget.materialize());
-                });
-
-                Promise.all(uiWidgetsPromises).then(materializedWidgets => {
-                    resolve(materializedWidgets);
+                that.materializeWidgetDocuments(documents).then(uiWidgets => {
+                    resolve(uiWidgets);
                     return;
                 })
                 .catch(err => reject(err));
-
             })
             .catch(err => {
                 return reject(err);
@@ -72,4 +63,25 @@ export class WidgetsService {
         });
     }
 
+    materializeWidgetDocuments(docs: IWidgetDocument[]): Promise<IUIWidget[]> {
+        if (!docs || !docs.length) return Promise.resolve([]);
+
+        const that = this;
+
+        return new Promise<IUIWidget[]>((resolve, reject) => {
+            const uiWidgetsPromises = [];
+
+            docs.forEach(d => {
+                const widgetAsObject = <IWidget>d.toObject();
+                const uiWidget = WidgetFactory.getInstance(widgetAsObject, that._ctx);
+                uiWidgetsPromises.push(uiWidget.materialize());
+            });
+
+            Promise.all(uiWidgetsPromises).then(materializedWidgets => {
+                resolve(materializedWidgets);
+                return;
+            })
+            .catch(err => reject(err));
+        });
+    }
 }
