@@ -1,3 +1,4 @@
+import { endOfDayReportActivity } from './app/reports/emd-of-day-report.activity';
 import { listChartsByGroupActivity } from './app/charts/list-charts-by-group.activity';
 import { SlideshowByGroupActivity } from './app/slideshow/slideshows-by-group.activity';
 import { DeleteSlideshowActivity } from './app/slideshow/delete-slideshow.activity';
@@ -10,6 +11,7 @@ import { deleteDashboardActivity } from './app/dashboards/delete-dashboard.activ
 import { updateDashboardActivity } from './app/dashboards/update-dashboard.activity';
 import { getChartsGroupsActivity } from './app/charts/get-charts-groups.activity';
 import { createDashboardActivity } from './app/dashboards/create-dashboard.activity';
+import { listAppointmentsActivity } from './app/appointments/list-appointment.activity';
 import { previewChartActivity } from './app/charts/preview-chart.activity';
 import { updateChartActivity } from './app/charts/update-chart.activity';
 import { deleteChartActivity } from './app/charts/delete-chart.activity';
@@ -23,6 +25,13 @@ import { updateEmployeeActivity } from './app/employees/update-employee.activity
 import { employeeByIdActivity } from './app/employees/employee-by-id.activity';
 import { listEmployeesActivity } from './app/employees/list-employees.activity';
 import { createEmployeeActivity } from './app/employees/create-employee.activity';
+
+import { deleteAppointmentActivity } from './app/appointments/delete-appointment.activity';
+import { updateAppointmentActivity } from './app/appointments/update-appointment.activity';
+import { AppointmentByIdActivity } from './app/appointments/appointment-by-id.activity';
+import { AppointmentByDescriptionActivity } from './app/appointments/appointment-by-description.activity'; 
+import { createAppointmentActivity } from './app/appointments/create-appointment.activity';
+
 
 import {
     createAccountActivity,
@@ -100,11 +109,11 @@ import {
     addDeviceTokenActivity,
     removeDeviceTokenActivity,
 
-    // data sources
+      // data sources
     getDataSourcesActivity,
 
     // date ranges
-    getDateRangesActivity,
+    getDateRangesActivity
 
 } from './app';
 
@@ -202,6 +211,14 @@ export function addActivities() {
         addDeviceTokenActivity,
         removeDeviceTokenActivity,
 
+        // appointments
+        createAppointmentActivity,
+        AppointmentByIdActivity,
+        AppointmentByDescriptionActivity,
+        updateAppointmentActivity,
+        deleteAppointmentActivity,
+        listAppointmentsActivity,
+
         // data sources
         getDataSourcesActivity,
 
@@ -221,7 +238,10 @@ export function addActivities() {
         updateEmployeeActivity,
 
         // date ranges
-        getDateRangesActivity
+        getDateRangesActivity,
+
+        // reports
+        endOfDayReportActivity
 
     ]);
 }
