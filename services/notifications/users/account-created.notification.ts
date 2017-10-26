@@ -1,5 +1,5 @@
 import { createDeflate } from 'zlib';
-import { IUserDocument } from '../../../data';
+import { IUserDocument, IDataSource } from '../../../data';
 import { IEmailNotifier } from '../email-notifier';
 import * as Promise from 'bluebird';
 import * as nodemailer from 'nodemailer';
@@ -11,6 +11,7 @@ export interface IAccountCreatedNotifier extends IEmailNotifier {
 
 }
 
+
 export class AccountCreatedNotification implements IAccountCreatedNotifier {
 
     constructor(private _config: IAppConfig, private _accountInfo?: any) { }
@@ -20,15 +21,15 @@ export class AccountCreatedNotification implements IAccountCreatedNotifier {
         const createAccountTemplate =
             Handlebars.compile(this._config.usersService.services.createUser.emailTemplate);
 
-        let dataSource = user.toObject();
-        if (!(<any>dataSource).host) {
-            (<any>dataSource).host = this._accountInfo.hostname.split('.')[0] || this._accountInfo.hostname.hostname;
+        let dataSource: IDataSource = user.toObject();
+        if (!dataSource.host) {
+            dataSource.host = this._accountInfo.hostname.split('.')[0] || this._accountInfo.hostname.hostname;
         }
-        if (!(<any>dataSource).subdomain) {
-            (<any>dataSource).subdomain = this._config.subdomain;
+        if (!dataSource.subdomain) {
+            dataSource.subdomain = this._config.subdomain;
         }
-        if (!(<any>dataSource).resetToken) {
-            (<any>dataSource).resetToken = user.services.email.enrollment[0].token;
+        if (!dataSource.resetToken) {
+            dataSource.resetToken = user.services.email.enrollment[0].token;
         }
         let emailContent = createAccountTemplate(dataSource);
 
