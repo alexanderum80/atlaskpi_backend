@@ -71,6 +71,13 @@ export interface IMobileDevice {
     token: string;
 }
 
+export interface IDataSource {
+    host?: string;
+    subdomain?: string;
+    resetToken?: string;
+    fullName?: string;
+}
+
 export interface IUser {
     username: string;
     password?: string;
