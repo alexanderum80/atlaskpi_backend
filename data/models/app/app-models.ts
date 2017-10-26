@@ -1,6 +1,5 @@
 import { IEmployeeModel } from './employees/IEmployee';
 import { ISlideshowModel } from './slideshow/ISlideshow';
-import {} from './employees/IEmployee';
 import { ITargetModel } from './targets/ITarget';
 import { IAccessModel } from './access-log/IAccessLog';
 import { IWorkLogModel } from './work-log/IWorkLog';

@@ -1,3 +1,4 @@
+//import { getEmployeeAttendanceModel } from './employees-attendance/index';
 import { connection } from 'mongoose';
 import { getSlideshowModel } from './slideshow/Slideshow';
 import { getTargetModel } from './targets/target';
@@ -6,7 +7,7 @@ import { getSaleModel } from './sales/Sale';
 import { getExpenseModel } from './expenses/Expenses';
 import { getInventoryModel } from './inventory/Inventory';
 import { getSurveyModel } from './surveys';
-import { getEmployeeAttendanceModel } from './employees-attendance/';
+//import { getEmployeeAttendanceModel } from './employees-attendance/';
 import * as Promise from 'bluebird';
 import connectToMongoDb from '../../mongo-utils';
 import { IAppModels } from './app-models';
@@ -58,7 +59,8 @@ export function getContext(dbUri: string): Promise<IAppModels> {
                 LogModel: getLogModel(m),
                 AccessModel: getAccessLogModel(m),
                 Target: getTargetModel(m),
-                SlideshowModel: getSlideshowModel(m)
+                SlideshowModel: getSlideshowModel(m),
+                EmployeeModel: getEmployeeModel(m)
             });
         }, (err) => reject(err));
     });

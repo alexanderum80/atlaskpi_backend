@@ -1,6 +1,6 @@
 // export * from './customers';
 export * from './chart-formats';
-// export * from './employees';
+export * from './employees';
 // export * from './locations';
 // export * from './products';
 // export * from './revenue';
