@@ -4,8 +4,8 @@ export interface IUserToken {
     access_token: string;
 
     // company info
-    subdomain: string;
-    companyName: string;
-    email: string;
-    fullName: string;
+    subdomain?: string;
+    companyName?: string;
+    email?: string;
+    fullName?: string;
 }
