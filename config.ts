@@ -45,6 +45,7 @@ import { emailServiceConfig, usersServiceConfig, appServicesConfig } from './con
 
 export const config: IAppConfig = {
     impersonateHost: null,
+    // impersonateHost: 'orlando.d.atlaskpi.com',
     subdomain: process.env.AKPI_APP_SUBDOMAIN || 'd.atlaskpi.com',
     token: {
         secret: process.env.AKPI_TOKEN_SECRET || 'jyeu4L?v*FGXmsGAYEXPjp(i',
