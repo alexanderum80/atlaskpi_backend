@@ -30,7 +30,7 @@ EmployeeSchema.statics.createNew = function(firstName: string, middleName: strin
     lastName: string, email: string, primaryNumber: string, dob: string, nationality: string,
     maritalStatus: string, address: IAddress, employmentInfo: IEmploymentInfo): Promise<IEmployeeDocument> {
 
-    const that = <IEmployeeModel> this;
+    const that = this;
 
     return new Promise<IEmployeeDocument>((resolve, reject) => {
         if (!firstName || !lastName || !middleName ) {

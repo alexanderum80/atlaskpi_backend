@@ -119,7 +119,7 @@ export const employeesGql: GraphqlDefinition = {
         Query: {
 
             employees(root: any, args, ctx: IGraphqlContext) {
-                let query = new EmployeesQuery(ctx.req.identity, ctx.req.appContext.EmployeeModel);
+                let query = new EmployeesQuery(ctx.req.identity, ctx.req.appContext);
                 return ctx.queryBus.run('list-employees', query, args);
             },
             employeeById(root: any, args, ctx: IGraphqlContext) {

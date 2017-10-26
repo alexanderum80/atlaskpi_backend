@@ -1,4 +1,4 @@
-import { IEmployeeModel } from '../../../models/app/employees/IEmployee';
+import { IEmployeeModel } from '../../../models/app/employees';
 import { MutationBase } from '../../mutation-base';
 import { IIdentity, IMutationResponse } from '../../..';
 import { IMutation, IValidationResult } from '../..';
@@ -17,8 +17,9 @@ export class CreateEmployeeMutation extends MutationBase<IMutationResponse> {
 
         return new Promise<IMutationResponse>((resolve, reject) => {
            that._EmployeeModel.createNew(data.firstName, data.middleName, data.lastName, 
-            data.email, data.primaryNumber, data.dob, data.nationality, data.maritalStatus, 
-            data.address, data.employmentInfo).then(employee => {
+                                        data.email, data.primaryNumber, data.dob, data.nationality, data.maritalStatus, 
+                                        data.address, data.employmentInfo)
+           .then(employee => {
                 resolve({
                     success: true,
                     entity: employee
