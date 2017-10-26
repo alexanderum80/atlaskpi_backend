@@ -1,3 +1,4 @@
+import { IDashboardInput } from './../../../models/app/dashboards/IDashboard';
 import { MutationBase } from '../../mutation-base';
 import { attachToDashboards } from './common';
 import { IChartModel } from '../../../models/app/charts';
@@ -15,12 +16,11 @@ export class UpdateDashboardMutation extends MutationBase<IMutationResponse> {
             super(identity);
         }
 
-    run(data: { _id: string, name: string, description: string, group: string, charts: any[], users?: string[] }): Promise<IMutationResponse> {
+    run(data: { id: string, input: IDashboardInput }): Promise<IMutationResponse> {
         const that = this;
 
         return new Promise<IMutationResponse>((resolve, reject) => {
-           that._DashboardModel.updateDashboard(data._id, data.name, data.description,
-            data.group, data.charts, data.users).then(dashboard => {
+           that._DashboardModel.updateDashboard(data.id, data.input).then(dashboard => {
                 resolve({
                     success: true,
                     entity: dashboard

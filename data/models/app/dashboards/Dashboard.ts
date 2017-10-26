@@ -1,5 +1,5 @@
 import { IDashboardDocument } from './';
-import { IDashboardModel } from './IDashboard';
+import { IDashboardModel, IDashboardInput } from './IDashboard';
 import { IChartDocument } from '../charts';
 import * as mongoose from 'mongoose';
 import * as Promise from 'bluebird';
@@ -22,28 +22,17 @@ let DashboardSchema = new Schema({
 
 // DashboardSchema.statics.
 
-DashboardSchema.statics.createDashboard = function(name: string, description: string, group: string, charts: string[], users: string[]):
+DashboardSchema.statics.createDashboard = function(input: IDashboardInput):
     Promise<IDashboardDocument> {
 
     const that = <IDashboardModel> this;
 
     return new Promise<IDashboardDocument>((resolve, reject) => {
-        if (!name || !description || !group) {
+        if (!input.name || !input.group) {
             return reject('Information not valid');
         }
 
-        const newDashboardData = {
-            name: name,
-            description: description,
-            group: group,
-            charts: charts
-        };
-
-        if (users && users.length) {
-            newDashboardData['users'] = users;
-        }
-
-        that.create(newDashboardData).then(dashboard => {
+        that.create(input).then(dashboard => {
             resolve(dashboard);
         }).catch(err => {
             logger.error(err);
@@ -52,49 +41,39 @@ DashboardSchema.statics.createDashboard = function(name: string, description: st
     });
 };
 
-DashboardSchema.statics.updateDashboard = function(_id: string, name: string, description: string, group: string, charts: string[], users: string[]):
+DashboardSchema.statics.updateDashboard = function(id: string, input: IDashboardInput):
     Promise<IDashboardDocument> {
 
     const that = <IDashboardModel> this;
 
     return new Promise<IDashboardDocument>((resolve, reject) => {
-        if (!_id || !name || !description || !group || !charts) {
+        if (!id || !input.name || !input.group) {
             return reject('Information not valid');
         }
 
-        const updateDashboardData = {
-            name: name,
-            description: description,
-            group: group,
-            charts: charts
-        };
-
-        if (users && users.length) {
-            updateDashboardData['users'] = [];
-            updateDashboardData['users'] = users;
-        }
-
-        that.findByIdAndUpdate(_id, updateDashboardData).then(dashboard => {
+        that.findByIdAndUpdate(id, input).then(dashboard => {
             resolve(dashboard);
+            return;
         }).catch(err => {
             logger.error(err);
-            reject('There was an error updating the dashboard');
+            return reject('There was an error updating the dashboard');
         });
     });
 };
 
-DashboardSchema.statics.deleteDashboard = function(_id: string):
+DashboardSchema.statics.deleteDashboard = function(id: string):
 Promise<IDashboardDocument> {
 
 const that = <IDashboardModel> this;
 
 return new Promise<IDashboardDocument>((resolve, reject) => {
-    if (!_id) {
+    if (!id) {
         return reject('Information not valid');
     }
 
-    that.findByIdAndRemove(_id).then(dashboard => {
+    that.findByIdAndRemove(id).then(dashboard => {
         resolve(dashboard);
+        return;
     }).catch(err => {
         logger.error(err);
         reject('There was an error deleting the dashboard');

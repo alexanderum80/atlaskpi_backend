@@ -13,6 +13,15 @@ export const dashboardGql: GraphqlDefinition = {
     name: 'dashboards',
     schema: {
         types: `
+            input DashboardInput {
+                name: String!,
+                description: String!,
+                group: String!,
+                charts: [String],
+                widgets: [String],
+                users: [String]
+            }
+
             type Dashboard {
                 _id: String
                 name: String
@@ -35,9 +44,9 @@ export const dashboardGql: GraphqlDefinition = {
             dashboard(id: String!): Dashboard
         `,
         mutations: `
-            createDashboard(name: String!, description: String!, group: String!, charts: [String]!, users: [String]): Dashboard
-            updateDashboard(_id: String!, name: String!, description: String!, group: String!, charts: [String]!, users: [String]): DashboardResponse
-            deleteDashboard(_id: String!): DashboardResponse
+            createDashboard(input: DashboardInput!): DashboardResponse
+            updateDashboard(id: String!, input: DashboardInput!): DashboardResponse
+            deleteDashboard(id: String!): DashboardResponse
         `,
     },
 
