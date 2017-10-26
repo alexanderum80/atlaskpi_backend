@@ -14,7 +14,7 @@ export class WidgetsService {
         return new Promise<IUIWidget[]>((resolve, reject) => {
             that._ctx.Widget
             .find()
-            .sort({ order: 1, name: 1 })
+            .sort({ size: 1, order: 1, name: 1 })
             .then(documents => {
                 that.materializeWidgetDocuments(documents).then(uiWidgets => {
                     resolve(uiWidgets);
