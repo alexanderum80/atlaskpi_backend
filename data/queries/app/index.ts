@@ -8,3 +8,4 @@ export * from './search';
 export * from './data-sources';
 export * from './slideshow';
 export * from './employees';
+export * from './widgets';

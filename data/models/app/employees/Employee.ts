@@ -1,8 +1,10 @@
-import { Address, IAddress } from '../../common';
-import { IEmployeeModel, IEmployeeDocument, IEmploymentInfo } from './IEmployee';
+import { Address, IAddress, IEmploymentInfo, EmploymentInfo } from '../../common';
+import { IEmployeeModel, IEmployeeDocument } from './IEmployee';
 import * as mongoose from 'mongoose';
 import * as Promise from 'bluebird';
 import * as logger from 'winston';
+
+let Schema = mongoose.Schema;
 
 const EmployeeSchema = new mongoose.Schema({
     firstName: String,
@@ -14,21 +16,12 @@ const EmployeeSchema = new mongoose.Schema({
     nationality: String,
     maritalStatus: String,
     address: Address,
-    employmentInfo: {
-        location: String,
-        bussinessUnit: String,
-        departament: String,
-        position: String,
-        startDate: Date,
-        typeOfEmployment: String,
-        frequency: String,
-        rate: String,
-    },
+    employmentInfo: [EmploymentInfo],
 });
 
 EmployeeSchema.statics.createNew = function(firstName: string, middleName: string, 
     lastName: string, email: string, primaryNumber: string, dob: string, nationality: string,
-    maritalStatus: string, address: IAddress, employmentInfo: IEmploymentInfo): Promise<IEmployeeDocument> {
+    maritalStatus: string, address: IAddress, employmentInfo: IEmploymentInfo[]): Promise<IEmployeeDocument> {
 
     const that = this;
 
@@ -57,20 +50,20 @@ EmployeeSchema.statics.createNew = function(firstName: string, middleName: strin
     });
 };
 
-EmployeeSchema.statics.updateEmployee = function(_id: string, firstName: String, middleName: String, 
-    lastName: String, email: String, primaryNumber: String, dob: Date, nationality: String,
-    maritalStatus: String, address: IAddress, employmentInfo: IEmploymentInfo): Promise<IEmployeeDocument> {
+EmployeeSchema.statics.updateEmployee = function(_id: string, firstName: string, middleName: string, 
+    lastName: string, email: string, primaryNumber: string, dob: string, nationality: string,
+    maritalStatus: string, address: IAddress, employmentInfo: IEmploymentInfo[]): Promise<IEmployeeDocument> {
     const that = <IEmployeeModel> this;
 
     return new Promise<IEmployeeDocument>((resolve, reject) => {
-        if (!firstName || !lastName || !email) {
+        if (!firstName || !lastName || !middleName) {
             return reject('Information not valid');
         }
 
         that.findByIdAndUpdate(_id, {
             firstName: firstName,
             middleName: middleName,
-            lastname: lastName,
+            lastName: lastName,
             email: email,
             primaryNumber: primaryNumber,
             dob: dob,

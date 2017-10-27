@@ -16,7 +16,7 @@ export class UpdateEmployeeMutation extends MutationBase<IMutationResponse> {
         const that = this;
 
         return new Promise<IMutationResponse>((resolve, reject) => {
-           that._EmployeeModel.updateEmployee(data._id, data.firstName, data.middleName, data.lastname, 
+           that._EmployeeModel.updateEmployee(data._id, data.firstName, data.middleName, data.lastName, 
             data.email, data.primaryNumber, data.dob, data.nationality, data.maritalStatus, 
             data.address, data.employmentInfo).then(employee => {
                 resolve({
