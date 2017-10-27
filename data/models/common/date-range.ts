@@ -1,5 +1,5 @@
 import * as moment from 'moment';
-
+import * as _ from 'lodash';
 
 /**
  * TODO:
@@ -424,5 +424,20 @@ export function parseComparisonDateRange(dateRange: IDateRange, comparisonString
     }
 
     return null;
+}
+
+export function getComparisonDateRanges(dateRange: IChartDateRange[], comparisonOptions: string[]): IDateRange[] {
+    if (!dateRange || !comparisonOptions) return [];
+
+    return comparisonOptions.map(c => {
+         if (_.isEmpty(c)) return;
+         return parseComparisonDateRange(processChartDateRange(dateRange[0]), c);
+    });
+}
+
+export function processChartDateRange(chartDateRange: IChartDateRange): IDateRange {
+    return chartDateRange.custom && chartDateRange.custom.from ?
+            { from: new Date(chartDateRange.custom.from), to: new Date(chartDateRange.custom.to) }
+            : parsePredifinedDate(chartDateRange.predefined);
 }
 

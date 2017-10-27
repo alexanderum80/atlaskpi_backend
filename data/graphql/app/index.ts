@@ -13,3 +13,4 @@ export * from './targets.gql';
 export * from './slideshow.gql';
 export * from './date-ranges.gql';
 export * from './access-log.gql';
+export * from './widgets.gql';
