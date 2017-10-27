@@ -6,7 +6,7 @@ import {
     PredefinedDateRanges,
 } from './../../../../models/common/date-range';
 import { TargetService } from '../../../../services/targets/target.service';
-import { ITargetDocument } from '../../../../models/app/targets/ITarget';
+import { ITarget, ITargetDocument } from '../../../../models/app/targets/ITarget';
 import { parseComparisonDateRange, parsePredifinedDate } from '../../../../models/common/date-range';
 import { IKPIDocument, IAppModels } from '../../../../models/app';
 import { IKpiBase, IKPIResult } from '../../kpis/kpi-base';
@@ -436,27 +436,26 @@ export class UIChartBase {
         }
 
         if (target.length) {
-            let filterTarget = target.filter((val) => {
-                return val.active !== false;
-            });
+            let chartTargets: ITargetDocument[];
 
             if (metadata.frequency !== 4) {
                 if (this.futureTarget) {
-                    filterTarget = filterTarget.filter((targ) => {
+                    chartTargets = target.filter((targ) => {
                         let futureDate = new Date(targ.datepicker);
                         let endDate = new Date(moment().endOf('year').toDate());
                         return endDate < futureDate;
                     });
                 } else {
-                    filterTarget = filterTarget.filter((targ) => {
+                    chartTargets = target.filter((targ) => {
                         let futureDate = new Date(targ.datepicker);
                         let endDate = new Date(moment().endOf('year').toDate());
                         return endDate > futureDate;
                     });
                 }
             }
+            chartTargets = chartTargets ? chartTargets : target;
 
-            this.targetData = _.map(filterTarget, (v, k) => {
+            this.targetData = _.map(chartTargets, (v, k) => {
                 return (<any>v).stackName ? {
                     _id: {
                         frequency: TargetService.formatFrequency(metadata.frequency, v.datepicker),

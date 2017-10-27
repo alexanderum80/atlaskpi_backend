@@ -102,7 +102,8 @@ export class TargetService {
             this.periodData(data, ctx)
                 .then((response) => {
                     let dataAmount = parseFloat(data.amount);
-                    let responseValue = response[0].value;
+                    let findValue = response.find(r => r.value);
+                    let responseValue = findValue ? findValue.value : 0;
                     switch (data.vary) {
 
                         case 'fixed':
