@@ -170,14 +170,14 @@ import * as _ from 'lodash';
 // console.dir(dateRanges);
 
 getContext('mongodb://localhost/company-test-3002').then(ctx => {
-    ctx.Widget.findOne({ _id: '59ea71b1e323909308aec307' }).then(w =>  {
-        console.dir(w);
+    // ctx.Widget.findOne({ _id: '59ea71b1e323909308aec307' }).then(w =>  {
+    //     console.dir(w);
 
-        const UIw = new NumericWidget((<any>w.toObject()), ctx);
-        UIw.materialize().then(materialized => {
-            console.log(materialized.value);
-        });
-    });
+    //     const UIw = new NumericWidget((<any>w.toObject()), ctx);
+    //     UIw.materialize().then(materialized => {
+    //         console.log(materialized.value);
+    //     });
+    // });
 
     // const input: IWidgetInput = {
     //     name: 'Test Widget Updated',
@@ -195,8 +195,6 @@ getContext('mongodb://localhost/company-test-3002').then(ctx => {
     // ctx.Widget.updateWidget('59e8faf95825025957b9f549', input).then(widget => {
     //     console.dir(widget);
     // });
-
-    
 
 
 });
