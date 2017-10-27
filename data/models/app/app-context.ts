@@ -1,4 +1,5 @@
 //import { getEmployeeAttendanceModel } from './employees-attendance/index';
+import { getWidgetModel } from './widgets/widget-schema';
 import { connection } from 'mongoose';
 import { getSlideshowModel } from './slideshow/Slideshow';
 import { getAppointmentModel } from './appointments/appointment';
@@ -62,6 +63,7 @@ export function getContext(dbUri: string): Promise<IAppModels> {
                 SlideshowModel: getSlideshowModel(m),
                 EmployeeModel: getEmployeeModel(m)
                 AppointmentModel: getAppointmentModel(m),
+                Widget: getWidgetModel(m)
             });
         }, (err) => reject(err));
     });

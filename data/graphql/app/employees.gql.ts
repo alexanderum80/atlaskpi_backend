@@ -1,3 +1,4 @@
+import { EmploymentInfo } from '../../models/common/employment-info.model';
 import {
     DeleteEmployeeMutation
 } from '../../mutations/app/employees/delete-employee.mutation';
@@ -109,8 +110,8 @@ export const employeesGql: GraphqlDefinition = {
             employeeById(id: String!): Employee
         `,
         mutations: `
-            createEmployee(firstName: String!, middleName: String!, lastName: String!, email: String, primaryNumber: String, dob: String, nationality: String, maritalStatus: String, address: Address, employmentInfo: EmploymentInfo): CreateEmployeeResponse
-            updateEmployee(_id: String!, firstName: String!, middleName: String, lastName: String!, email: String!, primaryNumber: String!, dob: String!, nationality: String!, maritalStatus: String!, address: Address!, employmentInfo: EmploymentInfo!): UpdateEmployeeResponse
+            createEmployee(firstName: String!, middleName: String!, lastName: String!, email: String, primaryNumber: String, dob: String, nationality: String, maritalStatus: String, address: Address, employmentInfo: [EmploymentInfo]): CreateEmployeeResponse
+            updateEmployee(_id: String!, firstName: String!, middleName: String!, lastName: String!, email: String, primaryNumber: String, dob: String, nationality: String, maritalStatus: String, address: Address, employmentInfo: [EmploymentInfo]): UpdateEmployeeResponse
             deleteEmployee(_id: String!): DeleteEmployeeResponse
             `,
     },

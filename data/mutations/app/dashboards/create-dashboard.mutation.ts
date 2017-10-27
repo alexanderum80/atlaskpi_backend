@@ -4,7 +4,7 @@ import { IChartModel } from '../../../models/app/charts';
 import { IIdentity, IMutationResponse } from '../../..';
 import { IMutation, IValidationResult } from '../..';
 import { IKPIModel } from '../../../models/app/kpis';
-import { IDashboardModel } from '../../../models/app/dashboards';
+import { IDashboardInput, IDashboardModel } from '../../../models/app/dashboards';
 import * as Promise from 'bluebird';
 import * as logger from 'winston';
 
@@ -15,13 +15,12 @@ export class CreateDashboardMutation extends MutationBase<IMutationResponse> {
             super(identity);
         }
 
-    run(data: { name: string, description: string, group: string, charts: any[], users?: string[]}): Promise<IMutationResponse> {
+    run(data: { input: IDashboardInput}): Promise<IMutationResponse> {
         const that = this;
 
         // resolve kpis
         return new Promise<IMutationResponse>((resolve, reject) => {
-            that._dashboardModel.createDashboard(data.name, data.description,
-                                                data.group, data.charts, data.users)
+            that._dashboardModel.createDashboard(data.input)
             .then(dashboard => {
                     resolve({
                         success: true,

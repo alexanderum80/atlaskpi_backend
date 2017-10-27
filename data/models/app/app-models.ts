@@ -1,4 +1,5 @@
 import { IEmployeeModel } from './employees/IEmployee';
+import { IWidgetModel } from './widgets/IWidget';
 import { ISlideshowModel } from './slideshow/ISlideshow';
 import { IAppointmentModel } from './appointments/IAppointment';
 import { ITargetModel } from './targets/ITarget';
@@ -55,4 +56,5 @@ export interface IAppModels {
     SlideshowModel: ISlideshowModel;
     EmployeeModel: IEmployeeModel;
     AppointmentModel: IAppointmentModel;
+    Widget: IWidgetModel;
 }

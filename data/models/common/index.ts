@@ -21,6 +21,7 @@ export * from './product.schema';
 export * from './category.schema';
 export * from './category.model';
 export * from './address.model';
+export * from './employment-info.model';
 export * from './address.schema';
 export * from './business-unit.model';
 export * from './business-unit.schema';
