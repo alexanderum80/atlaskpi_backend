@@ -118,12 +118,9 @@ export const targetGql: GraphqlDefinition = {
             notify(response: any) { return response.notify; }
         },
         TargetResult: {
-            success(response: IMutationResponse) {
-                return response.success; },
-            entity(response: IMutationResponse) {
-                return response.entity; },
-            errors(response: IMutationResponse) {
-                return response.errors; }
+            success(response: IMutationResponse) { return response.success; },
+            entity(response: IMutationResponse) { return response.entity; },
+            errors(response: IMutationResponse) { return response.errors; }
         },
         TargetRemoveResult: {
             success(response: IMutationResponse) { return response.success; },
