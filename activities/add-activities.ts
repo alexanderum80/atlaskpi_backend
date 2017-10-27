@@ -1,4 +1,7 @@
 import { endOfDayReportActivity } from './app/reports/emd-of-day-report.activity';
+import { previewWidgetActivity } from './app/widgets/preview-widget.activity';
+import { createWidgetActivity } from './app/widgets/create-widget.activity';
+import { getWidgetActivity } from './app/widgets/get-widget.activity';
 import { listChartsByGroupActivity } from './app/charts/list-charts-by-group.activity';
 import { SlideshowByGroupActivity } from './app/slideshow/slideshows-by-group.activity';
 import { DeleteSlideshowActivity } from './app/slideshow/delete-slideshow.activity';
@@ -105,7 +108,10 @@ import {
     getDataSourcesActivity,
 
     // date ranges
-    getDateRangesActivity
+    getDateRangesActivity,
+
+    // widgets
+    listWidgetsActivity
 
 } from './app';
 
@@ -226,7 +232,12 @@ export function addActivities() {
         getDateRangesActivity,
 
         // reports
-        endOfDayReportActivity
+        endOfDayReportActivity,
+        // widgets
+        listWidgetsActivity,
+        getWidgetActivity,
+        createWidgetActivity,
+        previewWidgetActivity
 
     ]);
 }
