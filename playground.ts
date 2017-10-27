@@ -1,3 +1,8 @@
+import { NumericWidget } from './data/models/app/widgets/numeric-widget';
+import { initialRoles } from './data/models/master/accounts/initialRoles';
+import { initRoles } from './lib/rbac/init-roles';
+import { IWidgetInput } from './data/models/app/widgets';
+import { getContext } from './data/models/app/app-context';
 import { DateRangeHelper } from './data/queries/app/date-ranges/date-range.helper';
 import seed from './data/seed';
 import { KPIFilterHelper } from './data/models/app/kpis/kpi-filter.helper';
@@ -161,5 +166,37 @@ import * as _ from 'lodash';
 
 // seed();
 
-const dateRanges = DateRangeHelper.GetDateRangeItems();
-console.dir(dateRanges);
+// const dateRanges = DateRangeHelper.GetDateRangeItems();
+// console.dir(dateRanges);
+
+getContext('mongodb://localhost/company-test-3002').then(ctx => {
+    ctx.Widget.findOne({ _id: '59ea71b1e323909308aec307' }).then(w =>  {
+        console.dir(w);
+
+        const UIw = new NumericWidget((<any>w.toObject()), ctx);
+        UIw.materialize().then(materialized => {
+            console.log(materialized.value);
+        });
+    });
+
+    // const input: IWidgetInput = {
+    //     name: 'Test Widget Updated',
+    //     order: 1,
+    //     description: 'just testing the update',
+    //     type: 'numeric',
+    //     size: 'big',
+    //     color: 'purple',
+    //     numericAttributes: {
+    //         kpi: '59c3bd0c3da88e92a1703fd6',
+    //         dateRange: { predefined: 'this month' },
+    //     }
+    // };
+
+    // ctx.Widget.updateWidget('59e8faf95825025957b9f549', input).then(widget => {
+    //     console.dir(widget);
+    // });
+
+    
+
+
+});

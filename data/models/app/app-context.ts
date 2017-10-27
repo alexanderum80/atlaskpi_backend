@@ -1,3 +1,4 @@
+import { getWidgetModel } from './widgets/widget-schema';
 import { connection } from 'mongoose';
 import { getSlideshowModel } from './slideshow/Slideshow';
 import { getAppointmentModel } from './appointments/appointment';
@@ -60,6 +61,7 @@ export function getContext(dbUri: string): Promise<IAppModels> {
                 Target: getTargetModel(m),
                 SlideshowModel: getSlideshowModel(m),
                 AppointmentModel: getAppointmentModel(m),
+                Widget: getWidgetModel(m)
             });
         }, (err) => reject(err));
     });
