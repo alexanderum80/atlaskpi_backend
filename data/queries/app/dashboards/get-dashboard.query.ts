@@ -1,3 +1,6 @@
+import { stringify } from 'querystring';
+import { IUIWidget } from './../../../models/app/widgets/ui-widget-base';
+import { WidgetsService } from './../../../services/widgets/widgets.service';
 import { QueryBase } from '../../query-base';
 import { GetChartQuery } from '../charts';
 import { ChartFactory } from '../charts/charts/chart-factory';
@@ -34,10 +37,13 @@ export class GetDashboardQuery extends QueryBase<IDashboard> {
         return new Promise<IDashboard>((resolve, reject) => {
             that._ctx.Dashboard
                 .findOne(query)
-                .populate({
-                    path: 'charts',
-                    populate: { path: 'kpis' }
-                })
+                .populate(
+                    {
+                        path: 'charts',
+                        populate: { path: 'kpis' }
+                    }
+                )
+                .populate('widgets')
                 .then(dashboard => {
 
                     if (!dashboard) {
@@ -46,15 +52,25 @@ export class GetDashboardQuery extends QueryBase<IDashboard> {
                         return;
                     }
 
+                    const widgetService = new WidgetsService(that._ctx);
+
+                    const dashboardElementsPromises = { };
+                    // process widgets
+                    dashboardElementsPromises['widgets'] = widgetService.materializeWidgetDocuments(<any>dashboard.widgets);
+
                     // process charts
-                    let promises = dashboard.charts.map(c => {
+                    let chartPromises = dashboard.charts.map(c => {
                         let chartQuery = new GetChartQuery(that.identity, that._ctx, that._user);
                         return chartQuery.run({ id: (<any>c)._id });
                     });
 
-                    Promise.all(promises).then((charts) => {
+                    dashboardElementsPromises['charts'] = Promise.all(chartPromises);
+
+                    Promise.props(dashboardElementsPromises).then((elements: { widgets: IUIWidget[], charts: string[]}) => {
                         let response = {};
-                        Object.assign(response, dashboard.toObject(), { charts: charts });
+                        console.dir(elements.widgets);
+                        const widgetsAsString = elements.widgets.map(w => JSON.stringify(w));
+                        Object.assign(response, dashboard.toObject(), { widgets: widgetsAsString, charts: elements.charts });
                         resolve(<any>response);
                     }).catch(e => reject(e));
                 });
