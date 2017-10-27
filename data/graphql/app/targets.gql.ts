@@ -13,20 +13,18 @@ export const targetGql: GraphqlDefinition = {
     schema: {
         types: `
             input NotifyInput {
-                userId: String
-                notifyDigit: String
-                notifyTime: String
+                users: [String]
+                notification: String
             }
             input TargetInput {
                 name: String
                 datepicker: String
-                active: Boolean
                 vary: String
                 amount: String
                 amountBy: String
                 type: String
                 period: String
-                notify: [NotifyInput]
+                notify: NotifyInput
                 visible: [String]
                 owner: String
                 chart: [String]
@@ -38,22 +36,20 @@ export const targetGql: GraphqlDefinition = {
             }
 
             type NotifyResponse {
-                userId: String
-                notifyDigit: String
-                notifyTime: String
+                users: [String]
+                notification: String
             }
             type TargetResponse {
                 _id: String
                 name: String
                 datepicker: String
-                active: Boolean
                 vary: String
                 amount: Float
                 amountBy: String
                 target: Float
                 type: String
                 period: String
-                notify: [NotifyResponse]
+                notify: NotifyResponse
                 visible: [String]
                 owner: String
                 chart: [String]
@@ -122,9 +118,12 @@ export const targetGql: GraphqlDefinition = {
             notify(response: any) { return response.notify; }
         },
         TargetResult: {
-            success(response: IMutationResponse) { return response.success; },
-            entity(response: IMutationResponse) { return response.entity; },
-            errors(response: IMutationResponse) { return response.errors; }
+            success(response: IMutationResponse) {
+                return response.success; },
+            entity(response: IMutationResponse) {
+                return response.entity; },
+            errors(response: IMutationResponse) {
+                return response.errors; }
         },
         TargetRemoveResult: {
             success(response: IMutationResponse) { return response.success; },
