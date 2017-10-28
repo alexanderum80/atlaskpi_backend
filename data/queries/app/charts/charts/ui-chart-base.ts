@@ -365,7 +365,6 @@ export class UIChartBase {
 
         if (this.chart.chartDefinition.chart.type === ChartType.Pie) {
             return [{
-                showInLegend: false,
                 name: '',
                 data:  categories.map(cat => {
                     let dataItem = _.find(data, (item: any) => {
