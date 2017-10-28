@@ -26,8 +26,7 @@ const basicDefinition = {
         'pie': {
             'dataLabels': {
                 'enabled': true
-            },
-            'showInLegend': false
+            }
         }
     }
 };
