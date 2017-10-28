@@ -1,5 +1,5 @@
 import { createDeflate } from 'zlib';
-import { IUserDocument, IDataSource } from '../../../data';
+import { IUserDocument, IAccountCreatedDataSource } from '../../../data';
 import { IEmailNotifier } from '../email-notifier';
 import * as Promise from 'bluebird';
 import * as nodemailer from 'nodemailer';
@@ -21,7 +21,7 @@ export class AccountCreatedNotification implements IAccountCreatedNotifier {
         const createAccountTemplate =
             Handlebars.compile(this._config.usersService.services.createUser.emailTemplate);
 
-        let dataSource: IDataSource = user.toObject();
+        let dataSource: IAccountCreatedDataSource = user.toObject();
         if (!dataSource.host) {
             dataSource.host = this._accountInfo.hostname.split('.')[0] || this._accountInfo.hostname.hostname;
         }

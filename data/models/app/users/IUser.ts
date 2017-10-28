@@ -71,11 +71,15 @@ export interface IMobileDevice {
     token: string;
 }
 
-export interface IDataSource {
+export interface IAccountCreatedDataSource {
     host?: string;
     subdomain?: string;
     resetToken?: string;
     fullName?: string;
+}
+
+export interface IUserForgotPasswordDataSource extends IAccountCreatedDataSource {
+
 }
 
 export interface IUser {

@@ -1,4 +1,4 @@
-import { IUserDocument, IDataSource } from '../../../data';
+import { IUserDocument, IUserForgotPasswordDataSource } from '../../../data';
 import { IEmailNotifier } from '../email-notifier';
 import * as Promise from 'bluebird';
 import * as nodemailer from 'nodemailer';
@@ -22,7 +22,7 @@ export class UserForgotPasswordNotification implements IEmailNotifier {
         const forgotPasswordTemplate =
             Handlebars.compile(this._config.usersService.services.forgotPassword.emailTemplate);
 
-        let dataSource: IDataSource = user.toObject();
+        let dataSource: IUserForgotPasswordDataSource = user.toObject();
 
         if (!user.profile.firstName || !user.profile.lastName) {
             dataSource.fullName = user.username;
