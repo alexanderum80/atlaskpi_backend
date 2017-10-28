@@ -21,6 +21,7 @@ export class UpdateSlideshowMutation extends MutationBase<IMutationResponse> {
                     success: true,
                     entity: slideshow
                 });
+                return;
            }).catch(err => {
                 resolve({
                     success: false,
@@ -31,6 +32,7 @@ export class UpdateSlideshowMutation extends MutationBase<IMutationResponse> {
                         }
                     ]
                 });
+                return;
            });
         });
     }
