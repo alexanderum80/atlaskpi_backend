@@ -7,22 +7,19 @@ import * as moment from 'moment';
 let Schema = mongoose.Schema;
 
 let NotifySchema = new Schema({
-    userId: { type: mongoose.Schema.Types.String, ref: 'User' },
-    notifyDigit: Number,
-    notifyTime: String,
+    users: [{ type: mongoose.Schema.Types.String, ref: 'User' }],
     notification: Date
 });
 
 let TargetSchema = new Schema({
     name: String,
     datepicker: Date,
-    active: Boolean,
     vary: String,
     amount: Number,
     amountBy: String,
     type: String,
     period: String,
-    notify: [NotifySchema],
+    notify: NotifySchema,
     visible: [String],
     delete: Boolean,
     owner: String,
@@ -37,9 +34,6 @@ TargetSchema.statics.createTarget = function(data: ITarget): Promise<ITargetDocu
     const that = this;
     return new Promise<ITargetDocument>((resolve, reject) => {
         let constraints = {
-            active: { presence: {
-                message: 'Active/Inactive cannot be empty' }
-            },
             vary: { presence: {
                 messsage: 'Vary cannot be empty' }
             },
@@ -52,17 +46,6 @@ TargetSchema.statics.createTarget = function(data: ITarget): Promise<ITargetDocu
             reject({ success: false, message: 'Not permitted to add target', error: errors });
             return;
         }
-
-        data.notify.map((notifying) => {
-            let notificationTime;
-            if (notifying.notifyTime === 'weeks') {
-                notificationTime = moment(data.datepicker).utc().subtract(notifying.notifyDigit * 7, 'day').startOf('day').format();
-            }
-            if (notifying.notifyTime === 'days') {
-                notificationTime = moment(data.datepicker).utc().subtract(notifying.notifyDigit, 'day').startOf('day').format();
-            }
-            notifying.notification = notificationTime;
-        });
 
         data.delete = false;
 
@@ -84,9 +67,6 @@ TargetSchema.statics.updateTarget = function(id: string, data: ITarget): Promise
             datepicker: { presence: {
                 message: 'Datepicker cannot be empty' }
             },
-            // active: { presence: {
-            //     message: 'Active/Inactive cannot be empty' }
-            // },
             vary: { presence: {
                 messsage: 'Vary cannot be empty' }
             },
@@ -102,23 +82,9 @@ TargetSchema.statics.updateTarget = function(id: string, data: ITarget): Promise
 
         (<ITargetModel>this).findById(id)
             .then((target) => {
-                if (data.notify) {
-                    target.notify = [];
-                }
                 if (data.visible) {
                     target.visible = [];
                 }
-
-                data.notify.map((notifying) => {
-                    let notificationTime;
-                    if (notifying.notifyTime === 'weeks') {
-                        notificationTime = moment(data.datepicker).utc().subtract(notifying.notifyDigit * 7, 'day').startOf('day').toISOString();
-                    }
-                    if (notifying.notifyTime === 'days') {
-                        notificationTime = moment(data.datepicker).utc().subtract(notifying.notifyDigit, 'day').startOf('day').toISOString();
-                    }
-                    notifying.notification = notificationTime;
-                });
 
                 if (data.vary === 'fixed') {
                     data.period = '';
@@ -149,6 +115,7 @@ TargetSchema.statics.removeTarget = function(id: string): Promise<ITargetDocumen
     return new Promise<ITargetDocument>((resolve, reject) => {
         (<ITargetModel>this).findById(id)
             .then((target) => {
+                if (!target) { return; }
                 target.delete = true;
                 let deleteTarget = target;
                 target.save((err, target: ITargetDocument) => {
