@@ -1,3 +1,4 @@
+import { IWidgetModel } from './widgets/IWidget';
 import { ISlideshowModel } from './slideshow/ISlideshow';
 import { IAppointmentModel } from './appointments/IAppointment';
 import { ITargetModel } from './targets/ITarget';
@@ -53,4 +54,5 @@ export interface IAppModels {
     Target: ITargetModel;
     SlideshowModel: ISlideshowModel;
     AppointmentModel: IAppointmentModel;
+    Widget: IWidgetModel;
 }
