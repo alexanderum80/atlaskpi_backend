@@ -1,4 +1,5 @@
 import { businessUnitGql } from './app/business-unit.gql';
+import { departmentsGql } from './app/departments.gql';
 import { slideshowGql } from './app/slideshow.gql';
 import { dateRangesGql } from './app/date-ranges.gql';
 import { dataSourcesGql } from './app/data-sources.gql';
@@ -35,6 +36,7 @@ definitions.push(dataSourcesGql);
 definitions.push(targetGql);
 definitions.push(slideshowGql);
 definitions.push(dateRangesGql);
+definitions.push(departmentsGql);
 definitions.push(businessUnitGql);
 
 let moduleQueries = [];
