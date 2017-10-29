@@ -30,7 +30,6 @@ export class KPIExpressionHelper {
     }
 
     public static DecomposeExpression(kpiType: KPITypeEnum, expression: string): IKPISimpleDefinition | any {
-
         switch (kpiType) {
             case KPITypeEnum.Simple:
                 return KPIExpressionHelper._decomposeSimpleExpression(expression);
@@ -52,7 +51,6 @@ export class KPIExpressionHelper {
         }
     }
 
-
     private static _composeSimpleExpression(rawExpression: string): string {
         const simple: IKPISimpleDefinition = JSON.parse(rawExpression);
 
@@ -70,9 +68,14 @@ export class KPIExpressionHelper {
     }
 
     private static _decomposeSimpleExpression(expression: string): IKPISimpleDefinition {
+        expression =  KPIExpressionHelper._cleanExpression(expression);
         const tree: jsep.IExpression = jsep(expression);
 
         return KPIExpressionHelper._processExpression(<jsep.IExpression>tree);
+    }
+
+    private static _cleanExpression(expression: string) {
+        return expression.replace(/[,$]/g, '');
     }
 
     private static _getSimpleKPIFromCallExp(callExp: ICallExpression): IKPISimpleDefinition {
