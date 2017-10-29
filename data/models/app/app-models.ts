@@ -6,6 +6,7 @@ import { IChartModel } from './charts';
 import { IInventoryModel } from './inventory/IInventory';
 import { ISurveyModel } from './surveys/ISurvey';
 import { IBusinessUnitModel } from './business-units/IBusinessUnit';
+import { IDepartmentModel } from './departments/IDepartment';
 // import { ICustomerModel } from './customers';
 // import { IEmployeeModel } from './employees';
 // import { IEmployeeAttendanceModel } from './employees-attendance';
@@ -53,4 +54,5 @@ export interface IAppModels {
     Target: ITargetModel;
     SlideshowModel: ISlideshowModel;
     BusinessUnitModel: IBusinessUnitModel;
+    DepartmentModel: IDepartmentModel;
 }
