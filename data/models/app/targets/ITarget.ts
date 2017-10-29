@@ -2,8 +2,7 @@ import * as mongoose from 'mongoose';
 import * as Promise from 'bluebird';
 
 export interface INotify {
-    notifyDigit: number;
-    notifyTime: string;
+    users: string[];
     notification?: Date;
 }
 
@@ -15,7 +14,7 @@ export interface ITarget {
     amount: number;
     amountBy: string;
     period: string;
-    notify: INotify[];
+    notify: INotify;
     visible: string[];
     delete?: boolean;
     owner: string;

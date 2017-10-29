@@ -1,3 +1,4 @@
+import { IWidget } from './../widgets/IWidget';
 import { IUser } from '../users/IUser';
 import { IChart, IChartDocument } from '../charts';
 // import { IWidget } from '../widgets';
@@ -9,11 +10,20 @@ export interface IDashboard {
     description: string;
     group: string;
     charts: IChart[];
+    widgets: IWidget[];
     owner: IUser;
     users: IUser[];
-
-    // widgets: IWidget[];
 }
+
+export interface IDashboardInput {
+    name: string;
+    description: string;
+    group: string;
+    charts: string[];
+    widgets: string[];
+    users: string[];
+}
+
 
 export interface IDashboardDocument extends IDashboard, mongoose.Document {
     // hasChart(chart: string | IChartDocument): boolean;
@@ -25,7 +35,7 @@ export interface IDashboardDocument extends IDashboard, mongoose.Document {
 }
 
 export interface IDashboardModel extends mongoose.Model<IDashboardDocument> {
-    createDashboard(name: string, description: string, group: string, charts: string[], user?: string[]): Promise<IDashboardDocument>;
-    updateDashboard(_id: string, name: string, description: string, group: string, charts: string[], user?: string[]): Promise<IDashboardDocument>;
-    deleteDashboard(_id: string): Promise<IDashboardDocument>;
+    createDashboard(input: IDashboardInput): Promise<IDashboardDocument>;
+    updateDashboard(id: string, input: IDashboardInput): Promise<IDashboardDocument>;
+    deleteDashboard(id: string): Promise<IDashboardDocument>;
  }

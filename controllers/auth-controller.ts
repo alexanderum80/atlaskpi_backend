@@ -52,7 +52,15 @@ export class AuthController {
                     return that._appContext.User.authenticate(username, password);
                 })
                 .then((u: IUserDocument) => {
-                    return u.generateToken(account.database.name, username, password, ip, clientId, clientDetails);
+                    return u.generateToken(account.database.name, username, password, ip, clientId, clientDetails).then(token => {
+                        // add the rest of the info to the user token
+                        token.subdomain = hostname.split('.')[0];
+                        token.email = username;
+                        token.fullName = u.profile.firstName + ' ' + u.profile.lastName;
+                        token.companyName = account.name;
+
+                        return token;
+                    });
                 })
                 .then((userToken: IUserToken) => {
                     resolve(userToken);
