@@ -26,6 +26,11 @@ export class GetDashboardQuery extends QueryBase<IDashboard> {
     run(data: { id: string }): Promise<IDashboard> {
         let that = this;
 
+        if (!this._user) {
+            logger.error('No user logged in at this point, so not dashboard can be generated');
+            return Promise.resolve(null);
+        }
+
         // lets prepare the query for the dashboards
         let query = { };
         if (this._user.roles.find(r => r.name === 'owner')) {
