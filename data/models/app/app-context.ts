@@ -10,7 +10,7 @@ import { getEmployeeAttendanceModel } from './employees-attendance/';
 import * as Promise from 'bluebird';
 import connectToMongoDb from '../../mongo-utils';
 import { IAppModels } from './app-models';
-import { getBusinessUnitModel } from './business-unit/business-unit';
+import { getBusinesUnitModel } from './business-unit/business-unit';
 import { getDepartmentModel } from './departments/department';
 import { getCustomerModel } from './customers';
 import { getEmployeeModel } from './employees';
@@ -59,7 +59,7 @@ export function getContext(dbUri: string): Promise<IAppModels> {
                 LogModel: getLogModel(m),
                 AccessModel: getAccessLogModel(m),
                 Target: getTargetModel(m),
-                BusinessUnitModel: getBusinessUnitModel(m),
+                BusinessUnitModel: getBusinesUnitModel(m),
                 DepartmentModel: getDepartmentModel(m),
                 SlideshowModel: getSlideshowModel(m)
             });
