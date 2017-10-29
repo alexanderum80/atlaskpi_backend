@@ -1,4 +1,4 @@
-import { IBusinessUnitModel } from '../../../models/app/business-unit/IBusinessUnit';
+import { IBusinesUnitModel } from '../../../models/app/business-unit/IBusinessUnit';
 import { MutationBase } from '../../mutation-base';
 import { IIdentity, IMutationResponse } from '../../..';
 import { IMutation, IValidationResult } from '../..';
@@ -8,7 +8,7 @@ import * as logger from 'winston';
 export class CreateBusinessUnitMutation extends MutationBase<IMutationResponse> {
     constructor(
         public identity: IIdentity,
-        private _BusinessUnitModel: IBusinessUnitModel) {
+        private _BusinessUnitModel: IBusinesUnitModel) {
             super(identity);
         }
 

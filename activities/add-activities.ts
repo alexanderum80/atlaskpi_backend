@@ -7,7 +7,8 @@ import { listBusinessUnitsActivity } from './app/business-unit/list-business-uni
 import { updateBusinessUnitActivity } from './app/business-unit/update-business-unit.activity';
 import { deleteBusinessUnitActivity } from './app/business-unit/delete-business-unit.activity';
 import { BusinessUnitByIdActivity } from './app/business-unit/business-unit-by-id.activity';
-import { createBusinessUnitActivity } from './app/business-unit/create-business-unit.activity';
+import { createBusinesUnitActivity } from './app/business-unit/create-business-unit.activity';
+
 import { listChartsByGroupActivity } from './app/charts/list-charts-by-group.activity';
 import { SlideshowByGroupActivity } from './app/slideshow/slideshows-by-group.activity';
 import { DeleteSlideshowActivity } from './app/slideshow/delete-slideshow.activity';
@@ -212,7 +213,7 @@ export function addActivities() {
         removeDeviceTokenActivity,
 
         // business-unit
-        createBusinessUnitActivity,
+        createBusinesUnitActivity,
         BusinessUnitByIdActivity,
         updateBusinessUnitActivity,
         deleteBusinessUnitActivity,

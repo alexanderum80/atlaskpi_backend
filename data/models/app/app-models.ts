@@ -5,7 +5,7 @@ import { IWorkLogModel } from './work-log/IWorkLog';
 import { IChartModel } from './charts';
 import { IInventoryModel } from './inventory/IInventory';
 import { ISurveyModel } from './surveys/ISurvey';
-import { IBusinessUnitModel } from './business-units/IBusinessUnit';
+import { IBusinesUnitModel } from './business-unit/IBusinessUnit';
 import { IDepartmentModel } from './departments/IDepartment';
 // import { ICustomerModel } from './customers';
 // import { IEmployeeModel } from './employees';
