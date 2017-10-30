@@ -1,4 +1,4 @@
-import { IAppointmentModel } from '../../../models/app/appointments/IAppointment';
+import { IAppointment, IAppointmentModel } from '../../../models/app/appointments/IAppointment';
 import { MutationBase } from '../../mutation-base';
 import { IIdentity, IMutationResponse } from '../../..';
 import { IMutation, IValidationResult } from '../..';
@@ -12,15 +12,16 @@ export class CreateAppointmentMutation extends MutationBase<IMutationResponse> {
             super(identity);
         }
 
-    run(data): Promise<IMutationResponse> {
+    run(data: { input: IAppointment }): Promise<IMutationResponse> {
         const that = this;
 
         return new Promise<IMutationResponse>((resolve, reject) => {
-           that._AppointmentModel.createNew(data.from, data.to, data.name, data.description, data.states).then(appointment => {
+           that._AppointmentModel.createNew(data.input).then(appointment => {
                 resolve({
                     success: true,
                     entity: appointment
                 });
+                return;
            }).catch(err => {
                 resolve({
                     success: false,
@@ -31,6 +32,7 @@ export class CreateAppointmentMutation extends MutationBase<IMutationResponse> {
                         }
                     ]
                 });
+                return;
            });
         });
     }
