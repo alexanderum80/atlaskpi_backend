@@ -193,7 +193,7 @@ export const usersGql: GraphqlDefinition = {
         },
         Mutation: {
             createUser(root: any, args, ctx: IGraphqlContext) {
-                let notifier = new AccountCreatedNotification(ctx.config);
+                let notifier = new AccountCreatedNotification(ctx.config, { hostname: getRequestHostname(ctx.req)});
                 let mutation = new CreateUserMutation(ctx.req.identity, notifier, ctx.req.appContext.User);
                 return ctx.mutationBus.run<IMutationResponse>('create-user', ctx.req, mutation, args);
             },
