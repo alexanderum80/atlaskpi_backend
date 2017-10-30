@@ -1,95 +1,85 @@
-import { IAppointmentModel, IAppointmentDocument } from './IAppointment';
+import { IAppointment, IAppointmentDocument, IAppointmentModel } from './IAppointment';
 import * as mongoose from 'mongoose';
 import * as logger from 'winston';
-
+import * as moment from 'moment';
 
 const AppointmentSchema = new mongoose.Schema({
+    source: String,
+    externalId: { type: String, unique: true },
+    fullName: String,
+    reason: String,
     from: Date,
     to: Date,
-    name: String,
-    description: String,
-    states: String
+    provider: String,
+    document: {
+        type: String, // invoice, bill, charge, etc
+        identifier: String
+    }
 });
 
-AppointmentSchema.statics.createNew = function(from: Date, to: Date, name: string, description: string, states: string): Promise<IAppointmentDocument> {
-    const that = <IAppointmentModel> this;
+AppointmentSchema.statics.createNew = function(input: IAppointment): Promise<IAppointmentDocument> {
+    const that = <IAppointmentModel>this;
 
     return new Promise<IAppointmentDocument>((resolve, reject) => {
-        if (!from || !name || !description ) {
+        if (!input || !input.reason || !input.from ) {
             return reject('Information not valid');
         }
 
-        that.create({
-            from: from,
-            to: to,
-            name: name,
-            description: description,
-            states: states
+        input.source = 'AtlasKPI';
 
-        }).then(appointment => {
+        that.create(input).then(appointment => {
             resolve(appointment);
+            return;
         }).catch(err => {
             logger.error(err);
-            reject('There was an error adding the appointment');
+            return reject('There was an error adding the appointment');
         });
     });
 };
 
-AppointmentSchema.statics.updateAppointment = function(_id: string, from: Date, to: Date, name: string, description: string, states: string): Promise<IAppointmentDocument> {
+AppointmentSchema.statics.updateAppointment = function(id: string, input: IAppointment): Promise<IAppointmentDocument> {
     const that = <IAppointmentModel> this;
 
     return new Promise<IAppointmentDocument>((resolve, reject) => {
-        if (!from || !name || !description  ) {
+        if (!id || !input || !input.reason || !input.from ) {
             return reject('Information not valid');
         }
 
-        that.findByIdAndUpdate(_id, {
-            from: from,
-            to: to,
-            name: name,
-            description: description,
-            states: states
-        }).then(appointment => {
+        that.findByIdAndUpdate(id, input).then(appointment => {
             resolve(appointment);
+            return;
         }).catch(err => {
             logger.error(err);
-            reject('There was an error updating the appointment');
+            return reject('There was an error updating the appointment');
         });
     });
 };
 
-AppointmentSchema.statics.deleteAppointment = function(_id: string): Promise<IAppointmentDocument> {
+AppointmentSchema.statics.deleteAppointment = function(id: string): Promise<IAppointmentDocument> {
     const that = <IAppointmentModel> this;
 
     return new Promise<IAppointmentDocument>((resolve, reject) => {
 
-        // that.findById(_id).then(appointment => {
-
-            // if (appointment && appointment.name === 'Rafael') {
-            //     return reject('Rafaels events cannot be deleted');
-            // }
-
-            that.findByIdAndRemove (_id).then(appointment => {
+            that.findByIdAndRemove (id).then(appointment => {
                 resolve(appointment);
+                return;
             }).catch(err => {
                 logger.error(err);
-                reject('There was an error updating the appointment');
+                return reject('There was an error updating the appointment');
             });
-
-        // });
-
     });
 };
 
-AppointmentSchema.statics.appointments = function(): Promise<IAppointmentDocument[]> {
+AppointmentSchema.statics.appointments = function(start: string, end: string): Promise<IAppointmentDocument[]> {
     const that = <IAppointmentModel> this;
-
+    console.log(start + '-' + end);
     return new Promise<IAppointmentDocument[]>((resolve, reject) => {
-        that.find({}).then(appointments => {
+        that.find({ 'from': { '$gte': start, '$lte': end} }).then(appointments => {
             resolve(appointments);
+            return;
         }).catch(err => {
             logger.error(err);
-            reject('There was an error retrieving appointments');
+            return reject('There was an error retrieving appointments');
         });
     });
 };
@@ -99,22 +89,29 @@ AppointmentSchema.statics.appointmentById = function(id: string): Promise<IAppoi
 
     return new Promise<IAppointmentDocument>((resolve, reject) => {
         that.findOne({_id: id}).then(appointment => {
+            if (!appointment) {
+                return reject('Appointment not found');
+            }
+
             resolve(appointment);
+            return;
         }).catch(err => {
             logger.error(err);
-            reject('There was an error retrieving appointment');
+            return reject('There was an error retrieving appointment');
         });
     });
 };
+
 AppointmentSchema.statics.appointmentByDescription = function(from: Date, to: Date, name: string): Promise<IAppointmentDocument> {
     const that = <IAppointmentModel> this;
 
     return new Promise<IAppointmentDocument>((resolve, reject) => {
         that.findOne({from: from, to: to, name: name}).then(appointment => {
             resolve(appointment);
+            return;
         }).catch(err => {
             logger.error(err);
-            reject('There was an error retrieving appointment');
+            return reject('There was an error retrieving appointment');
         });
     });
 };
