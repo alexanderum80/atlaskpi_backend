@@ -38,42 +38,44 @@ export const appointmentsGql: GraphqlDefinition = {
     name: 'appointments',
     schema: {
         types: `
+            input AppointmentInput {
+                source: String
+                externalId: String
+                fullName: String
+                reason: String!
+                from: String!
+                to: String
+                provider: String
+                state: String
+            }
+
             type Appointment {
                 _id: String
-                from: String
+                source: String
+                externalId: String
+                fullName: String
+                reason: String!
+                from: String!
                 to: String
-                name: String
-                description: String
-                states: String
+                provider: String
+                state: String
             }
 
-            type UpdateAppointmentResponse {
-                success: Boolean
-                entity: Appointment
-                errors: [ErrorDetails]
-            }
-
-            type CreateAppointmentResponse {
-                success: Boolean
-                entity: Appointment
-                errors: [ErrorDetails]
-            }
-
-            type DeleteAppointmentResponse {
+            type AppointmentMutationResponse {
                 success: Boolean
                 entity: Appointment
                 errors: [ErrorDetails]
             }
         `,
         queries: `
-            appointments: [Appointment]
+            appointments(start: String!, end: String!): [Appointment]
             appointmentById(id: String!): Appointment
             appointmentByDescription(from: String!, to:String!, name: String!): Appointment
         `,
         mutations: `
-            createAppointment(from: String!, to:String!, name: String!, description: String!, states: String): CreateAppointmentResponse
-            updateAppointment(_id: String!, from: String!, to:String!, name: String!, description: String!,  states: String): UpdateAppointmentResponse
-            deleteAppointment(_id: String!): DeleteAppointmentResponse
+            createAppointment(input: AppointmentInput): AppointmentMutationResponse
+            updateAppointment(id: String!, input: AppointmentInput): AppointmentMutationResponse
+            deleteAppointment(id: String!): AppointmentMutationResponse
             `,
     },
 

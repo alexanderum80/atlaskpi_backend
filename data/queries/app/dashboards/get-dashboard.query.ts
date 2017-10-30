@@ -27,6 +27,7 @@ export class GetDashboardQuery extends QueryBase<IDashboard> {
         let that = this;
 
         if (!this._user) {
+            logger.error('No user logged in at this point, so not dashboard can be generated');
             return Promise.resolve(null);
         }
 
