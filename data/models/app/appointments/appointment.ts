@@ -10,11 +10,7 @@ const AppointmentSchema = new mongoose.Schema({
     reason: String,
     from: Date,
     to: Date,
-    provider: String,
-    document: {
-        type: String, // invoice, bill, charge, etc
-        identifier: String
-    }
+    provider: String
 });
 
 AppointmentSchema.statics.createNew = function(input: IAppointment): Promise<IAppointmentDocument> {
