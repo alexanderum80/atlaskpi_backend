@@ -14,6 +14,7 @@ import * as Promise from 'bluebird';
 import validate = require('validate.js');
 // import validate from 'validate.js';
 import { IKPI, IKPIDocument, IKPIModel } from '.';
+import { IChartDocument } from '../charts';
 
 
 let Schema = mongoose.Schema;
@@ -102,7 +103,7 @@ KPISchema.statics.updateKPI = function(id: string, input: IKPI): Promise<IKPIDoc
     });
 };
 
-KPISchema.statics.removeKPI = function(id: string): Promise<IMutationResponse> {
+KPISchema.statics.removeKPI = function(id: string, chartExist?: IChartDocument[]): Promise<IMutationResponse> {
     let that = this;
 
     let document: IKPIDocument;
@@ -115,6 +116,11 @@ KPISchema.statics.removeKPI = function(id: string): Promise<IMutationResponse> {
 
         if (idError) {
             resolve(MutationResponse.fromValidationErrors(idError));
+        }
+
+        if (chartExist && chartExist.length) {
+            reject({ success: false, entity: chartExist, errors: [ { field: 'kpis', errors: ['KPIs is being used by '] } ] });
+            return;
         }
 
         (<IKPIModel>this).findById(id).then((kpi) => {
@@ -136,7 +142,7 @@ KPISchema.statics.removeKPI = function(id: string): Promise<IMutationResponse> {
                 }
                 resolve({ entity: deletedKPI });
             });
-        });
+        }).catch(err => resolve(err));
     });
 
 };

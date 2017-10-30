@@ -39,6 +39,11 @@ export const kpisGql: GraphqlDefinition = {
                 errors: [ErrorDetails]
                 success: Boolean
             }
+            type KPIRemoveResponse {
+                entity: [ChartEntityResponse]
+                errors: [ErrorDetails]
+                success: Boolean
+            }
             type KPI {
                 _id: String
                 code: String
@@ -69,7 +74,7 @@ export const kpisGql: GraphqlDefinition = {
         mutations: `
             createKPI(input: KPIAttributesInput): KPIMutationResponse
             updateKPI(id: String, input: KPIAttributesInput): KPIMutationResponse
-            removeKPI(id: String): KPIMutationResponse
+            removeKPI(id: String): KPIRemoveResponse
         `,
     },
 
@@ -98,7 +103,7 @@ export const kpisGql: GraphqlDefinition = {
                 return ctx.mutationBus.run<IMutationResponse>('update-kpi', ctx.req, mutation, args);
             },
             removeKPI(root: any, args, ctx: IGraphqlContext) {
-                let mutation = new RemoveKPIMutation(ctx.req.identity, ctx.req.appContext.KPI);
+                let mutation = new RemoveKPIMutation(ctx.req.identity, ctx.req.appContext.KPI, ctx.req.appContext.Chart);
                 return ctx.mutationBus.run<IMutationResponse>('remove-kpi', ctx.req, mutation, args);
             },
         },
@@ -109,6 +114,14 @@ export const kpisGql: GraphqlDefinition = {
         KPIMutationResponse: {
             entity(response: IMutationResponse) { return response.entity; },
             errors(response: IMutationResponse) { return response.errors; }
+        },
+        KPIRemoveResponse: {
+            success(response: IMutationResponse) {
+                return response.success; },
+            entity(response: IMutationResponse) {
+                return response.entity; },
+            errors(response: IMutationResponse) {
+                return response.errors; }
         },
         DateRange: {
             from(dateRange: IDateRange ) { return dateRange.from; },
