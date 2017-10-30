@@ -40,21 +40,6 @@ export class RemoveKPIMutation extends MutationBase<IMutationResponse> {
             }).catch(err => {
                 return resolve({ success: false, entity: err.entity, errors: [ { field: 'kpis', errors: [err.errors[0].errors] } ] })
             });
-
-            // that._KPIModel.findOne({ _id: data.id})
-            // .exec()
-            // .then((kpiDocument) => {
-            //     if (!kpiDocument) {
-            //         reject({ success: false,
-            //                  errors: [ { field: 'id', errors: ['Chart not found']} ] });
-            //         return;
-            //     }
-            //     kpiDocument.remove().then(() =>  {
-            //         resolve({ success: true });
-            //         return;
-            //     });
-            // })
-            // .catch(err => reject({ success: false, errors: [ { field: 'id', errors: [err]} ] }));
         });
     }
 }
