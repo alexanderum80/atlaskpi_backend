@@ -1,13 +1,14 @@
 import { MutationBase } from '../../mutation-base';
 import { IMutationResponse } from '../../../models/common';
 import * as Promise from 'bluebird';
-import { IIdentity, IKPIModel } from '../../..';
+import { IIdentity, IKPIModel, IChartModel } from '../../..';
 import { IMutation, IValidationResult } from '../..';
 
 export class RemoveKPIMutation extends MutationBase<IMutationResponse> {
 
     constructor(public identity: IIdentity,
-                private _KPIModel: IKPIModel) {
+                private _KPIModel: IKPIModel,
+                private _ChartModel?: IChartModel) {
                     super(identity);
                 }
 
@@ -22,21 +23,38 @@ export class RemoveKPIMutation extends MutationBase<IMutationResponse> {
                 return reject({ success: false,
                                 errors: [ { field: 'id', errors: ['Chart not found']} ] });
             }
-
-            that._KPIModel.findOne({ _id: data.id})
-            .exec()
-            .then((kpiDocument) => {
-                if (!kpiDocument) {
-                    reject({ success: false,
-                             errors: [ { field: 'id', errors: ['Chart not found']} ] });
-                    return;
-                }
-                kpiDocument.remove().then(() =>  {
-                    resolve({ success: true });
-                    return;
+            let findCharts = this._ChartModel.find({ kpis: { $in: [data.id] } })
+                .populate('kpis', '-_id, name')
+                .then(kpis => {
+                    if (kpis) {
+                        return kpis;
+                    }
                 });
-            })
-            .catch(err => reject({ success: false, errors: [ { field: 'id', errors: [err]} ] }));
+            let promises = findCharts;
+
+            return Promise.all(promises).then(chartExists => {
+                return this._KPIModel.removeKPI(data.id, chartExists).then(chart => {
+                    const listCharts = Array.isArray(chart) ? chart : [chart];
+                    return resolve({ success: true, entity: listCharts});
+                });
+            }).catch(err => {
+                return resolve({ success: false, entity: err.entity, errors: [ { field: 'kpis', errors: [err.errors[0].errors] } ] })
+            });
+
+            // that._KPIModel.findOne({ _id: data.id})
+            // .exec()
+            // .then((kpiDocument) => {
+            //     if (!kpiDocument) {
+            //         reject({ success: false,
+            //                  errors: [ { field: 'id', errors: ['Chart not found']} ] });
+            //         return;
+            //     }
+            //     kpiDocument.remove().then(() =>  {
+            //         resolve({ success: true });
+            //         return;
+            //     });
+            // })
+            // .catch(err => reject({ success: false, errors: [ { field: 'id', errors: [err]} ] }));
         });
     }
 }
