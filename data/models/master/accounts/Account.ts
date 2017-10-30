@@ -234,7 +234,8 @@ accountSchema.methods.createAccountDbUser = function(accountDbUser: IAccountDBUs
 
     return new Promise<boolean>((resolve, reject) => {
         request.post(options, function(error, response, body) {
-            if (!error) {
+            if (!error || body.error) {
+                // winston.error('There was an error creating the database account', error || body.error);
                 console.log('User created...');
                 resolve(true);
             } else {
@@ -272,7 +273,7 @@ function createDbUserIfNeeded(account: IAccountDocument, dbUser): Promise<boolea
     return new Promise<boolean>((resolve, reject) => {
         // Create a db user if it's in production
         if (config.mongoDBAtlasCredentials && !IsNullOrWhiteSpace(config.mongoDBAtlasCredentials.api_key)) {
-            winston.debug('MongoDBAtlas api_key found, creating MongoDBAtlas user...');
+            winston.info('MongoDBAtlas api_key found, creating MongoDBAtlas user...');
             account.createAccountDbUser(dbUser)
                 .then((value) => resolve(value))
                 .catch((err) => reject(err));
