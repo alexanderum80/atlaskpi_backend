@@ -19,7 +19,8 @@ import { importData } from './google-sheet.processor';
 let SCOPES = ['https://www.googleapis.com/auth/spreadsheets.readonly'];
 let TOKEN_DIR = (process.env.HOME || process.env.HOMEPATH ||
     process.env.USERPROFILE) + '/.credentials/';
-let TOKEN_PATH = TOKEN_DIR + 'sheets.googleapis.com-nodejs-quickstart.json';
+// let TOKEN_PATH = TOKEN_DIR + 'sheets.googleapis.com-nodejs-quickstart.json';
+let TOKEN_PATH = __dirname + '/sheets.googleapis.com-nodejs-quickstart.json';
 
 export function importSpreadSheet(ctx: IAppModels): Promise<any> {
     // If modifying these scopes, delete your previously saved credentials
