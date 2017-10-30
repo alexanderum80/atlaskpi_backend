@@ -71,6 +71,17 @@ export interface IMobileDevice {
     token: string;
 }
 
+export interface IAccountCreatedDataSource {
+    host?: string;
+    subdomain?: string;
+    resetToken?: string;
+    fullName?: string;
+}
+
+export interface IUserForgotPasswordDataSource extends IAccountCreatedDataSource {
+
+}
+
 export interface IUser {
     username: string;
     password?: string;

@@ -49,7 +49,8 @@ SlideshowSchema.statics.updateSlideshow = function(_id: string, input: ISlidesho
             return reject('Information not valid');
         }
         that.findByIdAndUpdate(_id, newSlideshow).then(slideshow => {
-            resolve(that.findById(_id));
+            resolve(slideshow);
+            return;
         }).catch(err => {
             logger.error(err);
             reject('There was an error updating the Slideshow');
