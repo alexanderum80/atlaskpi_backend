@@ -43,11 +43,24 @@ export const employeesGql: GraphqlDefinition = {
                 dob: String
                 nationality: String
                 maritalStatus: String
-                address: TAddress
-                employmentInfo: TEmploymentInfo
+                address: Address
+                employmentInfo: EmploymentInfo
             }
 
-            input EmploymentInfo {
+            input EmployeeAttributesInput {
+                firstName: String!
+                middleName: String!
+                lastName: String!
+                email: String
+                primaryNumber: String
+                dob: String
+                nationality: String
+                maritalStatus: String
+                address: AddressInput
+                employmentInfo: [EmploymentInfoInput]
+            }
+
+            type EmploymentInfo {
                 location: String
                 bussinessUnit: String
                 departament: String
@@ -58,7 +71,7 @@ export const employeesGql: GraphqlDefinition = {
                 rate: String
             }
 
-            input Address {
+            type Address {
                 street1: String
                 street2: String
                 city: String
@@ -67,7 +80,7 @@ export const employeesGql: GraphqlDefinition = {
                 zipCode: String
             }
 
-            type TEmploymentInfo {
+            input EmploymentInfoInput {
                 location: String
                 bussinessUnit: String
                 departament: String
@@ -78,7 +91,7 @@ export const employeesGql: GraphqlDefinition = {
                 rate: String
             }
 
-            type TAddress {
+            input AddressInput {
                 street1: String
                 street2: String
                 city: String
@@ -110,8 +123,8 @@ export const employeesGql: GraphqlDefinition = {
             employeeById(id: String!): Employee
         `,
         mutations: `
-            createEmployee(firstName: String!, middleName: String!, lastName: String!, email: String, primaryNumber: String, dob: String, nationality: String, maritalStatus: String, address: Address, employmentInfo: [EmploymentInfo]): CreateEmployeeResponse
-            updateEmployee(_id: String!, firstName: String!, middleName: String!, lastName: String!, email: String, primaryNumber: String, dob: String, nationality: String, maritalStatus: String, address: Address, employmentInfo: [EmploymentInfo]): UpdateEmployeeResponse
+            createEmployee(employeeAttributes: EmployeeAttributesInput): CreateEmployeeResponse
+            updateEmployee(_id: String!, employeeAttributes: EmployeeAttributesInput): UpdateEmployeeResponse
             deleteEmployee(_id: String!): DeleteEmployeeResponse
             `,
     },
