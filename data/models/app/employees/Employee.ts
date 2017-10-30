@@ -1,5 +1,6 @@
+import { IEmployeeInput } from './index';
 import { Address, IAddress, IEmploymentInfo, EmploymentInfo } from '../../common';
-import { IEmployeeModel, IEmployeeDocument } from './IEmployee';
+import { IEmployeeModel, IEmployeeDocument, IEmployeeInput } from './IEmployee';
 import * as mongoose from 'mongoose';
 import * as Promise from 'bluebird';
 import * as logger from 'winston';
@@ -19,28 +20,26 @@ const EmployeeSchema = new mongoose.Schema({
     employmentInfo: [EmploymentInfo],
 });
 
-EmployeeSchema.statics.createNew = function(firstName: string, middleName: string, 
-    lastName: string, email: string, primaryNumber: string, dob: string, nationality: string,
-    maritalStatus: string, address: IAddress, employmentInfo: IEmploymentInfo[]): Promise<IEmployeeDocument> {
+EmployeeSchema.statics.createNew = function(employeeInput: IEmployeeInput): Promise<IEmployeeDocument> {
 
     const that = this;
 
     return new Promise<IEmployeeDocument>((resolve, reject) => {
-        if (!firstName || !lastName || !middleName ) {
+        if (!employeeInput.firstName || !employeeInput.lastName || !employeeInput.middleName ) {
             return reject('Information not valid');
         }
 
         that.create({
-            firstName: firstName,
-            middleName: middleName,
-            lastname: lastName,
-            email: email,
-            primaryNumber: primaryNumber,
-            dob: dob,
-            nationality: nationality,
-            maritalStatus: maritalStatus,
-            address: address,
-            employmentInfo: employmentInfo
+            firstName: employeeInput.firstName,
+            middleName: employeeInput.middleName,
+            lastname: employeeInput.lastName,
+            email: employeeInput.email,
+            primaryNumber: employeeInput.primaryNumber,
+            dob: employeeInput.dob,
+            nationality: employeeInput.nationality,
+            maritalStatus: employeeInput.maritalStatus,
+            address: employeeInput.address,
+            employmentInfo: employeeInput.employmentInfo
         }).then(employee => {
             resolve(employee);
         }).catch(err => {
@@ -50,27 +49,25 @@ EmployeeSchema.statics.createNew = function(firstName: string, middleName: strin
     });
 };
 
-EmployeeSchema.statics.updateEmployee = function(_id: string, firstName: string, middleName: string, 
-    lastName: string, email: string, primaryNumber: string, dob: string, nationality: string,
-    maritalStatus: string, address: IAddress, employmentInfo: IEmploymentInfo[]): Promise<IEmployeeDocument> {
+EmployeeSchema.statics.updateEmployee = function(_id: string, employeeInput: IEmployeeInput): Promise<IEmployeeDocument> {
     const that = <IEmployeeModel> this;
 
     return new Promise<IEmployeeDocument>((resolve, reject) => {
-        if (!firstName || !lastName || !middleName) {
+        if (!employeeInput.firstName || !employeeInput.lastName || !employeeInput.middleName) {
             return reject('Information not valid');
         }
 
         that.findByIdAndUpdate(_id, {
-            firstName: firstName,
-            middleName: middleName,
-            lastName: lastName,
-            email: email,
-            primaryNumber: primaryNumber,
-            dob: dob,
-            nationality: nationality,
-            maritalStatus: maritalStatus,
-            address: address,
-            employmentInfo: employmentInfo
+            firstName: employeeInput.firstName,
+            middleName: employeeInput.middleName,
+            lastName: employeeInput.lastName,
+            email: employeeInput.email,
+            primaryNumber: employeeInput.primaryNumber,
+            dob: employeeInput.dob,
+            nationality: employeeInput.nationality,
+            maritalStatus: employeeInput.maritalStatus,
+            address: employeeInput.address,
+            employmentInfo: employeeInput.employmentInfo
         }).then(employee => {
             resolve(employee);
         }).catch(err => {
