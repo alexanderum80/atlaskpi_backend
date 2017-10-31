@@ -20,58 +20,23 @@ import {
     UIChartBase
 } from './';
 
-const basicDefinition = {
-    chart: {
-        type: 'spline',
-        backgroundColor : 'transparent'
-    },
-    title: {
-        text: 'Wind speed during two days'
-    },
-    subtitle: {
-        text: ''
-    },
-    xAxis: {
-        type: 'datetime',
-        labels: {
-            overflow: 'justify'
-        }
-    },
-    yAxis: {
-        title: {
-            text: ''
-        },
-        minorGridLineWidth: 0,
-        gridLineWidth: 0,
-        alternateGridColor: null
-    },
-    // tooltip: {
-    //     valueSuffix: ' m/s'
-    // },
-    credits: false,
-    plotOptions: {
-        spline: {
-            lineWidth: 4,
-            states: {
-                hover: {
-                    lineWidth: 5
-                }
-            },
-            marker: {
-                enabled: false
-            },
-            pointInterval: 3600000, // one hour
-            pointStart: Date.UTC(2015, 4, 31, 0, 0, 0)
-        }
-    },
-    navigation: {
-        menuItemStyle: {
-            fontSize: '10px'
-        }
-    }
-};
+// const basicDefinition = { 'chart'    : { 'type': 'spline', 'inverted' : false },
+//   'plotOptions': { 'series': { 'lineWidth': 4 }, 'line': { 'dataLabels': { 'enabled': false } } },
+//   'yAxis'    : { 'plotLines' : [ { 'value' : 0,
+//                                    'width' : 1,
+//                                    'color' : '#808080' } ] },
+//   'legend'   : { 'layout'        : 'vertical',
+//                  'align'         : 'right',
+//                  'verticalAlign' : 'middle',
+//                  'borderWidth'   : 0 }
+// };
 
 export class SPLineChart extends UIChartBase implements IUIChart {
+
+    protected basicDefinition = {
+        chart: { type: 'spline' },
+        plotOptions: { series: { lineWidth: 5 } }
+    };
 
     constructor(chart: IChart, frequencyHelper: FrequencyHelper) {
         super(chart, frequencyHelper);

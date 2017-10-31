@@ -20,18 +20,23 @@ import {
     UIChartBase
 } from './';
 
-const basicDefinition = { 'chart'    : { 'type': 'line', 'inverted' : false },
-  'plotOptions': { 'line': { 'dataLabels': { 'enabled': false } } },
-  'yAxis'    : { 'plotLines' : [ { 'value' : 0,
-                                   'width' : 1,
-                                   'color' : '#808080' } ] },
-  'legend'   : { 'layout'        : 'vertical',
-                 'align'         : 'right',
-                 'verticalAlign' : 'middle',
-                 'borderWidth'   : 0 }
-};
+// const basicDefinition = { 'chart'    : { 'type': 'line', 'inverted' : false },
+//   'plotOptions': { 'series': { 'lineWidth': 4 }, 'line': { 'dataLabels': { 'enabled': false } } },
+//   'yAxis'    : { 'plotLines' : [ { 'value' : 0,
+//                                    'width' : 1,
+//                                    'color' : '#808080' } ] },
+//   'legend'   : { 'layout'        : 'vertical',
+//                  'align'         : 'right',
+//                  'verticalAlign' : 'middle',
+//                  'borderWidth'   : 0 }
+// };
 
 export class LineChart extends UIChartBase implements IUIChart {
+
+    protected basicDefinition = {
+        chart: { type: 'line' },
+        plotOptions: { series: { lineWidth: 5 } }
+    };
 
     constructor(chart: IChart, frequencyHelper: FrequencyHelper) {
         super(chart, frequencyHelper);
