@@ -83,7 +83,7 @@ function applyGitChanges(gitAnswer, version) {
 
     // tag version and push it
     run('git tag -a v' + version  + ' -m "version release ' + version + '"');
-    // run('git push origin v' + version);
+    run('git push origin v' + version);
 }
 
 function buildApp(version) {
@@ -139,7 +139,3 @@ function updateClusterService(task) {
 
     run('aws ecs update-service --cluster api-cluster --desired-count 1 --service backend --task-definition ' + taskDefinition);
 }
-
-
-// createTaskRevision('0.5.1');
-// applyGitChanges('yes', '0.5.2');
