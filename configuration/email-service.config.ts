@@ -11,7 +11,7 @@ export interface IEmailServiceConfig {
 }
 
 export const emailServiceConfig: IEmailServiceConfig = {
-    from: 'orlando@kpibi.com',
+    from: 'noreply@atlaskpi.com',
     provider: 'mailgun',
     mailgun: {
         auth: {
