@@ -95,8 +95,7 @@ export class NumericWidget extends UIWidgetBase implements IUIWidget {
             return kpiClone.getData([dateRange], { filter: null }).then(result => {
                 if (result && result.length > 0) {
                     console.log(`value recieved for widget(${that.name}): ${result[0].value}`);
-                    resolve(result[0].value);
-                    return;
+                    return resolve(result[0].value);
                 }
                 console.log(`value not recieved for widget(${that.name}), displaying 0 as value`);
                 return resolve(0);
