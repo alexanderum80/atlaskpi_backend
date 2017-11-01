@@ -32,7 +32,7 @@ export class CreateChartMutation extends MutationBase<IMutationResponse> {
                 // resolve dashboards to include the chart
                 that._dashboardModel.find( {_id: { $in: data.input.dashboards }})
                 .then((dashboards) => {
-                    if (!dashboards || dashboards.length !== data.input.dashboards.length) {
+                    if (!dashboards || !data.input.dashboards || dashboards.length !== data.input.dashboards.length) {
                         logger.error('one or more dashboard not found:' + data.id);
                         resolve({ success: false, errors: [ { field: 'dashboards', errors: ['one or more dashboards not found'] } ]});
                         return;
