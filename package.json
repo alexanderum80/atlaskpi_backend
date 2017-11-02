@@ -1,6 +1,6 @@
 {
-  "name": "nodejs-typescript",
-  "version": "0.5.1",
+  "name": "atlaskpi-backend",
+  "version": "0.5.8",
   "description": "",
   "main": "index.ts",
   "scripts": {
