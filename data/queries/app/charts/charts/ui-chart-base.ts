@@ -441,13 +441,13 @@ export class UIChartBase {
 
             if (metadata.frequency !== 4) {
                 if (this.futureTarget) {
-                    filterActiveTargets = target.filter((targ) => {
+                    filterActiveTargets = filterActiveTargets.filter((targ) => {
                         let futureDate = new Date(targ.datepicker);
                         let endDate = new Date(moment().endOf('year').toDate());
                         return endDate < futureDate;
                     });
                 } else {
-                    filterActiveTargets = target.filter((targ) => {
+                    filterActiveTargets = filterActiveTargets.filter((targ) => {
                         let futureDate = new Date(targ.datepicker);
                         let endDate = new Date(moment().endOf('year').toDate());
                         return endDate > futureDate;
