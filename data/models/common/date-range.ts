@@ -79,8 +79,8 @@ export function parsePredifinedDate(textDate: string): IDateRange {
             };
         case PredefinedDateRanges.last30Days:
             return {
-                from: moment().startOf('month').toDate(),
-                to: moment().endOf('month').toDate()
+                from: moment().subtract(30, 'day').toDate(),
+                to: moment().toDate()
             };
         case PredefinedDateRanges.lastMonth:
             return {

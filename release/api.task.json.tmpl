@@ -1,0 +1,59 @@
+[{
+    "dnsServers": [
+        "8.8.8.8",
+        "8.8.4.4"
+    ],
+    "portMappings": [{
+        "hostPort": 83,
+        "containerPort": 9091,
+        "protocol": "tcp"
+    }],
+    "entryPoint": [
+        "node",
+        "index.js"
+    ],
+    "name": "api-container",
+    "environment": [{
+            "name": "AKPI_APP_SUBDOMAIN",
+            "value": "bi.atlaskpi.com"
+        },
+        {
+            "name": "AKPI_MASTER_DB_URI",
+            "value": "mongodb://atlas:yA22wflgDf9dZluW@production-shard-00-00-zozly.mongodb.net:27017,production-shard-00-01-zozly.mongodb.net:27017,production-shard-00-02-zozly.mongodb.net:27017/master?ssl=true&replicaSet=Production-shard-0&authSource=admin"
+        },
+        {
+            "name": "AKPI_MONGODB_API_KEY",
+            "value": "16626d64-e21d-4208-b9b0-02a07020e6b7"
+        },
+        {
+            "name": "AKPI_MONGODB_API_URI",
+            "value": "https://cloud.mongodb.com/api/atlas/v1.0/groups/598d2bdd4e658123873e3c98/databaseUsers"
+        },
+        {
+            "name": "AKPI_MONGODB_API_USERNAME",
+            "value": "orlando@atlaskpi.com"
+        },
+        {
+            "name": "AKPI_MONGODB_GROUP_ID",
+            "value": "598d2bdd4e658123873e3c98"
+        },
+        {
+            "name": "AKPI_NEW_ACCOUNT_DB_URI_FORMAT",
+            "value": "mongodb://\{{username}}:\{{password}}@production-shard-00-00-zozly.mongodb.net:27017,production-shard-00-01-zozly.mongodb.net:27017,production-shard-00-02-zozly.mongodb.net:27017/{{database}}?ssl=true&replicaSet=Production-shard-0&authSource=admin"
+        },
+        {
+            "name": "AKPI_TOKEN_EXPIRATION",
+            "value": "10 d"
+        },
+        {
+            "name": "AKPI_TOKEN_SECRET",
+            "value": "E12CF3551A239BB5EC3F38E848B6F"
+        }
+    ],
+    "workingDirectory": "/usr/src/app",
+    "image": "288812438107.dkr.ecr.us-east-1.amazonaws.com/webapp-backend:{{tag}}",
+    "command": [],
+    "cpu": 150,
+    "memory": 128,
+    "essential": true
+}]

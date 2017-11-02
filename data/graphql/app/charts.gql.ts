@@ -34,6 +34,7 @@ export const chartsGql: GraphqlDefinition = {
             input ChartAttributesInput {
                 title: String!
                 subtitle: String
+                group: String
                 kpis: [String]
                 dateRange: [ChartDateRangeInput]
                 frequency: String

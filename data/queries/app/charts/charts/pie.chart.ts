@@ -21,17 +21,21 @@ import {
 } from './';
 import * as Handlebars from 'handlebars';
 
-const basicDefinition = {
-    'plotOptions': {
-        'pie': {
-            'dataLabels': {
-                'enabled': true
-            }
-        }
-    }
-};
+// const basicDefinition = {
+//     'plotOptions': {
+//         'pie': {
+//             'dataLabels': {
+//                 'enabled': true
+//             }
+//         }
+//     }
+// };
 
 export class PieChart extends UIChartBase implements IUIChart {
+
+    protected basicDefinition = {
+        chart: { type: 'pie' }
+    };
 
     constructor(chart: IChart, frequencyHelper: FrequencyHelper) {
         super(chart, frequencyHelper);
@@ -41,7 +45,7 @@ export class PieChart extends UIChartBase implements IUIChart {
         const that = this;
 
         return this.processChartData(kpi, metadata, target).then(() => {
-            return that.buildDefinition(basicDefinition, target);
+            return that.buildDefinition(this.basicDefinition, target);
         });
     }
 

@@ -12,15 +12,16 @@ export class DeleteAppointmentMutation extends MutationBase<IMutationResponse> {
             super(identity);
         }
 
-    run(data): Promise<IMutationResponse> {
+    run(data: { id: string }): Promise<IMutationResponse> {
         const that = this;
 
         return new Promise<IMutationResponse>((resolve, reject) => {
-           that._AppointmentModel.deleteAppointment(data._id).then(appointment => {
+           that._AppointmentModel.deleteAppointment(data.id).then(appointment => {
                 resolve({
                     success: appointment !== null,
                     errors: appointment !== null ? [] : [{ field: 'general', errors: ['Apoointment not found'] }]
                 });
+                return;
            }).catch(err => {
                 resolve({
                     success: false,
@@ -31,6 +32,7 @@ export class DeleteAppointmentMutation extends MutationBase<IMutationResponse> {
                         }
                     ]
                 });
+                return;
            });
         });
     }

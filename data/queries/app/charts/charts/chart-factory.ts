@@ -10,6 +10,7 @@ import {
     ColumnChart,
     DonutChart,
     LineChart,
+    SPLineChart,
     PieChart
 } from '.';
 
@@ -28,6 +29,8 @@ export class ChartFactory {
                 return new DonutChart(chart, new FrequencyHelper());
             case ChartType.Line:
                 return new LineChart(chart, new FrequencyHelper());
+            case ChartType.Spline:
+                return new SPLineChart(chart, new FrequencyHelper());
             case ChartType.Pie:
                 return new PieChart(chart, new FrequencyHelper());
             default:

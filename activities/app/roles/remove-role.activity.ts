@@ -6,7 +6,6 @@ export const removeRoleActivity: IActivity = {
     may: 'remove-role',
     when(request: ExtendedRequest, cb: (err: any, authorized: boolean) => void) {
         const findAdmin = request.user.roles.find(role => {
-            console.log(role._id);
             return (role.name === 'admin') && (role._id.toString() === request.body.variables.id);
         });
         const isAdmin = findAdmin === undefined ? BasicRoleChecker.hasPermission(request.user, 'Manage Access Levels', 'Users') : false;

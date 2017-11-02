@@ -20,7 +20,7 @@ import {
     UIChartBase
 } from './';
 
-// const basicDefinition = { 'chart'    : { 'type': 'line', 'inverted' : false },
+// const basicDefinition = { 'chart'    : { 'type': 'spline', 'inverted' : false },
 //   'plotOptions': { 'series': { 'lineWidth': 4 }, 'line': { 'dataLabels': { 'enabled': false } } },
 //   'yAxis'    : { 'plotLines' : [ { 'value' : 0,
 //                                    'width' : 1,
@@ -31,10 +31,10 @@ import {
 //                  'borderWidth'   : 0 }
 // };
 
-export class LineChart extends UIChartBase implements IUIChart {
+export class SPLineChart extends UIChartBase implements IUIChart {
 
     protected basicDefinition = {
-        chart: { type: 'line' },
+        chart: { type: 'spline' },
         plotOptions: { series: { lineWidth: 5 } }
     };
 
