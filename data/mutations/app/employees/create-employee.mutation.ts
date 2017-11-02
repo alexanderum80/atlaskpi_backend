@@ -16,7 +16,7 @@ export class CreateEmployeeMutation extends MutationBase<IMutationResponse> {
         const that = this;
 
         return new Promise<IMutationResponse>((resolve, reject) => {
-           that._EmployeeModel.createNew(data.employeeInput)
+           that._EmployeeModel.createNew(data.employeeAttributes)
            .then(employee => {
                 resolve({
                     success: true,
