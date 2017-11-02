@@ -2,6 +2,7 @@ import { IMutationResponse } from '../../';
 import { IChartDateRange, IPagedQueryResult, IPaginationDetails, IQueryResponse } from '../../common';
 import * as mongoose from 'mongoose';
 import * as Promise from 'bluebird';
+import { IChartDocument } from '../charts';
 
 export enum KPITypeEnum {
     Simple,
@@ -80,5 +81,5 @@ export interface IKPIModel extends mongoose.Model<IKPIDocument> {
      /**
      * Remove a KPI by its id
      */
-    removeKPI(id: string): Promise<IMutationResponse>;
+    removeKPI(id: string, chartExist?: IChartDocument[]): Promise<IMutationResponse>;
 }

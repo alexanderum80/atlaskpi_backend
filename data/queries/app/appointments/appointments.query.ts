@@ -8,7 +8,7 @@ import { IAppointmentDocument, IAppointmentModel } from '../../../models/app/app
 export class AppointmentsQuery {
     constructor(public identity: IIdentity, private _IAppointmentModel: IAppointmentModel) {}
 
-    run(data: any): Promise<IAppointmentDocument[]> {
-        return this._IAppointmentModel.appointments();
+    run(data: { start: string, end: string }): Promise<IAppointmentDocument[]> {
+        return this._IAppointmentModel.appointments(data.start, data.end);
     }
 }

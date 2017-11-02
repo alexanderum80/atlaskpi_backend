@@ -28,7 +28,7 @@ export class UserForgotPasswordNotification implements IEmailNotifier {
             dataSource.fullName = user.username;
         } else {
             dataSource.fullName = `${user.profile.firstName} ${user.profile.lastName}`;
-        };
+        }
 
         dataSource.host = this._data.hostname.split('.')[0] || this._data.hostname;
         dataSource.subdomain = this._config.subdomain;

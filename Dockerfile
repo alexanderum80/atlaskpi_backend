@@ -12,7 +12,7 @@ RUN apt-get install -y python-pip python-dev build-essential virtualenv
 RUN virtualenv myvirtualenv
 RUN . myvirtualenv/bin/activate
 # RUN pip install --upgrade pip
-RUN pip install -e git+https://github.com/mycroftai/adapt#egg=adapt-parser
+RUN pip install -e git+https://github.com/mycroftai/adapt#egg=adapt-parser --exists-action w
 RUN npm install
 
 
