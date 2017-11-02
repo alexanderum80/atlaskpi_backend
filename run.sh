@@ -43,6 +43,6 @@ docker run \
 -e AKPI_NEW_ACCOUNT_DB_URI_FORMAT="mongodb://{{username}}:{{password}}@production-shard-00-00-zozly.mongodb.net:27017,production-shard-00-01-zozly.mongodb.net:27017,production-shard-00-02-zozly.mongodb.net:27017/{{database}}?ssl=true&replicaSet=Production-shard-0&authSource=admin" \
 -e AKPI_TOKEN_EXPIRATION="10 d" \
 -e AKPI_TOKEN_SECRET="E12CF3551A239BB5EC3F38E848B6F" \
--p 80:9091 3123fd39bf88
+-p 9091:9091 7c816d482382
 
 
