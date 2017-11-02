@@ -435,26 +435,27 @@ export class UIChartBase {
         }
 
         if (target.length) {
-            let chartTargets: ITargetDocument[];
+            let filterActiveTargets = target.filter(targ => {
+                return targ.active !== false;
+            });
 
             if (metadata.frequency !== 4) {
                 if (this.futureTarget) {
-                    chartTargets = target.filter((targ) => {
+                    filterActiveTargets = target.filter((targ) => {
                         let futureDate = new Date(targ.datepicker);
                         let endDate = new Date(moment().endOf('year').toDate());
                         return endDate < futureDate;
                     });
                 } else {
-                    chartTargets = target.filter((targ) => {
+                    filterActiveTargets = target.filter((targ) => {
                         let futureDate = new Date(targ.datepicker);
                         let endDate = new Date(moment().endOf('year').toDate());
                         return endDate > futureDate;
                     });
                 }
             }
-            chartTargets = chartTargets ? chartTargets : target;
 
-            this.targetData = _.map(chartTargets, (v, k) => {
+            this.targetData = _.map(filterActiveTargets, (v, k) => {
                 return (<any>v).stackName ? {
                     _id: {
                         frequency: TargetService.formatFrequency(metadata.frequency, v.datepicker),
