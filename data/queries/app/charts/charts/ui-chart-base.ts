@@ -135,6 +135,7 @@ export class UIChartBase {
             that.series = that._createSeries(data, metadata, that.categories, that.groupings);
 
             that._injectTargets(that.targetData, metadata, that.categories, that.groupings, that.series);
+            console.log(JSON.stringify( that.series));
 
             return;
         }).catch(e => e );
@@ -433,14 +434,11 @@ export class UIChartBase {
                 return v !== 'frequency';
             });
         }
-        let filterActiveTargets = [];
 
         if (target.length) {
-            target.forEach(t => {
-                if (t.active === true) {
-                    filterActiveTargets.push(t);
-                }
-            })
+            let filterActiveTargets = target.filter(t => {
+                return t.active !== false;
+            });
 
             if (metadata.frequency !== 4) {
                 if (this.futureTarget) {
