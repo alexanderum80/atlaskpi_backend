@@ -16,7 +16,7 @@ export class UpdateEmployeeMutation extends MutationBase<IMutationResponse> {
         const that = this;
 
         return new Promise<IMutationResponse>((resolve, reject) => {
-           that._EmployeeModel.updateEmployee(data._id, data.employeeInput).then(employee => {
+           that._EmployeeModel.updateEmployee(data._id, data.employeeAttributes).then(employee => {
                 resolve({
                     success: true,
                     entity: employee

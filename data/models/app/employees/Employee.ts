@@ -1,4 +1,3 @@
-import { IEmployeeInput } from './index';
 import { Address, IAddress, IEmploymentInfo, EmploymentInfo } from '../../common';
 import { IEmployeeModel, IEmployeeDocument, IEmployeeInput } from './IEmployee';
 import * as mongoose from 'mongoose';
