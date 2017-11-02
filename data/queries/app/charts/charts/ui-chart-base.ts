@@ -433,11 +433,14 @@ export class UIChartBase {
                 return v !== 'frequency';
             });
         }
+        let filterActiveTargets = [];
 
         if (target.length) {
-            let filterActiveTargets = target.filter(targ => {
-                return targ.active !== false;
-            });
+            target.forEach(t => {
+                if (t.active === true) {
+                    filterActiveTargets.push(t);
+                }
+            })
 
             if (metadata.frequency !== 4) {
                 if (this.futureTarget) {
