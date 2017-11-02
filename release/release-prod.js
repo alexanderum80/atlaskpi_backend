@@ -36,8 +36,10 @@ exports.release = function(version) {
       ]).then(function (answers) {
         // console.log(JSON.stringify(answers, null, '  '));
         const selectedVersion = parseSelectedVersion(answers.releaseType);
+        const releaseType = answers.releaseType.split('(')[0].trim().toLowerCase();
+
         applyGitChanges(answers.git, selectedVersion);
-        updatePackageJson(selectedVersion);
+        changePackageVersion(releaseType);
         buildApp(selectedVersion);
         dockerizeApp(selectedVersion);
         uploadAppToEC2(selectedVersion);
@@ -69,10 +71,10 @@ function parseVersion(version) {
     };
 }
 
-function updatePackageJson(version) {
-    // cat package.json | json -e 'this.version = "0.5.5"' > package.json
-    const packageJsonPath = __dirname + '/../package.json';
-    // execSync('cat ' + packageJsonPath + ' | json -e \'this.version = \"' + version + '\"\' > ' + packageJsonPath);
+function changePackageVersion(releaseType) {
+    run('npm version ' + releaseType);
+    // push tag to the server
+    run('git push origin v' + version);
 }
 
 function parseSelectedVersion(releaseType) {
@@ -80,9 +82,9 @@ function parseSelectedVersion(releaseType) {
 }
 
 function applyGitChanges(gitAnswer, version) {
-    log('applying git changes');
-
     if (gitAnswer.toLowerCase() !== 'yes') {
+        log('applying git changes');
+
         run('git add .');
         run('git commit -m "release ' + version + '"');
         run('git push');
@@ -90,7 +92,7 @@ function applyGitChanges(gitAnswer, version) {
 
     // tag version and push it
     // run('git tag -a v' + version  + ' -m "version release ' + version + '"');
-    run('git push origin v' + version);
+    // run('git push origin v' + version);
 }
 
 function buildApp(version) {
@@ -149,5 +151,5 @@ function updateClusterService(task) {
 }
 
 
-updatePackageJson('0.5.5');
+// changePackageVersion('0.5.5');
     
