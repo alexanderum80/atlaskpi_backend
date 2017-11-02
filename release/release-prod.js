@@ -36,8 +36,8 @@ exports.release = function(version) {
       ]).then(function (answers) {
         // console.log(JSON.stringify(answers, null, '  '));
         const selectedVersion = parseSelectedVersion(answers.releaseType);
-        updatePackageJson(selectedVersion);
         applyGitChanges(answers.git, selectedVersion);
+        updatePackageJson(selectedVersion);
         buildApp(selectedVersion);
         dockerizeApp(selectedVersion);
         uploadAppToEC2(selectedVersion);
@@ -89,7 +89,7 @@ function applyGitChanges(gitAnswer, version) {
     }
 
     // tag version and push it
-    run('git tag -a v' + version  + ' -m "version release ' + version + '"');
+    // run('git tag -a v' + version  + ' -m "version release ' + version + '"');
     run('git push origin v' + version);
 }
 
