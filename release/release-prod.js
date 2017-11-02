@@ -36,6 +36,7 @@ exports.release = function(version) {
       ]).then(function (answers) {
         // console.log(JSON.stringify(answers, null, '  '));
         const selectedVersion = parseSelectedVersion(answers.releaseType);
+        updatePackageJson(selectedVersion);
         applyGitChanges(answers.git, selectedVersion);
         buildApp(selectedVersion);
         dockerizeApp(selectedVersion);
@@ -66,6 +67,12 @@ function parseVersion(version) {
         minor: semver.inc(version, 'minor'),
         mayor: semver.inc(version, 'major')
     };
+}
+
+function updatePackageJson(version) {
+    // cat package.json | json -e 'this.version = "0.5.5"' > package.json
+    const packageJsonPath = __dirname + '/../package.json';
+    // execSync('cat ' + packageJsonPath + ' | json -e \'this.version = \"' + version + '\"\' > ' + packageJsonPath);
 }
 
 function parseSelectedVersion(releaseType) {
@@ -108,7 +115,8 @@ function uploadAppToEC2(version) {
     }
 
     log('uploading app to ec2 ...');
-    run('aws ecr get-login --no-include-email --region us-east-1 | source /dev/stdin');
+    const acrLogin = execSync('aws ecr get-login --no-include-email --region us-east-1');
+    run(acrLogin);
     run('docker push 288812438107.dkr.ecr.us-east-1.amazonaws.com/webapp-backend:' + version);
 }
 
@@ -139,3 +147,7 @@ function updateClusterService(task) {
 
     run('aws ecs update-service --cluster api-cluster --desired-count 1 --service backend --task-definition ' + taskDefinition);
 }
+
+
+updatePackageJson('0.5.5');
+    
