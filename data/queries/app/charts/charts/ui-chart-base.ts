@@ -164,7 +164,6 @@ export class UIChartBase {
 
         definition.title = { text: `${this.chart.title} (${dateRangeText})` };
         definition.subtitle = { text: this.chart.subtitle };
-
         definition.series = this.series;
         this.chart.targetList = targetList;
         this.chart.futureTarget = this.futureTarget;
@@ -174,6 +173,19 @@ export class UIChartBase {
         }
 
         definition.xAxis.categories = this.categories ? this.categories.map(c => c.name) : [];
+
+        // disable animations
+        definition.chart.animation = false;
+
+        if (!definition.plotOptions) {
+            definition.plotOptions = {};
+        }
+
+        if (!definition.plotOptions.series) {
+            definition.plotOptions.series = {};
+        }
+
+        definition.plotOptions.series.animation = false;
 
         return definition;
     }
@@ -665,7 +677,7 @@ export class UIChartBase {
             const newChart = _.cloneDeep(this);
             const newMetadata = _.cloneDeep(metadata);
             newMetadata.dateRange = [ { custom: comparisonDateRange } ];
-            chartPromises[metadata.comparison[index]] = newChart.getDefinitionForDateRange(kpi, newMetadata, []);
+            const chartDefinition = newChart.getDefinitionForDateRange(kpi, newMetadata, []);
         });
 
         return Promise.props(chartPromises).then(output => {

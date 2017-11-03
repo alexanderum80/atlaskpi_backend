@@ -79,6 +79,7 @@
     "graphql-server-express": "^1.2.0",
     "graphql-tools": "^2.6.0",
     "handlebars": "^4.0.6",
+    "highcharts-export-server": "^2.0.2",
     "i18n": "^0.8.3",
     "jsep": "^0.3.2",
     "jsonwebtoken": "^7.1.9",
