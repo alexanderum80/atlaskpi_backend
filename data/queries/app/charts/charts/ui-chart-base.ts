@@ -172,6 +172,7 @@ export class UIChartBase {
         if (!definition.xAxis) {
             definition.xAxis = {};
         }
+        
 
         definition.xAxis.categories = this.categories ? this.categories.map(c => c.name) : [];
 
