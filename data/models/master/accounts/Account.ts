@@ -112,13 +112,13 @@ accountSchema.statics.createNewAccount = function(ip: string, clientId: string, 
                         .then(() => {
                             return seedApp(newAccountContext);
                         })
-                        .then(() => {
-                            // if (account.seedData) {
-                            return importSpreadSheet(newAccountContext);
-                            // } else {
-                                // return Promise.resolve(true);
-                            // }
-                        })
+                        // .then(() => {
+                        //     // if (account.seedData) {
+                        //     return importSpreadSheet(newAccountContext);
+                        //     // } else {
+                        //         // return Promise.resolve(true);
+                        //     // }
+                        // })
                         .then(() => {
                             return generateFirstAccountToken(that, newAccountContext, account, firstUser, ip, clientId, clientDetails).then(token => {
                                 newAccount.subdomain = token.subdomain;
