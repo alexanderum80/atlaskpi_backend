@@ -174,19 +174,6 @@ export class UIChartBase {
 
         definition.xAxis.categories = this.categories ? this.categories.map(c => c.name) : [];
 
-        // disable animations
-        definition.chart.animation = false;
-
-        if (!definition.plotOptions) {
-            definition.plotOptions = {};
-        }
-
-        if (!definition.plotOptions.series) {
-            definition.plotOptions.series = {};
-        }
-
-        definition.plotOptions.series.animation = false;
-
         return definition;
     }
 
