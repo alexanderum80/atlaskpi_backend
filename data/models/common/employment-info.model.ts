@@ -1,7 +1,7 @@
 export interface IEmploymentInfo {
     location: String;
     bussinessUnit: String;
-    departament: String;
+    department: String;
     position: String;
     startDate: Date;
     typeOfEmployment: String;
@@ -12,7 +12,7 @@ export interface IEmploymentInfo {
 export const EmploymentInfo = {
     location: {type: String},
     bussinessUnit: {type: String},
-    departament:{type: String},
+    department:{type: String},
     position: {type: String},
     startDate: {type: Date},
     typeOfEmployment: {type: String},

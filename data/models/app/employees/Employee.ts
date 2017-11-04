@@ -31,7 +31,7 @@ EmployeeSchema.statics.createNew = function(employeeInput: IEmployeeInput): Prom
         that.create({
             firstName: employeeInput.firstName,
             middleName: employeeInput.middleName,
-            lastname: employeeInput.lastName,
+            lastName: employeeInput.lastName,
             email: employeeInput.email,
             primaryNumber: employeeInput.primaryNumber,
             dob: employeeInput.dob,
@@ -84,11 +84,8 @@ EmployeeSchema.statics.deleteEmployee = function(_id: string): Promise<IEmployee
                 resolve(employee);
             }).catch(err => {
                 logger.error(err);
-                reject('There was an error updating the employee');
+                reject('There was an error removing the employee');
             });
-
-        // });
-
     });
 };
 
