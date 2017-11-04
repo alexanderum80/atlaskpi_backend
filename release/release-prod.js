@@ -36,7 +36,10 @@ exports.release = function(version) {
       ]).then(function (answers) {
         // console.log(JSON.stringify(answers, null, '  '));
         const selectedVersion = parseSelectedVersion(answers.releaseType);
+        const releaseType = answers.releaseType.split('(')[0].trim().toLowerCase();
+
         applyGitChanges(answers.git, selectedVersion);
+        changePackageVersion(releaseType, selectedVersion);
         buildApp(selectedVersion);
         dockerizeApp(selectedVersion);
         uploadAppToEC2(selectedVersion);
@@ -68,22 +71,30 @@ function parseVersion(version) {
     };
 }
 
+function changePackageVersion(releaseType, version) {
+    log('Updating application version and pushing git tag ...');
+    
+    run('npm version ' + releaseType);
+    // push tag to the server
+    run('git push origin v' + version);
+}
+
 function parseSelectedVersion(releaseType) {
     return releaseType.split('(')[1].split(')')[0].trim();
 }
 
 function applyGitChanges(gitAnswer, version) {
-    log('applying git changes');
-
     if (gitAnswer.toLowerCase() !== 'yes') {
+        log('applying git changes');
+
         run('git add .');
         run('git commit -m "release ' + version + '"');
         run('git push');
     }
 
     // tag version and push it
-    run('git tag -a v' + version  + ' -m "version release ' + version + '"');
-    run('git push origin v' + version);
+    // run('git tag -a v' + version  + ' -m "version release ' + version + '"');
+    // run('git push origin v' + version);
 }
 
 function buildApp(version) {
@@ -108,7 +119,8 @@ function uploadAppToEC2(version) {
     }
 
     log('uploading app to ec2 ...');
-    run('aws ecr get-login --no-include-email --region us-east-1 | source /dev/stdin');
+    const acrLogin = execSync('aws ecr get-login --no-include-email --region us-east-1');
+    run(acrLogin);
     run('docker push 288812438107.dkr.ecr.us-east-1.amazonaws.com/webapp-backend:' + version);
 }
 
@@ -139,3 +151,7 @@ function updateClusterService(task) {
 
     run('aws ecs update-service --cluster api-cluster --desired-count 1 --service backend --task-definition ' + taskDefinition);
 }
+
+
+// changePackageVersion('0.5.5');
+    

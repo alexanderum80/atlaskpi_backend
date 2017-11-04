@@ -164,7 +164,6 @@ export class UIChartBase {
 
         definition.title = { text: `${this.chart.title} (${dateRangeText})` };
         definition.subtitle = { text: this.chart.subtitle };
-
         definition.series = this.series;
         this.chart.targetList = targetList;
         this.chart.futureTarget = this.futureTarget;
@@ -665,7 +664,7 @@ export class UIChartBase {
             const newChart = _.cloneDeep(this);
             const newMetadata = _.cloneDeep(metadata);
             newMetadata.dateRange = [ { custom: comparisonDateRange } ];
-            chartPromises[metadata.comparison[index]] = newChart.getDefinitionForDateRange(kpi, newMetadata, []);
+            const chartDefinition = newChart.getDefinitionForDateRange(kpi, newMetadata, []);
         });
 
         return Promise.props(chartPromises).then(output => {

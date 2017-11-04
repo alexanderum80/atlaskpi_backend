@@ -112,13 +112,13 @@ accountSchema.statics.createNewAccount = function(ip: string, clientId: string, 
                         .then(() => {
                             return seedApp(newAccountContext);
                         })
-                        .then(() => {
-                            // if (account.seedData) {
-                            return importSpreadSheet(newAccountContext);
-                            // } else {
-                                // return Promise.resolve(true);
-                            // }
-                        })
+                        // .then(() => {
+                        //     // if (account.seedData) {
+                        //     return importSpreadSheet(newAccountContext);
+                        //     // } else {
+                        //         // return Promise.resolve(true);
+                        //     // }
+                        // })
                         .then(() => {
                             return generateFirstAccountToken(that, newAccountContext, account, firstUser, ip, clientId, clientDetails).then(token => {
                                 newAccount.subdomain = token.subdomain;
@@ -306,6 +306,10 @@ function createAdminUser(accountContext: IAppModels, databaseName: string, first
     return new Promise<boolean>((resolve, reject) => {
         let notifier = new EnrollmentNotification(config, { hostname: databaseName });
         accountContext.User.createUser(firstUser, notifier).then((response) => {
+            if (!response) {
+                return reject('Could not create the admin user');
+            }
+
             (<IUserDocument>response.entity).addRole('owner', (err, role) => {
                 if (err) {
                     reject(err);

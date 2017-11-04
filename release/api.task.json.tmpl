@@ -39,7 +39,7 @@
         },
         {
             "name": "AKPI_NEW_ACCOUNT_DB_URI_FORMAT",
-            "value": "mongodb://\{{username}}:\{{password}}@production-shard-00-00-zozly.mongodb.net:27017,production-shard-00-01-zozly.mongodb.net:27017,production-shard-00-02-zozly.mongodb.net:27017/{{database}}?ssl=true&replicaSet=Production-shard-0&authSource=admin"
+            "value": "mongodb://\{{username}}:\{{password}}@production-shard-00-00-zozly.mongodb.net:27017,production-shard-00-01-zozly.mongodb.net:27017,production-shard-00-02-zozly.mongodb.net:27017/\{{database}}?ssl=true&replicaSet=Production-shard-0&authSource=admin"
         },
         {
             "name": "AKPI_TOKEN_EXPIRATION",
@@ -53,7 +53,7 @@
     "workingDirectory": "/usr/src/app",
     "image": "288812438107.dkr.ecr.us-east-1.amazonaws.com/webapp-backend:{{tag}}",
     "command": [],
-    "cpu": 150,
-    "memory": 128,
+    "cpu": 350,
+    "memoryReservation": 128,
     "essential": true
 }]
