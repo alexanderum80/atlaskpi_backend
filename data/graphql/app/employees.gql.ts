@@ -63,7 +63,7 @@ export const employeesGql: GraphqlDefinition = {
             type EmploymentInfo {
                 location: String
                 bussinessUnit: String
-                departament: String
+                department: String
                 position: String
                 startDate: String
                 typeOfEmployment: String
@@ -83,7 +83,7 @@ export const employeesGql: GraphqlDefinition = {
             input EmploymentInfoInput {
                 location: String
                 bussinessUnit: String
-                departament: String
+                department: String
                 position: String
                 startDate: String
                 typeOfEmployment: String
