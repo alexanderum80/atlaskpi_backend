@@ -12,6 +12,8 @@ import { ISurveyModel } from './surveys/ISurvey';
 // import { IProductModel } from './products';
 // import { IRevenueModel } from './revenue';
 // import { IExpenseModel } from './expenses';
+
+import { ILocationModel } from './location';
 import { IUserModel } from './users';
 import { IKPIModel } from './kpis';
 import { IBusinessUnitModel } from './business-units';
@@ -51,4 +53,5 @@ export interface IAppModels {
     AccessModel: IAccessModel;
     Target: ITargetModel;
     SlideshowModel: ISlideshowModel;
+    LocationModel: ILocationModel;
 }

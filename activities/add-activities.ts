@@ -16,6 +16,12 @@ import { deleteChartActivity } from './app/charts/delete-chart.activity';
 import { listChartsActivity } from './app/charts/list-charts.activity';
 import { createChartActivity } from './app/charts/create-chart.activity';
 import { getKpisActivity } from './app/kpis/get-kpis.activity';
+
+import { deleteLocationActivity } from './app/location/delete-location.activity';
+import { updateLocationActivity } from './app/location/update-location.activity';
+import { createLocationActivity} from './app/location/create-location.activity';
+import { listLocationsActivity } from './app/location/list-locations.activity';
+
 import {
     createAccountActivity,
     getAccountActivity,
@@ -206,7 +212,12 @@ export function addActivities() {
         SlideshowByGroupActivity,
 
         // date ranges
-        getDateRangesActivity
+        getDateRangesActivity,
 
+        // locations
+        deleteLocationActivity,
+        updateLocationActivity,
+        createLocationActivity,
+        listLocationsActivity
     ]);
 }
