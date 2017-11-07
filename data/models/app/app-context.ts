@@ -13,7 +13,7 @@ import { IAppModels } from './app-models';
 
 import { getCustomerModel } from './customers';
 import { getEmployeeModel } from './employees';
-import { getLocationModel } from './locations';
+// import { getLocationModel } from './locations';
 import { getProductModel } from './products';
 import { getRevenueModel } from './revenue';
 import { getUserModel } from './users';
@@ -25,6 +25,7 @@ import { getChartModel } from './charts';
 import { getDashboardModel } from './dashboards';
 import { getWorkLogModel } from './work-log/WorkLog';
 import { getLogModel } from './log';
+import { getLocationModel } from './location';
 
 import * as winston from 'winston';
 
@@ -58,7 +59,8 @@ export function getContext(dbUri: string): Promise<IAppModels> {
                 LogModel: getLogModel(m),
                 AccessModel: getAccessLogModel(m),
                 Target: getTargetModel(m),
-                SlideshowModel: getSlideshowModel(m)
+                SlideshowModel: getSlideshowModel(m),
+                LocationModel: getLocationModel(m)
             });
         }, (err) => reject(err));
     });
