@@ -11,6 +11,6 @@ export class FindAllUsersQuery extends QueryBase<IUserDocument[]> {
                 }
 
     run(data: any): Promise<IUserDocument[]> {
-        return this._IUserModel.findAllUsers(this.identity.username);
+        return this._IUserModel.findAllUsers(data.filter);
     }
 }

@@ -19,6 +19,7 @@ let TargetSchema = new Schema({
     amountBy: String,
     type: String,
     period: String,
+    active: Boolean,
     notify: NotifySchema,
     visible: [String],
     delete: Boolean,
