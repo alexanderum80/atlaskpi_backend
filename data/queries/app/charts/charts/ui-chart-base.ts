@@ -666,7 +666,7 @@ export class UIChartBase {
             const newChart = _.cloneDeep(this);
             const newMetadata = _.cloneDeep(metadata);
             newMetadata.dateRange = [ { custom: comparisonDateRange } ];
-            const chartDefinition = newChart.getDefinitionForDateRange(kpi, newMetadata, []);
+            chartPromises[metadata.comparison[index]] = newChart.getDefinitionForDateRange(kpi, newMetadata, []);
         });
 
         return Promise.props(chartPromises).then(output => {
