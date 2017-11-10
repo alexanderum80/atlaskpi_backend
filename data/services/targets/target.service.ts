@@ -1,3 +1,4 @@
+import { getGroupingMetadata } from '../../queries/app/charts/chart-grouping-map';
 import { IAppModels } from '../../models/app/app-models';
 import { IChartModel, IGetChartInput } from '../../models/app/charts/index';
 import { KpiFactory } from '../../queries/app/kpis/index';
@@ -42,16 +43,16 @@ export class TargetService {
                         true : false;
 
                     let kpi = KpiFactory.getInstance(chart.kpis[0], ctx);
-
+                    let groupings = getGroupingMetadata(chart, chart.groupings ? chart.groupings : []);
                     if (that.isStacked) {
-                        let options = {
+                        let optionsStack = {
                             filter: chart.filter,
-                            groupings: [chart.groupings[0] + '.name'],
+                            groupings: groupings,
                             stackName: data.stackName || null
                         };
 
                         if (data.period) {
-                            kpi.getTargetData([that.getDate(data.period)], options).then((response) => {
+                            kpi.getTargetData([that.getDate(data.period)], optionsStack).then((response) => {
                                 resolve(response);
                             }).catch((err) => {
                                 reject(err);
@@ -60,18 +61,36 @@ export class TargetService {
                             resolve([{ value: 0}]);
                         }
                     } else {
-                        let options = {
+
+                        let optionsNonStack = {
                             filter: chart.filter
                         };
-
-                        if (data.period) {
-                            kpi.getData([that.getDate(data.period)], options).then((response) => {
-                                resolve(response);
-                            }).catch((err) => {
-                                reject(err);
-                            });
-                        } else {
-                            resolve([{ value: 0}]);
+                        switch (data.nonStackName) {
+                            case 'all':
+                            case 'All':
+                                if (data.period) {
+                                    kpi.getData([that.getDate(data.period)], optionsNonStack).then((response) => {
+                                        resolve(response);
+                                    }).catch((err) => {
+                                        reject(err);
+                                    });
+                                } else {
+                                    resolve([{ value: 0}]);
+                                }
+                                break;
+                            default:
+                                if (data.period) {
+                                    optionsNonStack['stackName'] = data.nonStackName;
+                                    optionsNonStack['groupings'] = groupings;
+                                    kpi.getTargetData([that.getDate(data.period)], optionsNonStack).then((response) => {
+                                        resolve(response);
+                                    }).catch((err) => {
+                                        reject(err);
+                                    });
+                                } else {
+                                    resolve([{ value: 0}]);
+                                }
+                                break;
                         }
                     }
                 });
@@ -84,7 +103,8 @@ export class TargetService {
             this.periodData(data, ctx)
                 .then((response) => {
                     let dataAmount = parseFloat(data.amount);
-                    let responseValue = response[0].value;
+                    let findValue = response.find(r => r.value);
+                    let responseValue = findValue ? findValue.value : 0;
                     switch (data.vary) {
 
                         case 'fixed':

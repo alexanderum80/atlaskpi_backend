@@ -112,13 +112,13 @@ accountSchema.statics.createNewAccount = function(ip: string, clientId: string, 
                         .then(() => {
                             return seedApp(newAccountContext);
                         })
-                        .then(() => {
-                            // if (account.seedData) {
-                            return importSpreadSheet(newAccountContext);
-                            // } else {
-                                // return Promise.resolve(true);
-                            // }
-                        })
+                        // .then(() => {
+                        //     // if (account.seedData) {
+                        //     return importSpreadSheet(newAccountContext);
+                        //     // } else {
+                        //         // return Promise.resolve(true);
+                        //     // }
+                        // })
                         .then(() => {
                             return generateFirstAccountToken(that, newAccountContext, account, firstUser, ip, clientId, clientDetails).then(token => {
                                 newAccount.subdomain = token.subdomain;
@@ -234,7 +234,8 @@ accountSchema.methods.createAccountDbUser = function(accountDbUser: IAccountDBUs
 
     return new Promise<boolean>((resolve, reject) => {
         request.post(options, function(error, response, body) {
-            if (!error) {
+            if (!error || body.error) {
+                // winston.error('There was an error creating the database account', error || body.error);
                 console.log('User created...');
                 resolve(true);
             } else {
@@ -272,7 +273,7 @@ function createDbUserIfNeeded(account: IAccountDocument, dbUser): Promise<boolea
     return new Promise<boolean>((resolve, reject) => {
         // Create a db user if it's in production
         if (config.mongoDBAtlasCredentials && !IsNullOrWhiteSpace(config.mongoDBAtlasCredentials.api_key)) {
-            winston.debug('MongoDBAtlas api_key found, creating MongoDBAtlas user...');
+            winston.info('MongoDBAtlas api_key found, creating MongoDBAtlas user...');
             account.createAccountDbUser(dbUser)
                 .then((value) => resolve(value))
                 .catch((err) => reject(err));
@@ -305,6 +306,10 @@ function createAdminUser(accountContext: IAppModels, databaseName: string, first
     return new Promise<boolean>((resolve, reject) => {
         let notifier = new EnrollmentNotification(config, { hostname: databaseName });
         accountContext.User.createUser(firstUser, notifier).then((response) => {
+            if (!response) {
+                return reject('Could not create the admin user');
+            }
+
             (<IUserDocument>response.entity).addRole('owner', (err, role) => {
                 if (err) {
                     reject(err);

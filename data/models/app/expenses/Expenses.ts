@@ -1,5 +1,7 @@
-import { IExpenseModel } from './';
+import { parsePredifinedDate } from '../../common';
+import { IExpenseDocument, IExpenseModel } from './';
 import * as mongoose from 'mongoose';
+import * as logger from 'winston';
 
 const Schema = mongoose.Schema;
 
@@ -34,6 +36,23 @@ export const ExpenseSchema = new Schema({
 ExpenseSchema.index({ 'timestamp': 1 });
 ExpenseSchema.index({ 'timestamp': 1, 'businessUnit.name': 1 });
 ExpenseSchema.index({ 'timestamp': 1, 'expense.concept': 1 });
+
+ExpenseSchema.statics.findByPredefinedDateRange = function(predefinedDateRange: string): Promise<IExpenseDocument[]> {
+    const ExpenseModel = (<IExpenseModel>this);
+    const dateRange = parsePredifinedDate(predefinedDateRange);
+
+    return new Promise<IExpenseDocument[]>((resolve, reject) => {
+        ExpenseModel.find({ 'timestamp': { '$gte': dateRange.from, '$lte': dateRange.to } })
+        .then(expenses => {
+            resolve(expenses);
+        })
+        .catch(err => {
+            logger.error('There was an error retrieving expenses by predefined data range', err);
+            reject(err);
+        });
+    });
+};
+
 
 export function getExpenseModel(m: mongoose.Connection): IExpenseModel {
     return <IExpenseModel>m.model('Expense', ExpenseSchema, 'expenses');

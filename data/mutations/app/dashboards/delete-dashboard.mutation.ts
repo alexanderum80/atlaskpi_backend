@@ -20,7 +20,7 @@ export class DeleteDashboardMutation extends MutationBase<IMutationResponse> {
 
         // resolve kpis
         return new Promise<IMutationResponse>((resolve, reject) => {
-            that._dashboardModel.deleteDashboard(data._id)
+            that._dashboardModel.deleteDashboard(data.id)
             .then(dashboard => {
                     resolve({
                         success: true,
