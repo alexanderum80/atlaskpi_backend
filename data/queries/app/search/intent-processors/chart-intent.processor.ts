@@ -1,3 +1,4 @@
+import { IChartInput } from './../../../../models/app/charts/IChart';
 import { IKPI, IKPIDocument } from '../../../../models/app/kpis';
 import { IChart, IChartDocument } from '../../../../models/app/charts';
 import { GetChartQuery } from '../../charts';
@@ -7,11 +8,13 @@ import * as Promise from 'bluebird';
 import { ISearchResult } from '../search.query';
 
 const SalesKPI: IKPIDocument = <any>{
+    _id: '59c3bd0c3da88e92a1703fd6',
     code: 'Revenue',
     name: 'Revenue'
 };
 
 const ExpensesKPI: IKPIDocument = <any>{
+    _id: '59c3d0b33da88e92a1703fdd',
     code: 'Expenses',
     name: 'Expenses'
 };

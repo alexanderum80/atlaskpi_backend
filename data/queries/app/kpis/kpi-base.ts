@@ -63,7 +63,7 @@ export class KpiBase {
                 that._injectDataRange(dateRange, dateField);
             if (options.filter)
                 that._injectFilter(options.filter);
-            if (options.stackName && options.groupings)
+            if (options.stackName)
                 that._injectTargetStackFilter(options.groupings, options.stackName);
             if (options.frequency >= 0)
                 that._injectFrequency(options.frequency, dateField);

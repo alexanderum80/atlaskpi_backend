@@ -159,7 +159,7 @@ export const usersGql: GraphqlDefinition = {
             },
             users(root: any, args, ctx: IGraphqlContext) {
                 if (!ctx.req.appContext) {
-                    throw new Error('No app context available');
+                    return Promise.resolve(null);
                 }
 
                 let query = new SearchUsersQuery(ctx.req.identity, ctx.req.appContext.User);
@@ -167,7 +167,7 @@ export const usersGql: GraphqlDefinition = {
             },
             User(root: any, args, ctx: IGraphqlContext) {
                 if (!ctx.req.appContext) {
-                    throw new Error('No app context available');
+                    return Promise.resolve(null);
                 }
 
                 if (!ctx.req.identity || !ctx.req.appContext.User) { return null; }
@@ -176,7 +176,7 @@ export const usersGql: GraphqlDefinition = {
             },
             allUsers(root: any, args, ctx: IGraphqlContext) {
                 if (!ctx.req.appContext) {
-                    throw new Error('No app context available');
+                    return Promise.resolve(null);
                 }
 
                 let query = new FindAllUsersQuery(ctx.req.identity, ctx.req.appContext.User);
@@ -184,7 +184,7 @@ export const usersGql: GraphqlDefinition = {
             },
             isEnrollmentTokenValid(root: any, args, ctx: IGraphqlContext) {
                 if (!ctx.req.appContext) {
-                    throw new Error('No app context available');
+                    return Promise.resolve(null);
                 }
 
                 let query = new VerifyEnrollmentQuery(ctx.req.identity, ctx.req.appContext.User);
@@ -193,7 +193,7 @@ export const usersGql: GraphqlDefinition = {
         },
         Mutation: {
             createUser(root: any, args, ctx: IGraphqlContext) {
-                let notifier = new AccountCreatedNotification(ctx.config);
+                let notifier = new AccountCreatedNotification(ctx.config, { hostname: getRequestHostname(ctx.req)});
                 let mutation = new CreateUserMutation(ctx.req.identity, notifier, ctx.req.appContext.User);
                 return ctx.mutationBus.run<IMutationResponse>('create-user', ctx.req, mutation, args);
             },

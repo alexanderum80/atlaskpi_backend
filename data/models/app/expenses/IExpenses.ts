@@ -1,10 +1,10 @@
 import * as mongoose from 'mongoose';
 import { IIdName } from '../../common';
+import * as Promise from 'bluebird';
 
 export interface IExpenseLine {
     concept: string;
     amout: number;
-    timestamp: Date;
 }
 
 export interface IExpenseLocation {
@@ -12,9 +12,22 @@ export interface IExpenseLocation {
 }
 
 export interface IExpense {
-    expense:  IExpenseLine;
+    source: string;
+    externalId: string;
+    location: IIdName;
+    expense: IExpenseLine;
+    timestamp: Date;
+    businessUnit: {
+        name: string;
+    };
+    document: {
+        type: string; // invoice, bill, charge, etc
+        identifier: string
+    };
 }
 
-export interface IExpenseDocument extends mongoose.Document { }
+export interface IExpenseDocument extends IExpense, mongoose.Document { }
 
-export interface IExpenseModel extends mongoose.Model<IExpenseDocument> { }
+export interface IExpenseModel extends mongoose.Model<IExpenseDocument> {
+    findByPredefinedDateRange(predefinedDateRange: string): Promise<IExpenseDocument[]>;
+}
