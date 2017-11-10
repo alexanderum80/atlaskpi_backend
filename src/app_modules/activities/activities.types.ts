@@ -143,15 +143,28 @@ export class SalesAmount {
 }
 
 @type()
+export class ExpensesConcept {
+    @field({ type: GraphQLTypesMap.String })
+    concept: string;
+
+    @field({ type: GraphQLTypesMap.Float })
+    amount: number;
+
+}
+
+@type()
 export class ExpensesAmount {
     @field({ type: GraphQLTypesMap.String })
     _id: string;
+
+    @field({ type: ExpensesConcept, isArray: true })
+    expenses: ExpensesConcept[];
 
     @field({ type: GraphQLTypesMap.Int })
     count: number;
 
     @field({ type: GraphQLTypesMap.Float })
-    amount: number;
+    total: number;
 
     @field({ type: GraphQLTypesMap.String })
     employee: string;
