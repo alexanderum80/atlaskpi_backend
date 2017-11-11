@@ -28,6 +28,11 @@ export class CompositeKpi implements IKpiBase {
         return this._processExpression(exp);
     }
 
+    getTargetData(): Promise<any> {
+        const exp: jsep.IExpression = jsep(this._kpi.expression);
+        return this._processExpression(exp);
+    }
+
     private _processExpression(exp: jsep.IExpression): Promise<any> {
         switch (exp.type) {
             case ExpressionTreeTypes.binary:
