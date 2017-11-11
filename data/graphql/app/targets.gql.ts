@@ -21,6 +21,7 @@ export const targetGql: GraphqlDefinition = {
                 datepicker: String
                 vary: String
                 amount: String
+                active: Boolean
                 amountBy: String
                 type: String
                 period: String
@@ -46,6 +47,7 @@ export const targetGql: GraphqlDefinition = {
                 vary: String
                 amount: Float
                 amountBy: String
+                active: Boolean
                 target: Float
                 type: String
                 period: String

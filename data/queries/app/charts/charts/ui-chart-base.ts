@@ -135,6 +135,7 @@ export class UIChartBase {
             that.series = that._createSeries(data, metadata, that.categories, that.groupings);
 
             that._injectTargets(that.targetData, metadata, that.categories, that.groupings, that.series);
+            console.log(JSON.stringify( that.series));
 
             return;
         }).catch(e => e );
@@ -171,7 +172,6 @@ export class UIChartBase {
         if (!definition.xAxis) {
             definition.xAxis = {};
         }
-        
 
         definition.xAxis.categories = this.categories ? this.categories.map(c => c.name) : [];
 
@@ -435,26 +435,27 @@ export class UIChartBase {
         }
 
         if (target.length) {
-            let chartTargets: ITargetDocument[];
+            let filterActiveTargets = target.filter(t => {
+                return t.active !== false;
+            });
 
             if (metadata.frequency !== 4) {
                 if (this.futureTarget) {
-                    chartTargets = target.filter((targ) => {
+                    filterActiveTargets = filterActiveTargets.filter((targ) => {
                         let futureDate = new Date(targ.datepicker);
                         let endDate = new Date(moment().endOf('year').toDate());
                         return endDate < futureDate;
                     });
                 } else {
-                    chartTargets = target.filter((targ) => {
+                    filterActiveTargets = filterActiveTargets.filter((targ) => {
                         let futureDate = new Date(targ.datepicker);
                         let endDate = new Date(moment().endOf('year').toDate());
                         return endDate > futureDate;
                     });
                 }
             }
-            chartTargets = chartTargets ? chartTargets : target;
 
-            this.targetData = _.map(chartTargets, (v, k) => {
+            this.targetData = _.map(filterActiveTargets, (v, k) => {
                 return (<any>v).stackName ? {
                     _id: {
                         frequency: TargetService.formatFrequency(metadata.frequency, v.datepicker),
@@ -665,7 +666,7 @@ export class UIChartBase {
             const newChart = _.cloneDeep(this);
             const newMetadata = _.cloneDeep(metadata);
             newMetadata.dateRange = [ { custom: comparisonDateRange } ];
-            const chartDefinition = newChart.getDefinitionForDateRange(kpi, newMetadata, []);
+            chartPromises[metadata.comparison[index]] = newChart.getDefinitionForDateRange(kpi, newMetadata, []);
         });
 
         return Promise.props(chartPromises).then(output => {
