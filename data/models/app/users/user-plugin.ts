@@ -951,7 +951,8 @@ export function accountPlugin(schema: mongoose.Schema, options: any) {
     schema.statics.findAllUsers = function(filter: string): Promise<IUserDocument[]> {
         return new Promise<IUserDocument[]>((resolve, reject) => {
 
-            (<IUserModel>this).find()
+            if (filter) {
+            (<IUserModel>this).find({username: { $ne: filter } })
                 .populate('roles', '-_id, name')
                 .then((users) => {
                     if (users) {
@@ -962,6 +963,19 @@ export function accountPlugin(schema: mongoose.Schema, options: any) {
                 }).catch((err) => {
                     reject(err);
                 });
+            } else {
+                (<IUserModel>this).find({})
+                    .populate('roles', '-_id, name')
+                    .then((users) => {
+                        if (users) {
+                            resolve(users);
+                        } else {
+                            reject('Roles not found');
+                        }
+                    }).catch((err) => {
+                        reject(err);
+                    });
+            }
         });
     };
 

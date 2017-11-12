@@ -1,10 +1,13 @@
+import { IWidgetModel } from './widgets/IWidget';
 import { ISlideshowModel } from './slideshow/ISlideshow';
+import { IAppointmentModel } from './appointments/IAppointment';
 import { ITargetModel } from './targets/ITarget';
 import { IAccessModel } from './access-log/IAccessLog';
 import { IWorkLogModel } from './work-log/IWorkLog';
 import { IChartModel } from './charts';
 import { IInventoryModel } from './inventory/IInventory';
 import { ISurveyModel } from './surveys/ISurvey';
+import { IBusinessUnitModel } from './business-units/IBusinessUnit';
 // import { ICustomerModel } from './customers';
 // import { IEmployeeModel } from './employees';
 // import { IEmployeeAttendanceModel } from './employees-attendance';
@@ -16,7 +19,6 @@ import { ISurveyModel } from './surveys/ISurvey';
 import { ILocationModel } from './location';
 import { IUserModel } from './users';
 import { IKPIModel } from './kpis';
-import { IBusinessUnitModel } from './business-units';
 import { IChartFormatModel } from './chart-formats';
 import { ISaleModel } from './sales';
 import { IDashboardModel } from './dashboards';
@@ -54,4 +56,7 @@ export interface IAppModels {
     Target: ITargetModel;
     SlideshowModel: ISlideshowModel;
     LocationModel: ILocationModel;
+    AppointmentModel: IAppointmentModel;
+    Widget: IWidgetModel;
+    BusinessUnitModel: IBusinessUnitModel;
 }

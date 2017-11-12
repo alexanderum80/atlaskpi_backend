@@ -8,6 +8,7 @@ export * from './column.chart';
 export * from './donut.chart';
 export * from './line.chart';
 export * from './pie.chart';
+export * from './spline.chart';
 
 export * from './sample-definitions.chart';
 

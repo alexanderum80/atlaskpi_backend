@@ -8,6 +8,7 @@ import { IQuery } from '../..';
 import { IIdentity } from '../../../';
 import { IDashboard, IDashboardModel } from '../../../models';
 import * as _ from 'lodash';
+import * as logger from 'winston';
 
 export class GetDashboardsQuery extends QueryBase<IDashboard[]> {
 
@@ -20,6 +21,11 @@ export class GetDashboardsQuery extends QueryBase<IDashboard[]> {
 
     run(data: { id: string, dateRange: { from: string, to: string}, frequency: string }): Promise<IDashboard[]> {
         const that = this;
+
+        if (!this._user) {
+            logger.error('No user logged in at this point, so not dashboards can be generated');
+            return Promise.resolve([]);
+        }
 
         // lets prepare the query for the dashboards
         let query = {};

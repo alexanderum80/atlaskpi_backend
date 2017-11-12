@@ -1,8 +1,12 @@
+import { reportsGql } from './app/reports.gql';
+import { businessUnitGql } from './app/business-unit.gql';
 import { slideshowGql } from './app/slideshow.gql';
 import { dateRangesGql } from './app/date-ranges.gql';
+import { appointmentsGql } from './app/appointments.gql';
 import { dataSourcesGql } from './app/data-sources.gql';
 import { industriesGql } from './master/industries.gql';
 import { spreadsheetGpl } from './master/import-from-spreadsheet';
+import { } from '.'
 // from: https://gist.github.com/icebob/553c1f9f1a9478d828bcb7a08d06790a
 
 import { GraphqlDefinition } from './graphql-definition';
@@ -13,7 +17,8 @@ import * as logger from 'winston';
 import { accountsGql } from './master';
 import { usersGql, kpisGql, commonGql,
          // businessUnitsGql,
-         chartFormatGql, chartsGql, dashboardGql, searchGql, rolesGql, permissionGql, targetGql, locationsGql } from './app';
+         chartFormatGql, chartsGql, dashboardGql, searchGql, rolesGql, permissionGql, targetGql, accessLogGql,
+         widgetsGql, locationsGql } from './app';
 
 // let files = getGlobbedFiles(path.join(__dirname, '**', '*.gql.ts'));
 let definitions: GraphqlDefinition[] = [];
@@ -35,6 +40,11 @@ definitions.push(targetGql);
 definitions.push(slideshowGql);
 definitions.push(dateRangesGql);
 definitions.push(locationsGql);
+definitions.push(accessLogGql);
+definitions.push(appointmentsGql);
+definitions.push(reportsGql);
+definitions.push(widgetsGql);
+definitions.push(businessUnitGql);
 
 let moduleQueries = [];
 let moduleTypes = [];

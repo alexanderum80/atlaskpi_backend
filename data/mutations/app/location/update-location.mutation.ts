@@ -1,4 +1,4 @@
-import { ILocationModel } from '../../../models/app/location/ILocation';
+import { ILocationModel, ILocation } from '../../../models/app/location/ILocation';
 import { MutationBase } from '../../mutation-base';
 import { IIdentity, IMutationResponse } from '../../..';
 import { IMutation, IValidationResult } from '../..';
@@ -12,23 +12,11 @@ export class UpdateLocationMutation extends MutationBase<IMutationResponse> {
             super(identity);
         }
 
-    run(data): Promise<IMutationResponse> {
+    run(data: {id: string, input: ILocation}): Promise<IMutationResponse> {
         const that = this;
 
         return new Promise<IMutationResponse>((resolve, reject) => {
-            that._LocationModel.updateLocation(
-                data._id,
-                data.name,
-                data.description,
-                data.alias,
-                data.businessunits,
-                data.latitude,
-                data.longitude,
-                data.operhours,
-                data.streep,
-                data.city,
-                data.state,
-                data.zip).then(location => {
+            that._LocationModel.updateLocation(data.id, data.input).then(location => {
                 resolve({
                     success: true,
                     entity: location

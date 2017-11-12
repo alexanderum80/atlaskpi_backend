@@ -23,14 +23,9 @@ function resolveContext(obj: string | IAppModels): Promise<IAppModels> {
 
 export function seedApp(obj: string | IAppModels): Promise<any> {
     let dataFiles = [
-        // { model: 'Customer', filename: 'customers.json' },
-        // { model: 'Employee', filename: 'employees.json' },
-        // { model: 'Expense', filename: 'expenses.json' },
-        // { model: 'Inventory', filename: 'inventory.json' },
-        // { model: 'Location', filename: 'locations.json' },
-        // { model: 'Product', filename: 'products.json' },
-        // { model: 'Revenue', filename: 'revenues.json' },
-        // { model: 'Survey', filename: 'surveys.json' },
+        { model: 'Expense', filename: 'expenses.json' },
+        { model: 'Sale', filename: 'sales.json' },
+        { model: 'WorkLog', filename: 'workLogs.json' },
         { model: 'KPI', filename: 'kpis.json' },
         { model: 'Chart', filename: 'charts.json' },
         { model: 'Dashboard', filename: 'dashboards.json' }

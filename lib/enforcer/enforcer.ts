@@ -31,7 +31,7 @@ export class Enforcer implements IEnforcer {
         return new Promise<boolean>((resolve, reject) => {
             logger.debug('Checking allow authorization');
 
-            if (request && request.hasOwnProperty('user')) {
+            if (request && request.user && request.user.roles) {
                 const findOwner = request.user.roles.find(role => role.name === 'owner');
                 const checkOwner = findOwner !== undefined;
 

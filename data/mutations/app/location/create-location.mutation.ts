@@ -1,4 +1,4 @@
-import { ILocationModel } from '../../../models/app/location/ILocation';
+import { ILocationModel, ILocation } from '../../../models/app/location/ILocation';
 import { MutationBase } from '../../mutation-base';
 import { IIdentity, IMutationResponse } from '../../..';
 import { IMutation, IValidationResult } from '../..';
@@ -10,30 +10,18 @@ export class CreateLocationMutation extends MutationBase<IMutationResponse> {
         public identity: IIdentity,
         private _LocationModel: ILocationModel) {
             super(identity);
-        }
+    }
 
-    run(data): Promise<IMutationResponse> {
+    run(data:{input: ILocation}): Promise<IMutationResponse> {
         const that = this;
 
         return new Promise<IMutationResponse>((resolve, reject) => {
-            that._LocationModel.createNew(
-                data.name,
-                data.description,
-                data.alias,
-                data.businessunits,
-                data.latitude,
-                data.longitude,
-                data.operhours,
-                data.street,
-                data.city,
-                data.state,
-                data.zip
-                ).then(location => {
+            that._LocationModel.createLocation(data.input).then(location => {
                 resolve({
                     success: true,
                     entity: location
                 });
-           }).catch(err => {
+            }).catch(err => {
                 resolve({
                     success: false,
                     errors: [
@@ -43,7 +31,7 @@ export class CreateLocationMutation extends MutationBase<IMutationResponse> {
                         }
                     ]
                 });
-           });
+            });
         });
     }
 }

@@ -1,5 +1,7 @@
+import { getWidgetModel } from './widgets/widget-schema';
 import { connection } from 'mongoose';
 import { getSlideshowModel } from './slideshow/Slideshow';
+import { getAppointmentModel } from './appointments/appointment';
 import { getTargetModel } from './targets/target';
 import { getAccessLogModel } from './access-log';
 import { getSaleModel } from './sales/Sale';
@@ -10,7 +12,7 @@ import { getEmployeeAttendanceModel } from './employees-attendance/';
 import * as Promise from 'bluebird';
 import connectToMongoDb from '../../mongo-utils';
 import { IAppModels } from './app-models';
-
+import { getBusinessUnitModel } from './business-unit/business-unit';
 import { getCustomerModel } from './customers';
 import { getEmployeeModel } from './employees';
 // import { getLocationModel } from './locations';
@@ -19,7 +21,6 @@ import { getRevenueModel } from './revenue';
 import { getUserModel } from './users';
 import { getRoleModel, getPermissionModel } from '../../../lib/rbac';
 import { getKPIModel } from './kpis';
-import { getBusinessUnitModel } from './business-units';
 import { getChartFormatModel } from './chart-formats';
 import { getChartModel } from './charts';
 import { getDashboardModel } from './dashboards';
@@ -60,7 +61,10 @@ export function getContext(dbUri: string): Promise<IAppModels> {
                 AccessModel: getAccessLogModel(m),
                 Target: getTargetModel(m),
                 SlideshowModel: getSlideshowModel(m),
-                LocationModel: getLocationModel(m)
+                LocationModel: getLocationModel(m),
+                AppointmentModel: getAppointmentModel(m),
+                BusinessUnitModel: getBusinessUnitModel(m),
+                Widget: getWidgetModel(m)
             });
         }, (err) => reject(err));
     });
