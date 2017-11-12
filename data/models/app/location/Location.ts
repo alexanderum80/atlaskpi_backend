@@ -1,14 +1,13 @@
-import { ILocationModel, ILocationDocument } from './ILocation';
+import { ILocationModel, ILocationDocument, ILocation } from './';
 import * as mongoose from 'mongoose';
 import * as logger from 'winston';
+import * as Promise from 'bluebird';
 
 const LocationSchema = new mongoose.Schema({
     name: String,
     description: String,
     alias: String,
     businessunits: String,
-    latitude: Number,
-    longitude: Number,
     operhours: String, 
     street: String, 
     city: String,
@@ -16,37 +15,15 @@ const LocationSchema = new mongoose.Schema({
     zip: String
 });
 
-LocationSchema.statics.createNew = function(
-        name: string,
-        description: string,
-        alias: string,
-        businessunits: string,
-        latitude: number,
-        longitude: number,
-        operhours: string, 
-        street: string, 
-        city: string,
-        state: string, 
-        zip: string): Promise<ILocationDocument> {
-    
-    const that = <ILocationModel> this;
+LocationSchema.statics.createLocation = function(input: ILocation): Promise<ILocationDocument> {
+
+    const that = this;
 
     return new Promise<ILocationDocument>((resolve, reject) => {
-        if (!name) {
+        if (!input.name) {
             return reject('Information not valid');
         }
-        that.create({
-            name: name,
-            alias: alias,
-            description: description,
-            businessunits: businessunits,
-            latitude: latitude,
-            longitude: longitude,
-            operhours: operhours,
-            street: street,
-            city: city,
-            state: state,
-            zip: zip}).then(location => {
+        that.create({input}).then(location => {
             resolve(location);
         }).catch(err => {
             logger.error(err);
@@ -55,38 +32,15 @@ LocationSchema.statics.createNew = function(
     });
 };
 
-LocationSchema.statics.updateLocation = function(
-        _id: string, 
-        name: string,
-        description: string,
-        alias: string, 
-        businessunits: string, 
-        latitude: number, 
-        longitude: number, 
-        operhours: string, 
-        street: string, 
-        city: string, 
-        state: string, 
-        zip: string): Promise<ILocationDocument> {
+LocationSchema.statics.updateLocation = function(id: string, input: ILocation): Promise<ILocationDocument> {
     
     const that = <ILocationModel> this;
 
     return new Promise<ILocationDocument>((resolve, reject) => {
-        if (!name) {
+        if (!input.name) {
             return reject('Information not valid');
         }
-        that.findByIdAndUpdate(_id, {
-            name: name,
-            description: description,
-            alias: alias,
-            businessunits: businessunits,
-            latitude: latitude,
-            longitude: longitude,
-            operhours: operhours,
-            street: street,
-            city: city,
-            state: state,
-            zip: zip}).then(location => {
+        that.findByIdAndUpdate(id, {input}).then(location => {
             resolve(location);
         }).catch(err => {
             logger.error(err);

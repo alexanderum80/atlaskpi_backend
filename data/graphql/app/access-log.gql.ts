@@ -16,7 +16,7 @@ export const accessLogGql: GraphqlDefinition = {
                 details: Boolean
             }
             input IAccessLogInput {
-                timestamp: Date
+                timestamp: String
                 accessBy: String
                 ipAddress: String
                 clientDetails: String
@@ -28,17 +28,16 @@ export const accessLogGql: GraphqlDefinition = {
             type ResultResponse {
                 authorized: Boolean
                 status: Boolean
-                details: Boolean                
+                details: Boolean
             }
             type AccessLogResponse {
-                timestamp: Date
+                timestamp: String
                 accessBy: String
                 ipAddress: String
                 clientDetails: String
                 event: String
                 eventType: String
                 payload: String
-                result: ResultResponse
             }
             type AccessLogResult {
                 success: Boolean
@@ -47,22 +46,17 @@ export const accessLogGql: GraphqlDefinition = {
             }
         `,
         queries: `
-            accessLogs(filter: String): AccessLogResponse
+            accessLogs(filter: String): [AccessLogResponse]
         `,
-        mutations: ``
+        mutations: ``,
     },
     resolvers: {
         Query: {
             accessLogs(root: any, args, ctx: IGraphqlContext) {
                 let query = new FindAllAcessLogsQuery(ctx.req.identity, ctx.req.appContext.AccessModel);
-                return ctx.queryBus.run('find-all-access-logs', query, args);
+                return ctx.queryBus.run('get-all-access-logs', query, args, ctx.req);
             }
         },
-        Mutation: {},
-        AccessLogResponse: {
-            result(response: IAccessLogDocument) {
-                return response.result;
-            }
-        }
+        Mutation: {}
     }
 };
