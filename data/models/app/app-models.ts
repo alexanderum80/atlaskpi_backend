@@ -7,6 +7,7 @@ import { IWorkLogModel } from './work-log/IWorkLog';
 import { IChartModel } from './charts';
 import { IInventoryModel } from './inventory/IInventory';
 import { ISurveyModel } from './surveys/ISurvey';
+import { IDepartmentModel } from './departments/IDepartment';
 // import { ICustomerModel } from './customers';
 // import { IEmployeeModel } from './employees';
 // import { IEmployeeAttendanceModel } from './employees-attendance';
@@ -56,4 +57,5 @@ export interface IAppModels {
     AppointmentModel: IAppointmentModel;
     Widget: IWidgetModel;
     BusinessUnitModel: IBusinessUnitModel;
+    DepartmentModel: IDepartmentModel;
 }
