@@ -38,17 +38,13 @@ AccessLogSchema.statics.createLog = function(details: IAccessLogEntry): Promise<
 
 };
 
-AccessLogSchema.statics.getAllAccessLogs = function(filter: string): Promise<IQueryResponse<IAccessLogDocument>> {
-    return new Promise<IQueryResponse<IAccessLogDocument>>((resolve, reject) => {
+AccessLogSchema.statics.getAllAccessLogs = function(filter: string): Promise<IAccessLogDocument[]> {
+    return new Promise<IAccessLogDocument[]>((resolve, reject) => {
         (<IAccessModel>this).find({})
             .then((accessLog) => {
-                if (accessLog) {
-                    resolve({ errors: null, data: accessLog });
-                    return;
-                }
-                resolve({ errors: [ {field: 'accessLog', errors: ['Not found'] } ], data: null });
+                return resolve(accessLog);
             }).catch((err) => {
-                resolve({ errors: [ {field: 'accessLog', errors: ['Not found'] } ], data: null });
+                reject({ errors: [ {field: 'accessLog', errors: ['Not found'] } ], data: null });
             });
     });
 };

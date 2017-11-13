@@ -25,7 +25,7 @@ export const chartsGql: GraphqlDefinition = {
             input GetChartInput {
                 dateRange: [ChartDateRangeInput]!
                 frequency: String
-                groupings: [String]!
+                groupings: [String]
                 xAxisSource: String
                 comparison: [String]
                 isDrillDown: Boolean
@@ -34,6 +34,7 @@ export const chartsGql: GraphqlDefinition = {
             input ChartAttributesInput {
                 title: String!
                 subtitle: String
+                group: String
                 kpis: [String]
                 dateRange: [ChartDateRangeInput]
                 frequency: String
