@@ -1,6 +1,7 @@
 import { IDepartmentModel, IDepartmentDocument } from './IDepartment';
 import * as mongoose from 'mongoose';
 import * as logger from 'winston';
+import * as Promise from 'bluebird';
 
 
 const DepartmentSchema = new mongoose.Schema({
