@@ -1,4 +1,4 @@
-import { IBusinessUnitModel, IBusinessUnitDocument } from './IBusinessUnit';
+import { IBusinesUnitModel, IBusinessUnitDocument } from './IBusinessUnit';
 import * as mongoose from 'mongoose';
 import * as logger from 'winston';
 
@@ -8,7 +8,7 @@ const BusinessUnitSchema = new mongoose.Schema({
    });
 
 BusinessUnitSchema.statics.createNew = function(name: string, serviceType: string): Promise<IBusinessUnitDocument> {
-    const that = <IBusinessUnitModel> this;
+    const that = <IBusinesUnitModel> this;
 
     return new Promise<IBusinessUnitDocument>((resolve, reject) => {
         if (!name ) {
@@ -28,7 +28,7 @@ BusinessUnitSchema.statics.createNew = function(name: string, serviceType: strin
 };
 
 BusinessUnitSchema.statics.updateBusinessUnit = function(_id: string, name: string, serviceType: string): Promise<IBusinessUnitDocument> {
-    const that = <IBusinessUnitModel> this;
+    const that = <IBusinesUnitModel> this;
     return new Promise<IBusinessUnitDocument>((resolve, reject) => {
 
         if (!name) {
@@ -48,11 +48,11 @@ BusinessUnitSchema.statics.updateBusinessUnit = function(_id: string, name: stri
 };
 
 BusinessUnitSchema.statics.deleteBusinessUnit = function(_id: string): Promise<IBusinessUnitDocument> {
-    const that = <IBusinessUnitModel> this;
+    const that = <IBusinesUnitModel> this;
 
     return new Promise<IBusinessUnitDocument>((resolve, reject) => {
-            that.findByIdAndRemove (_id).then(businessunit => {
-                resolve(businessunit);
+            that.findByIdAndRemove (_id).then(businesunit => {
+                resolve(businesunit);
             }).catch(err => {
                 logger.error(err);
                 reject('There was an error updating the business unit');
@@ -64,7 +64,7 @@ BusinessUnitSchema.statics.deleteBusinessUnit = function(_id: string): Promise<I
 };
 
 BusinessUnitSchema.statics.businessUnits = function(): Promise<IBusinessUnitDocument[]> {
-    const that = <IBusinessUnitModel> this;
+    const that = <IBusinesUnitModel> this;
 
     return new Promise<IBusinessUnitDocument[]>((resolve, reject) => {
         that.find({}).then(businessunit => {
@@ -77,7 +77,7 @@ BusinessUnitSchema.statics.businessUnits = function(): Promise<IBusinessUnitDocu
 };
 
 BusinessUnitSchema.statics.businessUnitById = function(id: string): Promise<IBusinessUnitDocument> {
-    const that = <IBusinessUnitModel> this;
+    const that = <IBusinesUnitModel> this;
 
     return new Promise<IBusinessUnitDocument>((resolve, reject) => {
         that.findOne({_id: id}).then(businessunit => {
@@ -89,6 +89,6 @@ BusinessUnitSchema.statics.businessUnitById = function(id: string): Promise<IBus
     });
 };
 
-export function getBusinessUnitModel(m: mongoose.Connection): IBusinessUnitModel {
-    return <IBusinessUnitModel>m.model('BusinessUnit', BusinessUnitSchema, 'business-unit');
+export function getBusinesUnitModel(m: mongoose.Connection): IBusinesUnitModel {
+    return <IBusinesUnitModel>m.model('BusinessUnit', BusinessUnitSchema, 'business-unit');
 }
