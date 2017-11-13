@@ -6,7 +6,7 @@ import {
     PredefinedDateRanges,
 } from './../../../../models/common/date-range';
 import { TargetService } from '../../../../services/targets/target.service';
-import { ITargetDocument } from '../../../../models/app/targets/ITarget';
+import { ITarget, ITargetDocument } from '../../../../models/app/targets/ITarget';
 import { parseComparisonDateRange, parsePredifinedDate } from '../../../../models/common/date-range';
 import { IKPIDocument, IAppModels } from '../../../../models/app';
 import { IKpiBase, IKPIResult } from '../../kpis/kpi-base';
@@ -135,6 +135,7 @@ export class UIChartBase {
             that.series = that._createSeries(data, metadata, that.categories, that.groupings);
 
             that._injectTargets(that.targetData, metadata, that.categories, that.groupings, that.series);
+            console.log(JSON.stringify( that.series));
 
             return;
         }).catch(e => e );
@@ -164,7 +165,6 @@ export class UIChartBase {
 
         definition.title = { text: `${this.chart.title} (${dateRangeText})` };
         definition.subtitle = { text: this.chart.subtitle };
-
         definition.series = this.series;
         this.chart.targetList = targetList;
         this.chart.futureTarget = this.futureTarget;
@@ -241,7 +241,16 @@ export class UIChartBase {
      */
     private _createCategories(data: any, metadata: IChartMetadata): IXAxisCategory[] {
         if (metadata.xAxisSource === 'frequency') {
-           return this.frequencyHelper.getCategories(metadata.frequency);
+            let categoryHelper;
+            let noGrouping = !metadata.groupings || !metadata.groupings.length || !metadata.groupings[0];
+            if (noGrouping && this.chart.chartDefinition.chart.type !== ChartType.Pie) {
+                let dateRange = metadata.dateRange || this.dateRange;
+                categoryHelper = this._noGroupingsCategoryHelper(dateRange, metadata.frequency);
+                if (categoryHelper && categoryHelper.length) {
+                    return categoryHelper;
+                }
+            }
+            return this.frequencyHelper.getCategories(metadata.frequency);
         }
 
         const uniqueCategories = <string[]> _.uniq(data.map(item => item._id[metadata.xAxisSource]));
@@ -252,6 +261,45 @@ export class UIChartBase {
                 name: category
             };
         });
+    }
+
+    /**
+     * this is used in _createCategories for last(2-5) years predefined range to duplicate categories
+     * when groupings is selected and is by frequency
+     * @param dateRange ichartdaterange, getting predefined property
+     * @param frequency used for frequency enum value
+     */
+
+    private _noGroupingsCategoryHelper(dateRange: IChartDateRange[], frequency: number): any[] {
+        const predefined = dateRange[0].predefined;
+        let duplicateCategories: any[] = [];
+
+        switch (predefined) {
+            case PredefinedDateRanges.last2Years:
+                [1, 2].forEach(iterator => {
+                    duplicateCategories.push(this.frequencyHelper.getCategories(frequency));
+                });
+                break;
+            case PredefinedDateRanges.last3Years:
+                [1, 2, 3].forEach(iterator => {
+                    duplicateCategories.push(this.frequencyHelper.getCategories(frequency));
+                });
+                break;
+            case PredefinedDateRanges.last4Years:
+                [1, 2, 3, 4].forEach(iterator => {
+                    duplicateCategories.push(this.frequencyHelper.getCategories(frequency));
+                });
+                break;
+            case PredefinedDateRanges.last5Years:
+                [1, 2, 3, 4, 5].forEach(iterator => {
+                    duplicateCategories.push(this.frequencyHelper.getCategories(frequency));
+                });
+                break;
+        }
+        if (duplicateCategories.length) {
+            duplicateCategories = _.flatten(duplicateCategories);
+        }
+        return duplicateCategories;
     }
 
     /**
@@ -317,7 +365,6 @@ export class UIChartBase {
 
         if (this.chart.chartDefinition.chart.type === ChartType.Pie) {
             return [{
-                showInLegend: false,
                 name: '',
                 data:  categories.map(cat => {
                     let dataItem = _.find(data, (item: any) => {
@@ -388,19 +435,19 @@ export class UIChartBase {
         }
 
         if (target.length) {
-            let filterTarget = target.filter((val) => {
-                return val.active !== false;
+            let filterActiveTargets = target.filter(t => {
+                return t.active !== false;
             });
 
             if (metadata.frequency !== 4) {
                 if (this.futureTarget) {
-                    filterTarget = filterTarget.filter((targ) => {
+                    filterActiveTargets = filterActiveTargets.filter((targ) => {
                         let futureDate = new Date(targ.datepicker);
                         let endDate = new Date(moment().endOf('year').toDate());
                         return endDate < futureDate;
                     });
                 } else {
-                    filterTarget = filterTarget.filter((targ) => {
+                    filterActiveTargets = filterActiveTargets.filter((targ) => {
                         let futureDate = new Date(targ.datepicker);
                         let endDate = new Date(moment().endOf('year').toDate());
                         return endDate > futureDate;
@@ -408,7 +455,7 @@ export class UIChartBase {
                 }
             }
 
-            this.targetData = _.map(filterTarget, (v, k) => {
+            this.targetData = _.map(filterActiveTargets, (v, k) => {
                 return (<any>v).stackName ? {
                     _id: {
                         frequency: TargetService.formatFrequency(metadata.frequency, v.datepicker),
@@ -606,22 +653,23 @@ export class UIChartBase {
     protected getDefinitionForDateRange(kpi, metadata, target): Promise<any> {
         const that = this;
         return this.processChartData(kpi, metadata, target).then(() => {
-            return that.buildDefinition(this.basicDefinition, target);
+            return that.buildDefinition(that.basicDefinition, target);
         });
     }
 
     protected getDefinitionOfComparisonChart(kpi, metadata: IChartMetadata): Promise<any> {
-        const mainPromiseName = this.dateRange[0].predefined ? this.dateRange[0].predefined : 'custom';
-        const chartDefinitions = {
+        const chartPromises = {
             main: this.getDefinitionForDateRange(kpi, metadata, [])
         };
 
         this.comparison.forEach((comparisonDateRange, index) => {
-            metadata.dateRange = [{ custom: comparisonDateRange }];
-            chartDefinitions[metadata.comparison[index]] = this.getDefinitionForDateRange(kpi, metadata, []);
+            const newChart = _.cloneDeep(this);
+            const newMetadata = _.cloneDeep(metadata);
+            newMetadata.dateRange = [ { custom: comparisonDateRange } ];
+            chartPromises[metadata.comparison[index]] = newChart.getDefinitionForDateRange(kpi, newMetadata, []);
         });
 
-        return Promise.props(chartDefinitions).then(output => {
+        return Promise.props(chartPromises).then(output => {
             return Promise.resolve(this._mergeMultipleChartDefinitions(output, metadata));
         });
     }
@@ -633,7 +681,6 @@ export class UIChartBase {
 
         mergedSeries = mergedSeries.concat(this._getComparisonSeries(definitions));
         mergedSeries = mergedSeries.concat(this._getMainComparisonSeries(definitions));
-
         mainDefinition.series = mergedSeries;
 
         return mainDefinition;

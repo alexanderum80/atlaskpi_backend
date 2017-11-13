@@ -1,5 +1,6 @@
 import { IIdName } from '../../common';
 import * as mongoose from 'mongoose';
+import * as Promise from 'bluebird';
 
 export interface IEntity {
     externalId: string | number;
@@ -75,4 +76,6 @@ export interface ISales {
 
 export interface ISaleDocument extends ISales, mongoose.Document { }
 
-export interface ISaleModel extends mongoose.Model<ISaleDocument> { }
+export interface ISaleModel extends mongoose.Model<ISaleDocument> {
+    findByPredefinedDateRange(predefinedDateRange: string): Promise<ISaleDocument[]>;
+}

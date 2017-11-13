@@ -14,7 +14,8 @@ export default function importSpreadSheetData(data: any, ctx: IAppModels): Promi
         async.parallel([
             async.apply(importSales, data, ctx),
             async.apply(importWorklog, data, ctx),
-            async.apply(importExpenses, data, ctx)
+            async.apply(importExpenses, data, ctx),
+            async.apply(importAppointments, data, ctx)
         ], function(err, results) {
             if (err) {
                 console.log('There was an error: ' + err.toString());
@@ -111,8 +112,36 @@ function importExpenses(data: DataContext, ctx: IAppModels, cb) {
         });
 }
 
+function importAppointments(data: DataContext, ctx: IAppModels, cb) {
+    const appointments = data.appointment;
 
-// utility methods
+    const mappedAppointments = appointments.map(a => {
+        return {
+            externalId: my_guid(),
+            source: 'google sheet',
+            fullName: getCustomer(data.customer, a.customerId).name,
+            reason: a.reason,
+            from: a.from,
+            to: a.to,
+            provider: getEmployee(data.employee, a.employeeId).fullName,
+        };
+    });
+
+    ctx.AppointmentModel.remove({}).then(res => {
+        ctx.AppointmentModel.insertMany(mappedAppointments, (err, result) => {
+            if (err) {
+                console.error('Error inserting appointments', err);
+                cb(err, null);
+            } else {
+                console.info(`${result.length} appointments inserted`);
+                cb(null, { name: 'appointments', total: result.length });
+            }
+        });
+    });
+}
+
+
+// helper methods
 
 function getLocation(locations, name) {
     const l = locations.find(loc => loc.name === name);
@@ -132,7 +161,16 @@ function getLocation(locations, name) {
 
 function getCustomer(customers, id) {
     const c = customers.find(cus => cus.id === id);
-    if (!c) return logger.error(`Customer "${id}" not found`);
+    if (!c) {
+        logger.error(`Customer "${id}" not found`);
+        return {
+            externalId: '',
+            name: '',
+            state: '',
+            zip: '',
+            gender: ''
+        };
+    }
 
     return {
         externalId: c.id,

@@ -43,7 +43,9 @@ export default function seedRoles(connectionString) {
                     { action: 'Manage Access Levels', subject: 'Users' },
                     { action: 'Assign Smi-Admin', subject: 'Access' },
                     { action: 'Billing Information', subject: 'Billing' },
-                    { action: 'All Fields', subject: 'Data' }
+                    { action: 'All Fields', subject: 'Data' },
+                    // widgets
+                    { action: 'View', subject: 'Widget'}
         ],
         semiAdmin: [
             { action: 'View', subject: 'Chart' },
@@ -72,7 +74,9 @@ export default function seedRoles(connectionString) {
             { action: 'View', subject: 'SecurityLog' },
             { action: 'Manage Access Levels', subject: 'Users' },
             { action: 'Billing Information', subject: 'Billing' },
-            { action: 'All Fields', subject: 'Data' }
+            { action: 'All Fields', subject: 'Data' },
+            // widgets
+            { action: 'View', subject: 'Widget'}
         ],
         manager: [
             { action: 'View', subject: 'Chart' },
@@ -93,7 +97,9 @@ export default function seedRoles(connectionString) {
             { action: 'View Library', subject: 'KPI' },
             { action: 'Add New', subject: 'DashboardTab' },
             { action: 'Manage', subject: 'KPI' },
-            { action: 'View', subject: 'SecurityLog' }
+            { action: 'View', subject: 'SecurityLog' },
+            // widgets
+            { action: 'View', subject: 'Widget'}
         ],
         supervisor: [
             { action: 'View', subject: 'Chart' },
@@ -108,17 +114,23 @@ export default function seedRoles(connectionString) {
             { action: 'Import/Add', subject: 'Data' },
             { action: 'View Library', subject: 'KPI' },
             { action: 'Add New', subject: 'DashboardTab' },
-            { action: 'Manage', subject: 'KPI' }
+            { action: 'Manage', subject: 'KPI' },
+            // widgets
+            { action: 'View', subject: 'Widget'}
         ],
         externalUser: [
             { action: 'View', subject: 'Chart' },
             { action: 'Add Comment on', subject: 'Chart' },
-            { action: 'All Fields', subject: 'Data' }
+            { action: 'All Fields', subject: 'Data' },
+            // widgets
+            { action: 'View', subject: 'Widget'}
         ],
         viewer: [
             { action: 'View', subject: 'Chart' },
             { action: 'Add Comment on', subject: 'Chart' },
-            { action: 'Import/Add', subject: 'Data' }
+            { action: 'Import/Add', subject: 'Data' },
+            // widgets
+            { action: 'View', subject: 'Widget'}
         ]
                 }, []);
         });

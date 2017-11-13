@@ -13,20 +13,19 @@ export const targetGql: GraphqlDefinition = {
     schema: {
         types: `
             input NotifyInput {
-                userId: String
-                notifyDigit: String
-                notifyTime: String
+                users: [String]
+                notification: String
             }
             input TargetInput {
                 name: String
                 datepicker: String
-                active: Boolean
                 vary: String
                 amount: String
+                active: Boolean
                 amountBy: String
                 type: String
                 period: String
-                notify: [NotifyInput]
+                notify: NotifyInput
                 visible: [String]
                 owner: String
                 chart: [String]
@@ -38,22 +37,21 @@ export const targetGql: GraphqlDefinition = {
             }
 
             type NotifyResponse {
-                userId: String
-                notifyDigit: String
-                notifyTime: String
+                users: [String]
+                notification: String
             }
             type TargetResponse {
                 _id: String
                 name: String
                 datepicker: String
-                active: Boolean
                 vary: String
                 amount: Float
                 amountBy: String
+                active: Boolean
                 target: Float
                 type: String
                 period: String
-                notify: [NotifyResponse]
+                notify: NotifyResponse
                 visible: [String]
                 owner: String
                 chart: [String]

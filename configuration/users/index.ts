@@ -36,7 +36,7 @@ export const usersServiceConfig = {
         name: 'Application Name',
         url: 'http://localhost:4200',
     },
-    from: 'orlando@kpibi.com',
+    from: 'noreply@atlaskpi.com',
     usernameField: 'email', // this could be emil or username
     locking: {
         tries: 3,  // tries
