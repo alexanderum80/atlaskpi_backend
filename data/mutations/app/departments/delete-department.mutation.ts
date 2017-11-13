@@ -1,4 +1,4 @@
-import { IDepartmentModel } from '../../../models/app/departmens/IDepartment';
+import { IDepartmentModel } from '../../../models/app/departments/IDepartment';
 import { MutationBase } from '../../mutation-base';
 import { IIdentity, IMutationResponse } from '../../..';
 import { IMutation, IValidationResult } from '../..';
