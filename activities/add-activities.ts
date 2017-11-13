@@ -235,7 +235,6 @@ export function addActivities() {
         listAppointmentsActivity,
 
         // business-unit
-        createBusinesUnitActivity,
         BusinessUnitByIdActivity,
         updateBusinessUnitActivity,
         deleteBusinessUnitActivity,

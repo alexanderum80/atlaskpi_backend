@@ -17,7 +17,7 @@ import { IDepartmentModel } from './departments/IDepartment';
 // import { IExpenseModel } from './expenses';
 import { IUserModel } from './users';
 import { IKPIModel } from './kpis';
-import { IBusinessUnitModel } from './business-units';
+import { IBusinesUnitModel } from './business-unit/IBusinessUnit';
 import { IChartFormatModel } from './chart-formats';
 import { ISaleModel } from './sales';
 import { IDashboardModel } from './dashboards';
@@ -44,7 +44,7 @@ export interface IAppModels {
     KPI: IKPIModel;
     Survey: ISurveyModel;
     Inventory: IInventoryModel;
-    BusinessUnit: IBusinessUnitModel;
+    BusinessUnit: IBusinesUnitModel;
     Chart: IChartModel;
     ChartFormat: IChartFormatModel;
     Dashboard: IDashboardModel;
@@ -56,6 +56,6 @@ export interface IAppModels {
     SlideshowModel: ISlideshowModel;
     AppointmentModel: IAppointmentModel;
     Widget: IWidgetModel;
-    BusinessUnitModel: IBusinessUnitModel;
+    BusinessUnitModel: IBusinesUnitModel;
     DepartmentModel: IDepartmentModel;
 }
