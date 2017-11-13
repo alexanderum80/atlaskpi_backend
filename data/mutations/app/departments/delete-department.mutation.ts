@@ -1,14 +1,14 @@
-import { IBusinesUnitModel } from '../../../models/app/business-unit/IBusinessUnit';
+import { IDepartmentModel } from '../../../models/app/departmens/IDepartment';
 import { MutationBase } from '../../mutation-base';
 import { IIdentity, IMutationResponse } from '../../..';
 import { IMutation, IValidationResult } from '../..';
 import * as Promise from 'bluebird';
 import * as logger from 'winston';
 
-export class CreateBusinessUnitMutation extends MutationBase<IMutationResponse> {
+export class DeleteDepartmentMutation extends MutationBase<IMutationResponse> {
     constructor(
         public identity: IIdentity,
-        private _BusinessUnitModel: IBusinesUnitModel) {
+        private _DepartmentModel: IDepartmentModel) {
             super(identity);
         }
 
@@ -16,10 +16,10 @@ export class CreateBusinessUnitMutation extends MutationBase<IMutationResponse> 
         const that = this;
 
         return new Promise<IMutationResponse>((resolve, reject) => {
-           that._BusinessUnitModel.createNew(data.name, data.serviceType).then(businessunit => {
+           that._DepartmentModel.deleteDepartment(data._id).then(department => {
                 resolve({
-                    success: true,
-                    entity: businessunit
+                    success: department !== null,
+                    errors: department !== null ? [] : [{ field: 'general', errors: ['Department not found'] }]
                 });
            }).catch(err => {
                 resolve({
@@ -27,7 +27,7 @@ export class CreateBusinessUnitMutation extends MutationBase<IMutationResponse> 
                     errors: [
                         {
                             field: 'general',
-                            errors: ['There was an error creating the business unit']
+                            errors: ['There was an error deleting the department']
                         }
                     ]
                 });
