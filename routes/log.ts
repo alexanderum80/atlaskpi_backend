@@ -24,10 +24,10 @@ log.post('/log', function user(req: ExtendedRequest, res: Response) {
 
     const logDetails: ILogDetails = {
         timestamp:  new Date(req.headers['timestamp']),
-        ip: req.headers['x-forwarded-for'] || req.connection.remoteAddress,
+        ip: (req.headers['x-forwarded-for'] || req.connection.remoteAddress) as string,
         hostname: getRequestHostname(req),
-        clientId: req.headers['user-agent'],
-        clientDetails: req.headers['client-details'],
+        clientId: req.headers['user-agent'] as string,
+        clientDetails: req.headers['client-details'] as string,
 
         level: Number(req.body.level),
         message: req.body.message
