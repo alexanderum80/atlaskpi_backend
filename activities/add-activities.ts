@@ -2,6 +2,16 @@ import { endOfDayReportActivity } from './app/reports/emd-of-day-report.activity
 import { previewWidgetActivity } from './app/widgets/preview-widget.activity';
 import { createWidgetActivity } from './app/widgets/create-widget.activity';
 import { getWidgetActivity } from './app/widgets/get-widget.activity';
+import { deleteDepartmentActivity } from './app/departments/delete-department.activity';
+import { updateDepartmentActivity } from './app/departments/update-department.activity';
+import { DepartmentByIdActivity } from './app/departments/department-by-id.activity';
+import { createDepartmentActivity } from './app/departments/create-department.activity';
+import { listDepartmentsActivity } from './app/departments/list-departments.activity';
+import { listBusinessUnitsActivity } from './app/business-unit/list-business-unit.activity';
+import { updateBusinessUnitActivity } from './app/business-unit/update-business-unit.activity';
+import { deleteBusinessUnitActivity } from './app/business-unit/delete-business-unit.activity';
+import { BusinessUnitByIdActivity } from './app/business-unit/business-unit-by-id.activity';
+
 import { listChartsByGroupActivity } from './app/charts/list-charts-by-group.activity';
 import { SlideshowByGroupActivity } from './app/slideshow/slideshows-by-group.activity';
 import { DeleteSlideshowActivity } from './app/slideshow/delete-slideshow.activity';
@@ -155,6 +165,13 @@ export function addActivities() {
         getKpisActivity,
         getKpiActivity,
 
+        // departments
+        createDepartmentActivity,
+        DepartmentByIdActivity,
+        updateDepartmentActivity,
+        deleteDepartmentActivity,
+        listDepartmentsActivity,
+
         // businessUnits
         createBusinessUnitActivity,
         listAllBusinessUnitsActivity,
@@ -224,6 +241,12 @@ export function addActivities() {
         updateAppointmentActivity,
         deleteAppointmentActivity,
         listAppointmentsActivity,
+
+        // business-unit
+        BusinessUnitByIdActivity,
+        updateBusinessUnitActivity,
+        deleteBusinessUnitActivity,
+        listBusinessUnitsActivity,
 
         // data sources
         getDataSourcesActivity,

@@ -13,6 +13,8 @@ import { getSurveyModel } from './surveys';
 import * as Promise from 'bluebird';
 import connectToMongoDb from '../../mongo-utils';
 import { IAppModels } from './app-models';
+import { getBusinesUnitModel } from './business-unit/business-unit';
+import { getDepartmentModel } from './departments/department';
 import { getCustomerModel } from './customers';
 import { getEmployeeModel } from './employees';
 import { getLocationModel } from './locations';
@@ -21,7 +23,6 @@ import { getRevenueModel } from './revenue';
 import { getUserModel } from './users';
 import { getRoleModel, getPermissionModel } from '../../../lib/rbac';
 import { getKPIModel } from './kpis';
-import { getBusinessUnitModel } from './business-units';
 import { getChartFormatModel } from './chart-formats';
 import { getChartModel } from './charts';
 import { getDashboardModel } from './dashboards';
@@ -51,7 +52,7 @@ export function getContext(dbUri: string): Promise<IAppModels> {
                 KPI: getKPIModel(m),
                 Survey: getSurveyModel(m),
                 Inventory: getInventoryModel(m),
-                BusinessUnit: getBusinessUnitModel(m),
+                BusinessUnit: getBusinesUnitModel(m),
                 Chart: getChartModel(m),
                 ChartFormat: getChartFormatModel(m),
                 Dashboard: getDashboardModel(m),
@@ -63,6 +64,8 @@ export function getContext(dbUri: string): Promise<IAppModels> {
                 SlideshowModel: getSlideshowModel(m),
                 EmployeeModel: getEmployeeModel(m)
                 AppointmentModel: getAppointmentModel(m),
+                BusinessUnitModel: getBusinesUnitModel(m),
+                DepartmentModel: getDepartmentModel(m),
                 Widget: getWidgetModel(m)
             });
         }, (err) => reject(err));

@@ -67,6 +67,7 @@ export class TargetService {
                         };
                         switch (data.nonStackName) {
                             case 'all':
+                            case 'All':
                                 if (data.period) {
                                     kpi.getData([that.getDate(data.period)], optionsNonStack).then((response) => {
                                         resolve(response);

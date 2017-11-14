@@ -93,6 +93,10 @@ export class SimpleKPI extends KpiBase implements IKpiBase {
         return this.executeQuery(this.collection.timestampField, dateRange, options);
     }
 
+    getTargetData(dateRange: IDateRange[], options?: IGetDataOptions): Promise<any> {
+        return this.executeQuery(this.collection.timestampField, dateRange, options);
+    }
+
     getSeries(dateRange: IDateRange, frequency: FrequencyEnum) {}
 
     private _injectFieldToProjection(fieldName: string) {
