@@ -22,7 +22,6 @@ import { getRevenueModel } from './revenue';
 import { getUserModel } from './users';
 import { getRoleModel, getPermissionModel } from '../../../lib/rbac';
 import { getKPIModel } from './kpis';
-import { getBusinessUnitModel } from './business-units';
 import { getChartFormatModel } from './chart-formats';
 import { getChartModel } from './charts';
 import { getDashboardModel } from './dashboards';
@@ -52,7 +51,7 @@ export function getContext(dbUri: string): Promise<IAppModels> {
                 KPI: getKPIModel(m),
                 Survey: getSurveyModel(m),
                 Inventory: getInventoryModel(m),
-                BusinessUnit: getBusinessUnitModel(m),
+                BusinessUnit: getBusinesUnitModel(m),
                 Chart: getChartModel(m),
                 ChartFormat: getChartFormatModel(m),
                 Dashboard: getDashboardModel(m),
@@ -63,8 +62,8 @@ export function getContext(dbUri: string): Promise<IAppModels> {
                 Target: getTargetModel(m),
                 SlideshowModel: getSlideshowModel(m),
                 AppointmentModel: getAppointmentModel(m),
-        BusinessUnitModel: getBusinessUnitModel(m),
-        DepartmentModel: getDepartmentModel(m),
+                BusinessUnitModel: getBusinesUnitModel(m),
+                DepartmentModel: getDepartmentModel(m),
                 Widget: getWidgetModel(m)
             });
         }, (err) => reject(err));
