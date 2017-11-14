@@ -196,10 +196,10 @@ RoleSchema.statics.removeRole = function(id: string, roleExist: any[]): Promise<
         let idError = (<any>validate)({id: id});
         if (idError) {
             resolve(idError);
-        };
+        }
 
         if (roleExist && roleExist.length) {
-            reject({ success: false, entity: roleExist, errors: [ { field: 'role', errors: ['Role is being used by'] } ]});
+            reject({ success: false, entity: roleExist, errors: ['Role is being used by']});
             return;
         }
 
