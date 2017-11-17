@@ -1,4 +1,3 @@
-//import { getEmployeeAttendanceModel } from './employees-attendance/index';
 import { getWidgetModel } from './widgets/widget-schema';
 import { connection } from 'mongoose';
 import { getSlideshowModel } from './slideshow/Slideshow';
@@ -13,11 +12,11 @@ import { getSurveyModel } from './surveys';
 import * as Promise from 'bluebird';
 import connectToMongoDb from '../../mongo-utils';
 import { IAppModels } from './app-models';
-import { getBusinesUnitModel } from './business-unit/business-unit';
+import { getBusinessUnitModel } from './business-unit/business-unit';
 import { getDepartmentModel } from './departments/department';
 import { getCustomerModel } from './customers';
 import { getEmployeeModel } from './employees';
-import { getLocationModel } from './locations';
+// import { getLocationModel } from './locations';
 import { getProductModel } from './products';
 import { getRevenueModel } from './revenue';
 import { getUserModel } from './users';
@@ -28,6 +27,7 @@ import { getChartModel } from './charts';
 import { getDashboardModel } from './dashboards';
 import { getWorkLogModel } from './work-log/WorkLog';
 import { getLogModel } from './log';
+import { getLocationModel } from './location';
 
 import * as winston from 'winston';
 
@@ -66,7 +66,8 @@ export function getContext(dbUri: string): Promise<IAppModels> {
                 AppointmentModel: getAppointmentModel(m),
                 BusinessUnitModel: getBusinesUnitModel(m),
                 DepartmentModel: getDepartmentModel(m),
-                Widget: getWidgetModel(m)
+                Widget: getWidgetModel(m),
+        LocationModel: getLocationModel(m),
             });
         }, (err) => reject(err));
     });

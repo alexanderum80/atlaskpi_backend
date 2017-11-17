@@ -1,4 +1,3 @@
-import { getCountryInfo } from './master/get-country-info';
 import { endOfDayReportActivity } from './app/reports/emd-of-day-report.activity';
 import { previewWidgetActivity } from './app/widgets/preview-widget.activity';
 import { createWidgetActivity } from './app/widgets/create-widget.activity';
@@ -36,21 +35,6 @@ import { updateLocationActivity } from './app/location/update-location.activity'
 import { createLocationActivity} from './app/location/create-location.activity';
 import { listLocationsActivity } from './app/location/list-locations.activity';
 
-
-
-
-// Employees
-import { deleteEmployeeActivity } from './app/employees/delete-employee.activity';
-import { updateEmployeeActivity } from './app/employees/update-employee.activity';
-import { employeeByIdActivity } from './app/employees/employee-by-id.activity';
-import { listEmployeesActivity } from './app/employees/list-employees.activity';
-import { createEmployeeActivity } from './app/employees/create-employee.activity';
-
-import { deleteAppointmentActivity } from './app/appointments/delete-appointment.activity';
-import { updateAppointmentActivity } from './app/appointments/update-appointment.activity';
-import { AppointmentByIdActivity } from './app/appointments/appointment-by-id.activity';
-import { AppointmentByDescriptionActivity } from './app/appointments/appointment-by-description.activity'; 
-import { createAppointmentActivity } from './app/appointments/create-appointment.activity';
 
 
 import {
@@ -151,7 +135,6 @@ export function addActivities() {
         getAccountActivity,
         getIndustriesActivity,
         accountNameAvailableActivity,
-        getCountryInfo,
 
         // app
         createUserActivity,
@@ -172,13 +155,6 @@ export function addActivities() {
         removeKPIActivity,
         getKpisActivity,
         getKpiActivity,
-
-        // departments
-        createDepartmentActivity,
-        DepartmentByIdActivity,
-        updateDepartmentActivity,
-        deleteDepartmentActivity,
-        listDepartmentsActivity,
 
         // businessUnits
         createBusinessUnitActivity,
@@ -268,13 +244,6 @@ export function addActivities() {
         DeleteSlideshowActivity,
         SlideshowByGroupActivity,
 
-        // Employees
-        createEmployeeActivity,
-        deleteEmployeeActivity,
-        listEmployeesActivity,
-        employeeByIdActivity,
-        updateEmployeeActivity,
-
         // date ranges
         getDateRangesActivity,
 
@@ -283,13 +252,5 @@ export function addActivities() {
         updateLocationActivity,
         createLocationActivity,
         listLocationsActivity
-        // reports
-        endOfDayReportActivity,
-        // widgets
-        listWidgetsActivity,
-        getWidgetActivity,
-        createWidgetActivity,
-        previewWidgetActivity
-
     ]);
 }

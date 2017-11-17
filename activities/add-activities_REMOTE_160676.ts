@@ -1,4 +1,3 @@
-import { getCountryInfo } from './master/get-country-info';
 import { endOfDayReportActivity } from './app/reports/emd-of-day-report.activity';
 import { previewWidgetActivity } from './app/widgets/preview-widget.activity';
 import { createWidgetActivity } from './app/widgets/create-widget.activity';
@@ -7,6 +6,7 @@ import { listBusinessUnitsActivity } from './app/business-unit/list-business-uni
 import { updateBusinessUnitActivity } from './app/business-unit/update-business-unit.activity';
 import { deleteBusinessUnitActivity } from './app/business-unit/delete-business-unit.activity';
 import { BusinessUnitByIdActivity } from './app/business-unit/business-unit-by-id.activity';
+import { createBusinessUnitActivity } from './app/business-unit/create-business-unit.activity';
 import { listChartsByGroupActivity } from './app/charts/list-charts-by-group.activity';
 import { SlideshowByGroupActivity } from './app/slideshow/slideshows-by-group.activity';
 import { DeleteSlideshowActivity } from './app/slideshow/delete-slideshow.activity';
@@ -26,26 +26,6 @@ import { deleteChartActivity } from './app/charts/delete-chart.activity';
 import { listChartsActivity } from './app/charts/list-charts.activity';
 import { createChartActivity } from './app/charts/create-chart.activity';
 import { getKpisActivity } from './app/kpis/get-kpis.activity';
-import { deleteAppointmentActivity } from './app/appointments/delete-appointment.activity';
-import { updateAppointmentActivity } from './app/appointments/update-appointment.activity';
-import { AppointmentByIdActivity } from './app/appointments/appointment-by-id.activity';
-import { AppointmentByDescriptionActivity } from './app/appointments/appointment-by-description.activity'; 
-import { createAppointmentActivity } from './app/appointments/create-appointment.activity';
-import { deleteLocationActivity } from './app/location/delete-location.activity';
-import { updateLocationActivity } from './app/location/update-location.activity';
-import { createLocationActivity} from './app/location/create-location.activity';
-import { listLocationsActivity } from './app/location/list-locations.activity';
-
-
-
-
-// Employees
-import { deleteEmployeeActivity } from './app/employees/delete-employee.activity';
-import { updateEmployeeActivity } from './app/employees/update-employee.activity';
-import { employeeByIdActivity } from './app/employees/employee-by-id.activity';
-import { listEmployeesActivity } from './app/employees/list-employees.activity';
-import { createEmployeeActivity } from './app/employees/create-employee.activity';
-
 import { deleteAppointmentActivity } from './app/appointments/delete-appointment.activity';
 import { updateAppointmentActivity } from './app/appointments/update-appointment.activity';
 import { AppointmentByIdActivity } from './app/appointments/appointment-by-id.activity';
@@ -151,7 +131,6 @@ export function addActivities() {
         getAccountActivity,
         getIndustriesActivity,
         accountNameAvailableActivity,
-        getCountryInfo,
 
         // app
         createUserActivity,
@@ -172,13 +151,6 @@ export function addActivities() {
         removeKPIActivity,
         getKpisActivity,
         getKpiActivity,
-
-        // departments
-        createDepartmentActivity,
-        DepartmentByIdActivity,
-        updateDepartmentActivity,
-        deleteDepartmentActivity,
-        listDepartmentsActivity,
 
         // businessUnits
         createBusinessUnitActivity,
@@ -268,21 +240,9 @@ export function addActivities() {
         DeleteSlideshowActivity,
         SlideshowByGroupActivity,
 
-        // Employees
-        createEmployeeActivity,
-        deleteEmployeeActivity,
-        listEmployeesActivity,
-        employeeByIdActivity,
-        updateEmployeeActivity,
-
         // date ranges
         getDateRangesActivity,
 
-        // locations
-        deleteLocationActivity,
-        updateLocationActivity,
-        createLocationActivity,
-        listLocationsActivity
         // reports
         endOfDayReportActivity,
         // widgets
