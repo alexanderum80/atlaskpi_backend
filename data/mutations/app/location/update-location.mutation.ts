@@ -1,25 +1,25 @@
-import { IBusinessUnitModel } from '../../../models/app/business-unit/IBusinessUnit';
+import { ILocationModel, ILocation } from '../../../models/app/location/ILocation';
 import { MutationBase } from '../../mutation-base';
 import { IIdentity, IMutationResponse } from '../../..';
 import { IMutation, IValidationResult } from '../..';
 import * as Promise from 'bluebird';
 import * as logger from 'winston';
 
-export class CreateBusinessUnitMutation extends MutationBase<IMutationResponse> {
+export class UpdateLocationMutation extends MutationBase<IMutationResponse> {
     constructor(
         public identity: IIdentity,
-        private _BusinessUnitModel: IBusinessUnitModel) {
+        private _LocationModel: ILocationModel) {
             super(identity);
         }
 
-    run(data): Promise<IMutationResponse> {
+    run(data: {id: string, input: ILocation}): Promise<IMutationResponse> {
         const that = this;
 
         return new Promise<IMutationResponse>((resolve, reject) => {
-           that._BusinessUnitModel.createNew(data.name, data.serviceType).then(businessunit => {
+            that._LocationModel.updateLocation(data.id, data.input).then(location => {
                 resolve({
                     success: true,
-                    entity: businessunit
+                    entity: location
                 });
            }).catch(err => {
                 resolve({
@@ -27,7 +27,7 @@ export class CreateBusinessUnitMutation extends MutationBase<IMutationResponse> 
                     errors: [
                         {
                             field: 'general',
-                            errors: ['There was an error creating the business unit']
+                            errors: ['There was an error updating the location']
                         }
                     ]
                 });
