@@ -250,10 +250,6 @@ accountSchema.methods.createAccountDbUser = function(accountDbUser: IAccountDBUs
 
 };
 
-export function getAccountModel(): IAccountModel {
-    return <IAccountModel>mongoose.model('Account', accountSchema);
-}
-
 function generateDBObject(database: string, username?: string, password?: string): IDatabaseInfo {
     let uriTemplate = Handlebars.compile(config.newAccountDbUriFormat);
     let data = {
@@ -346,3 +342,7 @@ function generateFirstAccountToken(codeContext, acountContext: IAppModels, accou
 }
 
 
+
+export function getAccountModel(): IAccountModel {
+    return <IAccountModel>mongoose.model('Account', accountSchema);
+}

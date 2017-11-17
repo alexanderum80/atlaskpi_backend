@@ -1,3 +1,4 @@
+import { countriesGql } from './master/countries.gql';
 import { reportsGql } from './app/reports.gql';
 import { businessUnitGql } from './app/business-unit.gql';
 import { departmentsGql } from './app/departments.gql';
@@ -23,8 +24,15 @@ import { usersGql, kpisGql, commonGql,
 
 // let files = getGlobbedFiles(path.join(__dirname, '**', '*.gql.ts'));
 let definitions: GraphqlDefinition[] = [];
+
 definitions.push(commonGql);
+
+// Master
 definitions.push(accountsGql);
+definitions.push(industriesGql);
+definitions.push(countriesGql);
+
+// App
 definitions.push(usersGql);
 definitions.push(kpisGql);
 // definitions.push(businessUnitsGql);
@@ -32,7 +40,6 @@ definitions.push(chartFormatGql);
 definitions.push(chartsGql);
 definitions.push(dashboardGql);
 definitions.push(spreadsheetGpl);
-definitions.push(industriesGql);
 definitions.push(searchGql);
 definitions.push(rolesGql);
 definitions.push(permissionGql);

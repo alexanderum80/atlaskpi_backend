@@ -1,3 +1,4 @@
+import { getCountryModel, getStateModel } from './countries';
 import * as mongoose from 'mongoose';
 import * as Promise from 'bluebird';
 import * as winston from 'winston';
@@ -22,6 +23,8 @@ export function getMasterContext(): Promise<IMasterModels> {
                 Connection: mongoose.connection,
                 Account: getAccountModel(),
                 Industry: getIndustryModel(),
+                Country: getCountryModel(),
+                State: getStateModel()
             };
 
             resolve(masterModels);

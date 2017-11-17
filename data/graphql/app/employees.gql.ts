@@ -44,7 +44,7 @@ export const employeesGql: GraphqlDefinition = {
                 nationality: String
                 maritalStatus: String
                 address: Address
-                employmentInfo: EmploymentInfo
+                employmentInfo: [EmploymentInfo]
             }
 
             input EmployeeAttributesInput {
