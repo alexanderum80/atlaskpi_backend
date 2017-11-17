@@ -1,3 +1,4 @@
+import { getCountryInfo } from './master/get-country-info';
 import { endOfDayReportActivity } from './app/reports/emd-of-day-report.activity';
 import { previewWidgetActivity } from './app/widgets/preview-widget.activity';
 import { createWidgetActivity } from './app/widgets/create-widget.activity';
@@ -144,6 +145,7 @@ export function addActivities() {
         getAccountActivity,
         getIndustriesActivity,
         accountNameAvailableActivity,
+        getCountryInfo,
 
         // app
         createUserActivity,
