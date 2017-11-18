@@ -1,3 +1,4 @@
+import { IBusinessUnitModel } from './business-unit/IBusinessUnit';
 import { IEmployeeModel } from './employees/IEmployee';
 import { IWidgetModel } from './widgets/IWidget';
 import { ISlideshowModel } from './slideshow/ISlideshow';
@@ -8,7 +9,6 @@ import { IWorkLogModel } from './work-log/IWorkLog';
 import { IChartModel } from './charts';
 import { IInventoryModel } from './inventory/IInventory';
 import { ISurveyModel } from './surveys/ISurvey';
-import { IBusinessUnitModel } from './business-units/IBusinessUnit';
 import { IDepartmentModel } from './departments/IDepartment';
 // import { ICustomerModel } from './customers';
 // import { IEmployeeModel } from './employees';
@@ -47,7 +47,6 @@ export interface IAppModels {
     KPI: IKPIModel;
     Survey: ISurveyModel;
     Inventory: IInventoryModel;
-    BusinessUnit: IBusinesUnitModel;
     Chart: IChartModel;
     ChartFormat: IChartFormatModel;
     Dashboard: IDashboardModel;
@@ -60,7 +59,7 @@ export interface IAppModels {
     EmployeeModel: IEmployeeModel;
     AppointmentModel: IAppointmentModel;
     Widget: IWidgetModel;
-    BusinessUnitModel: IBusinesUnitModel;
+    BusinessUnitModel: IBusinessUnitModel;
     DepartmentModel: IDepartmentModel;
   LocationModel: ILocationModel;
 }
