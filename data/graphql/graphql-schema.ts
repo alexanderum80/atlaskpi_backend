@@ -56,7 +56,6 @@ definitions.push(appointmentsGql);
 definitions.push(reportsGql);
 definitions.push(widgetsGql);
 definitions.push(businessUnitGql);
-definitions.push(locationsGql);
 definitions.push(departmentsGql);
 
 let moduleQueries = [];
