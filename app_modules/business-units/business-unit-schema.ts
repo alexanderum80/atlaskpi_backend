@@ -1,7 +1,7 @@
 import {
     IBusinessUnitModel,
     IBusinessUnitDocument
-} from './IBusinessUnit';
+} from './business-unit.model';
 import * as mongoose from 'mongoose';
 import * as logger from 'winston';
 
