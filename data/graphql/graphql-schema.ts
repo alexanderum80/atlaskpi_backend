@@ -9,7 +9,6 @@ import { appointmentsGql } from './app/appointments.gql';
 import { dataSourcesGql } from './app/data-sources.gql';
 import { industriesGql } from './master/industries.gql';
 import { spreadsheetGpl } from './master/import-from-spreadsheet';
-import { } from '.'
 // from: https://gist.github.com/icebob/553c1f9f1a9478d828bcb7a08d06790a
 
 import { GraphqlDefinition } from './graphql-definition';
