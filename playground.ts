@@ -1,17 +1,22 @@
-import { NumericWidget } from './data/models/app/widgets/numeric-widget';
-import { initialRoles } from './data/models/master/accounts/initialRoles';
-import { initRoles } from './lib/rbac/init-roles';
-import { IWidgetInput } from './data/models/app/widgets';
-import { getContext } from './data/models/app/app-context';
-import { DateRangeHelper } from './data/queries/app/date-ranges/date-range.helper';
-import seed from './data/seed';
-import { KPIFilterHelper } from './data/models/app/kpis/kpi-filter.helper';
-import { readMongooseSchema } from './lib/utils';
-import { KPITypeEnum, IKPIFilter } from './data/models/app/kpis/IKPI';
-import { KPIExpressionHelper } from './data/models/app/kpis/kpi-expression.helper';
-import { SaleSchema } from './data/models/app/sales/Sale';
-import * as mongoose from 'mongoose';
-import * as _ from 'lodash';
+import { CreateBusinessUnitMutationA } from './app_modules/business-units/mutations/mutations.gql';
+
+const a = new CreateBusinessUnitMutationA();
+
+
+// import { NumericWidget } from './data/models/app/widgets/numeric-widget';
+// import { initialRoles } from './data/models/master/accounts/initialRoles';
+// import { initRoles } from './lib/rbac/init-roles';
+// import { IWidgetInput } from './data/models/app/widgets';
+// import { getContext } from './data/models/app/app-context';
+// import { DateRangeHelper } from './data/queries/app/date-ranges/date-range.helper';
+// import seed from './data/seed';
+// import { KPIFilterHelper } from './data/models/app/kpis/kpi-filter.helper';
+// import { readMongooseSchema } from './lib/utils';
+// import { KPITypeEnum, IKPIFilter } from './data/models/app/kpis/IKPI';
+// import { KPIExpressionHelper } from './data/models/app/kpis/kpi-expression.helper';
+// import { SaleSchema } from './data/models/app/sales/Sale';
+// import * as mongoose from 'mongoose';
+// import * as _ from 'lodash';
 
 // import { testMongoosePerformance } from './playground/mongoose-performance';
 // import { playWithUsers } from './playground/index';
@@ -169,7 +174,7 @@ import * as _ from 'lodash';
 // const dateRanges = DateRangeHelper.GetDateRangeItems();
 // console.dir(dateRanges);
 
-getContext('mongodb://localhost/company-test-3002').then(ctx => {
+// getContext('mongodb://localhost/company-test-3002').then(ctx => {
     // ctx.Widget.findOne({ _id: '59ea71b1e323909308aec307' }).then(w =>  {
     //     console.dir(w);
 
@@ -197,4 +202,4 @@ getContext('mongodb://localhost/company-test-3002').then(ctx => {
     // });
 
 
-});
+// });

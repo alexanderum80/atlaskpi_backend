@@ -1,14 +1,17 @@
 import * as Promise from 'bluebird';
 import {
-    IIdentity
-} from '../../common';
+    IIdentity,
+    QueryBase
+} from '../../../framework';
 import {
     IBusinessUnitDocument,
     IBusinessUnitModel
 } from '../business-unit.model';
 
-export class BusinessUnitsQuery {
-    constructor(public identity: IIdentity, private _IBusinessUnitModel: IBusinessUnitModel) {}
+export class BusinessUnitsQuery extends QueryBase<IBusinessUnitDocument[]> {
+    constructor(public identity: IIdentity, private _IBusinessUnitModel: IBusinessUnitModel) {
+        super(identity);
+    }
 
     run(data: any): Promise < IBusinessUnitDocument[] > {
         return this._IBusinessUnitModel.businessUnits();
