@@ -7,7 +7,7 @@ import {
     IMutationResponse,
     IMutation,
     IValidationResult
-} from '../../common';
+} from '../../../framework';
 import * as Promise from 'bluebird';
 import * as logger from 'winston';
 

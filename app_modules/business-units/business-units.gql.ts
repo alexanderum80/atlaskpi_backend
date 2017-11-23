@@ -18,7 +18,7 @@ import {
     UpdateBusinessUnitMutation
 } from './mutations';
 
-export const businessUnitGql: GraphqlDefinition = {
+export const businessUnitsGql: GraphqlDefinition = {
     name: 'business-unit',
     schema: {
         types: `
@@ -26,7 +26,7 @@ export const businessUnitGql: GraphqlDefinition = {
                 _id: String
                 name: String
                 serviceType: String
-                }
+            }
 
             type UpdateBusinessUnitResponse {
                 success: Boolean
