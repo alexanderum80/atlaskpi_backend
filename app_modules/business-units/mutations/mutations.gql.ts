@@ -1,8 +1,9 @@
 // import { GraphQLTypesMap, field, type, input, mutation } from '../../../framework';
+import * as Hbs from 'handlebars';
 
 export const GraphQLTypesMap = {
     String: 'String',
-    Int: 'Integer',
+    Int: 'Int',
 };
 
 export enum GraphqlMetaType {
@@ -14,20 +15,52 @@ export enum GraphqlMetaType {
 
 export function type(definition?: any) {
     return function(target) {
-        updateMetadata(target, null, target.name, GraphqlMetaType.Type);
-    };
-}
+        // create input graphql definition
+        const typeTemplateText = `type {{typeName}} {
+            {{#each fields}}
+            {{this}}
+            {{/each}}
+        }`;
 
-export function field(definition?: any) {
-    return function(target, property) {
-        updateMetadata(target, 'fields', property, definition.type);
+        const fields = target.prototype.fields;
+        const fieldNames = Object.keys(fields);
+        const payload = {
+            typeName: target.name,
+            fields: fieldNames.map(f => `${f}: ${fields[f]}`)
+        };
+        const graphQlType = Hbs.compile(typeTemplateText)(payload);
+
+        updateMetadata(target, null, 'gqlArtifact', { type: 'type', name: target.name });
+        updateMetadata(target, null, 'definition', graphQlType);
     };
 }
 
 export function input(definition?: any) {
     return function(target) {
         updateMetadata(target, null, target.name, GraphqlMetaType.Input);
-        return null;
+        // create input graphql definition
+        const inputTemplateText = `input {{typeName}} {
+            {{#each fields}}
+            {{this}}
+            {{/each}}
+        }`;
+
+        const fields = target.prototype.fields;
+        const fieldNames = Object.keys(fields);
+        const payload = {
+            typeName: target.name,
+            fields: fieldNames.map(f => `${f}: ${fields[f]}`)
+        };
+        const graphQlType = Hbs.compile(inputTemplateText)(payload);
+
+        updateMetadata(target, null, 'gqlArtifact', { type: 'input', name: target.name });
+        updateMetadata(target, null, 'definition', graphQlType);
+    };
+}
+
+export function field(definition?: any) {
+    return function(target, property) {
+        updateMetadata(target, 'fields', property, definition.type.name || definition.type);
     };
 }
 
@@ -40,46 +73,75 @@ export function mutation(definition: any) {
 }
 
 function updateMetadata(target, containerName, field, value) {
-    if (!target.___metadata___) {
-        target.___metadata___ = {};
-    }
-
-    let container: any;
 
     if (containerName) {
-        if (!target.___metadata___[containerName]) {
-            target.___metadata___[containerName] = {};
+        let variable = {};
+        if (!target.hasOwnProperty(containerName)) {
+            Object.defineProperty(target, containerName, {
+                configurable: false,
+                get: () => variable,
+                set: (value) => variable = value
+            });
         }
 
-        container = target.___metadata___[containerName];
+        if (target[containerName][field]) {
+            return;
+        }
+
+        target[containerName][field] = value;
     } else {
-        container = target.___metadata___;
-    }
+        let propertyValue;
+        if (!target.hasOwnProperty(field)) {
+            Object.defineProperty(target, field, {
+                configurable: false,
+                get: () => propertyValue,
+                set: (value) => propertyValue = value
+            });
+        }
 
-    if (container[field]) {
-        throw new Error('A property with the same name was already defined on: ' + target.constructor.name);
-    }
+        if (target[field]) {
+            return;
+        }
 
-    container[field] = value;
+        target[field] = value;
+    }
+}
+
+
+
+@type()
+export class Location {
+    @field({ type: GraphQLTypesMap.String })
+    id: string;
+
+    @field({ type: GraphQLTypesMap.String })
+    name: number;
+
+    resolver(data): Location {
+        return null;
+    }
 }
 
 
 @type()
-export class BusinessUnitType {
+export class BusinessUnit {
     @field({ type: GraphQLTypesMap.String })
     name: string;
 
     @field({ type: GraphQLTypesMap.Int })
     serviceType: number;
+
+    @field({ type: Location })
+    location: Location;
 }
 
 @input()
-export class CreateBusinessUnitInput extends BusinessUnitType { }
+export class CreateBusinessUnitInput extends BusinessUnit { }
 
 @mutation({
     name: 'createBusinessUnit',
     input: CreateBusinessUnitInput,
-    output: BusinessUnitType
+    output: BusinessUnit
 })
 export class CreateBusinessUnitMutationA {
     execute() { }
