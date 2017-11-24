@@ -1,12 +1,22 @@
-import { IActivity } from '../authorization';
-import { GraphqlMetaType } from './graphql-meta-types.enum';
-import { GraphQLArtifact } from './graphql-artifact';
-import { updateMetadata } from './helpers';
-import { MetadataFieldsMap } from './metadata-fields.map';
+import {
+    IActivity
+} from '../authorization';
+import {
+    GraphqlMetaType
+} from './graphql-meta-types.enum';
+import {
+    GraphQLArtifact
+} from './graphql-artifact';
+import {
+    updateMetadata
+} from './helpers';
+import {
+    MetadataFieldsMap
+} from './metadata-fields.map';
 import * as Hbs from 'handlebars';
 
 export interface GraphQLQueryDecoratorOptions {
-    name?: string;
+    name ? : string;
     activity: IActivity | [IActivity];
     parameters: any[];
     output: any;
@@ -24,7 +34,29 @@ export function query(definition: GraphQLQueryDecoratorOptions) {
         };
         const graphQlType = Hbs.compile(inputTemplateText)(payload);
 
-        updateMetadata(target, null, MetadataFieldsMap.Artifact, { type: GraphqlMetaType.Query, name: name } as GraphQLArtifact);
+        updateMetadata(target, null, MetadataFieldsMap.Artifact, {
+                type: GraphqlMetaType.Query,
+                name: name
+            } as GraphQLArtifact);
         updateMetadata(target, null, MetadataFieldsMap.Definition, graphQlType);
+
+        // add only complex types
+        const types = [];
+
+        // add types for parameters
+        if (definition.parameters) {
+            definition.parameters.forEach(p => {
+                if (p.type.name) {
+                    types.push(p.type);
+                }
+            });
+        }
+
+        // add output type
+        if (definition.output.name) {
+            types.push(definition.output);
+        }
+
+        updateMetadata(target, null, MetadataFieldsMap.Types, types);
     };
 }
