@@ -66,8 +66,13 @@ export class GetBusinessUnitQuery extends QueryBase<BusinessUnit> {
     queries: [GetBusinessUnitQuery],
     mutations: [CreateBusinessUnitMutation]
 })
-export class AtlasApp { }
+export class BusinessUnitModule { }
 
+
+@Module({
+    imports: [BusinessUnitModule]
+})
+export class AtlasApp { }
 
 
 

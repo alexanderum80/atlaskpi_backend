@@ -16,7 +16,7 @@ import {
 import * as Hbs from 'handlebars';
 
 export interface GraphQLQueryDecoratorOptions {
-    name ? : string;
+    name?: string;
     activity: IActivity | [IActivity];
     parameters: any[];
     output: any;
