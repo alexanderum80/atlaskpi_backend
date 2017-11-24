@@ -2,6 +2,7 @@ import { IActivity } from '../authorization';
 import { GraphqlMetaType } from './graphql-meta-types.enum';
 import { GraphQLArtifact } from './graphql-artifact';
 import { updateMetadata } from './helpers';
+import { MetadataFieldsMap } from './metadata-fields.map';
 import * as Hbs from 'handlebars';
 
 export interface GraphQLQueryDecoratorOptions {
@@ -23,7 +24,7 @@ export function query(definition: GraphQLQueryDecoratorOptions) {
         };
         const graphQlType = Hbs.compile(inputTemplateText)(payload);
 
-        updateMetadata(target, null, 'gqlArtifact', { type: GraphqlMetaType.Query, name: name } as GraphQLArtifact);
-        updateMetadata(target, null, 'definition', graphQlType);
+        updateMetadata(target, null, MetadataFieldsMap.Artifact, { type: GraphqlMetaType.Query, name: name } as GraphQLArtifact);
+        updateMetadata(target, null, MetadataFieldsMap.Definition, graphQlType);
     };
 }

@@ -1,6 +1,7 @@
 import { GraphqlMetaType } from './graphql-meta-types.enum';
 import { GraphQLArtifact } from './graphql-artifact';
 import { updateMetadata } from './helpers';
+import { MetadataFieldsMap } from './metadata-fields.map';
 import * as Hbs from 'handlebars';
 
 export interface GraphQLTypeDecoratorOptions {
@@ -21,7 +22,7 @@ export function type(definition?: GraphQLTypeDecoratorOptions) {
         }
 
         const name = definition.name || target.name;
-        const fields = target.prototype.fields;
+        const fields = target.prototype[MetadataFieldsMap.Fields];
         const fieldNames = Object.keys(fields);
         const payload = {
             typeName: name,
@@ -29,7 +30,7 @@ export function type(definition?: GraphQLTypeDecoratorOptions) {
         };
         const graphQlType = Hbs.compile(typeTemplateText)(payload);
 
-        updateMetadata(target, null, 'gqlArtifact', { type: GraphqlMetaType.Type, name: name } as GraphQLArtifact);
-        updateMetadata(target, null, 'definition', graphQlType);
+        updateMetadata(target, null, MetadataFieldsMap.Artifact, { type: GraphqlMetaType.Type, name: name } as GraphQLArtifact);
+        updateMetadata(target, null, MetadataFieldsMap.Definition, graphQlType);
     };
 }

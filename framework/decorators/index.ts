@@ -2,6 +2,7 @@ export * from './graphql-artifact';
 export * from './graphql-meta-types.enum';
 export * from './graphql-types-map';
 export * from './helpers';
+export * from './metadata-fields.map';
 
 export * from './field.decorator';
 export * from './input.decorator';
