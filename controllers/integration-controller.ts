@@ -3,13 +3,18 @@ import { IOAuthConnector } from '../data/integrations/models/connector-base';
 import { IAppModels } from '../data/models/app/app-models';
 import { IMasterModels } from '../data/models/master/index';
 
+export interface UrlHelper {
+    hostname?: string;
+    protocol?: string;
+}
+
 export class IntegrationController {
     private _connector: IOAuthConnector;
 
     constructor(private _masterContext: IMasterModels,
                 private _appContext: IAppModels,
                 query: any,
-                hostname?: string) {
+                urlPath: UrlHelper) {
         if (!this._masterContext || !this._appContext || !query) {
             console.log('missing paramters...');
             return null;
@@ -23,6 +28,12 @@ export class IntegrationController {
         }
 
         const connectorCode = tokens[0];
-        const connector = IntegrationConnectorFactory.getInstance(connectorCode, hostname);
+        const connector = IntegrationConnectorFactory.getInstance(connectorCode, urlPath);
+
+        const that = this;
+        (<any>connector).getToken(urlPath.protocol + urlPath.hostname + '.com')
+            .then(res => {
+                (<any>that._masterContext).Connector.addConnector()
+            });
     }
 }

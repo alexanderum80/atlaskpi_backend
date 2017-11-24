@@ -10,9 +10,11 @@ export class SquareConnector implements IOAuthConnector {
     private _clientSecret = 'sq0csp-8hJv6t0Xrbh2gkGqiziduQGgd47gBN5JnziuL4ZgA9k';
     private _clientAuth: any;
     private _scope: string;
+    private _token: string;
 
-    constructor(code?: string) {
-        this._clientAuth = new ClientOAuth2(this.getAuthConfiguration());
+    constructor(code?: string, private urlPath?: any) {
+        this._code = code;
+        this._clientAuth = new ClientOAuth2(this.getConfiguration);
         this.setScopes();
     }
 
@@ -29,27 +31,35 @@ export class SquareConnector implements IOAuthConnector {
     }
 
     getTypeString(): string {
-        return '';
+        return ConnectorTypeEnum[ConnectorTypeEnum.Square].toString();
     }
 
-    getToken() {
-        // do something
-        return this._clientAuth.getToken()
+    getToken(url: string): Promise<any> {
+        const that = this;
+        return new Promise<any>((resolve, reject) => {
+            this._clientAuth.code.getToken(url)
+                .then(token => {
+                    that._token = token;
+                    resolve(token);
+                }).catch(errToken => {
+                    reject(errToken);
+            });
+        });
     }
 
     setScopes() {
-        this.scope = require('square_configuration.json');
+        this._scope = require('square_configuration.json');
     }
 
-    getAuthConfiguration(): IOAuthConfigOptions {
+    getConfiguration(): IOAuthConfigOptions {
+        const redirectUri = this.urlPath.protocol + '://' + this.urlPath.hostname + '.com';
         return {
             clientId: this._clientId,
             clientSecret: this._clientSecret,
-            code: this._code,
-            scopes: this._scope['scopes_supported']
+            scopes: this._scope['scopes_supported'],
             accessTokenUri: 'https://connect.squareup.com/oauth2/token',
             authorizationUri: 'https://connect.squareup.com/oauth2/authorize',
-            redirectUri: ''
+            redirectUri: redirectUri
         };
     }
 
