@@ -9,7 +9,7 @@ import { getContext } from '../data/models/app/app-context';
 
 const integration = express.Router();
 
-integration.post('/integration', (req: ExtendedRequest, res: Response)  => {
+integration.get('/integration', (req: ExtendedRequest, res: Response)  => {
     logger.debug('processing an integration... ');
 
     // code flow authentication only at this point
@@ -25,8 +25,16 @@ integration.post('/integration', (req: ExtendedRequest, res: Response)  => {
         res.status(500).send(err);
     }
 
-    res.status(200).send();
-    return;
+    integration.executeFlow(req.originalUrl).then(success => {
+        if (success) {
+            res.status(200).json({ status: 'success'});
+            return;
+        }
+    })
+    .catch(err => {
+        logger.error(err);
+        res.status(500).send(err);
+    });
 });
 
 export { integration };
