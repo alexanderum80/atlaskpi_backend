@@ -1,6 +1,16 @@
-import { ConnectorTypeEnum } from './connector-type.enum';
+import { IQBOConnectorConfig } from './../../models/master/connectors/IConnector';
+import { ConnectorTypeEnum } from './connector-type';
+import * as Promise from 'bluebird';
 
-export const REDIRECT_URI = 'http://localhost:9091/integrations';
+export const REDIRECT_URI = 'http://localhost:9091/integration';
+
+export interface IOAuth2Token {
+    expires_in: number;
+    refresh_token: string;
+    access_token: string;
+    token_type: string;
+    x_refresh_token_expires_in: number;
+}
 
 export interface IOAuthConfigOptions {
     clientId?: string;
@@ -19,11 +29,17 @@ export interface IOAuthConfigOptions {
     headers?: {
       [key: string]: string | string[];
     };
-  }
+}
 
 export interface IOAuthConnector {
     // Get
     getType(): ConnectorTypeEnum;
     getTypeString(): string;
-    getAuthConfiguration(): IOAuthConfigOptions;
+    getToken(originalUrl: string): Promise<IOAuth2Token>;
+    getConfiguration(): IQBOConnectorConfig | any;
+    // getAuthConfiguration(): IOAuthConfigOptions;
+
+    // user buy quickbooks online
+    setRealmId?(realmId: string): void;
+    getRealmId?(): string;
 }
