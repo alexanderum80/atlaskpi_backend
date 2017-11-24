@@ -1,4 +1,5 @@
+
 export const GraphQLTypesMap = {
     String: 'String',
-    Int: 'Integer',
+    Int: 'Int',
 };

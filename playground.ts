@@ -1,7 +1,8 @@
-import { CreateBusinessUnitMutationA, GetBusinessUnitQuery } from './app_modules/business-units/mutations/mutations.gql';
+import { CreateBusinessUnitMutation, GetBusinessUnitQuery, AtlasApp } from './app_modules/business-units/mutations/mutations.gql';
 
-const a = new CreateBusinessUnitMutationA();
-const b = new GetBusinessUnitQuery();
+// const a = new CreateBusinessUnitMutation();
+// const b = new GetBusinessUnitQuery();
+const app = new AtlasApp();
 
 
 // import { NumericWidget } from './data/models/app/widgets/numeric-widget';
