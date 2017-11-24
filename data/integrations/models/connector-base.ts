@@ -22,5 +22,5 @@ export interface IOAuthConfigOptions {
 export interface IOAuthConnector {
     getType(): ConnectorTypeEnum;
     getTypeString(): string;
-    getAuthConfiguration(): IOAuthConfigOptions;
+    getConfiguration(): IOAuthConfigOptions;
 }

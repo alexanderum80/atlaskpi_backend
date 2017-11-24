@@ -19,7 +19,10 @@ integration.post('/integration', (req: ExtendedRequest, res: Response) => {
         res.status(400).json({ error: 'invalid hostname'  });
     }
 
-    const integration_controller = new IntegrationController(req.masterContext, req.appContext, req.query);
+    const integration_controller = new IntegrationController(req.masterContext, req.appContext, req.query, {
+        hostname: hostname,
+        protocol: req.protocol
+    });
 
     if (!integration_controller) {
         const err = 'something went wrong processing the integration...';
