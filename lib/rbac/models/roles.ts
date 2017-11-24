@@ -14,7 +14,7 @@ import {
     CAN_ANY
 } from './utils';
 
-// INTERFACES 
+// INTERFACES
 
 
 export interface IRole {
@@ -136,7 +136,7 @@ RoleSchema.statics.createRole = function(data: IRoleCustom): Promise<IRoleDocume
         if (errors) {
             resolve(errors);
             return;
-        };
+        }
 
         that.create(data, (err, role: IRoleDocument) => {
             if (err) {
