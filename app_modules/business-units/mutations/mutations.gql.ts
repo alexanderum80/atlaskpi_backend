@@ -67,8 +67,19 @@ export function field(definition?: any) {
 
 export function mutation(definition: any) {
     return (target) => {
-        console.log(definition.name);
-        console.log(JSON.stringify(definition.input.constructor()));
+
+        const parameters = definition.parameters.map(p => `${p.name}: ${p.type.name}`);
+
+        const inputTemplateText = `{{mutationName}}({{#each parameters}}{{this}}{{/each}}): {{output}}`;
+        const payload = {
+            mutationName: target.name,
+            parameters: definition.parameters.map(p => `${p.name}: ${p.type.name}`),
+            output: definition.output.name
+        };
+        const graphQlType = Hbs.compile(inputTemplateText)(payload);
+
+        updateMetadata(target, null, 'gqlArtifact', { type: 'mutation', name: target.name });
+        updateMetadata(target, null, 'definition', graphQlType);
     };
 }
 
@@ -140,7 +151,7 @@ export class CreateBusinessUnitInput extends BusinessUnit { }
 
 @mutation({
     name: 'createBusinessUnit',
-    input: CreateBusinessUnitInput,
+    parameters: [{ name: 'input', type: CreateBusinessUnitInput }],
     output: BusinessUnit
 })
 export class CreateBusinessUnitMutationA {
