@@ -1,6 +1,7 @@
-import { CreateBusinessUnitMutationA } from './app_modules/business-units/mutations/mutations.gql';
+import { CreateBusinessUnitMutationA, GetBusinessUnitQuery } from './app_modules/business-units/mutations/mutations.gql';
 
 const a = new CreateBusinessUnitMutationA();
+const b = new GetBusinessUnitQuery();
 
 
 // import { NumericWidget } from './data/models/app/widgets/numeric-widget';

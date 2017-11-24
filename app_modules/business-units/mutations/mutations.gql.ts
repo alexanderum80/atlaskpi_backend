@@ -72,8 +72,26 @@ export function mutation(definition: any) {
 
         const inputTemplateText = `{{mutationName}}({{#each parameters}}{{this}}{{/each}}): {{output}}`;
         const payload = {
-            mutationName: target.name,
-            parameters: definition.parameters.map(p => `${p.name}: ${p.type.name}`),
+            mutationName: definition.name || target.name,
+            parameters: definition.parameters.map(p => `${p.name}: ${p.type.name || p.type}`),
+            output: definition.output.name
+        };
+        const graphQlType = Hbs.compile(inputTemplateText)(payload);
+
+        updateMetadata(target, null, 'gqlArtifact', { type: 'mutation', name: target.name });
+        updateMetadata(target, null, 'definition', graphQlType);
+    };
+}
+
+export function query(definition: any) {
+    return (target) => {
+
+        const parameters = definition.parameters.map(p => `${p.name}: ${p.type.name}`);
+
+        const inputTemplateText = `{{mutationName}}({{#each parameters}}{{this}}{{/each}}): {{output}}`;
+        const payload = {
+            mutationName: definition.name || target.name,
+            parameters: definition.parameters.map(p => `${p.name}: ${p.type.name || p.type}`),
             output: definition.output.name
         };
         const graphQlType = Hbs.compile(inputTemplateText)(payload);
@@ -155,6 +173,15 @@ export class CreateBusinessUnitInput extends BusinessUnit { }
     output: BusinessUnit
 })
 export class CreateBusinessUnitMutationA {
+    execute() { }
+}
+
+@query({
+    name: 'businessUnit',
+    parameters: [{ name: 'id', type: 'String', required: true }],
+    output: BusinessUnit
+})
+export class GetBusinessUnitQuery {
     execute() { }
 }
 
