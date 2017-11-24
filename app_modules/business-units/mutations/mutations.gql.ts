@@ -73,7 +73,7 @@ export function mutation(definition: any) {
         const inputTemplateText = `{{mutationName}}({{#each parameters}}{{this}}{{/each}}): {{output}}`;
         const payload = {
             mutationName: definition.name || target.name,
-            parameters: definition.parameters.map(p => `${p.name}: ${p.type.name || p.type}`),
+            parameters: definition.parameters.map(p => `${p.name}: ${p.type.name || p.type}${p.required ? '!' : ''}`),
             output: definition.output.name
         };
         const graphQlType = Hbs.compile(inputTemplateText)(payload);
@@ -91,7 +91,7 @@ export function query(definition: any) {
         const inputTemplateText = `{{mutationName}}({{#each parameters}}{{this}}{{/each}}): {{output}}`;
         const payload = {
             mutationName: definition.name || target.name,
-            parameters: definition.parameters.map(p => `${p.name}: ${p.type.name || p.type}`),
+            parameters: definition.parameters.map(p => `${p.name}: ${p.type.name || p.type}${p.required ? '!' : ''}`),
             output: definition.output.name
         };
         const graphQlType = Hbs.compile(inputTemplateText)(payload);
