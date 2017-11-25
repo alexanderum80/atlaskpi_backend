@@ -1,3 +1,4 @@
+import { GraphqlMetaType } from './graphql-meta-types.enum';
 import { GraphqlDefinition, GraphqlSchema } from '../graphql';
 import { updateMetadata } from './helpers';
 import { IQuery } from '../queries/query';
@@ -19,13 +20,13 @@ export function Module(options: IModuleOptions) {
         // a utility function to generate instances of a class
         function construct(constructor, args) {
             const c: any = function () {
-                if (options.mutations) {
-                    this[MetadataFieldsMap.MutationInstances] = options.mutations.map(m => new m());
-                }
+                // if (options.mutations) {
+                //     this[MetadataFieldsMap.MutationInstances] = options.mutations.map(m => new m());
+                // }
 
-                if (options.queries) {
-                    this[MetadataFieldsMap.QueryInstances] = options.queries.map(q => new q());
-                }
+                // if (options.queries) {
+                //     this[MetadataFieldsMap.QueryInstances] = options.queries.map(q => new q());
+                // }
 
                 if (options.mutations || options.queries) {
                     this[MetadataFieldsMap.Squema] = _constructGraphQLSchema.apply(this, [target.name, options]);
@@ -66,11 +67,16 @@ function _constructGraphQLSchema(name: string, options: IModuleOptions) {
 
     if (options.queries) {
         artifacts = artifacts.concat(_processQueriesMutations(options.queries));
+    }
+    if (options.mutations) {
         artifacts = artifacts.concat(_processQueriesMutations(options.mutations));
     }
 
     // dedup
     artifacts = dedup(artifacts, ['type', 'name']);
+    result.schema.types = _concatenateType(artifacts, [GraphqlMetaType.Input, GraphqlMetaType.Type]);
+    result.schema.queries = _concatenateType(artifacts, [GraphqlMetaType.Query]);
+    result.schema.mutations = _concatenateType(artifacts, [GraphqlMetaType.Mutation]);
 
     return result;
 }
@@ -98,6 +104,17 @@ function _processQueriesMutations(list) {
             });
         }
     });
+
+    return result;
+}
+
+function _concatenateType(list, types: GraphqlMetaType[]): string {
+    let result = '';
+
+    list.filter(a => types.indexOf(a.type) !== -1 )
+        .forEach(a => {
+            result += a.definition + '\n';
+        });
 
     return result;
 }
