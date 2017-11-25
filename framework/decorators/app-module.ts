@@ -6,6 +6,7 @@ import { IQuery } from '../queries/query';
 import { IMutation } from '../mutations/mutation';
 import { MetadataFieldsMap } from './metadata-fields.map';
 import * as _ from 'lodash';
+import { Container } from 'inversify';
 
 interface ISchemaArtifactDetails {
     type: GraphqlMetaType;
@@ -13,11 +14,21 @@ interface ISchemaArtifactDetails {
     definition: string;
 }
 
+export interface IAppModule {
+    registerDependencies(container: Container);
+}
+
+export class ModuleBase implements IAppModule {
+    registerDependencies(container: Container) {
+        // do nothing by default
+    }
+}
+
 
 export interface IModuleOptions {
-    imports?: IModuleOptions[];
-    queries?: Array<new () => IQuery<any>>;
-    mutations?: Array<new () => IMutation<any>>;
+    imports?: Array<new () => IAppModule>; // IModuleOptions[];
+    queries?: Array<new (...args) => IQuery<any>>;
+    mutations?: Array<new (...args) => IMutation<any>>;
 }
 
 export function Module(options: IModuleOptions) {
@@ -28,11 +39,14 @@ export function Module(options: IModuleOptions) {
         // a utility function to generate instances of a class
         function construct(constructor, args) {
             const c: any = function () {
+                const instance = constructor.apply(this, args);
+                instance.registerDependencies(args[0]);
+
                 if (options.mutations || options.queries) {
-                    this[MetadataFieldsMap.Squema] = _constructGraphQLSchema.apply(this, [target.name, options]);
+                    this[MetadataFieldsMap.Squema] = _constructGraphQLSchema.apply(this, [args[0], target.name, options]);
                 }
 
-                return constructor.apply(this, args);
+                return instance;
             };
 
             c.prototype = constructor.prototype;
@@ -55,7 +69,7 @@ export function Module(options: IModuleOptions) {
 }
 
 
-function _constructGraphQLSchema(name: string, options: IModuleOptions) {
+function _constructGraphQLSchema(container: Container, name: string, options: IModuleOptions) {
     const result: GraphqlDefinition = {
         name: name,
         schema: {} as GraphqlSchema,
@@ -78,8 +92,9 @@ function _constructGraphQLSchema(name: string, options: IModuleOptions) {
     result.schema.mutations = _concatenateType(schemaArtifacts, [GraphqlMetaType.Mutation]);
 
     // create resolvers
-    result.resolvers.Query = _createResolversFor(GraphqlMetaType.Query, schemaArtifacts, options);
-    result.resolvers.Mutation = _createResolversFor(GraphqlMetaType.Mutation, schemaArtifacts, options);
+    result.resolvers.Query = _createResolversFor(container, GraphqlMetaType.Query, schemaArtifacts, options);
+    result.resolvers.Mutation = _createResolversFor(container, GraphqlMetaType.Mutation, schemaArtifacts, options);
+    Object.assign(result.resolvers, _createComplexTypeResolvers(schemaArtifacts, options));
 
     return result;
 }
@@ -123,24 +138,32 @@ function _concatenateType(list, types: GraphqlMetaType[]): string {
     return result;
 }
 
-function _createResolversFor(metaType: GraphqlMetaType, artifacts: ISchemaArtifactDetails[], options: IModuleOptions): any {
+function _createResolversFor(container: Container, metaType: GraphqlMetaType, artifacts: ISchemaArtifactDetails[], options: IModuleOptions): any {
     const result = {};
+    const searchIn = metaType === GraphqlMetaType.Query ? 'queries' : 'mutations';
     const resolverTypes = artifacts.filter(a => a.type === metaType);
 
     resolverTypes.forEach(r => {
-        const resolverClass = options.queries.find(q => q[MetadataFieldsMap.Artifact].name === r.name);
-        result[r.name] = _getResolverFunction(resolverClass);
+        const resolverClass = (options[searchIn] as any[]).find(q => q[MetadataFieldsMap.Artifact].name === r.name);
+        result[r.name] = _getResolverFunction(container, metaType, resolverClass);
     });
 
     return result;
 }
 
-function _getResolverFunction(resolverFunction: new (extendedContext) => IQuery<any> | IMutation<any>) {
+function _getResolverFunction(container: Container, metaType: GraphqlMetaType, resolverClass: new (...args) => IQuery<any> | IMutation<any>) {
+    const bus = metaType === GraphqlMetaType.Query ? 'queryBus' : 'mutationBus';
 
     return function _executeResolver(root: any, args, ctx: IGraphqlContext) {
-        let query = new resolverFunction(ctx);
-        return ctx.queryBus.run(resolverFunction[MetadataFieldsMap.Activity], query, args, ctx.req);
+        // get an intance using the dependency injection container
+        const i = container.get(resolverClass.name);
+        // ejecute the query or mutation bus
+        return ctx[bus].run(resolverClass[MetadataFieldsMap.Activity], i, args, ctx.req);
     };
+}
+
+function _createComplexTypeResolvers(schemaArtifacts: ISchemaArtifactDetails[], options: IModuleOptions) {
+    throw new Error('Not implemented');
 }
 
 
