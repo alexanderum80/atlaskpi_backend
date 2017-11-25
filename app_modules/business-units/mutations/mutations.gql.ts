@@ -1,5 +1,10 @@
+import { IAppModule, ModuleBase } from '../../../framework/decorators/app-module';
+import { IAppConfig } from '../../../configuration/config-models';
 import * as Promise from 'bluebird';
 import { type, field, input, mutation, query, GraphQLTypesMap, IActivity, Module, IQuery, QueryBase, MutationBase } from './../../../framework';
+import { inject } from 'inversify';
+import { Container } from 'inversify';
+import { injectable } from 'inversify';
 
 @type()
 export class Location {
@@ -32,6 +37,7 @@ export class CreateBusinessUnitInput extends BusinessUnit { }
 
 const CreateBusinessUnitActivity: IActivity = {} as IActivity;
 
+@injectable()
 @mutation({
     name: 'createBusinessUnit',
     activity: CreateBusinessUnitActivity,
@@ -39,6 +45,10 @@ const CreateBusinessUnitActivity: IActivity = {} as IActivity;
     output: BusinessUnit
 })
 export class CreateBusinessUnitMutation extends MutationBase<BusinessUnit> {
+
+    constructor(@inject('Config') private _config: IAppConfig) {
+        super();
+    }
 
     run(data: any): Promise<BusinessUnit> {
         return null;
@@ -48,6 +58,7 @@ export class CreateBusinessUnitMutation extends MutationBase<BusinessUnit> {
 
 const GetBusinessUnitQueryActivity: IActivity = {} as IActivity;
 
+@injectable()
 @query({
     name: 'businessUnit',
     activity: GetBusinessUnitQueryActivity,
@@ -66,13 +77,19 @@ export class GetBusinessUnitQuery extends QueryBase<BusinessUnit> {
     queries: [GetBusinessUnitQuery],
     mutations: [CreateBusinessUnitMutation]
 })
-export class BusinessUnitModule { }
+export class BusinessUnitModule extends ModuleBase {
+
+    registerDependencies(container: Container) {
+        container.bind<GetBusinessUnitQuery>('GetBusinessUnitQuery').to(GetBusinessUnitQuery);
+        container.bind<CreateBusinessUnitMutation>('CreateBusinessUnitMutation').to(CreateBusinessUnitMutation);
+    }
+}
 
 
 @Module({
     imports: [BusinessUnitModule]
 })
-export class AtlasApp { }
+export class AtlasApp extends ModuleBase { }
 
 
 

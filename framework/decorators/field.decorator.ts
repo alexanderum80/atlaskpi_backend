@@ -13,6 +13,7 @@ export function field(definition?: GraphQLFieldDecoratorOptions) {
         if (definition.required) {
             typeName += '!';
         }
+
         updateMetadata(target, MetadataFieldsMap.Fields, definition.name || property, typeName);
     };
 }

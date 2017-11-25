@@ -1,6 +1,8 @@
 import { IMutation } from './mutation';
 import * as Promise from 'bluebird';
+import { injectable } from 'inversify';
 
+@injectable()
 export abstract class MutationBase<T> implements IMutation<T> {
     log: boolean;
     audit: boolean;

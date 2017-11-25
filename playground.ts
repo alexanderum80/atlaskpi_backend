@@ -1,3 +1,4 @@
+import 'reflect-metadata';
 import { CreateBusinessUnitMutation, GetBusinessUnitQuery, AtlasApp } from './app_modules/business-units/mutations/mutations.gql';
 import { Framework } from './framework';
 
@@ -5,7 +6,22 @@ import { Framework } from './framework';
 // const b = new GetBusinessUnitQuery();
 // const app = new AtlasApp();
 
-Framework.bootstrap(AtlasApp);
+import { Container } from 'inversify';
+
+interface IAppConfig {
+    key: string;
+    value: string;
+}
+
+const config: IAppConfig = {
+    key: 'key',
+    value: 'value'
+};
+
+const container = new Container();
+container.bind<IAppConfig>('Config').toConstantValue(config);
+
+Framework.bootstrap(AtlasApp, container);
 
 
 // import { NumericWidget } from './data/models/app/widgets/numeric-widget';
