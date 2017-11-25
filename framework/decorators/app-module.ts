@@ -1,3 +1,4 @@
+import { IGraphqlContext } from '../graphql/graphql-context';
 import { GraphqlMetaType } from './graphql-meta-types.enum';
 import { GraphqlDefinition, GraphqlSchema } from '../graphql';
 import { updateMetadata } from './helpers';
@@ -5,6 +6,13 @@ import { IQuery } from '../queries/query';
 import { IMutation } from '../mutations/mutation';
 import { MetadataFieldsMap } from './metadata-fields.map';
 import * as _ from 'lodash';
+
+interface ISchemaArtifactDetails {
+    type: GraphqlMetaType;
+    name: string;
+    definition: string;
+}
+
 
 export interface IModuleOptions {
     imports?: IModuleOptions[];
@@ -20,18 +28,9 @@ export function Module(options: IModuleOptions) {
         // a utility function to generate instances of a class
         function construct(constructor, args) {
             const c: any = function () {
-                // if (options.mutations) {
-                //     this[MetadataFieldsMap.MutationInstances] = options.mutations.map(m => new m());
-                // }
-
-                // if (options.queries) {
-                //     this[MetadataFieldsMap.QueryInstances] = options.queries.map(q => new q());
-                // }
-
                 if (options.mutations || options.queries) {
                     this[MetadataFieldsMap.Squema] = _constructGraphQLSchema.apply(this, [target.name, options]);
                 }
-
 
                 return constructor.apply(this, args);
             };
@@ -63,25 +62,29 @@ function _constructGraphQLSchema(name: string, options: IModuleOptions) {
         resolvers: {}
     };
 
-    let artifacts = [];
+    let schemaArtifacts: ISchemaArtifactDetails[] = [];
 
     if (options.queries) {
-        artifacts = artifacts.concat(_processQueriesMutations(options.queries));
+        schemaArtifacts = schemaArtifacts.concat(_processQueriesMutations(options.queries));
     }
     if (options.mutations) {
-        artifacts = artifacts.concat(_processQueriesMutations(options.mutations));
+        schemaArtifacts = schemaArtifacts.concat(_processQueriesMutations(options.mutations));
     }
 
     // dedup
-    artifacts = dedup(artifacts, ['type', 'name']);
-    result.schema.types = _concatenateType(artifacts, [GraphqlMetaType.Input, GraphqlMetaType.Type]);
-    result.schema.queries = _concatenateType(artifacts, [GraphqlMetaType.Query]);
-    result.schema.mutations = _concatenateType(artifacts, [GraphqlMetaType.Mutation]);
+    schemaArtifacts = dedup(schemaArtifacts, ['type', 'name']);
+    result.schema.types = _concatenateType(schemaArtifacts, [GraphqlMetaType.Input, GraphqlMetaType.Type]);
+    result.schema.queries = _concatenateType(schemaArtifacts, [GraphqlMetaType.Query]);
+    result.schema.mutations = _concatenateType(schemaArtifacts, [GraphqlMetaType.Mutation]);
+
+    // create resolvers
+    result.resolvers.Query = _createResolversFor(GraphqlMetaType.Query, schemaArtifacts, options);
 
     return result;
 }
 
-function _processQueriesMutations(list) {
+
+function _processQueriesMutations(list): ISchemaArtifactDetails[] {
     let result = [];
 
     list.forEach(q => {
@@ -118,6 +121,26 @@ function _concatenateType(list, types: GraphqlMetaType[]): string {
 
     return result;
 }
+
+function _createResolversFor(metaType: GraphqlMetaType, artifacts: ISchemaArtifactDetails[], options: IModuleOptions): any {
+    const result = {};
+    const resolverTypes = artifacts.filter(a => a.type === metaType);
+
+    resolverTypes.forEach(r => {
+        const resolverClass = options.queries.find(q => q[MetadataFieldsMap.Artifact].name === r.name);
+        result[r.name] = _getResolverFunction(resolverClass);
+    });
+
+    return result;
+}
+
+function _getResolverFunction(type: new () => IQuery<any> | IMutation<any>) {
+
+    function _executeResolver(root: any, args, ctx: IGraphqlContext) {
+
+    }
+}
+
 
 function dedup(list: any[], keyFields: string[]) {
     const obj = {};
