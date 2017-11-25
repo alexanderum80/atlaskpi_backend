@@ -79,6 +79,7 @@ function _constructGraphQLSchema(name: string, options: IModuleOptions) {
 
     // create resolvers
     result.resolvers.Query = _createResolversFor(GraphqlMetaType.Query, schemaArtifacts, options);
+    result.resolvers.Mutation = _createResolversFor(GraphqlMetaType.Mutation, schemaArtifacts, options);
 
     return result;
 }
@@ -134,11 +135,12 @@ function _createResolversFor(metaType: GraphqlMetaType, artifacts: ISchemaArtifa
     return result;
 }
 
-function _getResolverFunction(type: new () => IQuery<any> | IMutation<any>) {
+function _getResolverFunction(resolverFunction: new (extendedContext) => IQuery<any> | IMutation<any>) {
 
-    function _executeResolver(root: any, args, ctx: IGraphqlContext) {
-
-    }
+    return function _executeResolver(root: any, args, ctx: IGraphqlContext) {
+        let query = new resolverFunction(ctx);
+        return ctx.queryBus.run(resolverFunction[MetadataFieldsMap.Activity], query, args, ctx.req);
+    };
 }
 
 
