@@ -1,21 +1,60 @@
-import { GetChartsByGroupQuery } from '../../queries/app/charts/get-charts-by-group.query';
-import { GetChartsGroupQuery } from '../../queries/app/charts/get-charts-groups.query';
-import { getGroupingMetadata } from '../../queries/app/charts';
-import { DateRangeHelper } from '../../queries/app/date-ranges/date-range.helper';
-import { ListChartsByGroupQuery } from '../../queries/app/charts/list-charts-by-group.query';
-import { PreviewChartsQuery } from '../../queries/app/charts/preview-chart.query';
-import { IChartDateRange, IDateRange } from '../../models/common/date-range';
-import { IChartDocument } from '../../models/app/charts';
-import { CreateChartMutation, DeleteChartMutation, UpdateChartMutation } from '../../mutations/app/charts';
-import { IChart } from '../../models/app/charts';
-import { IMutationResponse } from '../../models';
-import { GetChartQuery } from '../../queries/app/charts/get-chart.query';
-import { GetChartsQuery } from '../../queries/app/charts/get-charts.query';
-import { ListChartsQuery } from '../../queries/app/charts/list-charts.query';
-import { GetChartDefinitionQuery } from '../../queries';
-import { GraphqlDefinition } from '../graphql-definition';
-import { ExtendedRequest } from '../../../middlewares';
-import { IGraphqlContext } from '../graphql-context';
+import {
+    GetChartsByGroupQuery
+} from '../../queries/app/charts/get-charts-by-group.query';
+import {
+    GetChartsGroupQuery
+} from '../../queries/app/charts/get-charts-groups.query';
+import {
+    getGroupingMetadata
+} from '../../queries/app/charts';
+import {
+    DateRangeHelper
+} from '../../queries/app/date-ranges/date-range.helper';
+import {
+    ListChartsByGroupQuery
+} from '../../queries/app/charts/list-charts-by-group.query';
+import {
+    PreviewChartsQuery
+} from '../../queries/app/charts/preview-chart.query';
+import {
+    IChartDateRange,
+    IDateRange
+} from '../../models/common/date-range';
+import {
+    IChartDocument
+} from '../../models/app/charts';
+import {
+    CreateChartMutation,
+    DeleteChartMutation,
+    UpdateChartMutation
+} from '../../mutations/app/charts';
+import {
+    IChart
+} from '../../models/app/charts';
+import {
+    IMutationResponse
+} from '../../models';
+import {
+    GetChartQuery
+} from '../../queries/app/charts/get-chart.query';
+import {
+    GetChartsQuery
+} from '../../queries/app/charts/get-charts.query';
+import {
+    ListChartsQuery
+} from '../../queries/app/charts/list-charts.query';
+import {
+    GetChartDefinitionQuery
+} from '../../queries';
+import {
+    GraphqlDefinition
+} from '../graphql-definition';
+import {
+    ExtendedRequest
+} from '../../../middlewares';
+import {
+    IGraphqlContext
+} from '../graphql-context';
 import * as logger from 'winston';
 
 export const chartsGql: GraphqlDefinition = {
@@ -131,44 +170,59 @@ export const chartsGql: GraphqlDefinition = {
                 let query = new GetChartsByGroupQuery(ctx.req.identity, ctx.req.appContext);
                 return ctx.queryBus.run('get-charts-by-group', query, args, ctx.req);
             },
-       // orlando: this is duplicated
-       listChartsByGroup(root: any, args, ctx: IGraphqlContext) {
-         let query = new ListChartsByGroupQuery(ctx.req.identity, ctx.req.appContext.Chart);
-         return ctx.queryBus.run('list-charts-by-group', query, args, ctx.req);
-       }
+            // orlando: this is duplicated
+            listChartsByGroup(root: any, args, ctx: IGraphqlContext) {
+                let query = new ListChartsByGroupQuery(ctx.req.identity, ctx.req.appContext.Chart);
+                return ctx.queryBus.run('list-charts-by-group', query, args, ctx.req);
+            }
         },
         Mutation: {
             createChart(root: any, args, ctx: IGraphqlContext) {
                 let mutation = new CreateChartMutation(ctx.req.identity, ctx.req.appContext.Chart,
-                                                       ctx.req.appContext.KPI, ctx.req.appContext.Dashboard);
-                return ctx.mutationBus.run<IMutationResponse>('create-chart', ctx.req, mutation, args);
+                    ctx.req.appContext.KPI, ctx.req.appContext.Dashboard);
+                return ctx.mutationBus.run < IMutationResponse > ('create-chart', ctx.req, mutation, args);
             },
             deleteChart(root: any, args, ctx: IGraphqlContext) {
                 let mutation = new DeleteChartMutation(ctx.req.identity, ctx.req.appContext.Chart, ctx.req.appContext.Dashboard);
-                return ctx.mutationBus.run<IMutationResponse>('delete-chart', ctx.req, mutation, args);
+                return ctx.mutationBus.run < IMutationResponse > ('delete-chart', ctx.req, mutation, args);
             },
             updateChart(root: any, args, ctx: IGraphqlContext) {
                 let mutation = new UpdateChartMutation(ctx.req.identity, ctx.req.appContext.Chart,
-                                                       ctx.req.appContext.KPI, ctx.req.appContext.Dashboard);
-                return ctx.mutationBus.run<IMutationResponse>('delete-chart', ctx.req, mutation, args);
+                    ctx.req.appContext.KPI, ctx.req.appContext.Dashboard);
+                return ctx.mutationBus.run < IMutationResponse > ('delete-chart', ctx.req, mutation, args);
             },
         },
         ChartMutationResponse: {
-            entity(response: IMutationResponse) { return response.entity; },
-            errors(response: IMutationResponse) { return response.errors; }
+            entity(response: IMutationResponse) {
+                return response.entity;
+            },
+            errors(response: IMutationResponse) {
+                return response.errors;
+            }
         },
         ChartDateRange: {
-            predefined(dateRange: IChartDateRange) { return dateRange.predefined; },
-            custom(dateRange: IChartDateRange) { return dateRange.custom; }
+            predefined(dateRange: IChartDateRange) {
+                return dateRange.predefined;
+            },
+            custom(dateRange: IChartDateRange) {
+                return dateRange.custom;
+            }
         },
         ChartEntityResponse: {
-            dateRange(entity: IChart) { return entity.dateRange[0] || null; },
-            chartDefinition(entity: IChart) { return JSON.stringify(entity.chartDefinition); },
-            dashboards(entity: IChart) { return entity.dashboards; }
+            dateRange(entity: IChart) {
+                return entity.dateRange[0] || null;
+            },
+            chartDefinition(entity: IChart) {
+                return JSON.stringify(entity.chartDefinition);
+            },
+            dashboards(entity: IChart) {
+                return entity.dashboards;
+            }
         },
         ListChartsQueryResponse: {
             data(response: [IChartDocument]) {
-                return response; }
+                return response;
+            }
         }
 
     }
