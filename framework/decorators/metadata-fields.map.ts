@@ -5,5 +5,6 @@ export const MetadataFieldsMap = {
     Types: '___gqlTypes___',
     MutationInstances: '___mutationInstances___',
     QueryInstances: '___queryInstances___',
-    Squema: '___schema___'
+    Squema: '___schema___',
+    Activity: '___activity___'
 };

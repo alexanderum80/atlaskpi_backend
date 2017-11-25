@@ -1,6 +1,7 @@
 export * from './graphql-artifact';
 export * from './graphql-meta-types.enum';
 export * from './graphql-types-map';
+export * from './query-mutation-options';
 export * from './helpers';
 export * from './metadata-fields.map';
 
