@@ -13,7 +13,7 @@ import * as Promise from 'bluebird';
 import ms = require('ms');
 import * as logger from 'winston';
 import * as mongoose from 'mongoose';
-import * as bcrypt from 'bcrypt';
+import * as bcryptjs from 'bcryptjs';
 import * as validate from 'validate.js';
 import * as async from 'async';
 import * as winston from 'winston';
@@ -129,11 +129,11 @@ export function accountPlugin(schema: mongoose.Schema, options: any) {
         if (!user.isModified('password')) return next();
 
         // generate a salt
-        bcrypt.genSalt(SALT_WORK_FACTOR, function(err, salt) {
+        bcryptjs.genSalt(SALT_WORK_FACTOR, function(err, salt) {
             if (err) return next(err);
 
             // hash the password using our new salt
-            bcrypt.hash(user.password, salt, function(err, hash) {
+            bcryptjs.hash(user.password, salt, function(err, hash) {
                 if (err) return next(err);
 
                 // override the cleartext password with the hashed one
@@ -148,7 +148,7 @@ export function accountPlugin(schema: mongoose.Schema, options: any) {
      */
 
     schema.methods.comparePassword = function(candidatePassword): boolean {
-        return bcrypt.compareSync(candidatePassword, this.password);
+        return bcryptjs.compareSync(candidatePassword, this.password);
     };
 
     schema.methods.hasEmail = function(email: string): Boolean {
