@@ -7,8 +7,10 @@ import * as logger from 'winston';
 import {
     IAppModule
 } from '../index';
+import { makeExecutableSchema } from 'graphql-tools';
+import { IExecutableSchemaDefinition } from 'graphql-tools/dist/Interfaces';
 
-export function getGraphqlExecutableSchema(modules: IAppModule[]): any {
+export function getGraphqlExecutableSchema(modules: IAppModule[]): IExecutableSchemaDefinition {
     const definitions: GraphqlDefinition[] = modules
         .map(m => m[MetadataFieldsMap.Squema])
         .filter(squema => squema !== undefined);
@@ -42,10 +44,12 @@ export function getGraphqlExecutableSchema(modules: IAppModule[]): any {
     }
     `;
 
-    return {
-        schema: [schema],
-        resolvers: mergeModuleResolvers({}, resolvers)
-    };
+    return makeExecutableSchema({
+        typeDefs: [schema],
+        resolvers: mergeModuleResolvers({}, resolvers),
+        allowUndefinedInResolve: true,
+      //   printErrors: true,
+    });
 }
 
 // --- MERGE RESOLVERS
