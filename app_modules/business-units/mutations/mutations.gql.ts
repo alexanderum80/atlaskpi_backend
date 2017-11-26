@@ -79,10 +79,10 @@ export class GetBusinessUnitQuery extends QueryBase<BusinessUnit> {
 })
 export class BusinessUnitModule extends ModuleBase {
 
-    registerDependencies(container: Container) {
-        container.bind<GetBusinessUnitQuery>('GetBusinessUnitQuery').to(GetBusinessUnitQuery);
-        container.bind<CreateBusinessUnitMutation>('CreateBusinessUnitMutation').to(CreateBusinessUnitMutation);
-    }
+    // registerDependencies(container: Container) {
+    //     container.bind<GetBusinessUnitQuery>('GetBusinessUnitQuery').to(GetBusinessUnitQuery);
+    //     container.bind<CreateBusinessUnitMutation>('CreateBusinessUnitMutation').to(CreateBusinessUnitMutation);
+    // }
 }
 
 
