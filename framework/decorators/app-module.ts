@@ -6,7 +6,7 @@ import { IQuery } from '../queries/query';
 import { IMutation } from '../mutations/mutation';
 import { MetadataFieldsMap } from './metadata-fields.map';
 import * as _ from 'lodash';
-import { Container } from 'inversify';
+import { Container, ContainerModule, interfaces } from 'inversify';
 
 interface ISchemaArtifactDetails {
     type: GraphqlMetaType;
@@ -14,12 +14,19 @@ interface ISchemaArtifactDetails {
     definition: string;
 }
 
+export interface IDIRegistrator {
+    bind: interfaces.Bind;
+    unbind: interfaces.Unbind;
+    isBound: interfaces.IsBound;
+    rebind: interfaces.Rebind;
+}
+
 export interface IAppModule {
-    registerDependencies(container: Container);
+    registerDependencies(container: IDIRegistrator);
 }
 
 export class ModuleBase implements IAppModule {
-    registerDependencies(container: Container) {
+    registerDependencies(container: IDIRegistrator) {
         // do nothing by default
     }
 }
@@ -40,11 +47,12 @@ export function Module(options: IModuleOptions) {
         function construct(constructor, args) {
             const c: any = function () {
                 const instance = constructor.apply(this, args);
-
-                const schemaArtifacts = _getGraphqlSchemaArtifacts(options);
-                _processDependencyInjection(schemaArtifacts, instance, args[0], options);
+                // this parameter comes when when the framework bootstrap this module
+                const container = args[0];
 
                 if (options.mutations || options.queries) {
+                    const schemaArtifacts = _getGraphqlSchemaArtifacts(options);
+                    _processDependencyInjection(constructor.name, schemaArtifacts, instance, args[0], options);
                     this[MetadataFieldsMap.Squema] = _constructGraphQLSchema.apply(this, [schemaArtifacts, args[0], target.name, options]);
                 }
 
@@ -103,20 +111,31 @@ function _constructGraphQLSchema(schemaArtifacts, container: Container, name: st
     return result;
 }
 
-function _processDependencyInjection(artifacts: ISchemaArtifactDetails[], instance: any, container: Container, options: IModuleOptions): void {
-    // auto register queries and mutations with the dependency injector container
+function _processDependencyInjection(moduleName: string,
+    artifacts: ISchemaArtifactDetails[],
+    instance: any,
+    container: Container,
+    options: IModuleOptions): void {
+    // create container module to group registrations
+    const diModule = new ContainerModule((
+        bind: interfaces.Bind,
+        unbind: interfaces.Unbind,
+        isBound: interfaces.IsBound,
+        rebind: interfaces.Rebind) => {
+        // auto register queries and mutations with the dependency injector container
     artifacts.forEach(a => {
         const searchIn = a.type === GraphqlMetaType.Query ? 'queries' : 'mutations';
 
-        if ([GraphqlMetaType.Query, GraphqlMetaType.Mutation].indexOf(a.type) !== -1) {
-            const resolverClass = (options[searchIn] as any[]).find(q => q[MetadataFieldsMap.Artifact].name === a.name);
+            if ([GraphqlMetaType.Query, GraphqlMetaType.Mutation].indexOf(a.type) !== -1) {
+                const resolverClass = (options[searchIn] as any[]).find(q => q[MetadataFieldsMap.Artifact].name === a.name);
+                bind(resolverClass.name).to(resolverClass);
+            }
+        });
 
-            container.bind(resolverClass.name).to(resolverClass);
-            const b = 'abc';
-        }
+        instance.registerDependencies({ bind: bind, unbind: unbind, isBound: isBound, rebind: rebind });
     });
 
-    instance.registerDependencies(container);
+    container.load(diModule);
 }
 
 function _processQueriesMutations(list): ISchemaArtifactDetails[] {
