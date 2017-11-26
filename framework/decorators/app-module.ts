@@ -1,7 +1,7 @@
 import { IGraphqlContext } from '../graphql/graphql-context';
 import { GraphqlMetaType } from './graphql-meta-types.enum';
 import { GraphqlDefinition, GraphqlSchema } from '../graphql';
-import { updateMetadata } from './helpers';
+import { dedupObjectArray, updateMetadata } from './helpers';
 import { IQuery } from '../queries/query';
 import { IMutation } from '../mutations/mutation';
 import { MetadataFieldsMap } from './metadata-fields.map';
@@ -40,10 +40,12 @@ export function Module(options: IModuleOptions) {
         function construct(constructor, args) {
             const c: any = function () {
                 const instance = constructor.apply(this, args);
-                instance.registerDependencies(args[0]);
+
+                const schemaArtifacts = _getGraphqlSchemaArtifacts(options);
+                _processDependencyInjection(schemaArtifacts, instance, args[0], options);
 
                 if (options.mutations || options.queries) {
-                    this[MetadataFieldsMap.Squema] = _constructGraphQLSchema.apply(this, [args[0], target.name, options]);
+                    this[MetadataFieldsMap.Squema] = _constructGraphQLSchema.apply(this, [schemaArtifacts, args[0], target.name, options]);
                 }
 
                 return instance;
@@ -68,14 +70,7 @@ export function Module(options: IModuleOptions) {
     };
 }
 
-
-function _constructGraphQLSchema(container: Container, name: string, options: IModuleOptions) {
-    const result: GraphqlDefinition = {
-        name: name,
-        schema: {} as GraphqlSchema,
-        resolvers: {}
-    };
-
+function _getGraphqlSchemaArtifacts(options: IModuleOptions) {
     let schemaArtifacts: ISchemaArtifactDetails[] = [];
 
     if (options.queries) {
@@ -85,8 +80,17 @@ function _constructGraphQLSchema(container: Container, name: string, options: IM
         schemaArtifacts = schemaArtifacts.concat(_processQueriesMutations(options.mutations));
     }
 
-    // dedup
-    schemaArtifacts = dedup(schemaArtifacts, ['type', 'name']);
+    return dedupObjectArray(schemaArtifacts, ['type', 'name']);
+}
+
+function _constructGraphQLSchema(schemaArtifacts, container: Container, name: string, options: IModuleOptions) {
+    const result: GraphqlDefinition = {
+        name: name,
+        schema: {} as GraphqlSchema,
+        resolvers: {}
+    };
+
+    // create graphql types, queries and mutations definitions
     result.schema.types = _concatenateType(schemaArtifacts, [GraphqlMetaType.Input, GraphqlMetaType.Type]);
     result.schema.queries = _concatenateType(schemaArtifacts, [GraphqlMetaType.Query]);
     result.schema.mutations = _concatenateType(schemaArtifacts, [GraphqlMetaType.Mutation]);
@@ -99,6 +103,21 @@ function _constructGraphQLSchema(container: Container, name: string, options: IM
     return result;
 }
 
+function _processDependencyInjection(artifacts: ISchemaArtifactDetails[], instance: any, container: Container, options: IModuleOptions): void {
+    // auto register queries and mutations with the dependency injector container
+    artifacts.forEach(a => {
+        const searchIn = a.type === GraphqlMetaType.Query ? 'queries' : 'mutations';
+
+        if ([GraphqlMetaType.Query, GraphqlMetaType.Mutation].indexOf(a.type) !== -1) {
+            const resolverClass = (options[searchIn] as any[]).find(q => q[MetadataFieldsMap.Artifact].name === a.name);
+
+            container.bind(resolverClass.name).to(resolverClass);
+            const b = 'abc';
+        }
+    });
+
+    instance.registerDependencies(container);
+}
 
 function _processQueriesMutations(list): ISchemaArtifactDetails[] {
     let result = [];
@@ -145,13 +164,14 @@ function _createResolversFor(container: Container, metaType: GraphqlMetaType, ar
 
     resolverTypes.forEach(r => {
         const resolverClass = (options[searchIn] as any[]).find(q => q[MetadataFieldsMap.Artifact].name === r.name);
-        result[r.name] = _getResolverFunction(container, metaType, resolverClass);
+        // const i = container.get(resolverClass.name);
+        result[r.name] = _getResolverFunction(metaType, container, resolverClass);
     });
 
     return result;
 }
 
-function _getResolverFunction(container: Container, metaType: GraphqlMetaType, resolverClass: new (...args) => IQuery<any> | IMutation<any>) {
+function _getResolverFunction(metaType: GraphqlMetaType, container: Container, resolverClass: new (...args) => IQuery<any> | IMutation<any>) {
     const bus = metaType === GraphqlMetaType.Query ? 'queryBus' : 'mutationBus';
 
     return function _executeResolver(root: any, args, ctx: IGraphqlContext) {
@@ -164,20 +184,4 @@ function _getResolverFunction(container: Container, metaType: GraphqlMetaType, r
 
 function _createComplexTypeResolvers(schemaArtifacts: ISchemaArtifactDetails[], options: IModuleOptions) {
     throw new Error('Not implemented');
-}
-
-
-function dedup(list: any[], keyFields: string[]) {
-    const obj = {};
-
-    for (let i = 0, len = list.length; i < len; i++ ) {
-        const key = keyFields.map(k => list[i][k].toString()).join('____');
-        obj[key] = list[i];
-    }
-
-    const result = [];
-    for (const key in obj )
-        result.push(obj[key]);
-
-    return result;
 }

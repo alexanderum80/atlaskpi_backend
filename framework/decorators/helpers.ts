@@ -73,3 +73,19 @@ export function processQueryAndMutation(target: any, type: GraphqlMetaType, defi
 
     updateMetadata(target, null, MetadataFieldsMap.Types, types);
 }
+
+
+export function dedupObjectArray(list: any[], keyFields: string[]) {
+    const obj = {};
+
+    for (let i = 0, len = list.length; i < len; i++ ) {
+        const key = keyFields.map(k => list[i][k].toString()).join('____');
+        obj[key] = list[i];
+    }
+
+    const result = [];
+    for (const key in obj )
+        result.push(obj[key]);
+
+    return result;
+}
