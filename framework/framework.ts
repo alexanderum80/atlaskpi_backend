@@ -1,3 +1,4 @@
+import { getGraphqlExecutableSchema } from './graphql/graphql-schema-generator';
 import { IAppModule } from './decorators/app-module';
 import {
     IModuleOptions
@@ -29,11 +30,24 @@ interface IQueryData {
 export class Framework {
 
     static bootstrap(appModule: new() => IAppModule, container: Container) {
-        const definition = appModule[MetadataFieldsMap.Definition];
+        const moduleDefinition = appModule[MetadataFieldsMap.Definition];
+        let moduleInstances: IAppModule[];
 
-        // process imports
-        if (definition.imports) {
-            const moduleInstances = definition.imports.map(m => new m(container));
+        // process module imports
+        if (moduleDefinition.imports) {
+            moduleInstances = moduleDefinition.imports.map(m => new m(container));
         }
+
+        // create app module
+        const app = new appModule();
+
+        if (!moduleInstances) {
+            moduleInstances = [];
+        }
+
+        moduleInstances.push(app);
+
+        // generate graphql schema
+        const graphqlSchema = getGraphqlExecutableSchema(moduleInstances);
     }
 }

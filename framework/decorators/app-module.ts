@@ -106,7 +106,8 @@ function _constructGraphQLSchema(schemaArtifacts, container: Container, name: st
     // create resolvers
     result.resolvers.Query = _createResolversFor(container, GraphqlMetaType.Query, schemaArtifacts, options);
     result.resolvers.Mutation = _createResolversFor(container, GraphqlMetaType.Mutation, schemaArtifacts, options);
-    Object.assign(result.resolvers, _createComplexTypeResolvers(schemaArtifacts, options));
+    // TODO: I need to finish this
+    // Object.assign(result.resolvers, _createComplexTypeResolvers(schemaArtifacts, options));
 
     return result;
 }
