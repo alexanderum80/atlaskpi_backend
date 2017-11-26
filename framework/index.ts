@@ -5,4 +5,4 @@ export * from './graphql';
 export * from './queries';
 export * from './mutations';
 // export * from './module-definition';
-export * from './framework';
+export * from './bridge';
