@@ -30,6 +30,10 @@ export class IntegrationController {
         const connectorCode = tokens[0];
         this._hostName = tokens[1];
 
+        if (this._hostName.indexOf('.') !== -1) {
+            this._hostName = this._hostName.split('.')[0];
+        }
+
         const connector = IntegrationConnectorFactory.getInstance(connectorCode);
 
         if (!connector) {
