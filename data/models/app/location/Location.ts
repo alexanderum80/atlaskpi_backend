@@ -2,6 +2,8 @@ import { ILocationModel, ILocationDocument, ILocation } from './';
 import * as mongoose from 'mongoose';
 import * as logger from 'winston';
 import * as Promise from 'bluebird';
+import { resolve } from 'path';
+import { reject } from 'bluebird';
 
 const LocationSchema = new mongoose.Schema({
     name: String,
@@ -11,7 +13,8 @@ const LocationSchema = new mongoose.Schema({
     operhours: String, 
     street: String, 
     city: String,
-    state: String, 
+    state: String,
+    country: String,
     zip: String
 });
 
@@ -23,7 +26,7 @@ LocationSchema.statics.createLocation = function(input: ILocation): Promise<ILoc
         if (!input.name) {
             return reject('Information not valid');
         }
-        that.create({input}).then(location => {
+        that.create(input).then(location => {
             resolve(location);
         }).catch(err => {
             logger.error(err);
@@ -40,7 +43,7 @@ LocationSchema.statics.updateLocation = function(id: string, input: ILocation): 
         if (!input.name) {
             return reject('Information not valid');
         }
-        that.findByIdAndUpdate(id, {input}).then(location => {
+        that.findByIdAndUpdate(id, input).then(location => {
             resolve(location);
         }).catch(err => {
             logger.error(err);
@@ -71,6 +74,18 @@ LocationSchema.statics.locations = function(): Promise<ILocationDocument[]> {
         }).catch(err => {
             logger.error(err);
             reject('There was an error retrieving locations');
+        });
+    });
+};
+
+LocationSchema.statics.locationById = function(id: string): Promise<ILocationDocument> {
+    const that = <ILocationModel> this;
+    return new Promise<ILocationDocument>((resolve, reject)=> {
+        that.findOne({_id:id}).then(location => {
+            resolve(location);
+        }).catch(err => {
+            logger.error(err);
+            reject('There was an error retrieving department');
         });
     });
 };
