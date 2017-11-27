@@ -71,6 +71,7 @@ export class SquareConnector implements IOAuthConnector {
     }
 
     private _getAuthConfiguration(): IOAuthConfigOptions {
+        console.log(this._clientId);
         return {
             clientId: this._clientId,
             clientSecret: this._clientSecret,
