@@ -1,7 +1,7 @@
+import { Request } from 'Express';
 import * as Promise from 'bluebird';
 import * as _ from 'lodash';
 import * as logger from 'winston';
-import { ExtendedRequest } from '../../../middlewares/index';
 import { IActivity } from '../../index';
 
 export interface IAuthorizationResult {
@@ -10,14 +10,14 @@ export interface IAuthorizationResult {
 }
 
 export interface IEnforcer {
-    authorizationTo(activity: IActivity, request: ExtendedRequest): Promise<boolean>;
+    authorizationTo(activity: IActivity, request: Request): Promise<boolean>;
 }
 
 export class Enforcer implements IEnforcer {
 
     constructor() { }
 
-    authorizationTo(activity: IActivity, request: ExtendedRequest): Promise<boolean> {
+    authorizationTo(activity: IActivity, request: Request): Promise<boolean> {
         return new Promise<boolean>((resolve, reject) => {
             logger.debug('Checking allow authorization');
 
@@ -42,7 +42,7 @@ export class Enforcer implements IEnforcer {
         });
     }
 
-    private _checkAuthorization(activity: IActivity, request: ExtendedRequest): Promise<boolean> {
+    private _checkAuthorization(activity: IActivity, request: Request): Promise<boolean> {
         return new Promise<boolean>((resolve, reject) => {
 
             if (!activity) {
