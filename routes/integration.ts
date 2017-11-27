@@ -9,26 +9,27 @@ const integration = express.Router();
 
 // req.query = {"code":"sq0cgp-R9TIzSSC9WYX5g_hTuQtIg","response_type":"code","state":"square+testing_sample.d"}
 
-integration.post('/integration', (req: ExtendedRequest, res: Response) => {
+integration.get('/integration', (req: ExtendedRequest, res: Response) => {
     if (!req.query.code || !req.query.state) {
         return res.status(401).json({ error: 'invalid query string' }).end();
     }
 
-    let hostname = getRequestHostname(req);
-    if (!hostname) {
-        res.status(400).json({ error: 'invalid hostname'  });
-    }
-
-    const integration_controller = new IntegrationController(req.masterContext, req.appContext, req.query, {
-        hostname: hostname,
-        protocol: req.protocol
-    });
+    const integration_controller = new IntegrationController(req.masterContext, req.appContext, req.query);
 
     if (!integration_controller) {
         const err = 'something went wrong processing the integration...';
         logger.error(err);
         res.status(500).send(err);
     }
+
+    integration_controller.executeFlow(req.originalUrl).then(success => {
+        if (success) {
+            // res.status(200).json({ status: 'success' });
+            res.render('success');
+            return;
+        }
+        res.render('error');
+    });
 
     res.status(200).end();
     return;

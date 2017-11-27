@@ -25,13 +25,13 @@ export interface IConnector extends IUserAudit {
     name?: string;
     databaseName: string;
     type: string;
-    active: string;
+    active: boolean;
     config: ISquareConnectorConfig;
 }
 
 export interface IConnectorDocument extends IConnector, mongoose.Document {}
 
 export interface IConnectorModel extends mongoose.Model<IConnectorDocument> {
-    addConnector(data: any, token: string): Promise<IConnectorDocument>;
-    updateConnector(access_token: string): Promise<IConnectorDocument>;
+    addConnector(data: any): Promise<IConnectorDocument>;
+    updateConnector(data: any, access_token: string): Promise<IConnectorDocument>;
 }

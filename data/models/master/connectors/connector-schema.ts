@@ -4,6 +4,17 @@ import * as Promise from 'bluebird';
 
 const Schema = mongoose.Schema;
 
+const baseAuditSchema = {
+    createdOn: { type: Date, default: Date.now },
+    updatedOn: { type: Date, default: Date.now }
+};
+
+const userAuditSchema = {
+    ...baseAuditSchema,
+    createdBy: String,
+    updatedBy: String
+};
+
 const ConnectorSchema = new Schema({
     name: String,
     databaseName: {
@@ -11,7 +22,8 @@ const ConnectorSchema = new Schema({
     },
     type: { type: String! },
     active: Boolean,
-    config: mongoose.Schema.Types.Mixed
+    config: mongoose.Schema.Types.Mixed,
+    ...userAuditSchema
 });
 
 ConnectorSchema.statics.addConnector = function(data: IConnectorDocument): Promise<IConnectorDocument> {
@@ -45,6 +57,6 @@ ConnectorSchema.statics.updateConnector = function(data: IConnectorDocument, tok
     });
 };
 
-export function getConnectorModel(m: mongoose.Connection): IConnectorModel {
-    return <IConnectorModel>m.model('Connector', ConnectorSchema, 'connectors');
+export function getConnectorModel(): IConnectorModel {
+    return <IConnectorModel>mongoose.model('Connector', ConnectorSchema, 'connectors');
 }

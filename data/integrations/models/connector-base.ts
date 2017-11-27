@@ -1,4 +1,6 @@
-import { ConnectorTypeEnum } from './connector-type.enum';
+import { IOAuth2Token } from '../../models/common/oauth2-token.model';
+import { IConnector } from '../../models/master/connectors/index';
+import { ConnectorTypeEnum } from './connector-type';
 export interface IOAuthConfigOptions {
     clientId?: string;
     clientSecret?: string;
@@ -6,7 +8,7 @@ export interface IOAuthConfigOptions {
     accessTokenUri?: string;
     authorizationUri?: string;
     redirectUri?: string;
-    scopes?: string;
+    scopes?: string[];
     state?: string;
     body?: {
         [key: string]: string | string[];
@@ -22,5 +24,6 @@ export interface IOAuthConfigOptions {
 export interface IOAuthConnector {
     getType(): ConnectorTypeEnum;
     getTypeString(): string;
-    getConfiguration(): IOAuthConfigOptions;
+    getConfiguration(): IConnector | any;
+    getToken(originalUrl: string): Promise<IOAuth2Token>;
 }
