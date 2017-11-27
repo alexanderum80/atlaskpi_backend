@@ -3,6 +3,11 @@ import * as Promise from 'bluebird';
 import * as _ from 'lodash';
 import * as logger from 'winston';
 import { IActivity } from '../../index';
+import { injectable } from 'inversify';
+
+export interface IExtendedRequest {
+    user: any;
+}
 
 export interface IAuthorizationResult {
     err?: any;
@@ -10,14 +15,15 @@ export interface IAuthorizationResult {
 }
 
 export interface IEnforcer {
-    authorizationTo(activity: IActivity, request: Request): Promise<boolean>;
+    authorizationTo(activity: IActivity, request: IExtendedRequest): Promise<boolean>;
 }
 
+@injectable()
 export class Enforcer implements IEnforcer {
 
     constructor() { }
 
-    authorizationTo(activity: IActivity, request: Request): Promise<boolean> {
+    authorizationTo(activity: IActivity, request: IExtendedRequest): Promise<boolean> {
         return new Promise<boolean>((resolve, reject) => {
             logger.debug('Checking allow authorization');
 
@@ -42,7 +48,7 @@ export class Enforcer implements IEnforcer {
         });
     }
 
-    private _checkAuthorization(activity: IActivity, request: Request): Promise<boolean> {
+    private _checkAuthorization(activity: IActivity, request: IExtendedRequest): Promise<boolean> {
         return new Promise<boolean>((resolve, reject) => {
 
             if (!activity) {

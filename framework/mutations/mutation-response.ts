@@ -4,16 +4,16 @@
 //  * Defines the data returned when a mutation is run
 //  */
 
-// export interface IMutationError {
-//     field: string;
-//     errors: string[];
-// }
+export interface IMutationError {
+    field: string;
+    errors: string[];
+}
 
-// export interface IMutationResponse {
-//     success?: boolean;
-//     entity?: any;
-//     errors?: IMutationError[];
-// }
+export interface IMutationResponse {
+    success?: boolean;
+    entity?: any;
+    errors?: IMutationError[];
+}
 
 // export class MutationResponse implements IMutationResponse {
 //     success: boolean;

@@ -1,7 +1,5 @@
 import * as mongoose from 'mongoose';
 import * as Promise from 'bluebird';
-import { IQueryResponse } from '../../../data/models/common';
-import * as _ from 'lodash';
 
 export interface IPermission {
     subject: String;
