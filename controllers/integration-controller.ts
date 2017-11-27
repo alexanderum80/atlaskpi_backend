@@ -12,6 +12,7 @@ export interface UrlHelper {
 
 export class IntegrationController {
     private _connector: IOAuthConnector;
+    private _hostName: string;
 
     constructor(private _masterContext: IMasterModels, private _appContext: IAppModels, query: any) {
         if (!this._masterContext /*|| !this._appContext*/ || !query) {
@@ -27,6 +28,8 @@ export class IntegrationController {
         }
 
         const connectorCode = tokens[0];
+        this._hostName = tokens[1];
+
         const connector = IntegrationConnectorFactory.getInstance(connectorCode);
 
         if (!connector) {
@@ -52,7 +55,7 @@ export class IntegrationController {
                     name: 'square-one',
                     active: true,
                     config: connectorConfig,
-                    databaseName: 'test-company-tfn',
+                    databaseName: this._hostName,
                     type: getConnectorTypeId(that._connector.getType()),
                     createdBy: 'backend',
                     createdOn: new Date(Date.now())
@@ -61,7 +64,7 @@ export class IntegrationController {
                 that._masterContext.Connector.addConnector(connObj)
                     .then(() => resolve(true))
                     .catch(err => reject(err));
-            });
+            }).catch(err => reject(err));
         });
     }
 }

@@ -24,11 +24,10 @@ integration.get('/integration', (req: ExtendedRequest, res: Response) => {
 
     integration_controller.executeFlow(req.originalUrl).then(success => {
         if (success) {
-            // res.status(200).json({ status: 'success' });
-            res.render('success');
+            res.status(200).json({ status: 'success' });
             return;
         }
-        res.render('error');
+        res.status(500).json({error: 'unable to add the connector'});
     });
 
     res.status(200).end();

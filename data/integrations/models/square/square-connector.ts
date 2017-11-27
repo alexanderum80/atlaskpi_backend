@@ -16,11 +16,15 @@ const AUTH_SCOPE = [
 export class SquareConnector implements IOAuthConnector {
 
     private _code: string;
+    private _token: IOAuth2Token;
+
     private _clientId = 'sq0idp-_Ojf7lOc-mlVXV67a5MlPA';
     private _clientSecret = 'sq0csp-8hJv6t0Xrbh2gkGqiziduQGgd47gBN5JnziuL4ZgA9k';
+
     private _clientAuth: ClientOAuth2;
-    private _scope: ISquareConnectorConfigScope[] = [{name: 'MERCHANT_PROFILE_READ'},  {name: 'PAYMENTS_READ'}, {name: 'ORDERS_READ'}];
-    private _token: IOAuth2Token;
+    private _scope: ISquareConnectorConfigScope[] = [
+        {name: 'MERCHANT_PROFILE_READ'},  {name: 'PAYMENTS_READ'}, {name: 'ORDERS_READ'}
+    ];
 
     constructor(code?: string) {
         this._code = code;
@@ -56,9 +60,17 @@ export class SquareConnector implements IOAuthConnector {
         });
     }
 
+    getConfiguration(): ISquareConnectorConfig {
+        if (!this._token) { return; }
+
+        const config: ISquareConnectorConfig = {
+            token: this._token,
+            scope: this._scope
+        };
+        return config;
+    }
 
     private _getAuthConfiguration(): IOAuthConfigOptions {
-
         return {
             clientId: this._clientId,
             clientSecret: this._clientSecret,
@@ -67,15 +79,6 @@ export class SquareConnector implements IOAuthConnector {
             authorizationUri: 'https://connect.squareup.com/oauth2/authorize',
             redirectUri: REDIRECT_URI
         };
-    }
-
-    getConfiguration(): ISquareConnectorConfig {
-        if (!this._token) { return; }
-        const config: ISquareConnectorConfig = {
-            token: this._token,
-            scope: this._scope
-        };
-        return config;
     }
 
 }
