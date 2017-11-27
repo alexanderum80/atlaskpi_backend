@@ -40,6 +40,7 @@ import { deleteLocationActivity } from './app/location/delete-location.activity'
 import { updateLocationActivity } from './app/location/update-location.activity';
 import { createLocationActivity} from './app/location/create-location.activity';
 import { listLocationsActivity } from './app/location/list-locations.activity';
+import { LocationByIdActivity } from './app/location/location-by-id.activity';
 
 
 // Employees
@@ -279,6 +280,7 @@ export function addActivities() {
         updateLocationActivity,
         createLocationActivity,
         listLocationsActivity,
+        LocationByIdActivity,
         // reports
         endOfDayReportActivity,
         // widgets

@@ -10,6 +10,7 @@ export interface ILocation {
     street: string;
     city: string;
     state: string;
+    country: string;
     zip: string;
 }
 
@@ -24,6 +25,8 @@ export interface ILocationModel extends mongoose.Model<ILocationDocument> {
     updateLocation(id: string, input: ILocation): Promise<ILocationDocument>;
 
     locations(): Promise<ILocationDocument[]>;
+
+    locationById(id: string): Promise<ILocationDocument>;
     
     deleteLocation(_id: string): Promise<ILocationDocument>;
 }

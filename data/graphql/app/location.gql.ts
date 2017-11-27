@@ -1,8 +1,9 @@
 import { DeleteLocationMutation } from '../../mutations/app/location/delete-location.mutation';
 import { deleteLocationActivity } from '../../../activities/app/location/delete-location.activity';
 import { UpdateLocationMutation } from '../../mutations/app/location/update-location.mutation';
-import { LocationsQuery } from '../../queries/app/location/location.query';
 import { CreateLocationMutation } from '../../mutations/app/location/create-location.mutation';
+import { LocationsQuery } from '../../queries/app/location/location.query';
+import { LocationByIdQuery } from '../../queries/app/location/location-by-id.query';
 
 import { IMutationResponse } from '../../models/common';
 import { GraphqlDefinition } from '../graphql-definition';
@@ -15,14 +16,15 @@ export const locationsGql: GraphqlDefinition = {
     schema: {
         types: `
             input ILocationInput {
-                name: String!
+                name: String
                 description: String
                 alias: String
                 businessunits: String
                 operhours: String 
                 street: String 
                 city: String
-                state: String 
+                state: String
+                country: String
                 zip: String
             },
             type Location {
@@ -34,7 +36,8 @@ export const locationsGql: GraphqlDefinition = {
                 operhours: String 
                 street: String 
                 city: String
-                state: String 
+                state: String
+                country: String
                 zip: String
             }
             
@@ -58,6 +61,7 @@ export const locationsGql: GraphqlDefinition = {
         `,
         queries: `
             locations: [Location]
+            locationById(id: String!): Location
         `,
         mutations: `
             createLocation(input: ILocationInput): CreateLocationResponse
@@ -72,7 +76,12 @@ export const locationsGql: GraphqlDefinition = {
             locations(root: any, args, ctx: IGraphqlContext) {
                 let query = new LocationsQuery(ctx.req.identity, ctx.req.appContext.LocationModel);
                 return ctx.queryBus.run('list-locations', query, args);
+            },
+            locationById(root: any, args, ctx: IGraphqlContext) {
+                let query = new LocationByIdQuery(ctx.req.identity, ctx.req.appContext.LocationModel);
+                return ctx.queryBus.run('location-by-id', query, args);
             }
+
         },
         Mutation: {
             createLocation(root: any, args, ctx: IGraphqlContext) {
