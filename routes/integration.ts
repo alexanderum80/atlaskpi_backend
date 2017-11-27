@@ -27,7 +27,20 @@ integration.get('/integration', (req: ExtendedRequest, res: Response)  => {
 
     integration.executeFlow(req.originalUrl).then(success => {
         if (success) {
-            res.status(200).json({ status: 'success'});
+            res.send(`
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <script>
+                    debugger;
+                    window.opener.postMessage({messageSource: 'atlasKPIIntegrations', success: true }, '*');
+                    window.close();
+                </script>
+            </head>
+            <body>
+            success
+            </body>
+            </html>`);
             return;
         }
     })
