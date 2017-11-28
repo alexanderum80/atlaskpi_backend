@@ -1,5 +1,4 @@
-import { IKeyValuePair } from '../../../integrations/models/connector-base';
-import { IOAuth2Token } from '../../common/oauth2-token.model';
+import { IKeyValuePair, IOAuth2Token } from '../../../integrations/models/connector-base';
 import * as mongoose from 'mongoose';
 import * as Promise from 'bluebird';
 

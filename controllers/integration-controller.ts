@@ -3,7 +3,7 @@ import { IntegrationConnectorFactory } from '../data/integrations/integration-co
 import { IOAuthConnector } from '../data/integrations/models/connector-base';
 import { IAppModels } from '../data/models/app/app-models';
 import { IMasterModels } from '../data/models/master/index';
-import { getConnectorTypeId } from './../data/integrations/models/connector-type';
+import { ConnectorTypeEnum, getConnectorTypeId } from './../data/integrations/models/connector-type';
 
 export interface IExecutionFlowResult {
     success?: boolean;
@@ -13,6 +13,7 @@ export interface IExecutionFlowResult {
 export class IntegrationController {
     private _connector: IOAuthConnector;
     private _hostName: string;
+    private _companyName: string;
 
     constructor(private _masterContext: IMasterModels, private _appContext: IAppModels, query: any) {
         if (!this._masterContext /*|| !this._appContext*/ || !query) {
@@ -38,6 +39,11 @@ export class IntegrationController {
         }
 
         this._connector = connector;
+        this._companyName = tokens[1];
+
+        if (connector.getType() === ConnectorTypeEnum.QuickBooksOnline) {
+            connector.setRealmId(query.realmId);
+        }
     }
 
     public executeFlow(originalUrl: string): Promise<IExecutionFlowResult> {

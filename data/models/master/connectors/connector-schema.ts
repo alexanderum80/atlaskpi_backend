@@ -17,10 +17,8 @@ const userAuditSchema = {
 };
 
 const ConnectorSchema = new Schema({
-    name: String,
-    databaseName: {
-        type: String!
-    },
+    name: String!,
+    databaseName: { type: String! },
     type: { type: String! },
     active: Boolean,
     config: mongoose.Schema.Types.Mixed,
@@ -33,15 +31,17 @@ ConnectorSchema.statics.addConnector = function(data: IConnector): Promise<IConn
     return new Promise<IConnectorDocument>((resolve, reject) => {
         if (!data) { reject({ message: 'no data provided'}); }
 
+        const findOneKey = data.uniqueKeyValue;
+
         that.findOne({
-            [data.uniqueKeyValue.key]: data.uniqueKeyValue.value
+            [findOneKey.key]: findOneKey.value
         }, (err, doc) => {
             if (err) {
                 reject({ message: 'unknown error', error: err });
             }
             if (doc) {
                 that.update({
-                    [data.uniqueKeyValue.key]: data.uniqueKeyValue.value
+                    [findOneKey.key]: findOneKey.value
                 }, data)
                 .then(updateResp => resolve(updateResp))
                 .catch(updateErr => reject(updateErr));
@@ -56,15 +56,6 @@ ConnectorSchema.statics.addConnector = function(data: IConnector): Promise<IConn
             });
         });
     });
-    // return new Promise<IConnectorDocument>((resolve, reject) => {
-    //     that.create(data, (err, connector: IConnectorDocument) => {
-    //         if (err) {
-    //             reject({ message: 'Not able to add connector', error: err });
-    //             return;
-    //         }
-    //         resolve(connector);
-    //     });
-    // });
 };
 
 ConnectorSchema.statics.updateConnector = function(data: IConnector, token: string): Promise<IConnectorDocument> {

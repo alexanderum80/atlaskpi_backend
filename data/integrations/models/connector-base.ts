@@ -1,6 +1,15 @@
-import { IOAuth2Token } from '../../models/common/oauth2-token.model';
 import { IConnector } from '../../models/master/connectors/index';
 import { ConnectorTypeEnum } from './connector-type';
+
+export interface IOAuth2Token {
+    access_token: string;
+    token_type: string;
+    expires_at: string;
+    merchant_id?: string;
+    refresh_token?: string;
+    x_refresh_token_expires_in?: string|number;
+}
+
 export interface IOAuthConfigOptions {
     clientId?: string;
     clientSecret?: string;

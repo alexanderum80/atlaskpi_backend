@@ -1,7 +1,6 @@
-import { IOAuth2Token } from '../../../models/common/oauth2-token.model';
 import { IConnector, IConnectorConfig, IConnectorConfigScope } from '../../../models/master/connectors/index';
 import { ConnectorTypeEnum } from '../connector-type';
-import { IKeyValuePair, IOAuthConfigOptions, IOAuthConnector } from '../connector-base';
+import { IKeyValuePair, IOAuth2Token, IOAuthConfigOptions, IOAuthConnector } from '../connector-base';
 import * as ClientOAuth2 from 'client-oauth2';
 import * as path from 'path';
 import * as request from 'request';
