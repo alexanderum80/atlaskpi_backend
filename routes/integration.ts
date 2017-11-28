@@ -24,14 +24,26 @@ integration.get('/integration', (req: ExtendedRequest, res: Response) => {
 
     integration_controller.executeFlow(req.originalUrl).then(success => {
         if (success) {
-            res.status(200).json({ status: 'success' });
+            // res.status(200).json({ status: 'success' });
+            res.send(`
+                <!DOCTYPE html>
+                <html>
+                <head>
+                    <script>
+                        debugger;
+                        window.opener.postMessage({messageSource: 'atlasKPIIntegrations', success: true }, '*');
+                        window.close();
+                    </script>
+                </head>
+                <body>
+                success
+                </body>
+                </html>`);
             return;
         }
-        res.status(500).json({error: 'unable to add the connector'});
+    }).catch(err => {
+        res.status(500).send(err);
     });
-
-    res.status(200).end();
-    return;
 });
 
 export { integration };
