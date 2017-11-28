@@ -18,11 +18,10 @@ export class ConnectorsService {
         return new Promise<IConnectorDocument>((resolve, reject) => {
             that._connectorModel.removeConnector(id)
                 .then((deletedConnector) => {
-                    that._disconnect(deletedConnector).then(() => {
-                        resolve(deletedConnector );
-                        return;
-                    })
-                    .catch(err => reject(err));
+                    // try to transparently revoke the token
+                    that._disconnect(deletedConnector).then();
+                    resolve(deletedConnector);
+                    return;
                 })
                 .catch(err => reject(err));
         });
