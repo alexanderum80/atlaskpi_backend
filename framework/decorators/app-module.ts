@@ -187,9 +187,9 @@ function _getResolverFunction(metaType: MetadataType, container: Container, arti
 
     return function _executeResolver(root: any, args, ctx: IGraphqlContext) {
         // get an intance using the dependency injection container
-        const i = container.get(artifact.constructor.name);
+        const i = container.get(artifact.constructor.name) as any;
         // ejecute the query or mutation bus
-        return ctx[bus].run(artifact.activity, i, args, ctx.req);
+        return ctx[bus].run(artifact.activity, ctx.req, i, args);
     };
 }
 
