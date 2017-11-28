@@ -1,4 +1,3 @@
-import { updateMetadata } from './helpers';
 import { MetadataFieldsMap } from './metadata-fields.map';
 
 export interface GraphQLFieldDecoratorOptions {
@@ -14,6 +13,14 @@ export function field(definition?: GraphQLFieldDecoratorOptions) {
             typeName += '!';
         }
 
-        updateMetadata(target, MetadataFieldsMap.Fields, definition.name || property, typeName);
+        // updateMetadata(target, MetadataFieldsMap.Fields, definition.name || property, typeName);
+        if (!target[MetadataFieldsMap.Fields]) {
+            target[MetadataFieldsMap.Fields] = {};
+        }
+
+        const fields = target[MetadataFieldsMap.Fields];
+        const name = definition.name || property;
+        fields[name] = typeName;
+
     };
 }

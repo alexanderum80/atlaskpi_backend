@@ -1,27 +1,26 @@
 import 'reflect-metadata';
-import { CreateBusinessUnitMutation, GetBusinessUnitQuery, AtlasApp } from './app_modules/business-units/mutations/mutations.gql';
-import { Framework } from './framework';
+import { Bridge } from './framework';
+import { AtlasApp } from './app_modules/business-units/mutations/mutations.gql';
+import { healthCheck, initializeContexts, loadUser, logger, tokenValidator } from './middlewares';
+import { auth, me } from './routes';
+import { DIContainer } from './di';
 
-// const a = new CreateBusinessUnitMutation();
-// const b = new GetBusinessUnitQuery();
-// const app = new AtlasApp();
+const app = Bridge.create(AtlasApp, DIContainer);
 
-import { Container } from 'inversify';
+// middlewares
+// app.server.use(healthCheck);
+// app.server.use(logger);
+// app.server.use(tokenValidator);
+// app.server.use(initializeContexts);
+// app.server.use(loadUser);
 
-interface IAppConfig {
-    key: string;
-    value: string;
-}
+// routes
+// app.server.use('/auth', auth);
+// app.server.use('/users', me);
 
-const config: IAppConfig = {
-    key: 'key',
-    value: 'value'
-};
+// start the application
+app.start();
 
-const container = new Container();
-container.bind<IAppConfig>('Config').toConstantValue(config);
-
-Framework.bootstrap(AtlasApp, container);
 
 
 // import { NumericWidget } from './data/models/app/widgets/numeric-widget';

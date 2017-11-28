@@ -6,5 +6,6 @@ export const MetadataFieldsMap = {
     MutationInstances: '___mutationInstances___',
     QueryInstances: '___queryInstances___',
     Squema: '___schema___',
-    Activity: '___activity___'
+    Activity: '___activity___',
+    ReferenceTypes: '___references___'
 };

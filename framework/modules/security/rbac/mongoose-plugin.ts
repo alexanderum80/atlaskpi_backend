@@ -3,7 +3,7 @@ import * as async from 'async';
 
 import {
   resolveRole
-} from './models/utils';
+} from './utils';
 
 export function rbacPlugin(schema, options) {
   options || (options = {});
