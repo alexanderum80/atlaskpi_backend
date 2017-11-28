@@ -44,6 +44,8 @@ export interface IOAuthConnector {
     getName(): string;
     getUniqueKeyValue(): IKeyValuePair;
 
+    revokeToken(): Promise<any>;
+
     // user buy quickbooks online
     setRealmId?(realmId: string): void;
     getRealmId?(): string;

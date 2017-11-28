@@ -1,3 +1,4 @@
+import { ConnectorsService } from '../../../services/connectors/connectors.service';
 import { IIdentity } from '../../../models/app/identity';
 import * as Promise from 'bluebird';
 import { IConnectorModel } from '../../..';
@@ -7,12 +8,12 @@ import { IMutationResponse } from '../../../models/common';
 export class RemoveConnectorMutation implements IMutation<IMutationResponse> {
     constructor(public identity: IIdentity, private _ConnectorModel: IConnectorModel) {}
 
-    run(data: any): Promise<IMutationResponse> {
+    run(data: { id: string }): Promise<IMutationResponse> {
         const that = this;
-        const getData = data.hasOwnProperty('data') ? data.data : data;
 
         return new Promise<IMutationResponse>((resolve, reject) => {
-            that._ConnectorModel.removeConnector(getData)
+            const connectorsService = new ConnectorsService(that._ConnectorModel);
+            connectorsService.removeConnector(data.id)
                 .then((deletedConnector) => {
                     resolve({ success: true, entity: deletedConnector });
                     return;

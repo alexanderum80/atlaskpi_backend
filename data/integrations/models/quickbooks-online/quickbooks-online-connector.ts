@@ -58,8 +58,52 @@ export class QuickBooksOnlineConnector implements IOAuthConnector {
         });
     }
 
-    setRealmId(realmId: string) {
+    revokeToken(): Promise<any> {
+        // revokeTokenUri: ,
+        if (!this._realmId || !this._token) {
+            return Promise.reject('connector not ready for revoke token');
+        }
+
+        const that = this;
+        // prepare the test request to check if the access_token is good
+        const url = openid_configuration.revocation_endpoint;
+        console.log('calling revoke token: ' + url);
+        const auth = new Buffer(`${CLIENT_ID}:${CLIENT_SECRET}`).toString('base64');
+        const requestObj = {
+            url: url,
+            method: 'POST',
+            json: { token: that._token.refresh_token },
+            headers: {
+            'Authorization': 'Basic ' + auth,
+            'Accept': 'application/json'
+            },
+        };
+
+        return new Promise<any>((resolve, reject) => {
+            request(requestObj, (err, res: Response) => {
+                if ((<any>res).statusCode === 200) {
+                    console.log('token revoked');
+                    resolve();
+                    return;
+                } else {
+                    const err = ('something went wrong, server respond: ' + (<any>res).statusCode);
+                    console.log(err);
+                    reject(err);
+                }
+            });
+        });
+    }
+
+    setRealmId(realmId: string): void {
         this._realmId = realmId;
+    }
+
+    setToken(token: IOAuth2Token): void {
+        this._token = token;
+    }
+
+    setScope(scope: IQBOConnectorConfigScope[]): void {
+        this._scope = scope;
     }
 
     getUniqueKeyValue(): IKeyValuePair {
