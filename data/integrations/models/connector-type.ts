@@ -11,3 +11,12 @@ export function getConnectorTypeId(type: ConnectorTypeEnum) {
         default: null;
     }
 }
+
+export function getConnectorType(type: string): ConnectorTypeEnum {
+    switch (type) {
+        case 'qbo':
+            return ConnectorTypeEnum.QuickBooksOnline;
+        default:
+            return;
+    }
+}

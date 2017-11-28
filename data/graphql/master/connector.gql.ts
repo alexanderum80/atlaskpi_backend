@@ -26,7 +26,7 @@ export const connectorGql: GraphqlDefinition = {
             connectors(filter: String): [Connector]
         `,
         mutations: `
-            removeConnector(filter: String): ConnectorResult
+            removeConnector(id: String!): ConnectorResult
         `
     },
     resolvers: {

@@ -72,10 +72,10 @@ ConnectorSchema.statics.updateConnector = function(data: IConnectorDocument, tok
     });
 };
 
-ConnectorSchema.statics.removeConnector = function(data: any): Promise<IConnectorDocument> {
+ConnectorSchema.statics.removeConnector = function(id: string): Promise<IConnectorDocument> {
     const that = this;
     return new Promise<IConnectorDocument>((resolve, reject) => {
-        that.findOne({_id: data._id})
+        that.findOne({_id: id})
             .then(connector => {
                 if (connector) {
                     const deletedConnector = connector;
