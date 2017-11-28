@@ -4,13 +4,13 @@ import {
 } from '..';
 import { IEnforcer } from '../modules/security/enforcer';
 import * as Promise from 'bluebird';
-import { ExtendedRequest } from '../../middlewares/extended-request';
 import * as logger from 'winston';
 import { injectable } from 'inversify';
+import { IExtendedRequest } from '../models';
 
 
 export interface IQueryBus {
-    run<T>(activity: IActivity, query: IQuery<T>, data: any, request?: ExtendedRequest): Promise<any>;
+    run<T>(activity: IActivity, req: IExtendedRequest, query: IQuery<T>, data: any): Promise<any>;
 }
 
 @injectable()
@@ -27,10 +27,10 @@ export class QueryBus implements IQueryBus {
 
     constructor(private _enforcer: IEnforcer) { }
 
-    run<T>(activity: IActivity, query: IQuery<T>, data: any, request: ExtendedRequest): Promise<any> {
+    run<T>(activity: IActivity, req: IExtendedRequest, query: IQuery<T>, data: any): Promise<any> {
         const that = this;
         // chack activity authorization
-        return this.enforcer.authorizationTo(activity, request)
+        return this.enforcer.authorizationTo(activity, req)
             .then((authorized) => {
                 if (!authorized) {
                     return Promise.reject(authorized);

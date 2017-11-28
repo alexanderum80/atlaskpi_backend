@@ -12,9 +12,6 @@ import { makeExecutableSchema } from 'graphql-tools';
 import { IExecutableSchemaDefinition } from 'graphql-tools/dist/Interfaces';
 
 export function getGraphqlExecutableSchema(modules: IAppModule[]): IExecutableSchemaDefinition {
-    // const definitions: GraphqlDefinition[] = modules
-    //     .map(m => m[MetadataFieldsMap.Squema])
-    //     .filter(squema => squema !== undefined);
     const resolvers = [];
 
     const inputKeys = Object.keys(BRIDGE.graphql.inputs);

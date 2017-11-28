@@ -5,6 +5,7 @@ import {
     IArtifactDetails,
     IGraphqlArtifacts,
     IModuleMetadata,
+    IQueryOrMutationDetails,
     MetadataType,
     updateMetadata,
 } from './helpers';
@@ -19,6 +20,8 @@ import {
     ContainerModule,
     interfaces
 } from 'inversify';
+import { IGraphqlContext } from '../graphql';
+import { GraphqlMetaType } from './graphql-meta-types.enum';
 
 export interface IDIRegistrator {
     bind: interfaces.Bind;
@@ -57,7 +60,7 @@ export function Module(options: IModuleOptions) {
                 const container = args[0];
 
                 if (options.mutations || options.queries) {
-                    const moduleMetadata = _getModuleMetadata(target, options);
+                    const moduleMetadata = _getModuleMetadata(target, instance, container, options);
                     _processDependencyInjection(constructor.name, moduleMetadata, instance, args[0], options);
                     addGlobalModuleMetadata(target, moduleMetadata);
                 }
@@ -84,22 +87,25 @@ export function Module(options: IModuleOptions) {
     };
 }
 
-function _getModuleMetadata(target, options: IModuleOptions): IModuleMetadata {
+function _getModuleMetadata(target, instance, container: Container, options: IModuleOptions): IModuleMetadata {
     const result: IModuleMetadata = {
         constructor: target
     };
 
     // add queries & mutations to the module
-    [MetadataType.Queries, MetadataType.Mutations].forEach(t => {
-        if (options[t]) {
-            const names = options[t].map(q => q.name);
-            const artifacts = getGraphqlMetadata(t, names);
+    [MetadataType.Queries, MetadataType.Mutations].forEach(queriesOrMutations => {
+        if (options[queriesOrMutations]) {
+            const names = options[queriesOrMutations].map(q => q.name);
+            const artifacts = getGraphqlMetadata(queriesOrMutations, names);
 
             if (artifacts) {
-                result[t] = {};
+                result[queriesOrMutations] = {};
 
                 artifacts.forEach(a => {
-                    result[t][a.constructor.name] = a;
+                    // add resolver to artifact
+                    const queryOrMutation: IQueryOrMutationDetails = <IQueryOrMutationDetails>a;
+                    (<IQueryOrMutationDetails>a).resolver = _getResolverFunction(queriesOrMutations, container, queryOrMutation);
+                    result[queriesOrMutations][a.constructor.name] = a;
                 });
             }
         }
@@ -176,30 +182,16 @@ function _processDependencyInjection(moduleName: string,
 //     return result;
 // }
 
-// function _createResolversFor(container: Container, metaType: GraphqlMetaType, artifacts: ISchemaArtifactDetails[], options: IModuleOptions): any {
-//     const result = {};
-//     const searchIn = metaType === GraphqlMetaType.Query ? 'queries' : 'mutations';
-//     const resolverTypes = artifacts.filter(a => a.type === metaType);
+function _getResolverFunction(metaType: MetadataType, container: Container, artifact: IQueryOrMutationDetails) {
+    const bus = metaType === MetadataType.Queries ? 'queryBus' : 'mutationBus';
 
-//     resolverTypes.forEach(r => {
-//         const resolverClass = (options[searchIn] as any[]).find(q => q[MetadataFieldsMap.Artifact].name === r.name);
-//         // const i = container.get(resolverClass.name);
-//         result[r.name] = _getResolverFunction(metaType, container, resolverClass);
-//     });
-
-//     return result;
-// }
-
-// function _getResolverFunction(metaType: GraphqlMetaType, container: Container, resolverClass: new(...args) => IQuery < any > | IMutation < any > ) {
-//     const bus = metaType === GraphqlMetaType.Query ? 'queryBus' : 'mutationBus';
-
-//     return function _executeResolver(root: any, args, ctx: IGraphqlContext) {
-//         // get an intance using the dependency injection container
-//         const i = container.get(resolverClass.name);
-//         // ejecute the query or mutation bus
-//         return ctx[bus].run(resolverClass[MetadataFieldsMap.Activity], i, args, ctx.req);
-//     };
-// }
+    return function _executeResolver(root: any, args, ctx: IGraphqlContext) {
+        // get an intance using the dependency injection container
+        const i = container.get(artifact.constructor.name);
+        // ejecute the query or mutation bus
+        return ctx[bus].run(artifact.activity, i, args, ctx.req);
+    };
+}
 
 // function _createComplexTypeResolvers(schemaArtifacts: ISchemaArtifactDetails[], options: IModuleOptions) {
 //     throw new Error('Not implemented');

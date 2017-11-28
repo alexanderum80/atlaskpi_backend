@@ -4,10 +4,8 @@ import * as _ from 'lodash';
 import * as logger from 'winston';
 import { IActivity } from '../../../authorization';
 import { injectable } from 'inversify';
+import { IExtendedRequest } from '../../../models';
 
-export interface IExtendedRequest {
-    user: any;
-}
 
 export interface IAuthorizationResult {
     err?: any;

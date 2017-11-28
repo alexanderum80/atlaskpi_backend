@@ -1,17 +1,17 @@
-import { IActivity } from '../authorization/models';
+import { IActivity } from '../authorization';
 import {
     IMutation,
     IValidationResult
 } from '..';
 import { Enforcer, IEnforcer } from '../modules/security/enforcer';
-import { ExtendedRequest } from '../../middlewares';
 import * as Promise from 'bluebird';
 import * as logger from 'winston';
 import { injectable } from 'inversify';
+import { IExtendedRequest } from '../models';
 
 
 export interface IMutationBus {
-    run<T>(activity: IActivity, req: ExtendedRequest, mutation: IMutation<T>, data: any): Promise<any>;
+    run<T>(activity: IActivity, req: IExtendedRequest, mutation: IMutation<T>, data: any): Promise<any>;
 }
 
 @injectable()
@@ -28,7 +28,7 @@ export class MutationBus implements IMutationBus {
 
     constructor(private _enforcer: IEnforcer) {}
 
-    run<T>(activity: IActivity, req: ExtendedRequest, mutation: IMutation<T>, data: any): Promise<any> {
+    run<T>(activity: IActivity, req: IExtendedRequest, mutation: IMutation<T>, data: any): Promise<any> {
         const that = this;
         // chack activity authorization
         return this.enforcer.authorizationTo(activity, req)
