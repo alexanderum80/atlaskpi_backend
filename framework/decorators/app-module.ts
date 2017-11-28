@@ -61,7 +61,8 @@ export function Module(options: IModuleOptions) {
 
                 if (options.mutations || options.queries) {
                     const moduleMetadata = _getModuleMetadata(target, instance, container, options);
-                    _processDependencyInjection(constructor.name, moduleMetadata, instance, args[0], options);
+                    _processDependencyInjection(constructor.name, moduleMetadata, instance, container, options);
+                    _injectResolvers(container, moduleMetadata);
                     addGlobalModuleMetadata(target, moduleMetadata);
                 }
 
@@ -100,13 +101,7 @@ function _getModuleMetadata(target, instance, container: Container, options: IMo
 
             if (artifacts) {
                 result[queriesOrMutations] = {};
-
-                artifacts.forEach(a => {
-                    // add resolver to artifact
-                    const queryOrMutation: IQueryOrMutationDetails = <IQueryOrMutationDetails>a;
-                    (<IQueryOrMutationDetails>a).resolver = _getResolverFunction(queriesOrMutations, container, queryOrMutation);
-                    result[queriesOrMutations][a.constructor.name] = a;
-                });
+                artifacts.forEach(a => result[queriesOrMutations][a.constructor.name] = a);
             }
         }
     });
@@ -171,6 +166,23 @@ function _processDependencyInjection(moduleName: string,
     container.load(diModule);
 }
 
+function _injectResolvers(container: Container, moduleMetadata: IModuleMetadata): void {
+    // type resolvers
+
+    // query and mutation resolvers
+    [MetadataType.Queries, MetadataType.Mutations].forEach(metadataType => {
+        const types = moduleMetadata[metadataType];
+
+        if (types) {
+            for (const key in types) {
+                const queryOrMutation: IQueryOrMutationDetails = <IQueryOrMutationDetails>types[key];
+                const i = container.get(queryOrMutation.constructor.name) as any;
+                (<IQueryOrMutationDetails>types[key]).resolver = _getResolverFunction(metadataType, container, queryOrMutation);
+            }
+        }
+    });
+}
+
 // function _concatenateType(list, types: GraphqlMetaType[]): string {
 //     let result = '';
 
@@ -189,7 +201,7 @@ function _getResolverFunction(metaType: MetadataType, container: Container, arti
         // get an intance using the dependency injection container
         const i = container.get(artifact.constructor.name) as any;
         // ejecute the query or mutation bus
-        return ctx[bus].run(artifact.activity, ctx.req, i, args);
+        return (ctx[bus] as any).run(artifact.activity, ctx.req, i, args);
     };
 }
 
