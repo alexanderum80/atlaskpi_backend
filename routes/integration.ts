@@ -24,7 +24,6 @@ integration.get('/integration', (req: ExtendedRequest, res: Response) => {
 
     integration_controller.executeFlow(req.originalUrl).then(result => {
         if (result.success) {
-            // res.status(200).json({ status: 'success' });
             res.send(`
                 <!DOCTYPE html>
                 <html>

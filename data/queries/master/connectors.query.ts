@@ -12,7 +12,7 @@ export class ConnectorsQuery implements IQuery<IConnector[]> {
         const that = this;
         return new Promise<IConnector[]>((resolve, reject) => {
             mongoose.set('debug', true);
-            that._ConnectorModel.find({})
+            that._ConnectorModel.find({ databaseName: that.identity.accountName })
                 .then(connectors => {
                     return resolve(connectors);
                 })
