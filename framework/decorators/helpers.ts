@@ -1,3 +1,4 @@
+import { GraphQLInputDecoratorOptions } from './input.decorator';
 import { IActivity } from '../authorization';
 import { IAppModule, IModuleOptions } from './app-module';
 import { GraphQLQueryMutationDecoratorOptions } from './query-mutation-options';
@@ -72,7 +73,21 @@ export enum MetadataType {
 (global as any).__bridge__ = defaultFrameworkMetadata;
 export const BRIDGE: IFrameworkMetadata = (global as any).__bridge__;
 
-export function updateGlobalGqlMetadata(metadataType: MetadataType, name: string, graphqlText: string,
+export function updateFieldAndTypeMetadata(metadataType: MetadataType, name: string, graphqlText: string,
+    constructor: any, relatedTypes: string[]) {
+        let graphqlArtifact: IGraphqlArtifacts = BRIDGE.graphql[metadataType];
+
+        graphqlArtifact[name] = {
+            text: graphqlText,
+            constructor: constructor
+        };
+
+        if (relatedTypes) {
+            (graphqlArtifact[name] as IQueryOrMutationDetails).relatedTypes = relatedTypes;
+        }
+    }
+
+export function updateQueriesAndMutationsMetadata(metadataType: MetadataType, name: string, graphqlText: string,
     constructor: any, activity?: IActivity, types?: any[]) {
     let graphqlArtifact: IGraphqlArtifacts = BRIDGE.graphql[metadataType];
 
@@ -154,10 +169,6 @@ export function processQueryAndMutation(target: any, type: GraphqlMetaType, defi
     };
     const graphQlType = Hbs.compile(inputTemplateText)(payload);
 
-    // updateMetadata(target, null, MetadataFieldsMap.Artifact, { type: type, name: name } as GraphQLArtifact);
-    // updateMetadata(target, null, MetadataFieldsMap.Definition, graphQlType);
-    // updateMetadata(target, null, MetadataFieldsMap.Activity, definition.activity);
-
     // add only complex types
     const types = [];
 
@@ -175,13 +186,42 @@ export function processQueryAndMutation(target: any, type: GraphqlMetaType, defi
         types.push(definition.output);
     }
 
-    // updateMetadata(target, null, MetadataFieldsMap.Types, types);
-
     if (type === GraphqlMetaType.Mutation) {
-        updateGlobalGqlMetadata(MetadataType.Mutations, target.name, graphQlType, target, definition.activity, types);
+        updateQueriesAndMutationsMetadata(MetadataType.Mutations, target.name, graphQlType, target, definition.activity, types);
     } else if (type === GraphqlMetaType.Query) {
-        updateGlobalGqlMetadata(MetadataType.Queries, target.name, graphQlType, target, definition.activity, types);
+        updateQueriesAndMutationsMetadata(MetadataType.Queries, target.name, graphQlType, target, definition.activity, types);
     }
+}
+
+export function processInputAndType(metadataType: MetadataType, target, definition: GraphQLInputDecoratorOptions) {
+    const availableTypes = [MetadataType.Inputs, MetadataType.Types];
+
+    if (availableTypes.indexOf(metadataType) === -1) {
+        throw new Error('This method only supports metadata for inputs or types');
+    }
+
+    const templateType = metadataType === MetadataType.Inputs ?  'input' : 'type';
+
+    const templateText = `${templateType} {{typeName}} {
+        {{#each fields}}
+        {{this}}
+        {{/each}}
+    }`;
+
+    if (!definition) {
+        definition = {};
+    }
+
+    const name = definition.name || target.name;
+    const fields = target.prototype[MetadataFieldsMap.Fields];
+    const fieldNames = Object.keys(fields);
+    const payload = {
+        typeName: name,
+        fields: fieldNames.map(f => `${f}: ${fields[f]}`)
+    };
+    const graphQlType = Hbs.compile(templateText)(payload);
+
+    updateFieldAndTypeMetadata(metadataType, name, graphQlType, target, getComplexFieldNames(fields));
 }
 
 
@@ -196,6 +236,19 @@ export function dedupObjectArray(list: any[], keyFields: string[]) {
     const result = [];
     for (const key in obj )
         result.push(obj[key]);
+
+    return result;
+}
+
+export function getComplexFieldNames(fields: any) {
+    const nonComplexFields = ['String', 'String!', 'Int', 'Int!'];
+    const result = [];
+
+    for (let key in fields) {
+        if (nonComplexFields.indexOf(fields[key]) === -1 ) {
+            result.push(fields[key]);
+        }
+    }
 
     return result;
 }
