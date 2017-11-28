@@ -12,13 +12,14 @@ export interface IUserAudit extends IBaseAudit {
     updatedBy?: string;
 }
 
-export interface ISquareConnectorConfigScope {
+export interface IConnectorConfigScope {
     name: string;
 }
 
-export interface ISquareConnectorConfig {
+export interface IConnectorConfig {
     token: IOAuth2Token;
-    scope: ISquareConnectorConfigScope[];
+    realmId?: string;
+    scope: IConnectorConfigScope[];
 }
 
 export interface IConnector extends IUserAudit {
@@ -26,7 +27,7 @@ export interface IConnector extends IUserAudit {
     databaseName: string;
     type: string;
     active: boolean;
-    config: ISquareConnectorConfig;
+    config: IConnectorConfig;
 }
 
 export interface IConnectorDocument extends IConnector, mongoose.Document {}
