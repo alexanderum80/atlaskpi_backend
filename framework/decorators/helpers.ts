@@ -1,3 +1,4 @@
+import { IActivity } from '../authorization';
 import { IAppModule, IModuleOptions } from './app-module';
 import { GraphQLQueryMutationDecoratorOptions } from './query-mutation-options';
 import { MetadataFieldsMap } from './metadata-fields.map';
@@ -11,14 +12,23 @@ export interface IArtifactDetails {
     constructor: any;
 }
 
+export interface IQueryOrMutationDetails extends IArtifactDetails {
+    activity: IActivity;
+    resolver: any;
+}
+
 export interface IGraphqlArtifacts {
     [name: string]: IArtifactDetails;
 }
 
+export interface IQueryOrMutationArtifacts {
+    [name: string]: IQueryOrMutationDetails;
+}
+
 export interface IModuleMetadata {
     constructor: new () => IAppModule;
-    queries?: IGraphqlArtifacts;
-    mutations?: IGraphqlArtifacts;
+    queries?: IQueryOrMutationArtifacts;
+    mutations?: IQueryOrMutationArtifacts;
     children?: IChildrenModules;
 }
 
@@ -61,7 +71,7 @@ export enum MetadataType {
 (global as any).__bridge__ = defaultFrameworkMetadata;
 export const BRIDGE: IFrameworkMetadata = (global as any).__bridge__;
 
-export function updateGlobalGqlMetadata(metadataType: MetadataType, name: string, graphqlText: string, constructor: any) {
+export function updateGlobalGqlMetadata(metadataType: MetadataType, name: string, graphqlText: string, constructor: any, activity?: IActivity) {
     let graphqlArtifact: IGraphqlArtifacts = BRIDGE.graphql[metadataType];
 
     graphqlArtifact[name] = {
@@ -158,9 +168,9 @@ export function processQueryAndMutation(target: any, type: GraphqlMetaType, defi
     // updateMetadata(target, null, MetadataFieldsMap.Types, types);
 
     if (type === GraphqlMetaType.Mutation) {
-        updateGlobalGqlMetadata(MetadataType.Mutations, target.name, graphQlType, target);
+        updateGlobalGqlMetadata(MetadataType.Mutations, target.name, graphQlType, target, definition.activity);
     } else if (type === GraphqlMetaType.Query) {
-        updateGlobalGqlMetadata(MetadataType.Queries, target.name, graphQlType, target);
+        updateGlobalGqlMetadata(MetadataType.Queries, target.name, graphQlType, target, definition.activity);
     }
 }
 

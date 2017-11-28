@@ -1,12 +1,12 @@
 import { IAppConfig } from '../../configuration/config-models';
 import { IQueryBus } from '../queries';
 import { IMutationBus } from '../mutations';
-
-import { ExtendedRequest } from '../middlewares';
+import { Request } from 'express';
+import { IExtendedRequest } from '../models';
 
 export interface IGraphqlContext {
     config: IAppConfig;
-    req: ExtendedRequest;
+    req: IExtendedRequest;
     mutationBus: IMutationBus;
     queryBus: IQueryBus;
 }
