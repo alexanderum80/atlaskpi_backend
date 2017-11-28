@@ -36,7 +36,7 @@ export const connectorGql: GraphqlDefinition = {
                 return ctx.queryBus.run('get-connectors', query, args);
             }
         },
-        Mutations: {
+        Mutation: {
             removeConnector(root: any, args, ctx: IGraphqlContext) {
                 const mutation = new RemoveConnectorMutation(ctx.req.identity, ctx.req.masterContext.Connector);
                 return ctx.mutationBus.run<IMutationResponse>('remove-connector', ctx.req, mutation, args);

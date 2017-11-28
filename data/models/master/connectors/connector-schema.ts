@@ -32,7 +32,7 @@ ConnectorSchema.statics.addConnector = function(data: IConnector): Promise<IConn
         if (!data) { reject({ message: 'no data provided'}); }
 
         const findOneKey = data.uniqueKeyValue;
-
+        mongoose.set('debug', true);
         that.findOne({
             [findOneKey.key]: findOneKey.value
         }, (err, doc) => {
