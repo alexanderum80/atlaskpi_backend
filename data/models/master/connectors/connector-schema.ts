@@ -1,3 +1,4 @@
+import { getTokenType, revokeToken } from './token-helpers.ts/revoke-token';
 import { IConnectorDocument, IConnectorModel } from './IConnector';
 import * as mongoose from 'mongoose';
 import * as Promise from 'bluebird';
@@ -29,14 +30,35 @@ const ConnectorSchema = new Schema({
 ConnectorSchema.statics.addConnector = function(data: IConnectorDocument): Promise<IConnectorDocument> {
     const that = this;
     return new Promise<IConnectorDocument>((resolve, reject) => {
-        that.create(data, (err, connector: IConnectorDocument) => {
+        if (!data) { reject({ message: 'no data provided'}); }
+        that.findOne({
+            'config.token.merchant_id': data.config.token.merchant_id
+        }, (err, role) => {
             if (err) {
-                reject({ message: 'Not able to add connector', error: err });
+                reject({ message: 'unknown error', error: err });
+            }
+            if (role) {
+                reject({ message: 'connector exists' });
                 return;
             }
-            resolve(connector);
+            that.create(data, (errCreate, connector: IConnectorDocument) => {
+                if (errCreate) {
+                    reject({ message: 'Not able to add connector', error: errCreate});
+                    return;
+                }
+                resolve(connector);
+            });
         });
     });
+    // return new Promise<IConnectorDocument>((resolve, reject) => {
+    //     that.create(data, (err, connector: IConnectorDocument) => {
+    //         if (err) {
+    //             reject({ message: 'Not able to add connector', error: err });
+    //             return;
+    //         }
+    //         resolve(connector);
+    //     });
+    // });
 };
 
 ConnectorSchema.statics.updateConnector = function(data: IConnectorDocument, token: string): Promise<IConnectorDocument> {
@@ -54,6 +76,32 @@ ConnectorSchema.statics.updateConnector = function(data: IConnectorDocument, tok
         .then(res => {
             return resolve(res);
         }).catch(err => reject(err));
+    });
+};
+
+ConnectorSchema.statics.removeConnector = function(data: any): Promise<IConnectorDocument> {
+    const that = this;
+    return new Promise<IConnectorDocument>((resolve, reject) => {
+        that.findOne({_id: data._id})
+            .then(connector => {
+                if (connector) {
+                    const deletedConnector = connector;
+
+                    connector.remove((err, connector: IConnectorDocument) => {
+                        if (err) {
+                            reject({ message: 'There was an error removing a connector', error: err});
+                            return;
+                        }
+                        // revoking the token from integration
+                        let connectorType = getTokenType(deletedConnector);
+                        if (connectorType && connectorType.url && connectorType.headers) {
+                            revokeToken(connectorType.url, connectorType.headers, connectorType.body);
+                        }
+
+                        resolve(deletedConnector);
+                    });
+                }
+            }).catch(err => resolve(err));
     });
 };
 

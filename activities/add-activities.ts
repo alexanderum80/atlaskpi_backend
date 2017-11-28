@@ -34,7 +34,7 @@ import { getKpisActivity } from './app/kpis/get-kpis.activity';
 import { deleteAppointmentActivity } from './app/appointments/delete-appointment.activity';
 import { updateAppointmentActivity } from './app/appointments/update-appointment.activity';
 import { AppointmentByIdActivity } from './app/appointments/appointment-by-id.activity';
-import { AppointmentByDescriptionActivity } from './app/appointments/appointment-by-description.activity'; 
+import { AppointmentByDescriptionActivity } from './app/appointments/appointment-by-description.activity';
 import { createAppointmentActivity } from './app/appointments/create-appointment.activity';
 
 
@@ -43,6 +43,8 @@ import {
     getAccountActivity,
     getIndustriesActivity,
     accountNameAvailableActivity,
+    getConnectorsActivity,
+    removeConnectorActivity
 } from './master';
 
 import {
@@ -136,6 +138,8 @@ export function addActivities() {
         getAccountActivity,
         getIndustriesActivity,
         accountNameAvailableActivity,
+        getConnectorsActivity,
+        removeConnectorActivity,
 
         // app
         createUserActivity,
