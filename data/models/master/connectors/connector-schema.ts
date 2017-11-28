@@ -2,7 +2,6 @@ import { getTokenType, revokeToken } from './token-helpers.ts/revoke-token';
 import { IConnectorDocument, IConnectorModel, IConnector } from './IConnector';
 import * as mongoose from 'mongoose';
 import * as Promise from 'bluebird';
-import { findKey } from './token-helper';
 
 const Schema = mongoose.Schema;
 
