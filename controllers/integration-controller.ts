@@ -66,10 +66,11 @@ export class IntegrationController {
                     databaseName: this._companyName,
                     type: getConnectorTypeId(that._connector.getType()),
                     createdBy: 'backend',
-                    createdOn: new Date(Date.now())
+                    createdOn: new Date(Date.now()),
+                    uniqueKeyValue: that._connector.getUniqueKeyValue()
                 };
 
-                that._masterContext.Connector.create(connObj).then(() => {
+                that._masterContext.Connector.addConnector(connObj).then(() => {
                     const flowResult: IExecutionFlowResult = {
                         success: true,
                         connector: connObj

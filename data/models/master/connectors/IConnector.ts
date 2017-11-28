@@ -1,6 +1,6 @@
-import { IOAuth2Token } from './../../../integrations/models/connector-base';
+import { IOAuth2Token, IKeyValuePair } from './../../../integrations/models/connector-base';
 import { IConnector } from './IConnector';
-import mongoose = require('mongoose');
+import * as mongoose from 'mongoose';
 import * as Promise from 'bluebird';
 
 export interface IBaseAudit {
@@ -30,6 +30,7 @@ export interface IConnector extends IUserAudit {
     type: string;
     active: boolean;
     config: IQBOConnectorConfig;
+    uniqueKeyValue?: IKeyValuePair;
 }
 
 export interface IConnectorDocument extends IConnector, mongoose.Document {
