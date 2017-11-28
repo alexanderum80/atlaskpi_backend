@@ -1,3 +1,4 @@
+import { IKeyValuePair } from '../../../integrations/models/connector-base';
 import { IOAuth2Token } from '../../common/oauth2-token.model';
 import * as mongoose from 'mongoose';
 import * as Promise from 'bluebird';
@@ -28,6 +29,7 @@ export interface IConnector extends IUserAudit {
     type: string;
     active: boolean;
     config: IConnectorConfig;
+    uniqueKeyValue?: IKeyValuePair;
 }
 
 export interface IConnectorDocument extends IConnector, mongoose.Document {}

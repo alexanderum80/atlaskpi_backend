@@ -1,5 +1,5 @@
 import { getTokenType, revokeToken } from './token-helpers.ts/revoke-token';
-import { IConnectorDocument, IConnectorModel } from './IConnector';
+import { IConnectorDocument, IConnectorModel, IConnector } from './IConnector';
 import * as mongoose from 'mongoose';
 import * as Promise from 'bluebird';
 import { findKey } from './token-helper';
@@ -29,21 +29,20 @@ const ConnectorSchema = new Schema({
 });
 
 
-ConnectorSchema.statics.addConnector = function(data: IConnectorDocument): Promise<IConnectorDocument> {
+ConnectorSchema.statics.addConnector = function(data: IConnector): Promise<IConnectorDocument> {
     const that = this;
     return new Promise<IConnectorDocument>((resolve, reject) => {
         if (!data) { reject({ message: 'no data provided'}); }
-        const findOneKey = findKey(data);
 
         that.findOne({
-            [findOneKey.key]: findOneKey.value
-        }, (err, role) => {
+            [data.uniqueKeyValue.key]: data.uniqueKeyValue.value
+        }, (err, doc) => {
             if (err) {
                 reject({ message: 'unknown error', error: err });
             }
-            if (role) {
+            if (doc) {
                 that.update({
-                    [findOneKey.key]: findOneKey.value
+                    [data.uniqueKeyValue.key]: data.uniqueKeyValue.value
                 }, data)
                 .then(updateResp => resolve(updateResp))
                 .catch(updateErr => reject(updateErr));
@@ -69,7 +68,7 @@ ConnectorSchema.statics.addConnector = function(data: IConnectorDocument): Promi
     // });
 };
 
-ConnectorSchema.statics.updateConnector = function(data: IConnectorDocument, token: string): Promise<IConnectorDocument> {
+ConnectorSchema.statics.updateConnector = function(data: IConnector, token: string): Promise<IConnectorDocument> {
     const that = this;
     return new Promise<IConnectorDocument>((resolve, reject) => {
         if (!token) {

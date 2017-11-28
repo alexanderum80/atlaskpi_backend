@@ -1,3 +1,5 @@
+import { IConnectorDocument } from './';
+
 export const findKey = function(data: IConnectorDocument) {
     switch (data.type) {
         case 'quickbooks-online':

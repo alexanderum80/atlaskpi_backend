@@ -21,9 +21,20 @@ export interface IOAuthConfigOptions {
     };
 }
 
+export interface IKeyValuePair {
+    key: string;
+    value: string;
+}
+
 export interface IOAuthConnector {
     getType(): ConnectorTypeEnum;
     getTypeString(): string;
     getConfiguration(): IConnector | any;
     getToken(originalUrl: string): Promise<IOAuth2Token>;
+    getName(): string;
+    getUniqueKeyValue(): IKeyValuePair;
+
+    // user buy quickbooks online
+    setRealmId?(realmId: string): void;
+    getRealmId?(): string;
 }

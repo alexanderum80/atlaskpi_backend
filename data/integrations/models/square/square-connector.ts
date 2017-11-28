@@ -1,10 +1,10 @@
 import { IOAuth2Token } from '../../../models/common/oauth2-token.model';
 import { IConnector, IConnectorConfig, IConnectorConfigScope } from '../../../models/master/connectors/index';
 import { ConnectorTypeEnum } from '../connector-type';
-import { IOAuthConfigOptions, IOAuthConnector } from '../connector-base';
+import { IKeyValuePair, IOAuthConfigOptions, IOAuthConnector } from '../connector-base';
 import * as ClientOAuth2 from 'client-oauth2';
 import * as path from 'path';
-declare var require: any;
+import * as request from 'request';
 
 const REDIRECT_URI = 'http://localhost:9091/integration';
 const AUTH_SCOPE = [
@@ -26,13 +26,17 @@ export class SquareConnector implements IOAuthConnector {
         {name: 'MERCHANT_PROFILE_READ'},  {name: 'PAYMENTS_READ'}, {name: 'ORDERS_READ'}
     ];
 
+    private _companyInfo: any;
+    private _name: string;
+    private _merchantId: string;
+
     constructor(code?: string) {
         this._code = code;
         this._clientAuth = new ClientOAuth2(this._getAuthConfiguration());
     }
 
-    get code$() {
-        return this._code;
+    getName(): string {
+        return this._name || '';
     }
 
     getScope() {
@@ -53,7 +57,13 @@ export class SquareConnector implements IOAuthConnector {
             this._clientAuth.code.getToken(url)
                 .then(token => {
                     that._token = (<any>token).data;
-                    resolve(token);
+                    that._merchantId = that._token.merchant_id;
+
+                    that._getLocation().then(info => {
+                        that._name = (<any>info).response.name;
+                        resolve(token);
+                        return;
+                    });
                 }).catch(errToken => {
                     reject(errToken);
             });
@@ -70,8 +80,14 @@ export class SquareConnector implements IOAuthConnector {
         return config;
     }
 
+    getUniqueKeyValue(): IKeyValuePair {
+        return {
+            key: 'config.token.merchant_id',
+            value: this._merchantId
+        };
+    }
+
     private _getAuthConfiguration(): IOAuthConfigOptions {
-        console.log(this._clientId);
         return {
             clientId: this._clientId,
             clientSecret: this._clientSecret,
@@ -80,6 +96,42 @@ export class SquareConnector implements IOAuthConnector {
             authorizationUri: 'https://connect.squareup.com/oauth2/authorize',
             redirectUri: REDIRECT_URI
         };
+    }
+
+    private _getLocation(): Promise<any> {
+        if (!this._token) {
+            return Promise.reject('connector not ready for getting locations');
+        }
+
+        const that = this;
+
+        const url = 'https://connect.squareup.com/v2/locations';
+        const headers = {
+            'Authorization': 'Bearer ' + this._token,
+            'Accept': 'application/json'
+        };
+        const requestObject = {
+            url: url,
+            headers: headers
+        };
+
+        return new Promise<any>((resolve, reject) => {
+            request(requestObject, (err, res: Response, body) => {
+                // check status code
+                // if ((<any>res).statusCode === 401) {
+
+                // }
+                const locationBody: any = JSON.stringify(JSON.parse(body));
+                const locations = locationBody['locations'];
+                that._companyInfo = locations[0];
+
+                resolve({
+                    error: err,
+                    response: that._companyInfo
+                });
+                return;
+            });
+        });
     }
 
 }
