@@ -23,20 +23,26 @@ const ConnectorSchema = new mongoose.Schema({
     ... userAuditSchema
 });
 
-ConnectorSchema.statics.addConnector = function(data: IConnectorDocument): Promise<IConnectorDocument> {
+ConnectorSchema.statics.addConnector = function(data: IConnector): Promise<IConnectorDocument> {
     const that = this;
     return new Promise<IConnectorDocument>((resolve, reject) => {
         if (!data) { reject({ message: 'no data provided'}); }
-        // that.findOne({
-        //     'config.token.merchant_id': data.config.token.merchant_id
-        // }, (err, role) => {
-        //     if (err) {
-        //         reject({ message: 'unknown error', error: err });
-        //     }
-        //     if (role) {
-        //         reject({ message: 'connector exists' });
-        //         return;
-        //     }
+        const findOneKey = data.uniqueKeyValue;
+
+        that.findOne({
+            [findOneKey.key]: findOneKey.value
+        }, (err, doc) => {
+            if (err) {
+                reject({ message: 'unknown error', error: err });
+            }
+            if (doc) {
+                that.update({
+                    [findOneKey.key]: findOneKey.value
+                }, data)
+                .then(updateResp => resolve(updateResp))
+                .catch(updateErr => reject(updateErr));
+                return;
+            }
             that.create(data, (errCreate, connector: IConnectorDocument) => {
                 if (errCreate) {
                     reject({ message: 'Not able to add connector', error: errCreate});
@@ -44,17 +50,8 @@ ConnectorSchema.statics.addConnector = function(data: IConnectorDocument): Promi
                 }
                 resolve(connector);
             });
-        // });
+        });
     });
-    // return new Promise<IConnectorDocument>((resolve, reject) => {
-    //     that.create(data, (err, connector: IConnectorDocument) => {
-    //         if (err) {
-    //             reject({ message: 'Not able to add connector', error: err });
-    //             return;
-    //         }
-    //         resolve(connector);
-    //     });
-    // });
 };
 
 ConnectorSchema.statics.updateConnector = function(data: IConnectorDocument, token: string): Promise<IConnectorDocument> {

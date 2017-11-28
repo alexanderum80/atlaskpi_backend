@@ -1,5 +1,5 @@
 import { IQBOConnectorConfigScope, IQBOConnectorConfig } from './../../../models/master/connectors/IConnector';
-import { IOAuth2Token } from './../connector-base';
+import { IOAuth2Token, IKeyValuePair } from './../connector-base';
 import { ConnectorTypeEnum } from '../connector-type';
 import { IOAuthConnector, IOAuthConfigOptions } from '../connector-base';
 import * as ClientOAuth2 from 'client-oauth2';
@@ -60,6 +60,13 @@ export class QuickBooksOnlineConnector implements IOAuthConnector {
 
     setRealmId(realmId: string) {
         this._realmId = realmId;
+    }
+
+    getUniqueKeyValue(): IKeyValuePair {
+        return  {
+                  key: 'config.realmId',
+                  value: this._realmId
+        };
     }
 
     getRealmId(): string {

@@ -10,6 +10,11 @@ export interface IOAuth2Token {
     x_refresh_token_expires_in: number;
 }
 
+export interface IKeyValuePair {
+  key: string;
+  value: any;
+}
+
 export interface IOAuthConfigOptions {
     clientId?: string;
     clientSecret?: string;
@@ -37,6 +42,7 @@ export interface IOAuthConnector {
     getConfiguration(): IQBOConnectorConfig | any;
     // getAuthConfiguration(): IOAuthConfigOptions;
     getName(): string;
+    getUniqueKeyValue(): IKeyValuePair;
 
     // user buy quickbooks online
     setRealmId?(realmId: string): void;
