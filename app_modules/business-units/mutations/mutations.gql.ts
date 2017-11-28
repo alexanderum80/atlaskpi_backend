@@ -33,7 +33,13 @@ export class BusinessUnit {
 }
 
 @input()
-export class CreateBusinessUnitInput extends BusinessUnit { }
+export class CreateBusinessUnitInput {
+    @field({ type: GraphQLTypesMap.String })
+    name: string;
+
+    @field({ type: GraphQLTypesMap.Int })
+    serviceType: number;
+}
 
 const CreateBusinessUnitActivity: IActivity = {} as IActivity;
 
