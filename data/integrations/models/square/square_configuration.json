@@ -1,6 +1,7 @@
 {
     "authorization_endpoint": "https://connect.squareup.com/oauth2/authorize",
     "token_endpoint": "https://connect.squareup.com/oauth2/token",
+    "revocation_endpoint": "https://connect.squareup.com/oauth2/revoke",
     "subject_types_supported": [
         "public"
     ],

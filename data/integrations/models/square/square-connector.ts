@@ -4,6 +4,9 @@ import { IKeyValuePair, IOAuth2Token, IOAuthConfigOptions, IOAuthConnector } fro
 import * as ClientOAuth2 from 'client-oauth2';
 import * as path from 'path';
 import * as request from 'request';
+import * as Promise from 'bluebird';
+
+declare var require: any;
 
 const REDIRECT_URI = 'http://localhost:9091/integration';
 const AUTH_SCOPE = [
@@ -11,6 +14,7 @@ const AUTH_SCOPE = [
         'PAYMENTS_READ',
         'ORDERS_READ'
 ];
+const square_configuration = require('./square_configuration.json');
 
 export class SquareConnector implements IOAuthConnector {
 
@@ -57,19 +61,48 @@ export class SquareConnector implements IOAuthConnector {
                 .then(token => {
                     that._token = (<any>token).data;
                     that._merchantId = that._token.merchant_id;
-                    that._name = 'square-one';
+                    that._name = 'Merchant: ' + that._merchantId;
                     resolve(that._token);
                     return;
-
-                    // that._getLocation().then(info => {
-                    //     that._name = (<any>info).response.name;
-                    //     resolve(token);
-                    //     return;
-                    // });
                 }).catch(errToken => {
                     reject(errToken);
             });
         });
+    }
+
+    revokeToken(): Promise<any> {
+        if (!this._token) {
+            return Promise.reject('connector');
+        }
+
+        const that = this;
+        const url = square_configuration.revocation_endpoint;
+        const auth = new Buffer(`${this._clientId}:${this._clientSecret}`).toString('base64');
+
+        const requestObject = {
+            url: url,
+            method: 'POST',
+            json: { client_id: this._clientId, access_token: this._token },
+            headers: {
+                'Authorization': 'Client ' + this._clientSecret
+            }
+        };
+
+        return new Promise<any>((resolve, reject) => {
+            request(requestObject, (err, res: Response) => {
+                if ((<any>res).statusCode === 200) {
+                    resolve();
+                    return;
+                } else {
+                    const err = ('something went wrong, server response: ' + (<any>res).statusCode);
+                    reject(err);
+                }
+            });
+        });
+    }
+
+    setToken(token: IOAuth2Token): void {
+        this._token = token;
     }
 
     getConfiguration(): IConnectorConfig {

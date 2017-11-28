@@ -1,5 +1,6 @@
 import { IConnector } from '../../models/master/connectors/index';
 import { ConnectorTypeEnum } from './connector-type';
+import * as Promise from 'bluebird';
 
 export interface IOAuth2Token {
     access_token: string;
@@ -42,6 +43,7 @@ export interface IOAuthConnector {
     getToken(originalUrl: string): Promise<IOAuth2Token>;
     getName(): string;
     getUniqueKeyValue(): IKeyValuePair;
+    revokeToken(): Promise<any>;
 
     // user buy quickbooks online
     setRealmId?(realmId: string): void;

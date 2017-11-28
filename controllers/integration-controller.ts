@@ -4,6 +4,7 @@ import { IOAuthConnector } from '../data/integrations/models/connector-base';
 import { IAppModels } from '../data/models/app/app-models';
 import { IMasterModels } from '../data/models/master/index';
 import { ConnectorTypeEnum, getConnectorTypeId } from './../data/integrations/models/connector-type';
+import * as Promise from 'bluebird';
 
 export interface IExecutionFlowResult {
     success?: boolean;

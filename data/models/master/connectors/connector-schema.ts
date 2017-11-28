@@ -76,10 +76,10 @@ ConnectorSchema.statics.updateConnector = function(data: IConnector, token: stri
     });
 };
 
-ConnectorSchema.statics.removeConnector = function(data: any): Promise<IConnectorDocument> {
+ConnectorSchema.statics.removeConnector = function(id: string): Promise<IConnectorDocument> {
     const that = this;
     return new Promise<IConnectorDocument>((resolve, reject) => {
-        that.findOne({_id: data._id})
+        that.findOne({_id: id})
             .then(connector => {
                 if (connector) {
                     const deletedConnector = connector;
@@ -90,10 +90,10 @@ ConnectorSchema.statics.removeConnector = function(data: any): Promise<IConnecto
                             return;
                         }
                         // revoking the token from integration
-                        let connectorType = getTokenType(deletedConnector);
-                        if (connectorType && connectorType.url && connectorType.headers) {
-                            revokeToken(connectorType.url, connectorType.headers, connectorType.body);
-                        }
+                        // let connectorType = getTokenType(deletedConnector);
+                        // if (connectorType && connectorType.url && connectorType.headers) {
+                        //     revokeToken(connectorType.url, connectorType.headers, connectorType.body);
+                        // }
 
                         resolve(deletedConnector);
                     });

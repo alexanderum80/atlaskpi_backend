@@ -12,3 +12,15 @@ export function getConnectorTypeId(type: ConnectorTypeEnum) {
             return 'square';
     }
 }
+
+
+export function getConnectorType(type: string): ConnectorTypeEnum {
+    switch (type) {
+        case 'qbo':
+            return ConnectorTypeEnum.QuickBooksOnline;
+        case 'square':
+            return ConnectorTypeEnum.Square;
+        default:
+            return;
+    }
+}
