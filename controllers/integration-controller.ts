@@ -7,6 +7,11 @@ import { IMasterModels } from './../data/models/master/master-models';
 import * as Promise from 'bluebird';
 import * as logger from 'winston';
 
+interface IExecutionFlowResult {
+    success: boolean;
+    connector?: IConnector;
+}
+
 export class IntegrationController {
 
     private _connector: IOAuthConnector;
@@ -43,9 +48,9 @@ export class IntegrationController {
         }
     }
 
-    public executeFlow(originalUrl: string): Promise<boolean> {
+    public executeFlow(originalUrl: string): Promise<IExecutionFlowResult> {
         const that = this;
-        return new Promise<boolean>((resolve, reject) => {
+        return new Promise<IExecutionFlowResult>((resolve, reject) => {
             that._connector.getToken(originalUrl).then(token => {
                 if (!token) {
                     reject('something went wrong, could not retrieve a token');
@@ -55,7 +60,7 @@ export class IntegrationController {
                 const connectorConfig = that._connector.getConfiguration();
 
                 const connObj: IConnector = {
-                    name: 'qbo1',
+                    name: that._connector.getName(),
                     active: true,
                     config: connectorConfig,
                     databaseName: this._companyName,
@@ -65,7 +70,11 @@ export class IntegrationController {
                 };
 
                 that._masterContext.Connector.create(connObj).then(() => {
-                    resolve(true);
+                    const flowResult: IExecutionFlowResult = {
+                        success: true,
+                        connector: connObj
+                    };
+                    resolve(flowResult);
                     return;
                 })
                 .catch(err => {
