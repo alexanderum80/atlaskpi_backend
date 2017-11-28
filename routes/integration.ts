@@ -25,16 +25,16 @@ integration.get('/integration', (req: ExtendedRequest, res: Response)  => {
         res.status(500).send(err);
     }
 
-    integration.executeFlow(req.originalUrl).then(success => {
-        if (success) {
+    integration.executeFlow(req.originalUrl).then(result => {
+        if (result.success) {
             res.send(`
             <!DOCTYPE html>
             <html>
             <head>
                 <script>
                     debugger;
-                    window.opener.postMessage({messageSource: 'atlasKPIIntegrations', success: true }, '*');
-                    window.close();
+                    window.opener.postMessage({messageSource: 'atlasKPIIntegrations', connectorName: '${result.connector.name}', success: true }, '*');
+                    setTimeout(function(){ window.close();}, 500);
                 </script>
             </head>
             <body>

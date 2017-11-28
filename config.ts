@@ -61,5 +61,8 @@ export const config: IAppConfig = {
     },
     emailService: emailServiceConfig,
     usersService: usersServiceConfig,
-    appServices: appServicesConfig
+    appServices: appServicesConfig,
+
+    integrationRedirectUri: 'http://localhost:9091/integration',
+    // integrationRedirectUri: 'https://566e5968.ngrok.io/integration'
 };
