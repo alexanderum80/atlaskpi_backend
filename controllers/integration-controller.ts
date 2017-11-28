@@ -5,9 +5,9 @@ import { IAppModels } from '../data/models/app/app-models';
 import { IMasterModels } from '../data/models/master/index';
 import { getConnectorTypeId } from './../data/integrations/models/connector-type';
 
-export interface UrlHelper {
-    hostname?: string;
-    protocol?: string;
+export interface IExecutionFlowResult {
+    success?: boolean;
+    connector?: IConnector;
 }
 
 export class IntegrationController {
@@ -40,9 +40,9 @@ export class IntegrationController {
         this._connector = connector;
     }
 
-    public executeFlow(originalUrl: string): Promise<boolean> {
+    public executeFlow(originalUrl: string): Promise<IExecutionFlowResult> {
         const that = this;
-        return new Promise<boolean>((resolve, reject) => {
+        return new Promise<IExecutionFlowResult>((resolve, reject) => {
             that._connector.getToken(originalUrl).then(token => {
                 if (!token) {
                     reject('getToken error response');
@@ -56,19 +56,27 @@ export class IntegrationController {
                 }
 
                 const connObj: IConnector = {
-                    name: 'square-one',
+                    name: that._connector.getName(),
                     active: true,
                     config: connectorConfig,
                     databaseName: this._hostName,
                     type: getConnectorTypeId(that._connector.getType()),
                     createdBy: 'backend',
-                    createdOn: new Date(Date.now())
+                    createdOn: new Date(Date.now()),
+                    uniqueKeyValue: that._connector.getUniqueKeyValue()
                 };
 
                 that._masterContext.Connector.addConnector(connObj)
-                    .then(() => resolve(true))
+                    .then(() => {
+                        const flowResult: IExecutionFlowResult = {
+                            success: true,
+                            connector: connObj
+                        };
+                        resolve(flowResult);
+                        return;
+                    })
                     .catch(err => reject(err));
-            }).catch(err => reject(err));
+            });
         });
     }
 }

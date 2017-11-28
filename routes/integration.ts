@@ -22,8 +22,8 @@ integration.get('/integration', (req: ExtendedRequest, res: Response) => {
         res.status(500).send(err);
     }
 
-    integration_controller.executeFlow(req.originalUrl).then(success => {
-        if (success) {
+    integration_controller.executeFlow(req.originalUrl).then(result => {
+        if (result.success) {
             // res.status(200).json({ status: 'success' });
             res.send(`
                 <!DOCTYPE html>
@@ -31,7 +31,7 @@ integration.get('/integration', (req: ExtendedRequest, res: Response) => {
                 <head>
                     <script>
                         debugger;
-                        window.opener.postMessage({messageSource: 'atlasKPIIntegrations', success: true }, '*');
+                        window.opener.postMessage({messageSource: 'atlasKPIIntegrations' connectorName: ${result.connector.name}, success: true }, '*');
                         window.close();
                     </script>
                 </head>
