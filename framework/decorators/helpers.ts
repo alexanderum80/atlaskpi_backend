@@ -15,6 +15,7 @@ export interface IArtifactDetails {
 export interface IQueryOrMutationDetails extends IArtifactDetails {
     activity: IActivity;
     resolver: any;
+    relatedTypes: any[];
 }
 
 export interface IGraphqlArtifacts {
@@ -71,13 +72,22 @@ export enum MetadataType {
 (global as any).__bridge__ = defaultFrameworkMetadata;
 export const BRIDGE: IFrameworkMetadata = (global as any).__bridge__;
 
-export function updateGlobalGqlMetadata(metadataType: MetadataType, name: string, graphqlText: string, constructor: any, activity?: IActivity) {
+export function updateGlobalGqlMetadata(metadataType: MetadataType, name: string, graphqlText: string,
+    constructor: any, activity?: IActivity, types?: any[]) {
     let graphqlArtifact: IGraphqlArtifacts = BRIDGE.graphql[metadataType];
 
     graphqlArtifact[name] = {
         text: graphqlText,
         constructor: constructor
     };
+
+    if (activity) {
+        (graphqlArtifact[name] as IQueryOrMutationDetails).activity = activity;
+    }
+
+    if (types) {
+        (graphqlArtifact[name] as IQueryOrMutationDetails).relatedTypes = types;
+    }
 }
 
 export function addGlobalModuleMetadata(target, metadata: IModuleMetadata) {
@@ -149,28 +159,28 @@ export function processQueryAndMutation(target: any, type: GraphqlMetaType, defi
     // updateMetadata(target, null, MetadataFieldsMap.Activity, definition.activity);
 
     // add only complex types
-    // const types = [];
+    const types = [];
 
-    // // add types for parameters
-    // if (definition.parameters) {
-    //     definition.parameters.forEach(p => {
-    //         if (p.type.name) {
-    //             types.push(p.type);
-    //         }
-    //     });
-    // }
+    // add types for parameters
+    if (definition.parameters) {
+        definition.parameters.forEach(p => {
+            if (p.type.name) {
+                types.push(p.type);
+            }
+        });
+    }
 
-    // // add output type
-    // if (definition.output.name) {
-    //     types.push(definition.output);
-    // }
+    // add output type
+    if (definition.output.name) {
+        types.push(definition.output);
+    }
 
     // updateMetadata(target, null, MetadataFieldsMap.Types, types);
 
     if (type === GraphqlMetaType.Mutation) {
-        updateGlobalGqlMetadata(MetadataType.Mutations, target.name, graphQlType, target, definition.activity);
+        updateGlobalGqlMetadata(MetadataType.Mutations, target.name, graphQlType, target, definition.activity, types);
     } else if (type === GraphqlMetaType.Query) {
-        updateGlobalGqlMetadata(MetadataType.Queries, target.name, graphQlType, target, definition.activity);
+        updateGlobalGqlMetadata(MetadataType.Queries, target.name, graphQlType, target, definition.activity, types);
     }
 }
 

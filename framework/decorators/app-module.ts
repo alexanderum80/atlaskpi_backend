@@ -112,27 +112,6 @@ function _getModuleMetadata(target, instance, container: Container, options: IMo
     return result;
 }
 
-// function _constructGraphQLSchema(schemaArtifacts, container: Container, name: string, options: IModuleOptions) {
-//     const result: GraphqlDefinition = {
-//         name: name,
-//         schema: {} as GraphqlSchema,
-//         resolvers: {}
-//     };
-
-//     // create graphql types, queries and mutations definitions
-//     result.schema.types = _concatenateType(schemaArtifacts, [GraphqlMetaType.Input, GraphqlMetaType.Type]);
-//     result.schema.queries = _concatenateType(schemaArtifacts, [GraphqlMetaType.Query]);
-//     result.schema.mutations = _concatenateType(schemaArtifacts, [GraphqlMetaType.Mutation]);
-
-//     // create resolvers
-//     result.resolvers.Query = _createResolversFor(container, GraphqlMetaType.Query, schemaArtifacts, options);
-//     result.resolvers.Mutation = _createResolversFor(container, GraphqlMetaType.Mutation, schemaArtifacts, options);
-//     // TODO: I need to finish this
-//     // Object.assign(result.resolvers, _createComplexTypeResolvers(schemaArtifacts, options));
-
-//     return result;
-// }
-
 function _processDependencyInjection(moduleName: string,
     moduleMetadata: IModuleMetadata,
     instance: any,
@@ -169,6 +148,7 @@ function _processDependencyInjection(moduleName: string,
 function _injectResolvers(container: Container, moduleMetadata: IModuleMetadata): void {
     // type resolvers
 
+
     // query and mutation resolvers
     [MetadataType.Queries, MetadataType.Mutations].forEach(metadataType => {
         const types = moduleMetadata[metadataType];
@@ -176,23 +156,12 @@ function _injectResolvers(container: Container, moduleMetadata: IModuleMetadata)
         if (types) {
             for (const key in types) {
                 const queryOrMutation: IQueryOrMutationDetails = <IQueryOrMutationDetails>types[key];
-                const i = container.get(queryOrMutation.constructor.name) as any;
+                // const i = container.get(queryOrMutation.constructor.name) as any;
                 (<IQueryOrMutationDetails>types[key]).resolver = _getResolverFunction(metadataType, container, queryOrMutation);
             }
         }
     });
 }
-
-// function _concatenateType(list, types: GraphqlMetaType[]): string {
-//     let result = '';
-
-//     list.filter(a => types.indexOf(a.type) !== -1)
-//         .forEach(a => {
-//             result += a.definition + '\n';
-//         });
-
-//     return result;
-// }
 
 function _getResolverFunction(metaType: MetadataType, container: Container, artifact: IQueryOrMutationDetails) {
     const bus = metaType === MetadataType.Queries ? 'queryBus' : 'mutationBus';
@@ -204,7 +173,3 @@ function _getResolverFunction(metaType: MetadataType, container: Container, arti
         return (ctx[bus] as any).run(artifact.activity, ctx.req, i, args);
     };
 }
-
-// function _createComplexTypeResolvers(schemaArtifacts: ISchemaArtifactDetails[], options: IModuleOptions) {
-//     throw new Error('Not implemented');
-// }
