@@ -2,6 +2,7 @@ import { getTokenType, revokeToken } from './token-helpers.ts/revoke-token';
 import { IConnectorDocument, IConnectorModel } from './IConnector';
 import * as mongoose from 'mongoose';
 import * as Promise from 'bluebird';
+import { findKey } from './token-helper';
 
 const Schema = mongoose.Schema;
 
@@ -27,18 +28,25 @@ const ConnectorSchema = new Schema({
     ...userAuditSchema
 });
 
+
 ConnectorSchema.statics.addConnector = function(data: IConnectorDocument): Promise<IConnectorDocument> {
     const that = this;
     return new Promise<IConnectorDocument>((resolve, reject) => {
         if (!data) { reject({ message: 'no data provided'}); }
+        const findOneKey = findKey(data);
+
         that.findOne({
-            'config.token.merchant_id': data.config.token.merchant_id
+            [findOneKey.key]: findOneKey.value
         }, (err, role) => {
             if (err) {
                 reject({ message: 'unknown error', error: err });
             }
             if (role) {
-                reject({ message: 'connector exists' });
+                that.update({
+                    [findOneKey.key]: findOneKey.value
+                }, data)
+                .then(updateResp => resolve(updateResp))
+                .catch(updateErr => reject(updateErr));
                 return;
             }
             that.create(data, (errCreate, connector: IConnectorDocument) => {

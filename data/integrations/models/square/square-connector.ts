@@ -1,5 +1,5 @@
 import { IOAuth2Token } from '../../../models/common/oauth2-token.model';
-import { IConnector, ISquareConnectorConfig, ISquareConnectorConfigScope } from '../../../models/master/connectors/index';
+import { IConnector, IConnectorConfig, IConnectorConfigScope } from '../../../models/master/connectors/index';
 import { ConnectorTypeEnum } from '../connector-type';
 import { IOAuthConfigOptions, IOAuthConnector } from '../connector-base';
 import * as ClientOAuth2 from 'client-oauth2';
@@ -22,7 +22,7 @@ export class SquareConnector implements IOAuthConnector {
     private _clientSecret = 'sq0csp-8hJv6t0Xrbh2gkGqiziduQGgd47gBN5JnziuL4ZgA9k';
 
     private _clientAuth: ClientOAuth2;
-    private _scope: ISquareConnectorConfigScope[] = [
+    private _scope: IConnectorConfigScope[] = [
         {name: 'MERCHANT_PROFILE_READ'},  {name: 'PAYMENTS_READ'}, {name: 'ORDERS_READ'}
     ];
 
@@ -60,10 +60,10 @@ export class SquareConnector implements IOAuthConnector {
         });
     }
 
-    getConfiguration(): ISquareConnectorConfig {
+    getConfiguration(): IConnectorConfig {
         if (!this._token) { return; }
 
-        const config: ISquareConnectorConfig = {
+        const config: IConnectorConfig = {
             token: this._token,
             scope: this._scope
         };
