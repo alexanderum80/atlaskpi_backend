@@ -1,18 +1,19 @@
-import { CreateAccessLogMutation } from '../mutations/app/access-log';
-// import { IValidationResult } from './validation-result';
+import { IActivity } from '../authorization';
 import {
     IQuery
 } from '..';
-import { Enforcer, getEnforcerConfig, IEnforcer } from '../../lib/enforcer';
+import { IEnforcer } from '../modules/security/enforcer';
 import * as Promise from 'bluebird';
 import { ExtendedRequest } from '../../middlewares/extended-request';
 import * as logger from 'winston';
+import { injectable } from 'inversify';
 
 
 export interface IQueryBus {
-    run<T>(activityName: string, query: IQuery<T>, data: any, request?: ExtendedRequest): Promise<any>;
+    run<T>(activity: IActivity, query: IQuery<T>, data: any, request?: ExtendedRequest): Promise<any>;
 }
 
+@injectable()
 export class QueryBus implements IQueryBus {
 
     authorizedValue: any;
@@ -26,10 +27,10 @@ export class QueryBus implements IQueryBus {
 
     constructor(private _enforcer: IEnforcer) { }
 
-    run<T>(activityName: string, query: IQuery<T>, data: any, request: ExtendedRequest): Promise<any> {
+    run<T>(activity: IActivity, query: IQuery<T>, data: any, request: ExtendedRequest): Promise<any> {
         const that = this;
         // chack activity authorization
-        return this.enforcer.authorizationTo(activityName, request)
+        return this.enforcer.authorizationTo(activity, request)
             .then((authorized) => {
                 if (!authorized) {
                     return Promise.reject(authorized);
@@ -53,10 +54,13 @@ export class QueryBus implements IQueryBus {
                 return Promise.resolve(err);
             }).finally(() => {
                 // sometimes when using Apollo Chrome Extension the request object is undefined
-                if ((query.log === true) && activityName !== 'get-all-access-logs' && request && request.identity) {
+                if ((query.log === true) && request && request) {
+                    const user = request.user;
+                    const accessBy = user ? user.profile.firstName + ' ' + user.profile.lastName : '';
+
                     that.logParams = {
                         timestamp: Date.now(),
-                        accessBy: query.identity.username || '',
+                        accessBy: accessBy,
                         ipAddress: request.connection ? request.connection.remoteAddress : '',
                         event: query.constructor.name,
                         clientDetails: request.get('User-Agent'),
@@ -68,21 +72,10 @@ export class QueryBus implements IQueryBus {
                             details: that.errorStr || ('Success executing ' + query.constructor.name)
                         }
                     };
-                    let accessLog = new CreateAccessLogMutation(query.identity, request.appContext.AccessModel);
-                    accessLog.run(that.logParams);
+
+                    request.appContext.AccessModel.create(that.logParams);
                 }
             });
 
     }
-}
-
-let _queryBus: IQueryBus = null;
-
-export function getQueryBusSingleton() {
-    if (!_queryBus) {
-        let enforcer = new Enforcer(getEnforcerConfig());
-        _queryBus = new QueryBus(enforcer);
-    }
-
-    return _queryBus;
 }

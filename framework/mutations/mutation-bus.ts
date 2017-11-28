@@ -1,20 +1,20 @@
+import { IActivity } from '../authorization/models';
 import {
     IMutation,
-    MutationResponse,
-    IValidationResult,
-    LocalizedError
+    IValidationResult
 } from '..';
-import { Enforcer, getEnforcerConfig, IEnforcer } from '../../lib/enforcer';
+import { Enforcer, IEnforcer } from '../modules/security/enforcer';
 import { ExtendedRequest } from '../../middlewares';
 import * as Promise from 'bluebird';
-import { CreateAccessLogMutation } from './app/access-log';
 import * as logger from 'winston';
+import { injectable } from 'inversify';
 
 
 export interface IMutationBus {
-    run<T>(activityName: string, req: ExtendedRequest, mutation: IMutation<T>, data: any): Promise<any>;
+    run<T>(activity: IActivity, req: ExtendedRequest, mutation: IMutation<T>, data: any): Promise<any>;
 }
 
+@injectable()
 export class MutationBus implements IMutationBus {
 
     authorizedValue: any;
@@ -28,10 +28,10 @@ export class MutationBus implements IMutationBus {
 
     constructor(private _enforcer: IEnforcer) {}
 
-    run<T>(activityName: string, req: ExtendedRequest, mutation: IMutation<T>, data: any): Promise<any> {
+    run<T>(activity: IActivity, req: ExtendedRequest, mutation: IMutation<T>, data: any): Promise<any> {
         const that = this;
         // chack activity authorization
-        return this.enforcer.authorizationTo(activityName, req)
+        return this.enforcer.authorizationTo(activity, req)
             .then((authorized) => {
                 that.authorizedValue = authorized;
                 if (!authorized) {
@@ -44,7 +44,7 @@ export class MutationBus implements IMutationBus {
             .then((result: IValidationResult) => {
                 // if it is valid
                 if (!result.success) {
-                    return Promise.reject(LocalizedError.fromValidationResult(req, result));
+                    return Promise.reject(result);
                 }
 
                 return Promise.resolve(true);
@@ -61,19 +61,15 @@ export class MutationBus implements IMutationBus {
                 });
             })
             .then((res: T) => {
-                if (res instanceof MutationResponse) {
-                    return res.localized(req);
-                } else {
-                    return res;
-                }
+                return res;
             })
             .catch((err) => {
                 that.errorStr = err;
                 return Promise.reject(err);
             }).finally(() => {
-                if ((mutation.log === true) && activityName !== 'create-access-log') {
-                    const identity = mutation.identity;
-                    const accessBy = identity ? identity.firstName + ' ' + identity.lastName : '';
+                if (mutation.log === true) {
+                    const user = req.user;
+                    const accessBy = user ? user.profile.firstName + ' ' + user.profile.lastName : '';
 
                     that.logParams = {
                         timestamp: Date.now(),
@@ -89,24 +85,11 @@ export class MutationBus implements IMutationBus {
                             details: that.errorStr || ('Success executing ' + mutation.constructor.name)
                         }
                     };
-                    let accessLog = new CreateAccessLogMutation(mutation.identity, req.appContext.AccessModel);
-                    accessLog.run(that.logParams);
+
+                    req.appContext.AccessModel.create(that.logParams);
                 }
 
             });
     }
 }
-
-
-let _mutationBus: IMutationBus = null;
-
-export function getMutationBusSingleton() {
-    if (!_mutationBus) {
-        let enforcer = new Enforcer(getEnforcerConfig());
-        _mutationBus = new MutationBus(enforcer);
-    }
-
-    return _mutationBus;
-}
-
 

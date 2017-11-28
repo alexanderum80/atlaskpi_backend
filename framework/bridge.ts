@@ -1,3 +1,5 @@
+import { IQueryBus, QueryBus } from './queries/query-bus';
+import { IMutationBus, MutationBus } from './mutations/mutation-bus';
 import { getGraphqlExecutableSchema } from './graphql/graphql-schema-generator';
 import { IAppModule } from './decorators/app-module';
 import {
@@ -28,8 +30,6 @@ import { Express } from 'express';
 import { RequestHandlerParams } from 'express-serve-static-core';
 import { RequestHandler } from 'apollo-link';
 import { graphqlExpress } from 'apollo-server-express/dist/expressApollo';
-import { getQueryBusSingleton } from './queries';
-import { getMutationBusSingleton } from './mutations';
 
 interface IQueryData {
     types: string[];
@@ -63,7 +63,7 @@ export class Bridge {
         let moduleInstances: IAppModule[];
 
         // process module imports
-        if (moduleDefinition.imports) {
+        if (moduleDefinition && moduleDefinition.imports) {
             moduleInstances = moduleDefinition.imports.map(m => new m(container));
         }
 
@@ -76,13 +76,16 @@ export class Bridge {
 
         moduleInstances.push(app);
 
+        // process bridge container registrations
+        registerBridgeDependencies(container);
+
         // generate graphql schema
         const graphqlSchema: IExecutableSchemaDefinition = getGraphqlExecutableSchema(moduleInstances);
 
-        return new Bridge(graphqlSchema, options);
+        return new Bridge(container, graphqlSchema, options);
     }
 
-    constructor(private _executableSchema: IExecutableSchemaDefinition, private _options: IFrameworkOptions) {
+    constructor(container: Container, private _executableSchema: IExecutableSchemaDefinition, private _options: IFrameworkOptions) {
         this._server = express();
 
         // middlewares
@@ -94,8 +97,8 @@ export class Bridge {
             {
               context: {
                 req: req,
-                mutationBus: getMutationBusSingleton(),
-                queryBus: getQueryBusSingleton()
+                mutationBus: container.get<IMutationBus>('MutationBus'),
+                queryBus: container.get<IQueryBus>('QueryBus')
               },
               schema: _executableSchema
             }
@@ -112,4 +115,9 @@ export class Bridge {
         return this._server;
     }
 
+}
+
+function registerBridgeDependencies(container: Container) {
+    container.bind<IMutationBus>('MutationBus').to(MutationBus).inSingletonScope();
+    container.bind<IQueryBus>('QueryBus').to(QueryBus).inSingletonScope();
 }
