@@ -86,12 +86,14 @@ export class Bridge {
     }
 
     constructor(container: Container, private _executableSchema: IExecutableSchemaDefinition, private _options: IFrameworkOptions) {
+        this._options = Object.assign({}, defaultServerOptions, _options);
+
         this._server = express();
 
         // middlewares
         this._server.use('*', cors());
-        this._server.use(bodyParser.urlencoded({ extended: false, limit: _options.bodyParserLimit }));
-        this._server.use(bodyParser.json({ limit: _options.bodyParserLimit }));
+        this._server.use(bodyParser.urlencoded({ extended: false, limit: this._options.bodyParserLimit }));
+        this._server.use(bodyParser.json({ limit: this._options.bodyParserLimit }));
 
         this._server.use('/graphql', bodyParser.json(), graphqlExpress((req) => (
             {
