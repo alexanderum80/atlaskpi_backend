@@ -57,12 +57,15 @@ export class SquareConnector implements IOAuthConnector {
                 .then(token => {
                     that._token = (<any>token).data;
                     that._merchantId = that._token.merchant_id;
+                    that._name = 'square-one';
+                    resolve(that._token);
+                    return;
 
-                    that._getLocation().then(info => {
-                        that._name = (<any>info).response.name;
-                        resolve(token);
-                        return;
-                    });
+                    // that._getLocation().then(info => {
+                    //     that._name = (<any>info).response.name;
+                    //     resolve(token);
+                    //     return;
+                    // });
                 }).catch(errToken => {
                     reject(errToken);
             });

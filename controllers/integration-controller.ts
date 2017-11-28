@@ -21,7 +21,7 @@ export class IntegrationController {
             return null;
         }
 
-        const tokens = query.state.split(/\s/);
+        const tokens = query.state.split(':');
 
         if (!tokens || tokens.length > 2) {
             console.log('invalid state...');

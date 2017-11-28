@@ -29,8 +29,7 @@ integration.get('/integration', (req: ExtendedRequest, res: Response) => {
                 <html>
                 <head>
                     <script>
-                        debugger;
-                        window.opener.postMessage({messageSource: 'atlasKPIIntegrations' connectorName: ${result.connector.name}, success: true }, '*');
+                        window.opener.postMessage({messageSource: 'atlasKPIIntegrations', connectorName: '${result.connector.name}', success: true }, '*');
                         window.close();
                     </script>
                 </head>
