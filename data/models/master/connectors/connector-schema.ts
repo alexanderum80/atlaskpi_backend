@@ -85,11 +85,6 @@ ConnectorSchema.statics.removeConnector = function(id: string): Promise<IConnect
                             reject({ message: 'There was an error removing a connector', error: err});
                             return;
                         }
-                        // revoking the token from integration
-                        // let connectorType = getTokenType(deletedConnector);
-                        // if (connectorType && connectorType.url && connectorType.headers) {
-                        //     revokeToken(connectorType.url, connectorType.headers, connectorType.body);
-                        // }
 
                         resolve(deletedConnector);
                     });
