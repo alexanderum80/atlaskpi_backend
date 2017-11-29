@@ -6,7 +6,7 @@
     "scripts": {
         "test": "echo \"Error: no test specified\" && exit 1",
         "start": "npm run build:live",
-        "build:live": "nodemon --exec .\\node_modules\\.bin\\ts-node -- .\\index.ts",
+        "build:live": "nodemon --exec ./node_modules/.bin/ts-node -- ./index.ts",
         "copy-json-files": "cp package.json dist/ && cp data/google-spreadsheet/*.json dist/data/google-spreadsheet && cp -R configuration/users/templates dist/configuration/users && cp -R configuration/app/templates dist/configuration/app && cp -R resources dist && cp data/seed/app/*.json dist/data/seed/app",
         "build": "tsc -p . --outDir dist && npm run copy-json-files && cp Dockerfile dist",
         "build-and-upload": "tsc -p . --outDir dist && tar cvfz webapp-backend.tgz dist && scp -i ../scripts/kpibi-first-instance.pem webapp-backend.tgz ubuntu@app.kpibi.com:./releases"
@@ -69,7 +69,7 @@
         "body-parser": "^1.15.2",
         "casual": "^1.5.8",
         "change-case": "^3.0.1",
-    	"client-oauth2": "^4.1.0",
+        "client-oauth2": "^4.1.0",
         "cors": "^2.8.1",
         "datejs": "^1.0.0-rc3",
         "debug": "^2.3.3",
