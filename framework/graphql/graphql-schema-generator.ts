@@ -18,7 +18,13 @@ export function makeGraphqlSchemaExecutable(modules: IAppModule[]): IExecutableS
     const inputs = inputKeys.map(key => BRIDGE.graphql.inputs[key].text);
 
     const typeKeys = Object.keys(BRIDGE.graphql.types);
-    const types = typeKeys.map(key => BRIDGE.graphql.types[key].text);
+    const types = Object.keys(BRIDGE.graphql.types).map(key => {
+        return {
+            name: key,
+            text: BRIDGE.graphql.types[key].text,
+            resolver: _getTypeResolver(BRIDGE.graphql.types[key].constructor)
+        };
+    });
 
     const moduleNames = Object.keys(BRIDGE.modules);
     const mutationAndQueries = {
@@ -40,7 +46,7 @@ export function makeGraphqlSchemaExecutable(modules: IAppModule[]): IExecutableS
     const schema = `
     ${inputs.join('\n')}
 
-    ${types.join('\n')}
+    ${types.map(t => t.text).join('\n')}
 
     type Mutation {
         ${mutationAndQueries.mutations.map(m => m.text).join('\n')}
@@ -71,4 +77,8 @@ function mergeModuleResolvers(baseResolvers, resolvers: any[]) {
     });
 
     return baseResolvers;
+}
+
+function _getTypeResolver(constructorFunction: any): any {
+    
 }

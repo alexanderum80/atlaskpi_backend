@@ -147,7 +147,8 @@ function _processDependencyInjection(moduleName: string,
 
 function _injectResolvers(container: Container, moduleMetadata: IModuleMetadata): void {
     // type resolvers
-
+    // I do not include type resolvers here because they are generic for the entire application
+    // so I inject the type resolvers at the framework level
 
     // query and mutation resolvers
     [MetadataType.Queries, MetadataType.Mutations].forEach(metadataType => {
