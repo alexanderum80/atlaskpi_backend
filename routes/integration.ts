@@ -7,8 +7,6 @@ import { Request, Response } from 'express';
 
 const integration = express.Router();
 
-// req.query = {"code":"sq0cgp-R9TIzSSC9WYX5g_hTuQtIg","response_type":"code","state":"square+testing_sample.d"}
-
 integration.get('/integration', (req: ExtendedRequest, res: Response) => {
     if (!req.query.code || !req.query.state) {
         return res.status(401).json({ error: 'invalid query string' }).end();
