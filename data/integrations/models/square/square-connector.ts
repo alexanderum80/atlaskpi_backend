@@ -77,19 +77,19 @@ export class SquareConnector implements IOAuthConnector {
 
         const that = this;
         const url = square_configuration.revocation_endpoint;
-        const auth = new Buffer(`${this._clientId}:${this._clientSecret}`).toString('base64');
 
         const requestObject = {
             url: url,
             method: 'POST',
-            json: { client_id: this._clientId, access_token: this._token },
+            json: { client_id: this._clientId, access_token: this._token.access_token },
             headers: {
                 'Authorization': 'Client ' + this._clientSecret
             }
         };
 
         return new Promise<any>((resolve, reject) => {
-            request(requestObject, (err, res: Response) => {
+            request(requestObject, (err, res: Response, body) => {
+                console.log('SQUARE REVOKE TOKEN RESPONSE: ' + JSON.stringify(body));
                 if ((<any>res).statusCode === 200) {
                     resolve();
                     return;

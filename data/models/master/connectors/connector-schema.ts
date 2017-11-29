@@ -79,6 +79,7 @@ ConnectorSchema.statics.updateConnector = function(data: IConnector, token: stri
 ConnectorSchema.statics.removeConnector = function(id: string): Promise<IConnectorDocument> {
     const that = this;
     return new Promise<IConnectorDocument>((resolve, reject) => {
+        mongoose.set('debug', true);
         that.findOne({_id: id})
             .then(connector => {
                 if (connector) {
@@ -89,11 +90,6 @@ ConnectorSchema.statics.removeConnector = function(id: string): Promise<IConnect
                             reject({ message: 'There was an error removing a connector', error: err});
                             return;
                         }
-                        // revoking the token from integration
-                        // let connectorType = getTokenType(deletedConnector);
-                        // if (connectorType && connectorType.url && connectorType.headers) {
-                        //     revokeToken(connectorType.url, connectorType.headers, connectorType.body);
-                        // }
 
                         resolve(deletedConnector);
                     });
