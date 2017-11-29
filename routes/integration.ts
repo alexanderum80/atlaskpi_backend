@@ -12,6 +12,21 @@ const integration = express.Router();
 integration.get('/integration', (req: ExtendedRequest, res: Response)  => {
     logger.debug('processing an integration... ');
 
+    if (req.query.error && req.query.error === 'access_denied') {
+        res.send(`
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <script>
+                setTimeout(function(){ window.close();}, 500);
+            </script>
+        </head>
+        <body>
+        </body>
+        </html>`);
+        return;
+    }
+
     // code flow authentication only at this point
     if (!req.query.code || !req.query.state) {
         return res.status(401).json({ error: 'invalid query string' }).end();
@@ -32,13 +47,11 @@ integration.get('/integration', (req: ExtendedRequest, res: Response)  => {
             <html>
             <head>
                 <script>
-                    debugger;
                     window.opener.postMessage({messageSource: 'atlasKPIIntegrations', connectorName: '${result.connector.name}', success: true }, '*');
                     setTimeout(function(){ window.close();}, 500);
                 </script>
             </head>
             <body>
-            success
             </body>
             </html>`);
             return;
