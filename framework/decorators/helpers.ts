@@ -77,6 +77,10 @@ export function updateFieldAndTypeMetadata(metadataType: MetadataType, name: str
     constructor: any, relatedTypes: string[]) {
         let graphqlArtifact: IGraphqlArtifacts = BRIDGE.graphql[metadataType];
 
+        if (graphqlArtifact[name]) {
+            throw new Error(`Graphql type ${name} was already defined`);
+        }
+
         graphqlArtifact[name] = {
             text: graphqlText,
             constructor: constructor
@@ -90,6 +94,11 @@ export function updateFieldAndTypeMetadata(metadataType: MetadataType, name: str
 export function updateQueriesAndMutationsMetadata(metadataType: MetadataType, name: string, graphqlText: string,
     constructor: any, activity?: IActivity, types?: any[]) {
     let graphqlArtifact: IGraphqlArtifacts = BRIDGE.graphql[metadataType];
+
+    if (graphqlArtifact[name]) {
+        const artifactType = metadataType === MetadataType.Queries ? 'Query' : 'Mutation';
+        throw new Error(`${artifactType} ${name} was already defined`);
+    }
 
     graphqlArtifact[name] = {
         text: graphqlText,
