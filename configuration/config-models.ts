@@ -41,5 +41,6 @@ export interface IAppConfig {
     emailService: IEmailServiceConfig;
     usersService: IUsersServiceConfig;
     appServices: IAppServicesConfig;
+
     integrationRedirectUri: string;
 }

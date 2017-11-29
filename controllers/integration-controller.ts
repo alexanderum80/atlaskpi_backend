@@ -1,37 +1,38 @@
-import { IConnector } from '../data/models/master/connectors/IConnector';
-import { IntegrationConnectorFactory } from '../data/integrations/integration-connectors.factory';
-import { IOAuthConnector } from '../data/integrations/models/connector-base';
-import { IAppModels } from '../data/models/app/app-models';
-import { IMasterModels } from '../data/models/master/index';
+import { IConnector } from './../data/models/master/connectors/IConnector';
 import { ConnectorTypeEnum, getConnectorTypeId } from './../data/integrations/models/connector-type';
+import { IntegrationConnectorFactory } from './../data/integrations/integration-connectors.factory';
+import { IOAuthConnector } from './../data/integrations/models/connector-base';
+import { IAppModels } from './../data/models/app/app-models';
+import { IMasterModels } from './../data/models/master/master-models';
 import * as Promise from 'bluebird';
+import * as logger from 'winston';
 
-export interface IExecutionFlowResult {
-    success?: boolean;
+interface IExecutionFlowResult {
+    success: boolean;
     connector?: IConnector;
 }
 
 export class IntegrationController {
+
     private _connector: IOAuthConnector;
-    private _hostName: string;
     private _companyName: string;
 
-    constructor(private _masterContext: IMasterModels, private _appContext: IAppModels, query: any) {
-        if (!this._masterContext /*|| !this._appContext*/ || !query) {
-            console.log('missing paramters...');
+    constructor(private _masterContext: IMasterModels, private appContext: IAppModels, query: any) {
+        if (!_masterContext ||
+            // !appContext ||
+            !query) {
+            console.log('missing parameters...');
             return null;
         }
 
         const tokens = query.state.split(':');
 
-        if (!tokens || tokens.length > 2) {
+        if (!tokens || tokens.length < 2) {
             console.log('invalid state...');
             return null;
         }
 
         const connectorCode = tokens[0];
-        this._hostName = tokens[1];
-
         const connector = IntegrationConnectorFactory.getInstance(connectorCode);
 
         if (!connector) {
@@ -52,37 +53,35 @@ export class IntegrationController {
         return new Promise<IExecutionFlowResult>((resolve, reject) => {
             that._connector.getToken(originalUrl).then(token => {
                 if (!token) {
-                    reject('getToken error response');
+                    reject('something went wrong, could not retrieve a token');
                     return;
                 }
 
                 const connectorConfig = that._connector.getConfiguration();
 
-                if (this._hostName.indexOf('.') !== -1) {
-                    this._hostName = this._hostName.split('.')[0];
-                }
-
                 const connObj: IConnector = {
                     name: that._connector.getName(),
                     active: true,
                     config: connectorConfig,
-                    databaseName: this._hostName,
+                    databaseName: this._companyName,
                     type: getConnectorTypeId(that._connector.getType()),
                     createdBy: 'backend',
                     createdOn: new Date(Date.now()),
                     uniqueKeyValue: that._connector.getUniqueKeyValue()
                 };
 
-                that._masterContext.Connector.addConnector(connObj)
-                    .then(() => {
-                        const flowResult: IExecutionFlowResult = {
-                            success: true,
-                            connector: connObj
-                        };
-                        resolve(flowResult);
-                        return;
-                    })
-                    .catch(err => reject(err));
+                that._masterContext.Connector.addConnector(connObj).then(() => {
+                    const flowResult: IExecutionFlowResult = {
+                        success: true,
+                        connector: connObj
+                    };
+                    resolve(flowResult);
+                    return;
+                })
+                .catch(err => {
+                    reject(err);
+                    return;
+                });
             });
         });
     }

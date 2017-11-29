@@ -21,13 +21,13 @@ export interface IOAuthConfigOptions {
     scopes?: string[];
     state?: string;
     body?: {
-        [key: string]: string | string[];
+      [key: string]: string | string[];
     };
     query?: {
-        [key: string]: string | string[];
+      [key: string]: string | string[];
     };
     headers?: {
-        [key: string]: string | string[];
+      [key: string]: string | string[];
     };
 }
 
@@ -37,12 +37,14 @@ export interface IKeyValuePair {
 }
 
 export interface IOAuthConnector {
+    // Get
     getType(): ConnectorTypeEnum;
     getTypeString(): string;
     getConfiguration(): IConnector | any;
     getToken(originalUrl: string): Promise<IOAuth2Token>;
     getName(): string;
     getUniqueKeyValue(): IKeyValuePair;
+
     revokeToken(): Promise<any>;
 
     // user buy quickbooks online

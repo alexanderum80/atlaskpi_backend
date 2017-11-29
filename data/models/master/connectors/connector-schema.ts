@@ -1,7 +1,6 @@
-import { getTokenType, revokeToken } from './token-helpers.ts/revoke-token';
-import { IConnectorDocument, IConnectorModel, IConnector } from './IConnector';
-import * as mongoose from 'mongoose';
+import mongoose = require('mongoose');
 import * as Promise from 'bluebird';
+import { IConnector, IConnectorModel, IConnectorDocument } from './IConnector';
 
 const Schema = mongoose.Schema;
 
@@ -22,17 +21,15 @@ const ConnectorSchema = new Schema({
     type: { type: String! },
     active: Boolean,
     config: mongoose.Schema.Types.Mixed,
-    ...userAuditSchema
+    ... userAuditSchema
 });
-
 
 ConnectorSchema.statics.addConnector = function(data: IConnector): Promise<IConnectorDocument> {
     const that = this;
     return new Promise<IConnectorDocument>((resolve, reject) => {
         if (!data) { reject({ message: 'no data provided'}); }
-
         const findOneKey = data.uniqueKeyValue;
-        mongoose.set('debug', true);
+
         that.findOne({
             [findOneKey.key]: findOneKey.value
         }, (err, doc) => {
@@ -79,7 +76,6 @@ ConnectorSchema.statics.updateConnector = function(data: IConnector, token: stri
 ConnectorSchema.statics.removeConnector = function(id: string): Promise<IConnectorDocument> {
     const that = this;
     return new Promise<IConnectorDocument>((resolve, reject) => {
-        mongoose.set('debug', true);
         that.findOne({_id: id})
             .then(connector => {
                 if (connector) {

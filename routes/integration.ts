@@ -1,4 +1,3 @@
-import { getRequestHostname } from '../lib/utils/index';
 import { IntegrationController } from '../controllers/integration-controller';
 import { ExtendedRequest } from '../middlewares/index';
 import * as logger from 'winston';
@@ -8,6 +7,8 @@ import { Request, Response } from 'express';
 const integration = express.Router();
 
 integration.get('/integration', (req: ExtendedRequest, res: Response) => {
+    logger.debug('processing an integration... ');
+
     if (req.query.hasOwnProperty('error') && req.query.error === 'access_denied') {
         res.send(`
             <!DOCTYPE html>
@@ -18,12 +19,12 @@ integration.get('/integration', (req: ExtendedRequest, res: Response) => {
                 </script>
             </head>
             <body>
-            success
             </body>
             </html>`);
             return;
     }
 
+    // code flow authentication only at this point
     if (!req.query.code || !req.query.state) {
         return res.status(401).json({ error: 'invalid query string' }).end();
     }
@@ -48,12 +49,13 @@ integration.get('/integration', (req: ExtendedRequest, res: Response) => {
                     </script>
                 </head>
                 <body>
-                success
                 </body>
                 </html>`);
             return;
         }
-    }).catch(err => {
+    })
+    .catch(err => {
+        logger.error(err);
         res.status(500).send(err);
     });
 });
