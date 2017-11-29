@@ -7,6 +7,7 @@ import { IWidget, IWidgetDocument } from './../../models/app/widgets/IWidget';
 import { IUIWidget } from './../../models/app/widgets/ui-widget-base';
 import { IAppModels } from './../../models/app/app-models';
 import * as Promise from 'bluebird';
+import { loadIntegrationConfig } from '../../../controllers/integration-controller';
 
 export class ConnectorsService {
 
@@ -28,9 +29,12 @@ export class ConnectorsService {
     }
 
     private _disconnect(doc: IConnectorDocument): Promise<any> {
-        const that = this;
-        const connector = IntegrationConnectorFactory.getInstanceFromDocument(doc);
-        return connector.revokeToken();
+        return loadIntegrationConfig(this._connectorModel, doc.type).then(docConfig => {
+            const connector = IntegrationConnectorFactory.getInstanceFromDocument(docConfig.config, doc);
+            if (!connector) {
+                return Promise.reject('could not get an instance of the connector');
+            }
+            return connector.revokeToken();
+        });
     }
 }
-

@@ -1,3 +1,4 @@
+import { IConnector } from './data/models/master/connectors/IConnector';
 import { IAppConfig } from './configuration';
 import { emailServiceConfig, usersServiceConfig, appServicesConfig } from './configuration';
 
@@ -41,6 +42,10 @@ import { emailServiceConfig, usersServiceConfig, appServicesConfig } from './con
 
             Ex: "872623874hdfh734646d222"
 
+        AKPI_INTEGRATION_REDIRECT_URL    -- The enpoint to recieve oauth2 calls
+
+            Ex: "https://api.atlaskpi.com:9091/integration"
+
 */
 
 export const config: IAppConfig = {
@@ -63,6 +68,6 @@ export const config: IAppConfig = {
     usersService: usersServiceConfig,
     appServices: appServicesConfig,
 
-    integrationRedirectUri: 'http://localhost:9091/integration',
+    integrationRedirectUrl: process.env.AKPI_INTEGRATION_REDIRECT_URL  || 'http://localhost:9091/integration',
     // integrationRedirectUri: 'https://566e5968.ngrok.io/integration'
 };

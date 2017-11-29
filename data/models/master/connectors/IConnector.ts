@@ -29,7 +29,7 @@ export interface IConnector extends IUserAudit {
     databaseName: string;
     type: string;
     active: boolean;
-    config: IConnectorConfig;
+    config: IConnectorConfig | any;
     uniqueKeyValue?: IKeyValuePair;
 }
 

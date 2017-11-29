@@ -7,24 +7,28 @@ import * as Promise from 'bluebird';
 import * as request from 'request';
 import { config } from '../../../../config';
 
-const CLIENT_ID = 'Q0yRWngdvGMcdpbZgc8hVgc7Dh1PrmbGB5fWJcW4taHIwe4XkH';
-const CLIENT_SECRET = 'WbVeVcUDt9ntyckPP02qw8QPeG7jgY8StjNbsjOw';
-const AUTH_SCOPES = ['com.intuit.quickbooks.accounting'];
-const COMPANY_API_URL = 'https://sandbox-quickbooks.api.intuit.com/v3/company/';
-
-const openid_configuration = require('./openid_configuration.json');
+export interface IQuickBooksOnlineIntegrationConfig {
+    clientId: string;
+    clientSecret: string;
+    requiredAuthScope: string;
+    companyApiUrl: string;
+    openIdConfig: any;
+}
 
 export class QuickBooksOnlineConnector implements IOAuthConnector {
-
     private _client: ClientOAuth2;
-
     private _name: string;
     private _token: IOAuth2Token;
     private _scope: IConnectorConfigScope[] = [{ name: 'bills'}, { name: 'invoices'}];
     private _realmId?: string;
     private _companyInfo: any;
 
-    constructor() {
+    constructor(private _config: any) {
+        if (!_config) {
+            console.log('you tried to create a quickbooks connector without config...');
+            return null;
+        }
+
         this._client = new ClientOAuth2(this.getAuthConfiguration());
     }
 
@@ -51,7 +55,8 @@ export class QuickBooksOnlineConnector implements IOAuthConnector {
                     that._name = (<any>info).response.CompanyInfo.CompanyName;
                     resolve(<any>token.data);
                     return;
-                });
+                })
+                .catch(err => reject(err));
 
             })
             .catch(err => reject(err));
@@ -66,9 +71,9 @@ export class QuickBooksOnlineConnector implements IOAuthConnector {
 
         const that = this;
         // prepare the test request to check if the access_token is good
-        const url = openid_configuration.revocation_endpoint;
+        const url = this._config.openIdConfig.revocation_endpoint;
         console.log('calling revoke token: ' + url);
-        const auth = new Buffer(`${CLIENT_ID}:${CLIENT_SECRET}`).toString('base64');
+        const auth = new Buffer(`${this._config.clientId}:${this._config.clientSecret}`).toString('base64');
         const requestObj = {
             url: url,
             method: 'POST',
@@ -139,7 +144,7 @@ export class QuickBooksOnlineConnector implements IOAuthConnector {
 
         const that = this;
         // prepare the test request to check if the access_token is good
-        const url = COMPANY_API_URL + this._realmId + '/companyinfo/' + this._realmId;
+        const url = this._config.companyApiUrl + this._realmId + '/companyinfo/' + this._realmId;
         console.log('Making API call to: ' + url);
         const requestObj = {
             url: url,
@@ -217,12 +222,12 @@ export class QuickBooksOnlineConnector implements IOAuthConnector {
 
     private getAuthConfiguration(): IOAuthConfigOptions {
         return {
-            clientId: CLIENT_ID,
-            clientSecret: CLIENT_SECRET,
-            redirectUri: config.integrationRedirectUri,
-            authorizationUri: openid_configuration.authorization_endpoint,
-            accessTokenUri: openid_configuration.token_endpoint,
-            scopes: AUTH_SCOPES
+            clientId: this._config.clientId,
+            clientSecret: this._config.clientSecret,
+            redirectUri: config.integrationRedirectUrl,
+            authorizationUri: this._config.openIdConfig.authorization_endpoint,
+            accessTokenUri: this._config.openIdConfig.token_endpoint,
+            scopes: this._config.requiredAuthScope
         };
     }
 
