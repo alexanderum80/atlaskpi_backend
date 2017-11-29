@@ -110,14 +110,18 @@ function mergeModuleResolvers(baseResolvers, types: ITypeDetails[], mutationAndQ
         }
 
         const resolverType = metadataType === MetadataType.Mutations ? 'Mutation' : 'Query';
-        resolvers[resolverType] = {};
+        const target = resolvers[resolverType] = {};
+
+        mutationAndQueries[metadataType].forEach(queryOrMutation => {
+            target[queryOrMutation.name] = queryOrMutation.resolver;
+        });
     });
 
-    // resolvers.forEach((r) => {  
+    // resolvers.forEach((r) => {
     //     baseResolvers = _.merge(baseResolvers, r);
     // });
 
-    return baseResolvers;
+    return resolvers;
 }
 
 function _getTypeResolver(constructorFunction: any): any {
