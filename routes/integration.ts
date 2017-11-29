@@ -8,10 +8,6 @@ import { Request, Response } from 'express';
 const integration = express.Router();
 
 integration.get('/integration', (req: ExtendedRequest, res: Response) => {
-    if (!req.query.code || !req.query.state) {
-        return res.status(401).json({ error: 'invalid query string' }).end();
-    }
-
     if (req.query.hasOwnProperty('error') && req.query.error === 'access_denied') {
         res.send(`
             <!DOCTYPE html>
@@ -26,6 +22,10 @@ integration.get('/integration', (req: ExtendedRequest, res: Response) => {
             </body>
             </html>`);
             return;
+    }
+
+    if (!req.query.code || !req.query.state) {
+        return res.status(401).json({ error: 'invalid query string' }).end();
     }
 
     const integration_controller = new IntegrationController(req.masterContext, req.appContext, req.query);
