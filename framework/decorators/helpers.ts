@@ -11,6 +11,10 @@ import * as Hbs from 'handlebars';
 export interface IArtifactDetails {
     text: string;
     constructor: any;
+    relatedTypes?: any[];
+    resolvers?: {
+        [name: string]: Function
+    };
 }
 
 export interface IQueryOrMutationDetails extends IArtifactDetails {
@@ -89,6 +93,8 @@ export function updateFieldAndTypeMetadata(metadataType: MetadataType, name: str
         if (relatedTypes) {
             (graphqlArtifact[name] as IQueryOrMutationDetails).relatedTypes = relatedTypes;
         }
+
+        return graphqlArtifact[name];
     }
 
 export function updateQueriesAndMutationsMetadata(metadataType: MetadataType, name: string, graphqlText: string,
@@ -230,7 +236,7 @@ export function processInputAndType(metadataType: MetadataType, target, definiti
     };
     const graphQlType = Hbs.compile(templateText)(payload);
 
-    updateFieldAndTypeMetadata(metadataType, name, graphQlType, target, getComplexFieldNames(fields));
+    return updateFieldAndTypeMetadata(metadataType, name, graphQlType, target, getComplexFieldNames(fields));
 }
 
 

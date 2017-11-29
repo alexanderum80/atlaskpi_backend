@@ -1,3 +1,4 @@
+import { resolver } from '../../../framework/decorators/resolver.decorator';
 import { IAppModule, ModuleBase } from '../../../framework/decorators/app-module';
 import { IAppConfig } from '../../../configuration/config-models';
 import * as Promise from 'bluebird';
@@ -30,6 +31,11 @@ export class BusinessUnit {
 
     @field({ type: Location })
     location: Location;
+
+    @resolver({ forField: 'location' })
+    static resolveLocation(data: Location) {
+        // resolve your type here
+    }
 }
 
 @input()
