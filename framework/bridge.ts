@@ -1,6 +1,6 @@
 import { IQueryBus, QueryBus } from './queries/query-bus';
 import { IMutationBus, MutationBus } from './mutations/mutation-bus';
-import { getGraphqlExecutableSchema } from './graphql/graphql-schema-generator';
+import { makeGraphqlSchemaExecutable } from './graphql/graphql-schema-generator';
 import { IAppModule } from './decorators/app-module';
 import {
     IModuleOptions
@@ -80,7 +80,7 @@ export class Bridge {
         registerBridgeDependencies(container);
 
         // generate graphql schema
-        const graphqlSchema: IExecutableSchemaDefinition = getGraphqlExecutableSchema(moduleInstances);
+        const graphqlSchema: IExecutableSchemaDefinition = makeGraphqlSchemaExecutable(moduleInstances);
 
         return new Bridge(container, graphqlSchema, options);
     }
