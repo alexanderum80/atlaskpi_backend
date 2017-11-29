@@ -17,8 +17,8 @@ const userAuditSchema = {
 
 const ConnectorSchema = new Schema({
     name: String!,
-    databaseName: { type: String! },
-    type: { type: String! },
+    databaseName: String!,
+    type: String!,
     active: Boolean,
     config: mongoose.Schema.Types.Mixed,
     ... userAuditSchema

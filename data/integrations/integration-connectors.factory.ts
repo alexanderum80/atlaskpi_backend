@@ -5,36 +5,36 @@ import { QuickBooksOnlineConnector } from './models/quickbooks-online/quickbooks
 import { IOAuthConnector } from './models/connector-base';
 
 export class IntegrationConnectorFactory {
-    static getInstance(code: string): IOAuthConnector {
+    static getInstance(integrationConfig: any, code: string): IOAuthConnector {
         switch (code) {
             case 'qbo':
-                return new QuickBooksOnlineConnector();
+                return new QuickBooksOnlineConnector(integrationConfig);
             case 'square':
-                return new SquareConnector();
+                return new SquareConnector(integrationConfig);
             default:
                 return null;
         }
     }
 
-    static getInstanceFromDocument(connector: IConnectorDocument): IOAuthConnector {
+    static getInstanceFromDocument(integrationConfig: any, connector: IConnectorDocument): IOAuthConnector {
         switch (getConnectorType(connector.type)) {
             case ConnectorTypeEnum.QuickBooksOnline:
-                return IntegrationConnectorFactory.getQuickBooksConnector(connector);
+                return IntegrationConnectorFactory.getQuickBooksConnector(integrationConfig, connector);
             case ConnectorTypeEnum.Square:
-                return IntegrationConnectorFactory.getSquareConnector(connector);
+                return IntegrationConnectorFactory.getSquareConnector(integrationConfig, connector);
             default:
                 return null;
         }
     }
 
-    private static getSquareConnector(connector: IConnectorDocument): SquareConnector {
-        const squareConnector = new SquareConnector();
+    private static getSquareConnector(integrationConfig, connector: IConnectorDocument): SquareConnector {
+        const squareConnector = new SquareConnector(integrationConfig);
         squareConnector.setToken(connector.config.token);
         return squareConnector;
     }
-    
-    private static getQuickBooksConnector(connector: IConnectorDocument): QuickBooksOnlineConnector {
-        const qbConnector = new QuickBooksOnlineConnector();
+
+    private static getQuickBooksConnector(integrationConfig: any, connector: IConnectorDocument): QuickBooksOnlineConnector {
+        const qbConnector = new QuickBooksOnlineConnector(integrationConfig);
         qbConnector.setRealmId(connector.config.realmId);
         qbConnector.setToken(connector.config.token);
         return qbConnector;

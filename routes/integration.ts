@@ -29,34 +29,42 @@ integration.get('/integration', (req: ExtendedRequest, res: Response) => {
         return res.status(401).json({ error: 'invalid query string' }).end();
     }
 
-    const integration_controller = new IntegrationController(req.masterContext, req.appContext, req.query);
+    const integrationController = new IntegrationController(req.masterContext.Connector, req.query);
 
-    if (!integration_controller) {
+    if (!integrationController) {
         const err = 'something went wrong processing the integration...';
         logger.error(err);
         res.status(500).send(err);
     }
 
-    integration_controller.executeFlow(req.originalUrl).then(result => {
-        if (result.success) {
-            res.send(`
-                <!DOCTYPE html>
-                <html>
-                <head>
-                    <script>
-                        window.opener.postMessage({messageSource: 'atlasKPIIntegrations', connectorName: '${result.connector.name}', success: true }, '*');
-                        window.close();
-                    </script>
-                </head>
-                <body>
-                </body>
-                </html>`);
+    integrationController.initialize().then(() => {
+        integrationController.executeFlow(req.originalUrl).then(result => {
+            if (result.success) {
+                res.send(`
+                    <!DOCTYPE html>
+                    <html>
+                    <head>
+                        <script>
+                            window.opener.postMessage({messageSource: 'atlasKPIIntegrations', connectorName: '${result.connector.name}', success: true }, '*');
+                            window.close();
+                        </script>
+                    </head>
+                    <body>
+                    </body>
+                    </html>`);
+                return;
+            }
+        })
+        .catch(err => {
+            logger.error(err);
+            res.status(500).send(err);
             return;
-        }
+        });
     })
     .catch(err => {
         logger.error(err);
         res.status(500).send(err);
+        return;
     });
 });
 

@@ -1,4 +1,4 @@
-import { IConnector } from './../data/models/master/connectors/IConnector';
+import { IConnector, IConnectorDocument, IConnectorModel } from './../data/models/master/connectors/IConnector';
 import { ConnectorTypeEnum, getConnectorTypeId } from './../data/integrations/models/connector-type';
 import { IntegrationConnectorFactory } from './../data/integrations/integration-connectors.factory';
 import { IOAuthConnector } from './../data/integrations/models/connector-base';
@@ -12,43 +12,73 @@ interface IExecutionFlowResult {
     connector?: IConnector;
 }
 
+export function loadIntegrationConfig(connectorModel: IConnectorModel, code: string): Promise<IConnectorDocument> {
+    const that = this;
+    return new Promise<IConnectorDocument>((resolve, reject) => {
+        connectorModel.findOne({ databaseName: 'atlas', type: 'integration-config', name: code, active: true })
+            .then(doc => {
+                if (!doc) {
+                    reject('integration configuration not found or inactive...');
+                    return;
+                }
+                resolve(doc);
+                return;
+            })
+            .catch(err => reject(err));
+    });
+}
+
 export class IntegrationController {
 
     private _connector: IOAuthConnector;
     private _companyName: string;
+    private stateTokens: string[];
 
-    constructor(private _masterContext: IMasterModels, private appContext: IAppModels, query: any) {
-        if (!_masterContext ||
-            // !appContext ||
-            !query) {
+    constructor(private _connectorModel: IConnectorModel, private _query: any) {
+        if (!_connectorModel ||
+            !_query) {
             console.log('missing parameters...');
             return null;
         }
 
-        const tokens = query.state.split(':');
+        this.stateTokens = _query.state.split(':');
 
-        if (!tokens || tokens.length < 2) {
+        if (!this.stateTokens || this.stateTokens.length < 2) {
             console.log('invalid state...');
             return null;
         }
+    }
 
-        const connectorCode = tokens[0];
-        const connector = IntegrationConnectorFactory.getInstance(connectorCode);
+    public initialize(): Promise<any> {
+        const that = this;
+        const connectorCode = that.stateTokens[0];
+        return new Promise<any>((resolve, reject) => {
+            loadIntegrationConfig(that._connectorModel, connectorCode).then(configDoc => {
+                const connector = IntegrationConnectorFactory.getInstance(configDoc.config, connectorCode);
 
-        if (!connector) {
-            console.log('connector type not supported');
-            return null;
-        }
+                if (!connector) {
+                    reject('connector type not supported');
+                    return;
+                }
 
-        this._connector = connector;
-        this._companyName = tokens[1];
+                this._connector = connector;
+                this._companyName = this.stateTokens[1];
 
-        if (connector.getType() === ConnectorTypeEnum.QuickBooksOnline) {
-            connector.setRealmId(query.realmId);
-        }
+                if (connector.getType() === ConnectorTypeEnum.QuickBooksOnline) {
+                    connector.setRealmId(this._query.realmId);
+                }
+
+                resolve();
+                return;
+            });
+        });
     }
 
     public executeFlow(originalUrl: string): Promise<IExecutionFlowResult> {
+        if (!this._connector) {
+            return Promise.reject('you have to call initialize method...');
+        }
+
         const that = this;
         return new Promise<IExecutionFlowResult>((resolve, reject) => {
             that._connector.getToken(originalUrl).then(token => {
@@ -70,7 +100,7 @@ export class IntegrationController {
                     uniqueKeyValue: that._connector.getUniqueKeyValue()
                 };
 
-                that._masterContext.Connector.addConnector(connObj).then(() => {
+                that._connectorModel.addConnector(connObj).then(() => {
                     const flowResult: IExecutionFlowResult = {
                         success: true,
                         connector: connObj
