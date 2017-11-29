@@ -6,7 +6,6 @@ import { IMasterModels } from './master-models';
 import makeDefaultConnection from '../../db-connector';
 import { getAccountModel } from './accounts';
 import { getIndustryModel } from './industries';
-import { getConnectorModel } from './connectors/connector-schema';
 
 let masterModels: IMasterModels = null;
 
@@ -24,8 +23,7 @@ export function getMasterContext(): Promise<IMasterModels> {
                 Connection: mongoose.connection,
                 Connector: getConnectorModel(),
                 Account: getAccountModel(),
-                Industry: getIndustryModel(),
-                Connector: getConnectorModel()
+                Industry: getIndustryModel()
             };
 
             resolve(masterModels);
