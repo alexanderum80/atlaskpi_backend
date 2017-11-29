@@ -12,6 +12,22 @@ integration.get('/integration', (req: ExtendedRequest, res: Response) => {
         return res.status(401).json({ error: 'invalid query string' }).end();
     }
 
+    if (req.query.hasOwnProperty('error') && req.query.error === 'access_denied') {
+        res.send(`
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <script>
+                    window.close();
+                </script>
+            </head>
+            <body>
+            success
+            </body>
+            </html>`);
+            return;
+    }
+
     const integration_controller = new IntegrationController(req.masterContext, req.appContext, req.query);
 
     if (!integration_controller) {
