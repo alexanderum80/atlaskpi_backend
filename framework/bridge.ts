@@ -1,3 +1,4 @@
+import { Enforcer, IEnforcer } from './modules/security/enforcer';
 import { IQueryBus, QueryBus } from './queries/query-bus';
 import { IMutationBus, MutationBus } from './mutations/mutation-bus';
 import { makeGraphqlSchemaExecutable } from './graphql/graphql-schema-generator';
@@ -120,6 +121,7 @@ export class Bridge {
 }
 
 function registerBridgeDependencies(container: Container) {
+    container.bind<IEnforcer>('Enforcer').to(Enforcer).inSingletonScope();
     container.bind<IMutationBus>('MutationBus').to(MutationBus).inSingletonScope();
     container.bind<IQueryBus>('QueryBus').to(QueryBus).inSingletonScope();
 }

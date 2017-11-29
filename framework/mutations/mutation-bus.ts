@@ -8,6 +8,7 @@ import * as Promise from 'bluebird';
 import * as logger from 'winston';
 import { injectable } from 'inversify';
 import { IExtendedRequest } from '../models';
+import { inject } from 'inversify';
 
 
 export interface IMutationBus {
@@ -26,7 +27,7 @@ export class MutationBus implements IMutationBus {
         return this._enforcer;
     }
 
-    constructor(private _enforcer: IEnforcer) {}
+    constructor(@inject('Enforcer') private _enforcer: IEnforcer) {}
 
     run<T>(activity: IActivity, req: IExtendedRequest, mutation: IMutation<T>, data: any): Promise<any> {
         const that = this;
