@@ -11,6 +11,17 @@ import {
 import { makeExecutableSchema } from 'graphql-tools';
 import { IExecutableSchemaDefinition } from 'graphql-tools/dist/Interfaces';
 
+interface ITypeDetails {
+    name: string;
+    text: string;
+    resolver: { [name: string]: Function; };
+}
+
+interface IMutationAndQueries {
+    mutations: any[];
+    queries: any[];
+}
+
 export function makeGraphqlSchemaExecutable(modules: IAppModule[]): IExecutableSchemaDefinition {
     const resolvers = [];
 
@@ -18,16 +29,17 @@ export function makeGraphqlSchemaExecutable(modules: IAppModule[]): IExecutableS
     const inputs = inputKeys.map(key => BRIDGE.graphql.inputs[key].text);
 
     const typeKeys = Object.keys(BRIDGE.graphql.types);
-    const types = Object.keys(BRIDGE.graphql.types).map(key => {
+    const types: ITypeDetails[] = Object.keys(BRIDGE.graphql.types).map(key => {
+        const typeRef = BRIDGE.graphql.types[key];
         return {
             name: key,
-            text: BRIDGE.graphql.types[key].text,
-            resolver: _getTypeResolver(BRIDGE.graphql.types[key].constructor)
+            text: typeRef.text,
+            resolver: typeRef.resolvers
         };
     });
 
     const moduleNames = Object.keys(BRIDGE.modules);
-    const mutationAndQueries = {
+    const mutationAndQueries: IMutationAndQueries = {
         mutations: [],
         queries: []
     };
@@ -64,17 +76,46 @@ export function makeGraphqlSchemaExecutable(modules: IAppModule[]): IExecutableS
 
     return makeExecutableSchema({
         typeDefs: [schema],
-        resolvers: mergeModuleResolvers({}, resolvers),
+        resolvers: mergeModuleResolvers({}, types,  mutationAndQueries),
         allowUndefinedInResolve: true,
       //   printErrors: true,
     });
 }
 
 // --- MERGE RESOLVERS
-function mergeModuleResolvers(baseResolvers, resolvers: any[]) {
-    resolvers.forEach((r) => {
-        baseResolvers = _.merge(baseResolvers, r);
+function mergeModuleResolvers(baseResolvers, types: ITypeDetails[], mutationAndQueries: IMutationAndQueries) {
+
+    const resolvers = {};
+
+    // complex type resolvers
+    types.forEach(t => {
+        if (t.resolver) {
+
+            if (!resolvers[t.name]) {
+                resolvers[t.name] = {};
+            }
+
+            const objectResolvers = resolvers[t.name];
+
+            for (let resolverKey in t.resolver) {
+                objectResolvers[resolverKey] = t.resolver[resolverKey];
+            }
+        }
     });
+
+    // mutation and queries resolvers
+    [MetadataType.Mutations, MetadataType.Queries].forEach(metadataType => {
+        if (!mutationAndQueries[metadataType] || mutationAndQueries[metadataType].length === 0) {
+            return;
+        }
+
+        const resolverType = metadataType === MetadataType.Mutations ? 'Mutation' : 'Query';
+        resolvers[resolverType] = {};
+    });
+
+    // resolvers.forEach((r) => {  
+    //     baseResolvers = _.merge(baseResolvers, r);
+    // });
 
     return baseResolvers;
 }
