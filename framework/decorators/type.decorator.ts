@@ -16,6 +16,16 @@ export interface GraphQLTypeDecoratorOptions {
 
 export function type(definition?: GraphQLTypeDecoratorOptions) {
     return function(target) {
-        processInputAndType(MetadataType.Types, target, definition);
+        const typeDetails = processInputAndType(MetadataType.Types, target, definition);
+
+        // look for type resolvers
+        const resolvers = target[MetadataFieldsMap.Resolvers];
+
+        if (resolvers) {
+            typeDetails.resolvers = {};
+            for (let resolver in resolvers) {
+                typeDetails.resolvers[resolver] = resolvers[resolver];
+            }
+        }
     };
 }

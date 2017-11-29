@@ -4,6 +4,7 @@ export * from './graphql-types-map';
 export * from './query-mutation-options';
 export * from './helpers';
 export * from './metadata-fields.map';
+export * from './resolver.decorator';
 
 export * from './field.decorator';
 export * from './input.decorator';

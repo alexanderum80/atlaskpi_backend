@@ -13,13 +13,17 @@ export function field(definition?: GraphQLFieldDecoratorOptions) {
             typeName += '!';
         }
 
-        // updateMetadata(target, MetadataFieldsMap.Fields, definition.name || property, typeName);
         if (!target[MetadataFieldsMap.Fields]) {
             target[MetadataFieldsMap.Fields] = {};
         }
 
         const fields = target[MetadataFieldsMap.Fields];
         const name = definition.name || property;
+
+        if (fields[name]) {
+            throw new Error(`You already defined ${name} on ${target.name}`);
+        }
+
         fields[name] = typeName;
 
     };
