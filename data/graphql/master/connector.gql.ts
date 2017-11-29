@@ -13,7 +13,7 @@ export const connectorGql: GraphqlDefinition = {
             type Connector {
                 _id: String
                 name: String
-                active: String
+                active: Boolean
                 type: String
             }
             type ConnectorResult {

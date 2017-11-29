@@ -1,4 +1,5 @@
-import { IKeyValuePair, IOAuth2Token } from '../../../integrations/models/connector-base';
+import { IOAuth2Token, IKeyValuePair } from './../../../integrations/models/connector-base';
+import { IConnector } from './IConnector';
 import * as mongoose from 'mongoose';
 import * as Promise from 'bluebird';
 
@@ -14,6 +15,7 @@ export interface IUserAudit extends IBaseAudit {
 
 export interface IConnectorConfigScope {
     name: string;
+    filter?: any;
 }
 
 export interface IConnectorConfig {
@@ -23,7 +25,7 @@ export interface IConnectorConfig {
 }
 
 export interface IConnector extends IUserAudit {
-    name?: string;
+    name: string;
     databaseName: string;
     type: string;
     active: boolean;
