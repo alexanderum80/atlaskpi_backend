@@ -1,5 +1,4 @@
 import { ConnectorTypeEnum, getConnectorType } from './models/connector-type';
-import { IConnectorDocument } from '../models/master/connectors/index';
 import { SquareConnector } from './models/square/square-connector';
 import { IConnectorDocument } from './../models/master/connectors/IConnector';
 import { QuickBooksOnlineConnector } from './models/quickbooks-online/quickbooks-online-connector';

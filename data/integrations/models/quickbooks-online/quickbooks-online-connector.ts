@@ -1,4 +1,4 @@
-import { IQBOConnectorConfigScope, IQBOConnectorConfig } from './../../../models/master/connectors/IConnector';
+import { IConnectorConfigScope, IConnectorConfig } from './../../../models/master/connectors/IConnector';
 import { IOAuth2Token, IKeyValuePair } from './../connector-base';
 import { ConnectorTypeEnum } from '../connector-type';
 import { IOAuthConnector, IOAuthConfigOptions } from '../connector-base';
@@ -20,7 +20,7 @@ export class QuickBooksOnlineConnector implements IOAuthConnector {
 
     private _name: string;
     private _token: IOAuth2Token;
-    private _scope: IQBOConnectorConfigScope[] = [{ name: 'bills'}, { name: 'invoices'}];
+    private _scope: IConnectorConfigScope[] = [{ name: 'bills'}, { name: 'invoices'}];
     private _realmId?: string;
     private _companyInfo: any;
 
@@ -102,7 +102,7 @@ export class QuickBooksOnlineConnector implements IOAuthConnector {
         this._token = token;
     }
 
-    setScope(scope: IQBOConnectorConfigScope[]): void {
+    setScope(scope: IConnectorConfigScope[]): void {
         this._scope = scope;
     }
 
@@ -117,12 +117,12 @@ export class QuickBooksOnlineConnector implements IOAuthConnector {
         return this._realmId;
     }
 
-    getConfiguration(): IQBOConnectorConfig {
+    getConfiguration(): IConnectorConfig {
         if (!this._token || !this._realmId) {
             console.log('configuration not ready... you have to request a token and set a realmid');
         }
 
-        const config: IQBOConnectorConfig = {
+        const config: IConnectorConfig = {
             realmId: this._realmId,
             token: this._token,
             scope: this._scope
