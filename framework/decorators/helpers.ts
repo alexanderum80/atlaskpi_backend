@@ -9,6 +9,7 @@ import * as Hbs from 'handlebars';
 
 
 export interface IArtifactDetails {
+    name?: string;
     text: string;
     constructor: any;
     relatedTypes?: any[];
@@ -86,6 +87,7 @@ export function updateFieldAndTypeMetadata(metadataType: MetadataType, name: str
         }
 
         graphqlArtifact[name] = {
+            name: name,
             text: graphqlText,
             constructor: constructor
         };
@@ -97,7 +99,8 @@ export function updateFieldAndTypeMetadata(metadataType: MetadataType, name: str
         return graphqlArtifact[name];
     }
 
-export function updateQueriesAndMutationsMetadata(metadataType: MetadataType, name: string, graphqlText: string,
+export function updateQueriesAndMutationsMetadata(metadataType: MetadataType, name: string,
+    graphqlName: string, graphqlText: string,
     constructor: any, activity?: IActivity, types?: any[]) {
     let graphqlArtifact: IGraphqlArtifacts = BRIDGE.graphql[metadataType];
 
@@ -107,6 +110,7 @@ export function updateQueriesAndMutationsMetadata(metadataType: MetadataType, na
     }
 
     graphqlArtifact[name] = {
+        name: graphqlName,
         text: graphqlText,
         constructor: constructor
     };
@@ -182,7 +186,7 @@ export function processQueryAndMutation(target: any, type: GraphqlMetaType, defi
         parameters: definition.parameters.map(p => `${p.name}: ${p.type.name || p.type}${p.required ? '!' : ''}`),
         output: definition.output.name
     };
-    const graphQlType = Hbs.compile(inputTemplateText)(payload);
+    const graphqlType = Hbs.compile(inputTemplateText)(payload);
 
     // add only complex types
     const types = [];
@@ -202,9 +206,9 @@ export function processQueryAndMutation(target: any, type: GraphqlMetaType, defi
     }
 
     if (type === GraphqlMetaType.Mutation) {
-        updateQueriesAndMutationsMetadata(MetadataType.Mutations, target.name, graphQlType, target, definition.activity, types);
+        updateQueriesAndMutationsMetadata(MetadataType.Mutations, target.name, name, graphqlType, target, definition.activity, types);
     } else if (type === GraphqlMetaType.Query) {
-        updateQueriesAndMutationsMetadata(MetadataType.Queries, target.name, graphQlType, target, definition.activity, types);
+        updateQueriesAndMutationsMetadata(MetadataType.Queries, target.name, name, graphqlType, target, definition.activity, types);
     }
 }
 
