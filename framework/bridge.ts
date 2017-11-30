@@ -57,8 +57,9 @@ export class Bridge {
     private _server: Express;
     private _httpServer: Server;
 
-    static create(appModule: new() => IAppModule, container: Container, options?: IFrameworkOptions): Bridge {
+    static create(appModule: new() => IAppModule, options?: IFrameworkOptions): Bridge {
         const newOptions = Object.assign({}, defaultServerOptions, options);
+        const container = new Container({ autoBindInjectable: true });
 
         const moduleDefinition = appModule[MetadataFieldsMap.Definition];
         let moduleInstances: IAppModule[];
@@ -86,7 +87,7 @@ export class Bridge {
         return new Bridge(container, graphqlSchema, options);
     }
 
-    constructor(container: Container, private _executableSchema: IExecutableSchemaDefinition, private _options: IFrameworkOptions) {
+    constructor(private _container: Container, private _executableSchema: IExecutableSchemaDefinition, private _options: IFrameworkOptions) {
         this._options = Object.assign({}, defaultServerOptions, _options);
 
         this._server = express();
@@ -100,12 +101,16 @@ export class Bridge {
             {
               context: {
                 req: req,
-                mutationBus: container.get<IMutationBus>('MutationBus'),
-                queryBus: container.get<IQueryBus>('QueryBus')
+                mutationBus: _container.get<IMutationBus>('MutationBus'),
+                queryBus: _container.get<IQueryBus>('QueryBus')
               },
               schema: _executableSchema
             }
         )));
+    }
+
+    get Container(): Container {
+        return this._container;
     }
 
     start() {

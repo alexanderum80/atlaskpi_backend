@@ -1,20 +1,23 @@
-import { BRIDGE } from '../decorators/helpers';
-import { MetadataFieldsMap } from '../decorators/metadata-fields.map';
 import {
-    GraphqlDefinition
-} from './graphql-definition';
-import _ = require('lodash');
-import * as logger from 'winston';
+    BRIDGE
+} from '../decorators/helpers';
 import {
-    IAppModule, MetadataType
+    IAppModule,
+    MetadataType
 } from '../index';
-import { makeExecutableSchema } from 'graphql-tools';
-import { IExecutableSchemaDefinition } from 'graphql-tools/dist/Interfaces';
+import {
+    makeExecutableSchema
+} from 'graphql-tools';
+import {
+    IExecutableSchemaDefinition
+} from 'graphql-tools/dist/Interfaces';
 
 interface ITypeDetails {
     name: string;
     text: string;
-    resolver: { [name: string]: Function; };
+    resolver: {
+        [name: string]: Function;
+    };
 }
 
 interface IMutationAndQueries {
@@ -76,9 +79,9 @@ export function makeGraphqlSchemaExecutable(modules: IAppModule[]): IExecutableS
 
     return makeExecutableSchema({
         typeDefs: [schema],
-        resolvers: mergeModuleResolvers({}, types,  mutationAndQueries),
+        resolvers: mergeModuleResolvers({}, types, mutationAndQueries),
         allowUndefinedInResolve: true,
-      //   printErrors: true,
+        //   printErrors: true,
     });
 }
 
@@ -117,13 +120,5 @@ function mergeModuleResolvers(baseResolvers, types: ITypeDetails[], mutationAndQ
         });
     });
 
-    // resolvers.forEach((r) => {
-    //     baseResolvers = _.merge(baseResolvers, r);
-    // });
-
     return resolvers;
-}
-
-function _getTypeResolver(constructorFunction: any): any {
-    
 }
