@@ -2,16 +2,7 @@ import { IOAuth2Token, IKeyValuePair } from './../../../integrations/models/conn
 import { IConnector } from './IConnector';
 import * as mongoose from 'mongoose';
 import * as Promise from 'bluebird';
-
-export interface IBaseAudit {
-    createdOn: Date;
-    updatedOn?: Date;
-}
-
-export interface IUserAudit extends IBaseAudit {
-    createdBy: string;
-    updatedBy?: string;
-}
+import { IUserAudit } from './../../common/audit.model';
 
 export interface IConnectorConfigScope {
     name: string;

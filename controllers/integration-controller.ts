@@ -70,7 +70,8 @@ export class IntegrationController {
 
                 resolve();
                 return;
-            });
+            })
+            .catch(err => reject(err));
         });
     }
 
