@@ -1,3 +1,4 @@
+import { isRexExp } from '../../../../lib/utils/helpers';
 import { IKPI } from '../../../models/app/kpis';
 import { IChartOptions } from '../charts/charts';
 import { AggregateStage } from './aggregate';
@@ -194,7 +195,7 @@ export class KpiBase {
 
             let value = filter[filterKey];
 
-            if (!_.isArray(value) && (!this._isRexExp(value)) && _.isObject(value)) {
+            if (!_.isArray(value) && (!isRexExp(value)) && _.isObject(value)) {
                 value = this._cleanFilter(value);
             } else if (_.isArray(value)) {
                 for (let i = 0; i < value.length; i++) {
@@ -438,9 +439,4 @@ export class KpiBase {
         }
         return new RegExp(expression.searchValue, 'i');
     }
-
-    private _isRexExp(value: any) {
-        return value instanceof RegExp;
-    }
-
 }
