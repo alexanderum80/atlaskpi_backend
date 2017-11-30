@@ -69,8 +69,12 @@ KPISchema.statics.createKPI = function(input: IKPI): Promise<IKPIDocument> {
             return;
         }
 
-        const data = (typeof input.filter === 'string') ? JSON.parse(input.filter) : JSON.parse(JSON.stringify(input.filter));
-        const isRegex = data.find(d => d.operator === 'regex');
+        let data;
+        let isRegex;
+        if (input.filter) {
+            data = (typeof input.filter === 'string') ? JSON.parse(input.filter) : JSON.parse(JSON.stringify(input.filter));
+            isRegex = data.find(d => d.operator === 'regex');
+        }
 
         input.code = input.name;
         let kpiType = KPITypeMap[input.type];
@@ -109,8 +113,12 @@ KPISchema.statics.updateKPI = function(id: string, input: IKPI): Promise<IKPIDoc
             return;
         }
 
-        const data = (typeof input.filter === 'string') ? JSON.parse(input.filter) : JSON.parse(JSON.stringify(input.filter));
-        const isRegex = data.find(d => d.operator === 'regex');
+        let data;
+        let isRegex;
+        if (input.filter) {
+            data = (typeof input.filter === 'string') ? JSON.parse(input.filter) : JSON.parse(JSON.stringify(input.filter));
+            isRegex = data.find(d => d.operator === 'regex');
+        }
 
         input.code = input.name;
         let kpiType = KPITypeMap[input.type];
