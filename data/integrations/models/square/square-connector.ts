@@ -57,7 +57,12 @@ export class SquareConnector implements IOAuthConnector {
     getToken(url: string): Promise<any> {
         const that = this;
         return new Promise<any>((resolve, reject) => {
-            this._clientAuth.code.getToken(url)
+            this._clientAuth.code.getToken(url, {
+                    body: {
+                        client_id: this._clientId,
+                        client_secret: this._clientSecret
+                    }
+                })
                 .then(token => {
                     that._token = (<any>token).data;
                     that._merchantId = that._token.merchant_id;
@@ -66,7 +71,8 @@ export class SquareConnector implements IOAuthConnector {
                     return;
                 }).catch(errToken => {
                     reject(errToken);
-            });
+            })
+            .catch(err => reject(err));
         });
     }
 
