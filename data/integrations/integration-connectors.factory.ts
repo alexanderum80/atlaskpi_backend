@@ -6,10 +6,10 @@ import { IOAuthConnector } from './models/connector-base';
 
 export class IntegrationConnectorFactory {
     static getInstance(integrationConfig: any, code: string): IOAuthConnector {
-        switch (code) {
-            case 'qbo':
+        switch (getConnectorType(code)) {
+            case ConnectorTypeEnum.QuickBooksOnline:
                 return new QuickBooksOnlineConnector(integrationConfig);
-            case 'square':
+            case ConnectorTypeEnum.Square:
                 return new SquareConnector(integrationConfig);
             default:
                 return null;
