@@ -178,7 +178,6 @@ export class KpiBase {
 
         const regexStrings = ['startWith', 'endWith', 'contains', 'regex'];
         let regexExpression;
-        let isRegex;
 
         Object.keys(filter).forEach(filterKey => {
             let newKey = filterKey;
