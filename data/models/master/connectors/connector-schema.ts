@@ -1,19 +1,9 @@
+import { userAuditSchema } from './../../common/audit.schema';
 import mongoose = require('mongoose');
 import * as Promise from 'bluebird';
 import { IConnector, IConnectorModel, IConnectorDocument } from './IConnector';
 
 const Schema = mongoose.Schema;
-
-const baseAuditSchema = {
-    createdOn: { type: Date, default: Date.now },
-    updatedOn: { type: Date, default: Date.now }
-};
-
-const userAuditSchema = {
-    ...baseAuditSchema,
-    createdBy: String,
-    updatedBy: String
-};
 
 const ConnectorSchema = new Schema({
     name: String!,
