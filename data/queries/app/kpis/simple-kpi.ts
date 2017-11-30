@@ -28,6 +28,10 @@ const CollectionsMapping = {
     }
 };
 
+export function isRexExp(value: any) {
+    return value instanceof RegExp;
+}
+
 export class SimpleKPI extends KpiBase implements IKpiBase {
 
     public static CreateFromExpression(models: IAppModels, kpi: IKPIDocument): SimpleKPI {
@@ -143,7 +147,7 @@ export class SimpleKPI extends KpiBase implements IKpiBase {
 
             let value = filter[filterKey];
 
-            if (!_.isArray(value) && _.isObject(value)) {
+            if (!_.isArray(value) && (!isRexExp(value)) && _.isObject(value)) {
                 value = this._filterWithNoAggField(value, fieldName);
             } else if (_.isArray(value)) {
                 for (let i = 0; i < value.length; i++) {
@@ -232,7 +236,5 @@ export class SimpleKPI extends KpiBase implements IKpiBase {
                 return { $add: fieldOperandArray };
         }
     }
-
-
 
 }
