@@ -13,9 +13,7 @@ const config: IAppConfig = {
     value: 'value'
 };
 
+export function registerDependencies(container: Container) {
+    container.bind<IAppConfig>('Config').toConstantValue(config);
+}
 
-const container = new Container();
-
-container.bind<IAppConfig>('Config').toConstantValue(config);
-
-export const DIContainer = container;
