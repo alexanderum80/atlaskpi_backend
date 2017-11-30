@@ -3,6 +3,11 @@ export enum ConnectorTypeEnum {
     QuickBooksOnline = 10
 }
 
+export const ConnectorsTypeMap = {
+    qbo: ConnectorTypeEnum.QuickBooksOnline,
+    square: ConnectorTypeEnum.Square
+};
+
 export function getConnectorTypeId(type: ConnectorTypeEnum) {
     switch (type) {
         case ConnectorTypeEnum.QuickBooksOnline:
@@ -14,12 +19,5 @@ export function getConnectorTypeId(type: ConnectorTypeEnum) {
 }
 
 export function getConnectorType(type: string): ConnectorTypeEnum {
-    switch (type) {
-        case 'qbo':
-            return ConnectorTypeEnum.QuickBooksOnline;
-        case 'square':
-            return ConnectorTypeEnum.Square;
-        default:
-            return;
-    }
+    return ConnectorsTypeMap[type] || null;
 }
