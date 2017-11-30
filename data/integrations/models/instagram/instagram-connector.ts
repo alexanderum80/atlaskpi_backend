@@ -7,30 +7,24 @@ import * as Promise from 'bluebird';
 import * as request from 'request';
 import { config } from '../../../../config';
 
-export interface IQuickBooksOnlineIntegrationConfig {
+export interface IInstagramIntegrationConfig {
     clientId: string;
-    clientSecret: string;
     requiredAuthScope: string;
     companyApiUrl: string;
-    openIdConfig: any;
+    instagramConfig: any;
 }
 
-export class QuickBooksOnlineConnector implements IOAuthConnector {
+export class InstagramConnector implements IOAuthConnector {
     private _client: ClientOAuth2;
     private _name: string;
     private _token: IOAuth2Token;
     private _scope: IConnectorConfigScope[] = [{ name: 'bills'}, { name: 'invoices'}];
-    private _realmId?: string;
     private _companyInfo: any;
 
-    constructor(private _config: any, realmId?: string) {
+    constructor(private _config: any) {
         if (!_config) {
             console.log('you tried to create a quickbooks connector without config...');
             return null;
-        }
-
-        if (realmId) {
-            this._realmId = realmId;
         }
 
         this._client = new ClientOAuth2(this.getAuthConfiguration());
@@ -41,27 +35,25 @@ export class QuickBooksOnlineConnector implements IOAuthConnector {
     }
 
     getType(): ConnectorTypeEnum {
-        return ConnectorTypeEnum.QuickBooksOnline;
+        return ConnectorTypeEnum.Instagram;
     }
 
     getTypeString(): string {
-        return ConnectorTypeEnum[ConnectorTypeEnum.QuickBooksOnline].toString();
+        return ConnectorTypeEnum[ConnectorTypeEnum.Instagram].toString();
     }
 
     getToken(url: string): Promise<IOAuth2Token> {
         const that = this;
         return new Promise<IOAuth2Token>((resolve, reject) => {
-            that._client.code.getToken(url).then(token => {
+            that._client.code.getToken(url, {
+                body: {
+                    client_id: this._config.clientId,
+                    client_secret: this._config.clientSecret
+                }
+            }).then(token => {
                 that._token = <any>token.data;
-
-                // lets grab the company info
-                that._getCompanyInfo().then(info => {
-                    that._name = (<any>info).response.CompanyInfo.CompanyName;
-                    resolve(<any>token.data);
-                    return;
-                })
-                .catch(err => reject(err));
-
+                resolve(<any>token.data);
+                return;
             })
             .catch(err => reject(err));
         });
@@ -117,8 +109,8 @@ export class QuickBooksOnlineConnector implements IOAuthConnector {
 
     getUniqueKeyValue(): IKeyValuePair {
         return  {
-                  key: 'config.realmId',
-                  value: this._realmId
+                  key: 'config.token.user.id',
+                  value: (<any>this._token).user.id
         };
     }
 
@@ -229,8 +221,8 @@ export class QuickBooksOnlineConnector implements IOAuthConnector {
             clientId: this._config.clientId,
             clientSecret: this._config.clientSecret,
             redirectUri: config.integrationRedirectUrl,
-            authorizationUri: this._config.openIdConfig.authorization_endpoint,
-            accessTokenUri: this._config.openIdConfig.token_endpoint,
+            authorizationUri: this._config.instagramConfig.authorization_endpoint,
+            accessTokenUri: this._config.instagramConfig.token_endpoint,
             scopes: this._config.requiredAuthScope
         };
     }
