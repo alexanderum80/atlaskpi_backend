@@ -1,3 +1,4 @@
+import { isRexExp } from '../../../../lib/utils/helpers';
 import { IKPI } from '../../../models/app/kpis';
 import { IAppModels } from './../../../models/app/app-models';
 import { KPITypeEnum, IKPISimpleDefinition, IKPIDocument } from './../../../models/app/kpis/IKPI';
@@ -27,10 +28,6 @@ const CollectionsMapping = {
         timestampField: 'timestamp'
     }
 };
-
-export function isRexExp(value: any) {
-    return value instanceof RegExp;
-}
 
 export class SimpleKPI extends KpiBase implements IKpiBase {
 
@@ -147,7 +144,7 @@ export class SimpleKPI extends KpiBase implements IKpiBase {
 
             let value = filter[filterKey];
 
-            if (!_.isArray(value) && (!isRexExp(value)) && _.isObject(value)) {
+            if (!_.isArray(value) && (!isRexExp(value))  && _.isObject(value)) {
                 value = this._filterWithNoAggField(value, fieldName);
             } else if (_.isArray(value)) {
                 for (let i = 0; i < value.length; i++) {
