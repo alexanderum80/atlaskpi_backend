@@ -288,9 +288,37 @@ function createIntegration(ctx: IMasterModels) {
         createdBy: 'xxrulixx@gmail.com',
     };
 
+    const instagramConnector: IConnector = {
+        name: 'instagram',
+        type: 'integration-config',
+        databaseName: 'atlas',
+        active: true,
+        config: {
+            clientId: '7406fd8789c54973bcd31b43fb85b126',
+            clientSecret: 'f1c3d46b1bb049c985f3b93939d27d55',
+            requiredAuthScope: 'follower_list',
+            instagramConfig: {
+                'authorization_endpoint': 'https://api.instagram.com/oauth/authorize/',
+                'token_endpoint': 'https://api.instagram.com/oauth/access_token',
+                'revocation_endpoint': '',
+                'scopes_supported': [
+                    'basic',
+                    'public_content',
+                    'follower_list',
+                    'comments',
+                    'relationships',
+                    'likes'
+                ]
+            }
+        },
+        createdOn: new Date(),
+        updatedOn: new Date(),
+        createdBy: 'xxrulixx@gmail.com',
+    };
 
 
-    ctx.Connector.create(squareConnector, (err, connector) => {
+
+    ctx.Connector.create(instagramConnector, (err, connector) => {
         if (err) {
             console.log(err);
             return;

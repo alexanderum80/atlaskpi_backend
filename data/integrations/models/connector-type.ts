@@ -1,11 +1,13 @@
 export enum ConnectorTypeEnum {
     Square = 1,
-    QuickBooksOnline = 10
+    QuickBooksOnline = 10,
+    Instagram = 11
 }
 
 export const ConnectorsTypeMap = {
     qbo: ConnectorTypeEnum.QuickBooksOnline,
-    square: ConnectorTypeEnum.Square
+    square: ConnectorTypeEnum.Square,
+    instagram: ConnectorTypeEnum.Instagram
 };
 
 export function getConnectorTypeId(type: ConnectorTypeEnum) {
@@ -14,6 +16,8 @@ export function getConnectorTypeId(type: ConnectorTypeEnum) {
             return 'qbo';
         case ConnectorTypeEnum.Square:
             return 'square';
+        case ConnectorTypeEnum.Instagram:
+            return 'instagram';
         default: null;
     }
 }
