@@ -206,14 +206,7 @@ export class KPIFilterHelper {
     }
 
     private static _removeForwardSlashes(data: string) {
-        let lastSlashIndex = -1;
-
-        for (let i = data.length - 1; i >= 0; i--) {
-            if (data[i] === '/') {
-                lastSlashIndex = i;
-                break;
-            }
-        }
+        let lastSlashIndex = data.lastIndexOf('/');
         if (lastSlashIndex === -1) {
             return '';
         }
