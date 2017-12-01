@@ -1,3 +1,4 @@
+import { Request } from 'Express';
 import { Enforcer, IEnforcer } from './modules/security/enforcer';
 import { IQueryBus, QueryBus } from './queries/query-bus';
 import { IMutationBus, MutationBus } from './mutations/mutation-bus';
@@ -20,7 +21,8 @@ import {
     MetadataFieldsMap
 } from './decorators';
 import {
-    Container
+    Container,
+    interfaces
 } from 'inversify';
 import * as express from 'express';
 import { IExecutableSchemaDefinition } from 'graphql-tools/dist/Interfaces';
@@ -101,6 +103,7 @@ export class Bridge {
             {
               context: {
                 req: req,
+                requestContainer: createRequestContainer(req, _container),
                 mutationBus: _container.get<IMutationBus>('MutationBus'),
                 queryBus: _container.get<IQueryBus>('QueryBus')
               },
@@ -129,4 +132,14 @@ function registerBridgeDependencies(container: Container) {
     container.bind<IEnforcer>('Enforcer').to(Enforcer).inSingletonScope();
     container.bind<IMutationBus>('MutationBus').to(MutationBus).inSingletonScope();
     container.bind<IQueryBus>('QueryBus').to(QueryBus).inSingletonScope();
+}
+
+function createRequestContainer(req: Request, generalContainer: Container): interfaces.Container {
+    const container = new Container({ autoBindInjectable: true });
+    // first thing first!
+    container.bind<Request>('Request').toConstantValue(req);
+
+
+    return Container.merge(generalContainer, container);
+
 }
