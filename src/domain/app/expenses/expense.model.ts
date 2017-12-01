@@ -1,11 +1,12 @@
 import { inject, injectable } from 'inversify';
 import * as mongoose from 'mongoose';
 import * as logger from 'winston';
+import * as moment from 'moment';
 
 import { ModelBase } from '../../../type-mongo/model-base';
 import { parsePredifinedDate } from '../../common/date-range';
 import { AppConnection } from '../app.connection';
-import { IExpenseDocument, IExpenseModel } from './expense';
+import { IExpense, IExpenseDocument, IExpenseModel } from './expense';
 
 
 const Schema = mongoose.Schema;
@@ -72,19 +73,45 @@ ExpenseSchema.statics.findCriteria = function(field: string): Promise<any[]> {
     });
 };
 
-ExpenseSchema.statics.amountByDateRange = function(predefinedDateRange: string): Promise<Object> {
+ExpenseSchema.statics.amountByDateRange = function(fromDate: string, toDate: string): Promise<Object> {
     const ExpenseModel = (<IExpenseModel>this);
 
-    const DateRange = parsePredifinedDate(predefinedDateRange);
+    const from = moment(fromDate).utc().toDate();
+    const to = moment(toDate).utc().toDate();
 
     return new Promise<Object>((resolve, reject) => {
-        ExpenseModel.aggregate({ '$match': { 'timestamp': { '$gte': DateRange.from, '$lt': DateRange.to } } },
+        ExpenseModel.aggregate({ '$match': { 'timestamp': { '$gte': from, '$lt': to } } },
                             { '$group': { '_id': null, 'count': { '$sum': 1 }, 'amount': { '$sum': '$expense.amount' } } })
         .then(expenses => {
             resolve(expenses);
         })
         .catch(err => {
             logger.error('There was an error retrieving expenses by predefined data range', err);
+            reject(err);
+        });
+    });
+};
+
+ExpenseSchema.statics.monthsAvgExpense = function(date: string): Promise<Object> {
+    const ExpenseModel = (<IExpenseModel>this);
+
+    let _year = moment(date).utc().toDate().getUTCFullYear();
+    let _month = moment(date).utc().toDate().getUTCMonth();
+
+    if (_month === 0) {
+        _year -= 1;
+        _month = 12;
+    }
+
+    return new Promise<Object>((resolve, reject) => {
+        ExpenseModel.aggregate({ '$group': { '_id': { 'year': { '$year': '$timestamp' }, 'month': { '$month': '$timestamp' } }, 'amount': { '$sum': '$expense.amount' } } },
+                        { '$match': { '_id.year': { '$lt': _year } , '_id.month': _month } } ,
+                        { '$group': { '_id': '$_id.month', 'amount': { '$avg': '$amount' } } })
+        .then(expenses => {
+            resolve(expenses);
+        })
+        .catch(err => {
+            logger.error('There was an error retrieving expenses by months of previous years ', err);
             reject(err);
         });
     });

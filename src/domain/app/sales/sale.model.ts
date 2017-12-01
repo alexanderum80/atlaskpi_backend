@@ -168,6 +168,7 @@ SalesSchema.statics.monthsAvgSales = function(date: string): Promise<Object> {
     let _month = moment(date).utc().toDate().getUTCMonth();
 
     if (_month === 0) {
+        _year -= 1;
         _month = 12;
     }
 
