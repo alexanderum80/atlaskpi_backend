@@ -1,7 +1,11 @@
-import { IDepartmentModel, IDepartmentDocument } from './IDepartment';
+import { AppConnection } from '../../../../domain/app/app.connection';
+import { ModelBase } from '../../../../type-mongo/model-base';
+import { IDepartmentModel, IDepartmentDocument, IDepartment } from './IDepartment';
 import * as mongoose from 'mongoose';
 import * as logger from 'winston';
 import * as Promise from 'bluebird';
+import { inject } from 'inversify';
+import { injectable } from 'inversify/dts/annotation/injectable';
 
 
 const DepartmentSchema = new mongoose.Schema({
@@ -92,4 +96,15 @@ DepartmentSchema.statics.departmentById = function(id: string): Promise<IDepartm
 
 export function getDepartmentModel(m: mongoose.Connection): IDepartmentModel {
     return <IDepartmentModel>m.model('Department', DepartmentSchema, 'departments');
+}
+
+@injectable()
+export class Departments extends ModelBase<IDepartmentModel> {
+
+    constructor(@inject('AppConnection') appConnection: AppConnection) {
+        super(appConnection, 'Department', DepartmentSchema, 'departments');
+    }
+
+    
+
 }
