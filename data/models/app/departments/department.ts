@@ -105,6 +105,4 @@ export class Departments extends ModelBase<IDepartmentModel> {
         super(appConnection, 'Department', DepartmentSchema, 'departments');
     }
 
-    
-
 }
