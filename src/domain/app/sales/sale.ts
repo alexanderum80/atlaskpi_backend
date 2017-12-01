@@ -7,7 +7,7 @@ export interface IEntity {
     name: string;
 }
 
-export interface ILocation {
+export interface ISaleLocation {
     identifier: string;
     name: string;
     city: string;
@@ -18,7 +18,7 @@ export interface ILocation {
     size: string;
 }
 
-export interface ICustomer extends IEntity {
+export interface ISaleCustomer extends IEntity {
         city: string;
         state: string;
         zip: string;
@@ -26,14 +26,14 @@ export interface ICustomer extends IEntity {
 }
 
 
-export interface IEmployee extends IEntity {
+export interface ISaleEmployee extends IEntity {
     fullName: string;
     role: string;
     type: string; // full time (f), part time (p)
     workedTime: number; // in seconds
 }
 
-export interface IProduct extends IEntity {
+export interface ISaleProduct extends IEntity {
     itemCode: string;
     itemDescription: string;
     quantity: number;
@@ -53,10 +53,10 @@ export interface ICategory extends IEntity {
 
 export interface ISales {
     externalId: string;
-    location: ILocation;
-    customer: ICustomer;
-    employee: IEmployee;
-    product: IProduct;
+    location: ISaleLocation;
+    customer: ISaleCustomer;
+    employee: ISaleEmployee;
+    product: ISaleProduct;
     category: ICategory;
 
     timestamp: Date;

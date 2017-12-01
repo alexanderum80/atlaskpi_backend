@@ -13,7 +13,7 @@ import {
 } from '../../common';
 import {
     IAccessLogDocument,
-    IAccessModel,
+    IAccessLogModel,
     IAccessLogEntry
 } from './access-log';
 import {
@@ -63,7 +63,7 @@ AccessLogSchema.statics.createLog = function(details: IAccessLogEntry): Promise 
 
 AccessLogSchema.statics.getAllAccessLogs = function(filter: string): Promise < IAccessLogDocument[] > {
     return new Promise < IAccessLogDocument[] > ((resolve, reject) => {
-        ( < IAccessModel > this).find({})
+        ( < IAccessLogModel > this).find({})
             .then((accessLog) => {
                 return resolve(accessLog);
             }).catch((err) => {
@@ -79,7 +79,7 @@ AccessLogSchema.statics.getAllAccessLogs = function(filter: string): Promise < I
 };
 
 @injectable()
-export class AccessLogs extends ModelBase < IAccessModel > {
+export class AccessLogs extends ModelBase < IAccessLogModel > {
     constructor(@inject('AppConnection') appConnection: AppConnection) {
         super(appConnection, 'AccessLog', AccessLogSchema, 'accessLog');
     }
