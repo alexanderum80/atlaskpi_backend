@@ -1,2 +1,2 @@
-export * from './IAccount';
-export * from './Account';
+export * from './account';
+export * from './account.model';

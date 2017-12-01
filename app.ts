@@ -1,6 +1,6 @@
-import { Bridge } from './framework';
-import { AtlasApp } from './app_modules/business-units/mutations/mutations.gql';
-import { healthCheck, initializeContexts, loadUser, logger, tokenValidator } from './middlewares';
+import { Bridge } from './src/framework';
+import { AtlasApp } from './src/app_modules/business-units/mutations/mutations.gql';
+import { healthCheck, initializeContexts, loadUser, logger, tokenValidator } from './src/middlewares';
 import { auth, me } from './routes';
 import { DIContainer } from './di';
 
