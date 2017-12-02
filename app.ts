@@ -1,10 +1,13 @@
+import { auth, me } from './src/framework/modules/security/routes';
 import { Bridge } from './src/framework';
 import { AtlasApp } from './src/app_modules/business-units/mutations/mutations.gql';
 import { healthCheck, initializeContexts, loadUser, logger, tokenValidator } from './src/middlewares';
-import { auth, me } from './routes';
-import { DIContainer } from './di';
+import { bindDependencies } from './di';
 
-const app = Bridge.create(AtlasApp, DIContainer);
+const app = Bridge.create(AtlasApp);
+
+// bind dependencies
+bindDependencies(app.Container);
 
 // middlewares
 app.server.use(healthCheck);

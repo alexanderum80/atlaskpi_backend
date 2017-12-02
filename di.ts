@@ -1,19 +1,8 @@
+import { AppConnectionPool } from './src/middlewares/app-connection-pool';
 import { Container } from 'inversify';
 
-// import { config } from './config';
-// import { IAppConfig } from './configuration/index';
 
-interface IAppConfig {
-    key: string;
-    value: string;
-}
-
-const config: IAppConfig = {
-    key: 'key',
-    value: 'value'
-};
-
-export function registerDependencies(container: Container) {
-    container.bind<IAppConfig>('Config').toConstantValue(config);
+export function bindDependencies(container: Container) {
+    container.bind<AppConnectionPool>(AppConnectionPool.name).to(AppConnectionPool).inSingletonScope();
 }
 

@@ -1,5 +1,3 @@
-import { ExtendedRequest } from '../../../middlewares';
-
 /**
  * Defines the data returned when a mutation is run
  */
@@ -44,17 +42,6 @@ export class MutationResponse implements IMutationResponse {
         });
 
         return response;
-    }
-
-    localized(req: ExtendedRequest) {
-        // localize errors messages in case they exist
-        if (this.errors) {
-            this.errors.forEach((err) => {
-                err.errors = err.errors.map((errorText) => (<any>req).__(errorText));
-            });
-        }
-
-        return this;
     }
 }
 

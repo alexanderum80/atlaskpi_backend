@@ -1,20 +1,13 @@
-import { IDatabaseInfo } from '../../master/accounts';
-import { IRoleList, IPermissionInfo } from '../../../../lib/rbac/models';
-import { IAppConfig } from '../../../../configuration/config-models';
-import { IIdentity } from '../identity';
-import { IQueryResponse } from '../../common/query-response';
-import { IMutationResponse, IPaginationDetails, IPagedQueryResult } from '../../common';
-import { IRoleDocument } from '../../../../lib/rbac/models/roles';
 import mongoose = require('mongoose');
 import * as Promise from 'bluebird';
 import * as nodemailer from 'nodemailer';
-import {
-    IEmailNotifier,
-    IForgotPasswordNotifier,
-    IEnrollmentNotifier,
-    IAccountCreatedNotifier
-} from '../../../../services';
-import { ITokenDetails, IUserToken } from '../..';
+import { IEnrollmentNotifier } from '../../../services/notifications/users';
+import { IMutationResponse, IPaginationDetails, IPagedQueryResult } from '../../common';
+import { IUserToken, IIdentity } from '../..';
+import { ICreateUserDetails } from '../../common';
+import { IRoleDocument, IRoleList } from '../../../framework/modules/security/models';
+import { IAccountCreatedNotifier, IForgotPasswordNotifier, IEmailNotifier } from '../../../services';
+import { IAppConfig } from '../../../configuration/config-models';
 
 export interface IEmbeddedDocument {
     remove?();
@@ -114,20 +107,6 @@ export interface IUserDocument extends IUser, mongoose.Document {
 export interface ITokenVerification {
     isValid: boolean;
     profile?: IUserProfile;
-}
-
-/**
- * Information neede to create a new user
- */
-export interface ICreateUserDetails {
-    firstName?: string;
-    middleName?: string;
-    lastName?: string;
-    email: string;
-    username?: string;
-    password?: string;
-    roles?: string[];
-    fullname?: string;
 }
 
 /**

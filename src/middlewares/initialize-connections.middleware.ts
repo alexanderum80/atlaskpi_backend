@@ -1,41 +1,40 @@
+import { Accounts, IAccountDocument } from '../domain/master/accounts';
 import { AppConnectionPool } from './app-connection-pool';
-import makeDefaultConnection from '../data/db-connector';
-import { getRequestHostname } from '../lib/utils/helpers';
-import { IAccountDocument } from '../data/models';
 import { ExtendedRequest } from './extended-request';
 import { Request, Response } from 'express';
-import { getMasterContext, getContext, IIdentity } from '../data/models';
 import * as logger from 'winston';
 import * as mongoose from 'mongoose';
-
-const appConnectionPool = new AppConnectionPool();
+import { makeDefaultConnection } from '../helpers/mongodb.helpers';
+import { config } from '../../config';
+import { MasterConnection } from '../domain/index';
+import { getRequestHostname } from '../helpers';
+import { BRIDGE } from '../framework/index';
 
 const graphqlOperationExceptions = [
     'AccountNameAvailable',
     'CreateAccount',
 ];
 
-const loggerSuffix = '(MIDDLEWARE initializeContexts)';
+const loggerSuffix = '(MIDDLEWARE initialize connections)';
 
-export function initializeConmections(req: ExtendedRequest, res: Response, next) {
+export function initializeConnections(req: ExtendedRequest, res: Response, next) {
 
-    makeDefaultConnection().then(defaultConnection => {
+    makeDefaultConnection(config).then(defaultConnection => {
         req.masterConnection = mongoose.connection;
-        const AccountModel = new AccountModel(mongoose.connection);
+        const masterConnection = new MasterConnection(req);
+        const accounts = new Accounts(masterConnection);
 
-        getAppConnection(AccountModel, req, res, next).then(conn => {
+        getAppConnection(accounts, req, res, next).then(conn => {
             req.appConnection = conn;
         });
+    })
+    .catch(err => {
+        logger.error('There was an error getting the master connection', err);
+        next();
     });
-
-    // })
-    // .catch(err => {
-    //     logger.error('There was an error getting the master context', err);
-    //     next();
-    // });
 }
 
-function getAppConnection(accountModel: AccountModel, req: ExtendedRequest, res: Response, next) {
+function getAppConnection(acounts: Accounts, req: ExtendedRequest, res: Response, next) {
     let hostname = getRequestHostname(req);
     logger.debug(`${loggerSuffix} Hostname: ${hostname}`);
 
@@ -52,9 +51,9 @@ function getAppConnection(accountModel: AccountModel, req: ExtendedRequest, res:
         return res.end();
     }
 
-    logger.debug('creating app context for account name: ' + accountName);
+    logger.debug('creating app connection for account name: ' + accountName);
 
-    accountModel.findAccountByHostname(accountName).then((account: IAccountDocument) => {
+    acounts.model.findAccountByHostname(accountName).then((account: IAccountDocument) => {
         // I not always need to create a new connection I may be able to re-use an existent one
         if (!account) {
             logger.debug('account not found, ending the request...');
@@ -64,13 +63,14 @@ function getAppConnection(accountModel: AccountModel, req: ExtendedRequest, res:
 
         logger.debug(`${loggerSuffix} Account found`);
 
-        appConnectionPool.getContext(account.getConnectionString()).then((ctx) => {
-            req.appContext = ctx;
-            logger.debug(`${loggerSuffix} App context assigned to request`);
+        // TODO: I need to test this
+        BRIDGE.container.get<AppConnectionPool>('AppConnectionPool').getConnection(account.getConnectionString()).then((appConn) => {
+            req.appConnection = appConn;
+            logger.debug(`${loggerSuffix} App connection assigned to request`);
             return next();
         })
         .catch(err => {
-            logger.error('There was an error getting the app context', err);
+            logger.error('There was an error getting the app connection', err);
             return next();
         });
     })
