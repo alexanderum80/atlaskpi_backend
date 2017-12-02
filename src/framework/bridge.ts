@@ -33,6 +33,7 @@ import { Express } from 'express';
 import { RequestHandlerParams } from 'express-serve-static-core';
 import { RequestHandler } from 'apollo-link';
 import { graphqlExpress } from 'apollo-server-express/dist/expressApollo';
+import { BRIDGE } from './index';
 
 interface IQueryData {
     types: string[];
@@ -62,6 +63,8 @@ export class Bridge {
     static create(appModule: new() => IAppModule, options?: IFrameworkOptions): Bridge {
         const newOptions = Object.assign({}, defaultServerOptions, options);
         const container = new Container({ autoBindInjectable: true });
+        // I need to save the container in a global name space so it can be accessed from the middlewares
+        BRIDGE.container = container;
 
         const moduleDefinition = appModule[MetadataFieldsMap.Definition];
         let moduleInstances: IAppModule[];

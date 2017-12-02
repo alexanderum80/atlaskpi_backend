@@ -1,11 +1,11 @@
 import { createDeflate } from 'zlib';
-import { IUserDocument, IAccountCreatedDataSource } from '../../../data';
 import { IEmailNotifier } from '../email-notifier';
 import * as Promise from 'bluebird';
 import * as nodemailer from 'nodemailer';
 import * as Handlebars from 'handlebars';
 import { sendEmail } from '../..';
 import { IAppConfig } from '../../../configuration';
+import { IUserDocument, IAccountCreatedDataSource } from '../../../app_modules/users/models';
 
 export interface IAccountCreatedNotifier extends IEmailNotifier {
 

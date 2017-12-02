@@ -1,13 +1,16 @@
-import connectToMongoDb from '../data/mongo-utils';
 import * as mongoose from 'mongoose';
 import * as logger from 'winston';
 import * as Promise from 'bluebird';
+import { injectable } from 'inversify';
+import { connectToMongoDb } from '../helpers';
+import { remove } from 'lodash';
 
 export interface IConnectionDetails {
     uri: string;
     connection: mongoose.Connection;
 }
 
+@injectable()
 export class AppConnectionPool {
     private _connectionPool: IConnectionDetails[];
 
@@ -15,9 +18,9 @@ export class AppConnectionPool {
         this._connectionPool = [];
     }
 
-    getContext(uri: string): Promise<mongoose.Connection> {
+    getConnection(uri: string): Promise<mongoose.Connection> {
         const that = this;
-        const connectionWithSameUri = _.find(this._connectionPool, details => details.uri === uri);
+        const connectionWithSameUri = this._connectionPool.find(details => details.uri === uri);
 
         return new Promise<mongoose.Connection>((resolve, reject) => {
             /**
@@ -56,7 +59,7 @@ export class AppConnectionPool {
     private _removeContext(uri: string) {
         logger.debug('Removing obsolete context');
 
-        _.remove(this._connectionPool, (details) => {
+        remove(this._connectionPool, (details) => {
             return details.uri === uri;
         });
     }

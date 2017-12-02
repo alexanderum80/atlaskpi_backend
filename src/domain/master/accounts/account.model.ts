@@ -1,29 +1,23 @@
-import { IsNullOrWhiteSpace } from '../../../extentions';
-import { ITokenInfo } from '../../app/users/IUser';
-import { IAppModels } from '../../app/app-models';
-import { stringify } from 'querystring';
-import { importSpreadSheet } from '../../../google-spreadsheet/google-spreadsheet';
-import mongoose = require('mongoose');
+import { ModelBase } from '../../../type-mongo';
+import { MasterConnection } from '../master.connection';
+import { injectable, inject } from 'inversify';import mongoose = require('mongoose');
 import * as Promise from 'bluebird';
-import { IAccountModel, IAccountDocument, IAccount, IDatabaseInfo, IAccountDBUser } from './IAccount';
+import { IsNullOrWhiteSpace } from '../../../helpers';
+import { IAccountModel, IAccountDocument, IAccount, IDatabaseInfo, IAccountDBUser } from './account';
 import { IMutationResponse, MutationResponse } from '../..';
-import { getContext, ICreateUserDetails, IUserDocument } from '../../../models';
-import { AccountCreatedNotification, EnrollmentNotification } from '../../../../services/notifications/users';
 import { config } from '../../../../config';
 import * as validate from 'validate.js';
 import * as winston from 'winston';
-import { initRoles } from '../../../../lib/rbac';
 import * as rolesSetup from './initialRoles';
 import * as changeCase from 'change-case';
-import { generateUniqueHash } from '../../../../lib/utils';
-import { AuthController } from '../../../../controllers';
 import { IUserToken } from '../../common';
 import * as Handlebars from 'handlebars';
 import * as mongodb from 'mongodb';
 
-import { seedApp } from '../../../seed/app/seed-app';
-
 import * as request from 'request';
+import { generateUniqueHash } from '../../../framework/modules/security/utils';
+import { ICreateUserDetails } from '../../../app_modules/users/models';
+import { Container } from 'inversify';
 
 // define mongo schema
 let accountSchema = new mongoose.Schema({
@@ -50,7 +44,7 @@ let accountSchema = new mongoose.Schema({
 });
 
 // static methods
-accountSchema.statics.createNewAccount = function(ip: string, clientId: string, clientDetails: string, account: IAccount): Promise<IMutationResponse>   {
+accountSchema.statics.createNewAccount = function(container: Container, ip: string, clientId: string, clientDetails: string, account: IAccount): Promise<IMutationResponse>   {
     let that = this;
 
     return new Promise<IMutationResponse>((resolve, reject) => {
@@ -104,6 +98,9 @@ accountSchema.statics.createNewAccount = function(ip: string, clientId: string, 
             createDbUserIfNeeded(newAccount, accountDbUser).then(success => {
                 let databaseObject = generateDBObject(accountDatabaseName, 'atlas', 'yA22wflgDf9dZluW');
 
+                // connect to users database
+
+                
                 getContext(databaseObject.uri).then((newAccountContext) => {
                     initializeRolesForAccount(newAccountContext)
                         .then((rolesCreated) => {
@@ -341,8 +338,9 @@ function generateFirstAccountToken(codeContext, acountContext: IAppModels, accou
     });
 }
 
-
-
-export function getAccountModel(): IAccountModel {
-    return <IAccountModel>mongoose.model('Account', accountSchema);
+@injectable()
+export class Accounts extends ModelBase<IAccountModel> {
+    constructor(@inject('AppConnection') appConnection: MasterConnection) {
+        super(appConnection, 'Account', accountSchema, 'accounts');
+    }
 }

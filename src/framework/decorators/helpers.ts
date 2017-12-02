@@ -6,6 +6,7 @@ import { MetadataFieldsMap } from './metadata-fields.map';
 import { GraphqlMetaType } from './graphql-meta-types.enum';
 import { GraphQLArtifact } from './graphql-artifact';
 import * as Hbs from 'handlebars';
+import { Container } from 'inversify';
 
 
 export interface IArtifactDetails {
@@ -55,6 +56,7 @@ export interface IFrameworkMetadata {
         mutations: IGraphqlArtifacts
     };
     modules: IModuleArtifact;
+    container?: Container;
 }
 
 const defaultFrameworkMetadata: IFrameworkMetadata = {

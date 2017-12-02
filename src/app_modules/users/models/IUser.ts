@@ -1,10 +1,6 @@
-import { IDatabaseInfo } from '../../master/accounts';
-import { IRoleList, IPermissionInfo } from '../../../../lib/rbac/models';
-import { IAppConfig } from '../../../../configuration/config-models';
-import { IIdentity } from '../identity';
-import { IQueryResponse } from '../../common/query-response';
-import { IMutationResponse, IPaginationDetails, IPagedQueryResult } from '../../common';
-import { IRoleDocument } from '../../../../lib/rbac/models/roles';
+import { IPagedQueryResult, IPaginationDetails, IUserToken } from '../../../domain/common';
+import { IRoleList, IRoleDocument } from '../../../framework/modules/security/models';
+import { IMutationResponse } from '../../../framework';
 import mongoose = require('mongoose');
 import * as Promise from 'bluebird';
 import * as nodemailer from 'nodemailer';
@@ -13,8 +9,8 @@ import {
     IForgotPasswordNotifier,
     IEnrollmentNotifier,
     IAccountCreatedNotifier
-} from '../../../../services';
-import { ITokenDetails, IUserToken } from '../..';
+} from '../../../services';
+import { IIdentity } from '../../../domain/common';
 
 export interface IEmbeddedDocument {
     remove?();
