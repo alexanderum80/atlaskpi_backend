@@ -1,3 +1,5 @@
+import { initialRoles } from './initial-roles';
+import { initRoles } from './init-roles';
 import {
     ModelBase
 } from '../../../../type-mongo';
@@ -18,7 +20,13 @@ import {
     CAN_ALL,
     CAN_ANY
 } from './utils';
-import { IRoleDocument, IRoleResponse, IRoleModel, IRoleCustom } from './index';
+import {
+    IRoleDocument,
+    IRoleResponse,
+    IRoleModel,
+    IRoleCustom
+} from './index';
+import { Permissions } from '../../../index';
 
 // INTERFACES
 
@@ -83,6 +91,24 @@ RoleSchema.pre('save', function(done) {
         }
     });
 });
+
+RoleSchema.statics.seedRoles = function(roles: Roles, permissions: Permissions): Promise < boolean > {
+    const that = this;
+    return new Promise < boolean > ((resolve, reject) => {
+        that.find({}).then((roles) => {
+                initRoles(roles, permissions, initialRoles, roles).then(created => {
+                        if (created)
+                            resolve(true);
+                    })
+                    .catch(err => {
+                        reject(err);
+                    });
+            })
+            .catch(err => {
+                reject(err);
+            });
+    });
+}
 
 RoleSchema.statics.createRole = function(data: IRoleCustom): Promise < IRoleDocument > {
     const that = this;

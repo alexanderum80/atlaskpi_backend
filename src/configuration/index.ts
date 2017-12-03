@@ -3,3 +3,4 @@ export * from  './users';
 export * from './config-models';
 export * from './app';
 export * from './configuration-utils';
+export * from './config';

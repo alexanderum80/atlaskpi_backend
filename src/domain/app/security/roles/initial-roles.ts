@@ -133,7 +133,7 @@ export const initialRoles  = {
 };
 
 
-export const initAllPermissions = [
+export const allPermissions = [
   {
     'action': 'View',
     'subject': 'Chart'
