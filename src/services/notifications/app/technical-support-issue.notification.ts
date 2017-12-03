@@ -1,13 +1,10 @@
-import { ISupportEmailNotifier } from '../';
-import { createDeflate } from 'zlib';
-import { IUserDocument } from '../../../data';
-import { IEmailNotifier } from '../email-notifier';
 import * as Promise from 'bluebird';
 import * as nodemailer from 'nodemailer';
-import * as Handlebars from 'handlebars';
-import { sendEmail } from '../..';
+import { isNumber, isDate } from 'lodash';
+import { sendEmail } from '../../email';
+import { ISupportEmailNotifier } from '../';
+import { injectable, inject } from 'inversify';
 import { IAppConfig } from '../../../configuration';
-import * as _ from 'lodash';
 
 export enum IssueLevelEnum {
     Critical,
@@ -43,19 +40,20 @@ export interface IssueData {
     message: string;
 }
 
+@injectable()
 export class TechnicalSupportIssueNotification implements ISupportEmailNotifier {
 
-    constructor(private _config: IAppConfig) { }
+    constructor(@inject('Config') private _config: IAppConfig) { }
 
     notify(data: IssueData): Promise<nodemailer.SentMessageInfo> {
         // copy values
         const details: IssueData = Object.assign({}, data);
 
-        if (_.isNumber(details.level)) {
+        if (isNumber(details.level)) {
             details.level = getIssueLevelPropName(IssueLevelTable[details.level]);
         }
 
-        if (_.isDate(details.timestamp)) {
+        if (isDate(details.timestamp)) {
             details.timestamp = details.timestamp.toUTCString();
         }
 

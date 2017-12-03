@@ -6,5 +6,5 @@ export interface BaseModel extends Entity {
         sync: number,
         tries: number,
         syncedOn: Date
-    }
+    };
 }

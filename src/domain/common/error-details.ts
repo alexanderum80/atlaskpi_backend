@@ -1,4 +1,4 @@
-/** 
+/**
  * Defines the data returned by an error
  */
 export interface IErrorDetails {

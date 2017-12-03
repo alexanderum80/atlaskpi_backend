@@ -18,6 +18,7 @@ import * as request from 'request';
 import { generateUniqueHash } from '../../../framework/modules/security/utils';
 import { ICreateUserDetails } from '../../../app_modules/users/models';
 import { Container } from 'inversify';
+import { AppConnectionPool } from '../../../middlewares/app-connection-pool';
 
 // define mongo schema
 let accountSchema = new mongoose.Schema({
@@ -43,6 +44,7 @@ let accountSchema = new mongoose.Schema({
     },
 });
 
+// Orlando: This method its wrong. The create account method should only care about creating the account document nothing more. The rest should be move to its own models and then put everything together in a service
 // static methods
 accountSchema.statics.createNewAccount = function(container: Container, ip: string, clientId: string, clientDetails: string, account: IAccount): Promise<IMutationResponse>   {
     let that = this;
@@ -100,8 +102,10 @@ accountSchema.statics.createNewAccount = function(container: Container, ip: stri
 
                 // connect to users database
 
-                
-                getContext(databaseObject.uri).then((newAccountContext) => {
+                container.get<AppConnectionPool>('AppConnectionPool').getConnection(databaseObject.uri).then((appConn) => {
+
+                    const accounts = new Roles
+
                     initializeRolesForAccount(newAccountContext)
                         .then((rolesCreated) => {
                             return createAdminUser(newAccountContext, newAccount.database.name, firstUser);
@@ -340,7 +344,7 @@ function generateFirstAccountToken(codeContext, acountContext: IAppModels, accou
 
 @injectable()
 export class Accounts extends ModelBase<IAccountModel> {
-    constructor(@inject('AppConnection') appConnection: MasterConnection) {
+    constructor(@inject('MasterConnection') appConnection: MasterConnection) {
         super(appConnection, 'Account', accountSchema, 'accounts');
     }
 }

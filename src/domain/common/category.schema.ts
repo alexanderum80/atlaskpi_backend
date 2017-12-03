@@ -4,7 +4,6 @@ export function getCategorySchema() {
     return new mongoose.Schema({
         externalId: String,
         name: String,
-        service: Number       
+        service: Number
     });
-    
 }

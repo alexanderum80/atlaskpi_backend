@@ -8,5 +8,4 @@ export function getCustomerSchema() {
                 zip: String,
                 gender: String
         });
-        
 }
