@@ -1,2 +1,2 @@
-export * from './IIndustry';
-export * from './Industry';
+export * from './industry';
+export * from './industry.model';
