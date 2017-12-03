@@ -7,6 +7,6 @@ export function getAddressSchema() {
         city: { type: String },
         state: { type: String },
         country: { type: String },
-        zipCode: { type: String }    
+        zipCode: { type: String }
     });
 }

@@ -15,50 +15,46 @@ export interface IMutationResponse {
     errors?: IMutationError[];
 }
 
-// export class MutationResponse implements IMutationResponse {
-//     success: boolean;
-//     entity: any;
-//     errors: { field: string, errors: string[] }[];
+export class MutationResponse implements IMutationResponse {
+    success: boolean;
+    entity: any;
+    errors: { field: string, errors: string[] }[];
 
-//     /**
-//      * Create a new instance of a Mutation response when there are validation errors
-//      * I am expecting the error format form the validate library which is:
-//      * { field: ['error1', 'error2'] }
-//      */
-//     static fromValidationErrors(errors: any) {
-//         let response = new MutationResponse();
+    /**
+     * Create a new instance of a Mutation response when there are validation errors
+     * I am expecting the error format form the validate library which is:
+     * { field: ['error1', 'error2'] }
+     */
+    static fromValidationErrors(errors: any) {
+        let response = new MutationResponse();
 
-//         if (!errors) {
-//             return response;
-//         }
+        if (!errors) {
+            return response;
+        }
 
-//         response.errors = [];
+        response.errors = [];
 
-//         Object.keys(errors).forEach((key) => {
-//             let error = {
-//                 field: key,
-//                 errors: errors[key]
-//             };
+        Object.keys(errors).forEach((key) => {
+            let error = {
+                field: key,
+                errors: errors[key]
+            };
 
-//             response.errors.push(error);
-//         });
+            response.errors.push(error);
+        });
 
-//         return response;
-//     }
+        return response;
+    }
 
-//     localized(req: ExtendedRequest) {
-//         // localize errors messages in case they exist
-//         if (this.errors) {
-//             this.errors.forEach((err) => {
-//                 err.errors = err.errors.map((errorText) => (<any>req).__(errorText));
-//             });
-//         }
+    // TODO: I need to re-visit localization
+    // localized(req: ExtendedRequest) {
+    //     // localize errors messages in case they exist
+    //     if (this.errors) {
+    //         this.errors.forEach((err) => {
+    //             err.errors = err.errors.map((errorText) => (<any>req).__(errorText));
+    //         });
+    //     }
 
-//         return this;
-//     }
-// }
-
-// // export interface IMutationResult {
-// //     errors?: IErrorDetails[];
-// //     success: boolean;
-// // }
+    //     return this;
+    // }
+}

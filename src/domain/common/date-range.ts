@@ -1,5 +1,5 @@
 import * as moment from 'moment';
-import * as _ from 'lodash';
+import { isEmpty } from 'lodash';
 
 /**
  * TODO:
@@ -430,7 +430,7 @@ export function getComparisonDateRanges(dateRange: IChartDateRange[], comparison
     if (!dateRange || !comparisonOptions) return [];
 
     return comparisonOptions.map(c => {
-         if (_.isEmpty(c)) return;
+         if (isEmpty(c)) return;
          return parseComparisonDateRange(processChartDateRange(dateRange[0]), c);
     });
 }

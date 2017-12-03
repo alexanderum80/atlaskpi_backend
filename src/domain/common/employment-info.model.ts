@@ -12,10 +12,10 @@ export interface IEmploymentInfo {
 export const EmploymentInfo = {
     location: {type: String},
     bussinessUnit: {type: String},
-    department:{type: String},
+    department: {type: String},
     position: {type: String},
     startDate: {type: Date},
     typeOfEmployment: {type: String},
     frequency: {type: String},
     rate: {type: String},
-}
+};

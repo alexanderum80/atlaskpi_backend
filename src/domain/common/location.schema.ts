@@ -10,5 +10,4 @@ export function getLocationSchema() {
         state: String,
         zip: String,
     });
-    
 }
