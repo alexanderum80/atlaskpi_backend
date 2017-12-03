@@ -1,5 +1,4 @@
-import { IAppConfig } from './configuration';
-import { emailServiceConfig, usersServiceConfig, appServicesConfig } from './configuration';
+import { IAppConfig, emailServiceConfig, usersServiceConfig, appServicesConfig } from './';
 
 /*
 
