@@ -1,14 +1,14 @@
-import { ICountryModel } from './ICountry';
 import * as mongoose from 'mongoose';
 
+export interface ICountry {
+    name: string;
+    continent: string;
+}
 
-const countrySchema = new mongoose.Schema({
-    _id: String,
-    name: String,
-    continent: String
-});
+export interface ICountryDocument extends ICountry, mongoose.Document {
 
+}
 
-export function getCountryModel(): ICountryModel {
-    return <ICountryModel>mongoose.model('Country', countrySchema);
+export interface ICountryModel extends mongoose.Model<ICountryDocument> {
+
 }

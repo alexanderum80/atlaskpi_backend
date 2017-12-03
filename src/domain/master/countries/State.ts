@@ -1,15 +1,15 @@
-import { IStateModel } from './';
 import * as mongoose from 'mongoose';
 
+export interface IState {
+    country: string;
+    name: string;
+    code: string;
+}
 
-const stateSchema = new mongoose.Schema({
-    _id: String,
-    country: String,
-    name: String,
-    code: String
-});
+export interface IStateDocument extends IState, mongoose.Document {
 
+}
 
-export function getStateModel(): IStateModel {
-    return <IStateModel>mongoose.model('State', stateSchema);
+export interface IStateModel extends mongoose.Model<IStateDocument> {
+
 }
