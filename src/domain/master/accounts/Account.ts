@@ -1,8 +1,10 @@
-import { IMutationResponse, IUserToken } from '../../common';
-import { IBusinessUnit } from '../../app/business-units/IBusinessUnit';
+import { IMongoDBAtlasCredentials } from '../../../configuration/config-models';
 import { IIndustry, ISubIndustry } from '../industries';
 import mongoose = require('mongoose');
 import * as Promise from 'bluebird';
+import { IBusinessUnit, IUserToken } from '../../app';
+import { IMutationResponse } from '../../../framework';
+import { AccountsService } from '../../../services';
 
 export interface IParticularDBUserRole {
     databaseName: string;
@@ -53,17 +55,11 @@ export interface IAccount {
 // declare interface to mix account and mongo docuemnt properties/methods
 export interface IAccountDocument extends IAccount, mongoose.Document {
     getConnectionString(): string;
-    getMasterConnectionString(): string;
-    createAccountDbUser(particularUser: IAccountDBUser): Promise<boolean>;
+    getMasterConnectionString(masterDbUriFormat: string): string;
+    createAccountDbUser(particularUser: IAccountDBUser, atlasCredentials: IMongoDBAtlasCredentials): Promise<boolean>;
 }
 
 export interface IAccountModel extends mongoose.Model<IAccountDocument> {
-     /**
-     * Creates an account.
-     * @param {IAccount} account - an object with the details of the account
-     * @returns {Promise<IMutationResponse>}
-     */
-     createNewAccount(ip: string, clientId: string, clientDetails: string, account: IAccount): Promise<IMutationResponse>;
      /**
      * Search an account by the hostname
      * @param {String} username - the account owner username

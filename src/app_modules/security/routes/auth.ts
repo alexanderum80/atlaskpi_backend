@@ -1,24 +1,32 @@
-import { getRequestHostname } from '../lib/utils/helpers';
+import { BRIDGE } from '../../../framework/decorators';
 import * as url from 'url';
 import * as express from 'express';
 import { Request, Response } from 'express';
-import { AuthController } from '../controllers';
-import { ExtendedRequest } from '../middlewares';
-import { config } from '../config';
+import { getRequestHostname } from '../../../helpers/index';
+import { ExtendedRequest } from '../../../middlewares';
+import { AuthService, IUserAuthenticationData } from '../../../services/auth.service';
 
 const auth = express.Router();
 
 auth.post('/token', function authenticate(req: ExtendedRequest, res: Response) {
     let hostname = getRequestHostname(req);
-    let authManager = new AuthController(req.masterContext.Account, req.appContext);
     let ip = (req.headers['x-forwarded-for'] || req.connection.remoteAddress) as string;
 
-    authManager.authenticateUser(hostname, req.body.username, req.body.password, ip,
-        req.headers['user-agent'] as string, req.headers['client-details'] as string)
+    const authService = BRIDGE.container.get<AuthService>('AuthService');
+    const input: IUserAuthenticationData = {
+        hostname: hostname,
+        username: req.body.username,
+        password: req.body.password,
+        ip: ip,
+        clientId: req.headers['user-agent'] as string,
+        clientDetails: req.headers['client-details'] as string
+    };
+
+    authService.authenticateUser(input)
         .then((tokenInfo) => {
             res.status(200).json(tokenInfo);
         }, (err) => {
-            res.status(err.status || 401).json({ error: err.message });
+            res.status(err.status || 401).json({ error: err });
         });
 });
 
