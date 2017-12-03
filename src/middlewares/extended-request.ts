@@ -1,6 +1,6 @@
 import { Request } from 'Express';
 import * as mongoose from 'mongoose';
-import { IIdentity } from '../domain/index';
+import { IIdentity } from '../domain/app/security/users/identity';
 
 /**
  * Extension of the express request object
