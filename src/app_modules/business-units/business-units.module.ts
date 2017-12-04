@@ -1,17 +1,6 @@
 import {
-    IModule,
-    AppModule
+    AppModule, ModuleBase
 } from '../../framework';
-import {
-    businessUnitsGql
-} from './business-units.gql';
-import {
-    businessUnitByIdActivity,
-    createBusinessUnitActivity,
-    deleteBusinessUnitActivity,
-    listBusinessUnitsActivity,
-    updateBusinessUnitActivity,
-} from './activities';
 import {
     CreateBusinessUnitMutation,
     DeleteBusinessUnitMutation,
@@ -23,25 +12,14 @@ import {
 } from './queries';
 
 @AppModule({
-    declarations: [
-        // graphql
-        businessUnitsGql,
-        // activities
-        businessUnitByIdActivity,
-        createBusinessUnitActivity,
-        deleteBusinessUnitActivity,
-        listBusinessUnitsActivity,
-        updateBusinessUnitActivity,
-        // mutations
+    mutations: [
         CreateBusinessUnitMutation,
         DeleteBusinessUnitMutation,
-        UpdateBusinessUnitMutation,
-        // queries
+        UpdateBusinessUnitMutation
+    ],
+    queries: [
         BusinessUnitByIdQuery,
         BusinessUnitsQuery
-    ],
-    exports: [
-        businessUnitsGql
     ]
 })
-export class BusinessUnitsModule {}
+export class BusinessUnitModule extends ModuleBase { }

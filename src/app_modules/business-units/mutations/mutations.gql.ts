@@ -2,7 +2,7 @@ import { resolver } from '../../../framework/decorators/resolver.decorator';
 import { IAppModule, ModuleBase } from '../../../framework/decorators/app-module';
 import { IAppConfig } from '../../../configuration/config-models';
 import * as Promise from 'bluebird';
-import { type, field, input, mutation, query, GraphQLTypesMap, IActivity, Module, IQuery, QueryBase, MutationBase } from './../../../framework';
+import { type, field, input, mutation, query, GraphQLTypesMap, IActivity, AppModule, IQuery, QueryBase, MutationBase } from './../../../framework';
 import { inject } from 'inversify';
 import { Container } from 'inversify';
 import { injectable } from 'inversify';
@@ -85,7 +85,7 @@ export class GetBusinessUnitQuery extends QueryBase<BusinessUnit> {
 
 }
 
-@Module({
+@AppModule({
     queries: [GetBusinessUnitQuery],
     mutations: [CreateBusinessUnitMutation]
 })
@@ -98,7 +98,7 @@ export class BusinessUnitModule extends ModuleBase {
 }
 
 
-@Module({
+@AppModule({
     imports: [BusinessUnitModule]
 })
 export class AtlasApp extends ModuleBase { }
