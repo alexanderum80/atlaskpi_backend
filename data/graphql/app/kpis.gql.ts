@@ -1,3 +1,4 @@
+import { GetKpisCriteriaQuery } from '../../queries/app/kpis/get-kpi-criteria.query';
 import { KPIExpressionHelper } from '../../models/app/kpis/kpi-expression.helper';
 import { KPIFilterHelper } from './../../models/app/kpis/kpi-filter.helper';
 import { KPIGroupingsHelper } from '../../models/app/kpis/kpi-groupings.helper';
@@ -33,6 +34,7 @@ export const kpisGql: GraphqlDefinition = {
                 type: String
                 expression: String
                 filter: String
+                control: String
             },
             type KPIMutationResponse {
                 entity: KPI
@@ -65,11 +67,16 @@ export const kpisGql: GraphqlDefinition = {
                 pagination: PaginationInfo
                 data: [KPI]
             }
+            type KPICriteriaResult {
+                criteriaValue: [String]
+                errors: [ErrorDetails]
+            }
         `,
         queries: `
             kpis: [KPI]
             getAllKPIs(details: PaginationDetails): KPIPagedQueryResult
             kpi(id: String): KPI
+            kpiCriteria(kpi: String, field: String): KPICriteriaResult
         `,
         mutations: `
             createKPI(input: KPIAttributesInput): KPIMutationResponse
@@ -91,6 +98,11 @@ export const kpisGql: GraphqlDefinition = {
             kpi(root: any, args, ctx: IGraphqlContext) {
                 let query = new GetKpiQuery(ctx.req.identity, ctx.req.appContext.KPI);
                 return ctx.queryBus.run('get-kpi', query, args, ctx.req);
+            },
+            kpiCriteria(root: any, args, ctx: IGraphqlContext) {
+                let query = new GetKpisCriteriaQuery(ctx.req.identity, ctx.req.appContext.Sale,
+                                                    ctx.req.appContext.Expense, ctx.req.appContext.User);
+                return ctx.queryBus.run('get-kpi-criteria', query, args, ctx.req);
             }
          },
         Mutation: {

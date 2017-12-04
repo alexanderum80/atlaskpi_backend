@@ -3,6 +3,7 @@ import { SaleSchema } from '../../../models/app/sales';
 import { ExpenseSchema } from '../../../models/app/expenses';
 import { KPITypeMap, KPITypeEnum, getKPITypePropName, IKPISimpleDefinition, IKPIFilter } from './IKPI';
 import * as _ from 'lodash';
+import { isArrayObject } from '../../../../lib/utils/helpers';
 
 const Schemas = [
       SaleSchema,
@@ -64,7 +65,9 @@ export class KPIFilterHelper {
             return KPIFilterHelper._serializeFilter({ $and: mongoDbFilterArray.map(f => KPIFilterHelper._serializeFilter(f)) });
         } else {
             // single filter
-            return KPIFilterHelper._serializeFilter(mongoDbFilterArray[0]);
+            const sFilter = KPIFilterHelper._serializeFilter(mongoDbFilterArray[0]);
+            return sFilter;
+            // return KPIFilterHelper._serializeFilter(mongoDbFilterArray[0]);
         }
     }
 
@@ -101,13 +104,16 @@ export class KPIFilterHelper {
 
             if (!_.isArray(value) && _.isObject(value)) {
                 value = KPIFilterHelper._serializer(value, operation);
-            } else if (_.isArray(value)) {
+            } else if (isArrayObject(value)) {
                 for (let i = 0; i < value.length; i++) {
                     value[i] = this._serializer(value[i], operation);
                 }
             }
 
             newFilter[newKey] = value;
+            if (filter.control) {
+                newFilter['control'] = filter.control;
+            }
         });
         return newFilter;
     }
@@ -130,6 +136,7 @@ export class KPIFilterHelper {
         let filter = {};
         filter[f.field] = {};
         filter[f.field]['$' + f.operator] = KPIFilterHelper._operatorValuePairIntent(f, fieldSet);
+        filter['control'] = f.control;
         return filter;
     }
 

@@ -1,4 +1,4 @@
-import { isRexExp } from '../../../../lib/utils/helpers';
+import { isRexExp, isArrayObject } from '../../../../lib/utils/helpers';
 import { IKPI } from '../../../models/app/kpis';
 import { IAppModels } from './../../../models/app/app-models';
 import { KPITypeEnum, IKPISimpleDefinition, IKPIDocument } from './../../../models/app/kpis/IKPI';
@@ -146,7 +146,7 @@ export class SimpleKPI extends KpiBase implements IKpiBase {
 
             if (!_.isArray(value) && (!isRexExp(value))  && _.isObject(value)) {
                 value = this._filterWithNoAggField(value, fieldName);
-            } else if (_.isArray(value)) {
+            } else if (isArrayObject(value)) {
                 for (let i = 0; i < value.length; i++) {
                     value[i] = this._filterWithNoAggField(value[i], fieldName);
                 }

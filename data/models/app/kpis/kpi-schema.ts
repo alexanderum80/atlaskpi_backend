@@ -41,7 +41,7 @@ let KPISchema = new Schema({
     axisSelection: String,
     emptyValueReplacement: String,
     expression: String,
-    type: String,
+    type: String
 });
 
 function hasCriteria(filter: any) {
