@@ -47,7 +47,7 @@ export interface IModuleOptions {
     mutations ? : Array < new(...args) => IMutation < any >> ;
 }
 
-export function Module(options: IModuleOptions) {
+export function AppModule(options: IModuleOptions) {
     return function(target) {
         // save a reference to the original constructor
         const original = target;
