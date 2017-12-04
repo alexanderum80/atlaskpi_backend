@@ -25,12 +25,16 @@ ConnectorSchema.statics.addConnector = function(data: IConnector): Promise<IConn
         }, (err, doc) => {
             if (err) {
                 reject({ message: 'unknown error', error: err });
+                return;
             }
             if (doc) {
                 that.update({
                     [findOneKey.key]: findOneKey.value
                 }, data)
-                .then(updateResp => resolve(updateResp))
+                .then(updateResp => {
+                    resolve(updateResp);
+                    return;
+                })
                 .catch(updateErr => reject(updateErr));
                 return;
             }
@@ -40,6 +44,7 @@ ConnectorSchema.statics.addConnector = function(data: IConnector): Promise<IConn
                     return;
                 }
                 resolve(connector);
+                return;
             });
         });
     });
