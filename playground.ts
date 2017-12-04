@@ -318,7 +318,7 @@ function createIntegration(ctx: IMasterModels) {
 
 
 
-    ctx.Connector.create(instagramConnector, (err, connector) => {
+    ctx.Connector.create(qbConnector, (err, connector) => {
         if (err) {
             console.log(err);
             return;

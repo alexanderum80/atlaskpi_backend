@@ -30,7 +30,7 @@ export class IntegrationConnectorFactory {
             case ConnectorTypeEnum.Square:
                 return IntegrationConnectorFactory.getSquareConnector(integrationConfig, connector);
             case ConnectorTypeEnum.Instagram:
-                return IntegrationConnectorFactory.getSquareConnector(integrationConfig, connector);
+                return IntegrationConnectorFactory.getInstagramConnector(integrationConfig, connector);
             default:
                 return null;
         }
