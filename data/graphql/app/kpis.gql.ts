@@ -34,7 +34,6 @@ export const kpisGql: GraphqlDefinition = {
                 type: String
                 expression: String
                 filter: String
-                control: String
             },
             type KPIMutationResponse {
                 entity: KPI
@@ -101,7 +100,7 @@ export const kpisGql: GraphqlDefinition = {
             },
             kpiCriteria(root: any, args, ctx: IGraphqlContext) {
                 let query = new GetKpisCriteriaQuery(ctx.req.identity, ctx.req.appContext.Sale,
-                                                    ctx.req.appContext.Expense, ctx.req.appContext.User);
+                                                    ctx.req.appContext.Expense);
                 return ctx.queryBus.run('get-kpi-criteria', query, args, ctx.req);
             }
          },
