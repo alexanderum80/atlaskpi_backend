@@ -9,19 +9,16 @@ import { SlideshowByIdActivity } from '../activities';
 
 @injectable()
 @query({
-    name: 'slideshowById',
+    name: 'slideshows',
     activity: SlideshowByIdActivity,
-    parameters: [
-        { name: '_id', type: String, required: true },
-    ],
-    output: { type: Slideshow }
+    output: { type: Slideshow, isArray: true }
 })
-export class SlideshowByIdQuery extends QueryBase<ISlideshowDocument> {
+export class SlideshowsQuery extends QueryBase<ISlideshowDocument[]> {
     constructor(@inject('Slideshows') private _slideshows: Slideshows) {
         super();
     }
 
-    run(data: { _id: string }): Promise<ISlideshowDocument> {
-        return this._slideshows.model.slideshowById(data._id);
+    run(data: { _id: string }): Promise<ISlideshowDocument[]> {
+        return this._slideshows.model.slideshows();
     }
 }

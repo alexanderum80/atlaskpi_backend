@@ -1,27 +1,36 @@
-import { ISlideshowModel } from '../../../models/app/slideshow/ISlideshow';
-import { MutationBase } from '../../mutation-base';
-import { IIdentity, IMutationResponse } from '../../..';
-import { IMutation, IValidationResult } from '../..';
+import { ISlideshowInput } from '../../../domain/app/slideshow';
 import * as Promise from 'bluebird';
-import * as logger from 'winston';
+import { inject, injectable } from 'inversify';
 
+import { Slideshows } from '../../../domain';
+import { IMutationResponse, mutation, MutationBase } from '../../../framework';
+import { CreateSlideshowActivity } from '../activities';
+import { SlideshowResponse, SlideshowInput } from '../slideshows.types';
+
+@injectable()
+@mutation({
+    name: 'createSlideshow',
+    activity: CreateSlideshowActivity,
+    parameters: [
+        { name: 'input', type: SlideshowInput, required: true },
+    ],
+    output: { type: SlideshowResponse }
+})
 export class CreateSlideshowMutation extends MutationBase<IMutationResponse> {
-    constructor(
-        public identity: IIdentity,
-        private _SlideshowModel: ISlideshowModel) {
-            super(identity);
-        }
+    constructor(@inject('Slideshows') private _slideshows: Slideshows) {
+        super();
+    }
 
-    run(data): Promise<IMutationResponse> {
+    run(data: { input: ISlideshowInput }): Promise<IMutationResponse> {
         const that = this;
 
         return new Promise<IMutationResponse>((resolve, reject) => {
-           that._SlideshowModel.createSlideshow(data.input).then(slideshow => {
+            that._slideshows.model.createSlideshow(data.input).then(slideshow => {
                 resolve({
                     success: true,
                     entity: slideshow
                 });
-           }).catch(err => {
+            }).catch(err => {
                 resolve({
                     success: false,
                     errors: [
@@ -31,7 +40,7 @@ export class CreateSlideshowMutation extends MutationBase<IMutationResponse> {
                         }
                     ]
                 });
-           });
+            });
         });
     }
 }
