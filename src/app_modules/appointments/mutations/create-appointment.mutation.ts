@@ -1,28 +1,36 @@
-import { IAppointment, IAppointmentModel } from '../../../models/app/appointments/IAppointment';
-import { MutationBase } from '../../mutation-base';
-import { IIdentity, IMutationResponse } from '../../..';
-import { IMutation, IValidationResult } from '../..';
+import { Appointments } from '../../../domain/app/appointments';
+import { MutationBase } from '../../../framework/mutations';
+import { AppointmentInput, AppointmentMutationResponse } from '../appointments.types';
+import { CreateAppointmentActivity } from '../activities';
+import { mutation } from '../../../framework';
+import { injectable, inject } from 'inversify';
 import * as Promise from 'bluebird';
-import * as logger from 'winston';
 
-export class CreateAppointmentMutation extends MutationBase<IMutationResponse> {
-    constructor(
-        public identity: IIdentity,
-        private _AppointmentModel: IAppointmentModel) {
-            super(identity);
-        }
+@injectable()
+@mutation({
+    name: 'createAppointment',
+    activity: CreateAppointmentActivity,
+    parameters: [
+        { name: 'input', type: AppointmentInput },
+    ],
+    output: { type: AppointmentMutationResponse }
+})
+export class CreateAppointmentMutation extends MutationBase<AppointmentMutationResponse> {
+    constructor(@inject('Appointments') private _appointments: Appointments) {
+        super();
+    }
 
-    run(data: { input: IAppointment }): Promise<IMutationResponse> {
+    run(data: any): Promise<AppointmentMutationResponse> {
         const that = this;
 
-        return new Promise<IMutationResponse>((resolve, reject) => {
-           that._AppointmentModel.createNew(data.input).then(appointment => {
+        return new Promise<AppointmentMutationResponse>((resolve, reject) => {
+            that._appointments.model.createNew(data.input).then(appointment => {
                 resolve({
                     success: true,
-                    entity: appointment
+                    entity: appointment as any
                 });
                 return;
-           }).catch(err => {
+            }).catch(err => {
                 resolve({
                     success: false,
                     errors: [
@@ -33,7 +41,7 @@ export class CreateAppointmentMutation extends MutationBase<IMutationResponse> {
                     ]
                 });
                 return;
-           });
+            });
         });
     }
 }
