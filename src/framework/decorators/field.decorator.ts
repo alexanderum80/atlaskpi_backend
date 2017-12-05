@@ -3,6 +3,7 @@ import { MetadataFieldsMap } from './metadata-fields.map';
 export interface GraphQLFieldDecoratorOptions {
     type: any;
     name?: string;
+    isArray?: boolean;
     required?: boolean;
 }
 
