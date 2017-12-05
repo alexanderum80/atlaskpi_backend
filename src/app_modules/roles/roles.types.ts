@@ -1,46 +1,57 @@
 
-    import { input, type, field, GraphQLTypesMap } from '../../framework';
+import { input, type, field, GraphQLTypesMap } from '../../framework';
 
-    
-    @input()
-    export class RoleDetailsInput  {
-        @field({ type: GraphQLTypesMap.String })
-        name: string;
+@type()
+export class Role  {
+    @field({ type: GraphQLTypesMap.String })
+    _id: string;
 
-        @field({ type: GraphQLTypesMap.String, isArray: true })
-        permissions: string[];
+    @field({ type: GraphQLTypesMap.String })
+    name: string;
 
-    }
-    
+    @field({ type: Permission, isArray: true })
+    permissions: Permission[];
 
-    @type()
-    export class RoleList  {
-        @field({ type: GraphQLTypesMap.String })
-        _id: string;
+}
 
-        @field({ type: GraphQLTypesMap.String })
-        name: string;
+@input()
+export class RoleDetailsInput  {
+    @field({ type: GraphQLTypesMap.String })
+    name: string;
 
-        @field({ type: GraphQLTypesMap.String, isArray: true })
-        permissions: string[];
+    @field({ type: GraphQLTypesMap.String, isArray: true })
+    permissions: string[];
 
-        @field({ type: GraphQLTypesMap.String })
-        timestamp: string;
+}
 
-    }
-    
 
-    @type()
-    export class RoleResult  {
-        @field({ type: GraphQLTypesMap.Boolean })
-        success: boolean;
+@type()
+export class RoleList  {
+    @field({ type: GraphQLTypesMap.String })
+    _id: string;
 
-        @field({ type: User, isArray: true })
-        entity: User[];
+    @field({ type: GraphQLTypesMap.String })
+    name: string;
 
-        @field({ type: ErrorDetails, isArray: true })
-        errors: ErrorDetails[];
+    @field({ type: GraphQLTypesMap.String, isArray: true })
+    permissions: string[];
 
-    }
-    
-    
+    @field({ type: GraphQLTypesMap.String })
+    timestamp: string;
+
+}
+
+
+@type()
+export class RoleResult  {
+    @field({ type: GraphQLTypesMap.Boolean })
+    success: boolean;
+
+    @field({ type: User, isArray: true })
+    entity: User[];
+
+    @field({ type: ErrorDetails, isArray: true })
+    errors: ErrorDetails[];
+
+}
+

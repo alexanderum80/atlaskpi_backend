@@ -1,18 +1,29 @@
-import { MutationResponse } from '../../../models/common';
-import { IMutationResponse } from '../../../models/common';
-import { IMutation } from '../..';
-import { IRoleModel } from '../../../../lib/rbac/models';
-import { IAppModels } from '../../../models/app/app-models';
+import { IRoleCustom } from '../../../domain/app/security/roles';
+
+import { injectable, inject } from 'inversify';
 import * as Promise from 'bluebird';
-import { IIdentity } from '../../..';
+import { IMutationResponse, MutationBase, mutation } from '../../../framework';
+import { Roles } from '../../../domain';
+import { RoleDetailsInput, Role } from '../roles.types';
+import { CreateRoleActivity } from '../activities';
 
-export class CreateRoleMutation implements IMutation<IMutationResponse> {
-    constructor(public identity: IIdentity,
-                private _IRoleModel: IRoleModel) { }
+@injectable()
+@mutation({
+    name: 'createRole',
+    activity: CreateRoleActivity,
+    parameters: [
+        { name: 'data', type: RoleDetailsInput },
+    ],
+    output: { type: Role }
+})
+export class CreateRoleMutation extends MutationBase<IMutationResponse> {
+    constructor(@inject('Roles') private _roles: Roles) {
+        super();
+    }
 
-    run(data: any): Promise<IMutationResponse> {
+    run(data: { data: IRoleCustom  }): Promise<IMutationResponse> {
         return new Promise<IMutationResponse>((resolve, reject) => {
-            return this._IRoleModel.createRole(data.data).then((response) => {
+            return this._roles.model.createRole(data.data).then((response) => {
                 return resolve({success: true, entity: response });
             }).catch((err) => {
                 return resolve({ success: false, errors: [ { field: 'role', errors: [err] } ]});

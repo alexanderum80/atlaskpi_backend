@@ -6,7 +6,7 @@ import {
 import mongoose = require('mongoose');
 import * as Promise from 'bluebird';
 import * as nodemailer from 'nodemailer';
-import { IRoleDocument } from '../roles';
+import { IRoleDocument, IRole } from '../roles';
 import { IUserToken, ICreateUserDetails, IMutationResponse, IRoleList, IPaginationDetails, IPagedQueryResult } from '../../../index';
 import { IEmailNotifier } from '../../../../services/index';
 import { IIdentity } from './identity';
@@ -84,7 +84,7 @@ export interface IUser {
     emails: IUserEmail[];
     services?: IUserServices;
     profile: IUserProfile;
-    roles?: IRoleDocument[];
+    roles?: IRole[];
     tokens?: ITokenInfo[];
     mobileDevices?: IMobileDevice[];
 }

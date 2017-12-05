@@ -4,3 +4,5 @@ export * from './accounts.service';
 export * from './seed.service';
 export * from './widgets.service';
 export * from './target.service';
+export * from './security.service';
+

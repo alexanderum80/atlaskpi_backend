@@ -1,18 +1,26 @@
-import { IUserModel } from '../../../models/app/users';
-import { IMutationResponse } from '../../../models/common';
-import { IMutation } from '../..';
-import { IRoleModel } from '../../../../lib/rbac/models';
-import { IAppModels } from '../../../models/app/app-models';
+
+import { injectable, inject } from 'inversify';
 import * as Promise from 'bluebird';
-import { IIdentity } from '../../..';
+import { IMutationResponse, MutationBase, mutation } from '../../../framework';
+import { Roles } from '../../../domain';
+import { RoleResult } from '../roles.types';
+import { RemoveRoleActivity } from '../activities';
 
-export class RemoveRoleMutation implements IMutation<IMutationResponse> {
-    constructor(public identity: IIdentity,
-                private _RoleModel: IRoleModel,
-                private _UserModel: any) {}
+@injectable()
+@mutation({
+    name: 'removeRole',
+    activity: RemoveRoleActivity,
+    parameters: [
+        { name: 'id', type: String },
+    ],
+    output: { type: RoleResult }
+})
+export class RemoveRoleMutation extends MutationBase<IMutationResponse> {
+    constructor(@inject('Roles') private _roles: Roles) {
+        super();
+    }
 
-    run(data: any): Promise<IMutationResponse> {
-
+    run(data: { id: string }): Promise<IMutationResponse> {
         return new Promise<IMutationResponse>((resolve, reject) => {
             let promises = [];
             let d = this._UserModel.find({ roles: { $in: [data.id] } })
@@ -23,13 +31,12 @@ export class RemoveRoleMutation implements IMutation<IMutationResponse> {
             promises.push(d);
 
             return Promise.all(promises).then((roleExist) => {
-                return this._RoleModel.removeRole(data.id, roleExist[0]).then((r) => {
+                return this.roles.model.removeRole(data.id, roleExist[0]).then((r) => {
                     return resolve({ success: true, entity: r});
                 }).catch((err) => {
                     return resolve({ success: false, entity: err.entity, errors: [ { field: 'role', errors: [err.errors[0]] } ]});
                 });
             });
         });
-
     }
 }

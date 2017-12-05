@@ -1,4 +1,4 @@
-import { GetRolesQuery } from './queries';
+import { FindAllRolesQuery } from './queries/find-all-roles.query';
 import { CreateRoleMutation, RemoveRoleMutation, UpdateRoleMutation } from './mutations';
 import {
     AppModule, ModuleBase
@@ -11,7 +11,7 @@ import {
         UpdateRoleMutation
     ],
     queries: [
-        GetRolesQuery
+        FindAllRolesQuery
     ]
 })
 export class Module extends ModuleBase { }

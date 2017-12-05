@@ -1,10 +1,16 @@
-import { BasicRoleChecker } from '../basic-role-checker';
-import { ExtendedRequest } from '../../../middlewares/extended-request';
-import { IActivity } from '../../../lib/enforcer';
+import { BasicRoleChecker } from '../../../services';
+import { IUserDocument, Users } from '../../../domain/app/security/users';
+import { IActivity } from '../../../framework';
+import * as Promise from 'bluebird';
+import { injectable, inject } from 'inversify';
 
-export const createRoleActivity: IActivity = {
-    may: 'create-role',
-    when(request: ExtendedRequest, cb: (err: any, authorized: boolean) => void) {
-        cb(null, BasicRoleChecker.hasPermission(request.user, 'Manage Access Levels', 'Users'));
+@injectable()
+export class CreateRoleActivity implements IActivity {
+
+    constructor(@inject('CurrentUser') private _currentUser: IUserDocument) {}
+
+    check(): Promise<boolean> {
+        BasicRoleChecker.hasPermission(this._currentUser, 'Manage Access Levels', 'Users');
+        return Promise.resolve(true);
     }
-};
+}
