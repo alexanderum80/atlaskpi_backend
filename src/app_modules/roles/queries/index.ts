@@ -1,1 +1,1 @@
-export * from './get-roles.query';
+export * from './find-all-roles.query';

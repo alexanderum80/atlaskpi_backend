@@ -1,14 +1,21 @@
-import { BasicRoleChecker } from '../basic-role-checker';
-import { ExtendedRequest } from '../../../middlewares/extended-request';
-import { IActivity } from '../../../lib/enforcer';
+import { Users } from '../../../domain/app/security/users';
+import { IActivity } from '../../../framework';
+import * as Promise from 'bluebird';
+import { injectable, inject } from 'inversify';
 
-export const removeRoleActivity: IActivity = {
-    may: 'remove-role',
-    when(request: ExtendedRequest, cb: (err: any, authorized: boolean) => void) {
-        const findAdmin = request.user.roles.find(role => {
-            return (role.name === 'admin') && (role._id.toString() === request.body.variables.id);
-        });
-        const isAdmin = findAdmin === undefined ? BasicRoleChecker.hasPermission(request.user, 'Manage Access Levels', 'Users') : false;
-        cb(null, isAdmin);
+@injectable()
+export class RemoveRoleActivity implements IActivity {
+
+    constructor(@inject('Users') private _users: Users) {}
+
+    check(): Promise<boolean> {
+        // TODO: Refactor
+        // const findAdmin = request.user.roles.find(role => {
+        //     return (role.name === 'admin') && (role._id.toString() === request.body.variables.id);
+        // });
+        // const isAdmin = findAdmin === undefined ? BasicRoleChecker.hasPermission(request.user, 'Manage Access Levels', 'Users') : false;
+        // cb(null, isAdmin);
+
+        return Promise.resolve(true);
     }
-};
+}
