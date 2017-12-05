@@ -1,6 +1,5 @@
 import { FindAllTargetsQuery, FindTargetQuery } from './queries';
-import { RemoveTargetFromChart } from './mutations/remove-target-from-chart.mutation';
-import { CreateTargetMutation, RemoveTargetMutation, UpdateTargetMutation } from './mutations';
+import { CreateTargetMutation, RemoveTargetMutation, UpdateTargetMutation, RemoveTargetFromChartMutation } from './mutations';
 import {
     AppModule, ModuleBase
 } from '../../framework';
@@ -8,7 +7,7 @@ import {
 @AppModule({
     mutations: [
         CreateTargetMutation,
-        RemoveTargetFromChart,
+        RemoveTargetFromChartMutation,
         RemoveTargetMutation,
         UpdateTargetMutation
     ],

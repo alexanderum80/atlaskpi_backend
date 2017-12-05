@@ -1,36 +1,48 @@
-import { TargetService } from '../../../services/targets/target.service';
-import { KpiFactory } from '../../../queries/app/kpis';
-import { IDateRange } from '../../../models/common';
-import { parsePredifinedDate } from '../../../models/common';
-import { IAppModels } from '../../../models/app/app-models';
-import { ITargetModel } from '../../../models/app/targets/ITarget';
-import { IIdentity } from '../../../models/app/identity';
-import { IMutationResponse } from '../../../models/common/mutation-response';
-import { MutationBase } from '../../mutation-base';
+import { ITarget } from '../../../domain/app/targets';
+import { Charts } from '../../../domain/app/charts';
+import { Users } from '../../../domain/app/security/users';
+import { TargetService } from '../../../services/target.service';
 import * as Promise from 'bluebird';
-import * as moment from 'moment';
+import { inject, injectable } from 'inversify';
+
+import { Targets } from '../../../domain';
+import { IMutationResponse, mutation, MutationBase } from '../../../framework';
+import { CreateTargetActivity } from '../activities';
+import { TargetInput, TargetResult } from '../targets.types';
 
 
+@injectable()
+@mutation({
+    name: 'createTarget',
+    activity: CreateTargetActivity,
+    parameters: [
+        { name: 'data', type: TargetInput },
+    ],
+    output: { type: TargetResult }
+})
 export class CreateTargetMutation extends MutationBase<IMutationResponse> {
+    constructor(
+        @inject('Targets') private _targets: Targets,
+        @inject('Users') private _users: Users,
+        @inject('Charts') private _charts: Charts
+    ) {
+        super();
+    }
 
-    constructor(public identity: IIdentity,
-                private _TargetModel: ITargetModel,
-                private _ctx: IAppModels) {
-                    super(identity);
-                }
-
-    run(data: any): Promise<IMutationResponse> {
+    run(data: { data: ITarget }): Promise<IMutationResponse> {
+        // TODO: REFACTOR THIS
         const that = this;
         let mutationData = data.hasOwnProperty('data') ? data.data : data;
 
-        let targetService = new TargetService(this._ctx.User, this._TargetModel, this._ctx.Chart);
+        let targetService = new TargetService(this._users.model, this._targets.model, this._charts.model);
 
         return new Promise<IMutationResponse>((resolve, reject) => {
+            // TODO: Refactor
             targetService.caculateFormat(mutationData, this._ctx)
                 .then((dataTarget) => {
                     mutationData.target = dataTarget;
 
-                    that._TargetModel.createTarget(mutationData)
+                    that._targets.model.createTarget(mutationData)
                         .then((target) => {
                             resolve({ entity: target, success: true });
                             return;
@@ -41,5 +53,4 @@ export class CreateTargetMutation extends MutationBase<IMutationResponse> {
                 });
         });
     }
-
 }

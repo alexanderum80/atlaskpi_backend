@@ -1,18 +1,30 @@
-import { IIdentity } from '../../../models/app/identity';
-import { ITarget, ITargetDocument, ITargetModel } from '../../../models/app/targets/ITarget';
-import { QueryBase } from '../..';
+import { ITargetDocument } from '../../../domain/app/targets';
+
+import { injectable, inject } from 'inversify';
 import * as Promise from 'bluebird';
+import { QueryBase, query } from '../../../framework';
+import { Targets } from '../../../domain';
+import { TargetResponse } from '../targets.types';
+import { FindAllTargetsActivity } from '../activities';
 
+@injectable()
+@query({
+    name: 'findAllTargets',
+    activity: FindAllTargetsActivity,
+    parameters: [
+        { name: 'filter', type: String },
+    ],
+    output: { type: TargetResponse }
+})
 export class FindAllTargetsQuery extends QueryBase<ITargetDocument[]> {
-    constructor(public identity: IIdentity,
-                private _TargetModel: ITargetModel) {
-                    super(identity);
-                }
+    constructor(@inject('Targets') private _targets: Targets) {
+        super();
+    }
 
-    run(data: any): Promise<ITargetDocument[]> {
+    run(data: { filter: string,  }): Promise<ITargetDocument[]> {
         const that = this;
         return new Promise<ITargetDocument[]>((resolve, reject) => {
-            that._TargetModel.findAllTargets()
+            that._targets.model.findAllTargets()
                 .then((target) => {
                     return resolve(target);
                 }).catch((err) => {

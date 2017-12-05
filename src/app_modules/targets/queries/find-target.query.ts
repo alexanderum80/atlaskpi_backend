@@ -1,19 +1,31 @@
-import { IIdentity } from '../../../models/app/identity';
-import { ITarget, ITargetDocument, ITargetModel } from '../../../models/app/targets/ITarget';
-import { QueryBase } from '../..';
+import { ITargetDocument } from '../../../domain/app/targets';
+
+import { injectable, inject } from 'inversify';
 import * as Promise from 'bluebird';
+import { QueryBase, query } from '../../../framework';
+import { Targets } from '../../../domain';
+import { TargetResponse } from '../targets.types';
+import { FindTargetActivity } from '../activities';
 
+@injectable()
+@query({
+    name: 'findTarget',
+    activity: FindTargetActivity,
+    parameters: [
+        { name: 'id', type: String },
+    ],
+    output: { type: TargetResponse }
+})
 export class FindTargetQuery extends QueryBase<ITargetDocument> {
-    constructor(public identity: IIdentity,
-                private _TargetModel: ITargetModel) {
-                    super(identity);
-                }
+    constructor(@inject('Targets') private _targets: Targets) {
+        super();
+    }
 
-    run(data: any): Promise<ITargetDocument> {
+    run(data: { id: string }): Promise<ITargetDocument> {
         const that = this;
 
         return new Promise<ITargetDocument>((resolve, reject) => {
-            that._TargetModel.findTarget(data.id)
+            that._targets.model.findTarget(data.id)
                 .then((target) => {
                     resolve(target);
                     return;
