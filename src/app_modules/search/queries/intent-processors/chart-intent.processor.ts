@@ -33,11 +33,10 @@ export class ChartIntentProcessor {
         Grouping: 'location' } ]
         */
 
-    static run(identity: IIdentity, ctx: IAppModels, intent: any): Promise<ISearchResult[]> {
+    static run(intent: any, chartQuery: GetChartQuery): Promise<ISearchResult[]> {
         const that = this;
 
         return new Promise<ISearchResult[]>((resolve, reject) => {
-            let chartQuery = new GetChartQuery(identity, ctx);
             chartQuery.run({ chart: that._convertIntentToChart(intent) }).then((chart: string) => {
                 resolve([{
                     section: 'chart',

@@ -1,21 +1,13 @@
-import { QueryBase } from '../../query-base';
+import { GetChartQuery } from '../../charts/queries';
 import { ChartIntentProcessor } from './intent-processors';
-import { GetChartQuery } from '../charts';
-import * as _ from 'lodash';
-import { AdaptEngine, IntentsMap } from './adap-engine';
-import {
-    SearchResultItem
-} from './search-item';
-import {
-    IQuery
-} from '../..';
-import {
-    IAppModels
-} from '../../../models/app/app-models';
-import {
-    IIdentity
-} from '../../../models/app/identity';
+import { AdaptEngine, AdaptIntents, IntentsMap } from './adap-engine';
+import { ISearchResult } from './';
+
+import { injectable, inject } from 'inversify';
 import * as Promise from 'bluebird';
+import { QueryBase, query } from '../../../framework';
+import { SearchResultItem } from '../search.types';
+import { SearchActivity } from '../activities';
 
 const searchSections = [
     'dashboards',
@@ -39,21 +31,25 @@ const sectionsModelsMap = {
     'expenses': 'Expense'
 };
 
-export interface ISearchResult {
-    section: string;
-    data: SearchResultItem[] | string;
-}
+@injectable()
+@query({
+    name: 'search',
+    activity: SearchActivity,
+    parameters: [
+        { name: 'sections', type: String, required: true, isArray: true },
+        { name: 'query', type: String, required: true },
+    ],
+    output: { type: SearchResultItem, isArray: true }
+})
+export class SearchQuery extends QueryBase<ISearchResult[]> {
+    private _adaptEngine: AdaptEngine;
 
-export class SearchQuery extends QueryBase< ISearchResult[] > {
-
-    constructor(public identity: IIdentity, private _ctx: IAppModels, private _adaptEngine: AdaptEngine) {
-        super(identity);
+    constructor(@inject('GetChartQuery') private _getChartQuery: GetChartQuery) {
+        super();
+        this._adaptEngine = new AdaptEngine([AdaptIntents.Chart]);
     }
 
-    run(data: {
-        sections: string[],
-        query: string
-    }): Promise < ISearchResult[] > {
+    run(data: { sections: String, query: string,  }): Promise<ISearchResult[]> {
         const that = this;
 
         return new Promise<ISearchResult[]>((resolve, reject) => {
@@ -67,7 +63,8 @@ export class SearchQuery extends QueryBase< ISearchResult[] > {
                 if (intents && intents.length > 0) {
                     promise = that._processIntents(intents);
                 } else {
-                    promise = that._processModelsSearch(data.sections, data.query);
+                    // TODO: Pending
+                    // promise = that._processModelsSearch(data.sections, data.query);
                 }
 
                 promise.then(result => { resolve(result); }).catch(e => reject(e));
@@ -83,7 +80,7 @@ export class SearchQuery extends QueryBase< ISearchResult[] > {
 
         switch (intent.intent_type) {
             case IntentsMap.Chart:
-                return ChartIntentProcessor.run(this.identity, this._ctx, intent);
+                return ChartIntentProcessor.run(intent, this._getChartQuery);
         }
     }
 

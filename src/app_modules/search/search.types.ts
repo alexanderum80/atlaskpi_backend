@@ -1,15 +1,14 @@
 
-    import { input, type, field, GraphQLTypesMap } from '../../framework';
+import { input, type, field, GraphQLTypesMap } from '../../framework';
 
-    
-    @type()
-    export class SearchResultItem  {
-        @field({ type: GraphQLTypesMap.String })
-        section: string;
 
-        @field({ type: GraphQLTypesMap.String })
-        data: string;
+@type()
+export class SearchResultItem  {
+    @field({ type: GraphQLTypesMap.String })
+    section: string;
 
-    }
-    
-    
+    @field({ type: GraphQLTypesMap.String })
+    data: string;
+
+}
+
