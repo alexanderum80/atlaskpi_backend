@@ -111,9 +111,6 @@ export class KPIFilterHelper {
             }
 
             newFilter[newKey] = value;
-            if (filter.control) {
-                newFilter['control'] = filter.control;
-            }
         });
         return newFilter;
     }
@@ -136,7 +133,6 @@ export class KPIFilterHelper {
         let filter = {};
         filter[f.field] = {};
         filter[f.field]['$' + f.operator] = KPIFilterHelper._operatorValuePairIntent(f, fieldSet);
-        filter['control'] = f.control;
         return filter;
     }
 
@@ -155,7 +151,7 @@ export class KPIFilterHelper {
     }
 
     private static _handleAsArrayOperatorValuePairIntent(f: IKPIFilter, fieldset: any[]): any {
-        return  f.criteria.split(',')
+        return  f.criteria.split(/,[^\s]/g)
                           .map(value =>
                                KPIFilterHelper._handleAsElementOperatorValuePairIntent(value, f.field, fieldset)
         );
