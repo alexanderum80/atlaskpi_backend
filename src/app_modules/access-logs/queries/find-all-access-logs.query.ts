@@ -1,14 +1,26 @@
-import { IIdentity } from '../../../models/app/identity';
-import { IAccessLogDocument, IAccessModel } from '../../../models/app/access-log/IAccessLog';
-import { IQueryResponse } from '../../../models/common';
+import { AccessLogs, IAccessLogDocument } from '../../../domain/app/access-log';
+import { MutationBase } from '../../../framework/mutations';
+import { AccessLogResponse } from '../access-log.types';
+import { query } from '../../../framework';
+import { GetAllAccessLogsActivity } from '../activities/get-all-access-logs.activity';
 import * as Promise from 'bluebird';
-import { IQuery } from '../..';
+import { injectable, inject } from 'inversify';
 
-export class FindAllAcessLogsQuery implements IQuery<IQueryResponse<IAccessLogDocument>> {
-    constructor(public identity: IIdentity,
-                private _AccessModel: IAccessModel) { }
+@injectable()
+@query({
+    name: 'accessLogs',
+    activity: GetAllAccessLogsActivity,
+    parameters: [
+        { name: 'filter', type: String }
+    ],
+    output: { type: AccessLogResponse }
+})
+export class GetAllAccessLogsQuery extends MutationBase<IAccessLogDocument> {
+    constructor(@inject('') private _accessLogs: AccessLogs) {
+        super();
+    }
 
-    run(data: any): Promise<IQueryResponse<IAccessLogDocument>> {
-        return this._AccessModel.getAllAccessLogs(data);
+    run(data: any): Promise<IAccessLogDocument> {
+        return this._accessLogs.model.getAllAccessLogs(data);
     }
 }

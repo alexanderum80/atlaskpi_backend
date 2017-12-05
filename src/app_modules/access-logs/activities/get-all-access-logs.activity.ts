@@ -1,8 +1,15 @@
-import { ExtendedRequest } from '../../../middlewares/extended-request';
-import { IActivity } from '../../../lib/enforcer';
-export const getAllAccessLogsActivity: IActivity = {
-    may: 'get-all-access-logs',
-    when(request: ExtendedRequest, cb: (err: any, authorized) => void) {
-        cb(null, true);
+import { Users } from '../../../domain/app/security/users';
+import { IActivity } from '../../../framework';
+import * as Promise from 'bluebird';
+import { injectable, inject } from 'inversify';
+
+@injectable()
+export class GetAllAccessLogsActivity implements IActivity {
+
+    constructor(@inject('Users') private _users: Users) {}
+
+    check(): Promise<boolean> {
+        return Promise.resolve(true);
     }
-};
+
+}

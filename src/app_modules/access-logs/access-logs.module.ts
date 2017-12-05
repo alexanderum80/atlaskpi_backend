@@ -1,15 +1,12 @@
+import { GetAllAccessLogsQuery } from './queries';
 import { CreateAccessLogMutation } from './mutations';
-import { FindAllAcessLogsQuery } from './queries';
 import {
     AppModule, ModuleBase
 } from '../../framework';
 
 @AppModule({
-    mutations: [
-        CreateAccessLogMutation
-    ],
     queries: [
-        FindAllAcessLogsQuery
+        GetAllAccessLogsQuery
     ]
 })
 export class AccessLogsModule extends ModuleBase { }
