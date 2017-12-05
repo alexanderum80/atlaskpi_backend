@@ -9,8 +9,7 @@ import { flatten } from 'lodash';
 export class GetKpisCriteriaQuery extends QueryBase<any> {
     constructor(public identity: IIdentity,
                 private _saleModel: ISaleModel,
-                private _expenseModel: IExpenseModel,
-                private _userModel: IUserModel) {
+                private _expenseModel: IExpenseModel) {
         super(identity);
     }
 

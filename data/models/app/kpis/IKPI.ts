@@ -32,7 +32,6 @@ export interface IKPIFilter {
     field: string;
     operator: string;
     criteria: string;
-    control?: string;
 }
 
 export interface IKPISimpleDefinition {
