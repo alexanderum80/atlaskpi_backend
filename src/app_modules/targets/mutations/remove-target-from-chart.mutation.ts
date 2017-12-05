@@ -1,19 +1,29 @@
-import { ITargetModel } from '../../../models/app/targets/ITarget';
-import { IIdentity } from '../../../models/app/identity';
-import { IMutationResponse } from '../../../models/common/index';
-import { MutationBase } from '../../index';
+
+import { injectable, inject } from 'inversify';
 import * as Promise from 'bluebird';
+import { IMutationResponse, MutationBase, mutation } from '../../../framework';
+import { Targets } from '../../../domain';
+import { TargetRemoveResult } from '../targets.types';
+import { RemoveTargetFromChartActivity } from '../activities';
 
-export class RemoveTargetFromChart extends MutationBase<IMutationResponse> {
-    constructor(public identity: IIdentity,
-                private _TargetModel: ITargetModel) {
-                    super(identity);
-                }
+@injectable()
+@mutation({
+    name: 'removeTargetFromChart',
+    activity: RemoveTargetFromChartActivity,
+    parameters: [
+        { name: 'id', type: String },
+    ],
+    output: { type: TargetRemoveResult }
+})
+export class RemoveTargetFromChartMutation extends MutationBase<IMutationResponse> {
+    constructor(@inject('Targets') private _targets: Targets) {
+        super();
+    }
 
-    run(data: any): Promise<IMutationResponse> {
+    run(data: { id: string }): Promise<IMutationResponse> {
         const that = this;
         return new Promise<IMutationResponse>((resolve, reject) => {
-            that._TargetModel.removeTargetFromChart(data.id)
+            that._targets.model.removeTargetFromChart(data.id)
                 .then((deletedTarget) => {
                     resolve({ success: true, entity: deletedTarget});
                     return;
@@ -21,6 +31,6 @@ export class RemoveTargetFromChart extends MutationBase<IMutationResponse> {
                     resolve({ success: false, errors: [ {field: 'target', errors: [err]} ] });
                     return;
                 });
-        })
+        });
     }
 }

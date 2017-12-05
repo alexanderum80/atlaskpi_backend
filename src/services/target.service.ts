@@ -1,14 +1,18 @@
-import { getGroupingMetadata } from '../../queries/app/charts/chart-grouping-map';
-import { IAppModels } from '../../models/app/app-models';
-import { IChartModel, IGetChartInput } from '../../models/app/charts/index';
-import { KpiFactory } from '../../queries/app/kpis/index';
-import { FrequencyEnum, IChartDateRange, IDateRange, parsePredifinedDate } from '../../models/common/index';
-import { ITargetDocument, ITargetModel } from '../../models/app/targets/ITarget';
-import { IUserModel } from '../../models/app/users/index';
 import * as Promise from 'bluebird';
+import { injectable } from 'inversify';
 import * as moment from 'moment';
 
+import { IAppModels } from '../../models/app/app-models';
+import { IChartModel } from '../../models/app/charts/index';
+import { ITargetDocument, ITargetModel } from '../../models/app/targets/ITarget';
+import { IUserModel } from '../../models/app/users/index';
+import { FrequencyEnum, IDateRange, parsePredifinedDate } from '../../models/common/index';
+import { getGroupingMetadata } from '../../queries/app/charts/chart-grouping-map';
+import { KpiFactory } from '../../queries/app/kpis/index';
 
+// TODO: REFACTOR, and prepare for dependency injection
+
+@injectable()
 export class TargetService {
 
     chartInfo: any;

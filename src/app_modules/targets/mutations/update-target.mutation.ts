@@ -1,37 +1,41 @@
-import { IAppModels } from '../../../models/app/app-models';
-import { KpiFactory } from '../../../queries/app/kpis';
-import { IDateRange } from '../../../models/common';
-import { parsePredifinedDate } from '../../../models/common';
-import { IUserModel } from '../../../models/app/users';
-import { ITargetModel } from '../../../models/app/targets/ITarget';
-import { IIdentity } from '../../../models/app/identity';
-import { IMutationResponse } from '../../../models/common';
-import { MutationBase } from '../..';
+import { TargetService } from '../../../services/target.service';
+
+import { injectable, inject } from 'inversify';
 import * as Promise from 'bluebird';
-import { TargetService } from '../../../services/targets/target.service';
+import { IMutationResponse, MutationBase, mutation } from '../../../framework';
+import { Targets } from '../../../domain';
+import { TargetResult, TargetInput } from '../targets.types';
+import { UpdateTargetActivity } from '../activities';
 
+@injectable()
+@mutation({
+    name: 'updateTarget',
+    activity: UpdateTargetActivity,
+    parameters: [
+        { name: 'id', type: String },
+        { name: 'data', type: TargetInput },
+    ],
+    output: { type: TargetResult }
+})
 export class UpdateTargetMutation extends MutationBase<IMutationResponse> {
+    constructor(
+        @inject('Targets') private _targets: Targets,
+        @inject('TargetService') private _targetService: TargetService
+    ) {
+        super();
+    }
 
-    chartInfo: any;
-    isStacked: any;
-
-    constructor(public identity: IIdentity,
-                private _TargetModel: ITargetModel,
-                private _ctx: IAppModels) {
-                    super(identity);
-                }
-
-    run(data: any): Promise<IMutationResponse> {
+    run(data: { id: string, data: TargetInput,  }): Promise<IMutationResponse> {
         const that = this;
         let mutationData = data.hasOwnProperty('data') ? data.data : data;
 
-        let targetService = new TargetService(this._ctx.User, this._TargetModel, this._ctx.Chart);
         return new Promise<IMutationResponse>((resolve, reject) => {
 
-            targetService.caculateFormat(mutationData, that._ctx)
+            // TODO: Refactor!!
+            that._targetService.caculateFormat(mutationData, that._ctx)
                 .then((dataTarget) => {
                     mutationData.target = dataTarget;
-                    that._TargetModel.updateTarget(data.id, mutationData)
+                    that._targets.model.updateTarget(data.id, mutationData)
                         .then((theTarget) => {
                             resolve({ success: true, entity: theTarget });
                             return;
@@ -42,5 +46,4 @@ export class UpdateTargetMutation extends MutationBase<IMutationResponse> {
                 });
         });
     }
-
 }
