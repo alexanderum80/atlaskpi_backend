@@ -1,9 +1,14 @@
-import { ExtendedRequest } from '../../../middlewares';
-import { IActivity } from '../../../lib/enforcer';
+import { Users } from '../../../domain/app/security/users';
+import { IActivity } from '../../../framework';
+import * as Promise from 'bluebird';
+import { injectable, inject } from 'inversify';
 
-export const listBusinessUnitsActivity: IActivity = {
-    may: 'list-business-units',
-    when(identity: ExtendedRequest, cb: (err: any, authorized: boolean) => void) {
-        cb(null, true);
+@injectable()
+export class ListBusinessUnitsActivity implements IActivity {
+
+    constructor(@inject('Users') private _users: Users) {}
+
+    check(): Promise<boolean> {
+        return Promise.resolve(true);
     }
-};
+}
