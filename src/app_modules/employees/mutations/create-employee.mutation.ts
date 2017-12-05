@@ -1,28 +1,37 @@
-import { IEmployeeModel } from '../../../models/app/employees';
-import { MutationBase } from '../../mutation-base';
-import { IIdentity, IMutationResponse } from '../../..';
-import { IMutation, IValidationResult } from '../..';
+import { IEmployeeInput } from '../../../domain/app/employees';
+
+import { injectable, inject } from 'inversify';
 import * as Promise from 'bluebird';
-import * as logger from 'winston';
+import { IMutationResponse, MutationBase, mutation } from '../../../framework';
+import { Employees } from '../../../domain';
+import { CreateEmployeeResponse, EmployeeAttributesInput } from '../employees.types';
+import { CreateEmployeeActivity } from '../activities';
 
+@injectable()
+@mutation({
+    name: 'createEmployee',
+    activity: CreateEmployeeActivity,
+    parameters: [
+        { name: 'employeeAttributes', type: EmployeeAttributesInput },
+    ],
+    output: { type: CreateEmployeeResponse }
+})
 export class CreateEmployeeMutation extends MutationBase<IMutationResponse> {
-    constructor(
-        public identity: IIdentity,
-        private _EmployeeModel: IEmployeeModel) {
-            super(identity);
-        }
+    constructor(@inject('Employees') private _employees: Employees) {
+        super();
+    }
 
-    run(data): Promise<IMutationResponse> {
+    run(data: { employeeAttributes: IEmployeeInput }): Promise<IMutationResponse> {
         const that = this;
 
         return new Promise<IMutationResponse>((resolve, reject) => {
-           that._EmployeeModel.createNew(data.employeeAttributes)
-           .then(employee => {
+            that._employees.model.createNew(data.employeeAttributes)
+            .then(employee => {
                 resolve({
                     success: true,
                     entity: employee
                 });
-           }).catch(err => {
+            }).catch(err => {
                 resolve({
                     success: false,
                     errors: [
@@ -32,7 +41,7 @@ export class CreateEmployeeMutation extends MutationBase<IMutationResponse> {
                         }
                     ]
                 });
-           });
+            });
         });
     }
 }

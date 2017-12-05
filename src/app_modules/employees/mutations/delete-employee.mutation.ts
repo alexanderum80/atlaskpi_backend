@@ -1,27 +1,35 @@
-import { IEmployeeModel } from '../../../models/app/employees/IEmployee';
-import { MutationBase } from '../../mutation-base';
-import { IIdentity, IMutationResponse } from '../../..';
-import { IMutation, IValidationResult } from '../..';
+
+import { injectable, inject } from 'inversify';
 import * as Promise from 'bluebird';
-import * as logger from 'winston';
+import { IMutationResponse, MutationBase, mutation } from '../../../framework';
+import { Employees } from '../../../domain';
+import { DeleteEmployeeResponse } from '../employees.types';
+import { DeleteEmployeeActivity } from '../activities';
 
+@injectable()
+@mutation({
+    name: 'deleteEmployee',
+    activity: DeleteEmployeeActivity,
+    parameters: [
+        { name: '_id', type: String, required: true },
+    ],
+    output: { type: DeleteEmployeeResponse }
+})
 export class DeleteEmployeeMutation extends MutationBase<IMutationResponse> {
-    constructor(
-        public identity: IIdentity,
-        private _EmployeeModel: IEmployeeModel) {
-            super(identity);
-        }
+    constructor(@inject('Employees') private _employees: Employees) {
+        super();
+    }
 
-    run(data): Promise<IMutationResponse> {
+    run(data: { _id: string }): Promise<IMutationResponse> {
         const that = this;
 
         return new Promise<IMutationResponse>((resolve, reject) => {
-           that._EmployeeModel.deleteEmployee(data._id).then(employee => {
+            that._employees.model.deleteEmployee(data._id).then(employee => {
                 resolve({
                     success: employee !== null,
                     errors: employee !== null ? [] : [{ field: 'general', errors: ['Employee not found'] }]
                 });
-           }).catch(err => {
+            }).catch(err => {
                 resolve({
                     success: false,
                     errors: [
@@ -31,7 +39,7 @@ export class DeleteEmployeeMutation extends MutationBase<IMutationResponse> {
                         }
                     ]
                 });
-           });
+            });
         });
     }
 }

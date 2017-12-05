@@ -1,22 +1,29 @@
-import { QueryBase } from '../../query-base';
-import { IQueryResponse } from '../../../models/common';
-import { IAppModels } from '../../../models/app/app-models';
-import * as Promise from 'bluebird';
-import { IQuery } from '../..';
-import { IIdentity } from '../../../';
-import { IEmployeeDocument, IEmployeeModel } from '../../../models/app/employees/IEmployee';
+import { isArray } from 'util';
+import { IEmployeeDocument } from '../../../domain/app/employees';
 
-export class EmployeesQuery extends QueryBase<IEmployeeDocument[]>{
-    constructor(public identity: IIdentity,
-    private _ctx: IAppModels) {
-        super(identity);
+import { injectable, inject } from 'inversify';
+import * as Promise from 'bluebird';
+import { QueryBase, query } from '../../../framework';
+import { Employees } from '../../../domain';
+import { Employee } from '../employees.types';
+import { ListEmployeesActivity } from '../activities';
+
+@injectable()
+@query({
+    name: 'employees',
+    activity: ListEmployeesActivity,
+    output: { type: Employee, isArray: true }
+})
+export class EmployeesQuery extends QueryBase<IEmployeeDocument[]> {
+    constructor(@inject('Employees') private _employees: Employees) {
+        super();
     }
 
-    run(data: any): Promise<IEmployeeDocument[]> {
+    run(): Promise<IEmployeeDocument[]> {
         const that = this;
 
-         return new Promise<IEmployeeDocument[]>((resolve, reject) => {
-            that._ctx.EmployeeModel
+        return new Promise<IEmployeeDocument[]>((resolve, reject) => {
+            that._employees.model
             .find()
             .then(employeeDocuments => {
                 return resolve(employeeDocuments);

@@ -1,27 +1,37 @@
-import { IEmployeeModel } from '../../../models/app/employees/IEmployee';
-import { MutationBase } from '../../mutation-base';
-import { IIdentity, IMutationResponse } from '../../..';
-import { IMutation, IValidationResult } from '../..';
+import { IEmployeeInput } from '../../../domain/app/employees';
+
+import { injectable, inject } from 'inversify';
 import * as Promise from 'bluebird';
-import * as logger from 'winston';
+import { IMutationResponse, MutationBase, mutation } from '../../../framework';
+import { Employees } from '../../../domain';
+import { UpdateEmployeeResponse, EmployeeAttributesInput } from '../employees.types';
+import { UpdateEmployeeActivity } from '../activities';
 
+@injectable()
+@mutation({
+    name: 'updateEmployee',
+    activity: UpdateEmployeeActivity,
+    parameters: [
+        { name: '_id', type: String, required: true },
+        { name: 'employeeAttributes', type: EmployeeAttributesInput },
+    ],
+    output: { type: UpdateEmployeeResponse }
+})
 export class UpdateEmployeeMutation extends MutationBase<IMutationResponse> {
-    constructor(
-        public identity: IIdentity,
-        private _EmployeeModel: IEmployeeModel) {
-            super(identity);
-        }
+    constructor(@inject('Employees') private _employees: Employees) {
+        super();
+    }
 
-    run(data): Promise<IMutationResponse> {
+    run(data: { _id: string, employeeAttributes: IEmployeeInput }): Promise<IMutationResponse> {
         const that = this;
 
         return new Promise<IMutationResponse>((resolve, reject) => {
-           that._EmployeeModel.updateEmployee(data._id, data.employeeAttributes).then(employee => {
+            that._employees.model.updateEmployee(data._id, data.employeeAttributes).then(employee => {
                 resolve({
                     success: true,
                     entity: employee
                 });
-           }).catch(err => {
+            }).catch(err => {
                 resolve({
                     success: false,
                     errors: [
@@ -31,7 +41,7 @@ export class UpdateEmployeeMutation extends MutationBase<IMutationResponse> {
                         }
                     ]
                 });
-           });
+            });
         });
     }
 }

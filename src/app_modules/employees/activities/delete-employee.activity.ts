@@ -1,9 +1,14 @@
-import { ExtendedRequest } from '../../../middlewares/extended-request';
-import { IActivity } from '../../../lib/enforcer';
+import { Users } from '../../../domain/app/security/users';
+import { IActivity } from '../../../framework';
+import * as Promise from 'bluebird';
+import { injectable, inject } from 'inversify';
 
-export const deleteEmployeeActivity: IActivity = {
-    may: 'delete-employee',
-    when(identity: ExtendedRequest, cb: (err: any, authorized: boolean) => void) {
-        cb(null, true);
+@injectable()
+export class DeleteEmployeeActivity implements IActivity {
+
+    constructor(@inject('Users') private _users: Users) {}
+
+    check(): Promise<boolean> {
+        return Promise.resolve(true);
     }
-};
+}
