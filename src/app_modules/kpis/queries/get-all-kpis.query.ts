@@ -1,21 +1,26 @@
-import { QueryBase } from '../../query-base';
-import { IKPIModel, IKPI } from '../../../models/app/kpis';
+
+import { injectable, inject } from 'inversify';
 import * as Promise from 'bluebird';
-import { IQuery } from '../..';
-import { IIdentity, IUserModel, IPaginationDetails, IPagedQueryResult } from '../../../';
+import { QueryBase, query } from '../../../framework';
+import { KPIs } from '../../../domain';
+import { KPIPagedQueryResult } from '../kpis.types';
+import { GetAllKPIsActivity } from '../activities';
 
-export class GetAllKPIsQuery extends QueryBase<IPagedQueryResult<IKPI>> {
+@injectable()
+@query({
+    name: 'getAllKPIs',
+    activity: GetAllKPIsActivity,
+    parameters: [
+        { name: 'details', type: PaginationDetails },
+    ],
+    output: { type: KPIPagedQueryResult }
+})
+export class GetAllKpIsQuery extends QueryBase<KPIPagedQueryResult> {
+    constructor(@inject('Kpis') private _kpis: KPIs) {
+        super();
+    }
 
-    constructor(
-        public identity: IIdentity,
-        private _KPIModel: IKPIModel) {
-            super(identity);
-        }
-
-    // log = true;
-    // audit = true;
-
-    run(data: IPaginationDetails): Promise<IPagedQueryResult<IKPI>> {
-        return this._KPIModel.getAllKPIs(data);
+    run(data: { details: PaginationDetails,  }): Promise<KPIPagedQueryResult> {
+        return this._kpis.model.getAllKPIs(data);
     }
 }

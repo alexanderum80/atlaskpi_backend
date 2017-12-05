@@ -1,20 +1,28 @@
-import { GetKpisQuery } from './queries/get-kpis.query';
-import { GetAllKPIsQuery, GetKpiQuery } from './queries';
-import { CreateKPIMutation, RemoveKPIMutation, UpdateKPIMutation } from './mutations';
+import {
+    CreateKpiMutation,
+    RemoveKpiMutation,
+    UpdateKpiMutation
+} from './mutations';
+import {
+    GetAllKpIsQuery,
+    KpiQuery,
+    KpisQuery
+} from './queries';
+
 import {
     AppModule, ModuleBase
 } from '../../framework';
 
 @AppModule({
     mutations: [
-        CreateKPIMutation,
-        RemoveKPIMutation,
-        UpdateKPIMutation
+        CreateKpiMutation,
+        RemoveKpiMutation,
+        UpdateKpiMutation
     ],
     queries: [
-        GetAllKPIsQuery,
-        GetKpiQuery,
-        GetKpisQuery
+        GetAllKpIsQuery,
+        KpiQuery,
+        KpisQuery
     ]
 })
 export class KpisModule extends ModuleBase { }

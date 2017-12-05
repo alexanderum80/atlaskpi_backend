@@ -1,26 +1,31 @@
-import { KPIFilterHelper } from './../../../models/app/kpis/kpi-filter.helper';
-import { KPIExpressionHelper } from './../../../models/app/kpis/kpi-expression.helper';
-import { IKPI } from './../../../models/app/kpis/IKPI';
-import { MutationBase } from '../../mutation-base';
-import { IMutationResponse } from '../../../models/common';
+import { IKPI } from '../../../domain/app/kpis';
+
+import { injectable, inject } from 'inversify';
 import * as Promise from 'bluebird';
-import { IIdentity, IKPIModel } from '../../..';
-import { IMutation, IValidationResult } from '../..';
+import { IMutationResponse, MutationBase, mutation } from '../../../framework';
+import { KPIs } from '../../../domain';
+import { KPIMutationResponse, KPIAttributesInput } from '../kpis.types';
+import { UpdateKPIActivity } from '../activities';
 
-export class UpdateKPIMutation extends MutationBase<IMutationResponse> {
+@injectable()
+@mutation({
+    name: 'updateKPI',
+    activity: UpdateKPIActivity,
+    parameters: [
+        { name: 'id', type: String },
+        { name: 'input', type: KPIAttributesInput },
+    ],
+    output: { type: KPIMutationResponse }
+})
+export class UpdateKpiMutation extends MutationBase<IMutationResponse> {
+    constructor(@inject('KPIs') private _kpis: KPIs) {
+        super();
+    }
 
-    constructor(public identity: IIdentity,
-                private _KPIModel: IKPIModel) {
-                    super(identity);
-                }
-
-    // log = true;
-    // audit = true;
-
-    run(data: {id: string, input: IKPI}): Promise<IMutationResponse> {
+    run(data: { id: string, input: IKPI,  }): Promise<IMutationResponse> {
         const that = this;
         return new Promise<IMutationResponse>((resolve, reject) => {
-            that._KPIModel.updateKPI(data.id, data.input)
+            that._kpis.model.updateKPI(data.id, data.input)
             .then((kpiDocument) => {
                 resolve({entity: kpiDocument, success: true });
                 return;
