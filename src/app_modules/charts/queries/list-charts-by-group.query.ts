@@ -1,20 +1,26 @@
-import { IChartModel } from '../../../models/app/charts';
-import { QueryBase } from '../../query-base';
-import { GetChartQuery } from './get-chart.query';
-import { IAppModels } from '../../../models/app/app-models';
-import { IKPIModel, IKPI } from '../../../models/app/kpis';
-import { IChartDocument } from '../../../models/app/charts';
+
+import { injectable, inject } from 'inversify';
 import * as Promise from 'bluebird';
-import { IQuery } from '../..';
-import { IIdentity, IUserModel } from '../../../';
+import { QueryBase, query } from '../../../framework';
+import { Charts, IChartDocument } from '../../../domain';
+import { ListChartsQueryResponse } from '../charts.types';
+import { ListChartsByGroupActivity } from '../activities';
 
+@injectable()
+@query({
+    name: 'listChartsByGroup',
+    activity: ListChartsByGroupActivity,
+    parameters: [
+        { name: 'group', type: String, required: true },
+    ],
+    output: { type: ListChartsQueryResponse }
+})
+export class ListChartsByGroupQuery extends QueryBase<IChartDocument[]> {
+    constructor(@inject('Charts') private _charts: Charts) {
+        super();
+    }
 
-export class ListChartsByGroupQuery {
-   constructor(public identity: IIdentity, private _IChartModel: IChartModel) {
-   }
-
-    run(data: any): Promise<IChartDocument[]> {
-        return this._IChartModel.listChartByGroup(data.group);
+    run(data: { group: string }): Promise<IChartDocument[]> {
+        return this._charts.model.listChartByGroup(data.group);
     }
 }
-

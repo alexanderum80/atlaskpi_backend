@@ -1,32 +1,41 @@
-import { IGraphqlContext } from '../../../graphql';
-import { QueryBase } from '../../query-base';
-import { GetChartQuery } from './get-chart.query';
-import { IAppModels } from '../../../models/app/app-models';
-import { IKPIModel, IKPI } from '../../../models/app/kpis';
-import { IChart, IGetChartInput } from '../../../models/app/charts';
+import { KPIs } from '../../../domain/app/kpis';
+import { ChartQuery } from './chart.query.new';
+
+import { injectable, inject } from 'inversify';
 import * as Promise from 'bluebird';
-import { IQuery } from '../..';
-import { IIdentity, IUserModel, IPaginationDetails, IPagedQueryResult } from '../../../';
-export class PreviewChartsQuery extends QueryBase<string> {
+import { QueryBase, query } from '../../../framework';
+import { Charts } from '../../../domain';
+import { ChartAttributesInput } from '../charts.types';
+import { PreviewChartActivity } from '../activities';
 
+@injectable()
+@query({
+    name: 'previewChart',
+    activity: PreviewChartActivity,
+    parameters: [
+        { name: 'input', type: ChartAttributesInput },
+    ],
+    output: { type: String }
+})
+export class PreviewChartQuery extends QueryBase<String> {
     constructor(
-        public identity: IIdentity,
-        private _ctx: IGraphqlContext) {
-            super(identity);
-        }
+        @inject('Charts') private _charts: Charts,
+        @inject('KPIs') private _kpis: KPIs,
+        @inject('GetChartQuery') private _getChartQuery: ChartQuery) {
+        super();
+    }
 
-    run(data: { chart?: IChart, id?: string, input?: any }): Promise<string> {
+    run(data: { input: ChartAttributesInput, chart: any }): Promise<String> {
         const that = this;
-        let query = new GetChartQuery(this.identity, this._ctx.req.appContext);
 
         return new Promise<string>((resolve, reject) => {
-            return that._ctx.req.appContext.KPI.findOne({ _id: data.input.kpis[0]})
+            return that._kpis.model.findOne({ _id: data.input.kpis[0]})
             .then(kpi => {
                 // GetChartQuery is expecting a the input parameter as chart
                 data.chart = data.input;
                 data.chart.chartDefinition = JSON.parse(data.input.chartDefinition);
                 data.chart.kpis[0] = kpi;
-                return that._ctx.queryBus.run('get-chart', query, data, that._ctx.req)
+                return that._getChartQuery.run(data as any)
                 .then(result => resolve(result))
                 .catch(err => reject(err));
             })
@@ -34,4 +43,3 @@ export class PreviewChartsQuery extends QueryBase<string> {
         });
     }
 }
-
