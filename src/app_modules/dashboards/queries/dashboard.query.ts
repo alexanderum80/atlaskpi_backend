@@ -1,33 +1,42 @@
-import { stringify } from 'querystring';
-import { IUIWidget } from './../../../models/app/widgets/ui-widget-base';
-import { WidgetsService } from './../../../services/widgets/widgets.service';
-import { QueryBase } from '../../query-base';
-import { GetChartQuery } from '../charts';
-import { ChartFactory } from '../charts/charts/chart-factory';
-import { FrequencyTable } from '../../../models/common/frequency-enum';
-import { FrequencyEnum, IDateRange } from '../../../models/common';
-import { IAppModels } from '../../../models/app/app-models';
 import * as Promise from 'bluebird';
-import { IQuery } from '../..';
-import { IIdentity } from '../../../';
-import { IDashboard, IDashboardModel } from '../../../models';
-import { IUserDocument } from '../../../models/app/users/IUser';
-import * as logger from 'winston';
+import { inject, injectable } from 'inversify';
+import { Winston } from 'winston';
 
-export class GetDashboardQuery extends QueryBase<IDashboard> {
+import { Dashboards } from '../../../domain';
+import { IDashboard } from '../../../domain/app/dashboards';
+import { IUserDocument } from '../../../domain/app/security/users';
+import { IUIWidget } from '../../../domain/app/widgets/ui-widget-base';
+import { query, QueryBase } from '../../../framework';
+import { WidgetsService } from '../../../services/widgets.service';
+import { ChartQuery } from '../../charts/queries/chart.query.new';
+import { GetDashboardActivity } from '../activities';
+import { Dashboard } from '../dashboards.types';
 
-    constructor(public identity: IIdentity, private _ctx: IAppModels, private _user: IUserDocument) {
-        super(identity);
+
+@injectable()
+@query({
+    name: 'dashboard',
+    activity: GetDashboardActivity,
+    parameters: [
+        { name: 'id', type: String, required: true },
+    ],
+    output: { type: Dashboard }
+})
+export class DashboardQuery extends QueryBase<IDashboard> {
+    constructor(
+        @inject('CurrentUser') private _user: IUserDocument,
+        @inject('logger') private _logger: Winston,
+        @inject('WidgetService') private _widgetService: WidgetsService,
+        @inject('ChartQuery') private _chartQuery: ChartQuery,
+        @inject('Dashboards') private _dashboards: Dashboards) {
+        super();
     }
 
-    // log = true;
-    // audit = true;
-
-    run(data: { id: string }): Promise<IDashboard> {
+    run(data: { id: String,  }): Promise<IDashboard> {
         let that = this;
 
         if (!this._user) {
-            logger.error('No user logged in at this point, so not dashboard can be generated');
+            this._logger.error('No user logged in at this point, so not dashboard can be generated');
             return Promise.resolve(null);
         }
 
@@ -40,7 +49,7 @@ export class GetDashboardQuery extends QueryBase<IDashboard> {
         }
 
         return new Promise<IDashboard>((resolve, reject) => {
-            that._ctx.Dashboard
+            that._dashboards.model
                 .findOne(query)
                 .populate(
                     {
@@ -52,21 +61,18 @@ export class GetDashboardQuery extends QueryBase<IDashboard> {
                 .then(dashboard => {
 
                     if (!dashboard) {
-                        logger.debug('dashbord doenst exists, or not enought permissions to see it.');
+                        that._logger.debug('dashbord doenst exists, or not enought permissions to see it.');
                         reject('not found');
                         return;
                     }
 
-                    const widgetService = new WidgetsService(that._ctx);
-
                     const dashboardElementsPromises = { };
                     // process widgets
-                    dashboardElementsPromises['widgets'] = widgetService.materializeWidgetDocuments(<any>dashboard.widgets);
+                    dashboardElementsPromises['widgets'] = that._widgetService.materializeWidgetDocuments(<any>dashboard.widgets);
 
                     // process charts
                     let chartPromises = dashboard.charts.map(c => {
-                        let chartQuery = new GetChartQuery(that.identity, that._ctx, that._user);
-                        return chartQuery.run({ id: (<any>c)._id });
+                        return that._chartQuery.run({ id: (<any>c)._id } as any);
                     });
 
                     dashboardElementsPromises['charts'] = Promise.all(chartPromises);

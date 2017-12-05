@@ -1,6 +1,6 @@
+import { IChart } from '../../../domain/app/charts';
 
 
-import { IChart, IChartDocument } from '../../../models/app/charts';
 import * as _ from 'lodash';
 // export interface IGroupingMap {
 //     location: {

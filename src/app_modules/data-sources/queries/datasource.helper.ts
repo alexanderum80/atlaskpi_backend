@@ -1,8 +1,11 @@
-import { GroupingMap } from '../charts';
-import { flatten, readMongooseSchema } from '../../../../lib/utils';
-import { ExpenseSchema } from './../../../models/app/expenses/Expenses';
-import { SaleSchema } from '../../../models/app/sales';
+import { injectable } from 'inversify';
 import * as mongoose from 'mongoose';
+
+import { SaleSchema } from '../../../domain';
+import { ExpenseSchema } from '../../../domain/app/expenses';
+import { readMongooseSchema } from '../../../helpers';
+import { flatten } from '../../../helpers/object.helpers';
+import { GroupingMap } from '../../charts/queries/chart-grouping-map';
 
 export const DataSourceSchemasMapping = [
     {
@@ -27,7 +30,7 @@ interface ISchemaField {
     type: string;
 }
 
-
+@injectable()
 export class DataSourcesHelper {
     public static GetFieldsFromSchemaDefinition(schema: mongoose.Schema): ISchemaField[] {
 
