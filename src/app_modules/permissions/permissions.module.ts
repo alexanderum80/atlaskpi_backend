@@ -1,11 +1,11 @@
-import { GetPermissionsQuery } from './queries/get-permissions.query';
+import { FindAllPermissionsQuery } from './queries';
 import {
     AppModule, ModuleBase
 } from '../../framework';
 
 @AppModule({
     queries: [
-        GetPermissionsQuery
+        FindAllPermissionsQuery
     ]
 })
 export class PermissionsModule extends ModuleBase { }
