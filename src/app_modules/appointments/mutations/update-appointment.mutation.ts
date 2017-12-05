@@ -1,40 +1,49 @@
-import { IAppointment } from './../../../models/app/appointments/IAppointment';
-import { IAppointmentModel } from '../../../models/app/appointments/IAppointment';
-import { MutationBase } from '../../mutation-base';
-import { IIdentity, IMutationResponse } from '../../..';
-import { IMutation, IValidationResult } from '../..';
+import { Appointments, IAppointment } from '../../../domain/app/appointments';
+import { UpdateAppointmentActivity } from '../activities/update-appointment.activity';
+import { MutationBase } from '../../../framework/mutations';
+import { AppointmentInput, AppointmentMutationResponse } from '../appointments.types';
+import { CreateAppointmentActivity } from '../activities';
+import { mutation } from '../../../framework';
+import { injectable, inject } from 'inversify';
 import * as Promise from 'bluebird';
-import * as logger from 'winston';
 
-export class UpdateAppointmentMutation extends MutationBase<IMutationResponse> {
-    constructor(
-        public identity: IIdentity,
-        private _AppointmentModel: IAppointmentModel) {
-            super(identity);
-        }
+@injectable()
+@mutation({
+    name: 'updateAppointment',
+    activity: UpdateAppointmentActivity,
+    parameters: [
+        { name: 'id', type: String, required: true },
+        { name: 'input', type: AppointmentInput },
+    ],
+    output: { type: AppointmentMutationResponse }
+})
+export class UpdateAppointmentMutation extends MutationBase<AppointmentMutationResponse> {
+    constructor(@inject('Appointments') private _appointments: Appointments) {
+        super();
+    }
 
-    run(data: { id: string, input: IAppointment }): Promise<IMutationResponse> {
+    run(data: { id: string, input: IAppointment }): Promise<AppointmentMutationResponse> {
         const that = this;
 
-        return new Promise<IMutationResponse>((resolve, reject) => {
-           that._AppointmentModel.updateAppointment(data.id, data.input).then(appointment => {
+        return new Promise<AppointmentMutationResponse>((resolve, reject) => {
+            that._appointments.model.createNew(data.input).then(appointment => {
                 resolve({
                     success: true,
-                    entity: appointment
+                    entity: appointment as any
                 });
                 return;
-           }).catch(err => {
+            }).catch(err => {
                 resolve({
                     success: false,
                     errors: [
                         {
                             field: 'general',
-                            errors: ['There was an error updating the appointment']
+                            errors: ['There was an error creating the appointment']
                         }
                     ]
                 });
                 return;
-           });
+            });
         });
     }
 }
