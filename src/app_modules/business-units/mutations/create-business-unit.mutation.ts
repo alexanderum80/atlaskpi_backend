@@ -1,28 +1,30 @@
-import {
-    IBusinessUnitModel
-} from '../business-unit.model';
-import {
-    MutationBase,
-    IIdentity,
-    IMutationResponse,
-    IMutation,
-    IValidationResult
-} from '../../../framework';
+import { injectable, inject } from 'inversify';
 import * as Promise from 'bluebird';
-import * as logger from 'winston';
+import { MutationBase, mutation, IMutationResponse } from '../../../framework';
+import { BusinessUnits } from '../../../domain';
+import { CreateBusinessUnitResponse } from '../business-units.types';
+import { CreateBusinessUnitActivity } from '../activities';
 
-export class CreateBusinessUnitMutation extends MutationBase < IMutationResponse > {
-    constructor(
-        public identity: IIdentity,
-        private _BusinessUnitModel: IBusinessUnitModel) {
-        super(identity);
+@injectable()
+@mutation({
+    name: 'createBusinessUnit',
+    activity: CreateBusinessUnitActivity,
+    parameters: [
+        { name: 'name', type: String, required: true },
+        { name: 'serviceType', type: String },
+    ],
+    output: { type: CreateBusinessUnitResponse }
+})
+export class CreateBusinessUnitMutation extends MutationBase<IMutationResponse> {
+    constructor(@inject('BusinessUnits') private _businessUnits: BusinessUnits) {
+        super();
     }
 
-    run(data): Promise < IMutationResponse > {
+    run(data: { name: string, serviceType: string }): Promise<IMutationResponse> {
         const that = this;
 
         return new Promise < IMutationResponse > ((resolve, reject) => {
-            that._BusinessUnitModel.createNew(data.name, data.serviceType).then(businessunit => {
+            that._businessUnits.model.createNew(data.name, data.serviceType).then(businessunit => {
                 resolve({
                     success: true,
                     entity: businessunit
