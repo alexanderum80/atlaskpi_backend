@@ -1,28 +1,38 @@
-import { ISlideshowModel } from '../../../models/app/slideshow/ISlideshow';
-import { MutationBase } from '../../mutation-base';
-import { IIdentity, IMutationResponse } from '../../..';
-import { IMutation, IValidationResult } from '../..';
+import { ISlideshowInput } from '../../../domain/app/slideshow';
+
+import { injectable, inject } from 'inversify';
 import * as Promise from 'bluebird';
-import * as logger from 'winston';
+import { IMutationResponse, MutationBase, mutation } from '../../../framework';
+import { Slideshows } from '../../../domain';
+import { SlideshowResponse, SlideshowInput } from '../slideshows.types';
+import { UpdateSlideshowActivity } from '../activities';
 
+@injectable()
+@mutation({
+    name: 'updateSlideshow',
+    activity: UpdateSlideshowActivity,
+    parameters: [
+        { name: '_id', type: String, required: true },
+        { name: 'input', type: SlideshowInput, required: true },
+    ],
+    output: { type: SlideshowResponse }
+})
 export class UpdateSlideshowMutation extends MutationBase<IMutationResponse> {
-    constructor(
-        public identity: IIdentity,
-        private _SlideshowModel: ISlideshowModel) {
-            super(identity);
-        }
+    constructor(@inject('Slideshows') private _slideshows: Slideshows) {
+        super();
+    }
 
-    run(data): Promise<IMutationResponse> {
+    run(data: { _id: string, input: ISlideshowInput,  }): Promise<IMutationResponse> {
         const that = this;
 
         return new Promise<IMutationResponse>((resolve, reject) => {
-           that._SlideshowModel.updateSlideshow(data._id, data.input).then(slideshow => {
+            that._slideshows.model.updateSlideshow(data._id, data.input).then(slideshow => {
                 resolve({
                     success: true,
                     entity: slideshow
                 });
                 return;
-           }).catch(err => {
+            }).catch(err => {
                 resolve({
                     success: false,
                     errors: [
@@ -33,7 +43,7 @@ export class UpdateSlideshowMutation extends MutationBase<IMutationResponse> {
                     ]
                 });
                 return;
-           });
+            });
         });
     }
 }

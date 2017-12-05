@@ -1,26 +1,34 @@
-import { ISlideshowModel } from '../../../models/app/slideshow/ISlideshow';
-import { MutationBase } from '../../mutation-base';
-import { IIdentity, IMutationResponse } from '../../..';
-import { IMutation, IValidationResult } from '../..';
 import * as Promise from 'bluebird';
-import * as logger from 'winston';
+import { inject, injectable } from 'inversify';
 
+import { Slideshows } from '../../../domain';
+import { IMutationResponse, mutation, MutationBase } from '../../../framework';
+import { DeleteSlideshowActivity } from '../activities';
+import { SlideshowResponse } from '../slideshows.types';
+
+@injectable()
+@mutation({
+    name: 'deleteSlideshow',
+    activity: DeleteSlideshowActivity,
+    parameters: [
+        { name: '_id', type: String },
+    ],
+    output: { type: SlideshowResponse }
+})
 export class DeleteSlideshowMutation extends MutationBase<IMutationResponse> {
-    constructor(
-        public identity: IIdentity,
-        private _SlideshowModel: ISlideshowModel) {
-            super(identity);
-        }
+    constructor(@inject('Slideshows') private _slideshows: Slideshows) {
+        super();
+    }
 
-    run(data): Promise<IMutationResponse> {
+    run(data: { _id: string }): Promise<IMutationResponse> {
         const that = this;
 
         return new Promise<IMutationResponse>((resolve, reject) => {
-           that._SlideshowModel.deleteSlideshow(data._id).then(slideshow => {
+            that._slideshows.model.deleteSlideshow(data._id).then(slideshow => {
                 resolve({
                     success: true
                 });
-           }).catch(err => {
+            }).catch(err => {
                 resolve({
                     success: false,
                     errors: [
@@ -30,7 +38,7 @@ export class DeleteSlideshowMutation extends MutationBase<IMutationResponse> {
                         }
                     ]
                 });
-           });
+            });
         });
     }
 }

@@ -5,23 +5,23 @@ import * as Promise from 'bluebird';
 import { QueryBase, query } from '../../../framework';
 import { Slideshows } from '../../../domain';
 import { Slideshow } from '../slideshows.types';
-import { SlideshowByIdActivity } from '../activities';
+import { SlideshowByGroupActivity } from '../activities';
 
 @injectable()
 @query({
-    name: 'slideshowById',
-    activity: SlideshowByIdActivity,
+    name: 'slideShowsByGroupChart',
+    activity: SlideshowByGroupActivity,
     parameters: [
-        { name: '_id', type: String, required: true },
+        { name: 'group', type: String, required: true }
     ],
-    output: { type: Slideshow }
+    output: { type: Slideshow, isArray: true }
 })
-export class SlideshowByIdQuery extends QueryBase<ISlideshowDocument> {
+export class SlideShowsByGroupChartQuery extends QueryBase<ISlideshowDocument[]> {
     constructor(@inject('Slideshows') private _slideshows: Slideshows) {
         super();
     }
 
-    run(data: { _id: string }): Promise<ISlideshowDocument> {
-        return this._slideshows.model.slideshowById(data._id);
+    run(data: { group: string }): Promise<ISlideshowDocument[]> {
+        return this._slideshows.model.slideshowsByGroupChart(data.group);
     }
 }
