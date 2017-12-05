@@ -151,7 +151,7 @@ export class KPIFilterHelper {
     }
 
     private static _handleAsArrayOperatorValuePairIntent(f: IKPIFilter, fieldset: any[]): any {
-        return  f.criteria.split(/,[^\s]/g)
+        return  f.criteria.split(',')
                           .map(value =>
                                KPIFilterHelper._handleAsElementOperatorValuePairIntent(value, f.field, fieldset)
         );
