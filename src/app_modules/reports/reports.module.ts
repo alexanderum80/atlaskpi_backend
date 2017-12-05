@@ -1,4 +1,4 @@
-import { EndOfDayReportQuery } from './queries/end-of-day-report.query';
+import { EndOfDayReportQuery } from './queries';
 import {
     AppModule, ModuleBase
 } from '../../framework';
