@@ -1,31 +1,36 @@
-import { IDashboardInput } from './../../../models/app/dashboards/IDashboard';
-import { MutationBase } from '../../mutation-base';
-import { attachToDashboards } from './common';
-import { IChartModel } from '../../../models/app/charts';
-import { IIdentity, IMutationResponse } from '../../..';
-import { IMutation, IValidationResult } from '../..';
-import { IKPIModel } from '../../../models/app/kpis';
-import { IDashboardModel } from '../../../models/app/dashboards';
+
+import { injectable, inject } from 'inversify';
 import * as Promise from 'bluebird';
-import * as logger from 'winston';
+import { IMutationResponse, MutationBase, mutation } from '../../../framework';
+import { Dashboards } from '../../../domain';
+import { DashboardResponse, DashboardInput } from '../dashboards.types';
+import { UpdateDashboardActivity } from '../activities';
 
+@injectable()
+@mutation({
+    name: 'updateDashboard',
+    activity: UpdateDashboardActivity,
+    parameters: [
+        { name: 'id', type: String, required: true },
+        { name: 'input', type: DashboardInput, required: true },
+    ],
+    output: { type: DashboardResponse }
+})
 export class UpdateDashboardMutation extends MutationBase<IMutationResponse> {
-    constructor(
-        public identity: IIdentity,
-        private _DashboardModel: IDashboardModel) {
-            super(identity);
-        }
+    constructor(@inject('Dashboards') private _dashboards: Dashboards) {
+        super();
+    }
 
-    run(data: { id: string, input: IDashboardInput }): Promise<IMutationResponse> {
+    run(data: { id: string, input: DashboardInput }): Promise<IMutationResponse> {
         const that = this;
 
         return new Promise<IMutationResponse>((resolve, reject) => {
-           that._DashboardModel.updateDashboard(data.id, data.input).then(dashboard => {
+            that._dashboards.model.updateDashboard(data.id, data.input).then(dashboard => {
                 resolve({
                     success: true,
                     entity: dashboard
                 });
-           }).catch(err => {
+            }).catch(err => {
                 resolve({
                     success: false,
                     errors: [
@@ -35,7 +40,7 @@ export class UpdateDashboardMutation extends MutationBase<IMutationResponse> {
                         }
                     ]
                 });
-           });
+            });
         });
     }
 }

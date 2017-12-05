@@ -1,26 +1,31 @@
-import { MutationBase } from '../../mutation-base';
-import { attachToDashboards } from './common';
-import { IChartModel } from '../../../models/app/charts';
-import { IIdentity, IMutationResponse } from '../../..';
-import { IMutation, IValidationResult } from '../..';
-import { IKPIModel } from '../../../models/app/kpis';
-import { IDashboardInput, IDashboardModel } from '../../../models/app/dashboards';
+
+import { injectable, inject } from 'inversify';
 import * as Promise from 'bluebird';
-import * as logger from 'winston';
+import { IMutationResponse, MutationBase, mutation } from '../../../framework';
+import { Dashboards } from '../../../domain';
+import { DashboardResponse, DashboardInput } from '../dashboards.types';
+import { CreateDashboardActivity } from '../activities';
 
+@injectable()
+@mutation({
+    name: 'createDashboard',
+    activity: CreateDashboardActivity,
+    parameters: [
+        { name: 'input', type: DashboardInput, required: true },
+    ],
+    output: { type: DashboardResponse }
+})
 export class CreateDashboardMutation extends MutationBase<IMutationResponse> {
-    constructor(
-        public identity: IIdentity,
-        private _dashboardModel: IDashboardModel) {
-            super(identity);
-        }
+    constructor(@inject('Dashboards') private _dashboards: Dashboards) {
+        super();
+    }
 
-    run(data: { input: IDashboardInput}): Promise<IMutationResponse> {
+    run(data: { input: DashboardInput,  }): Promise<IMutationResponse> {
         const that = this;
 
         // resolve kpis
         return new Promise<IMutationResponse>((resolve, reject) => {
-            that._dashboardModel.createDashboard(data.input)
+            that._dashboards.model.createDashboard(data.input)
             .then(dashboard => {
                     resolve({
                         success: true,
