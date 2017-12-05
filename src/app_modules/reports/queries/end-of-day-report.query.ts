@@ -1,15 +1,23 @@
+import { EndOfDayReport } from '../reports.types';
 import { EndOfDayReportService, IEndOfDayReport } from '../../../services/reports/end-of-day-report.service';
-import { IIdentity } from '../../../models/app/identity';
-import { QueryBase } from '../../query-base';
+import { injectable, inject } from 'inversify';
 import * as Promise from 'bluebird';
+import { QueryBase, query } from '../../../framework';
+import { Departments, IDepartmentDocument } from '../../../domain';
+import { EndOfDayReportActivity } from '../activities';
 
+@injectable()
+@query({
+    name: 'departments',
+    activity: EndOfDayReportActivity,
+    output: { type: EndOfDayReport }
+})
 export class EndOfDayReportQuery extends QueryBase<IEndOfDayReport> {
-
-    constructor(public identity: IIdentity, private _endOfDayReportService: EndOfDayReportService) {
-        super(identity);
+    constructor(@inject('EndOfDayReportService') private _endOfDayReportService: EndOfDayReportService) {
+        super();
     }
 
-    run(data: any): Promise<IEndOfDayReport> {
+    run(data: { id: string }): Promise<IEndOfDayReport> {
         return this._endOfDayReportService.generateReport();
     }
 }
