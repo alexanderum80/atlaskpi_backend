@@ -1,11 +1,11 @@
-import { IDateRangeComparisonItem } from './date-range.helper';
 import {
     getDateRangeIdentifier,
     getDateRangeIdFromString,
     IChartDateRange,
     PredefinedComparisonDateRanges,
     PredefinedDateRanges,
-} from '../../../models/common/date-range';
+} from '../../../domain/common';
+
 
 export interface IDateRangeComparisonItem {
     key: string;
