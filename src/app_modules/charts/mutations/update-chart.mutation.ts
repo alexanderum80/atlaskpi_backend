@@ -1,55 +1,64 @@
-import { MutationBase } from '../../mutation-base';
-import { attachToDashboards, detachFromDashboards } from './common';
-import { IChartModel, IChartInput } from '../../../models/app/charts';
-import { IKPIModel } from '../../../models/app/kpis';
-import { IDashboardDocument, IDashboardModel } from '../../../models/app/dashboards';
-import { IIdentity, IMutationResponse } from '../../..';
-import { IMutation, IValidationResult } from '../..';
+import { attachToDashboards, detachFromDashboards } from '../../dashboards/mutations/common';
+import { IChartInput } from '../../../domain/app/charts';
+import { Winston } from 'winston';
+import { Dashboards } from '../../../domain/app/dashboards';
+import { KPIs } from '../../../domain/app/kpis';
 import * as Promise from 'bluebird';
-import { AccountCreatedNotification } from '../../../../services';
-import * as logger from 'winston';
-import * as _ from 'lodash';
+import { inject, injectable } from 'inversify';
+import { difference } from 'lodash';
 
-interface IUpdateChartMutation {
-    id: string;
-    input: IChartInput;
-}
+import { Charts } from '../../../domain';
+import { IMutationResponse, mutation, MutationBase } from '../../../framework';
+import { UpdateChartActivity } from '../activities';
+import { ChartAttributesInput, ChartMutationResponse } from '../charts.types';
 
+
+@injectable()
+@mutation({
+    name: 'updateChart',
+    activity: UpdateChartActivity,
+    parameters: [
+        { name: 'id', type: String, required: true },
+        { name: 'input', type: ChartAttributesInput, required: true },
+    ],
+    output: { type: ChartMutationResponse }
+})
 export class UpdateChartMutation extends MutationBase<IMutationResponse> {
     constructor(
-        public identity: IIdentity,
-        private _chartModel: IChartModel,
-        private _kpiModel: IKPIModel,
-        private _dashboardModel: IDashboardModel) {
-            super(identity);
-        }
+        @inject('KPIs') private _kpis: KPIs,
+        @inject('Charts') private _charts: Charts,
+        @inject('Dashboards') private _dashboards: Dashboards,
+        @inject('logger') private _logger: Winston
+    ) {
+        super();
+    }
 
-    run(data: IUpdateChartMutation): Promise<IMutationResponse> {
+    run(data: { id: string, input: IChartInput }): Promise<IMutationResponse> {
         const that = this;
 
         return new Promise<IMutationResponse>((resolve, reject) => {
             // resolve kpis
-            that._kpiModel.find({ _id: { $in: data.input.kpis }})
+            that._kpis.model.find({ _id: { $in: data.input.kpis }})
             .then((kpis) => {
                 if (!kpis || kpis.length !== data.input.kpis.length) {
-                    logger.error('one or more kpi not found:' + data.id);
+                    that._logger.error('one or more kpi not found:' + data.id);
                     resolve({ success: false, errors: [ { field: 'kpis', errors: ['one or more kpis not found'] } ]});
                     return;
                 }
 
                 // resolve dashboards the chart is in
-                that._dashboardModel.find( {charts: { $in: [data.id]}})
+                that._dashboards.model.find( {charts: { $in: [data.id]}})
                 .then((chartDashboards) => {
                     // update the chart
-                    that._chartModel.updateChart(data.id, data.input)
+                    that._charts.model.updateChart(data.id, data.input)
                     .then((chart) => {
                         const currentDashboardIds = chartDashboards.map(d => String(d._id));
-                        const toRemoveDashboardIds = _.difference(currentDashboardIds, data.input.dashboards);
-                        const toAddDashboardIds = _.difference(data.input.dashboards, currentDashboardIds);
+                        const toRemoveDashboardIds = difference(currentDashboardIds, data.input.dashboards);
+                        const toAddDashboardIds = difference(data.input.dashboards, currentDashboardIds);
 
-                        detachFromDashboards(that._dashboardModel, toRemoveDashboardIds, chart._id)
+                        detachFromDashboards(that._dashboards, toRemoveDashboardIds, chart._id)
                         .then(() => {
-                            attachToDashboards(that._dashboardModel, toAddDashboardIds, chart._id)
+                            attachToDashboards(that._dashboards, toAddDashboardIds, chart._id)
                             .then(() => {
                                 resolve({ entity: chart, success: true });
                                 return;
