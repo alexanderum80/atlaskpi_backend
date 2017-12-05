@@ -1,11 +1,11 @@
-import { GetDateRangesQuery } from './queries/get-date-ranges.query';
+import { DateRangesQuery } from './queries';
 import {
     AppModule, ModuleBase
 } from '../../framework';
 
 @AppModule({
     queries: [
-        GetDateRangesQuery
+        DateRangesQuery
     ]
 })
 export class DateRangesModule extends ModuleBase { }

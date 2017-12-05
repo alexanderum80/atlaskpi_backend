@@ -1,14 +1,22 @@
-import { IQueryResponse } from '../../../models/common';
-import { IAppModels } from '../../../models/app/app-models';
+import { injectable, inject } from 'inversify';
 import * as Promise from 'bluebird';
-import { IQuery } from '../..';
-import { IIdentity } from '../../../';
-import { IDepartmentDocument, IDepartmentModel } from '../../../models/app/departments/IDepartment';
+import { QueryBase, query } from '../../../framework';
+import { Departments, IDepartmentDocument } from '../../../domain';
+import { Department } from '../departments.types';
+import { DepartmentByIdActivity } from '../activities';
 
-export class DepartmentsQuery {
-    constructor(public identity: IIdentity, private _IDepartmentModel: IDepartmentModel) {}
+@injectable()
+@query({
+    name: 'departments',
+    activity: DepartmentByIdActivity,
+    output: { type: Department }
+})
+export class DepartmentsQuery extends QueryBase<IDepartmentDocument[]> {
+    constructor(@inject('Departments') private _departments: Departments) {
+        super();
+    }
 
-    run(data: any): Promise<IDepartmentDocument[]> {
-        return this._IDepartmentModel.departments();
+    run(data: { id: string }): Promise<IDepartmentDocument[]> {
+        return this._departments.model.departments();
     }
 }
