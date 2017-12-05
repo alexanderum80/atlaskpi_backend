@@ -1,14 +1,16 @@
-import { IAccessModel } from '../../../models/app/access-log/IAccessLog';
-import { IIdentity } from '../../../models/app/identity';
-import { IMutation } from '../..';
-import { IMutationResponse } from '../../../models/common';
+import { MutationBase } from '../../../framework/mutations';
+import { AccessLogs } from '../../../domain/app/access-log';
+import { IMutationResponse } from '../../../framework';
+import { injectable, inject } from 'inversify';
 import * as Promise from 'bluebird';
 
-export class CreateAccessLogMutation implements IMutation<IMutationResponse> {
-    constructor(public identity: IIdentity,
-                private _AccessLogModel: IAccessModel) {}
+@injectable()
+export class CreateAccessLogMutation extends MutationBase<IMutationResponse> {
+    constructor(@inject('AccessLogs') private _accessLogs: AccessLogs) {
+        super();
+    }
 
     run(data: any): Promise<IMutationResponse> {
-        return this._AccessLogModel.createLog(data);
+        return this._accessLogs.model.createLog(data);
     }
 }
