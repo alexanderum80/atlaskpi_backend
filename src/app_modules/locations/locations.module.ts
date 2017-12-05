@@ -1,4 +1,4 @@
-import { LocationsQuery } from './queries/location.query';
+import { LocationsQuery } from './queries/locations.query';
 import { UpdateLocationMutation } from './mutations/update-location.mutation';
 import { DeleteLocationMutation } from './mutations/delete-location.mutation';
 import { CreateLocationMutation } from './mutations/create-location.mutation';

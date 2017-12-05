@@ -1,3 +1,7 @@
+import { AppConnection } from '../';
+import { ModelBase } from '../../../type-mongo';
+import { injectable, inject } from 'inversify';
+
 import {
     ILocationModel,
     ILocationDocument,
