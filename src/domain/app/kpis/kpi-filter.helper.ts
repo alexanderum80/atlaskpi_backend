@@ -1,8 +1,8 @@
-import { flatten, readMongooseSchema } from '../../../../lib/utils';
-import { SaleSchema } from '../../../models/app/sales';
-import { ExpenseSchema } from '../../../models/app/expenses';
-import { KPITypeMap, KPITypeEnum, getKPITypePropName, IKPISimpleDefinition, IKPIFilter } from './IKPI';
-import * as _ from 'lodash';
+import { IKPIFilter, KPITypeEnum, KPITypeMap } from './';
+import { ExpenseSchema } from '../expenses';
+import { SaleSchema } from '../sales';
+import { isObject, isArray } from 'lodash';
+import { flatten, readMongooseSchema } from '../../../helpers';
 
 const Schemas = [
       SaleSchema,
@@ -99,7 +99,7 @@ export class KPIFilterHelper {
 
             let value = filter[filterKey];
 
-            if (!_.isArray(value) && _.isObject(value)) {
+            if (!isArray(value) && isObject(value)) {
                 value = KPIFilterHelper._serializer(value, operation);
             } else if (_.isArray(value)) {
                 for (let i = 0; i < value.length; i++) {
@@ -169,7 +169,7 @@ export class KPIFilterHelper {
     }
 
     private static _transform2KPIFilter(obj: any): IKPIFilter {
-        if (!obj || !_.isObject(obj)) { return null; }
+        if (!obj || !isObject(obj)) { return null; }
 
         const field = Object.keys(obj)[0];
         const op = Object.keys(obj[field])[0];
@@ -179,7 +179,7 @@ export class KPIFilterHelper {
 
         let criteria;
 
-        if (_.isArray(value)) {
+        if (isArray(value)) {
             criteria = value.map(v => String(v)).join(',');
         } else {
             criteria = String(value);

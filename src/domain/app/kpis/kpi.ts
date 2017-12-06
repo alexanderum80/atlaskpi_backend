@@ -1,5 +1,6 @@
-import { IMutationResponse } from '../../';
-import { IChartDateRange, IPagedQueryResult, IPaginationDetails, IQueryResponse } from '../../common';
+import { IMutationResponse } from '../../../framework/mutations';
+import { IPagedQueryResult, IPaginationDetails } from '../../../framework/queries';
+import { IChartDateRange } from '../../common';
 import * as mongoose from 'mongoose';
 import * as Promise from 'bluebird';
 import { IChartDocument } from '../charts';

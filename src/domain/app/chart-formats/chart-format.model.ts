@@ -1,37 +1,14 @@
-import {
-    ModelBase
-} from '../../../type-mongo';
-import {
-    AppConnection
-} from '../app.connection';
-import {
-    injectable,
-    inject
-} from 'inversify';
-import {
-    IChartDocument
-} from '../charts';
-import * as mongoose from 'mongoose';
 import * as Promise from 'bluebird';
-import {
-    IChartFormatModel,
-    IChartFormat,
-    IChartFormatDetails,
-    IChartFormatDocument
-} from './chart-format';
-import {
-    IMutationResponse,
-    MutationResponse,
-    IPaginationDetails,
-    IQueryResponse
-} from '../../common';
-import {
-    IPagedQueryResult,
-    PaginationDetailsDefault,
-    Paginator
-} from '../../common/pagination';
+import { inject, injectable } from 'inversify';
+import * as mongoose from 'mongoose';
 import * as validate from 'validate.js';
 import * as logger from 'winston';
+
+import { IMutationResponse, MutationResponse } from '../../../framework/mutations';
+import { IPagedQueryResult, IPaginationDetails, IQueryResponse, Paginator } from '../../../framework/queries';
+import { ModelBase } from '../../../type-mongo';
+import { AppConnection } from '../app.connection';
+import { IChartFormat, IChartFormatDocument, IChartFormatModel } from './chart-format';
 
 let Schema = mongoose.Schema;
 

@@ -1,11 +1,9 @@
-import { IExpenseModel } from '../../../models/app/expenses';
+import { FrequencyEnum, IDateRange } from '../../../domain/common';
+import { IExpenseModel, IKPIDocument } from '../../../domain';
 import * as Promise from 'bluebird';
 import { AggregateStage } from './aggregate';
 import { IGetDataOptions, IKpiBase, KpiBase } from './kpi-base';
-import { FrequencyEnum } from '../../../models/common/frequency-enum';
-import { IDateRange } from '../../../models/common/date-range';
 
-import * as _ from 'lodash';
 
 export class Expenses extends KpiBase implements IKpiBase {
 
@@ -39,11 +37,11 @@ export class Expenses extends KpiBase implements IKpiBase {
         super(expense, baseAggregate);
     }
 
-    getData(dateRange: IDateRange[], options?: IGetDataOptions): Promise<any> {
+    getData(kpi: IKPIDocument, dateRange: IDateRange[], options?: IGetDataOptions): Promise<any> {
         return this.executeQuery('timestamp', dateRange, options);
     }
 
-    getTargetData(dateRange?: IDateRange[], options?: IGetDataOptions): Promise<any> {
+    getTargetData(IKPIDocument, dateRange?: IDateRange[], options?: IGetDataOptions): Promise<any> {
         return this.executeQuery('timestamp', dateRange, options);
     }
 

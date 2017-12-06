@@ -1,13 +1,16 @@
-import { getGroupingMetadata } from '../charts/chart-grouping-map';
-import { FrequencyTable, IChartDateRange, IDateRange, parsePredifinedDate } from '../../../models/common';
-import { KpiFactory } from './kpi.factory';
-import { IAppModels } from '../../../models/app/app-models';
-import { IKPI, IKPIDocument } from '../../../models/app/kpis';
-import { IGetDataOptions, IKpiBase } from './kpi-base';
+import { getGroupingMetadata } from '../../charts/queries';
+import { FrequencyTable, IChartDateRange, IDateRange, parsePredifinedDate } from '../../../domain/common';
 import * as Promise from 'bluebird';
+import { inject, injectable } from 'inversify';
+import * as jsep from 'jsep';
 import * as _ from 'lodash';
 import * as math from 'mathjs';
-import * as jsep from 'jsep';
+
+import { Expenses } from '../../../domain/app/expenses';
+import { KPIs } from '../../../domain/app/kpis/kpi.model';
+import { Sales, IKPIDocument } from '../../../domain';
+import { IGetDataOptions, IKpiBase } from './kpi-base';
+import { KpiFactory } from './kpi.factory';
 
 type KpiOperators = {
     '-', '+', '*', '/'
@@ -19,17 +22,23 @@ export const ExpressionTreeTypes = {
     literal: 'Literal'
 };
 
+@injectable()
 export class CompositeKpi implements IKpiBase {
 
-    constructor(private _kpi: IKPIDocument, private ctx: IAppModels) { }
+    constructor(
+        @inject('KPIs') private _kpis: KPIs,
+        @inject('Sales') private _sales: Sales,
+        @inject('Expenses') private _expenses: Expenses) { }
 
-    getData(): Promise<any> {
-        const exp: jsep.IExpression = jsep(this._kpi.expression);
+    // constructor(private _kpi: IKPIDocument, private ctx: IAppModels) { }
+
+    getData(kpi: IKPIDocument): Promise<any> {
+        const exp: jsep.IExpression = jsep(kpi.expression);
         return this._processExpression(exp);
     }
 
-    getTargetData(): Promise<any> {
-        const exp: jsep.IExpression = jsep(this._kpi.expression);
+    getTargetData(kpi: IKPIDocument): Promise<any> {
+        const exp: jsep.IExpression = jsep(kpi.expression);
         return this._processExpression(exp);
     }
 
@@ -60,8 +69,8 @@ export class CompositeKpi implements IKpiBase {
 
     private _getKpiData(id: string): Promise<any> {
         return new Promise<any>((resolve, reject) => {
-            this.ctx.KPI.findOne({ _id: id }).then(kpiDocument => {
-                const kpi = KpiFactory.getInstance(kpiDocument, this.ctx);
+            this._kpis.model.findOne({ _id: id }).then(kpiDocument => {
+                const kpi = KpiFactory.getInstance(kpiDocument, this._sales, this._expenses);
                 const dateRange: IDateRange = this._processChartDateRange(kpiDocument.dateRange);
                 const options: IGetDataOptions = {
                     filter: kpiDocument.filter,
@@ -69,7 +78,7 @@ export class CompositeKpi implements IKpiBase {
                     groupings: getGroupingMetadata(null, kpiDocument.groupings)
                 };
 
-                kpi.getData(dateRange[0], options)
+                kpi.getData(kpiDocument, dateRange[0], options)
                     .then(res => resolve(res))
                     .catch(e => reject(e));
             });

@@ -1,8 +1,7 @@
-import { DataSourcesHelper } from './../../../queries/app/data-sources/datasource.helper';
+import { DataSourcesHelper } from '../../../app_modules/data-sources/queries/datasource.helper';
 import { KPIExpressionHelper } from './kpi-expression.helper';
-import { GroupingMap } from './../../../queries/app/charts/chart-grouping-map';
-import { IKPIDocument, KPITypeMap, KPITypeEnum, IKPISimpleDefinition } from './IKPI';
-import * as _ from 'lodash';
+import { GroupingMap } from '../../../app_modules/charts/queries';
+import { IKPIDocument, IKPISimpleDefinition, KPITypeEnum, KPITypeMap } from './';
 
 export class KPIGroupingsHelper {
     public static GetAvailableGroupings(kpi: IKPIDocument): string[] {

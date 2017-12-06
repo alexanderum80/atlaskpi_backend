@@ -1,4 +1,16 @@
-import { IUIChart } from '../../../queries/app/charts/charts';
+import { KPIs } from '../kpis/kpi.model';
+import { Expenses } from '../expenses';
+import { Sales } from '../sales';
+import { Charts } from '../charts';
+import { KpiFactory } from '../../../app_modules/kpis/queries';
+import {
+    ComparisonDirectionArrowEnum,
+    ComparisonDirectionArrowMap,
+    IMaterializedComparison,
+    IWidget,
+    IWidgetMaterializedFields,
+} from './';
+import { IKpiBase } from '../../../app_modules/kpis/queries/kpi-base';
 import {
     getComparisonDateRanges,
     getDateRangeIdFromString,
@@ -8,27 +20,34 @@ import {
     PredefinedComparisonDateRanges,
     PredefinedDateRanges,
 } from '../../common';
-import { IKpiBase } from './../../../queries/app/kpis/kpi-base';
-import { IAppModels } from '../app-models';
-import { KpiFactory } from './../../../queries/app/kpis/kpi.factory';
-import { IWidget, IWidgetMaterializedFields, ComparisonDirectionArrowMap, ComparisonDirectionArrowEnum, IMaterializedComparison } from './IWidget';
 import { IUIWidget, UIWidgetBase } from './ui-widget-base';
 import * as Promise from 'bluebird';
-import * as _ from 'lodash';
+import { injectable, inject } from 'inversify';
+import { cloneDeep } from 'lodash';
 
+@injectable()
 export class NumericWidget extends UIWidgetBase implements IUIWidget {
 
     private kpi: IKpiBase;
 
-    constructor(widget: IWidget, ctx: IAppModels) {
-        super(widget, ctx);
+    // TODO: Refactor
+    constructor(
+        @inject('Charts') private _charts: Charts,
+        @inject('Sales') private _sales: Sales,
+        @inject('Expenses') private _expenses: Expenses,
+        @inject('KPIs') private _kpis: KPIs
+        ) {
+        super();
+    }
+
+    materialize(widget: IWidget): Promise<IUIWidget> {
+        Object.assign(this, widget);
+
         if (!this.numericWidgetAttributes || !this.numericWidgetAttributes.kpi) {
             console.log('A numeric Widget cannot live without a kpi');
             return null;
         }
-    }
 
-    materialize(): Promise<IUIWidget> {
         const that = this;
 
         const dateRange = this._processChartDateRange(this.numericWidgetAttributes.dateRange);
@@ -67,9 +86,9 @@ export class NumericWidget extends UIWidgetBase implements IUIWidget {
         const that = this;
 
         return new Promise<IKpiBase>((resolve, reject) => {
-            this.ctx.KPI.findOne({_id: that.numericWidgetAttributes.kpi })
+            this._kpis.model.findOne({_id: that.numericWidgetAttributes.kpi })
             .then(kpiDocument => {
-                const kpi = KpiFactory.getInstance(kpiDocument, that.ctx);
+                const kpi = KpiFactory.getInstance(kpiDocument, that._kpis, that._sales, that._expenses);
                 if (kpi) {
                     resolve(kpi);
                     return;
@@ -88,11 +107,11 @@ export class NumericWidget extends UIWidgetBase implements IUIWidget {
     }
 
     private _getKpiData(kpi: IKpiBase, dateRange: IDateRange): Promise<any> {
-        const kpiClone = _.cloneDeep(kpi);
+        const kpiClone = cloneDeep(kpi);
 
         const that = this;
         return new Promise<any>((resolve, reject) => {
-            return kpiClone.getData([dateRange], { filter: null }).then(result => {
+            return kpiClone.getData(null, [dateRange], { filter: null }).then(result => {
                 if (result && result.length > 0) {
                     console.log(`value recieved for widget(${that.name}): ${result[0].value}`);
                     return resolve(result[0].value);
@@ -130,7 +149,9 @@ export class NumericWidget extends UIWidgetBase implements IUIWidget {
             comparison:  comparisonObject
         };
 
-        const result = Object.assign({}, this.widget, { materialized: materialized });
+        // TODO: Check removing this.widget has the same effect
+        // const result = Object.assign({}, this.widget, { materialized: materialized });
+        const result = Object.assign({}, this, { materialized: materialized });
 
         return <any>result;
     }
