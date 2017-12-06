@@ -6,19 +6,17 @@ import * as Handlebars from 'handlebars';
 import * as winston from 'winston';
 import { sendEmail } from '../..';
 import { IAppConfig } from '../../../configuration';
+import { injectable, inject } from 'inversify';
 
 export interface IForgotPasswordNotifier extends IEmailNotifier { }
 
-export interface ResetPasswordNotifyData {
-    hostname: string;
-}
 
+@injectable()
 export class UserForgotPasswordNotification implements IEmailNotifier {
 
-    constructor(private _config: IAppConfig,
-                private _data: ResetPasswordNotifyData) { }
+    constructor(@inject('Config') private _config: IAppConfig) { }
 
-    notify(user: IUserDocument, email: string, data?: any): Promise<nodemailer.SentMessageInfo> {
+    notify(user: IUserDocument, hostname: string, email: string, data?: any): Promise<nodemailer.SentMessageInfo> {
         const forgotPasswordTemplate =
             Handlebars.compile(this._config.usersService.services.forgotPassword.emailTemplate);
 
@@ -30,7 +28,7 @@ export class UserForgotPasswordNotification implements IEmailNotifier {
             dataSource.fullName = `${user.profile.firstName} ${user.profile.lastName}`;
         }
 
-        dataSource.host = this._data.hostname.split('.')[0] || this._data.hostname;
+        dataSource.host = hostname;
         dataSource.subdomain = this._config.subdomain;
 
         dataSource.resetToken = user.services.password.reset.token;

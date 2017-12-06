@@ -1,20 +1,30 @@
-import { IMobileDevice, IUserDocument } from '../../../models/app/users/IUser';
-import { MutationBase } from '../../mutation-base';
-import { IUserModel } from '../../../models/app/users';
+import { IMobileDevice, IUserDocument } from '../../../domain/app/security/users';
+
+import { injectable, inject } from 'inversify';
 import * as Promise from 'bluebird';
-import { IIdentity, IMutationResponse } from '../../..';
-import { IMutation, IValidationResult } from '../..';
-import { IAppConfig } from '../../../../configuration';
+import { MutationBase, mutation } from '../../../framework';
+import { Users } from '../../../domain';
+import { AddMobileDeviceDetails } from '../users.types';
+import { AddDeviceTokenActivity } from '../activities';
 
-export class AddMobileDeviceMutation extends MutationBase<boolean> {
+@injectable()
+@mutation({
+    name: 'addMobileDevice',
+    activity: AddDeviceTokenActivity,
+    parameters: [
+        { name: 'details', type: AddMobileDeviceDetails, required: true },
+    ],
+    output: { type: Boolean }
+})
+export class AddMobileDeviceMutation extends MutationBase<Boolean> {
+    constructor(
+        @inject('CurrentUser') private _currentUser: IUserDocument,
+        @inject('Users') private _users: Users
+    ) {
+        super();
+    }
 
-    constructor(public identity: IIdentity,
-                private _user: IUserDocument,
-                private _UserModel: IUserModel) {
-                    super(identity);
-                }
-
-    run(data: IMobileDevice): Promise<boolean> {
-        return this._UserModel.addMobileDevice(this._user._id, data);
+    run(data: IMobileDevice): Promise<Boolean> {
+        return this._users.model.addMobileDevice(this._currentUser._id, data);
     }
 }

@@ -1,9 +1,9 @@
 import {
-    FindAllUsersQuery,
-    FindUserByIdQuery,
-    SearchUsersQuery,
-    VerifyEnrollmentQuery,
-    VerifyResetPasswordQuery,
+    AllUsersQuery,
+    IsEnrollmentTokenValidQuery,
+    IsResetPasswordTokenValidQuery,
+    UserQuery,
+    UsersQuery
 } from './queries';
 import {
     AddMobileDeviceMutation,
@@ -29,11 +29,11 @@ import {
         UserForgotPasswordMutation
     ],
     queries: [
-        FindAllUsersQuery,
-        FindUserByIdQuery,
-        SearchUsersQuery,
-        VerifyEnrollmentQuery,
-        VerifyResetPasswordQuery
+        AllUsersQuery,
+        IsEnrollmentTokenValidQuery,
+        IsResetPasswordTokenValidQuery,
+        UserQuery,
+        UsersQuery
     ]
 })
 export class UsersModule extends ModuleBase { }
