@@ -2,6 +2,7 @@ import { IAppConfig } from '../configuration/config-models';
 import { IUserToken, IAccountDocument, IUserDocument, Accounts, Users } from '../domain';
 import { injectable, inject } from 'inversify';
 import { Winston } from 'winston';
+import { Roles } from '../domain/app/security/roles/index';
 
 export interface IUserAuthenticationData {
     hostname: string;
@@ -19,6 +20,7 @@ export class AuthService {
         @inject('Config') private _config: IAppConfig,
         @inject('Accounts') private _accounts: Accounts,
         @inject('Users') private _users: Users,
+        @inject('Roles') private _roles: Roles,
         @inject('logger') private _logger: Winston ) { }
 
     authenticateUser(input: IUserAuthenticationData): Promise < IUserToken > {
