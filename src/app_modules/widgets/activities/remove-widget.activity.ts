@@ -4,13 +4,13 @@ import * as Promise from 'bluebird';
 import { injectable, inject } from 'inversify';
 
 @injectable()
-export class GetWidgetActivity implements IActivity {
+export class RemoveWidgetActivity implements IActivity {
 
     constructor(@inject('Users') private _users: Users) {}
 
     check(): Promise<boolean> {
         // TODO: Refactor
-        // BasicRoleChecker.hasPermission(request.user, 'View', 'Widget')
+        // BasicRoleChecker.hasPermission(request.user, 'Remove', 'Widget')
         return Promise.resolve(true);
     }
 }
