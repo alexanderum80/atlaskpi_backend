@@ -1,18 +1,26 @@
-import { MutationBase } from '../../mutation-base';
-import { IUserModel } from '../../../models/app/users';
+
+import { injectable, inject } from 'inversify';
 import * as Promise from 'bluebird';
-import { IIdentity, IMutationResponse } from '../../..';
-import { IMutation, IValidationResult } from '../..';
-import { IAppConfig } from '../../../../configuration';
+import { MutationBase, mutation } from '../../../framework';
+import { Users } from '../../../domain';
+import { RemoveDeviceTokenActivity } from '../activities';
 
-export class RemoveMobileDeviceMutation extends MutationBase<boolean> {
+@injectable()
+@mutation({
+    name: 'removeMobileDevice',
+    activity: RemoveDeviceTokenActivity,
+    parameters: [
+        { name: 'network', type: String, required: true },
+        { name: 'token', type: String, required: true },
+    ],
+    output: { type: Boolean }
+})
+export class RemoveMobileDeviceMutation extends MutationBase<Boolean> {
+    constructor(@inject('Users') private _users: Users) {
+        super();
+    }
 
-    constructor(public identity: IIdentity,
-                private _UserModel: IUserModel) {
-                    super(identity);
-                }
-
-    run(data: { network: string, token: string }): Promise<boolean> {
-        return this._UserModel.removeMobileDevice(data.network, data.token);
+    run(data: { network: string, token: string,  }): Promise<Boolean> {
+        return this._users.model.removeMobileDevice(data.network, data.token);
     }
 }

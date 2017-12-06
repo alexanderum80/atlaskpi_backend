@@ -1,22 +1,30 @@
-import { IUserProfile } from '../../../models/app/users/IUser';
-import { MutationBase } from '../../mutation-base';
-import { IIdentity, IUserModel } from '../../..';
-import { IMutationResponse } from '../../..';
+import { IUserProfile } from '../../../domain/app/security/users';
+
+import { injectable, inject } from 'inversify';
 import * as Promise from 'bluebird';
-import { IMutation, IValidationResult } from '../..';
+import { MutationBase, mutation } from '../../../framework';
+import { Users } from '../../../domain';
+import { ResetPasswordResult, InputUserProfile } from '../users.types';
+import { ResetPasswordActivity } from '../activities';
 
-export class ResetPasswordMutation extends MutationBase<IMutationResponse> {
+@injectable()
+@mutation({
+    name: 'resetPassword',
+    activity: ResetPasswordActivity,
+    parameters: [
+        { name: 'token', type: String, required: true },
+        { name: 'password', type: String, required: true },
+        { name: 'profile', type: InputUserProfile },
+        { name: 'enrollment', type: Boolean },
+    ],
+    output: { type: ResetPasswordResult }
+})
+export class ResetPasswordMutation extends MutationBase<ResetPasswordResult> {
+    constructor(@inject('Users') private _users: Users) {
+        super();
+    }
 
-    constructor(
-        public identity: IIdentity,
-        private _UserModel: IUserModel) {
-            super(identity);
-        }
-
-    // log = true;
-    // audit = true;
-
-    run(data: { token: string, password: string, profile?: IUserProfile, enrollment?: boolean }): Promise<IMutationResponse> {
-        return this._UserModel.resetPassword(data.token, data.password, data.profile, data.enrollment || false);
+    run(data: { token: string, password: string, profile: IUserProfile, enrollment: boolean,  }): Promise<ResetPasswordResult> {
+        return this._users.model.resetPassword(data.token, data.password, data.profile, data.enrollment || false);
     }
 }

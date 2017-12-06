@@ -1,20 +1,31 @@
-import { MutationBase } from '../../mutation-base';
-import { IEmailNotifier } from '../../../../services/notifications';
-import { ICreateUserDetails, IUserModel, IUserDocument, IIdentity, IMutationResponse } from '../../..';
-import { IMutation, IValidationResult } from '../..';
+import { ICreateUserDetails } from '../../../domain/common';
+import { AccountCreatedNotification } from '../../../services/notifications/users';
+
+import { injectable, inject } from 'inversify';
 import * as Promise from 'bluebird';
-import { AccountCreatedNotification } from '../../../../services';
-import { IAppConfig } from '../../../../configuration';
+import { MutationBase, mutation } from '../../../framework';
+import { Users } from '../../../domain';
+import { CreateUserResult, UserDetails } from '../users.types';
+import { CreateUserActivity } from '../activities';
 
-export class CreateUserMutation extends MutationBase<IMutationResponse> {
+@injectable()
+@mutation({
+    name: 'createUser',
+    activity: CreateUserActivity,
+    parameters: [
+        { name: 'data', type: UserDetails },
+    ],
+    output: { type: CreateUserResult }
+})
+export class CreateUserMutation extends MutationBase<CreateUserResult> {
     constructor(
-        public identity: IIdentity,
-        private _notifier: IEmailNotifier,
-        private _UserModel: IUserModel) {
-            super(identity);
-        }
+        @inject('Users') private _users: Users,
+        @inject('AccountCreatedNotification') private _accountCreatedNotification: AccountCreatedNotification
+    ) {
+        super();
+    }
 
-    run(data: ICreateUserDetails): Promise<IMutationResponse> {
-        return this._UserModel.createUser(data, this._notifier);
+    run(data: ICreateUserDetails): Promise<CreateUserResult> {
+        return this._users.model.createUser(data, this._accountCreatedNotification);
     }
 }
