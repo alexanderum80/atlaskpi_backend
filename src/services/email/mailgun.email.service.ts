@@ -1,4 +1,4 @@
-import { config } from '../../config';
+import { config } from '../../configuration/config';
 import { IEmailService } from './email.service';
 import * as nodemailer from 'nodemailer';
 import * as mg from 'nodemailer-mailgun-transport';

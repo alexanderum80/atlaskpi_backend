@@ -1,9 +1,10 @@
-import { ModelBase } from '../../../type-mongo';
-import { AppConnection } from '../app.connection';
-import { injectable, inject } from 'inversify';
-import { IWidgetModel, IWidgetDocument, IWidgetInput, WidgetTypeMap, WidgetSizeMap, ComparisonDirectionArrowMap } from './IWidget';
+import { inject, injectable } from 'inversify';
 import * as mongoose from 'mongoose';
 import * as validate from 'validate.js';
+
+import { ModelBase } from '../../../type-mongo';
+import { AppConnection } from '../app.connection';
+import { ComparisonDirectionArrowMap, IWidgetDocument, IWidgetInput, IWidgetModel, WidgetSizeMap, WidgetTypeMap } from './';
 
 const Schema = mongoose.Schema;
 
@@ -216,6 +217,7 @@ WidgetSchema.statics.removeWidget = function(id: string): Promise<IWidgetDocumen
 @injectable()
 export class Widgets extends ModelBase<IWidgetModel> {
     constructor(@inject('AppConnection') appConnection: AppConnection) {
-        super(appConnection, 'Widget', WidgetSchema, 'widgets');
+        super();
+        this.initializeModel(appConnection.get, 'Widget', WidgetSchema, 'widgets');
     }
 }

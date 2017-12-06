@@ -303,6 +303,7 @@ RoleSchema.statics.findAllRoles = function(filter: string): Promise < IRoleDocum
 @injectable()
 export class Roles extends ModelBase < IRoleModel > {
     constructor(@inject('AppConnection') appConnection: AppConnection) {
-        super(appConnection, 'Role', RoleSchema, 'roles');
+        super();
+        this.initializeModel(appConnection.get, 'Role', RoleSchema, 'roles');
     }
 }

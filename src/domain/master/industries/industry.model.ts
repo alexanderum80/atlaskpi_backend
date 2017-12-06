@@ -39,6 +39,7 @@ IndustrySchema.statics.findAll = function(): Promise<IIndustryDocument[]> {
 @injectable()
 export class Industries extends ModelBase<IIndustryModel> {
     constructor(@inject('MasterConnection') appConnection: MasterConnection) {
-        super(appConnection, 'Industry', IndustrySchema, 'industries');
+        super();
+        this.initializeModel(appConnection.get, 'Industry', IndustrySchema, 'industries');
     }
 }

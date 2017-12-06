@@ -8,8 +8,7 @@ export function loadUser(req: ExtendedRequest, res: Response, next) {
 
     // only load a user when this request have an identity
     if (!req.identity) {
-        next();
-        return;
+        return next();
     }
 
     let condition = {};
@@ -41,8 +40,7 @@ export function loadUser(req: ExtendedRequest, res: Response, next) {
         // so we have to check if there is a user
         if (!user) {
             logger.error(`user not found`);
-            res.status(401).json(error);
-            res.end();
+            return res.status(401).json(error).end();
         }
 
         // make sure the token still exist before accept this request
@@ -51,17 +49,15 @@ export function loadUser(req: ExtendedRequest, res: Response, next) {
 
         if (!tokenExist) {
             logger.error(`User ${user.username} tried to login with a token that does not exist anymore`);
-            res.status(401).json(error);
-            res.end();
+            return res.status(401).json(error).end();
         } else {
             logger.debug(`Request user: ${user.username}`);
-            req.user = user;
-            next();
+            (<any>req).user = user;
+            return next();
         }
         })
         .catch(err => {
             logger.error(err);
-            res.status(401).json(error);
-            res.end();
+            return res.status(401).json(error).end();
         });
 }

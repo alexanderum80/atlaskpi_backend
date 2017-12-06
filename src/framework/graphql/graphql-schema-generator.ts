@@ -53,6 +53,9 @@ export function makeGraphqlSchemaExecutable(modules: IAppModule[]): IExecutableS
         moduleNames.forEach(m => {
             const appModule = BRIDGE.modules[m];
             const moduleQueriesOrMutations = appModule[t];
+
+            if (!moduleQueriesOrMutations) return;
+
             const queryOrMutationKeys = Object.keys(moduleQueriesOrMutations);
             mutationAndQueries[t] = queryOrMutationKeys.map(queryOrMutation => moduleQueriesOrMutations[queryOrMutation]);
         });

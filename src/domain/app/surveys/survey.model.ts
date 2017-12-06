@@ -28,6 +28,7 @@ let SurveySchema = new Schema({
 @injectable()
 export class Surveys extends ModelBase<ISurveyModel> {
     constructor(@inject('AppConnection') appConnection: AppConnection) {
-        super(appConnection, 'Survey', SurveySchema, 'surveys');
+        super();
+        this.initializeModel(appConnection.get, 'Survey', SurveySchema, 'surveys');
     }
 }

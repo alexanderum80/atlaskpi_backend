@@ -24,6 +24,7 @@ let LogEntrySchema = new Schema({
 @injectable()
 export class Logs extends ModelBase<ILogEntryModel> {
     constructor(@inject('AppConnection') appConnection: AppConnection) {
-        super(appConnection, 'LogEntry', LogEntrySchema, 'logs');
+        super();
+        this.initializeModel(appConnection.get, 'LogEntry', LogEntrySchema, 'logs');
     }
 }

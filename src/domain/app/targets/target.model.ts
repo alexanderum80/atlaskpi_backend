@@ -207,6 +207,7 @@ TargetSchema.statics.findUserVisibleTargets = function(chartId: string, userId: 
 @injectable()
 export class Targets extends ModelBase<ITargetModel> {
     constructor(@inject('AppConnection') appConnection: AppConnection) {
-        super(appConnection, 'Target', TargetSchema, 'targets');
+        super();
+        this.initializeModel(appConnection.get, 'Target', TargetSchema, 'targets');
     }
 }

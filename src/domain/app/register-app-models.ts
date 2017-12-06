@@ -1,0 +1,53 @@
+import { AppConnection } from './';
+import { Worklogs } from './work-log';
+import { Widgets } from './widgets/widget.model';
+import { Targets } from './targets';
+import { Surveys } from './surveys';
+import { Slideshows } from './slideshow';
+import { Users } from './security/users';
+import { Roles } from './security/roles';
+import { Permissions } from './security/permissions';
+import { Sales } from './sales';
+import { Products } from './products';
+import { Logs } from './log';
+import { Locations } from './location';
+import { KPIs } from './kpis';
+import { Inventory } from './inventory';
+import { Employees } from './employees';
+import { Departments } from './departments';
+import { Dashboards } from './dashboards';
+import { Customers } from './customers';
+import { Charts } from './charts';
+import { ChartFormats } from './chart-formats';
+import { BusinessUnits } from './business-unit';
+import { Appointments } from './appointments';
+import { AccessLogs } from './access-log';
+import { Container } from 'inversify';
+
+export function registerAppModels(container: Container) {
+    container.bind<AccessLogs>('AccessLogs').to(AccessLogs).inRequestScope();
+    container.bind<Appointments>('Appointments').to(Appointments).inRequestScope();
+    container.bind<BusinessUnits>('BusinessUnits').to(BusinessUnits).inRequestScope();
+    container.bind<ChartFormats>('ChartFormats').to(ChartFormats).inRequestScope();
+    container.bind<Charts>('Charts').to(Charts).inRequestScope();
+    container.bind<Customers>('Customers').to(Customers).inRequestScope();
+    container.bind<Dashboards>('Dashboards').to(Dashboards).inRequestScope();
+    container.bind<Departments>('Departments').to(Departments).inRequestScope();
+    container.bind<Employees>('Employees').to(Employees).inRequestScope();
+    container.bind<Inventory>('Inventory').to(Inventory).inRequestScope();
+    container.bind<KPIs>('KPIs').to(KPIs).inRequestScope();
+    container.bind<Locations>('Locations').to(Locations).inRequestScope();
+    container.bind<Logs>('Logs').to(Logs).inRequestScope();
+    container.bind<Products>('Products').to(Products).inRequestScope();
+    container.bind<Sales>('Sales').to(Sales).inRequestScope();
+    container.bind<Permissions>('Permissions').to(Permissions).inRequestScope();
+    container.bind<Roles>('Roles').to(Roles).inRequestScope();
+    container.bind<Users>('Users').to(Users).inRequestScope();
+    container.bind<Slideshows>('Slideshows').to(Slideshows).inRequestScope();
+    container.bind<Surveys>('Surveys').to(Surveys).inRequestScope();
+    container.bind<Targets>('Targets').to(Targets).inRequestScope();
+    container.bind<Widgets>('Widgets').to(Widgets).inRequestScope();
+    container.bind<Worklogs>('Worklogs').to(Worklogs).inRequestScope();
+
+    container.bind<AppConnection>('AppConnection').to(AppConnection).inRequestScope();
+}

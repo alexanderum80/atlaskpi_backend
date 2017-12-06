@@ -5,18 +5,18 @@ import { getModelMetadata, DbConnection } from './';
 @injectable()
 export class ModelBase<T> {
     protected _schema: mongoose.Schema;
+    protected _model;
 
-    constructor(protected _connection: DbConnection,
-        protected modelName: string,
-        protected schema: mongoose.Schema,
-        protected collection: string) {
-        // implement all methods from mongoose model
-        // const metadata = getModelMetadata(this);
-        // Object.assign(this, _connection.model(metadata.name, this._schema, metadata.collection));
+    protected initializeModel(connection: mongoose.Connection, modelName: string, schema: mongoose.Schema, collection: string) {
+        if (!this._model) {
+            this._model = connection.model(modelName, schema, collection);
+        }
+
+        return this._model;
     }
 
     get model(): T {
-        return this._connection.get.model(this.modelName, this.schema, this.collection) as any;
+        return this._model;
     }
 
 }

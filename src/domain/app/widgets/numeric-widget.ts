@@ -32,16 +32,17 @@ export class NumericWidget extends UIWidgetBase implements IUIWidget {
 
     // TODO: Refactor
     constructor(
-        @inject('Charts') private _charts: Charts,
-        @inject('Sales') private _sales: Sales,
-        @inject('Expenses') private _expenses: Expenses,
-        @inject('KPIs') private _kpis: KPIs
+        widget: IWidget,
+        private _charts: Charts,
+        private _sales: Sales,
+        private _expenses: Expenses,
+        private _kpis: KPIs
         ) {
-        super();
+        super(widget);
     }
 
-    materialize(widget: IWidget): Promise<IUIWidget> {
-        Object.assign(this, widget);
+    materialize(): Promise<IUIWidget> {
+        Object.assign(this, this.widget);
 
         if (!this.numericWidgetAttributes || !this.numericWidgetAttributes.kpi) {
             console.log('A numeric Widget cannot live without a kpi');
@@ -111,7 +112,7 @@ export class NumericWidget extends UIWidgetBase implements IUIWidget {
 
         const that = this;
         return new Promise<any>((resolve, reject) => {
-            return kpiClone.getData(null, [dateRange], { filter: null }).then(result => {
+            return kpiClone.getData([dateRange], { filter: null }).then(result => {
                 if (result && result.length > 0) {
                     console.log(`value recieved for widget(${that.name}): ${result[0].value}`);
                     return resolve(result[0].value);
@@ -149,9 +150,7 @@ export class NumericWidget extends UIWidgetBase implements IUIWidget {
             comparison:  comparisonObject
         };
 
-        // TODO: Check removing this.widget has the same effect
-        // const result = Object.assign({}, this.widget, { materialized: materialized });
-        const result = Object.assign({}, this, { materialized: materialized });
+        const result = Object.assign({}, this.widget, { materialized: materialized });
 
         return <any>result;
     }

@@ -11,6 +11,7 @@ import {
     Dashboards,
     AppConnection
 } from '../domain';
+import { injectable, inject } from 'inversify';
 
 interface ISeedModels {
     expenses: Expenses;
@@ -21,10 +22,11 @@ interface ISeedModels {
     dashboards: Dashboards;
 }
 
+@injectable()
 export class SeedService {
     private _models: ISeedModels;
 
-    constructor(appConnection: AppConnection) {
+    constructor(@inject('AppConnection') appConnection: AppConnection) {
         this._models = {
             expenses: new Expenses(appConnection),
             sales: new Sales(appConnection),

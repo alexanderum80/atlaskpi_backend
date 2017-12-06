@@ -1,7 +1,6 @@
 import { getGroupingMetadata } from '../../charts/queries';
 import { FrequencyTable, IChartDateRange, IDateRange, parsePredifinedDate } from '../../../domain/common';
 import * as Promise from 'bluebird';
-import { inject, injectable } from 'inversify';
 import * as jsep from 'jsep';
 import * as _ from 'lodash';
 import * as math from 'mathjs';
@@ -22,23 +21,23 @@ export const ExpressionTreeTypes = {
     literal: 'Literal'
 };
 
-@injectable()
 export class CompositeKpi implements IKpiBase {
 
     constructor(
-        @inject('KPIs') private _kpis: KPIs,
-        @inject('Sales') private _sales: Sales,
-        @inject('Expenses') private _expenses: Expenses) { }
+        private _kpi: IKPIDocument,
+        private _kpis: KPIs,
+        private _sales: Sales,
+        private _expenses: Expenses) { }
 
     // constructor(private _kpi: IKPIDocument, private ctx: IAppModels) { }
 
-    getData(kpi: IKPIDocument): Promise<any> {
-        const exp: jsep.IExpression = jsep(kpi.expression);
+    getData(): Promise<any> {
+        const exp: jsep.IExpression = jsep(this._kpi.expression);
         return this._processExpression(exp);
     }
 
-    getTargetData(kpi: IKPIDocument): Promise<any> {
-        const exp: jsep.IExpression = jsep(kpi.expression);
+    getTargetData(): Promise<any> {
+        const exp: jsep.IExpression = jsep(this._kpi.expression);
         return this._processExpression(exp);
     }
 
@@ -70,7 +69,7 @@ export class CompositeKpi implements IKpiBase {
     private _getKpiData(id: string): Promise<any> {
         return new Promise<any>((resolve, reject) => {
             this._kpis.model.findOne({ _id: id }).then(kpiDocument => {
-                const kpi = KpiFactory.getInstance(kpiDocument, this._sales, this._expenses);
+                const kpi = KpiFactory.getInstance(kpiDocument, this._kpis, this._sales, this._expenses);
                 const dateRange: IDateRange = this._processChartDateRange(kpiDocument.dateRange);
                 const options: IGetDataOptions = {
                     filter: kpiDocument.filter,
@@ -78,7 +77,7 @@ export class CompositeKpi implements IKpiBase {
                     groupings: getGroupingMetadata(null, kpiDocument.groupings)
                 };
 
-                kpi.getData(kpiDocument, dateRange[0], options)
+                kpi.getData(dateRange[0], options)
                     .then(res => resolve(res))
                     .catch(e => reject(e));
             });

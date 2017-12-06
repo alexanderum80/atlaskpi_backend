@@ -1,5 +1,6 @@
+import { IEnforcer } from './modules/security';
+import { Enforcer } from '../app_modules/security/enforcer';
 import { Request } from 'Express';
-import { Enforcer, IEnforcer } from './modules/security/enforcer';
 import { IQueryBus, QueryBus } from './queries/query-bus';
 import { IMutationBus, MutationBus } from './mutations/mutation-bus';
 import { makeGraphqlSchemaExecutable } from './graphql/graphql-schema-generator';
@@ -64,6 +65,7 @@ export class Bridge {
         const newOptions = Object.assign({}, defaultServerOptions, options);
         const container = new Container({ autoBindInjectable: true });
         // I need to save the container in a global name space so it can be accessed from the middlewares
+
         BRIDGE.container = container;
 
         const moduleDefinition = appModule[MetadataFieldsMap.Definition];
@@ -106,7 +108,7 @@ export class Bridge {
             {
               context: {
                 req: req,
-                requestContainer: createRequestContainer(req, _container),
+                requestContainer: BRIDGE.getRequestContainer(req),
                 mutationBus: _container.get<IMutationBus>('MutationBus'),
                 queryBus: _container.get<IQueryBus>('QueryBus')
               },
@@ -137,12 +139,12 @@ function registerBridgeDependencies(container: Container) {
     container.bind<IQueryBus>('QueryBus').to(QueryBus).inSingletonScope();
 }
 
-function createRequestContainer(req: Request, generalContainer: Container): interfaces.Container {
-    const container = new Container({ autoBindInjectable: true });
-    // first thing first!
-    container.bind<Request>('Request').toConstantValue(req);
+// function getRequestContainer(req: Request, generalContainer: Container): interfaces.Container {
+//     const container = new Container({ autoBindInjectable: true });
+//     // first thing first!
+//     container.bind<Request>('Request').toConstantValue(req);
 
 
-    return Container.merge(generalContainer, container);
+//     return Container.merge(generalContainer, container);
 
-}
+// }

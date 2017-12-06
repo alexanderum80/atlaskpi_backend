@@ -1,2 +1,3 @@
-export * from './get-dashboards.query';
-export * from './get-dashboard.query';
+export * from './dashboard.query';
+export * from './dashboards.query';
+

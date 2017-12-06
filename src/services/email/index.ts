@@ -1,6 +1,6 @@
+import { config } from '../../configuration/config';
 import * as Promise from 'bluebird';
 import * as nodemailer from 'nodemailer';
-import { config } from '../../config';
 
 // import providers
 import { MailgunService } from './mailgun.email.service';

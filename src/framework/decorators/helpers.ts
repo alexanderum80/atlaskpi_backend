@@ -1,12 +1,13 @@
+import { Request } from 'Express';
+import { IActivity } from '../modules/security';
 import { GraphQLInputDecoratorOptions } from './input.decorator';
-import { IActivity } from '../authorization';
 import { IAppModule, IModuleOptions } from './app-module';
 import { GraphQLQueryMutationDecoratorOptions } from './query-mutation-options';
 import { MetadataFieldsMap } from './metadata-fields.map';
 import { GraphqlMetaType } from './graphql-meta-types.enum';
 import { GraphQLArtifact } from './graphql-artifact';
 import * as Hbs from 'handlebars';
-import { Container } from 'inversify';
+import { Container, interfaces } from 'inversify';
 
 
 export interface IArtifactDetails {
@@ -20,7 +21,7 @@ export interface IArtifactDetails {
 }
 
 export interface IQueryOrMutationDetails extends IArtifactDetails {
-    activity: IActivity;
+    activity: new (...args) => IActivity;
     resolver: any;
     relatedTypes: any[];
 }
@@ -57,6 +58,7 @@ export interface IFrameworkMetadata {
     };
     modules: IModuleArtifact;
     container?: Container;
+    getRequestContainer(req: Request): interfaces.Container;
 }
 
 const defaultFrameworkMetadata: IFrameworkMetadata = {
@@ -66,7 +68,13 @@ const defaultFrameworkMetadata: IFrameworkMetadata = {
         queries: {},
         mutations: {}
     },
-    modules: {}
+    modules: {},
+    getRequestContainer: function(req: Request): interfaces.Container {
+        const container = new Container({ autoBindInjectable: true });
+        // first thing first!
+        container.bind<Request>('Request').toConstantValue(req);
+        return Container.merge(this.container, container);
+    }
 };
 
 export enum MetadataType {
@@ -103,7 +111,9 @@ export function updateFieldAndTypeMetadata(metadataType: MetadataType, name: str
 
 export function updateQueriesAndMutationsMetadata(metadataType: MetadataType, name: string,
     graphqlName: string, graphqlText: string,
-    constructor: any, activity?: IActivity, types?: any[]) {
+    constructor: any,
+    activity?: new (...args) => IActivity,
+    types?: any[]) {
     let graphqlArtifact: IGraphqlArtifacts = BRIDGE.graphql[metadataType];
 
     if (graphqlArtifact[name]) {
@@ -181,26 +191,39 @@ export function updateMetadata(target, containerName, field, value) {
 
 export function processQueryAndMutation(target: any, type: GraphqlMetaType, definition: GraphQLQueryMutationDecoratorOptions) {
     const name = definition.name || target.name;
-    const parameters = definition.parameters.map(p => `${p.name}: ${p.type.name}`);
-    const inputTemplateText = `{{name}}({{#each parameters}}{{this}}{{/each}}): {{output}}`;
-    const payload = {
-        name: name,
-        parameters: definition.parameters.map(p => `${p.name}: ${p.type.name || p.type}${p.required ? '!' : ''}`),
-        output: definition.output.name
-    };
-    const graphqlType = Hbs.compile(inputTemplateText)(payload);
+    let parameters;
 
     // add only complex types
     const types = [];
 
     // add types for parameters
     if (definition.parameters) {
+        parameters = definition.parameters.map(p => {
+            const isArray = p.isArray;
+            return p.isArray ?
+                `${p.name}: [${p.type.name || p.type}]${p.required ? '!' : ''}`
+                : `${p.name}: ${p.type.name || p.type}${p.required ? '!' : ''}`;
+        });
+
         definition.parameters.forEach(p => {
             if (p.type.name) {
                 types.push(p.type);
             }
         });
     }
+
+
+    // const parameters = definition.parameters.map(p => `${p.name}: ${p.type.name}`);
+    const inputTemplateText = `{{name}}({{#each parameters}}{{this}},{{/each}}): {{output}}`;
+    const payload = {
+        name: name,
+        parameters: parameters,
+        output: definition.output.isArray ? `[${definition.output.type.name}]` : definition.output.type.name
+    };
+    let graphqlType = Hbs.compile(inputTemplateText)(payload);
+
+    // remove extra comma
+    graphqlType = graphqlType.replace(',)', ')');
 
     // add output type
     if (definition.output.name) {

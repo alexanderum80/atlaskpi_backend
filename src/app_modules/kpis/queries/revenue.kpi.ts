@@ -40,11 +40,11 @@ export class Revenue extends KpiBase implements IKpiBase {
         super(sales, baseAggregate);
     }
 
-    getData(kpi: IKPIDocument, dateRange: IDateRange[], options?: IGetDataOptions): Promise<any> {
+    getData(dateRange: IDateRange[], options?: IGetDataOptions): Promise<any> {
         return this.executeQuery('product.from', dateRange, options);
     }
 
-    getTargetData(kpi: IKPIDocument, dateRange?: IDateRange[], options?: IGetDataOptions): Promise<any> {
+    getTargetData(dateRange?: IDateRange[], options?: IGetDataOptions): Promise<any> {
         return this.executeQuery('product.from', dateRange, options);
     }
 

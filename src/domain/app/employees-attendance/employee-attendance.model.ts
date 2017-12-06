@@ -20,6 +20,7 @@ let EmployeeAttendanceSchema = new Schema({
 @injectable()
 export class EmployeeAttendance extends ModelBase<IEmployeeAttendanceModel> {
     constructor(@inject('AppConnection') appConnection: AppConnection) {
-        super(appConnection, 'EmployeeAttendance', EmployeeAttendanceSchema, 'employeeAttendance');
+        super();
+        this.initializeModel(appConnection.get, 'EmployeeAttendance', EmployeeAttendanceSchema, 'employeeAttendance');
     }
 }

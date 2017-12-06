@@ -1,4 +1,4 @@
-import { GetDashboardQuery, GetDashboardsQuery } from './queries';
+import { DashboardQuery, DashboardsQuery } from './queries';
 import { CreateDashboardMutation, DeleteDashboardMutation, UpdateDashboardMutation } from './mutations';
 import {
     AppModule, ModuleBase
@@ -11,8 +11,8 @@ import {
         UpdateDashboardMutation
     ],
     queries: [
-        GetDashboardQuery,
-        GetDashboardsQuery
+        DashboardQuery,
+        DashboardsQuery
     ]
 })
 export class DashboardsModule extends ModuleBase { }

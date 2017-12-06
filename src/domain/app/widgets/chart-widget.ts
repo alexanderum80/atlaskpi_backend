@@ -1,5 +1,4 @@
 import * as Promise from 'bluebird';
-import { inject, injectable } from 'inversify';
 
 import { getGroupingMetadata } from '../../../app_modules/charts/queries';
 import { IChartMetadata } from '../../../app_modules/charts/queries/charts';
@@ -13,26 +12,26 @@ import { Sales } from '../sales';
 import { IWidget, IWidgetMaterializedFields } from './';
 import { IUIWidget, UIWidgetBase } from './ui-widget-base';
 
-@injectable()
 export class ChartWidget extends UIWidgetBase implements IUIWidget {
     chart: string; // stringified representation of an IChart with its definition
 
     // TODO: Refactor
     constructor(
-        @inject('Charts') private _charts: Charts,
-        @inject('Sales') private _sales: Sales,
-        @inject('Expenses') private _expenses: Expenses,
-        @inject('KPIs') private _kpis: KPIs
+        protected widget: IWidget,
+        private _charts: Charts,
+        private _sales: Sales,
+        private _expenses: Expenses,
+        private _kpis: KPIs
         ) {
-        super();
+        super(widget);
         if (!this.chartWidgetAttributes || !this.chartWidgetAttributes.chart) {
             console.log('A Chart Widget cannot live without a chart');
             return null;
         }
     }
 
-    materialize(widget: IWidget): Promise<IUIWidget> {
-        Object.assign(this, widget);
+    materialize(): Promise<IUIWidget> {
+        Object.assign(this, this.widget);
         const that = this;
 
         return new Promise<IUIWidget>((resolve, reject) => {
@@ -45,7 +44,7 @@ export class ChartWidget extends UIWidgetBase implements IUIWidget {
                     chart: JSON.stringify(resolvedUIChart)
                 };
 
-                const result = Object.assign({}, widget, { materialized: materialized });
+                const result = Object.assign({}, this.widget, { materialized: materialized });
                 console.log(materialized.chart);
                 resolve(<any>result);
                 return;
