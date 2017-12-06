@@ -65,9 +65,7 @@ export class KPIFilterHelper {
             return KPIFilterHelper._serializeFilter({ $and: mongoDbFilterArray.map(f => KPIFilterHelper._serializeFilter(f)) });
         } else {
             // single filter
-            const sFilter = KPIFilterHelper._serializeFilter(mongoDbFilterArray[0]);
-            return sFilter;
-            // return KPIFilterHelper._serializeFilter(mongoDbFilterArray[0]);
+            return KPIFilterHelper._serializeFilter(mongoDbFilterArray[0]);
         }
     }
 
