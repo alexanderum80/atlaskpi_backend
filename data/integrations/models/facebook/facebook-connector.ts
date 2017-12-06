@@ -8,17 +8,23 @@ import * as Promise from 'bluebird';
 import * as request from 'request';
 import { config } from '../../../../config';
 
-export interface ILinkedInConfig {
+export interface IFacebookPage {
+    id: string;
+    name: string;
+    access_token: string;
+}
+
+export interface IFacebookConfig {
     clientId: string;
     requiredAuthScope: string;
     instagramConfig: any;
 }
 
-export class LinkedInConnector implements IOAuthConnector {
+export class FacebookConnector implements IOAuthConnector {
     private _client: ClientOAuth2;
     private _name;
     private _token: IOAuth2Token;
-    private _companies: IIdName[];
+    private _pages: IFacebookPage[];
 
     constructor(private _config: any) {
         if (!_config) {
@@ -34,11 +40,11 @@ export class LinkedInConnector implements IOAuthConnector {
     }
 
     getType(): ConnectorTypeEnum {
-        return ConnectorTypeEnum.LinkedIn;
+        return ConnectorTypeEnum.Facebook;
     }
 
     getTypeString(): string {
-        return ConnectorTypeEnum[ConnectorTypeEnum.LinkedIn].toString();
+        return ConnectorTypeEnum[ConnectorTypeEnum.Facebook].toString();
     }
 
     getToken(url: string): Promise<IOAuth2Token> {
@@ -51,13 +57,18 @@ export class LinkedInConnector implements IOAuthConnector {
                 }
             }).then(token => {
                 that._token = <any>token.data;
-                that._getCompanyInfo().then(info => {
+                that._getPagesInfo().then(info => {
                     if (info.error) {
                         reject(info.error);
                         return;
                     }
 
-                    this._companies = info.response;
+                    if (!info.response.accounts || !info.response.accounts.data) {
+                        reject('account is not admin of any page');
+                        return;
+                    }
+
+                    that._pages = info.response.accounts.data;
                     resolve(<any>token.data);
                     return;
                 })
@@ -81,7 +92,7 @@ export class LinkedInConnector implements IOAuthConnector {
 
     getUniqueKeyValue(): IKeyValuePair {
         return  {
-                  key: 'config.companyId',
+                  key: 'config.pageId',
                   value: ''
         };
     }
@@ -93,14 +104,14 @@ export class LinkedInConnector implements IOAuthConnector {
 
         const config: IConnectorConfig = {
             token: this._token,
-            companyId: ''
+            pageId: ''
         };
 
         return config;
     }
 
-    getLinkedInCompanies(): IIdName[] {
-        return this._companies;
+    getFacebookPages(): IFacebookPage[] {
+        return this._pages;
     }
 
     private getAuthConfiguration(): IOAuthConfigOptions {
@@ -114,46 +125,44 @@ export class LinkedInConnector implements IOAuthConnector {
         };
     }
 
-    private _getCompanyInfo(): Promise<any> {
+    private _getPagesInfo(): Promise<any> {
         if (!this._token) {
             return Promise.reject('connector not ready for getting comapny info');
         }
 
         const that = this;
         // prepare the test request to check if the access_token is good
-        const url = this._config.endpoints.company_endpoint;
+        const url = this._config.endpoints.pages_endpoint;
         console.log('Making API call to: ' + url);
         const requestObj = {
-            url: url + '&oauth2_access_token=' + this._token.access_token,
+            url: url + '&access_token=' + this._token.access_token,
             method: 'GET'
         };
 
         return new Promise<any>((resolve, reject) => {
-            setTimeout(() => {
-                request(requestObj, (err, res: Response) => {
-                    const json = ( < any > res).toJSON();
-                    const body = JSON.parse(json.body);
+            request(requestObj, (err, res: Response) => {
+                const json = ( < any > res).toJSON();
+                const body = JSON.parse(json.body);
 
-                    let error;
-                    let response;
+                let error;
+                let response;
 
-                    if (body.status) {
-                        error = body;
-                    }
+                if (body.error) {
+                    error = body.error;
+                }
 
-                    if (body._total && body.values && body.values) {
-                        response = body.values;
-                    }
+                if (body.id && body.name) {
+                    response = body;
+                }
 
-                    const result = {
-                        error: error,
-                        response: response
-                    };
+                const result = {
+                    error: error,
+                    response: response
+                };
 
-                    resolve(result);
-                    return;
+                resolve(result);
+                return;
                 });
-            }, 5000);
         });
     }
 }

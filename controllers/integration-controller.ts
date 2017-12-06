@@ -1,3 +1,4 @@
+import { FacebookConnector } from './../data/integrations/models/facebook/facebook-connector';
 import { LinkedInConnector } from '../data/integrations/models/linkedin/linkedin-connector';
 import { isObject } from 'util';
 import { IConnector, IConnectorDocument, IConnectorModel } from './../data/models/master/connectors/IConnector';
@@ -87,10 +88,25 @@ export class IntegrationController {
                     return;
                 }
 
-                // Special case of Instagram
-                // Instagram doesnt let you chose wich company you are adding
+                // Special case of LinkedIn
+                // Linkedin doesnt let you chose wich company you are adding
                 if (that._connector instanceof LinkedInConnector) {
                     that._handleLinkedInConnectorFlow().then(flowResult => {
+                        resolve(flowResult);
+                        return;
+                    })
+                    .catch(err => {
+                        reject(err);
+                        return;
+                    });
+
+                    return;
+                }
+
+                // Special case of Faceook
+                // Facebook doesnt let you chose wich page you are adding
+                if (that._connector instanceof FacebookConnector) {
+                    that._handleFacebookConnectorFlow().then(flowResult => {
                         resolve(flowResult);
                         return;
                     })
@@ -157,6 +173,57 @@ export class IntegrationController {
 
         companies.forEach(c => {
             connectorConfig.companyId = c.id;
+            uniqueKeyValue.value = c.id;
+            const newConnector = {
+                name: c.name,
+                active: true,
+                config: { ... connectorConfig },
+                databaseName: that._companyName,
+                type: type,
+                createdBy: 'backend',
+                createdOn: new Date(Date.now()),
+                uniqueKeyValue: { ... uniqueKeyValue }
+            };
+            promises.push(that._connectorModel.addConnector(newConnector));
+            lastConnector = newConnector;
+        });
+
+        return new Promise<IExecutionFlowResult>((resolve, reject) => {
+            Promise.all(promises).then(() => {
+                const flowResult: IExecutionFlowResult = {
+                    success: true,
+                    connector: lastConnector
+                };
+                resolve(flowResult);
+                return;
+            })
+            .catch(err => {
+                reject(err);
+                return;
+            });
+        });
+    }
+
+    private _handleFacebookConnectorFlow(): Promise<IExecutionFlowResult> {
+        const pages = this._connector.getFacebookPages();
+
+        if (!pages || !pages.length) {
+            const flowResult: IExecutionFlowResult = {
+                success: false,
+                error: 'Facebook account does not contains pages'
+            };
+            return Promise.resolve(flowResult);
+        }
+
+        const that = this;
+        const promises = [];
+        const connectorConfig = this._connector.getConfiguration();
+        const uniqueKeyValue = this._connector.getUniqueKeyValue();
+        const type = getConnectorTypeId(this._connector.getType());
+        let lastConnector;
+
+        pages.forEach(c => {
+            connectorConfig.pageId = c.id;
             uniqueKeyValue.value = c.id;
             const newConnector = {
                 name: c.name,

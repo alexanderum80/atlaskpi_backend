@@ -1,3 +1,4 @@
+import { FacebookConnector } from './models/facebook/facebook-connector';
 import { LinkedInConnector } from './models/linkedin/linkedin-connector';
 import { InstagramConnector } from './models/instagram/instagram-connector';
 import { ConnectorTypeEnum, getConnectorType } from './models/connector-type';
@@ -21,6 +22,8 @@ export class IntegrationConnectorFactory {
                 return new InstagramConnector(integrationConfig);
             case ConnectorTypeEnum.LinkedIn:
                 return new LinkedInConnector(integrationConfig);
+            case ConnectorTypeEnum.Facebook:
+                return new FacebookConnector(integrationConfig);
             default:
                 return null;
         }
@@ -36,6 +39,8 @@ export class IntegrationConnectorFactory {
                 return IntegrationConnectorFactory.getInstagramConnector(integrationConfig, connector);
             case ConnectorTypeEnum.LinkedIn:
                 return IntegrationConnectorFactory.getLinkedInConnector(integrationConfig, connector);
+            case ConnectorTypeEnum.Facebook:
+                return IntegrationConnectorFactory.getFacebookConnector(integrationConfig, connector);
             default:
                 return null;
         }
@@ -64,5 +69,11 @@ export class IntegrationConnectorFactory {
         const linkedInConnector = new LinkedInConnector(integrationConfig);
         linkedInConnector.setToken(connector.config.token);
         return linkedInConnector;
+    }
+
+    private static getFacebookConnector(integrationConfig, connector: IConnectorDocument): FacebookConnector {
+        const facebookConnector = new FacebookConnector(integrationConfig);
+        facebookConnector.setToken(connector.config.token);
+        return facebookConnector;
     }
 }
