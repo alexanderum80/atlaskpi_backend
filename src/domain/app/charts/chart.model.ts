@@ -184,6 +184,7 @@ ChartSchema.statics.updateChart = function(id: string, input: IChartInput): Prom
 @injectable()
 export class Charts extends ModelBase < IChartModel > {
     constructor(@inject('AppConnection') appConnection: AppConnection) {
-        super(appConnection, 'Chart', ChartSchema, 'charts');
+        super();
+        this.initializeModel(appConnection.get, 'Chart', ChartSchema, 'charts');
     }
 }

@@ -12,7 +12,8 @@ auth.post('/token', function authenticate(req: ExtendedRequest, res: Response) {
     let hostname = getRequestHostname(req);
     let ip = (req.headers['x-forwarded-for'] || req.connection.remoteAddress) as string;
 
-    const authService = BRIDGE.container.get<AuthService>('AuthService');
+    const authService = BRIDGE.getRequestContainer(req).get<AuthService>('AuthService');
+
     const input: IUserAuthenticationData = {
         hostname: hostname,
         username: req.body.username,
@@ -24,9 +25,9 @@ auth.post('/token', function authenticate(req: ExtendedRequest, res: Response) {
 
     authService.authenticateUser(input)
         .then((tokenInfo) => {
-            res.status(200).json(tokenInfo);
+            return res.status(200).json(tokenInfo);
         }, (err) => {
-            res.status(err.status || 401).json({ error: err });
+            return res.status(err.status || 401).json({ error: err });
         });
 });
 

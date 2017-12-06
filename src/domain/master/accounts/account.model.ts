@@ -147,7 +147,10 @@ accountSchema.methods.createAccountDbUser = function(accountDbUser: IAccountDBUs
 
 @injectable()
 export class Accounts extends ModelBase<IAccountModel> {
+    static Schema = accountSchema;
+
     constructor(@inject('MasterConnection') appConnection: MasterConnection) {
-        super(appConnection, 'Account', accountSchema, 'accounts');
+        super();
+        this.initializeModel(appConnection.get, 'Account', accountSchema, 'accounts');
     }
 }

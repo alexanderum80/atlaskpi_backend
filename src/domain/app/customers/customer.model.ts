@@ -43,6 +43,7 @@ let CustomerSchema = new Schema({
 @injectable()
 export class Customers extends ModelBase < ICustomerModel > {
     constructor(@inject('AppConnection') appConnection: AppConnection) {
-        super(appConnection, 'Customer', CustomerSchema, 'customers');
+        super();
+        this.initializeModel(appConnection.get, 'Customer', CustomerSchema, 'customers');
     }
 }

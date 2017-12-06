@@ -11,7 +11,7 @@ export class KpiFactory {
     static getInstance(kpiDocument: IKPIDocument, kpis: KPIs, sales: Sales, expenses: Expenses): IKpiBase {
         if (kpiDocument.type && KPITypeMap[kpiDocument.type] === KPITypeEnum.Compound) {
             // TODO: Refactor this
-            return new CompositeKpi(kpis, sales, expenses);
+            return new CompositeKpi(kpiDocument, kpis, sales, expenses);
         }
 
         if (kpiDocument.type && KPITypeMap[kpiDocument.type] === KPITypeEnum.Simple) {

@@ -16,6 +16,7 @@ let WorkLogSchema =  new Schema ({
 @injectable()
 export class Worklogs extends ModelBase<IWorkLogModel> {
     constructor(@inject('AppConnection') appConnection: AppConnection) {
-        super(appConnection, 'WorkLog', WorkLogSchema, 'workLogs');
+        super();
+        this.initializeModel(appConnection.get, 'WorkLog', WorkLogSchema, 'workLogs');
     }
 }

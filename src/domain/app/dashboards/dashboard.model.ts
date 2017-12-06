@@ -113,6 +113,7 @@ DashboardSchema.statics.deleteDashboard = function(id: string):
 @injectable()
 export class Dashboards extends ModelBase < IDashboardModel > {
     constructor(@inject('AppConnection') appConnection: AppConnection) {
-        super(appConnection, 'Dashboard', DashboardSchema, 'dashboards');
+        super();
+        this.initializeModel(appConnection.get, 'Dashboard', DashboardSchema, 'dashboards');
     }
 }

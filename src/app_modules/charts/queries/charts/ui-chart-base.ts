@@ -1,36 +1,30 @@
-import { DateRangeHelper } from './../../date-ranges/date-range.helper';
-import {
-    getDateRangeIdentifier,
-    getDateRangeIdFromString,
-    PredefinedComparisonDateRanges,
-    PredefinedDateRanges,
-} from './../../../../models/common/date-range';
-import { TargetService } from '../../../../services/targets/target.service';
-import { ITarget, ITargetDocument } from '../../../../models/app/targets/ITarget';
-import { parseComparisonDateRange, parsePredifinedDate } from '../../../../models/common/date-range';
-import { IKPIDocument, IAppModels } from '../../../../models/app';
-import { IKpiBase, IKPIResult } from '../../kpis/kpi-base';
-import { IChart, IChartDocument } from '../../../../models/app/charts';
-import { IChartDateRange } from '../../../../models/common/date-range';
-import { ChartPreProcessorExtention } from './chart-preprocessor-extention';
-import { FrequencyHelper, IFrequencyInfo, IFrequencyValues } from './frequency-values';
-import { IChartMetadata, IChartSerie, ChartType } from '.';
+import 'datejs';
+
+import * as Promise from 'bluebird';
+import { cloneDeep, difference, flatten, groupBy, isEmpty, map, union, uniq, uniqBy } from 'lodash';
+import * as moment from 'moment';
+import * as logger from 'winston';
+
+import { ChartType, IChartMetadata, IChartSerie } from '.';
+import { IChart } from '../../../../domain/app/charts';
+import { ITargetDocument } from '../../../../domain/app/targets';
 import {
     FREQUENCY_GROUPING_NAME,
     FrequencyEnum,
+    getDateRangeIdFromString,
     getFrequencyPropName,
     getFrequencySequence,
+    IChartDateRange,
     IDateRange,
-} from '../../../../models/common';
-import * as Promise from 'bluebird';
-import * as _ from 'lodash';
-import * as moment from 'moment';
-import * as mongoose from 'mongoose';
-import * as logger from 'winston';
-import 'datejs';
-import * as changeCase from 'change-case';
-
-import { ChartPostProcessingExtention } from './chart-postprocessing-extention';
+    parseComparisonDateRange,
+    parsePredifinedDate,
+    PredefinedComparisonDateRanges,
+    PredefinedDateRanges,
+} from '../../../../domain/common';
+import { TargetService } from '../../../../services/target.service';
+import { IKpiBase } from '../../../kpis/queries/kpi-base';
+import { ChartPreProcessorExtention } from './chart-preprocessor-extention';
+import { FrequencyHelper } from './frequency-values';
 
 interface Dictionary<T> { [key: string]: T; }
 
@@ -253,7 +247,7 @@ export class UIChartBase {
             return this.frequencyHelper.getCategories(metadata.frequency);
         }
 
-        const uniqueCategories = <string[]> _.uniq(data.map(item => item._id[metadata.xAxisSource]));
+        const uniqueCategories = <string[]> uniq(data.map(item => item._id[metadata.xAxisSource]));
 
         return uniqueCategories.map(category => {
             return {
@@ -297,7 +291,7 @@ export class UIChartBase {
                 break;
         }
         if (duplicateCategories.length) {
-            duplicateCategories = _.flatten(duplicateCategories);
+            duplicateCategories = flatten(duplicateCategories);
         }
         return duplicateCategories;
     }
@@ -331,7 +325,7 @@ export class UIChartBase {
          *  so I need to get a list of the rest of the grouping fields so I can build the series
          */
 
-        const availableGroupingsForSeries = _.difference(groupings, [meta.xAxisSource]);
+        const availableGroupingsForSeries = difference(groupings, [meta.xAxisSource]);
 
 
         if (availableGroupingsForSeries.length === 0) {
@@ -367,7 +361,7 @@ export class UIChartBase {
             return [{
                 name: '',
                 data:  categories.map(cat => {
-                    let dataItem = _.find(data, (item: any) => {
+                    let dataItem = data.find((item: any) => {
                         return item._id[group] === cat.id;
                     });
 
@@ -390,7 +384,7 @@ export class UIChartBase {
         /**
          * First I need to group the results using the next groupig field
          */
-        let groupedData: Dictionary<any> = _.groupBy(data, '_id.' + groupByField);
+        let groupedData: Dictionary<any> = groupBy(data, '_id.' + groupByField);
 
         let series: IChartSerie[] = [];
         let matchField: string;
@@ -414,7 +408,7 @@ export class UIChartBase {
             };
 
             categories.forEach(cat => {
-                let dataItem = _.find(groupedData[serieName], (item: any) => {
+                let dataItem = groupedData[serieName].find((item: any) => {
                     return item._id[matchField] === cat.id;
                 });
 
@@ -429,7 +423,7 @@ export class UIChartBase {
 
     private _formatTarget(target: any[], metadata: any, groupings: any) {
         if (groupings && groupings.length) {
-            this.commonField = _.filter(groupings, (v, k) => {
+            this.commonField = groupings.filter((v, k) => {
                 return v !== 'frequency';
             });
         }
@@ -455,7 +449,7 @@ export class UIChartBase {
                 }
             }
 
-            this.targetData = _.map(filterActiveTargets, (v, k) => {
+            this.targetData = map(filterActiveTargets, (v, k) => {
                 return (<any>v).stackName ? {
                     _id: {
                         frequency: TargetService.formatFrequency(metadata.frequency, v.datepicker),
@@ -480,7 +474,7 @@ export class UIChartBase {
     }
 
     private _injectTargets(data: any[], meta: IChartMetadata, categories: IXAxisCategory[], groupings: string[], series: any[]) {
-        let groupDifference = _.difference(groupings, [meta.xAxisSource]);
+        let groupDifference = difference(groupings, [meta.xAxisSource]);
         this.targets = this._targetGrouping(data, groupDifference.length, groupDifference[0], meta, categories);
 
         if (this.targets && this.targets.length) {
@@ -513,10 +507,10 @@ export class UIChartBase {
             });
 
             let missingCategories = this._addMissingDates(categories);
-            categories = _.union(categories, targetCategories);
+            categories = union(categories, targetCategories);
 
-            categories = _.union(categories, missingCategories);
-            categories = _.uniqBy(categories, 'name');
+            categories = union(categories, missingCategories);
+            categories = uniqBy(categories, 'name');
 
             this.categories = categories;
         }
@@ -525,7 +519,7 @@ export class UIChartBase {
             this.categories = this._createCategories(data, meta);
         }
 
-        let groupedData: Dictionary<any> = _.groupBy(data, (val) => {
+        let groupedData: Dictionary<any> = groupBy(data, (val) => {
             if (val['_id'].hasOwnProperty('stackName')) {
                 return val._id[groupByField] + '_' + val._id['stackName'];
             }
@@ -577,7 +571,7 @@ export class UIChartBase {
             serie['targetId'] = groupedData[serieName][0].targetId;
 
             categories.forEach(cat => {
-                let dataItem = _.find(groupedData[serieName], (item: any) => {
+                let dataItem = groupedData[serieName].find((item: any) => {
                     if (item._id.hasOwnProperty('stackName') && item._id.stackName) {
                         return item._id.stackName === cat.id;
                     }
@@ -645,7 +639,7 @@ export class UIChartBase {
        if (!dateRange || !comparisonOptions) return;
 
        return comparisonOptions.map(c => {
-            if (_.isEmpty(c)) return;
+            if (isEmpty(c)) return;
             return parseComparisonDateRange(this._processChartDateRange(dateRange[0]), c);
        });
     }
@@ -663,8 +657,8 @@ export class UIChartBase {
         };
 
         this.comparison.forEach((comparisonDateRange, index) => {
-            const newChart = _.cloneDeep(this);
-            const newMetadata = _.cloneDeep(metadata);
+            const newChart = cloneDeep(this);
+            const newMetadata = cloneDeep(metadata);
             newMetadata.dateRange = [ { custom: comparisonDateRange } ];
             chartPromises[metadata.comparison[index]] = newChart.getDefinitionForDateRange(kpi, newMetadata, []);
         });

@@ -32,6 +32,7 @@ let InventorySchema = new Schema({
 @injectable()
 export class Inventory extends ModelBase<IInventoryModel> {
     constructor(@inject('AppConnection') appConnection: AppConnection) {
-        super(appConnection, 'Inventory', InventorySchema, 'inventory');
+        super();
+        this.initializeModel(appConnection.get, 'Inventory', InventorySchema, 'inventory');
     }
 }

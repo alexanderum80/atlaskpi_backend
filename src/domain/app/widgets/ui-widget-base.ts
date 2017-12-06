@@ -3,7 +3,7 @@ import * as Promise from 'bluebird';
 import { IChartWidgetAttributes, INumericWidgetAttributes, IWidget, IWidgetMaterializedFields } from './';
 
 export interface IUIWidget extends UIWidgetBase {
-    materialize(widget: IWidget): Promise<IUIWidget>;
+    materialize(): Promise<IUIWidget>;
 }
 
 export class UIWidgetBase {
@@ -19,4 +19,8 @@ export class UIWidgetBase {
 
     // virtual properties ( result of calcs, chart definitions, trending)
     materialized?: IWidgetMaterializedFields;
+
+    constructor(protected widget: IWidget) {
+        Object.assign(this, widget);
+    }
 }

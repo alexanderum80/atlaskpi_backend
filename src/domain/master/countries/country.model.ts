@@ -13,6 +13,7 @@ const countrySchema = new mongoose.Schema({
 @injectable()
 export class Countries extends ModelBase<ICountryModel> {
     constructor(@inject('MasterConnection') appConnection: MasterConnection) {
-        super(appConnection, 'Country', countrySchema, 'countries');
+        super();
+        this.initializeModel(appConnection.get, 'Country', countrySchema, 'countries');
     }
 }

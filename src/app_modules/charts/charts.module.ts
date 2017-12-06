@@ -1,16 +1,7 @@
 import {
-    PreviewChartsQuery
-} from './queries/preview-chart.query';
-import {
     ListChartsByGroupQuery
 } from './queries/list-charts-by-group.query';
-import {
-    ChartQuery,
-    GetChartsByGroupQuery,
-    GetChartsGroupQuery,
-    GetChartsQuery,
-    ListChartsQuery,
-} from './queries';
+import { ChartQuery, ChartsListQuery, ChartsQuery, GetChartsByGroupQuery, GetChartsGroupQuery } from './queries';
 import {
     CreateChartMutation,
     DeleteChartMutation,
@@ -29,12 +20,11 @@ import {
     ],
     queries: [
         ChartQuery,
+        ChartsListQuery,
+        ChartsQuery,
         GetChartsByGroupQuery,
         GetChartsGroupQuery,
-        GetChartsQuery,
-        ListChartsByGroupQuery,
-        ListChartsQuery,
-        PreviewChartsQuery
+        ListChartsByGroupQuery
     ],
 })
 export class ChartsModule extends ModuleBase {}

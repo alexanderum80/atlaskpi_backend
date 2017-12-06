@@ -1,18 +1,29 @@
-import { WidgetFactory } from './../../models/app/widgets/widget-factory';
-import { IWidget, IWidgetDocument } from './../../models/app/widgets/IWidget';
-import { IUIWidget } from './../../models/app/widgets/ui-widget-base';
-import { IAppModels } from './../../models/app/app-models';
+import { KPIs } from '../domain/app/kpis';
+import { Expenses } from '../domain/app/expenses';
+import { Sales } from '../domain/app/sales';
+import { Charts } from '../domain/app/charts';
+import { Widgets } from '../domain/app/widgets/widget.model';
+import { WidgetFactory } from '../domain/app/widgets/widget-factory';
+import { IUIWidget, IWidget, IWidgetDocument } from '../domain';
 import * as Promise from 'bluebird';
+import { injectable, inject } from 'inversify';
 
+@injectable()
 export class WidgetsService {
 
-    constructor(private _ctx: IAppModels) { }
+    constructor(
+        @inject('Widgets') private _widgets: Widgets,
+        @inject('Charts') private _charts: Charts,
+        @inject('Sales') private _sales: Sales,
+        @inject('Expenses') private _expenses: Expenses,
+        @inject('KPIs') private _kpis: KPIs
+    ) { }
 
     listWidgets(): Promise<IUIWidget[]> {
         const that = this;
 
         return new Promise<IUIWidget[]>((resolve, reject) => {
-            that._ctx.Widget
+            that._widgets.model
             .find()
             .sort({ size: 1, order: 1, name: 1 })
             .then(documents => {
@@ -31,7 +42,7 @@ export class WidgetsService {
     previewWidget(data: IWidget): Promise<IUIWidget> {
         const that = this;
         return new Promise<IUIWidget>((resolve, reject) => {
-            const uiWidget = WidgetFactory.getInstance(data, that._ctx);
+            const uiWidget = WidgetFactory.getInstance(data, that._charts, that._sales, that._expenses, that._kpis);
             uiWidget.materialize().then(materializedWidget => {
                 resolve(materializedWidget);
                 return;

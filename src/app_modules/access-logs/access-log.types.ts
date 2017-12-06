@@ -1,6 +1,5 @@
 
-import { input, type, field, GraphQLTypesMap } from '../../framework';
-import { ErrorDetails } from '../shared';
+import { input, type, field, GraphQLTypesMap, ErrorDetails } from '../../framework';
 
 @input()
 export class IResultEntry  {

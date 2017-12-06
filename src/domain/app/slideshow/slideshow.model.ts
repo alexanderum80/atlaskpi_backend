@@ -119,6 +119,7 @@ SlideshowSchema.statics.slideshowByGroupChart = function(group: string): Promise
 @injectable()
 export class Slideshows extends ModelBase<ISlideshowModel> {
     constructor(@inject('AppConnection') appConnection: AppConnection) {
-        super(appConnection, 'Slideshow', SlideshowSchema, 'slideshows');
+        super();
+        this.initializeModel(appConnection.get, 'Slideshow', SlideshowSchema, 'slideshows');
     }
 }

@@ -66,7 +66,7 @@ export class AppConnectionPool {
 
     private _addConnection(uri: string): Promise<mongoose.Connection> {
         const that = this;
-        const contextDetails = _.find(this._connectionPool, details => details.uri === uri);
+        const contextDetails = this._connectionPool.find(details => details.uri === uri);
 
         return new Promise<mongoose.Connection>((resolve, reject) => {
             if (!contextDetails) {

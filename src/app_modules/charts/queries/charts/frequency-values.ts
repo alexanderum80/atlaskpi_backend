@@ -1,4 +1,4 @@
-import { FrequencyEnum, getFrequencySequence } from '../../../../models/common';
+import { FrequencyEnum, getFrequencySequence } from '../../../../domain/common';
 import { IXAxisCategory } from './ui-chart-base';
 import * as _ from 'lodash';
 import * as moment from 'moment';

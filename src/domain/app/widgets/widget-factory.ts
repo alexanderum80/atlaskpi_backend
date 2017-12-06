@@ -11,9 +11,9 @@ export class WidgetFactory {
     static getInstance(widget: IWidget, charts: Charts, sales: Sales, expenses: Expenses, kpis: KPIs): IUIWidget {
         switch (WidgetTypeMap[widget.type]) {
             case WidgetTypeEnum.Chart:
-                return new ChartWidget(charts, sales, expenses, kpis);
+                return new ChartWidget(widget, charts, sales, expenses, kpis);
             case WidgetTypeEnum.Numeric:
-                return new NumericWidget(charts, sales, expenses, kpis);
+                return new NumericWidget(widget, charts, sales, expenses, kpis);
             default:
                 return null;
         }
