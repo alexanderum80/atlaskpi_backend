@@ -1,10 +1,16 @@
-import { BasicRoleChecker } from './../basic-role-checker';
-import { ExtendedRequest } from './../../../middlewares/extended-request';
-import { IActivity } from './../../../lib/enforcer/activity';
+import { Users } from '../../../domain/app/security/users';
+import { IActivity } from '../../../framework';
+import * as Promise from 'bluebird';
+import { injectable, inject } from 'inversify';
 
-export const listWidgetsActivity: IActivity = {
-    may: 'list-widgets',
-    when(request: ExtendedRequest, cb: (err: any, authorized: boolean) => void) {
-        cb(null, BasicRoleChecker.hasPermission(request.user, 'View', 'Widget'));
+@injectable()
+export class ListWidgetsActivity implements IActivity {
+
+    constructor(@inject('Users') private _users: Users) {}
+
+    check(): Promise<boolean> {
+        // TODO: Refactor
+        // BasicRoleChecker.hasPermission(request.user, 'View', 'Widget')
+        return Promise.resolve(true);
     }
-};
+}

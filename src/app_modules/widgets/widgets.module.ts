@@ -1,7 +1,13 @@
-import { PreviewWidgetQuery } from './queries/preview-widget.query';
-import { ListWidgetsQuery } from './queries';
-import { GetWidgetQuery } from './queries/get-widget.query';
-import { CreateWidgetMutation, RemoveWidgetMutation, UpdateWidgetMutation } from './mutations';
+import {
+    CreateWidgetMutation,
+    RemoveWidgetMutation,
+    UpdateWidgetMutation
+} from './mutations';
+import {
+    WidgetsQuery,
+    WidgetQuery,
+    PreviewWidgetQuery
+} from './queries';
 import {
     AppModule, ModuleBase
 } from '../../framework';
@@ -13,8 +19,8 @@ import {
         UpdateWidgetMutation
     ],
     queries: [
-        GetWidgetQuery,
-        ListWidgetsQuery,
+        WidgetQuery,
+        WidgetsQuery,
         PreviewWidgetQuery
     ]
 })
