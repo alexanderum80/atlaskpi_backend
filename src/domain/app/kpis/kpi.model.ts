@@ -1,24 +1,17 @@
+import * as Promise from 'bluebird';
+import { inject, injectable } from 'inversify';
+import mongoose = require('mongoose');
+import validate = require('validate.js');
+
+import { IKPI, IKPIDocument, IKPIModel } from '.';
+import { IMutationResponse, MutationResponse } from '../../../framework/mutations';
+import { IPagedQueryResult, IPaginationDetails, Paginator } from '../../../framework/queries';
 import { ModelBase } from '../../../type-mongo';
 import { AppConnection } from '../app.connection';
-import { injectable, inject } from 'inversify';
-import { KPIFilterHelper } from './kpi-filter.helper';
+import { IChartDocument } from '../charts';
 import { KPITypeMap } from './kpi';
 import { KPIExpressionHelper } from './kpi-expression.helper';
-import { IPagedQueryResult, PaginationDetailsDefault, Paginator } from '../../common/pagination';
-import {
-    IMutationResponse,
-    IPaginationDetails,
-    IPaginationInfo,
-    IQueryResponse,
-    MutationResponse
-} from '../../common';
-import mongoose = require('mongoose');
-import * as Promise from 'bluebird';
-import validate = require('validate.js');
-// import validate from 'validate.js';
-import { IKPI, IKPIDocument, IKPIModel } from '.';
-import { IChartDocument } from '../charts';
-
+import { KPIFilterHelper } from './kpi-filter.helper';
 
 let Schema = mongoose.Schema;
 

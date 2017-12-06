@@ -1,9 +1,7 @@
-import { IKPI } from '../../../models/app/kpis';
-import { IChartOptions } from '../charts/charts';
 import { AggregateStage } from './aggregate';
-import { IAppModels } from '../../../models/app/app-models';
-import { IChartDateRange, IDateRange } from '../../../models/common/date-range';
-import { FrequencyEnum } from '../../../models/common/frequency-enum';
+import { IChartDateRange } from '../../../domain/common';
+import { FrequencyEnum, IDateRange, IKPIDocument, IKPI } from '../../../domain';
+
 import * as Promise from 'bluebird';
 import * as logger from 'winston';
 import * as _ from 'lodash';
@@ -32,8 +30,8 @@ export interface IGetDataOptions {
 }
 
 export interface IKpiBase {
-    getData(dateRange?: IDateRange[], options?: IGetDataOptions): Promise<any>;
-    getTargetData?(dateRange?: IDateRange[], options?: IGetDataOptions): Promise<any>;
+    getData(kpi: IKPIDocument, dateRange?: IDateRange[], options?: IGetDataOptions): Promise<any>;
+    getTargetData?(kpi: IKPIDocument, dateRange?: IDateRange[], options?: IGetDataOptions): Promise<any>;
     getSeries?(dateRange: IDateRange, frequency: FrequencyEnum);
 }
 

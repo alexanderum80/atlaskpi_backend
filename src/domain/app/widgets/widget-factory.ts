@@ -1,17 +1,19 @@
-import { IAppModels } from './../app-models';
+import { KPIs } from '../kpis/kpi.model';
+import { Charts } from '../charts';
+import { Expenses } from '../expenses';
+import { Sales } from '../sales';
 import { NumericWidget } from './numeric-widget';
 import { ChartWidget } from './chart-widget';
-import { WidgetTypeEnum, WidgetTypeMap } from './';
+import { IWidget, WidgetTypeEnum, WidgetTypeMap } from './';
 import { IUIWidget } from './ui-widget-base';
-import { IWidget } from './IWidget';
 
 export class WidgetFactory {
-    static getInstance(widget: IWidget, ctx: IAppModels): IUIWidget {
+    static getInstance(widget: IWidget, charts: Charts, sales: Sales, expenses: Expenses, kpis: KPIs): IUIWidget {
         switch (WidgetTypeMap[widget.type]) {
             case WidgetTypeEnum.Chart:
-                return new ChartWidget(widget, ctx);
+                return new ChartWidget(charts, sales, expenses, kpis);
             case WidgetTypeEnum.Numeric:
-                return new NumericWidget(widget, ctx);
+                return new NumericWidget(charts, sales, expenses, kpis);
             default:
                 return null;
         }

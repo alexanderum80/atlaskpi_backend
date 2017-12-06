@@ -1,3 +1,5 @@
+import { Expenses } from '../../../domain/app/expenses';
+import { Sales } from '../../../domain/app/sales';
 import { FrequencyEnum } from '../../../domain/common';
 import { KPIExpressionHelper } from '../../../domain/app/kpis';
 import * as Promise from 'bluebird';
@@ -28,11 +30,16 @@ const CollectionsMapping = {
 
 export class SimpleKPI extends KpiBase implements IKpiBase {
 
-    public static CreateFromExpression(models: any /* IAppModels - Refactor */, kpi: IKPIDocument): SimpleKPI {
+    public static CreateFromExpression(kpi: IKPIDocument, sales: Sales, expenses: Expenses): SimpleKPI {
         const simpleKPIDefinition: IKPISimpleDefinition = KPIExpressionHelper.DecomposeExpression(KPITypeEnum.Simple, kpi.expression);
 
         const collection: ICollection = CollectionsMapping[simpleKPIDefinition.dataSource];
         if (!collection) { return null; }
+
+        const models = {
+            Sale: sales.model,
+            Expense: expenses.model
+        };
 
         const model = models[collection.modelName];
         const aggregateSkeleton: AggregateStage[] = [
@@ -87,11 +94,11 @@ export class SimpleKPI extends KpiBase implements IKpiBase {
         this.pristineAggregate = _.cloneDeep(baseAggregate);
     }
 
-    getData(dateRange: IDateRange[], options?: IGetDataOptions): Promise<any> {
+    getData(kpi: IKPIDocument, dateRange: IDateRange[], options?: IGetDataOptions): Promise<any> {
         return this.executeQuery(this.collection.timestampField, dateRange, options);
     }
 
-    getTargetData(dateRange: IDateRange[], options?: IGetDataOptions): Promise<any> {
+    getTargetData(kpi: IKPIDocument, dateRange: IDateRange[], options?: IGetDataOptions): Promise<any> {
         return this.executeQuery(this.collection.timestampField, dateRange, options);
     }
 
@@ -230,7 +237,4 @@ export class SimpleKPI extends KpiBase implements IKpiBase {
                 return { $add: fieldOperandArray };
         }
     }
-
-
-
 }

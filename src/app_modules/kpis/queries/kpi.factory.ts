@@ -1,21 +1,22 @@
-import { SimpleKPI } from './simple-kpi';
-import { IKpiBase } from './kpi-base';
+import { Expenses, IKPIDocument, KPITypeEnum, KPITypeMap, Sales } from '../../../domain';
+import { KPIs } from '../../../domain/app/kpis/kpi.model';
 import { CompositeKpi } from './compound.kpi';
-import { Expenses } from './expenses.kpi';
+import { Expenses as ExpensesKPI } from './expenses.kpi';
+import { IKpiBase } from './kpi-base';
 import { Revenue } from './revenue.kpi';
-import { IKPIDocument, KPITypeMap, KPITypeEnum, Sales } from '../../../domain/app/index';
-
+import { SimpleKPI } from './simple-kpi';
 
 export class KpiFactory {
 
-    static getInstance(kpiDocument: IKPIDocument, sales: Sales, expenses: Expenses): IKpiBase {
-        if (kpiDocument.type && KPITypeMap[kpiDocument.type] === KPITypeEnum.Compound)
+    static getInstance(kpiDocument: IKPIDocument, kpis: KPIs, sales: Sales, expenses: Expenses): IKpiBase {
+        if (kpiDocument.type && KPITypeMap[kpiDocument.type] === KPITypeEnum.Compound) {
             // TODO: Refactor this
-            return new CompositeKpi(kpiDocument, ctx);
+            return new CompositeKpi(kpis, sales, expenses);
+        }
 
         if (kpiDocument.type && KPITypeMap[kpiDocument.type] === KPITypeEnum.Simple) {
             // TODO: Refactor this
-            return SimpleKPI.CreateFromExpression(ctx, kpiDocument);
+            return SimpleKPI.CreateFromExpression(kpiDocument, sales, expenses);
         }
 
         const searchBy = kpiDocument.baseKpi || kpiDocument.code;
@@ -24,7 +25,7 @@ export class KpiFactory {
             case 'Revenue':
                 return new Revenue(sales.model);
             case 'Expenses':
-                return new Expenses(expenses.model);
+                return new ExpensesKPI(expenses.model);
             default:
                 return null;
         }

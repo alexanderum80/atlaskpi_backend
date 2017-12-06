@@ -1,28 +1,38 @@
-import { getGroupingMetadata } from '../../../queries/app/charts/chart-grouping-map';
-import { IChartMetadata } from './../../../queries/app/charts/charts/chart-metadata';
-import { FrequencyTable } from './../../common/frequency-enum';
-import { IChart } from './../charts/IChart';
-import { IAppModels } from '../app-models';
-import { ChartFactory } from './../../../queries/app/charts/charts/chart-factory';
-import { UIChartBase } from '../../../queries/app/charts/charts';
-import { KpiFactory } from '../../../queries/app/kpis/kpi.factory';
-import { KpiBase } from '../../../queries/app/kpis/kpi-base';
+import * as Promise from 'bluebird';
+import { inject, injectable } from 'inversify';
+
+import { getGroupingMetadata } from '../../../app_modules/charts/queries';
+import { IChartMetadata } from '../../../app_modules/charts/queries/charts';
+import { ChartFactory } from '../../../app_modules/charts/queries/charts/chart-factory';
+import { KpiFactory } from '../../../app_modules/kpis/queries';
+import { FrequencyTable } from '../../common';
+import { Charts, IChart } from '../charts';
+import { Expenses } from '../expenses';
+import { KPIs } from '../kpis/kpi.model';
+import { Sales } from '../sales';
 import { IWidget, IWidgetMaterializedFields } from './';
 import { IUIWidget, UIWidgetBase } from './ui-widget-base';
-import * as Promise from 'bluebird';
 
+@injectable()
 export class ChartWidget extends UIWidgetBase implements IUIWidget {
     chart: string; // stringified representation of an IChart with its definition
 
-    constructor(widget: IWidget, ctx: IAppModels) {
-        super(widget, ctx);
+    // TODO: Refactor
+    constructor(
+        @inject('Charts') private _charts: Charts,
+        @inject('Sales') private _sales: Sales,
+        @inject('Expenses') private _expenses: Expenses,
+        @inject('KPIs') private _kpis: KPIs
+        ) {
+        super();
         if (!this.chartWidgetAttributes || !this.chartWidgetAttributes.chart) {
             console.log('A Chart Widget cannot live without a chart');
             return null;
         }
     }
 
-    materialize(): Promise<IUIWidget> {
+    materialize(widget: IWidget): Promise<IUIWidget> {
+        Object.assign(this, widget);
         const that = this;
 
         return new Promise<IUIWidget>((resolve, reject) => {
@@ -35,7 +45,7 @@ export class ChartWidget extends UIWidgetBase implements IUIWidget {
                     chart: JSON.stringify(resolvedUIChart)
                 };
 
-                const result = Object.assign({}, this.widget, { materialized: materialized });
+                const result = Object.assign({}, widget, { materialized: materialized });
                 console.log(materialized.chart);
                 resolve(<any>result);
                 return;
@@ -47,7 +57,7 @@ export class ChartWidget extends UIWidgetBase implements IUIWidget {
         const that = this;
 
         return new Promise<IChart>((resolve, reject) => {
-            that.ctx.Chart
+            that._charts.model
                 .findOne({ _id: that.chartWidgetAttributes.chart })
                 .populate({ path: 'kpis' })
                 .then(chartDocument => {
@@ -57,7 +67,8 @@ export class ChartWidget extends UIWidgetBase implements IUIWidget {
                     }
                     const chartObject = <IChart>chartDocument.toObject();
                     const uiChart = ChartFactory.getInstance(chartObject);
-                    const kpi = KpiFactory.getInstance(chartObject.kpis[0], that.ctx);
+                    // TODO: Refactor
+                    const kpi = KpiFactory.getInstance(chartObject.kpis[0], that._kpis, that._sales, that._expenses);
                     const groupings = getGroupingMetadata(chartDocument, []);
                     const chartParameters: IChartMetadata = {
                         filter: chartObject.filter,
