@@ -5,6 +5,7 @@ import { QueryBase, query } from '../../../framework';
 import { KPIs } from '../../../domain';
 import { KPIPagedQueryResult } from '../kpis.types';
 import { GetAllKPIsActivity } from '../activities';
+import { PaginationDetails } from '../../shared';
 
 @injectable()
 @query({

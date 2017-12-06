@@ -1,16 +1,14 @@
-import { IKPI } from '../../../models/app/kpis';
-import { IAppModels } from './../../../models/app/app-models';
-import { KPITypeEnum, IKPISimpleDefinition, IKPIDocument } from './../../../models/app/kpis/IKPI';
-import { KPIExpressionHelper } from '../../../models/app/kpis/kpi-expression.helper';
-import { IExpenseModel } from '../../../models/app/expenses';
+import { FrequencyEnum } from '../../../domain/common';
+import { KPIExpressionHelper } from '../../../domain/app/kpis';
 import * as Promise from 'bluebird';
 import { AggregateStage } from './aggregate';
 import { IGetDataOptions, IKpiBase, KpiBase } from './kpi-base';
-import { FrequencyEnum } from '../../../models/common/frequency-enum';
-import { IDateRange } from '../../../models/common/date-range';
+
 import * as changeCase from 'change-case';
 
 import * as _ from 'lodash';
+import { IKPIDocument, IDateRange } from '../../../domain';
+import { IKPISimpleDefinition, KPITypeEnum, IKPI } from '../../../domain/app/index';
 
 interface ICollection {
     modelName: string;
@@ -30,7 +28,7 @@ const CollectionsMapping = {
 
 export class SimpleKPI extends KpiBase implements IKpiBase {
 
-    public static CreateFromExpression(models: IAppModels, kpi: IKPIDocument): SimpleKPI {
+    public static CreateFromExpression(models: any /* IAppModels - Refactor */, kpi: IKPIDocument): SimpleKPI {
         const simpleKPIDefinition: IKPISimpleDefinition = KPIExpressionHelper.DecomposeExpression(KPITypeEnum.Simple, kpi.expression);
 
         const collection: ICollection = CollectionsMapping[simpleKPIDefinition.dataSource];

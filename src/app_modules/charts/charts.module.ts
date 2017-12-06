@@ -5,8 +5,7 @@ import {
     ListChartsByGroupQuery
 } from './queries/list-charts-by-group.query';
 import {
-    GetChartDefinitionQuery,
-    GetChartQuery,
+    ChartQuery,
     GetChartsByGroupQuery,
     GetChartsGroupQuery,
     GetChartsQuery,
@@ -29,8 +28,7 @@ import {
         UpdateChartMutation
     ],
     queries: [
-        GetChartDefinitionQuery,
-        GetChartQuery,
+        ChartQuery,
         GetChartsByGroupQuery,
         GetChartsGroupQuery,
         GetChartsQuery,

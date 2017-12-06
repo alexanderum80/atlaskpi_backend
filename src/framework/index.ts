@@ -4,4 +4,3 @@ export * from './queries';
 export * from './mutations';
 export * from './bridge';
 export * from './modules';
-export * from './module-definition';

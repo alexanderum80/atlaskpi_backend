@@ -1,8 +1,8 @@
 import { Request, Response } from 'express';
 import { ExtendedRequest } from './extended-request';
 import * as logger from 'winston';
-import { config } from '../config';
 import * as Promise from 'bluebird';
+import { config } from '../configuration';
 
 export function loadUser(req: ExtendedRequest, res: Response, next) {
 

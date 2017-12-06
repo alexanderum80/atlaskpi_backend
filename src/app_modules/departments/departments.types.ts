@@ -1,5 +1,5 @@
 
-import { input, type, field, GraphQLTypesMap } from '../../framework';
+import { input, type, field, GraphQLTypesMap, ErrorDetails } from '../../framework';
 
 
 @type()
