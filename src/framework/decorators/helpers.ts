@@ -214,7 +214,9 @@ export function processQueryAndMutation(target: any, type: GraphqlMetaType, defi
 
 
     // const parameters = definition.parameters.map(p => `${p.name}: ${p.type.name}`);
-    const inputTemplateText = `{{name}}({{#each parameters}}{{this}},{{/each}}): {{output}}`;
+    const inputTemplateText = parameters !== undefined ?
+        `{{name}}({{#each parameters}}{{this}},{{/each}}): {{output}}`
+        : `{{name}}: {{output}}`;
     const payload = {
         name: name,
         parameters: parameters,
