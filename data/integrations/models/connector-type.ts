@@ -1,15 +1,18 @@
+import { FacebookConnector } from './facebook/facebook-connector';
 export enum ConnectorTypeEnum {
     Square = 1,
     QuickBooksOnline = 10,
     Instagram = 11,
-    LinkedIn = 12
+    LinkedIn = 12,
+    Facebook = 13
 }
 
 export const ConnectorsTypeMap = {
     qbo: ConnectorTypeEnum.QuickBooksOnline,
     square: ConnectorTypeEnum.Square,
     instagram: ConnectorTypeEnum.Instagram,
-    linkedin: ConnectorTypeEnum.LinkedIn
+    linkedin: ConnectorTypeEnum.LinkedIn,
+    facebook: ConnectorTypeEnum.Facebook
 };
 
 export function getConnectorTypeId(type: ConnectorTypeEnum) {
@@ -22,6 +25,8 @@ export function getConnectorTypeId(type: ConnectorTypeEnum) {
             return 'instagram';
         case ConnectorTypeEnum.LinkedIn:
             return 'linkedin';
+        case ConnectorTypeEnum.Facebook:
+            return 'facebook';
         default: null;
     }
 }

@@ -337,7 +337,28 @@ function createIntegration(ctx: IMasterModels) {
         createdBy: 'xxrulixx@gmail.com',
     };
 
-    ctx.Connector.create(linkedInConnector, (err, connector) => {
+    const facebookConnector: IConnector = {
+        name: 'facebook',
+        type: 'integration-config',
+        databaseName: 'atlas',
+        active: true,
+        config: {
+            clientId: '151992245421431',
+            clientSecret: 'e3fcbf04c066f05d2eb0a07cfbf38268',
+            requiredAuthScope: 'read_insights manage_pages pages_show_list public_profile',
+            endpoints: {
+                'authorization_endpoint': 'https://www.facebook.com/v2.11/dialog/oauth/',
+                'token_endpoint': 'https://graph.facebook.com/v2.11/oauth/access_token',
+                'revocation_endpoint': '',
+                'pages_endpoint': 'https://graph.facebook.com/v2.11/me?fields=id,name,accounts',
+            }
+        },
+        createdOn: new Date(),
+        updatedOn: new Date(),
+        createdBy: 'xxrulixx@gmail.com',
+    };
+
+    ctx.Connector.create(facebookConnector, (err, connector) => {
         if (err) {
             console.log(err);
             return;
