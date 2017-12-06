@@ -38,7 +38,7 @@ export class RemoveKPIMutation extends MutationBase<IMutationResponse> {
                     return resolve({ success: true, entity: listCharts});
                 });
             }).catch(err => {
-                return resolve({ success: false, entity: err.entity, errors: [ { field: 'kpis', errors: [err.errors[0].errors] } ] })
+                resolve({ success: false, entity: err.entity, errors: [ { field: 'kpi', errors: [err.error]}]});
             });
         });
     }

@@ -149,7 +149,7 @@ export class KPIFilterHelper {
     }
 
     private static _handleAsArrayOperatorValuePairIntent(f: IKPIFilter, fieldset: any[]): any {
-        return  f.criteria.split(',')
+        return  f.criteria.split('|')
                           .map(value =>
                                KPIFilterHelper._handleAsElementOperatorValuePairIntent(value, f.field, fieldset)
         );
@@ -184,7 +184,7 @@ export class KPIFilterHelper {
         let criteria;
 
         if (_.isArray(value)) {
-            criteria = value.map(v => String(v)).join(',');
+            criteria = value.map(v => String(v)).join('|');
         } else {
             criteria = String(value);
         }

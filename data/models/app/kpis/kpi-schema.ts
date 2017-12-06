@@ -153,7 +153,7 @@ KPISchema.statics.removeKPI = function(id: string, chartExist?: IChartDocument[]
         }
 
         if (chartExist && chartExist.length) {
-            reject({ success: false, entity: chartExist, errors: [ { field: 'kpis', errors: ['KPIs is being used by '] } ] });
+            reject({ message: 'KPIs is being used by ', entity: chartExist, error: 'KPIs is being used by '});
             return;
         }
 
