@@ -14,4 +14,4 @@ import {
         FindAllRolesQuery
     ]
 })
-export class Module extends ModuleBase { }
+export class RolesModule extends ModuleBase { }

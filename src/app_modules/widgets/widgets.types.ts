@@ -1,5 +1,9 @@
 
-import { input, type, field, GraphQLTypesMap } from '../../framework';
+import { input, type, field, GraphQLTypesMap, ErrorDetails } from '../../framework';
+import {
+    ChartDateRangeInput,
+    ChartDateRange
+} from '../shared';
 
 
 @input()
@@ -97,6 +101,40 @@ export class NumericWidgetAttributes  {
 
 
 @type()
+export class WidgetMaterializedComparison  {
+    @field({ type: GraphQLTypesMap.String })
+    period: string;
+
+    @field({ type: GraphQLTypesMap.String })
+    value: string;
+
+    @field({ type: GraphQLTypesMap.String })
+    arrowDirection: string;
+
+}
+
+
+@type()
+export class WidgetMaterializedFields  {
+    @field({ type: GraphQLTypesMap.String })
+    value: string;
+
+    @field({ type: GraphQLTypesMap.String })
+    comparisonValue: string;
+
+    @field({ type: WidgetMaterializedComparison })
+    comparison: WidgetMaterializedComparison;
+
+    @field({ type: GraphQLTypesMap.String })
+    trending: string;
+
+    @field({ type: GraphQLTypesMap.String })
+    chart: string;
+
+}
+
+
+@type()
 export class Widget  {
     @field({ type: GraphQLTypesMap.String })
     _id: string;
@@ -130,39 +168,6 @@ export class Widget  {
 
 }
 
-
-@type()
-export class WidgetMaterializedFields  {
-    @field({ type: GraphQLTypesMap.String })
-    value: string;
-
-    @field({ type: GraphQLTypesMap.String })
-    comparisonValue: string;
-
-    @field({ type: WidgetMaterializedComparison })
-    comparison: WidgetMaterializedComparison;
-
-    @field({ type: GraphQLTypesMap.String })
-    trending: string;
-
-    @field({ type: GraphQLTypesMap.String })
-    chart: string;
-
-}
-
-
-@type()
-export class WidgetMaterializedComparison  {
-    @field({ type: GraphQLTypesMap.String })
-    period: string;
-
-    @field({ type: GraphQLTypesMap.String })
-    value: string;
-
-    @field({ type: GraphQLTypesMap.String })
-    arrowDirection: string;
-
-}
 
 
 @type()

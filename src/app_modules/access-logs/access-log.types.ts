@@ -1,5 +1,6 @@
 
 import { input, type, field, GraphQLTypesMap } from '../../framework';
+import { ErrorDetails } from '../shared';
 
 @input()
 export class IResultEntry  {

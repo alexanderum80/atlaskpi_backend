@@ -7,6 +7,7 @@ import { QueryBase, query } from '../../../framework';
 import { Users } from '../../../domain';
 import { UserPagedQueryResult } from '../users.types';
 import { SearchUsersActivity } from '../activities';
+import { PaginationDetails } from '../../shared';
 
 @injectable()
 @query({

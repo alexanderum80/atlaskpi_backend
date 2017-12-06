@@ -1,35 +1,44 @@
-import { DateRangeHelper } from './../date-ranges/date-range.helper';
-import { IUserDocument } from '../../../models/app/users/index';
-import { TargetService } from '../../../services/targets/target.service';
-import { QueryBase } from '../../query-base';
-import { IChartMetadata } from './charts/chart-metadata';
-import { FrequencyTable } from '../../../models/common/frequency-enum';
-import { FrequencyEnum, IDateRange } from '../../../models/common';
-import * as Promise from 'bluebird';
-import { IQuery } from '../..';
-import { IIdentity } from '../../../';
-import { IChart, IChartDocument, IGetChartInput } from '../../../models/app/charts';
-import { IAppModels } from '../../../models/app/app-models';
-import { IDashboardDocument, IDashboardModel } from '../../../models/app/dashboards';
-
+import { IChartMetadata } from './charts';
+import { FrequencyTable } from '../../../domain/common';
+import { getGroupingMetadata } from './';
+import { KpiFactory } from '../../kpis/queries';
 import { ChartFactory } from './charts/chart-factory';
-import { KpiFactory } from '../kpis/kpi.factory';
-import { getGroupingMetadata } from './chart-grouping-map';
-import * as logger from 'winston';
-import * as moment from 'moment';
-import * as _ from 'lodash';
+import { Targets } from '../../../domain/app/targets';
+import { Users } from '../../../domain/app/security/users';
+import { Winston } from 'winston';
 
-export class GetChartQuery extends QueryBase<string> {
+import { injectable, inject } from 'inversify';
+import * as Promise from 'bluebird';
+import { QueryBase, query } from '../../../framework';
+import { Charts } from '../../../domain';
+import { GetChartInput } from '../charts.types';
+import { GetChartActivity } from '../activities';
+import { IChart, IDashboardDocument } from '../../../domain/app/index';
+import { DateRangeHelper } from '../../date-ranges/queries/date-range.helper';
 
-    constructor(public identity: IIdentity, private _ctx: IAppModels, private _user?: IUserDocument) {
-        super(identity);
+// TODO: I need kind of a big refactory here
+@injectable()
+@query({
+    name: 'chart',
+    activity: GetChartActivity,
+    parameters: [
+        { name: 'id', type: String },
+        { name: 'input', type: GetChartInput },
+    ],
+    output: { type: String }
+})
+export class ChartQuery extends QueryBase<String> {
+    constructor(
+        @inject('Charts') private _charts: Charts,
+        @inject('Users') private _users: Users,
+        @inject('Targets') private _targets: Targets,
+        @inject('logger') private _logger: Winston
+    ) {
+        super();
     }
 
-    // log = true;
-    // audit = true;
-
-    run(data: { chart?: IChart, id?: string, input?: IGetChartInput }): Promise<string> {
-        logger.debug('running get chart query for id:' + data.id);
+    run(data: { id: string, input: GetChartInput, /* TODO: I added this extra parameter here maually */ chart: any }): Promise<String> {
+        this._logger.debug('running get chart query for id:' + data.id);
 
         let that = this;
 
@@ -49,7 +58,7 @@ export class GetChartQuery extends QueryBase<string> {
                         return reject(null);
                     }
 
-                let targetService = new TargetService(this._ctx.User, this._ctx.Target, this._ctx.Chart);
+                let targetService = new TargetService(this._users.model, this._targets.model, this._charts.model);
 
                 let uiChart = ChartFactory.getInstance(chart);
                 let kpi = KpiFactory.getInstance(chart.kpis[0], that._ctx);
@@ -78,7 +87,7 @@ export class GetChartQuery extends QueryBase<string> {
 
                 if (!chart.comparison || chart.comparison.length < 1) {
                     chart.availableComparison = DateRangeHelper.getComparisonItemsForDateRangeIdentifier(chart.dateRange[0].predefined || 'custom')
-                                                               .map(item => item.key);
+                                                                .map(item => item.key);
                 }
 
                 let checkDrillDown = (data.input && data.input.isDrillDown);
@@ -129,7 +138,7 @@ export class GetChartQuery extends QueryBase<string> {
                         const chart: any = chartDocument.toObject();
                         chart.dashboards = dashboards;
                         chart.availableComparison = DateRangeHelper.getComparisonItemsForDateRangeString(chart.dateRange[0].predefined || 'custom')
-                                                                   .map(item => item.key);
+                                                                    .map(item => item.key);
                         resolve(chart);
                         return;
                     });

@@ -1,5 +1,6 @@
 
-import { input, type, field, GraphQLTypesMap } from '../../framework';
+import { input, type, field, GraphQLTypesMap, ErrorDetails } from '../../framework';
+import { Permission, User } from '../users/users.types';
 
 @type()
 export class Role  {

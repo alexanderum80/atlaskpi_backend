@@ -1,5 +1,5 @@
+import { config } from '../configuration';
 import * as jwt from 'jsonwebtoken';
-import { config } from '../config';
 import { Request, Response } from 'express';
 import { ExtendedRequest } from './extended-request';
 import * as winston from 'winston';

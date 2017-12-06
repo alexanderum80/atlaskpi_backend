@@ -1,14 +1,12 @@
 import * as Promise from 'bluebird';
-import { injectable } from 'inversify';
+import { inject, injectable } from 'inversify';
 import * as moment from 'moment';
 
-import { IAppModels } from '../../models/app/app-models';
-import { IChartModel } from '../../models/app/charts/index';
-import { ITargetDocument, ITargetModel } from '../../models/app/targets/ITarget';
-import { IUserModel } from '../../models/app/users/index';
-import { FrequencyEnum, IDateRange, parsePredifinedDate } from '../../models/common/index';
-import { getGroupingMetadata } from '../../queries/app/charts/chart-grouping-map';
-import { KpiFactory } from '../../queries/app/kpis/index';
+import { getGroupingMetadata } from '../app_modules/charts/queries/index';
+import { KpiFactory } from '../app_modules/kpis/queries';
+import { Charts, FrequencyEnum, IDateRange, parsePredifinedDate, Targets, Users } from '../domain';
+import { ITargetDocument } from '../domain/app/index';
+
 
 // TODO: REFACTOR, and prepare for dependency injection
 
@@ -18,13 +16,13 @@ export class TargetService {
     chartInfo: any;
     isStacked: any;
 
-    constructor(private _user: IUserModel,
-                private _target: ITargetModel,
-                private _chart: IChartModel) { }
+    constructor(@inject('Users') private _users: Users,
+                @inject('Targets') private _targets: Targets,
+                @inject('Charts') private _charts: Charts) { }
 
     getTargets(chartId: string, userId: string): Promise<any> {
         return new Promise((resolve, reject) => {
-            this._target.findUserVisibleTargets(chartId, userId)
+            this._targets.model.findUserVisibleTargets(chartId, userId)
                 .then((targets) => {
                     resolve(targets);
                     return;
@@ -35,10 +33,10 @@ export class TargetService {
         });
     }
 
-    periodData(data: any, ctx: IAppModels): Promise<any> {
+    periodData(data: any, ctx: any/* IAppModels */): Promise<any> {
         const that = this;
         return new Promise<any>((resolve, reject) => {
-            that._chart.findById(data.chart[0])
+            that._charts.model.findById(data.chart[0])
                 .populate({ path: 'kpis' })
                 .then((chart) => {
                     that.chartInfo = chart;
@@ -101,7 +99,7 @@ export class TargetService {
         });
     }
 
-    caculateFormat(data: any, ctx: IAppModels): Promise<any> {
+    caculateFormat(data: any, ctx: any/* IAppModels */): Promise<any> {
 
         return new Promise((resolve, reject) => {
             this.periodData(data, ctx)

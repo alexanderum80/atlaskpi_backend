@@ -1,6 +1,6 @@
 import { Request } from 'Express';
-import { config } from '../../config';
 import * as logger from 'winston';
+import { config } from '../configuration/index';
 
 const loggerSuffix = '(FUNCTION getRequestHostname)';
 
