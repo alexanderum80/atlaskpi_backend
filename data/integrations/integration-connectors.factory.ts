@@ -1,3 +1,4 @@
+import { LinkedInConnector } from './models/linkedin/linkedin-connector';
 import { InstagramConnector } from './models/instagram/instagram-connector';
 import { ConnectorTypeEnum, getConnectorType } from './models/connector-type';
 import { SquareConnector } from './models/square/square-connector';
@@ -18,6 +19,8 @@ export class IntegrationConnectorFactory {
                 return new SquareConnector(integrationConfig);
             case ConnectorTypeEnum.Instagram:
                 return new InstagramConnector(integrationConfig);
+            case ConnectorTypeEnum.LinkedIn:
+                return new LinkedInConnector(integrationConfig);
             default:
                 return null;
         }
@@ -31,6 +34,8 @@ export class IntegrationConnectorFactory {
                 return IntegrationConnectorFactory.getSquareConnector(integrationConfig, connector);
             case ConnectorTypeEnum.Instagram:
                 return IntegrationConnectorFactory.getInstagramConnector(integrationConfig, connector);
+            case ConnectorTypeEnum.LinkedIn:
+                return IntegrationConnectorFactory.getLinkedInConnector(integrationConfig, connector);
             default:
                 return null;
         }
@@ -53,5 +58,11 @@ export class IntegrationConnectorFactory {
         const instaConnector = new InstagramConnector(integrationConfig);
         instaConnector.setToken(connector.config.token);
         return instaConnector;
+    }
+
+    private static getLinkedInConnector(integrationConfig, connector: IConnectorDocument): LinkedInConnector {
+        const linkedInConnector = new LinkedInConnector(integrationConfig);
+        linkedInConnector.setToken(connector.config.token);
+        return linkedInConnector;
     }
 }

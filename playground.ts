@@ -316,15 +316,58 @@ function createIntegration(ctx: IMasterModels) {
         createdBy: 'xxrulixx@gmail.com',
     };
 
+    const linkedInConnector: IConnector = {
+        name: 'linkedin',
+        type: 'integration-config',
+        databaseName: 'atlas',
+        active: true,
+        config: {
+            clientId: '779fab5lv1q2sm',
+            clientSecret: 'HbuStpg5x76aaxyu',
+            requiredAuthScope: 'r_basicprofile r_emailaddress rw_company_admin',
+            endpoints: {
+                'authorization_endpoint': 'https://www.linkedin.com/oauth/v2/authorization/',
+                'token_endpoint': 'https://www.linkedin.com/oauth/v2/accessToken',
+                'revocation_endpoint': '',
+                'company_endpoint': 'https://api.linkedin.com/v1/companies?format=json&is-company-admin=true',
+            }
+        },
+        createdOn: new Date(),
+        updatedOn: new Date(),
+        createdBy: 'xxrulixx@gmail.com',
+    };
 
-
-    ctx.Connector.create(qbConnector, (err, connector) => {
+    ctx.Connector.create(linkedInConnector, (err, connector) => {
         if (err) {
             console.log(err);
             return;
         }
         console.dir(connector);
     });
+
+    // ctx.Connector.create(instagramConnector, (err, connector) => {
+    //     if (err) {
+    //         console.log(err);
+    //         return;
+    //     }
+    //     console.dir(connector);
+    // });
+
+    // ctx.Connector.create(squareConnector, (err, connector) => {
+    //     if (err) {
+    //         console.log(err);
+    //         return;
+    //     }
+    //     console.dir(connector);
+    // });
+
+    // ctx.Connector.create(qbConnector, (err, connector) => {
+    //     if (err) {
+    //         console.log(err);
+    //         return;
+    //     }
+    //     console.dir(connector);
+    // });
 }
 
 getMasterContext().then(ctx => {

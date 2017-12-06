@@ -12,6 +12,7 @@ export interface IConnectorConfigScope {
 export interface IConnectorConfig {
     token: IOAuth2Token;
     realmId?: string;
+    companyId?: string;
     scope?: IConnectorConfigScope[];
 }
 
