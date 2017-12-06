@@ -1,3 +1,4 @@
+import { isArray } from 'util';
 import { WidgetsService } from '../../../services/widgets.service';
 
 import { injectable, inject } from 'inversify';
@@ -11,10 +12,7 @@ import { ListWidgetsActivity } from '../activities';
 @query({
     name: 'widgets',
     activity: ListWidgetsActivity,
-    parameters: [
-        { name: 'id', type: String, required: true },
-    ],
-    output: { type: Widget }
+    output: { type: Widget, isArray: true }
 })
 export class WidgetsQuery extends QueryBase<any> {
     constructor(

@@ -57,7 +57,7 @@ export function makeGraphqlSchemaExecutable(modules: IAppModule[]): IExecutableS
             if (!moduleQueriesOrMutations) return;
 
             const queryOrMutationKeys = Object.keys(moduleQueriesOrMutations);
-            mutationAndQueries[t] = queryOrMutationKeys.map(queryOrMutation => moduleQueriesOrMutations[queryOrMutation]);
+            mutationAndQueries[t] = mutationAndQueries[t].concat(queryOrMutationKeys.map(queryOrMutation => moduleQueriesOrMutations[queryOrMutation]));
         });
     });
 
