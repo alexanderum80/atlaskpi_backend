@@ -1,20 +1,22 @@
-import { IChartMetadata } from './charts';
-import { FrequencyTable } from '../../../domain/common';
-import { getGroupingMetadata } from './';
-import { KpiFactory } from '../../kpis/queries';
-import { ChartFactory } from './charts/chart-factory';
-import { Targets } from '../../../domain/app/targets';
-import { Users } from '../../../domain/app/security/users';
-import { Winston } from 'winston';
-
-import { injectable, inject } from 'inversify';
 import * as Promise from 'bluebird';
-import { IQuery, query } from '../../../framework';
+import { inject, injectable } from 'inversify';
+import { Winston } from 'winston';
+import { isEmpty } from 'lodash';
+
 import { Charts } from '../../../domain';
-import { GetChartInput } from '../charts.types';
-import { GetChartActivity } from '../activities';
-import { IChart, IDashboardDocument } from '../../../domain/app/index';
+import { Dashboards, Expenses, IChart, IChartInput, IDashboardDocument, KPIs, Sales } from '../../../domain';
+import { Users } from '../../../domain/app/security/users';
+import { Targets } from '../../../domain/app/targets';
+import { FrequencyTable } from '../../../domain/common';
+import { IQuery, query } from '../../../framework';
+import { TargetService } from '../../../services/index';
 import { DateRangeHelper } from '../../date-ranges/queries/date-range.helper';
+import { KpiFactory } from '../../kpis/queries';
+import { GetChartActivity } from '../activities';
+import { GetChartInput } from '../charts.types';
+import { getGroupingMetadata } from './';
+import { IChartMetadata } from './charts';
+import { ChartFactory } from './charts/chart-factory';
 
 // TODO: I need kind of a big refactory here
 @injectable()
@@ -29,15 +31,18 @@ import { DateRangeHelper } from '../../date-ranges/queries/date-range.helper';
 })
 export class ChartQuery implements IQuery<String> {
     constructor(
-        @inject('Charts') private _charts: Charts,
-        @inject('Users') private _users: Users,
-        @inject('Targets') private _targets: Targets,
+        @inject(KpiFactory.name) private _kpiFactory: KpiFactory,
+        @inject(ChartFactory.name) private _chartFactory: ChartFactory,
+        @inject('KPIs') private _kpis: KPIs,
+        @inject(Charts.name) private _charts: Charts,
+        @inject(Dashboards.name) private _dashboards: Dashboards,
+        @inject(Users.name) private _users: Users,
+        @inject(Targets.name) private _targets: Targets,
+        @inject(TargetService.name) private _targetService: TargetService,
         @inject('logger') private _logger: Winston
-    ) {
-        
-    }
+    ) { }
 
-    run(data: { id: string, input: GetChartInput, /* TODO: I added this extra parameter here maually */ chart: any }): Promise<String> {
+    run(data: { id: string, input: IChartInput, /* TODO: I added this extra parameter here maually */ chart: any }): Promise<String> {
         this._logger.debug('running get chart query for id:' + data.id);
 
         let that = this;
@@ -58,10 +63,8 @@ export class ChartQuery implements IQuery<String> {
                         return reject(null);
                     }
 
-                let targetService = new TargetService(this._users.model, this._targets.model, this._charts.model);
-
-                let uiChart = ChartFactory.getInstance(chart);
-                let kpi = KpiFactory.getInstance(chart.kpis[0], that._ctx);
+                let uiChart = that._chartFactory.getInstance(chart);
+                let kpi = that._kpiFactory.getInstance(chart.kpis[0]);
                 let groupings = getGroupingMetadata(chart, data.input ? data.input.groupings : []);
 
                 let frequency = FrequencyTable[(data.input && data.input.frequency) ? data.input.frequency : chart.frequency];
@@ -69,7 +72,7 @@ export class ChartQuery implements IQuery<String> {
                     filter: (data.input && data.input.filter)  ? data.input.filter : chart.filter,
                     frequency: frequency,
                     groupings: groupings,
-                    comparison: (data.input && !_.isEmpty(data.input.comparison))  ? data.input.comparison : chart.comparison,
+                    comparison: (data.input && !isEmpty(data.input.comparison))  ? data.input.comparison : chart.comparison,
                     xAxisSource: (data.input && data.input.xAxisSource) ? data.input.xAxisSource : chart.xAxisSource
                 };
 
@@ -86,14 +89,15 @@ export class ChartQuery implements IQuery<String> {
                 }
 
                 if (!chart.comparison || chart.comparison.length < 1) {
-                    chart.availableComparison = DateRangeHelper.getComparisonItemsForDateRangeIdentifier(chart.dateRange[0].predefined || 'custom')
-                                                                .map(item => item.key);
+                    chart.availableComparison = DateRangeHelper
+                        .getComparisonItemsForDateRangeIdentifier(chart.dateRange[0].predefined || 'custom')
+                        .map(item => item.key);
                 }
 
                 let checkDrillDown = (data.input && data.input.isDrillDown);
 
                 if (data.id && that._user && !checkDrillDown) {
-                    targetService.getTargets(data.id, that._user._id)
+                    that._targetService.getTargets(data.id, that._user._id)
                         .then((resp) => {
                             if (definitionParameters.isFutureTarget &&
                                 chart.frequency !== 'yearly') {
@@ -103,7 +107,7 @@ export class ChartQuery implements IQuery<String> {
                             }
 
                             uiChart.getDefinition(kpi, definitionParameters, resp).then((definition) => {
-                                logger.debug('chart definition received for id: ' + data.id);
+                                that._logger.debug('chart definition received for id: ' + data.id);
                                 chart.chartDefinition = definition;
                                 resolve(JSON.stringify(chart));
                             }).catch(e => {
@@ -113,7 +117,7 @@ export class ChartQuery implements IQuery<String> {
                     });
                 } else {
                     uiChart.getDefinition(kpi, definitionParameters, []).then((definition) => {
-                        logger.debug('chart definition received for id: ' + data.id);
+                        that._logger.debug('chart definition received for id: ' + data.id);
                         chart.chartDefinition = definition;
                         resolve(JSON.stringify(chart));
                     }).catch(e => {
@@ -129,7 +133,7 @@ export class ChartQuery implements IQuery<String> {
         const that = this;
 
         return new Promise<IChart>((resolve, reject) => {
-            this._ctx.Chart
+            this._charts.model
                 .findOne({ _id: id })
                 .populate({
                     path: 'kpis',
@@ -150,7 +154,7 @@ export class ChartQuery implements IQuery<String> {
     private _resolveDashboards(chart): Promise<IDashboardDocument[]> {
         const that = this;
         return new Promise<IDashboardDocument[]>((resolve, reject) => {
-            that._ctx.Dashboard.find( { charts: { $in: [chart._id] }}).exec()
+            that._dashboards.model.find( { charts: { $in: [chart._id] }}).exec()
                 .then((dashboards) => resolve(dashboards))
                 .catch(err => reject(err));
         });

@@ -18,6 +18,8 @@ export class ChartWidget extends UIWidgetBase implements IUIWidget {
     // TODO: Refactor
     constructor(
         protected widget: IWidget,
+        private _kpiFactory: KpiFactory,
+        private _chartFactory: ChartFactory,
         private _charts: Charts,
         private _sales: Sales,
         private _expenses: Expenses,
@@ -65,9 +67,9 @@ export class ChartWidget extends UIWidgetBase implements IUIWidget {
                         return resolve(null);
                     }
                     const chartObject = <IChart>chartDocument.toObject();
-                    const uiChart = ChartFactory.getInstance(chartObject);
+                    const uiChart = that._chartFactory.getInstance(chartObject);
                     // TODO: Refactor
-                    const kpi = KpiFactory.getInstance(chartObject.kpis[0], that._kpis, that._sales, that._expenses);
+                    const kpi = that._kpiFactory.getInstance(chartObject.kpis[0]);
                     const groupings = getGroupingMetadata(chartDocument, []);
                     const chartParameters: IChartMetadata = {
                         filter: chartObject.filter,

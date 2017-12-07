@@ -1,23 +1,24 @@
-import { ChartType } from './chart-type';
-import { IAppModels } from '../../../../models/app/app-models';
-import { IChart } from '../../../../models/app/charts';
+import { IChart } from '../../../../domain/app/charts';
+
 import { FrequencyHelper } from './frequency-values';
 import {
-    IUIChart,
-    UIChartBase,
     AreaChart,
     BarChart,
+    ChartType,
     ColumnChart,
     DonutChart,
+    IUIChart,
     LineChart,
+    PieChart,
     SPLineChart,
-    PieChart
+    UIChartBase,
 } from '.';
+import { injectable } from 'inversify';
 
-
+@injectable()
 export class ChartFactory {
 
-    static getInstance(chart: IChart): IUIChart {
+    getInstance(chart: IChart): IUIChart {
         switch (chart.chartDefinition.chart.type) {
             case ChartType.Area:
                 return new AreaChart(chart, new FrequencyHelper());

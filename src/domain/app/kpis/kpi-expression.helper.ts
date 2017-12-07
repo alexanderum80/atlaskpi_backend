@@ -1,6 +1,7 @@
+import * as jsep from 'jsep';
+
 import { GroupingMap } from '../../../app_modules/charts/queries';
 import { IKPISimpleDefinition, KPITypeEnum, KPITypeMap } from './';
-import * as jsep from 'jsep';
 
 interface ICallExpression extends jsep.IExpression {
     type: 'CallExpression';
