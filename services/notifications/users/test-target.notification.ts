@@ -15,7 +15,7 @@ export interface ITestTargetInfo {
 export class TestTargetNotification implements IEmailNotifier {
     constructor(private _config: IAppConfig,
                 private _data: EnrollmentNotifyData) { }
-
+    // needs: targetName, targetAmount (target), targetDate (datepicker), dashboard name, chart name
     notify(user: IUserDocument, email: string, data?: any): Promise<nodemailer.SentMessageInfo> {
         const testTargetNotificationTemplate =
             Handlebars.compile(this._config.usersService.services.testNotification.emailTemplate);
@@ -25,12 +25,16 @@ export class TestTargetNotification implements IEmailNotifier {
         if (!user.profile.firstName || !user.profile.lastName) {
             dataSource.name = user.username;
         } else {
-            dataSource.name = user.profile.firstName;
+            dataSource.name = user.profile.firstName + ' ' + user.profile.lastName;
         }
 
         dataSource.host = this._data.hostname;
         dataSource.subdomain = this._config.subdomain;
-        dataSource.targetId = data.id;
+        dataSource.targetName = data.targetName;
+        dataSource.targetAmount = data.targetName;
+        dataSource.targetDate = data.targetDate;
+        dataSource.dashboardName = data.dashboardName;
+        dataSource.chartName = data.chartName;
 
         const emailContent = testTargetNotificationTemplate(dataSource);
         return sendEmail(email, `${this._config.usersService.app.name}: Target Notification`, emailContent);

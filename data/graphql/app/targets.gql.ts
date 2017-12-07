@@ -38,8 +38,11 @@ export const targetGql: GraphqlDefinition = {
                 owner: String
             }
             input TestNotificationInput {
-                id: [String]
-                targetId: String
+                usersId: [String]
+                chartId: String
+                targetName: String
+                targetAmount: String
+                targetDate: String
             }
 
             type NotifyResponse {
@@ -110,7 +113,8 @@ export const targetGql: GraphqlDefinition = {
             },
             testNotification(root: any, args, ctx: IGraphqlContext) {
                 const notifier = new TestTargetNotification(ctx.config, { hostname: getRequestHostname(ctx.req)});
-                const query = new TestTargetNotificationQuery(ctx.req.identity, notifier, ctx.req.appContext.User);
+                const query = new TestTargetNotificationQuery(ctx.req.identity, notifier,
+                                ctx.req.appContext.User, ctx.req.appContext.Chart, ctx.req.appContext.Dashboard);
                 return ctx.queryBus.run('test-target-notification', query, args, ctx.req);
             }
         },
