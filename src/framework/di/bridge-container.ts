@@ -1,5 +1,5 @@
 import { Request } from 'express';
-import { Container } from 'inversify';
+import { Container, interfaces } from 'inversify';
 import { Error } from 'mongoose';
 
 export interface TypeWithName {
@@ -11,6 +11,11 @@ interface Newable<T> {
 }
 interface Abstract<T> {
     prototype: T;
+}
+
+export interface IWebRequestContainerDetails {
+    container: interfaces.Container;
+    bridgeModule: IBridgeContainer;
 }
 
 type GenericObject = { [key: string]: any };
@@ -28,7 +33,8 @@ export interface IBridgeContainer {
     addSubmodule(module: IBridgeContainer);
 
     get<T>(identifier: string): T;
-    getBridgeContainerForWebRequest(req: Request): IRequestContext;
+    getBridgeContainerForWebRequest(req: Request): IWebRequestContainerDetails;
+    cleanup(container: interfaces.Container): void;
 }
 
 export interface IRequestContext {
@@ -86,24 +92,41 @@ export class BridgeContainer implements IBridgeContainer {
         return this._container.get(identifier);
     }
 
-    getBridgeContainerForWebRequest(req: Request): IRequestContext {
+    getBridgeContainerForWebRequest(req: Request): IWebRequestContainerDetails {
         const container = new Container({ autoBindInjectable: true });
 
         container.bind<Container>('Container').toConstantValue(container);
         container.bind<Request>('Request').toConstantValue(req);
 
         // bind all per web request elements
-        _processPerRequestRegistrations(container, this.__perRequestTypesRegistrations);
+        _bindPerRequestRegistrations(container, this.__perRequestTypesRegistrations);
 
-        this._containerModules.forEach(m => _processPerRequestRegistrations(container, m.__perRequestTypesRegistrations))
+        this._containerModules.forEach(m => _bindPerRequestRegistrations(container, m.__perRequestTypesRegistrations)); 
 
-        return Container.merge(this._container, container);
+        return {
+            container: Container.merge(this._container, container),
+            bridgeModule: this
+        };
+    }
+
+    cleanup(container: interfaces.Container): void {
+        container.unbind('Container');
+        container.unbind('Request');
+
+        _unbindPerRequestRegistrations(container, this.__perRequestTypesRegistrations);
+        this._containerModules.forEach(m => _unbindPerRequestRegistrations(container, m.__perRequestTypesRegistrations));
     }
 
 }
 
-function _processPerRequestRegistrations(container: Container, registrations: GenericObject) {
+function _bindPerRequestRegistrations(container: Container, registrations: GenericObject) {
     Object.keys(registrations).forEach(key => {
         container.bind(key).to(registrations[key]).inRequestScope();
+    });
+}
+
+function _unbindPerRequestRegistrations(container: interfaces.Container, registrations: GenericObject) {
+    Object.keys(registrations).forEach(key => {
+        container.unbind(key);
     });
 }

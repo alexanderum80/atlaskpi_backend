@@ -21,10 +21,11 @@ export function loadUser(req: IExtendedRequest, res: Response, next) {
         return next();
     }
 
-    const users = req.container.get < Users > (Users.name);
-    const roles = req.container.get < Roles > (Roles.name);
-    const permissions = req.container.get < Permissions > (Permissions.name);
-    const config = req.container.get < IAppConfig > ('Config');
+    const container = req.container.container;
+    const users = container.get < Users > (Users.name);
+    const roles = container.get < Roles > (Roles.name);
+    const permissions = container.get < Permissions > (Permissions.name);
+    const config = container.get < IAppConfig > ('Config');
 
     let condition = {};
     let usernameField = config.usersService.usernameField;

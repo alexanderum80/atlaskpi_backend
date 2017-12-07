@@ -1,4 +1,4 @@
-import { IBridgeContainer } from '../framework/di/bridge-container';
+import { IBridgeContainer, IWebRequestContainerDetails } from '../framework/di/bridge-container';
 import { Request } from 'Express';
 import * as mongoose from 'mongoose';
 import { IIdentity } from '../domain/app/security/users/identity';
@@ -12,7 +12,7 @@ export interface IExtendedRequest extends Request {
     /**
      * Bridge Container
      */
-    container: IBridgeContainer;
+    container: IWebRequestContainerDetails;
 
     /**
      * User's identity
