@@ -3,7 +3,7 @@ import { isArray, isObject } from 'lodash';
 import { flatten, readMongooseSchema } from '../../../helpers';
 import { ExpenseSchema } from '../expenses';
 import { SaleSchema } from '../sales';
-import { IKPIFilter, KPITypeEnum, KPITypeMap } from './';
+import { IKPIFilter, KPITypeEnum } from './';
 
 const Schemas = [
       SaleSchema,
@@ -41,11 +41,9 @@ export class KPIFilterHelper {
     }
 
     public static PrepareFilterField(type: string, filter: string): string {
-        const kpiType = KPITypeMap[type];
-
-        switch (kpiType) {
+        switch (type) {
             case KPITypeEnum.Simple:
-                return KPIFilterHelper.DecomposeFilter(kpiType, filter);
+                return KPIFilterHelper.DecomposeFilter(type, filter);
 
             default:
                 return filter;

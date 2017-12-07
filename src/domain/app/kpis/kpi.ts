@@ -11,11 +11,11 @@ export enum KPITypeEnum {
     Compound = 'compound'
 }
 
-// export const KPITypeMap = {
-//     simple: KPITypeEnum.Simple,
-//     complex: KPITypeEnum.Complex,
-//     compound: KPITypeEnum.Compound,
-// };
+export const KPITypeMap = {
+    simple: KPITypeEnum.Simple,
+    complex: KPITypeEnum.Complex,
+    compound: KPITypeEnum.Compound,
+};
 
 export function getKPITypePropName(type: KPITypeEnum) {
     switch (type) {
