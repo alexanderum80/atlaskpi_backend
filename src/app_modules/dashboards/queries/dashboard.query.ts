@@ -1,3 +1,4 @@
+import { IQuery } from '../../../framework/queries';
 import * as Promise from 'bluebird';
 import { inject, injectable } from 'inversify';
 import { Winston } from 'winston';
@@ -8,9 +9,10 @@ import { IUserDocument } from '../../../domain/app/security/users';
 import { IUIWidget } from '../../../domain/app/widgets/ui-widget-base';
 import { query, QueryBase } from '../../../framework';
 import { WidgetsService } from '../../../services/widgets.service';
-import { ChartQuery } from '../../charts/queries/chart.query.new';
+import { ChartQuery } from '../../charts/queries/chart.query';
 import { GetDashboardActivity } from '../activities';
 import { Dashboard } from '../dashboards.types';
+import { CurrentUser } from '../../../../di';
 
 
 @injectable()
@@ -24,13 +26,11 @@ import { Dashboard } from '../dashboards.types';
 })
 export class DashboardQuery implements IQuery<IDashboard> {
     constructor(
-        @inject('CurrentUser') private _user: IUserDocument,
+        @inject(CurrentUser.name) private _user: CurrentUser,
         @inject('logger') private _logger: Winston,
-        @inject('WidgetService') private _widgetService: WidgetsService,
-        @inject('ChartQuery') private _chartQuery: ChartQuery,
-        @inject('Dashboards') private _dashboards: Dashboards) {
-        
-    }
+        @inject(WidgetsService.name) private _widgetService: WidgetsService,
+        @inject(ChartQuery.name) private _chartQuery: ChartQuery,
+        @inject(Dashboards.name) private _dashboards: Dashboards) { }
 
     run(data: { id: String,  }): Promise<IDashboard> {
         let that = this;
@@ -40,12 +40,14 @@ export class DashboardQuery implements IQuery<IDashboard> {
             return Promise.resolve(null);
         }
 
+        const user = that._user.get();
+
         // lets prepare the query for the dashboards
         let query = { };
-        if (this._user.roles.find(r => r.name === 'owner')) {
+        if (user.roles.find(r => r.name === 'owner')) {
             query = { _id: data.id };
         } else {
-            query = { _id: data.id, $or: [ { owner: that._user._id }, { users: { $in: [that._user._id]} } ]};
+            query = { _id: data.id, $or: [ { owner: user._id }, { users: { $in: [user._id]} } ]};
         }
 
         return new Promise<IDashboard>((resolve, reject) => {
@@ -83,7 +85,9 @@ export class DashboardQuery implements IQuery<IDashboard> {
                         const widgetsAsString = elements.widgets.map(w => JSON.stringify(w));
                         Object.assign(response, dashboard.toObject(), { widgets: widgetsAsString, charts: elements.charts });
                         resolve(<any>response);
-                    }).catch(e => reject(e));
+                    }).catch(e => {
+                        reject(e);
+                    });
                 });
         });
     }

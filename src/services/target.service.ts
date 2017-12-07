@@ -17,6 +17,7 @@ export class TargetService {
     isStacked: any;
 
     constructor(@inject('Users') private _users: Users,
+                @inject(KpiFactory.name) private _kpiFactory: KpiFactory,
                 @inject('Targets') private _targets: Targets,
                 @inject('Charts') private _charts: Charts) { }
 
@@ -44,7 +45,7 @@ export class TargetService {
                         (chart.groupings[0] === chart.xAxisSource)) ?
                         true : false;
 
-                    let kpi = KpiFactory.getInstance(chart.kpis[0], ctx);
+                    let kpi = that._kpiFactory.getInstance(chart.kpis[0]);
                     let groupings = getGroupingMetadata(chart, chart.groupings ? chart.groupings : []);
                     if (that.isStacked) {
                         let optionsStack = {

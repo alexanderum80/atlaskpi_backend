@@ -1,8 +1,9 @@
-import { IKPIFilter, KPITypeEnum, KPITypeMap } from './';
+import { isArray, isObject } from 'lodash';
+
+import { flatten, readMongooseSchema } from '../../../helpers';
 import { ExpenseSchema } from '../expenses';
 import { SaleSchema } from '../sales';
-import { isObject, isArray } from 'lodash';
-import { flatten, readMongooseSchema } from '../../../helpers';
+import { IKPIFilter, KPITypeEnum, KPITypeMap } from './';
 
 const Schemas = [
       SaleSchema,

@@ -1,7 +1,7 @@
-import { DataSourcesHelper } from '../../../app_modules/data-sources/queries/datasource.helper';
-import { KPIExpressionHelper } from './kpi-expression.helper';
 import { GroupingMap } from '../../../app_modules/charts/queries';
+import { DataSourcesHelper } from '../../../app_modules/data-sources/queries/datasource.helper';
 import { IKPIDocument, IKPISimpleDefinition, KPITypeEnum, KPITypeMap } from './';
+import { KPIExpressionHelper } from './kpi-expression.helper';
 
 export class KPIGroupingsHelper {
     public static GetAvailableGroupings(kpi: IKPIDocument): string[] {

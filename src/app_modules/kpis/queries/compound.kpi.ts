@@ -25,9 +25,8 @@ export class CompositeKpi implements IKpiBase {
 
     constructor(
         private _kpi: IKPIDocument,
-        private _kpis: KPIs,
-        private _sales: Sales,
-        private _expenses: Expenses) { }
+        private _kpiFactory: KpiFactory,
+        private _kpis: KPIs) { }
 
     // constructor(private _kpi: IKPIDocument, private ctx: IAppModels) { }
 
@@ -67,9 +66,11 @@ export class CompositeKpi implements IKpiBase {
     }
 
     private _getKpiData(id: string): Promise<any> {
+        const that = this;
+
         return new Promise<any>((resolve, reject) => {
             this._kpis.model.findOne({ _id: id }).then(kpiDocument => {
-                const kpi = KpiFactory.getInstance(kpiDocument, this._kpis, this._sales, this._expenses);
+                const kpi = that._kpiFactory.getInstance(kpiDocument);
                 const dateRange: IDateRange = this._processChartDateRange(kpiDocument.dateRange);
                 const options: IGetDataOptions = {
                     filter: kpiDocument.filter,

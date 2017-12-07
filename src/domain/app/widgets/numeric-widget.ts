@@ -25,7 +25,6 @@ import * as Promise from 'bluebird';
 import { injectable, inject } from 'inversify';
 import { cloneDeep } from 'lodash';
 
-@injectable()
 export class NumericWidget extends UIWidgetBase implements IUIWidget {
 
     private kpi: IKpiBase;
@@ -33,9 +32,7 @@ export class NumericWidget extends UIWidgetBase implements IUIWidget {
     // TODO: Refactor
     constructor(
         widget: IWidget,
-        private _charts: Charts,
-        private _sales: Sales,
-        private _expenses: Expenses,
+        private _kpiFactory: KpiFactory,
         private _kpis: KPIs
         ) {
         super(widget);
@@ -89,7 +86,7 @@ export class NumericWidget extends UIWidgetBase implements IUIWidget {
         return new Promise<IKpiBase>((resolve, reject) => {
             this._kpis.model.findOne({_id: that.numericWidgetAttributes.kpi })
             .then(kpiDocument => {
-                const kpi = KpiFactory.getInstance(kpiDocument, that._kpis, that._sales, that._expenses);
+                const kpi = that._kpiFactory.getInstance(kpiDocument);
                 if (kpi) {
                     resolve(kpi);
                     return;

@@ -16,7 +16,8 @@ export class WidgetsService {
         @inject('Charts') private _charts: Charts,
         @inject('Sales') private _sales: Sales,
         @inject('Expenses') private _expenses: Expenses,
-        @inject('KPIs') private _kpis: KPIs
+        @inject('KPIs') private _kpis: KPIs,
+        @inject(WidgetFactory.name) private _widgetFactory: WidgetFactory
     ) { }
 
     listWidgets(): Promise<IUIWidget[]> {
@@ -42,7 +43,7 @@ export class WidgetsService {
     previewWidget(data: IWidget): Promise<IUIWidget> {
         const that = this;
         return new Promise<IUIWidget>((resolve, reject) => {
-            const uiWidget = WidgetFactory.getInstance(data, that._charts, that._sales, that._expenses, that._kpis);
+            const uiWidget = that._widgetFactory.getInstance(data);
             uiWidget.materialize().then(materializedWidget => {
                 resolve(materializedWidget);
                 return;
@@ -57,10 +58,10 @@ export class WidgetsService {
     getWidgetById(id: string): Promise<IUIWidget> {
         const that = this;
         return new Promise<IUIWidget>((resolve, reject) => {
-            that._ctx.Widget.findOne({ _id: id })
+            that._widgets.model.findOne({ _id: id })
                             .then(widgetDocument => {
                 const widgetAsObject = <IWidget>widgetDocument.toObject();
-                const uiWidget = WidgetFactory.getInstance(widgetAsObject, that._ctx);
+                const uiWidget = that._widgetFactory.getInstance(widgetAsObject);
                 uiWidget.materialize().then(materializedWidget => {
                     resolve(materializedWidget);
                     return;
@@ -84,7 +85,7 @@ export class WidgetsService {
 
             docs.forEach(d => {
                 const widgetAsObject = <IWidget>d.toObject();
-                const uiWidget = WidgetFactory.getInstance(widgetAsObject, that._ctx);
+                const uiWidget = that._widgetFactory.getInstance(widgetAsObject);
                 uiWidgetsPromises.push(uiWidget.materialize());
             });
 

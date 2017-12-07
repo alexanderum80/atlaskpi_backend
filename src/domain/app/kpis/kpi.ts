@@ -1,21 +1,21 @@
-import { IMutationResponse } from '../../../framework/mutations';
-import { IPagedQueryResult, IPaginationDetails } from '../../../framework/queries';
-import { IChartDateRange } from '../../common';
-import * as mongoose from 'mongoose';
 import * as Promise from 'bluebird';
+import * as mongoose from 'mongoose';
+
+import { IMutationResponse, IPagedQueryResult, IPaginationDetails } from '../../../framework';
+import { IChartDateRange } from '../../common';
 import { IChartDocument } from '../charts';
 
 export enum KPITypeEnum {
-    Simple,
-    Complex,
-    Compound
+    Simple = 'simple',
+    Complex = 'complex',
+    Compound = 'compound'
 }
 
-export const KPITypeMap = {
-    simple: KPITypeEnum.Simple,
-    complex: KPITypeEnum.Complex,
-    compound: KPITypeEnum.Compound,
-};
+// export const KPITypeMap = {
+//     simple: KPITypeEnum.Simple,
+//     complex: KPITypeEnum.Complex,
+//     compound: KPITypeEnum.Compound,
+// };
 
 export function getKPITypePropName(type: KPITypeEnum) {
     switch (type) {

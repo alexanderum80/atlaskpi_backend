@@ -1,3 +1,4 @@
+import { ChartFactory } from './src/app_modules/charts/queries/charts/chart-factory';
 import { IUserDocument } from './src/domain/app/security/users';
 import { Winston } from 'winston';
 import { registerMasterModels } from './src/domain/master/register-master-models';
@@ -10,6 +11,8 @@ import * as logger from 'winston';
 import { BridgeContainer, IBridgeContainer } from './src/framework/di/bridge-container';
 import { IExtendedRequest } from './src/middlewares/index';
 import { injectable, inject } from 'inversify';
+import { KpiFactory } from './src/app_modules/kpis/queries/index';
+import { WidgetFactory } from './src/domain/app/widgets/widget-factory';
 
 @injectable()
 export class CurrentUser {
@@ -26,9 +29,14 @@ export class CurrentUser {
 
 
 export function registerDependencies(container: IBridgeContainer) {
-    container.registerSingleton(AppConnectionPool);
     container.registerConstant('logger', logger);
+
+    container.registerSingleton(AppConnectionPool);
     container.registerPerWebRequest(CurrentUser);
+
+    container.registerPerWebRequest(KpiFactory);
+    container.registerPerWebRequest(ChartFactory);
+    container.registerPerWebRequest(WidgetFactory);
 
     registerConfiguration(container);
     registerMasterModels(container);
