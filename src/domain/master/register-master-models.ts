@@ -3,11 +3,12 @@ import { Industries } from './industries/industry.model';
 import { MasterConnection } from './';
 import { Accounts } from './accounts/account.model';
 import { Container } from 'inversify';
+import { BridgeContainer } from '../../framework/di/bridge-container';
 
-export function registerMasterModels(container: Container) {
-    container.bind<Accounts>('Accounts').to(Accounts).inRequestScope();
-    container.bind<Industries>('Industries').to(Industries).inRequestScope();
-    container.bind<Countries>('Countries').to(Countries).inRequestScope();
+export function registerMasterModels(container: BridgeContainer) {
+    container.registerPerWebRequest(Accounts);
+    container.registerPerWebRequest(Industries);
+    container.registerPerWebRequest(Countries);
 
-    container.bind<MasterConnection>('MasterConnection').to(MasterConnection).inRequestScope();
+    container.registerPerWebRequest(MasterConnection);
 }

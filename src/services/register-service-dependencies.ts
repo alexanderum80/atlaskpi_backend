@@ -1,15 +1,15 @@
-import { WidgetsService } from './widgets.service';
-import { TargetService } from './target.service';
-import { SeedService } from './seed.service';
-import { AuthService } from './auth.service';
+import { BridgeContainer } from '../framework/di/bridge-container';
 import { AccountsService } from './accounts.service';
-import { Container } from 'inversify';
+import { AuthService } from './auth.service';
+import { SeedService } from './seed.service';
+import { TargetService } from './target.service';
+import { WidgetsService } from './widgets.service';
 
-export function registerServices(container: Container) {
-    container.bind<AccountsService>('AccountsService').to(AccountsService).inSingletonScope();
-    container.bind<AuthService>('AuthService').to(AuthService).inSingletonScope();
+export function registerServices(container: BridgeContainer) {
+    container.registerSingleton(AccountsService);
+    container.registerSingleton(AuthService);
 
-    container.bind<SeedService>('SeedService').to(SeedService).inRequestScope();
-    container.bind<TargetService>('TargetService').to(TargetService).inRequestScope();
-    container.bind<WidgetsService>('WidgetsService').to(WidgetsService).inRequestScope();
+    container.registerPerWebRequest(SeedService);
+    container.registerPerWebRequest(TargetService);
+    container.registerPerWebRequest(WidgetsService);
 }
