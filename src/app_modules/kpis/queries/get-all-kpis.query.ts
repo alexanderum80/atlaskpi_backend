@@ -1,7 +1,7 @@
 
 import { injectable, inject } from 'inversify';
 import * as Promise from 'bluebird';
-import { QueryBase, query } from '../../../framework';
+import { IQuery, query } from '../../../framework';
 import { KPIs } from '../../../domain';
 import { KPIPagedQueryResult } from '../kpis.types';
 import { GetAllKPIsActivity } from '../activities';
@@ -16,12 +16,11 @@ import { PaginationDetails } from '../../shared';
     ],
     output: { type: KPIPagedQueryResult }
 })
-export class GetAllKpIsQuery extends QueryBase<KPIPagedQueryResult> {
-    constructor(@inject('Kpis') private _kpis: KPIs) {
-        super();
-    }
+export class GetAllKpIsQuery implements IQuery<KPIPagedQueryResult> {
 
-    run(data: { details: PaginationDetails,  }): Promise<KPIPagedQueryResult> {
+    constructor(@inject('Kpis') private _kpis: KPIs) { }
+
+    run(data: { details: PaginationDetails }): Promise<KPIPagedQueryResult> {
         return this._kpis.model.getAllKPIs(data);
     }
 }

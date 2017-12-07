@@ -1,13 +1,16 @@
+import { Charts } from '../../../domain/app/charts';
 import { IDashboard } from '../../../domain/app/dashboards';
 import { Winston } from 'winston';
 import { IUserDocument } from '../../../domain/app/security/users';
 
 import { injectable, inject } from 'inversify';
 import * as Promise from 'bluebird';
-import { QueryBase, query } from '../../../framework';
+import { IQuery, query } from '../../../framework';
 import { Dashboards } from '../../../domain';
 import { Dashboard } from '../dashboards.types';
 import { GetDashboardsActivity } from '../activities';
+import { CurrentUser } from '../../../../di';
+import { KPIs } from '../../../domain/app/index';
 
 @injectable()
 @query({
@@ -18,14 +21,14 @@ import { GetDashboardsActivity } from '../activities';
     ],
     output: { type: Dashboard, isArray: true }
 })
-export class DashboardsQuery extends QueryBase<IDashboard[]> {
+export class DashboardsQuery implements IQuery<IDashboard[]> {
     constructor(
-        @inject('Dashboards') private _dashboards: Dashboards,
+        @inject(Dashboards.name) private _dashboards: Dashboards,
+        @inject(Charts.name) private _charts: Charts,
+        @inject(KPIs.name) private kpis: KPIs,
         @inject('logger') private _logger: Winston,
-        @inject('CurrentUser') private _currentUser: IUserDocument
-    ) {
-        super();
-    }
+        @inject(CurrentUser.name) private _currentUser: CurrentUser
+    ) { }
 
     run(data: { group: String,  }): Promise<IDashboard[]> {
         const that = this;
@@ -37,10 +40,10 @@ export class DashboardsQuery extends QueryBase<IDashboard[]> {
 
         // lets prepare the query for the dashboards
         let query = {};
-        if (this._currentUser.roles.find(r => r.name === 'owner')) {
+        if (this._currentUser.get().roles.find(r => r.name === 'owner')) {
             query = {};
         } else {
-            query = { $or: [ { owner: that._currentUser._id }, { users: { $in: [that._currentUser._id]} } ]};
+            query = { $or: [ { owner: that._currentUser.get()._id }, { users: { $in: [that._currentUser.get()._id]} } ]};
         }
 
         return new Promise<IDashboard[]>((resolve, reject) => {

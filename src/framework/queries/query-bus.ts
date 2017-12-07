@@ -1,4 +1,5 @@
-import { IActivity } from '../authorization';
+import { IExtendedRequest } from '../../middlewares/extended-request';
+import { IActivity } from '../modules/security';
 import {
     IQuery
 } from '..';
@@ -6,8 +7,9 @@ import { IEnforcer } from '../modules/security/enforcer';
 import * as Promise from 'bluebird';
 import * as logger from 'winston';
 import { injectable } from 'inversify';
-import { IExtendedRequest } from '../models';
 import { inject } from 'inversify';
+import { flatMap } from 'lodash';
+import { AccessLogs } from '../../domain/app/index';
 
 
 export interface IQueryBus {
@@ -31,7 +33,10 @@ export class QueryBus implements IQueryBus {
     run<T>(activity: IActivity, request: IExtendedRequest, query: IQuery<T>, data: any): Promise<any> {
         const that = this;
         // chack activity authorization
-        return this.enforcer.authorizationTo(activity, request)
+        return this.enforcer.authorizationTo(
+            activity,
+            request.user.roles.map(r => r.name),
+            flatMap(request.user.roles, (r) => r.permissions))
             .then((authorized) => {
                 if (!authorized) {
                     return Promise.reject(authorized);
@@ -74,7 +79,9 @@ export class QueryBus implements IQueryBus {
                         }
                     };
 
-                    request.appContext.AccessModel.create(that.logParams);
+                    const accessLogs = request.container.get<AccessLogs>(AccessLogs.name);
+
+                    accessLogs.model.create(that.logParams);
                 }
             });
 

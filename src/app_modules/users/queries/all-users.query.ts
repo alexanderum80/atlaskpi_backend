@@ -1,7 +1,7 @@
 
 import { injectable, inject } from 'inversify';
 import * as Promise from 'bluebird';
-import { QueryBase, query } from '../../../framework';
+import { IQuery, query } from '../../../framework';
 import { Users, IUserDocument } from '../../../domain';
 import { User } from '../users.types';
 import { FindAllUsersActivity } from '../activities';
@@ -15,9 +15,9 @@ import { FindAllUsersActivity } from '../activities';
     ],
     output: { type: User, isArray: true }
 })
-export class AllUsersQuery extends QueryBase<IUserDocument[]> {
+export class AllUsersQuery implements IQuery<IUserDocument[]> {
     constructor(@inject('Users') private _users: Users) {
-        super();
+        
     }
 
     run(data: { filter: string }): Promise<IUserDocument[]> {

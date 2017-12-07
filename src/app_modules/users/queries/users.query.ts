@@ -3,7 +3,7 @@ import { IPagedQueryResult, IPaginationDetails } from '../../../framework/querie
 
 import { injectable, inject } from 'inversify';
 import * as Promise from 'bluebird';
-import { QueryBase, query } from '../../../framework';
+import { IQuery, query } from '../../../framework';
 import { Users } from '../../../domain';
 import { UserPagedQueryResult } from '../users.types';
 import { SearchUsersActivity } from '../activities';
@@ -18,9 +18,9 @@ import { PaginationDetails } from '../../shared';
     ],
     output: { type: UserPagedQueryResult }
 })
-export class UsersQuery extends QueryBase<IPagedQueryResult<IUserDocument>> {
+export class UsersQuery implements IQuery<IPagedQueryResult<IUserDocument>> {
     constructor(@inject('Users') private _users: Users) {
-        super();
+        
     }
 
     run(data: { details: IPaginationDetails }): Promise<IPagedQueryResult<IUserDocument>> {

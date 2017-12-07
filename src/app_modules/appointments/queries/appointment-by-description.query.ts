@@ -20,7 +20,7 @@ import * as Promise from 'bluebird';
 })
 export class AppointmentByDescriptionQuery extends MutationBase<IAppointmentDocument> {
     constructor(@inject('Appointments') private _appointments: Appointments) {
-        super();
+        
     }
 
     run(data: { from: string, to: string, name: string }): Promise<IAppointmentDocument> {

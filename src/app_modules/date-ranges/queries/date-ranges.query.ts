@@ -15,9 +15,9 @@ import { DateRangeHelper } from './date-range.helper';
     ],
     output: { type: DateRangeResponse, isArray: true }
 })
-export class DateRangesQuery extends QueryBase<DateRangeResponse[]> {
+export class DateRangesQuery implements IQuery<DateRangeResponse[]> {
     constructor() {
-        super();
+        
     }
 
     run(data: { filter: string }): Promise<DateRangeResponse[]> {

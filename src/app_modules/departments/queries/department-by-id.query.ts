@@ -1,7 +1,7 @@
 
 import { injectable, inject } from 'inversify';
 import * as Promise from 'bluebird';
-import { QueryBase, query } from '../../../framework';
+import { IQuery, query } from '../../../framework';
 import { Departments, IDepartmentDocument } from '../../../domain';
 import { Department } from '../departments.types';
 import { DepartmentByIdActivity } from '../activities';
@@ -15,9 +15,9 @@ import { DepartmentByIdActivity } from '../activities';
     ],
     output: { type: Department }
 })
-export class DepartmentByIdQuery extends QueryBase<IDepartmentDocument> {
+export class DepartmentByIdQuery implements IQuery<IDepartmentDocument> {
     constructor(@inject('Departments') private _departments: Departments) {
-        super();
+        
     }
 
     run(data: { id: string }): Promise<IDepartmentDocument> {

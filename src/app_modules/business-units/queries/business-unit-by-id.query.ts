@@ -1,6 +1,6 @@
 import { injectable, inject } from 'inversify';
 import * as Promise from 'bluebird';
-import { QueryBase, query } from '../../../framework';
+import { IQuery, query } from '../../../framework';
 import { BusinessUnits } from '../../../domain';
 import { BusinessUnit } from '../business-units.types';
 import { BusinessUnitByIdActivity } from '../activities';
@@ -14,9 +14,9 @@ import { BusinessUnitByIdActivity } from '../activities';
     ],
     output: { type: BusinessUnit }
 })
-export class BusinessUnitByIdQuery extends QueryBase<BusinessUnit> {
+export class BusinessUnitByIdQuery implements IQuery<BusinessUnit> {
     constructor(@inject('BusinessUnits') private _businessUnits: BusinessUnits) {
-        super();
+        
     }
 
     run(data: { id: string }): Promise<BusinessUnit> {

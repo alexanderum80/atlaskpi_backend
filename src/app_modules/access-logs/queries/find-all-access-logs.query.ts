@@ -17,7 +17,7 @@ import { injectable, inject } from 'inversify';
 })
 export class GetAllAccessLogsQuery extends MutationBase<IAccessLogDocument> {
     constructor(@inject('') private _accessLogs: AccessLogs) {
-        super();
+        
     }
 
     run(data: any): Promise<IAccessLogDocument> {

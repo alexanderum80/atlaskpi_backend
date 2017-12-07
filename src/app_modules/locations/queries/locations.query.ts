@@ -13,9 +13,9 @@ import { ListLocationsActivity } from '../activities';
     activity: ListLocationsActivity,
     output: { type: Location, isArray: true }
 })
-export class LocationsQuery extends QueryBase<ILocationDocument[]> {
+export class LocationsQuery implements IQuery<ILocationDocument[]> {
     constructor(@inject('Locations') private _locations: Locations) {
-        super();
+        
     }
 
     run(data: { id: string }): Promise<ILocationDocument[]> {

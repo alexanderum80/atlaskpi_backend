@@ -2,7 +2,7 @@ import { ITargetDocument } from '../../../domain/app/targets';
 
 import { injectable, inject } from 'inversify';
 import * as Promise from 'bluebird';
-import { QueryBase, query } from '../../../framework';
+import { IQuery, query } from '../../../framework';
 import { Targets } from '../../../domain';
 import { TargetResponse } from '../targets.types';
 import { FindTargetActivity } from '../activities';
@@ -16,9 +16,9 @@ import { FindTargetActivity } from '../activities';
     ],
     output: { type: TargetResponse }
 })
-export class FindTargetQuery extends QueryBase<ITargetDocument> {
+export class FindTargetQuery implements IQuery<ITargetDocument> {
     constructor(@inject('Targets') private _targets: Targets) {
-        super();
+        
     }
 
     run(data: { id: string }): Promise<ITargetDocument> {
