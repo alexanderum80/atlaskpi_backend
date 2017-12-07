@@ -18,7 +18,8 @@ export class TestTargetNotificationQuery extends QueryBase<any> {
 
     // needs: targetName, targetAmount (target), targetDate (datepicker), dashboard name, chartName
 
-    run(data: { input: {usersId: string[], targetName: string, targetAmount: string, targetDate: string, chartId: string}}): Promise<any> {
+    run(data: { input: {usersId: string[], targetName: string, targetAmount: string,
+                        targetDate: string, chartId: string, businessUnit: string}}): Promise<any> {
         const that = this;
         const input = data.input;
         return new Promise<any>((resolve, reject) => {
@@ -41,7 +42,8 @@ export class TestTargetNotificationQuery extends QueryBase<any> {
                             targetAmount: parseInt(input.targetAmount).toFixed(2),
                             targetDate: input.targetDate,
                             dashboardName: dashboard,
-                            chartName: chart.title
+                            chartName: chart.title,
+                            businessUnitName: input.businessUnit
                         };
                         that._testNotification.notify(user, user.username, notifyData);
                     });

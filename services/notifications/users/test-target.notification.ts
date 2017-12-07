@@ -35,6 +35,7 @@ export class TestTargetNotification implements IEmailNotifier {
         dataSource.targetDate = data.targetDate;
         dataSource.dashboardName = data.dashboardName;
         dataSource.chartName = data.chartName;
+        dataSource.businessUnitName = data.businessUnitName;
 
         const emailContent = testTargetNotificationTemplate(dataSource);
         return sendEmail(email, `${this._config.usersService.app.name}: Target Notification`, emailContent);
