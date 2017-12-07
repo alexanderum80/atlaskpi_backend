@@ -20,10 +20,10 @@ export class RemoveRoleMutation extends MutationBase<IMutationResponse> {
         super();
     }
 
-    run(data: { id: string }): Promise<IMutationResponse> {
-        return new Promise<IMutationResponse>((resolve, reject) => {
+    run(data: { id: string }): Promise<RoleResult> {
+        return new Promise<RoleResult>((resolve, reject) => {
             let promises = [];
-            let d = this._UserModel.find({ roles: { $in: [data.id] } })
+            let d = this._roles.model.find({ roles: { $in: [data.id] } })
                 .populate('roles', '-_id, name')
                 .then((role) => {
                     return role;
@@ -31,10 +31,10 @@ export class RemoveRoleMutation extends MutationBase<IMutationResponse> {
             promises.push(d);
 
             return Promise.all(promises).then((roleExist) => {
-                return this.roles.model.removeRole(data.id, roleExist[0]).then((r) => {
-                    return resolve({ success: true, entity: r});
+                return this._roles.model.removeRole(data.id, roleExist[0]).then((r) => {
+                    return resolve({ success: true } as RoleResult);
                 }).catch((err) => {
-                    return resolve({ success: false, entity: err.entity, errors: [ { field: 'role', errors: [err.errors[0]] } ]});
+                    return resolve({ success: false, errors: [ { field: 'role', errors: [err.errors[0]] } ]} as RoleResult);
                 });
             });
         });

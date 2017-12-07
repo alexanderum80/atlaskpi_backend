@@ -104,7 +104,7 @@ export interface IUserDocument extends IUser, mongoose.Document {
     hasEmail(email): Boolean;
     addResetPasswordToken(email: string): void;
     addEnrollmentEmail(email: string): void;
-    generateToken(accountName: string, username: string, password: string, ip: string, clientId: string, clientDetails: string, expiresIn: string): Promise<IUserToken>;
+    generateToken(accountName: string, username: string, password: string, ip: string, clientId: string, clientDetails: string, secret: string, expiresIn: string): Promise<IUserToken>;
 }
 
 export interface ITokenVerification {

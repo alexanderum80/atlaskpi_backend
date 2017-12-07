@@ -1,6 +1,6 @@
-import { Role } from '../roles/roles.types';
 
 import { input, type, field, GraphQLTypesMap, ErrorDetails } from '../../framework';
+import { Role } from '../roles/roles.types';
 import { PaginationInfo } from '../shared';
 
 
@@ -167,21 +167,6 @@ export class UserProfile  {
 
 }
 
-
-@type()
-export class Permission  {
-    @field({ type: GraphQLTypesMap.String })
-    _id: string;
-
-    @field({ type: GraphQLTypesMap.String })
-    action: string;
-
-    @field({ type: GraphQLTypesMap.String })
-    subject: string;
-
-}
-
-
 @type()
 export class User  {
     @field({ type: GraphQLTypesMap.String })
@@ -197,8 +182,8 @@ export class User  {
     profile: UserProfile;
 
     // TODO: Come back here because bridge was complaining here processing this field (something related to permission I think)
-    // @field({ type: Role, isArray: true })
-    // roles: Role[];
+    @field({ type: Role, isArray: true })
+    roles: Role[];
 
     @field({ type: GraphQLTypesMap.String })
     timestamps: string;

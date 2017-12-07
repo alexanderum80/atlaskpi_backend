@@ -63,7 +63,7 @@ export function AppModule(options: IModuleOptions) {
                 if (options.mutations || options.queries) {
                     const moduleMetadata = _getModuleMetadata(target, instance, options);
                     _processDependencyInjection(constructor.name, moduleMetadata, instance, container, options);
-                    _injectResolvers(container, moduleMetadata);
+                    _injectResolvers(moduleMetadata);
                     addGlobalModuleMetadata(target, moduleMetadata);
                 }
 
@@ -135,7 +135,7 @@ function _processDependencyInjection(moduleName: string,
     container.addSubmodule(diModule);
 }
 
-function _injectResolvers(container: IBridgeContainer, moduleMetadata: IModuleMetadata): void {
+function _injectResolvers(moduleMetadata: IModuleMetadata): void {
     // type resolvers
     // I do not include type resolvers here because they are generic for the entire application
     // so I inject the type resolvers at the framework level
@@ -148,18 +148,19 @@ function _injectResolvers(container: IBridgeContainer, moduleMetadata: IModuleMe
             for (const key in types) {
                 const queryOrMutation: IQueryOrMutationDetails = <IQueryOrMutationDetails>types[key];
                 // const i = container.get(queryOrMutation.constructor.name) as any;
-                (<IQueryOrMutationDetails>types[key]).resolver = _getResolverFunction(metadataType, container, queryOrMutation);
+                (<IQueryOrMutationDetails>types[key]).resolver = _getResolverFunction(metadataType, queryOrMutation);
             }
         }
     });
 }
 
-function _getResolverFunction(metaType: MetadataType, container: IBridgeContainer, artifact: IQueryOrMutationDetails) {
+function _getResolverFunction(metaType: MetadataType, artifact: IQueryOrMutationDetails) {
     const bus = metaType === MetadataType.Queries ? 'queryBus' : 'mutationBus';
 
     return function _executeResolver(root: any, args, ctx: IGraphqlContext) {
         // get an intance using the dependency injection container
-        const i = container.get(artifact.constructor.name) as any;
+        console.debug(`Resolving: ${artifact.constructor.name}`);
+        const i = ctx.requestContainer.get(artifact.constructor.name) as any;
         // ejecute the query or mutation bus
         return (ctx[bus] as any).run(artifact.activity, ctx.req, i, args);
     };
