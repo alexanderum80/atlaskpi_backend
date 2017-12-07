@@ -4,7 +4,7 @@ import { RemoveTargetMutation } from '../../mutations/app/targets/remove-target.
 import { UpdateTargetMutation } from '../../mutations/app/targets/update-target.mutation';
 import { IMutationResponse } from '../../models/common';
 import { CreateTargetMutation } from '../../mutations/app/targets';
-import { FindAllTargetsQuery, TestTargetNotificationQuery } from '../../queries/app/targets';
+import { FindAllTargetsQuery, TargetNotificationQuery } from '../../queries/app/targets';
 import { FindTargetQuery } from '../../queries/app/targets';
 import { IGraphqlContext } from '../';
 import { GraphqlDefinition } from '../graphql-definition';
@@ -114,7 +114,7 @@ export const targetGql: GraphqlDefinition = {
             },
             targetNotification(root: any, args, ctx: IGraphqlContext) {
                 const notifier = new TargetNotification(ctx.config, { hostname: getRequestHostname(ctx.req)});
-                const query = new TestTargetNotificationQuery(ctx.req.identity, notifier,
+                const query = new TargetNotificationQuery(ctx.req.identity, notifier,
                                 ctx.req.appContext.User, ctx.req.appContext.Chart, ctx.req.appContext.Dashboard);
                 return ctx.queryBus.run('target-notification', query, args, ctx.req);
             }
