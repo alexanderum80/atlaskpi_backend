@@ -2,6 +2,7 @@ import { Container } from 'inversify';
 import { isString, isObject } from 'lodash';
 import { Sales } from '../../domain/app/index';
 import { Request } from 'express';
+import { Error } from 'mongoose';
 
 export interface TypeWithName {
     name: string;
@@ -23,6 +24,8 @@ export interface IBridgeContainer {
     registerConstant<T extends GenericObject>(identifier: string, value: T): void;
     deregister<T extends Newable<any>>(identifier: string | T): void;
 
+    loadModule(module: IBridgeContainer);
+
     get<T extends Newable<any>>(identifier: T): T;
 }
 
@@ -32,9 +35,11 @@ export interface IRequestContext {
 
 export class BridgeContainer implements IBridgeContainer {
     private _perRequestTypesRegistrations: any;
+    private _containerModules: IBridgeContainer[];
 
     constructor(private _container: Container) {
         this._perRequestTypesRegistrations = {};
+        this._containerModules = [];
     }
 
     register<T extends Newable<any>>(type: T): void {
@@ -59,6 +64,16 @@ export class BridgeContainer implements IBridgeContainer {
 
     deregister<T extends Newable<any>>(identifier: string | T): void {
         this._container.unbind(identifier);
+    }
+
+    loadModule(containerModule: IBridgeContainer) {
+        const moduleFound = this._containerModules.find(m => m === containerModule);
+
+        if (moduleFound) {
+            throw new Error('The module you are trying to add alredy exist');
+        }
+
+        this._containerModules.push(containerModule);
     }
 
     get<T extends Newable<any>>(identifier: string | T): T {
