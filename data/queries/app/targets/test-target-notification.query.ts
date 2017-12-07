@@ -38,7 +38,7 @@ export class TestTargetNotificationQuery extends QueryBase<any> {
                     users.forEach(user => {
                         const notifyData = {
                             targetName: input.targetName,
-                            targetAmount: input.targetAmount,
+                            targetAmount: parseInt(input.targetAmount).toFixed(2),
                             targetDate: input.targetDate,
                             dashboardName: dashboard,
                             chartName: chart.title

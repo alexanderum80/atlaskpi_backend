@@ -31,7 +31,7 @@ export class TestTargetNotification implements IEmailNotifier {
         dataSource.host = this._data.hostname;
         dataSource.subdomain = this._config.subdomain;
         dataSource.targetName = data.targetName;
-        dataSource.targetAmount = data.targetName;
+        dataSource.targetAmount = parseInt(data.targetAmount).toFixed(2);
         dataSource.targetDate = data.targetDate;
         dataSource.dashboardName = data.dashboardName;
         dataSource.chartName = data.chartName;

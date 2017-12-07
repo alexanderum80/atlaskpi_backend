@@ -96,6 +96,10 @@
                     background-color: #fffde7;
                 }
 
+                .p-10 {
+                    padding: 10px !important;
+                }
+
             </style>
         </head>
         
@@ -105,7 +109,7 @@
                     <div class="header">
                         <img class="logo" alt="Logo" src="https://bi.atlaskpi.com/assets/img/logos/white-logo.png"/>
                         <div class="title">
-                            <span>Test Notification System</span>
+                            <span>Target Notification</span>
                         </div>
                     </div>
                     <div class="content">
@@ -113,11 +117,13 @@
                             Hello {{name}},
                         </p>
 
-                        <div class="notify-bmg-color">
-                            <i class="zmdi zmdi-portable-wifi-changes"></i>
+                        <div class="notify-bmg-color p-10">
                             <p>
-                                This is a notification for the target you set for "{{targetName}}", your targeted amount was {{targetAmount}} for {{targetDate}}. 
-                                You can access this on your "{{dashboardName}}" dashboard on the chart called "{{chartName}}".
+                                <img class="logo" alt="logo" src="../assets/img/logos/target.png"/>
+                                This is a notification for the target you set for <strong>"{{targetName}}"</strong>, your targeted amount was 
+                                <strong>{{targetAmount}}</strong> for <strong>{{targetDate}}</strong>. 
+                                You can access this on your <strong>"{{dashboardName}}"</strong> dashboard on the chart called 
+                                <strong>"{{chartName}}"</strong>.
                             </p>
                         </div>
         
