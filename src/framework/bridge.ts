@@ -1,3 +1,4 @@
+import { BridgeContainer } from './di/bridge-container';
 import { IEnforcer } from './modules/security';
 import { Enforcer } from '../app_modules/security/enforcer';
 import { Request } from 'Express';
@@ -64,16 +65,17 @@ export class Bridge {
     static create(appModule: new() => IAppModule, options?: IFrameworkOptions): Bridge {
         const newOptions = Object.assign({}, defaultServerOptions, options);
         const container = new Container({ autoBindInjectable: true });
+        const bridgeContainer = new BridgeContainer(container);
         // I need to save the container in a global name space so it can be accessed from the middlewares
 
-        BRIDGE.container = container;
+        // BRIDGE.container = container;
 
         const moduleDefinition = appModule[MetadataFieldsMap.Definition];
         let moduleInstances: IAppModule[];
 
         // process module imports
         if (moduleDefinition && moduleDefinition.imports) {
-            moduleInstances = moduleDefinition.imports.map(m => new m(container));
+            moduleInstances = moduleDefinition.imports.map(m => new m(bridgeContainer));
         }
 
         // create app module
@@ -86,15 +88,15 @@ export class Bridge {
         moduleInstances.push(app);
 
         // process bridge container registrations
-        registerBridgeDependencies(container);
+        registerBridgeDependencies(bridgeContainer);
 
         // generate graphql schema
         const graphqlSchema: IExecutableSchemaDefinition = makeGraphqlSchemaExecutable(moduleInstances);
 
-        return new Bridge(container, graphqlSchema, options);
+        return new Bridge(bridgeContainer, graphqlSchema, options);
     }
 
-    constructor(private _container: Container, private _executableSchema: IExecutableSchemaDefinition, private _options: IFrameworkOptions) {
+    constructor(private _container: BridgeContainer, private _executableSchema: IExecutableSchemaDefinition, private _options: IFrameworkOptions) {
         this._options = Object.assign({}, defaultServerOptions, _options);
 
         this._server = express();
@@ -108,16 +110,16 @@ export class Bridge {
             {
               context: {
                 req: req,
-                requestContainer: BRIDGE.getRequestContainer(req),
-                mutationBus: _container.get<IMutationBus>('MutationBus'),
-                queryBus: _container.get<IQueryBus>('QueryBus')
+                requestContainer: _container.getBridgeContainerForWebRequest(req),
+                mutationBus: _container.get(MutationBus),
+                queryBus: _container.get(QueryBus)
               },
               schema: _executableSchema
             }
         )));
     }
 
-    get Container(): Container {
+    get Container(): BridgeContainer {
         return this._container;
     }
 
@@ -133,10 +135,10 @@ export class Bridge {
 
 }
 
-function registerBridgeDependencies(container: Container) {
-    container.bind<IEnforcer>('Enforcer').to(Enforcer).inSingletonScope();
-    container.bind<IMutationBus>('MutationBus').to(MutationBus).inSingletonScope();
-    container.bind<IQueryBus>('QueryBus').to(QueryBus).inSingletonScope();
+function registerBridgeDependencies(container: BridgeContainer) {
+    container.registerSingleton(Enforcer);
+    container.registerSingleton(MutationBus);
+    container.registerSingleton(QueryBus);
 }
 
 // function getRequestContainer(req: Request, generalContainer: Container): interfaces.Container {
