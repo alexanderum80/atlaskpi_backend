@@ -8,6 +8,7 @@ import { GraphqlMetaType } from './graphql-meta-types.enum';
 import { GraphQLArtifact } from './graphql-artifact';
 import * as Hbs from 'handlebars';
 import { Container, interfaces } from 'inversify';
+import { IBridgeContainer } from '../di/bridge-container';
 
 
 export interface IArtifactDetails {
@@ -57,8 +58,8 @@ export interface IFrameworkMetadata {
         mutations: IGraphqlArtifacts
     };
     modules: IModuleArtifact;
-    container?: Container;
-    getRequestContainer(req: Request): interfaces.Container;
+    bridgeContainer?: IBridgeContainer;
+    getRequestContainer(req: Request): IBridgeContainer;
 }
 
 const defaultFrameworkMetadata: IFrameworkMetadata = {
@@ -69,11 +70,8 @@ const defaultFrameworkMetadata: IFrameworkMetadata = {
         mutations: {}
     },
     modules: {},
-    getRequestContainer: function(req: Request): interfaces.Container {
-        const container = new Container({ autoBindInjectable: true });
-        // first thing first!
-        container.bind<Request>('Request').toConstantValue(req);
-        return Container.merge(this.container, container);
+    getRequestContainer: function(req: Request): IBridgeContainer {
+        return this.bridgeContainer.getBridgeContainerForWebRequest(req);
     }
 };
 

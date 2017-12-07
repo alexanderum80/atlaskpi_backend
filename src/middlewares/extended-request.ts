@@ -5,7 +5,7 @@ import { IIdentity } from '../domain/app/security/users/identity';
 /**
  * Extension of the express request object
  */
-export interface ExtendedRequest extends Request {
+export interface IExtendedRequest extends Request {
 
     /**
      * User's identity

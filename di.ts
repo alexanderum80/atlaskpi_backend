@@ -6,10 +6,10 @@ import { registerServices } from './src/services/register-service-dependencies';
 import { AppConnectionPool } from './src/middlewares/app-connection-pool';
 import { Container } from 'inversify';
 import * as logger from 'winston';
-import { BridgeContainer } from './src/framework/di/bridge-container';
+import { BridgeContainer, IBridgeContainer } from './src/framework/di/bridge-container';
 
 
-export function registerDependencies(container: BridgeContainer) {
+export function registerDependencies(container: IBridgeContainer) {
     container.registerSingleton(AppConnectionPool);
     container.registerConstant('logger', logger);
 

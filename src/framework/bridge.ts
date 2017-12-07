@@ -1,7 +1,7 @@
 import { BridgeContainer } from './di/bridge-container';
 import { IEnforcer } from './modules/security';
 import { Enforcer } from '../app_modules/security/enforcer';
-import { Request } from 'Express';
+import { Request, Response } from 'Express';
 import { IQueryBus, QueryBus } from './queries/query-bus';
 import { IMutationBus, MutationBus } from './mutations/mutation-bus';
 import { makeGraphqlSchemaExecutable } from './graphql/graphql-schema-generator';
@@ -36,6 +36,7 @@ import { RequestHandlerParams } from 'express-serve-static-core';
 import { RequestHandler } from 'apollo-link';
 import { graphqlExpress } from 'apollo-server-express/dist/expressApollo';
 import { BRIDGE } from './index';
+import { IExtendedRequest } from '../middlewares/index';
 
 interface IQueryData {
     types: string[];
@@ -66,9 +67,9 @@ export class Bridge {
         const newOptions = Object.assign({}, defaultServerOptions, options);
         const container = new Container({ autoBindInjectable: true });
         const bridgeContainer = new BridgeContainer(container);
-        // I need to save the container in a global name space so it can be accessed from the middlewares
 
-        // BRIDGE.container = container;
+        // I need to save the container in a global name space so it can be accessed from the middlewares
+        BRIDGE.bridgeContainer = bridgeContainer;
 
         const moduleDefinition = appModule[MetadataFieldsMap.Definition];
         let moduleInstances: IAppModule[];
@@ -102,6 +103,7 @@ export class Bridge {
         this._server = express();
 
         // middlewares
+        this._server.use(setBridgeContainer);
         this._server.use('*', cors());
         this._server.use(bodyParser.urlencoded({ extended: false, limit: this._options.bodyParserLimit }));
         this._server.use(bodyParser.json({ limit: this._options.bodyParserLimit }));
@@ -141,12 +143,8 @@ function registerBridgeDependencies(container: BridgeContainer) {
     container.registerSingleton(QueryBus);
 }
 
-// function getRequestContainer(req: Request, generalContainer: Container): interfaces.Container {
-//     const container = new Container({ autoBindInjectable: true });
-//     // first thing first!
-//     container.bind<Request>('Request').toConstantValue(req);
 
-
-//     return Container.merge(generalContainer, container);
-
-// }
+function setBridgeContainer(req: Request, res: Response, next) {
+    (<any>req)._bridgeContainer = BRIDGE.getRequestContainer(req);
+    next();
+}

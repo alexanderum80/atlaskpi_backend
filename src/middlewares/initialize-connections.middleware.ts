@@ -1,7 +1,7 @@
 import { config } from '../configuration/config';
 import { Accounts, IAccountDocument } from '../domain/master/accounts';
 import { AppConnectionPool } from './app-connection-pool';
-import { ExtendedRequest } from './extended-request';
+import { IExtendedRequest } from './extended-request';
 import { Request, Response } from 'express';
 import * as logger from 'winston';
 import * as mongoose from 'mongoose';
@@ -17,7 +17,7 @@ const graphqlOperationExceptions = [
 
 const loggerSuffix = '(MIDDLEWARE initialize connections)';
 
-export function initializeConnections(req: ExtendedRequest, res: Response, next) {
+export function initializeConnections(req: IExtendedRequest, res: Response, next) {
 
     makeDefaultConnection(config).then(defaultConnection => {
         req.masterConnection = mongoose.connection;
@@ -40,7 +40,7 @@ export function initializeConnections(req: ExtendedRequest, res: Response, next)
     });
 }
 
-function getAppConnection(accounts: IAccountModel, req: ExtendedRequest, res: Response, next): Promise<mongoose.Connection> {
+function getAppConnection(accounts: IAccountModel, req: IExtendedRequest, res: Response, next): Promise<mongoose.Connection> {
 
     return new Promise<mongoose.Connection>((resolve, reject) => {
         let hostname = getRequestHostname(req);
@@ -70,7 +70,7 @@ function getAppConnection(accounts: IAccountModel, req: ExtendedRequest, res: Re
             logger.debug(`${loggerSuffix} Account found`);
     
             // TODO: I need to test this
-            BRIDGE.container.get<AppConnectionPool>('AppConnectionPool').getConnection(account.getConnectionString()).then((appConn) => {
+            BRIDGE.bridgeContainer.get<AppConnectionPool>('AppConnectionPool').getConnection(account.getConnectionString()).then((appConn) => {
                 // req.appConnection = appConn;
                 logger.debug(`${loggerSuffix} App connection assigned to request`);
                 resolve(appConn);

@@ -1,8 +1,8 @@
 import { Response } from 'express';
-import { ExtendedRequest } from './extended-request';
+import { IExtendedRequest } from './extended-request';
 import * as winston from 'winston';
 
-export function logger(req: ExtendedRequest, res: Response, next) {
+export function logger(req: IExtendedRequest, res: Response, next) {
     let logger = new (winston.Logger)({
         transports: [
             new (winston.transports.File)({

@@ -1,10 +1,10 @@
 import { Request, Response } from 'express';
-import { ExtendedRequest } from './extended-request';
+import { IExtendedRequest } from './extended-request';
 import * as logger from 'winston';
 import * as Promise from 'bluebird';
 import { config } from '../configuration';
 
-export function loadUser(req: ExtendedRequest, res: Response, next) {
+export function loadUser(req: IExtendedRequest, res: Response, next) {
 
     // only load a user when this request have an identity
     if (!req.identity) {

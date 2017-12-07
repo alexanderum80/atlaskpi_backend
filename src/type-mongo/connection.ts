@@ -1,7 +1,6 @@
-import { ExtendedRequest } from '../middlewares/extended-request';
-import * as mongoose from 'mongoose';
 import { Request } from 'express';
-import { injectable, inject } from 'inversify';
+import { inject, injectable } from 'inversify';
+import * as mongoose from 'mongoose';
 
 // this class needs to be register as singleton (it should only exist a single connection per request)
 

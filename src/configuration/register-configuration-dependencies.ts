@@ -1,8 +1,8 @@
-import { AppConfig, config } from './config';
+import { config } from './config';
 import { IAppConfig } from './config-models';
 import { Container } from 'inversify';
-import { BridgeContainer } from '../framework/di/bridge-container';
+import { IBridgeContainer } from '../framework/di/bridge-container';
 
-export function registerConfiguration(container: BridgeContainer): void {
-    container.registerConstant('Config', AppConfig);
+export function registerConfiguration(container: IBridgeContainer): void {
+    container.registerConstant('Config', config);
 }
