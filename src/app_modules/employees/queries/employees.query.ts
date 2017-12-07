@@ -3,7 +3,7 @@ import { IEmployeeDocument } from '../../../domain/app/employees';
 
 import { injectable, inject } from 'inversify';
 import * as Promise from 'bluebird';
-import { QueryBase, query } from '../../../framework';
+import { IQuery, query } from '../../../framework';
 import { Employees } from '../../../domain';
 import { Employee } from '../employees.types';
 import { ListEmployeesActivity } from '../activities';
@@ -14,10 +14,9 @@ import { ListEmployeesActivity } from '../activities';
     activity: ListEmployeesActivity,
     output: { type: Employee, isArray: true }
 })
-export class EmployeesQuery extends QueryBase<IEmployeeDocument[]> {
-    constructor(@inject('Employees') private _employees: Employees) {
-        super();
-    }
+export class EmployeesQuery implements IQuery<IEmployeeDocument[]> {
+
+    constructor(@inject('Employees') private _employees: Employees) { }
 
     run(): Promise<IEmployeeDocument[]> {
         const that = this;

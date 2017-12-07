@@ -22,14 +22,14 @@ import { Dashboard } from '../dashboards.types';
     ],
     output: { type: Dashboard }
 })
-export class DashboardQuery extends QueryBase<IDashboard> {
+export class DashboardQuery implements IQuery<IDashboard> {
     constructor(
         @inject('CurrentUser') private _user: IUserDocument,
         @inject('logger') private _logger: Winston,
         @inject('WidgetService') private _widgetService: WidgetsService,
         @inject('ChartQuery') private _chartQuery: ChartQuery,
         @inject('Dashboards') private _dashboards: Dashboards) {
-        super();
+        
     }
 
     run(data: { id: String,  }): Promise<IDashboard> {

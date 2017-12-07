@@ -1,7 +1,7 @@
 
 import { injectable, inject } from 'inversify';
 import * as Promise from 'bluebird';
-import { QueryBase, query } from '../../../framework';
+import { IQuery, query } from '../../../framework';
 import { Widgets } from '../../../domain';
 import { Widget } from '../widgets.types';
 import { GetWidgetActivity } from '../activities';
@@ -15,9 +15,9 @@ import { GetWidgetActivity } from '../activities';
     ],
     output: { type: Widget }
 })
-export class WidgetQuery extends QueryBase<Widget> {
+export class WidgetQuery implements IQuery<Widget> {
     constructor(@inject('Widgets') private _widgets: Widgets) {
-        super();
+        
     }
 
     run(data: { id: string }): Promise<Widget> {

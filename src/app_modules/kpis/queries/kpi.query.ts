@@ -2,7 +2,7 @@ import { IKPIDocument } from '../../../domain/app/kpis';
 
 import { injectable, inject } from 'inversify';
 import * as Promise from 'bluebird';
-import { QueryBase, query } from '../../../framework';
+import { IQuery, query } from '../../../framework';
 import { KPIs } from '../../../domain';
 import { KPI } from '../kpis.types';
 import { GetKpiActivity } from '../activities';
@@ -16,10 +16,9 @@ import { GetKpiActivity } from '../activities';
     ],
     output: { type: KPI }
 })
-export class KpiQuery extends QueryBase<IKPIDocument> {
-    constructor(@inject('KPIs') private _kpis: KPIs) {
-        super();
-    }
+export class KpiQuery implements IQuery<IKPIDocument> {
+    
+    constructor(@inject('KPIs') private _kpis: KPIs) { }
 
     run(data: { id: string }): Promise<IKPIDocument> {
         console.log(data);

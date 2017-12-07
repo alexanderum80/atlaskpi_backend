@@ -5,7 +5,7 @@ import { ISearchResult } from './';
 
 import { injectable, inject } from 'inversify';
 import * as Promise from 'bluebird';
-import { QueryBase, query } from '../../../framework';
+import { IQuery, query } from '../../../framework';
 import { SearchResultItem } from '../search.types';
 import { SearchActivity } from '../activities';
 
@@ -41,11 +41,11 @@ const sectionsModelsMap = {
     ],
     output: { type: SearchResultItem, isArray: true }
 })
-export class SearchQuery extends QueryBase<ISearchResult[]> {
+export class SearchQuery implements IQuery<ISearchResult[]> {
     private _adaptEngine: AdaptEngine;
 
     constructor(@inject('GetChartQuery') private _getChartQuery: GetChartQuery) {
-        super();
+        
         this._adaptEngine = new AdaptEngine([AdaptIntents.Chart]);
     }
 

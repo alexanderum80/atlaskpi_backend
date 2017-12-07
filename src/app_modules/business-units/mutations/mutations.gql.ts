@@ -77,7 +77,7 @@ const GetBusinessUnitQueryActivity: IActivity = {} as IActivity;
     parameters: [{ name: 'id', type: 'String', required: true }],
     output: BusinessUnit
 })
-export class GetBusinessUnitQuery extends QueryBase<BusinessUnit> {
+export class GetBusinessUnitQuery implements IQuery<BusinessUnit> {
 
     run(data: any): Promise<any> {
         return Promise.resolve('value');

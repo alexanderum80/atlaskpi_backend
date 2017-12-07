@@ -9,7 +9,7 @@ import { Winston } from 'winston';
 
 import { injectable, inject } from 'inversify';
 import * as Promise from 'bluebird';
-import { QueryBase, query } from '../../../framework';
+import { IQuery, query } from '../../../framework';
 import { Charts } from '../../../domain';
 import { GetChartInput } from '../charts.types';
 import { GetChartActivity } from '../activities';
@@ -27,14 +27,14 @@ import { DateRangeHelper } from '../../date-ranges/queries/date-range.helper';
     ],
     output: { type: String }
 })
-export class ChartQuery extends QueryBase<String> {
+export class ChartQuery implements IQuery<String> {
     constructor(
         @inject('Charts') private _charts: Charts,
         @inject('Users') private _users: Users,
         @inject('Targets') private _targets: Targets,
         @inject('logger') private _logger: Winston
     ) {
-        super();
+        
     }
 
     run(data: { id: string, input: GetChartInput, /* TODO: I added this extra parameter here maually */ chart: any }): Promise<String> {

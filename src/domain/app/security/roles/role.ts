@@ -1,3 +1,4 @@
+import { IPermission } from '../../../../framework/modules/security';
 import * as mongoose from 'mongoose';
 import * as async from 'async';
 import * as Promise from 'bluebird';
@@ -7,7 +8,7 @@ export interface IRole {
     name: string;
     displayName: string;
     description: string;
-    permissions: [mongoose.Schema.Types.ObjectId];
+    permissions: IPermission[];
 }
 
 export interface IRoleList {

@@ -1,18 +1,32 @@
-import { IActivity } from '../authorization';
+import {
+    flatMap
+} from 'tslint/lib/utils';
+import {
+    AccessLogs
+} from '../../domain/app/access-log';
+import {
+    IExtendedRequest
+} from '../../middlewares/extended-request';
+import {
+    IActivity,
+    IEnforcer
+} from '../modules/security';
 import {
     IMutation,
     IValidationResult
 } from '..';
-import { Enforcer, IEnforcer } from '../modules/security/enforcer';
 import * as Promise from 'bluebird';
 import * as logger from 'winston';
-import { injectable } from 'inversify';
-import { IExtendedRequest } from '../models';
-import { inject } from 'inversify';
+import {
+    injectable
+} from 'inversify';
+import {
+    inject
+} from 'inversify';
 
 
 export interface IMutationBus {
-    run<T>(activity: IActivity, req: IExtendedRequest, mutation: IMutation<T>, data: any): Promise<any>;
+    run < T > (activity: IActivity, req: IExtendedRequest, mutation: IMutation < T > , data: any): Promise < any > ;
 }
 
 @injectable()
@@ -23,16 +37,19 @@ export class MutationBus implements IMutationBus {
     errorStr: any;
     logParams: any;
 
-    public get enforcer():  IEnforcer {
+    public get enforcer(): IEnforcer {
         return this._enforcer;
     }
 
     constructor(@inject('Enforcer') private _enforcer: IEnforcer) {}
 
-    run<T>(activity: IActivity, req: IExtendedRequest, mutation: IMutation<T>, data: any): Promise<any> {
+    run < T > (activity: IActivity, request: IExtendedRequest, mutation: IMutation < T > , data: any): Promise < any > {
         const that = this;
         // chack activity authorization
-        return this.enforcer.authorizationTo(activity, req)
+        return this.enforcer.authorizationTo(
+                activity,
+                request.user.roles.map(r => r.name),
+                flatMap(request.user.roles, (r) => r.permissions))
             .then((authorized) => {
                 that.authorizedValue = authorized;
                 if (!authorized) {
@@ -40,7 +57,9 @@ export class MutationBus implements IMutationBus {
                 }
 
                 // run the mutation validation
-                return mutation.validate ? mutation.validate(data) : { success: true };
+                return mutation.validate ? mutation.validate(data) : {
+                    success: true
+                };
             })
             .then((result: IValidationResult) => {
                 // if it is valid
@@ -51,14 +70,16 @@ export class MutationBus implements IMutationBus {
                 return Promise.resolve(true);
             })
             .then((validated: boolean) => {
-                return new Promise<any>((resolve, reject) => {
+                return new Promise < any > ((resolve, reject) => {
                     mutation.run(data).then(res => {
-                        resolve(res);
-                    })
-                    .catch(e => {
-                        logger.error(mutation.constructor.name, e);
-                        resolve({ erros: [e.message] });
-                    });
+                            resolve(res);
+                        })
+                        .catch(e => {
+                            logger.error(mutation.constructor.name, e);
+                            resolve({
+                                erros: [e.message]
+                            });
+                        });
                 });
             })
             .then((res: T) => {
@@ -69,17 +90,17 @@ export class MutationBus implements IMutationBus {
                 return Promise.reject(err);
             }).finally(() => {
                 if (mutation.log === true) {
-                    const user = req.user;
+                    const user = request.user;
                     const accessBy = user ? user.profile.firstName + ' ' + user.profile.lastName : '';
 
                     that.logParams = {
                         timestamp: Date.now(),
                         accessBy: accessBy,
-                        ipAddress: req.connection.remoteAddress,
+                        ipAddress: request.connection.remoteAddress,
                         event: mutation.constructor.name,
-                        clientDetails: req.get('User-Agent'),
+                        clientDetails: request.get('User-Agent'),
                         eventType: 'mutation',
-                        payload: JSON.stringify(req.body),
+                        payload: JSON.stringify(request.body),
                         results: {
                             authorized: that.authorizedValue,
                             status: true,
@@ -87,10 +108,11 @@ export class MutationBus implements IMutationBus {
                         }
                     };
 
-                    req.appContext.AccessModel.create(that.logParams);
+                    const accessLogs = request.container.get < AccessLogs > (AccessLogs.name);
+
+                    accessLogs.model.create(that.logParams);
                 }
 
             });
     }
 }
-

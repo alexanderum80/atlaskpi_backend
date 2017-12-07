@@ -1,7 +1,7 @@
 
 import { injectable, inject } from 'inversify';
 import * as Promise from 'bluebird';
-import { QueryBase, query } from '../../../framework';
+import { IQuery, query } from '../../../framework';
 import { Permissions, IPermissionInfo } from '../../../domain';
 import { PermissionInfo } from '../permissions.types';
 import { FindAllPermissionsActivity } from '../activities';
@@ -15,9 +15,9 @@ import { FindAllPermissionsActivity } from '../activities';
     ],
     output: { type: PermissionInfo, isArray: true }
 })
-export class FindAllPermissionsQuery extends QueryBase<IPermissionInfo[]> {
+export class FindAllPermissionsQuery implements IQuery<IPermissionInfo[]> {
     constructor(@inject('Permissions') private _permissions: Permissions) {
-        super();
+        
     }
 
     run(data: { filter: String,  }): Promise<IPermissionInfo[]> {

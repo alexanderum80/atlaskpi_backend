@@ -2,7 +2,7 @@ import { IRoleDocument } from '../../../domain/app/security/roles';
 
 import { injectable, inject } from 'inversify';
 import * as Promise from 'bluebird';
-import { QueryBase, query } from '../../../framework';
+import { IQuery, query } from '../../../framework';
 import { Roles } from '../../../domain';
 import { RoleList } from '../roles.types';
 import { FindAllRolesActivity } from '../activities';
@@ -16,9 +16,9 @@ import { FindAllRolesActivity } from '../activities';
     ],
     output: { type: RoleList, isArray: true }
 })
-export class FindAllRolesQuery extends QueryBase<IRoleDocument[]> {
+export class FindAllRolesQuery implements IQuery<IRoleDocument[]> {
     constructor(@inject('Roles') private _roles: Roles) {
-        super();
+        
     }
 
     run(data: { filter: String,  }): Promise<IRoleDocument[]> {

@@ -1,7 +1,7 @@
 
 import { injectable, inject } from 'inversify';
 import * as Promise from 'bluebird';
-import { QueryBase, query } from '../../../framework';
+import { IQuery, query } from '../../../framework';
 import { Charts, IChartDocument } from '../../../domain';
 import { ListChartsQueryResponse } from '../charts.types';
 import { ListChartsByGroupActivity } from '../activities';
@@ -15,9 +15,9 @@ import { ListChartsByGroupActivity } from '../activities';
     ],
     output: { type: ListChartsQueryResponse }
 })
-export class ListChartsByGroupQuery extends QueryBase<IChartDocument[]> {
+export class ListChartsByGroupQuery implements IQuery<IChartDocument[]> {
     constructor(@inject('Charts') private _charts: Charts) {
-        super();
+        
     }
 
     run(data: { group: string }): Promise<IChartDocument[]> {

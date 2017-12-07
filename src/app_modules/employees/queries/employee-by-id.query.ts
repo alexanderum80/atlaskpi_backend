@@ -2,7 +2,7 @@ import { IEmployeeDocument } from '../../../domain/app/employees';
 
 import { injectable, inject } from 'inversify';
 import * as Promise from 'bluebird';
-import { QueryBase, query } from '../../../framework';
+import { IQuery, query } from '../../../framework';
 import { Employees } from '../../../domain';
 import { Employee } from '../employees.types';
 import { EmployeeByIdActivity } from '../activities';
@@ -16,9 +16,9 @@ import { EmployeeByIdActivity } from '../activities';
     ],
     output: { type: Employee }
 })
-export class EmployeeByIdQuery extends QueryBase<IEmployeeDocument> {
+export class EmployeeByIdQuery implements IQuery<IEmployeeDocument> {
     constructor(@inject('Employees') private _employees: Employees) {
-        super();
+        
     }
 
     run(data: { id: string }): Promise<IEmployeeDocument> {

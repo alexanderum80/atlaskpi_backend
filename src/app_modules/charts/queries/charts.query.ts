@@ -1,9 +1,10 @@
-
-import { injectable, inject } from 'inversify';
 import * as Promise from 'bluebird';
-import { QueryBase, query } from '../../../framework';
+import { inject, injectable } from 'inversify';
+
 import { Charts } from '../../../domain';
+import { query, QueryBase, IQuery } from '../../../framework';
 import { ListChartsActivity } from '../activities';
+
 
 @injectable()
 @query({
@@ -16,15 +17,14 @@ import { ListChartsActivity } from '../activities';
     ],
     output: { type: String }
 })
-export class ChartsQuery extends QueryBase<String> {
+export class ChartsQuery implements IQuery<string> {
     constructor(@inject('Charts') private _charts: Charts) {
-        super();
     }
 
-    run(data: { from: String, to: String, preview: Boolean,  }): Promise<String> {
+    run(data: { from: string, to: string, preview: boolean }): Promise<string> {
         const that = this;
 
-        return new Promise<String>((resolve, reject) => {
+        return new Promise<string>((resolve, reject) => {
             that._charts.model
             .find({})
             .populate({

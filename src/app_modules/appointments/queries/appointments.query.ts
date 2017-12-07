@@ -17,9 +17,9 @@ import * as Promise from 'bluebird';
     ],
     output: { type: Appointment, isArray: true }
 })
-export class AppointmentsQuery extends QueryBase<IAppointmentDocument[]> {
+export class AppointmentsQuery implements IQuery<IAppointmentDocument[]> {
     constructor(@inject('Appointments') private _appointments: Appointments) {
-        super();
+        
     }
 
     run(data: { start: string, end: string }): Promise<IAppointmentDocument[]> {
