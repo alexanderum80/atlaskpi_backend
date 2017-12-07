@@ -1,3 +1,4 @@
+import { DateRangesModule } from './date-ranges/date-ranges.module';
 import { WidgetsModule } from './widgets/widgets.module';
 import { UsersModule } from './users/users.module';
 import { TargetsModule } from './targets/targets.module';
@@ -24,6 +25,7 @@ import { AppModule, ModuleBase } from '../framework';
         BusinessUnitModule,
         ChartsModule,
         DashboardsModule,
+        DateRangesModule,
         EmployeesModule,
         InventoryModule,
         KpisModule,
