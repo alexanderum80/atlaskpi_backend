@@ -43,6 +43,7 @@ export const targetGql: GraphqlDefinition = {
                 targetName: String
                 targetAmount: String
                 targetDate: String
+                businessUnit: String
             }
 
             type NotifyResponse {
