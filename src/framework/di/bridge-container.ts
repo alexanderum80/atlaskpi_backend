@@ -1,7 +1,5 @@
-import { Container } from 'inversify';
-import { isString, isObject } from 'lodash';
-import { Sales } from '../../domain/app/index';
 import { Request } from 'express';
+import { Container } from 'inversify';
 import { Error } from 'mongoose';
 
 export interface TypeWithName {
@@ -29,7 +27,8 @@ export interface IBridgeContainer {
     getSubmodule(): IBridgeContainer;
     addSubmodule(module: IBridgeContainer);
 
-    get<T extends Newable<any>>(identifier: T): T;
+    get<T>(identifier: string): T;
+    getBridgeContainerForWebRequest(req: Request): IRequestContext;
 }
 
 export interface IRequestContext {
@@ -83,12 +82,8 @@ export class BridgeContainer implements IBridgeContainer {
         this._containerModules.push(containerModule);
     }
 
-    get<T extends Newable<any>>(identifier: string | T): T {
-        if (isString(identifier)) {
-            return this._container.get(identifier);
-        } else {
-            return this._container.get(identifier.name);
-        }
+    get<T>(identifier: string): T {
+        return this._container.get(identifier);
     }
 
     getBridgeContainerForWebRequest(req: Request): IRequestContext {
@@ -108,7 +103,7 @@ export class BridgeContainer implements IBridgeContainer {
 }
 
 function _processPerRequestRegistrations(container: Container, registrations: GenericObject) {
-    this.registrations.forEach(type => {
-        container.bind(type.name).to(type).inRequestScope();
+    Object.keys(registrations).forEach(key => {
+        container.bind(key).to(registrations[key]).inRequestScope();
     });
 }

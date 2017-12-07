@@ -1,5 +1,5 @@
 import * as mongoose from 'mongoose';
-import { ExtendedRequest } from '../../middlewares/extended-request';
+import { IExtendedRequest } from '../../middlewares/extended-request';
 import { injectable, inject } from 'inversify';
 import { DbConnection } from '../../type-mongo';
 
@@ -13,7 +13,7 @@ export class AppConnection extends DbConnection {
         return appConnection;
     }
 
-    constructor(@inject('Request') req: ExtendedRequest) {
+    constructor(@inject('Request') req: IExtendedRequest) {
         super(req);
         this._connection = req.appConnection;
     }

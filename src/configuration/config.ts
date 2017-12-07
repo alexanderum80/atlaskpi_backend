@@ -63,25 +63,3 @@ export const config: IAppConfig = {
     usersService: usersServiceConfig,
     appServices: appServicesConfig
 };
-
-@injectable()
-export class AppConfig {
-    impersonateHost = null;
-    // impersonateHost: 'orlando.d.atlaskpi.com',
-    subdomain =  process.env.AKPI_APP_SUBDOMAIN || 'dev.atlaskpi.com';
-    token = {
-        secret: process.env.AKPI_TOKEN_SECRET || 'jyeu4L?v*FGXmsGAYEXPjp(i',
-        expiresIn: process.env.AKPI_TOKEN_EXPIRATION || '90 d'
-    };
-    masterDb = process.env.AKPI_MASTER_DB_URI || 'mongodb://localhost/kpibi';
-    newAccountDbUriFormat = process.env.AKPI_NEW_ACCOUNT_DB_URI_FORMAT || 'mongodb://localhost/{{database}}';
-    mongoDBAtlasCredentials = {
-        username: process.env.AKPI_MONGODB_API_USERNAME || '',
-        api_key: process.env.AKPI_MONGODB_API_KEY || '',
-        uri: process.env.AKPI_MONGODB_API_URI || '',
-        groupId: process.env.AKPI_MONGODB_GROUP_ID || ''
-    };
-    emailService = emailServiceConfig;
-    usersService = usersServiceConfig;
-    appServices = appServicesConfig;
-}

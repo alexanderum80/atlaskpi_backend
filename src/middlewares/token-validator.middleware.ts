@@ -1,10 +1,11 @@
-import { config } from '../configuration';
+import { Response } from 'express';
 import * as jwt from 'jsonwebtoken';
-import { Request, Response } from 'express';
-import { ExtendedRequest } from './extended-request';
 import * as winston from 'winston';
 
-export function tokenValidator(req: ExtendedRequest, res: Response, next) {
+import { config } from '../configuration';
+import { IExtendedRequest } from './extended-request';
+
+export function tokenValidator(req: IExtendedRequest, res: Response, next) {
 
     let token = req.body.token || req.query.token || req.headers['x-access-token'];
 

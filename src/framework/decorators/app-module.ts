@@ -135,7 +135,7 @@ function _processDependencyInjection(moduleName: string,
     container.addSubmodule(diModule);
 }
 
-function _injectResolvers(container: Container, moduleMetadata: IModuleMetadata): void {
+function _injectResolvers(container: IBridgeContainer, moduleMetadata: IModuleMetadata): void {
     // type resolvers
     // I do not include type resolvers here because they are generic for the entire application
     // so I inject the type resolvers at the framework level
@@ -154,7 +154,7 @@ function _injectResolvers(container: Container, moduleMetadata: IModuleMetadata)
     });
 }
 
-function _getResolverFunction(metaType: MetadataType, container: Container, artifact: IQueryOrMutationDetails) {
+function _getResolverFunction(metaType: MetadataType, container: IBridgeContainer, artifact: IQueryOrMutationDetails) {
     const bus = metaType === MetadataType.Queries ? 'queryBus' : 'mutationBus';
 
     return function _executeResolver(root: any, args, ctx: IGraphqlContext) {

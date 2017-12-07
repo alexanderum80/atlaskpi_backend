@@ -1,8 +1,8 @@
 import { Response } from 'express';
-import { ExtendedRequest } from './extended-request';
-import * as winston from 'winston';
 
-export function healthCheck(req: ExtendedRequest, res: Response, next) {
+import { IExtendedRequest } from './extended-request';
+
+export function healthCheck(req: IExtendedRequest, res: Response, next) {
     if (req.path === '/health-check') {
         res.json({ status: 'ok' }).end();
     } else {

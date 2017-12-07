@@ -3,16 +3,16 @@ import * as url from 'url';
 import * as express from 'express';
 import { Request, Response } from 'express';
 import { getRequestHostname } from '../../../helpers/index';
-import { ExtendedRequest } from '../../../middlewares';
+import { IExtendedRequest } from '../../../middlewares';
 import { AuthService, IUserAuthenticationData } from '../../../services/auth.service';
 
 const auth = express.Router();
 
-auth.post('/token', function authenticate(req: ExtendedRequest, res: Response) {
+auth.post('/token', function authenticate(req: IExtendedRequest, res: Response) {
     let hostname = getRequestHostname(req);
     let ip = (req.headers['x-forwarded-for'] || req.connection.remoteAddress) as string;
 
-    const authService = BRIDGE.getRequestContainer(req).get<AuthService>('AuthService');
+    const authService = BRIDGE.getRequestContainer(req).get<AuthService>(AuthService.name);
 
     const input: IUserAuthenticationData = {
         hostname: hostname,

@@ -22,11 +22,11 @@ import {
     Permissions,
     Users,
     Widgets,
-    Worklogs
+    Worklogs,
+    AppConnection
 } from './';
-import {  } from './access-log';
 import { Container } from 'inversify';
-import { BridgeContainer } from '../../framework/di/bridge-container';
+import { IBridgeContainer } from '../../framework/di/bridge-container';
 
 interface IRegistrationInfo {
     name: string;
@@ -58,10 +58,11 @@ const registrations: any[] = [
     Permissions,
     Users,
     Widgets,
-    Worklogs
+    Worklogs,
+    AppConnection
 ];
 
-export function registerAppModels(container: BridgeContainer) {
+export function registerAppModels(container: IBridgeContainer) {
     registrations.forEach(m => {
         container.registerPerWebRequest(m);
     });
