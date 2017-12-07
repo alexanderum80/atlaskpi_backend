@@ -3,15 +3,15 @@ import { inject, injectable } from 'inversify';
 import mongoose = require('mongoose');
 import validate = require('validate.js');
 
-import { IKPI, IKPIDocument, IKPIModel } from '.';
+import { IKPI, IKPIDocument, IKPIModel, KPITypeMap } from '.';
 import { IMutationResponse, MutationResponse } from '../../../framework/mutations';
 import { IPagedQueryResult, IPaginationDetails, Paginator } from '../../../framework/queries';
 import { ModelBase } from '../../../type-mongo';
 import { AppConnection } from '../app.connection';
 import { IChartDocument } from '../charts';
-import { KPITypeMap } from './kpi';
 import { KPIExpressionHelper } from './kpi-expression.helper';
 import { KPIFilterHelper } from './kpi-filter.helper';
+import { KPITypeEnum } from '../index';
 
 let Schema = mongoose.Schema;
 
@@ -56,7 +56,9 @@ KPISchema.statics.createKPI = function(input: IKPI): Promise<IKPIDocument> {
         }
 
         input.code = input.name;
+
         let kpiType = KPITypeMap[input.type];
+
         input.expression = KPIExpressionHelper.ComposeExpression(kpiType, input.expression);
         input.filter = KPIFilterHelper.ComposeFilter(kpiType, input.filter);
 
