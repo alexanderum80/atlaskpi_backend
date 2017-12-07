@@ -12,13 +12,13 @@ export interface ITestTargetInfo {
     _id?: string;
 }
 
-export class TestTargetNotification implements IEmailNotifier {
+export class TargetNotification implements IEmailNotifier {
     constructor(private _config: IAppConfig,
                 private _data: EnrollmentNotifyData) { }
-    // needs: targetName, targetAmount (target), targetDate (datepicker), dashboard name, chart name
+
     notify(user: IUserDocument, email: string, data?: any): Promise<nodemailer.SentMessageInfo> {
         const testTargetNotificationTemplate =
-            Handlebars.compile(this._config.usersService.services.testNotification.emailTemplate);
+            Handlebars.compile(this._config.usersService.services.targetNotification.emailTemplate);
 
         let dataSource: any = user.toObject();
 

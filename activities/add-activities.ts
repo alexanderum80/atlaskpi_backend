@@ -109,7 +109,7 @@ import {
     findTargetActivity,
     findAllTargetsActivity,
     RemoveTargetFromChartActivity,
-    testTargetNotificationActivity,
+    targetNotificationActivity,
 
     // device tokens
     addDeviceTokenActivity,
@@ -222,7 +222,7 @@ export function addActivities() {
         findTargetActivity,
         findAllTargetsActivity,
         RemoveTargetFromChartActivity,
-        testTargetNotificationActivity,
+        targetNotificationActivity,
 
         // device tokens
         addDeviceTokenActivity,
