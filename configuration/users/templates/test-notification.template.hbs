@@ -1,0 +1,144 @@
+<html>
+        
+        <head>
+            <style>
+                .container {
+                    background-color: #eee;
+                    color: gray;
+                    font-family: Verdana, Geneva, Tahoma, sans-serif;
+                    margin-top: 15px;
+                    padding: 15px;
+                }
+        
+                .card {
+                    margin: auto;
+                    width: 80%;
+                    background-color: white;
+                    border: 1px solid whitesmoke;
+                }
+        
+                .card .header {
+                    text-align: center;
+                    padding: 25px;
+                    background-color: #061657;
+                }
+        
+                .card .content {
+                    font-size: 14px;
+                    padding: 30px;
+                    color: black;
+                }
+        
+                .logo {
+                    height: 50px;
+                    margin-top: 20px;
+                }
+        
+                .title {
+                    margin: 10px;
+                    color: white;
+                    font-size: 12px;
+                    font-weight: 100;
+                }
+        
+                .confirm-container {
+                    width: 50%;
+                    margin: auto;
+                    text-align: center;
+                    background-color: palegoldenrod;
+                    padding: 10px;
+                }
+        
+                .confirm {
+                    width: 100%;
+                    text-decoration: none;
+                    margin: 20px;
+                    background-color: #061657;
+                    color: white;
+                }
+        
+                .alternative {
+                    margin: 25px 0;
+                    text-align: left;
+                }
+        
+                .plain-link {
+                    margin: 50px 0px;
+                }
+        
+                .dont-break-out {
+                    /* These are technically the same, but use both */
+                    overflow-wrap: break-word;
+                    word-wrap: break-word;
+        
+                    -ms-word-break: break-all;
+                    /* This is the dangerous one in WebKit, as it breaks things wherever */
+                    word-break: break-all;
+                    /* Instead use this non-standard one: */
+                    word-break: break-word;
+        
+                    /* Adds a hyphen where the word breaks, if supported (No Blink) */
+                    -ms-hyphens: auto;
+                    -moz-hyphens: auto;
+                    -webkit-hyphens: auto;
+                    hyphens: auto;
+                }
+        
+                .footer {
+                    margin-top: 10px;
+                    border-top: 1px solid lightgray;
+                    font-size: 11px;
+                    text-align: center;
+                    padding: 10px;
+                }
+
+            </style>
+        </head>
+        
+        <body>
+            <div class="container">
+                <div class="card">
+                    <div class="header">
+                        <img class="logo" alt="Logo" src="https://bi.atlaskpi.com/assets/img/logos/white-logo.png"/>
+                        <div class="title">
+                            <span>Account Created</span>
+                        </div>
+                    </div>
+                    <div class="content">
+                        <p>
+                            Hello {{name}},
+                        </p>
+
+                        <div>
+                            <i class="zmdi zmdi-portable-wifi-changes"></i>
+                            <p>This is just a test of our <strong>Notification System</strong>.Your notification for targets will appear here.</p>
+                        </div>
+        
+                        <div class="confirm-container">
+                            <a class="confirm">See this Target</a>
+                        </div>
+        
+                        <p class="alternative">Or just copy and paste the following link in your browser</p>
+        
+                        <a class="dont-break-out plain-link" href="http://{{host}}.{{subdomain}}/#/targets/{{targetId}}">
+                            http://{{host}}.{{subdomain}}/#/targets/{{targetId}}
+                        </a>
+        
+                        <p class="alternative">
+                            If you have any question or have received this email by mistake, feel free to contact us at 
+                            <a href="info@atlaskpi.com">info@atlaskpi.com</a>
+                        </p>
+        
+                        <p>
+                            All the best, AtlasKPI Team
+                        </p>
+        
+                    </div>
+                </div>
+        
+            </div>
+        
+        </body>
+        
+        </html>
+        
