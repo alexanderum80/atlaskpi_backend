@@ -7,24 +7,20 @@ import { IIdentity } from '../../../models/app/identity';
 import { QueryBase } from '../..';
 import * as Promise from 'bluebird';
 
-export class TestTargetNotificationQuery extends QueryBase<any> {
+export class TargetNotificationQuery extends QueryBase<any> {
     constructor(public identity: IIdentity,
-                private _testNotification: any,
+                private _targetNotification: any,
                 private _user: IUserModel,
                 private _chart: IChartModel,
                 private _dashboard: IDashboardModel) {
         super(identity);
     }
 
-    // needs: targetName, targetAmount (target), targetDate (datepicker), dashboard name, chartName
-
     run(data: { input: {usersId: string[], targetName: string, targetAmount: string,
                         targetDate: string, chartId: string, businessUnit: string}}): Promise<any> {
         const that = this;
         const input = data.input;
         return new Promise<any>((resolve, reject) => {
-            // query chart to get chart name
-            // use chart id to get the dashboard name
 
             const chartQuery = that._chart.findById(input.chartId);
             const dashboardQuery = that._dashboard.findDashboardByChartId(input.chartId);
@@ -45,7 +41,7 @@ export class TestTargetNotificationQuery extends QueryBase<any> {
                             chartName: chart.title,
                             businessUnitName: input.businessUnit
                         };
-                        that._testNotification.notify(user, user.username, notifyData);
+                        that._targetNotification.notify(user, user.username, notifyData);
                     });
                 });
 

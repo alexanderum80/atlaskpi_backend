@@ -1,4 +1,4 @@
-import { TestTargetNotification } from '../../../services/notifications/users/test-target.notification';
+import { TargetNotification } from '../../../services/notifications/users/target.notification';
 import { RemoveTargetFromChart } from '../../mutations/app/targets/remove-target-from-chart.mutation';
 import { RemoveTargetMutation } from '../../mutations/app/targets/remove-target.mutation';
 import { UpdateTargetMutation } from '../../mutations/app/targets/update-target.mutation';
@@ -37,7 +37,7 @@ export const targetGql: GraphqlDefinition = {
             input TargetOwner {
                 owner: String
             }
-            input TestNotificationInput {
+            input NotificationInput {
                 usersId: [String]
                 chartId: String
                 targetName: String
@@ -85,7 +85,7 @@ export const targetGql: GraphqlDefinition = {
                 entity: TargetRemoveResponse
                 errors: [ErrorDetails]
             }
-            type TestNotificationResponse {
+            type NotificationResponse {
                 errors: [ErrorDetails]
                 success: Boolean
             }
@@ -93,7 +93,7 @@ export const targetGql: GraphqlDefinition = {
         queries: `
             findTarget(id: String): TargetResponse
             findAllTargets(filter: String): TargetResponse
-            testNotification(input: TestNotificationInput): TestNotificationResponse
+            targetNotification(input: NotificationInput): NotificationResponse
         `,
         mutations: `
             createTarget(data: TargetInput): TargetResult
@@ -112,11 +112,11 @@ export const targetGql: GraphqlDefinition = {
                 let query = new FindAllTargetsQuery(ctx.req.identity, ctx.req.appContext.Target);
                 return ctx.queryBus.run('find-all-targets', query , args, ctx.req);
             },
-            testNotification(root: any, args, ctx: IGraphqlContext) {
-                const notifier = new TestTargetNotification(ctx.config, { hostname: getRequestHostname(ctx.req)});
+            targetNotification(root: any, args, ctx: IGraphqlContext) {
+                const notifier = new TargetNotification(ctx.config, { hostname: getRequestHostname(ctx.req)});
                 const query = new TestTargetNotificationQuery(ctx.req.identity, notifier,
                                 ctx.req.appContext.User, ctx.req.appContext.Chart, ctx.req.appContext.Dashboard);
-                return ctx.queryBus.run('test-target-notification', query, args, ctx.req);
+                return ctx.queryBus.run('target-notification', query, args, ctx.req);
             }
         },
         Mutation: {
