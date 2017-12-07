@@ -70,7 +70,7 @@ function getAppConnection(accounts: IAccountModel, req: IExtendedRequest, res: R
             logger.debug(`${loggerSuffix} Account found`);
 
             // TODO: I need to test this
-            req.container.get<AppConnectionPool>(AppConnectionPool.name).getConnection(account.getConnectionString()).then((appConn) => {
+            req.container.container.get<AppConnectionPool>(AppConnectionPool.name).getConnection(account.getConnectionString()).then((appConn) => {
                 // req.appConnection = appConn;
                 logger.debug(`${loggerSuffix} App connection assigned to request`);
                 resolve(appConn);

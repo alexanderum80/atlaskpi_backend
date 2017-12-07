@@ -8,7 +8,7 @@ import { IExtendedRequest } from './extended-request';
 export function tokenValidator(req: IExtendedRequest, res: Response, next) {
 
     let token = req.body.token || req.query.token || req.headers['x-access-token'];
-    const config = req.container.get<IAppConfig>('Config');
+    const config = req.container.container.get<IAppConfig>('Config');
 
     if (token) {
         jwt.verify(token, config.token.secret, (err, identity) => {

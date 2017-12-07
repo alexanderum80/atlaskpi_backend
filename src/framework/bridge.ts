@@ -1,4 +1,4 @@
-import { BridgeContainer } from './di/bridge-container';
+import { BridgeContainer, IWebRequestContainerDetails } from './di/bridge-container';
 import { IEnforcer } from './modules/security';
 import { Enforcer } from '../app_modules/security/enforcer';
 import { Request, Response } from 'Express';
@@ -103,6 +103,7 @@ export class Bridge {
         this._server = express();
 
         // middlewares
+        this._server.use(cleanup);
         this._server.use(setBridgeContainer);
         this._server.use('*', cors());
         this._server.use(bodyParser.urlencoded({ extended: false, limit: this._options.bodyParserLimit }));
@@ -148,3 +149,14 @@ function setBridgeContainer(req: Request, res: Response, next) {
     (<any>req).container = BRIDGE.getRequestContainer(req);
     next();
 }
+
+function cleanup(req: IExtendedRequest, res: Response, next) {
+    res.on('finish', function() {
+      // perform your cleanups...
+      const containerDetails = req.container;
+      containerDetails.bridgeModule.cleanup(containerDetails.container);
+      delete(req.container);
+    });
+
+    next();
+  }
