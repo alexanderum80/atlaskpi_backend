@@ -7,6 +7,7 @@ import { FrequencyEnum } from '../../../models/common/frequency-enum';
 import * as Promise from 'bluebird';
 import * as logger from 'winston';
 import * as _ from 'lodash';
+import * as changeCase from 'change-case';
 
 export interface IKPIMetadata {
     name?: string;
@@ -78,7 +79,7 @@ export class KpiBase {
                 aggregateParameters.push(operator);
             });
 
-            // logger.debug('With aggregate: ' + JSON.stringify(aggregateParameters));
+            logger.debug('With aggregate: ' + JSON.stringify(aggregateParameters));
             this.model.aggregate(...aggregateParameters).then(data => {
                 logger.debug('MongoDB data received: ' + that.model.modelName);
                 // before returning I need to check if a "top" filter was added
@@ -359,7 +360,11 @@ export class KpiBase {
             let index = Object.keys(group._id).findIndex(prop => prop === groupingTokens[0]);
 
             if (index === -1) {
-                group._id[groupingTokens[0]] = '$' + g;
+                if (groupingTokens[0] !== 'customer') {
+                    group._id[groupingTokens[0]] = '$' + g;
+                } else {
+                    group._id[changeCase.camelCase(g)] = '$' + g;
+                }
             }
         });
     }
