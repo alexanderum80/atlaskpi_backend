@@ -162,6 +162,8 @@ function _getResolverFunction(metaType: MetadataType, artifact: IQueryOrMutation
         console.debug(`Resolving: ${artifact.constructor.name}`);
         const i = ctx.requestContainer.get(artifact.constructor.name) as any;
         // ejecute the query or mutation bus
-        return (ctx[bus] as any).run(artifact.activity, ctx.req, i, args);
+        return (ctx[bus] as any).run(artifact.activity, ctx.req, i, args).then(res => {
+            return res;
+        });
     };
 }

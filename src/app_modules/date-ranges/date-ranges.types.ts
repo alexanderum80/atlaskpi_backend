@@ -1,3 +1,4 @@
+import { ChartDateRange } from '../shared';
 import { field, GraphQLTypesMap, type } from '../../framework';
 
 @type()

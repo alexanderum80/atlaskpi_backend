@@ -10,6 +10,11 @@ export interface GraphQLFieldDecoratorOptions {
 export function field(definition?: GraphQLFieldDecoratorOptions) {
     return function(target, property) {
         let typeName = definition.type.name || definition.type;
+
+        if (definition.isArray) {
+            typeName = `[${typeName}]`;
+        }
+
         if (definition.required) {
             typeName += '!';
         }

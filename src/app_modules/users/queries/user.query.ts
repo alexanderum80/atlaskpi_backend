@@ -25,7 +25,7 @@ export class UserQuery implements IQuery<IUserDocument> {
     run(data: { id: string }): Promise<IUserDocument> {
         // If not id specified return the own user
         if (!data || !data.id) {
-            return Promise.resolve(this._currentUser.get());
+            return Promise.resolve(this._currentUser.get().toObject() as IUserDocument);
         }
         return this._users.model.findUserById(data.id);
     }
