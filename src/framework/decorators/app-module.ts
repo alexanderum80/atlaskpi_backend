@@ -22,7 +22,7 @@ import {
 } from 'inversify';
 import { IGraphqlContext } from '../graphql';
 import { GraphqlMetaType } from './graphql-meta-types.enum';
-import { BridgeContainer } from '../di/bridge-container';
+import { BridgeContainer, IBridgeContainer } from '../di/bridge-container';
 
 export interface IDIRegistrator {
     bind: interfaces.Bind;
@@ -58,10 +58,10 @@ export function AppModule(options: IModuleOptions) {
             const c: any = function() {
                 const instance = constructor.apply(this, args);
                 // this parameter comes when when the framework bootstrap this module
-                const container = args[0];
+                const container = args[0] as IBridgeContainer;
 
                 if (options.mutations || options.queries) {
-                    const moduleMetadata = _getModuleMetadata(target, instance, container, options);
+                    const moduleMetadata = _getModuleMetadata(target, instance, options);
                     _processDependencyInjection(constructor.name, moduleMetadata, instance, container, options);
                     _injectResolvers(container, moduleMetadata);
                     addGlobalModuleMetadata(target, moduleMetadata);
@@ -89,7 +89,7 @@ export function AppModule(options: IModuleOptions) {
     };
 }
 
-function _getModuleMetadata(target, instance, container: Container, options: IModuleOptions): IModuleMetadata {
+function _getModuleMetadata(target, instance, options: IModuleOptions): IModuleMetadata {
     const result: IModuleMetadata = {
         constructor: target
     };
@@ -116,34 +116,23 @@ function _getModuleMetadata(target, instance, container: Container, options: IMo
 function _processDependencyInjection(moduleName: string,
     moduleMetadata: IModuleMetadata,
     instance: any,
-    container: BridgeContainer,
+    container: IBridgeContainer,
     options: IModuleOptions): void {
     // create container module to group registrations
-    const diModule = new ContainerModule((
-        bind: interfaces.Bind,
-        unbind: interfaces.Unbind,
-        isBound: interfaces.IsBound,
-        rebind: interfaces.Rebind) => {
+    const diModule = container.getSubmodule();
 
-        // auto register queries and mutations with the dependency injector container
-        [MetadataType.Queries, MetadataType.Mutations].forEach(t => {
-            if (moduleMetadata[t]) {
-                Object.keys(moduleMetadata[t]).forEach(m => {
-                    const a: IArtifactDetails = moduleMetadata[t][m];
-                    bind(a.constructor.name).to(a.constructor);
-                });
-            }
-        });
-
-        instance.registerDependencies({
-            bind: bind,
-            unbind: unbind,
-            isBound: isBound,
-            rebind: rebind
-        });
+    // auto register queries and mutations with the dependency injector container
+    [MetadataType.Queries, MetadataType.Mutations].forEach(t => {
+        if (moduleMetadata[t]) {
+            Object.keys(moduleMetadata[t]).forEach(m => {
+                const a: IArtifactDetails = moduleMetadata[t][m];
+                diModule.registerPerWebRequest(a.constructor);
+                // bind(a.constructor.name).to(a.constructor);
+            });
+        }
     });
 
-    container.loadModule(diModule);
+    container.addSubmodule(diModule);
 }
 
 function _injectResolvers(container: Container, moduleMetadata: IModuleMetadata): void {
