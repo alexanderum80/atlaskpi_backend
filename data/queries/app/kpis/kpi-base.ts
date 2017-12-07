@@ -79,7 +79,7 @@ export class KpiBase {
                 aggregateParameters.push(operator);
             });
 
-            logger.debug('With aggregate: ' + JSON.stringify(aggregateParameters));
+            // logger.debug('With aggregate: ' + JSON.stringify(aggregateParameters));
             this.model.aggregate(...aggregateParameters).then(data => {
                 logger.debug('MongoDB data received: ' + that.model.modelName);
                 // before returning I need to check if a "top" filter was added
