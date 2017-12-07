@@ -7,17 +7,12 @@ import * as Promise from 'bluebird';
 import * as nodemailer from 'nodemailer';
 import * as Handlebars from 'handlebars';
 
-export interface ITestTargetInfo {
-    id?: string;
-    _id?: string;
-}
-
 export class TargetNotification implements IEmailNotifier {
     constructor(private _config: IAppConfig,
                 private _data: EnrollmentNotifyData) { }
 
     notify(user: IUserDocument, email: string, data?: any): Promise<nodemailer.SentMessageInfo> {
-        const testTargetNotificationTemplate =
+        const targetNotificationTemplate =
             Handlebars.compile(this._config.usersService.services.targetNotification.emailTemplate);
 
         let dataSource: any = user.toObject();
@@ -37,7 +32,7 @@ export class TargetNotification implements IEmailNotifier {
         dataSource.chartName = data.chartName;
         dataSource.businessUnitName = data.businessUnitName;
 
-        const emailContent = testTargetNotificationTemplate(dataSource);
+        const emailContent = targetNotificationTemplate(dataSource);
         return sendEmail(email, `${this._config.usersService.app.name}: Target Notification`, emailContent);
     }
 }
