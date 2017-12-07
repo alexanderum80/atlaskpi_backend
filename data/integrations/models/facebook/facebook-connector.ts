@@ -68,9 +68,15 @@ export class FacebookConnector implements IOAuthConnector {
                         return;
                     }
 
-                    that._pages = info.response.accounts.data;
-                    resolve(<any>token.data);
-                    return;
+                    that._getLongLivedToken().then(longLivedToken => {
+                        that._pages = info.response.accounts.data;
+                        resolve(longLivedToken);
+                        return;
+                    })
+                    .catch(err => {
+                        reject(err);
+                        return;
+                    });
                 })
                 .catch(err => {
                     reject(err);
@@ -163,6 +169,45 @@ export class FacebookConnector implements IOAuthConnector {
                 resolve(result);
                 return;
                 });
+        });
+    }
+
+    private _getLongLivedToken(): Promise<IOAuth2Token> {
+        const that = this;
+
+        const body = {
+            grant_type: 'fb_exchange_token',
+            client_id: this._config.clientId,
+            client_secret: this._config.clientSecret,
+            fb_exchange_token: this._token.access_token
+        };
+
+        const requestObj = {
+            url: this._config.endpoints.token_endpoint,
+            method: 'POST',
+            json: body,
+            headers: {
+            'Accept': 'application/json'
+            }
+        };
+
+        return new Promise<IOAuth2Token>((resolve, reject) => {
+            request(requestObj, (err, res) => {
+                const json = ( < any > res).toJSON();
+
+                if (err) {
+                    reject(err);
+                    return;
+                }
+
+                if (json.body.error) {
+                    reject(json.body.error);
+                    return;
+                }
+
+                resolve(json.body);
+                return;
+            });
         });
     }
 }
