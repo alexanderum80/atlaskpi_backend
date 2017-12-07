@@ -22,6 +22,7 @@ import {
 } from 'inversify';
 import { IGraphqlContext } from '../graphql';
 import { GraphqlMetaType } from './graphql-meta-types.enum';
+import { BridgeContainer } from '../di/bridge-container';
 
 export interface IDIRegistrator {
     bind: interfaces.Bind;
@@ -115,7 +116,7 @@ function _getModuleMetadata(target, instance, container: Container, options: IMo
 function _processDependencyInjection(moduleName: string,
     moduleMetadata: IModuleMetadata,
     instance: any,
-    container: Container,
+    container: BridgeContainer,
     options: IModuleOptions): void {
     // create container module to group registrations
     const diModule = new ContainerModule((
@@ -142,7 +143,7 @@ function _processDependencyInjection(moduleName: string,
         });
     });
 
-    container.load(diModule);
+    container.loadModule(diModule);
 }
 
 function _injectResolvers(container: Container, moduleMetadata: IModuleMetadata): void {
