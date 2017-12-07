@@ -107,18 +107,6 @@ export class Bridge {
         this._server.use('*', cors());
         this._server.use(bodyParser.urlencoded({ extended: false, limit: this._options.bodyParserLimit }));
         this._server.use(bodyParser.json({ limit: this._options.bodyParserLimit }));
-
-        this._server.use('/graphql', bodyParser.json(), graphqlExpress((req) => (
-            {
-              context: {
-                req: req,
-                requestContainer: _container.getBridgeContainerForWebRequest(req),
-                mutationBus: _container.get(MutationBus),
-                queryBus: _container.get(QueryBus)
-              },
-              schema: _executableSchema
-            }
-        )));
     }
 
     get Container(): BridgeContainer {
@@ -126,6 +114,18 @@ export class Bridge {
     }
 
     start() {
+        this._server.use('/graphql', bodyParser.json(), graphqlExpress((req) => (
+            {
+              context: {
+                req: req,
+                requestContainer: (<any>req).container,
+                mutationBus: this._container.get(MutationBus.name),
+                queryBus: this._container.get(QueryBus.name)
+              },
+              schema: this._executableSchema
+            }
+        )));
+
         this._httpServer = this._server.listen(this._options.port, () => console.log(
             `Bridge Server is now running on http://localhost:${this._options.port}/${this._options.graphqlPath}`
         ));
@@ -145,6 +145,6 @@ function registerBridgeDependencies(container: BridgeContainer) {
 
 
 function setBridgeContainer(req: Request, res: Response, next) {
-    (<any>req)._bridgeContainer = BRIDGE.getRequestContainer(req);
+    (<any>req).container = BRIDGE.getRequestContainer(req);
     next();
 }

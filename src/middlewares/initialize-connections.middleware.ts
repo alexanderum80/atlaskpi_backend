@@ -45,32 +45,32 @@ function getAppConnection(accounts: IAccountModel, req: IExtendedRequest, res: R
     return new Promise<mongoose.Connection>((resolve, reject) => {
         let hostname = getRequestHostname(req);
         logger.debug(`${loggerSuffix} Hostname: ${hostname}`);
-    
+
         if ((!req.identity && !hostname) || graphqlOperationExceptions.indexOf(req.body.operationName) !== -1) {
             logger.debug(`${loggerSuffix} Not trying to create app connection because of the lack of identity, hostname or the operation is not part the exception list`);
             return resolve(null);
         }
-    
+
         const accountName = (req.identity && req.identity.accountName) || hostname;
-    
+
         if (!accountName) {
             logger.debug(`${loggerSuffix} No account name found: ${accountName}`);
             return reject(`Account ${accountName} not found`);
         }
-    
+
         logger.debug('creating app connection for account name: ' + accountName);
-    
+
         accounts.findAccountByHostname(accountName).then((account: IAccountDocument) => {
             // I not always need to create a new connection I may be able to re-use an existent one
             if (!account) {
                 logger.debug('account not found, ending the request...');
                 return reject(`Account ${accountName} not found`);
             }
-    
+
             logger.debug(`${loggerSuffix} Account found`);
-    
+
             // TODO: I need to test this
-            BRIDGE.bridgeContainer.get<AppConnectionPool>('AppConnectionPool').getConnection(account.getConnectionString()).then((appConn) => {
+            req.container.get<AppConnectionPool>('AppConnectionPool').getConnection(account.getConnectionString()).then((appConn) => {
                 // req.appConnection = appConn;
                 logger.debug(`${loggerSuffix} App connection assigned to request`);
                 resolve(appConn);

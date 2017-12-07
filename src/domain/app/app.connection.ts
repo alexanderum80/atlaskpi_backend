@@ -13,7 +13,7 @@ export class AppConnection extends DbConnection {
         return appConnection;
     }
 
-    constructor(@inject('Request') req: IExtendedRequest) {
+    constructor(@inject('Request') private req: IExtendedRequest) {
         super(req);
         this._connection = req.appConnection;
     }

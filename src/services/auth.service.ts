@@ -45,7 +45,15 @@ export class AuthService {
                     return that._users.model.authenticate(input.username, input.password, that._config.usersService.usernameField);
                 })
                 .then((u: IUserDocument) => {
-                    return u.generateToken(account.database.name, input.username, input.password, input.ip, input.clientId, input.clientDetails, that._config.token.expiresIn).then(token => {
+                    return u.generateToken(
+                        account.database.name,
+                        input.username,
+                        input.password,
+                        input.ip,
+                        input.clientId,
+                        input.clientDetails,
+                        that._config.token.secret,
+                        that._config.token.expiresIn).then(token => {
                         // add the rest of the info to the user token
                         token.subdomain = input.hostname.split('.')[0];
                         token.email = input.username;

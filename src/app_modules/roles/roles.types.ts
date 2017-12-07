@@ -1,6 +1,7 @@
+import { Permission } from '../permissions/permissions.types';
 
 import { input, type, field, GraphQLTypesMap, ErrorDetails } from '../../framework';
-import { Permission, User } from '../users/users.types';
+import { User } from '../users/users.types';
 
 @type()
 export class Role  {
@@ -48,11 +49,7 @@ export class RoleResult  {
     @field({ type: GraphQLTypesMap.Boolean })
     success: boolean;
 
-    @field({ type: User, isArray: true })
-    entity: User[];
-
     @field({ type: ErrorDetails, isArray: true })
     errors: ErrorDetails[];
-
 }
 
