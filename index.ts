@@ -25,7 +25,7 @@ addActivities();
 import { healthCheck, initializeContexts, loadUser, logger, tokenValidator } from './middlewares';
 
 // Routes
-import { auth, me, log } from './routes';
+import { auth, me, log, integration } from './routes';
 
 // Setup winston
 (winston as any).level = process.env.LOG_LEVEL || 'debug';
@@ -98,6 +98,7 @@ const executableSchema = makeExecutableSchema({
 graphQLServer.use('/auth', auth);
 graphQLServer.use('/users', me);
 graphQLServer.use(log);
+graphQLServer.use(integration);
 
 graphQLServer.use('/graphql', bodyParser.json(), graphqlExpress((req) => (
   {

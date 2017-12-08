@@ -1,0 +1,13 @@
+{
+    "authorization_endpoint": "https://connect.squareup.com/oauth2/authorize",
+    "token_endpoint": "https://connect.squareup.com/oauth2/token",
+    "revocation_endpoint": "https://connect.squareup.com/oauth2/revoke",
+    "subject_types_supported": [
+        "public"
+    ],
+    "scopes_supported": [
+        "MERCHANT_PROFILE_READ",
+        "PAYMENTS_READ",
+        "ORDERS_READ"
+    ]
+}
