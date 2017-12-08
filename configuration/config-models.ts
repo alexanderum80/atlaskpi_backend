@@ -1,3 +1,4 @@
+import { IConnector } from '../data/models/master/connectors/IConnector';
 import { ITokenInfo } from '../data/models/app/users';
 import { IEmailServiceConfig }from './email-service.config';
 import { IUsersServiceConfig } from './users';
@@ -41,4 +42,6 @@ export interface IAppConfig {
     emailService: IEmailServiceConfig;
     usersService: IUsersServiceConfig;
     appServices: IAppServicesConfig;
+
+    integrationRedirectUrl: string;
 }

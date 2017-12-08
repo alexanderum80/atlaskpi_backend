@@ -24,3 +24,5 @@ export * from './address.model';
 export * from './address.schema';
 export * from './business-unit.model';
 export * from './business-unit.schema';
+export * from './audit.model';
+export * from './audit.schema';
