@@ -346,7 +346,7 @@ function createIntegration(ctx: IMasterModels) {
         config: {
             consumerKey: '8oZ5hSFpqbtqGHfXZXjnUkRZA',
             consumerSecret: 'ozIUWUASgkwO7UCKhDfirCQ1LmZOAdrxyoCmalqu0di8TFJ6Yb',
-            callbackUrl: 'http://localhost:9091/integration/twitter',
+            callbackUrl: 'http://localhost:9091/integration/twitter/',
             endpoints: {
                 'request_token': 'https://api.twitter.com/oauth/request_token',
                 'authenticate_url': 'https://api.twitter.com/oauth/authenticate',

@@ -11,8 +11,8 @@ export class TwitterIntegrationController {
     private _requestSecret: any;
     private _config: any;
 
-    constructor(private _connectorModel: IConnectorModel) {
-        if (!_connectorModel) {
+    constructor(private _connectorModel: IConnectorModel, private _companyName: string) {
+        if (!_connectorModel || !_companyName) {
             console.log('missing parameters...');
             return null;
         }
@@ -32,7 +32,7 @@ export class TwitterIntegrationController {
                 this._twitter = new Twitter({
                     consumerKey: this._config.consumerKey,
                     consumerSecret: this._config.consumerSecret,
-                    callback: this._config.callbackUrl + '/access-token'
+                    callback: this._config.callbackUrl + this._companyName + '/access-token'
                 });
 
                 resolve();
@@ -67,24 +67,32 @@ export class TwitterIntegrationController {
             const verifier = req.query.oauth_verifier;
 
             that._twitter.getAccessToken(requestToken, that._requestSecret, verifier, (err, accessToken, accessSecret) => {
-                  if (err) {
-                    res.status(500).send(err);
+                if (err) {
+                res.status(500).send(err);
+                reject(err);
+                return;
+                }
+
+                resolve({
+                        access_token: accessToken,
+                        access_secret: accessSecret,
+                });
+                return;
+            });
+        });
+    }
+
+    public getUserInfo(token): Promise<any> {
+        const that = this;
+        return new Promise<any>((resolve, reject) => {
+            that._twitter.verifyCredentials(token.access_token, token.access_secret, (err, user) => {
+                if (err) {
                     reject(err);
                     return;
-                  } else {
-                      that._twitter.verifyCredentials(accessToken, accessSecret, (err, user) => {
-                        if (err) {
-                            res.status(500).send(err);
-                            reject(err);
-                            return;
-                          } else {
-                              resolve({
-                                  access_token: accessToken,
-                                  access_secret: accessSecret,
-                                  user: user
-                              });
-                          }
-                      });
+                }
+                if (user) {
+                    resolve(user);
+                    return;
                 }
             });
         });
