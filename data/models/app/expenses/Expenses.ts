@@ -53,6 +53,20 @@ ExpenseSchema.statics.findByPredefinedDateRange = function(predefinedDateRange: 
     });
 };
 
+ExpenseSchema.statics.findCriteria = function(field: string): Promise<IExpenseDocument[]> {
+    const that = this;
+
+    return new Promise<IExpenseDocument[]>((resolve, reject) => {
+        that.distinct(field).then(expenses => {
+            resolve(expenses);
+            return;
+        }).catch(err => {
+            reject(err);
+            return;
+        });
+    });
+};
+
 
 export function getExpenseModel(m: mongoose.Connection): IExpenseModel {
     return <IExpenseModel>m.model('Expense', ExpenseSchema, 'expenses');

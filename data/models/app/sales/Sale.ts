@@ -133,6 +133,20 @@ SalesSchema.statics.findByPredefinedDateRange = function(predefinedDateRange: st
     });
 };
 
+SalesSchema.statics.findCriteria = function(field: string): Promise<ISaleDocument[]> {
+    const that = this;
+
+    return new Promise<ISaleDocument[]>((resolve, reject) => {
+        that.distinct(field).then(sales => {
+            resolve(sales);
+            return;
+        }).catch(err => {
+            reject(err);
+            return;
+        });
+    });
+};
+
 export function getSaleModel(m: mongoose.Connection): ISaleModel {
     return <ISaleModel>m.model('Sale', SalesSchema, 'sales');
 }
