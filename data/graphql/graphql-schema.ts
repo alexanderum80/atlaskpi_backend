@@ -14,7 +14,7 @@ import _ = require('lodash');
 import * as logger from 'winston';
 
 // import definitions
-import { accountsGql } from './master';
+import { accountsGql, connectorGql } from './master';
 import { usersGql, kpisGql, commonGql,
          // businessUnitsGql,
          chartFormatGql, chartsGql, dashboardGql, searchGql, rolesGql, permissionGql, targetGql, accessLogGql,
@@ -24,6 +24,7 @@ import { usersGql, kpisGql, commonGql,
 let definitions: GraphqlDefinition[] = [];
 definitions.push(commonGql);
 definitions.push(accountsGql);
+definitions.push(connectorGql);
 definitions.push(usersGql);
 definitions.push(kpisGql);
 // definitions.push(businessUnitsGql);
