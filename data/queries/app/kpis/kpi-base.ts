@@ -1,4 +1,4 @@
-import { isRexExp } from '../../../../lib/utils/helpers';
+import { isRexExp, isArrayOnly, isArrayObject } from '../../../../lib/utils/helpers';
 import { IKPI } from '../../../models/app/kpis';
 import { IChartOptions } from '../charts/charts';
 import { AggregateStage } from './aggregate';
@@ -79,7 +79,7 @@ export class KpiBase {
                 aggregateParameters.push(operator);
             });
 
-            // logger.debug('With aggregate: ' + JSON.stringify(aggregateParameters));
+            logger.debug('With aggregate: ' + JSON.stringify(aggregateParameters));
             this.model.aggregate(...aggregateParameters).then(data => {
                 logger.debug('MongoDB data received: ' + that.model.modelName);
                 // before returning I need to check if a "top" filter was added
@@ -196,7 +196,7 @@ export class KpiBase {
 
             if (!_.isArray(value) && (!isRexExp(value)) && _.isObject(value)) {
                 value = this._cleanFilter(value);
-            } else if (_.isArray(value)) {
+            } else if (isArrayObject(value)) {
                 for (let i = 0; i < value.length; i++) {
                     value[i] = this._cleanFilter(value[i]);
                 }

@@ -3,6 +3,7 @@ import { SaleSchema } from '../../../models/app/sales';
 import { ExpenseSchema } from '../../../models/app/expenses';
 import { KPITypeMap, KPITypeEnum, getKPITypePropName, IKPISimpleDefinition, IKPIFilter } from './IKPI';
 import * as _ from 'lodash';
+import { isArrayObject } from '../../../../lib/utils/helpers';
 
 const Schemas = [
       SaleSchema,
@@ -101,7 +102,7 @@ export class KPIFilterHelper {
 
             if (!_.isArray(value) && _.isObject(value)) {
                 value = KPIFilterHelper._serializer(value, operation);
-            } else if (_.isArray(value)) {
+            } else if (isArrayObject(value)) {
                 for (let i = 0; i < value.length; i++) {
                     value[i] = this._serializer(value[i], operation);
                 }
@@ -148,7 +149,7 @@ export class KPIFilterHelper {
     }
 
     private static _handleAsArrayOperatorValuePairIntent(f: IKPIFilter, fieldset: any[]): any {
-        return  f.criteria.split(',')
+        return  f.criteria.split('|')
                           .map(value =>
                                KPIFilterHelper._handleAsElementOperatorValuePairIntent(value, f.field, fieldset)
         );
@@ -183,7 +184,7 @@ export class KPIFilterHelper {
         let criteria;
 
         if (_.isArray(value)) {
-            criteria = value.map(v => String(v)).join(',');
+            criteria = value.map(v => String(v)).join('|');
         } else {
             criteria = String(value);
         }
