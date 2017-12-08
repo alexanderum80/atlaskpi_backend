@@ -119,7 +119,7 @@ function uploadAppToEC2(version) {
     }
 
     log('uploading app to ec2 ...');
-    const acrLogin = execSync('aws ecr get-login --no-include-email --region us-east-1');
+    const acrLogin = execSync('aws ecr get-login --no-include-email --region us-east-1').toString();
     run(acrLogin);
     run('docker push 288812438107.dkr.ecr.us-east-1.amazonaws.com/webapp-backend:' + version);
 }
@@ -154,4 +154,8 @@ function updateClusterService(task) {
 
 
 // changePackageVersion('0.5.5');
+// createTaskRevision('0.5.17')
+uploadAppToEC2('0.5.17');
+// const task = createTaskRevision('0.5.18');
+// updateClusterService(task);
     
