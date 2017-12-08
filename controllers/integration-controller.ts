@@ -54,7 +54,7 @@ export class IntegrationController {
         const connectorCode = that.stateTokens[0];
         return new Promise<any>((resolve, reject) => {
             loadIntegrationConfig(that._connectorModel, connectorCode).then(configDoc => {
-                const connector = IntegrationConnectorFactory.getInstance(configDoc.config, connectorCode);
+                const connector = IntegrationConnectorFactory.getInstance(configDoc.config, connectorCode, { query: this._query });
 
                 if (!connector) {
                     reject('connector type not supported');
@@ -63,10 +63,6 @@ export class IntegrationController {
 
                 this._connector = connector;
                 this._companyName = this.stateTokens[1];
-
-                if (connector.getType() === ConnectorTypeEnum.QuickBooksOnline) {
-                    connector.setRealmId(this._query.realmId);
-                }
 
                 resolve();
                 return;

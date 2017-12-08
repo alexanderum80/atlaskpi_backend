@@ -12,7 +12,7 @@ export interface IConnectorConfigScope {
 export interface IConnectorConfig {
     token: IOAuth2Token;
     realmId?: string;
-    scope: IConnectorConfigScope[];
+    scope?: IConnectorConfigScope[];
 }
 
 export interface IConnector extends IUserAudit {

@@ -23,10 +23,14 @@ export class QuickBooksOnlineConnector implements IOAuthConnector {
     private _realmId?: string;
     private _companyInfo: any;
 
-    constructor(private _config: any) {
+    constructor(private _config: any, realmId?: string) {
         if (!_config) {
             console.log('you tried to create a quickbooks connector without config...');
             return null;
+        }
+
+        if (realmId) {
+            this._realmId = realmId;
         }
 
         this._client = new ClientOAuth2(this.getAuthConfiguration());

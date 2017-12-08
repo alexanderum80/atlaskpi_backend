@@ -13,14 +13,19 @@ export class ConnectorsService {
 
     constructor(private _connectorModel: IConnectorModel) { }
 
-
     removeConnector(id: string): Promise<IConnectorDocument> {
         const that = this;
         return new Promise<IConnectorDocument>((resolve, reject) => {
             that._connectorModel.removeConnector(id)
                 .then((deletedConnector) => {
                     // try to transparently revoke the token
-                    that._disconnect(deletedConnector).then();
+                    that._disconnect(deletedConnector)
+                        .then(() => {
+                            console.log('connector: ' + deletedConnector.name + ' disconnected');
+                        })
+                        .catch(err => {
+                            console.log('could not disconnect ' + deletedConnector.name);
+                        });
                     resolve(deletedConnector);
                     return;
                 })
