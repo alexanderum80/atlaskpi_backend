@@ -1,3 +1,4 @@
+import { IIdName } from './../../models/common/id-name';
 import { IConnector } from '../../models/master/connectors/index';
 import { ConnectorTypeEnum } from './connector-type';
 import * as Promise from 'bluebird';
@@ -47,7 +48,10 @@ export interface IOAuthConnector {
 
     revokeToken(): Promise<any>;
 
-    // user buy quickbooks online
+    // user by quickbooks online
     setRealmId?(realmId: string): void;
     getRealmId?(): string;
+
+    // linkedin
+    getLinkedInCompanies?(): IIdName[];
 }

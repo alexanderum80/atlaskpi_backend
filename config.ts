@@ -1,4 +1,3 @@
-import { IConnector } from './data/models/master/connectors/IConnector';
 import { IAppConfig } from './configuration';
 import { emailServiceConfig, usersServiceConfig, appServicesConfig } from './configuration';
 

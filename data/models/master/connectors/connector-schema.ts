@@ -20,7 +20,7 @@ ConnectorSchema.statics.addConnector = function(data: IConnector): Promise<IConn
         if (!data) { reject({ message: 'no data provided'}); }
         const findOneKey = data.uniqueKeyValue;
 
-        that.findOne({
+        that.findOne({ 'type': data.type,
             [findOneKey.key]: findOneKey.value
         }, (err, doc) => {
             if (err) {
