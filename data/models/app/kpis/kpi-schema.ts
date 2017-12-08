@@ -15,6 +15,7 @@ import validate = require('validate.js');
 // import validate from 'validate.js';
 import { IKPI, IKPIDocument, IKPIModel } from '.';
 import { IChartDocument } from '../charts';
+import { isObject, isEmpty } from 'lodash';
 
 
 let Schema = mongoose.Schema;
@@ -43,6 +44,15 @@ let KPISchema = new Schema({
     type: String,
 });
 
+function hasCriteria(filter: any) {
+    for (const i in filter) {
+        if (!isObject(filter[i])) {
+            return filter[i];
+        }
+        return hasCriteria(filter[i]);
+    }
+}
+
 KPISchema.statics.createKPI = function(input: IKPI): Promise<IKPIDocument> {
     const that = this;
 
@@ -59,10 +69,22 @@ KPISchema.statics.createKPI = function(input: IKPI): Promise<IKPIDocument> {
             return;
         }
 
+        let data;
+        let isRegex;
+        if (input.filter) {
+            data = (typeof input.filter === 'string') ? JSON.parse(input.filter) : JSON.parse(JSON.stringify(input.filter));
+            isRegex = data.find(d => d.operator === 'regex');
+        }
+
         input.code = input.name;
         let kpiType = KPITypeMap[input.type];
         input.expression = KPIExpressionHelper.ComposeExpression(kpiType, input.expression);
         input.filter = KPIFilterHelper.ComposeFilter(kpiType, input.filter);
+
+        if (isRegex && !hasCriteria(input.filter)) {
+            reject({ message: 'Invalid regex expression', error: 'invalid regex expression'});
+            return;
+        }
 
         that.create(input, (err, kpi: IKPIDocument) => {
             if (err) {
@@ -91,10 +113,22 @@ KPISchema.statics.updateKPI = function(id: string, input: IKPI): Promise<IKPIDoc
             return;
         }
 
+        let data;
+        let isRegex;
+        if (input.filter) {
+            data = (typeof input.filter === 'string') ? JSON.parse(input.filter) : JSON.parse(JSON.stringify(input.filter));
+            isRegex = data.find(d => d.operator === 'regex');
+        }
+
         input.code = input.name;
         let kpiType = KPITypeMap[input.type];
         input.expression = KPIExpressionHelper.ComposeExpression(kpiType, input.expression);
         input.filter = KPIFilterHelper.ComposeFilter(kpiType, input.filter);
+
+        if (isRegex && !hasCriteria(input.filter)) {
+            reject({ message: 'Invalid regex expression', error: 'invalid regex expression'});
+            return;
+        }
 
         that.findOneAndUpdate({_id: id}, input, {new: true })
         .exec()

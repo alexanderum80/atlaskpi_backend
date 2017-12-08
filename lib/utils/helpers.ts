@@ -35,3 +35,8 @@ export function getRequestHostname(req: ExtendedRequest): string {
     // make sure that we have at least 4 tokens, otherwise there is not a subdomain
     return hostTokens.length !== 4 ? null : hostname;
 }
+
+
+export function isRexExp(value: any) {
+    return value instanceof RegExp;
+}
