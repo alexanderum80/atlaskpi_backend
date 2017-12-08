@@ -65,6 +65,7 @@ import {
     updateKPIActivity,
     removeKPIActivity,
     getKpiActivity,
+    getKpiCriteriaActivity,
 
     // business unit
     createBusinessUnitActivity,
@@ -160,6 +161,7 @@ export function addActivities() {
         removeKPIActivity,
         getKpisActivity,
         getKpiActivity,
+        getKpiCriteriaActivity,
 
         // departments
         createDepartmentActivity,
