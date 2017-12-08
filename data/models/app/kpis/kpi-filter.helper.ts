@@ -134,6 +134,9 @@ export class KPIFilterHelper {
     }
 
     private static _operatorValuePairIntent(f: IKPIFilter, fieldset: any[]): any {
+        if (f.operator === 'regex' && !this._isRegularExpression(f.criteria)) {
+            return null;
+        }
         switch (f.operator) {
             case 'nin':
                 return KPIFilterHelper._handleAsArrayOperatorValuePairIntent(f, fieldset);
@@ -190,6 +193,26 @@ export class KPIFilterHelper {
                                 operator: String(op).replace('$', ''),
                                 criteria: criteria
                             };
+    }
+
+    private static _isRegularExpression(criteria: string): boolean {
+        let newCriteria = this._removeForwardSlashes(criteria);
+        if (!newCriteria) {
+            return null;
+        }
+
+        let regex = new RegExp(newCriteria);
+        return regex instanceof RegExp;
+    }
+
+    private static _removeForwardSlashes(data: string) {
+        let lastSlashIndex = data.lastIndexOf('/');
+        if (lastSlashIndex === -1) {
+            return '';
+        }
+
+        const newData = data.substring(1, lastSlashIndex);
+        return newData;
     }
 
 }
