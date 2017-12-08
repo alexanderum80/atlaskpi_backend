@@ -1,12 +1,14 @@
+import { TargetNotification } from '../../../services/notifications/users/target.notification';
 import { RemoveTargetFromChart } from '../../mutations/app/targets/remove-target-from-chart.mutation';
 import { RemoveTargetMutation } from '../../mutations/app/targets/remove-target.mutation';
 import { UpdateTargetMutation } from '../../mutations/app/targets/update-target.mutation';
 import { IMutationResponse } from '../../models/common';
 import { CreateTargetMutation } from '../../mutations/app/targets';
-import { FindAllTargetsQuery } from '../../queries/app/targets';
+import { FindAllTargetsQuery, TargetNotificationQuery } from '../../queries/app/targets';
 import { FindTargetQuery } from '../../queries/app/targets';
 import { IGraphqlContext } from '../';
 import { GraphqlDefinition } from '../graphql-definition';
+import { getRequestHostname } from '../../../lib/utils/helpers';
 
 export const targetGql: GraphqlDefinition = {
     name: 'target',
@@ -34,6 +36,14 @@ export const targetGql: GraphqlDefinition = {
             }
             input TargetOwner {
                 owner: String
+            }
+            input NotificationInput {
+                usersId: [String]
+                chartId: String
+                targetName: String
+                targetAmount: String
+                targetDate: String
+                businessUnit: String
             }
 
             type NotifyResponse {
@@ -75,10 +85,15 @@ export const targetGql: GraphqlDefinition = {
                 entity: TargetRemoveResponse
                 errors: [ErrorDetails]
             }
+            type NotificationResponse {
+                errors: [ErrorDetails]
+                success: Boolean
+            }
         `,
         queries: `
             findTarget(id: String): TargetResponse
             findAllTargets(filter: String): TargetResponse
+            targetNotification(input: NotificationInput): NotificationResponse
         `,
         mutations: `
             createTarget(data: TargetInput): TargetResult
@@ -96,6 +111,12 @@ export const targetGql: GraphqlDefinition = {
             findAllTargets(root: any, args, ctx: IGraphqlContext) {
                 let query = new FindAllTargetsQuery(ctx.req.identity, ctx.req.appContext.Target);
                 return ctx.queryBus.run('find-all-targets', query , args, ctx.req);
+            },
+            targetNotification(root: any, args, ctx: IGraphqlContext) {
+                const notifier = new TargetNotification(ctx.config, { hostname: getRequestHostname(ctx.req)});
+                const query = new TargetNotificationQuery(ctx.req.identity, notifier,
+                                ctx.req.appContext.User, ctx.req.appContext.Chart, ctx.req.appContext.Dashboard);
+                return ctx.queryBus.run('target-notification', query, args, ctx.req);
             }
         },
         Mutation: {

@@ -65,6 +65,7 @@ import {
     updateKPIActivity,
     removeKPIActivity,
     getKpiActivity,
+    getKpiCriteriaActivity,
 
     // business unit
     createBusinessUnitActivity,
@@ -111,6 +112,7 @@ import {
     findTargetActivity,
     findAllTargetsActivity,
     RemoveTargetFromChartActivity,
+    targetNotificationActivity,
 
     // device tokens
     addDeviceTokenActivity,
@@ -160,6 +162,7 @@ export function addActivities() {
         removeKPIActivity,
         getKpisActivity,
         getKpiActivity,
+        getKpiCriteriaActivity,
 
         // departments
         createDepartmentActivity,
@@ -225,6 +228,7 @@ export function addActivities() {
         findTargetActivity,
         findAllTargetsActivity,
         RemoveTargetFromChartActivity,
+        targetNotificationActivity,
 
         // device tokens
         addDeviceTokenActivity,

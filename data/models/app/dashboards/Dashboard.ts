@@ -81,6 +81,20 @@ return new Promise<IDashboardDocument>((resolve, reject) => {
 });
 };
 
+DashboardSchema.statics.findDashboardByChartId = function(id): Promise<any> {
+    const DashboardModel = (<IDashboardModel>this);
+    return new Promise<any>((resolve, reject) => {
+        DashboardModel.findOne({ charts: { $in: [id] } }).distinct('name').then(dashboard => {
+            resolve(dashboard[0]);
+            return;
+        }).catch(err => {
+            logger.error(err);
+            reject('there was an error getting a dashboard');
+            return;
+        });
+    });
+};
+
 export function getDashboardModel(m: mongoose.Connection): IDashboardModel {
     return <IDashboardModel>m.model('Dashboard', DashboardSchema, 'dashboards');
 }
