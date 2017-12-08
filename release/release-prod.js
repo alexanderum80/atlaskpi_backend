@@ -155,7 +155,7 @@ function updateClusterService(task) {
 
 // changePackageVersion('0.5.5');
 // createTaskRevision('0.5.17')
-uploadAppToEC2('0.5.17');
+// uploadAppToEC2('0.5.17');
 // const task = createTaskRevision('0.5.18');
 // updateClusterService(task);
     
