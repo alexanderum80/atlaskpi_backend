@@ -71,9 +71,9 @@ integration.get('/integration', (req: ExtendedRequest, res: Response) => {
     });
 });
 
-integration.get('/integration/twitter/request-token', (req: ExtendedRequest, res: Response) => {
+integration.get('/integration/twitter/:company_name/request-token', (req: ExtendedRequest, res: Response) => {
     logger.debug('processing a twitter integration... ');
-    const twitterInt = new TwitterIntegrationController(req.masterContext.Connector);
+    const twitterInt = new TwitterIntegrationController(req.masterContext.Connector, req.params.company_name);
 
     twitterInt.initialize().then(() => {
         twitterInt.getRequestToken(req, res).then(() => {
@@ -84,43 +84,50 @@ integration.get('/integration/twitter/request-token', (req: ExtendedRequest, res
     });
 });
 
-integration.get('/integration/twitter/access-token', (req: ExtendedRequest, res: Response) => {
+integration.get('/integration/twitter/:company_name/access-token', (req: ExtendedRequest, res: Response) => {
     logger.debug('processing a twitter integration... ');
-    const twitterInt = new TwitterIntegrationController(req.masterContext.Connector);
+    const twitterInt = new TwitterIntegrationController(req.masterContext.Connector, req.params.company_name);
     const that = this;
 
     twitterInt.initialize().then(() => {
         twitterInt.getAccessToken(req, res).then(tokenResponse => {
-            const connObj: IConnector = {
-                name: tokenResponse.user.name,
-                active: true,
-                config: { token: tokenResponse },
-                databaseName: 'company-test-3002',
-                type: getConnectorTypeId(ConnectorTypeEnum.Twitter),
-                createdBy: 'backend',
-                createdOn: new Date(Date.now()),
-                uniqueKeyValue: { key: 'config.token.user.id',
-                                  value: tokenResponse.user.id }
-            };
-
-            req.masterContext.Connector.addConnector(connObj).then(() => {
-                const flowResult: IExecutionFlowResult = {
-                    success: true,
-                    connector: connObj
+            twitterInt.getUserInfo(tokenResponse).then(user => {
+                const connObj: IConnector = {
+                    name: user.name,
+                    active: true,
+                    config: { token: tokenResponse, userId: user.id },
+                    databaseName: req.params.company_name,
+                    type: getConnectorTypeId(ConnectorTypeEnum.Twitter),
+                    createdBy: 'backend',
+                    createdOn: new Date(Date.now()),
+                    uniqueKeyValue: { key: 'config.userId',
+                                      value: user.id }
                 };
-                res.send(`
-                <!DOCTYPE html>
-                <html>
-                <head>
-                    <script>
-                        window.opener.postMessage({messageSource: 'atlasKPIIntegrations', connectorName: '${flowResult.connector.name}', success: true }, '*');
-                        window.close();
-                    </script>
-                </head>
-                <body>
-                </body>
-                </html>`);
-                return;
+
+                req.masterContext.Connector.addConnector(connObj).then(() => {
+                    const flowResult: IExecutionFlowResult = {
+                        success: true,
+                        connector: connObj
+                    };
+                    res.send(`
+                    <!DOCTYPE html>
+                    <html>
+                    <head>
+                        <script>
+                            window.opener.postMessage({messageSource: 'atlasKPIIntegrations', connectorName: '${flowResult.connector.name}', success: true }, '*');
+                            window.close();
+                        </script>
+                    </head>
+                    <body>
+                    </body>
+                    </html>`);
+                    return;
+                })
+                .catch(err => {
+                    logger.error(err);
+                    res.status(500).send(err);
+                    return;
+                });
             })
             .catch(err => {
                 logger.error(err);
