@@ -6,7 +6,8 @@ import { ILocationDocument } from '../locations';
 import { ICustomerDocument } from '../customers';
 import { IEmployeeDocument } from '../employees';
 
-export interface IInventoryProduct extends IIdName {
+export interface IInventoryProduct {
+    externalId: string;
     itemCode: string;
     itemDescription: string;
 }
