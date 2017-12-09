@@ -32,11 +32,11 @@ export const countriesGql: GraphqlDefinition = {
     resolvers: {
         Query: {
             countries(root: any, args, ctx: IGraphqlContext) {
-                let query = new GetCountriesQuery(ctx.req.masterContext.Country);
+                let query = new GetCountriesQuery(ctx.req.identity, ctx.req.masterContext.Country);
                 return ctx.queryBus.run('get-country-info', query, args);
             },
             statesFor(root: any, args, ctx: IGraphqlContext) {
-                let query = new GetStatesForCountryQuery(ctx.req.masterContext.State);
+                let query = new GetStatesForCountryQuery(ctx.req.identity, ctx.req.masterContext.State);
                 return ctx.queryBus.run('get-country-info', query, args.country);
             },
         },
