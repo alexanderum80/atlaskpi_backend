@@ -1,8 +1,10 @@
-import { GroupingMap } from '../charts';
-import { flatten, readMongooseSchema } from '../../../../lib/utils';
-import { ExpenseSchema } from './../../../models/app/expenses/Expenses';
-import { SaleSchema } from '../../../models/app/sales';
 import * as mongoose from 'mongoose';
+
+import { flatten, readMongooseSchema } from '../../../../lib/utils';
+import { SaleSchema } from '../../../models/app/sales';
+import { GroupingMap } from '../charts';
+import { ExpenseSchema } from './../../../models/app/expenses/Expenses';
+import { InventorySchema } from './../../../models/app/inventory/Inventory';
 
 export const DataSourceSchemasMapping = [
     {
@@ -12,6 +14,10 @@ export const DataSourceSchemasMapping = [
     {
         name: 'expenses',
         definition: ExpenseSchema
+    },
+    {
+        name: 'inventory',
+        definition: InventorySchema
     }
 ];
 
