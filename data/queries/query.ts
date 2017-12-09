@@ -6,7 +6,7 @@ export interface IQuery<T> {
      /**
      * Identity of the user requesting the mutation
      */
-    identity: IIdentity;
+    // identity: IIdentity;
      /**
      * Specifies if an attempt to execute this mutation should be logged
      */
