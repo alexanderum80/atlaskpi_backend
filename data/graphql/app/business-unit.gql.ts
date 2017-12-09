@@ -35,6 +35,15 @@ export const businessUnitGql: GraphqlDefinition = {
     name: 'business-unit',
     schema: {
         types: `
+            input CreateBusinessUnitInput {
+                name: String!
+                serviceType: String
+            }
+            input UpdateBusinessUnitInput {
+                _id: String!
+                name: String!
+                serviceType: String
+            }
             type BusinessUnit {
                 _id: String
                 name: String
@@ -64,8 +73,8 @@ export const businessUnitGql: GraphqlDefinition = {
             businessUnitById(id: String!): BusinessUnit
             `,
         mutations: `
-            createBusinessUnit(name: String!, serviceType: String): CreateBusinessUnitResponse
-            updateBusinessUnit(_id: String!, name: String!, serviceType: String): UpdateBusinessUnitResponse
+            createBusinessUnit(input: CreateBusinessUnitInput!): CreateBusinessUnitResponse
+            updateBusinessUnit(input: UpdateBusinessUnitInput!): UpdateBusinessUnitResponse
             deleteBusinessUnit(_id: String!): DeleteBusinessUnitResponse
             `,
     },
