@@ -3,6 +3,8 @@ import * as Promise from 'bluebird';
 
 export interface IQuery<T> {
 
+    identity: IIdentity;
+
      /**
      * Identity of the user requesting the mutation
      */

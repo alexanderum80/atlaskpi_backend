@@ -27,6 +27,6 @@ export interface ILocationModel extends mongoose.Model<ILocationDocument> {
     locations(): Promise<ILocationDocument[]>;
 
     locationById(id: string): Promise<ILocationDocument>;
-    
+
     deleteLocation(_id: string): Promise<ILocationDocument>;
 }
