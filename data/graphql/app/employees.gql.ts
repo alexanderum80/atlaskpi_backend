@@ -47,19 +47,6 @@ export const employeesGql: GraphqlDefinition = {
                 employmentInfo: [EmploymentInfo]
             }
 
-            input EmployeeAttributesInput {
-                firstName: String!
-                middleName: String!
-                lastName: String!
-                email: String
-                primaryNumber: String
-                dob: String
-                nationality: String
-                maritalStatus: String
-                address: AddressInput
-                employmentInfo: [EmploymentInfoInput]
-            }
-
             type EmploymentInfo {
                 location: String
                 bussinessUnit: String
@@ -69,6 +56,19 @@ export const employeesGql: GraphqlDefinition = {
                 typeOfEmployment: String
                 frequency: String
                 rate: String
+            }
+
+            input EmployeeInput {
+                firstName: String!
+                middleName: String
+                lastName: String!
+                email: String!
+                primaryNumber: String
+                dob: String
+                nationality: String
+                maritalStatus: String
+                address: AddressInput
+                employmentInfo: [EmploymentInfoInput]
             }
 
             type Address {
@@ -123,8 +123,8 @@ export const employeesGql: GraphqlDefinition = {
             employeeById(id: String!): Employee
         `,
         mutations: `
-            createEmployee(employeeAttributes: EmployeeAttributesInput): CreateEmployeeResponse
-            updateEmployee(_id: String!, employeeAttributes: EmployeeAttributesInput): UpdateEmployeeResponse
+            createEmployee(input: EmployeeInput): CreateEmployeeResponse
+            updateEmployee(_id: String!, input: EmployeeInput): UpdateEmployeeResponse
             deleteEmployee(_id: String!): DeleteEmployeeResponse
             `,
     },
@@ -138,7 +138,7 @@ export const employeesGql: GraphqlDefinition = {
             },
             employeeById(root: any, args, ctx: IGraphqlContext) {
                 let query = new EmployeeByIdQuery(ctx.req.identity, ctx.req.appContext.EmployeeModel);
-                return ctx.queryBus.run('employees-by-id', query, args);
+                return ctx.queryBus.run('employee-by-id', query, args);
             },
         },
         Mutation: {

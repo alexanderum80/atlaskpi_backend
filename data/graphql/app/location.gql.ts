@@ -20,8 +20,8 @@ export const locationsGql: GraphqlDefinition = {
                 description: String
                 alias: String
                 businessunits: String
-                operhours: String 
-                street: String 
+                operhours: String
+                street: String
                 city: String
                 state: String
                 country: String
@@ -33,14 +33,14 @@ export const locationsGql: GraphqlDefinition = {
                 description: String
                 alias: String
                 businessunits: String
-                operhours: String 
-                street: String 
+                operhours: String
+                street: String
                 city: String
                 state: String
                 country: String
                 zip: String
             }
-            
+
             type UpdateLocationResponse {
                 success: Boolean
                 entity: Location
