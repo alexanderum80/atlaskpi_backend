@@ -1,49 +1,36 @@
-import { IDatabaseInfo } from '../../master/accounts';
-import { IMobileDevice, IUserProfile } from './IUser';
-import { RoleSchema } from '../../../../lib/rbac/models';
-import { resolveRole } from '../../../../lib/rbac/models';
-import { IRoleDocument } from '../../../../lib/rbac/models/roles';
-import * as jwt from 'jsonwebtoken';
-import { IIdentity } from '../identity';
-import { IQueryResponse } from '../../common/query-response';
-import * as moment from 'moment';
-import * as _ from 'lodash';
-import * as nodemailer from 'nodemailer';
+import * as bcrypt from 'bcrypt';
 import * as Promise from 'bluebird';
-import ms = require('ms');
-import * as logger from 'winston';
+import * as jwt from 'jsonwebtoken';
+import * as moment from 'moment';
 import * as mongoose from 'mongoose';
-import * as bcryptjs from 'bcryptjs';
+import ms = require('ms');
+import * as nodemailer from 'nodemailer';
 import * as validate from 'validate.js';
-import * as async from 'async';
 import * as winston from 'winston';
-import { generateUniqueHash } from '../../../../lib/utils';
-import {
-    IEmailNotifier,
-    IAccountCreatedNotifier,
-    IEnrollmentNotifier,
-    IForgotPasswordNotifier,
-    AccountCreatedNotification
-} from '../../../../services';
+import * as logger from 'winston';
+
 import {
     ICreateUserDetails,
     ICreateUserOptions,
+    IMutationResponse,
+    IPagedQueryResult,
+    IPaginationDetails,
+    ITokenDetails,
+    ITokenInfo,
     ITokenVerification,
     IUser,
-    IUserToken,
-    ITokenInfo,
-    ITokenDetails,
     IUserDocument,
-    IUserEmailedToken,
     IUserModel,
-    IMutationResponse,
+    IUserToken,
     MutationResponse,
-    IPaginationDetails,
-    IPagedQueryResult,
-    Paginator
+    Paginator,
 } from '../../';
 import { config } from '../../../../config';
-import { IErrorData } from '../..';
+import { generateUniqueHash } from '../../../../lib/utils';
+import { IAccountCreatedNotifier, IEmailNotifier, IEnrollmentNotifier, IForgotPasswordNotifier } from '../../../../services';
+import { IQueryResponse } from '../../common/query-response';
+import { IIdentity } from '../identity';
+import { IMobileDevice, IUserProfile } from './IUser';
 
 
 export function accountPlugin(schema: mongoose.Schema, options: any) {
@@ -129,11 +116,11 @@ export function accountPlugin(schema: mongoose.Schema, options: any) {
         if (!user.isModified('password')) return next();
 
         // generate a salt
-        bcryptjs.genSalt(SALT_WORK_FACTOR, function(err, salt) {
+        bcrypt.genSalt(SALT_WORK_FACTOR, function(err, salt) {
             if (err) return next(err);
 
             // hash the password using our new salt
-            bcryptjs.hash(user.password, salt, function(err, hash) {
+            bcrypt.hash(user.password, salt, function(err, hash) {
                 if (err) return next(err);
 
                 // override the cleartext password with the hashed one
@@ -148,7 +135,7 @@ export function accountPlugin(schema: mongoose.Schema, options: any) {
      */
 
     schema.methods.comparePassword = function(candidatePassword): boolean {
-        return bcryptjs.compareSync(candidatePassword, this.password);
+        return bcrypt.compareSync(candidatePassword, this.password);
     };
 
     schema.methods.hasEmail = function(email: string): Boolean {

@@ -16,7 +16,7 @@ export class CreateBusinessUnitMutation extends MutationBase<IMutationResponse> 
         const that = this;
 
         return new Promise<IMutationResponse>((resolve, reject) => {
-           that._BusinessUnitModel.createNew(data.name, data.serviceType).then(businessunit => {
+           that._BusinessUnitModel.createNew(data.input.name, data.input.serviceType).then(businessunit => {
                 resolve({
                     success: true,
                     entity: businessunit
