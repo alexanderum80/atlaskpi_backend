@@ -24,7 +24,9 @@ export function getMasterContext(): Promise<IMasterModels> {
                 Connection: mongoose.connection,
                 Connector: getConnectorModel(),
                 Account: getAccountModel(),
-                Industry: getIndustryModel()
+                Industry: getIndustryModel(),
+                Country: getCountryModel(),
+                State: getStateModel()
             };
 
             resolve(masterModels);

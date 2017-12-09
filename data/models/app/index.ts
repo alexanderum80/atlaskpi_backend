@@ -8,7 +8,7 @@ export * from './users';
 export * from './kpis';
 export * from './charts';
 export * from './dashboards';
-export * from './business-units';
+export * from './business-unit';
 
 export * from './app-models';
 export * from './app-context';
