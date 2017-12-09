@@ -1,3 +1,4 @@
+import { getCountryModel, getStateModel } from './countries';
 import { getConnectorModel } from './connectors/connector-schema';
 import * as mongoose from 'mongoose';
 import * as Promise from 'bluebird';

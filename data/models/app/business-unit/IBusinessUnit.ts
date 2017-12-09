@@ -11,7 +11,7 @@ export interface IBusinessUnitDocument extends IBusinessUnit, mongoose.Document 
 
 }
 
-export interface IBusinesUnitModel extends mongoose.Model<IBusinessUnitDocument> {
+export interface IBusinessUnitModel extends mongoose.Model<IBusinessUnitDocument> {
     createNew(name: string, serviceType: string): Promise<IBusinessUnitDocument>;
     updateBusinessUnit(id: string, name: string, serviceType: string): Promise<IBusinessUnitDocument>;
     businessUnits(): Promise<IBusinessUnitDocument[]>;
