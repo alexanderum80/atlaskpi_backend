@@ -1,3 +1,4 @@
+import { IInventoryModel } from './../../../models/app/inventory/IInventory';
 import { IUserModel } from '../../../models/app/users/index';
 import { ISaleModel } from '../../../models/app/sales';
 import { IExpenseModel } from '../../../models/app/expenses';
@@ -9,7 +10,8 @@ import { flatten } from 'lodash';
 export class GetKpisCriteriaQuery extends QueryBase<any> {
     constructor(public identity: IIdentity,
                 private _saleModel: ISaleModel,
-                private _expenseModel: IExpenseModel) {
+                private _expenseModel: IExpenseModel,
+                private _inventoryModel: IInventoryModel) {
         super(identity);
     }
 
@@ -17,7 +19,8 @@ export class GetKpisCriteriaQuery extends QueryBase<any> {
         const that = this;
         const kpiMapper = {
             'Sales': this._saleModel,
-            'Expenses': this._expenseModel
+            'Expenses': this._expenseModel,
+            'Inventory': this._inventoryModel
         };
 
         return new Promise<any>((resolve, reject) => {
