@@ -17,7 +17,7 @@ import _ = require('lodash');
 import * as logger from 'winston';
 
 // import definitions
-import { accountsGql } from './master';
+import { accountsGql, connectorGql } from './master';
 import { usersGql, kpisGql, commonGql,
          // businessUnitsGql,
          chartFormatGql, chartsGql, dashboardGql, searchGql, rolesGql, permissionGql, targetGql, accessLogGql,
@@ -32,6 +32,7 @@ definitions.push(commonGql);
 definitions.push(accountsGql);
 definitions.push(industriesGql);
 definitions.push(countriesGql);
+definitions.push(connectorGql);
 
 // App
 definitions.push(usersGql);

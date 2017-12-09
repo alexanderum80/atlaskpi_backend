@@ -288,4 +288,8 @@ export interface IUserModel extends mongoose.Model<IUserDocument> {
      * Remove a mobile device from a user
      */
     removeMobileDevice(network: string, deviceToken: string): Promise<boolean>;
+    /**
+     * find users with array of user ids
+     */
+    findUsersById(id: string[]): Promise<IUserDocument[]>;
 }

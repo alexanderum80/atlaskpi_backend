@@ -25,7 +25,7 @@ export class UpdateKPIMutation extends MutationBase<IMutationResponse> {
                 resolve({entity: kpiDocument, success: true });
                 return;
             })
-            .catch((err) => resolve({ success: false, errors: [ { field: 'id', errors: [err]}] }));
+            .catch((err) => resolve({ success: false, errors: [ { field: 'id', errors: [err.error]}] }));
         });
     }
 }
