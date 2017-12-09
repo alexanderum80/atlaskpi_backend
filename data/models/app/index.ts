@@ -1,6 +1,6 @@
 // export * from './customers';
 export * from './chart-formats';
-// export * from './employees';
+export * from './employees';
 // export * from './locations';
 // export * from './products';
 // export * from './revenue';
@@ -16,3 +16,4 @@ export * from './identity';
 export * from './log';
 export * from './data-sources';
 export * from './slideshow';
+export * from './location';
