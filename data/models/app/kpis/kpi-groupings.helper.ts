@@ -7,7 +7,7 @@ import * as _ from 'lodash';
 export class KPIGroupingsHelper {
     public static GetAvailableGroupings(kpi: IKPIDocument): string[] {
         const identifier = kpi.baseKpi || kpi.code;
-        const byIdentifierGroupings  = this._getGroupungsByIdentifier(identifier || null);
+        const byIdentifierGroupings  = this._getGroupingsByIdentifier(identifier || null);
 
         let bySimpleKPIGroupings;
 
@@ -20,7 +20,7 @@ export class KPIGroupingsHelper {
 
     // This function it's no dynamic, is just mapping the predefined kpis
     // to the groping table on the chart-grouping-map file.
-    private static _getGroupungsByIdentifier(code: string): string[] {
+    private static _getGroupingsByIdentifier(code: string): string[] {
         if (!code) return null;
 
         switch (code) {
@@ -29,6 +29,9 @@ export class KPIGroupingsHelper {
 
             case 'Expenses':
                 return Object.keys(GroupingMap.expenses);
+
+            case 'Inventory':
+                return Object.keys(GroupingMap.inventory);
 
             default:
                 return null;

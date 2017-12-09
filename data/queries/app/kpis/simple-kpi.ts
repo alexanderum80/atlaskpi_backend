@@ -26,6 +26,10 @@ const CollectionsMapping = {
     expenses: {
         modelName: 'Expense',
         timestampField: 'timestamp'
+    },
+    inventory: {
+        modelName: 'Inventory',
+        timestampField: 'updatedAt'
     }
 };
 

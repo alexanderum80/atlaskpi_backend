@@ -100,7 +100,7 @@ export const kpisGql: GraphqlDefinition = {
             },
             kpiCriteria(root: any, args, ctx: IGraphqlContext) {
                 let query = new GetKpisCriteriaQuery(ctx.req.identity, ctx.req.appContext.Sale,
-                                                    ctx.req.appContext.Expense);
+                                                     ctx.req.appContext.Expense, ctx.req.appContext.Inventory);
                 return ctx.queryBus.run('get-kpi-criteria', query, args, ctx.req);
             }
          },
