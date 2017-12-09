@@ -78,4 +78,5 @@ export interface ISaleDocument extends ISales, mongoose.Document { }
 
 export interface ISaleModel extends mongoose.Model<ISaleDocument> {
     findByPredefinedDateRange(predefinedDateRange: string): Promise<ISaleDocument[]>;
+    findCriteria(field: string): Promise<any[]>;
 }

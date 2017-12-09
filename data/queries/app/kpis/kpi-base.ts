@@ -1,3 +1,4 @@
+import { isRexExp, isArrayOnly, isArrayObject } from '../../../../lib/utils/helpers';
 import { IKPI } from '../../../models/app/kpis';
 import { IChartOptions } from '../charts/charts';
 import { AggregateStage } from './aggregate';
@@ -78,7 +79,7 @@ export class KpiBase {
                 aggregateParameters.push(operator);
             });
 
-            // logger.debug('With aggregate: ' + JSON.stringify(aggregateParameters));
+            logger.debug('With aggregate: ' + JSON.stringify(aggregateParameters));
             this.model.aggregate(...aggregateParameters).then(data => {
                 logger.debug('MongoDB data received: ' + that.model.modelName);
                 // before returning I need to check if a "top" filter was added
@@ -175,8 +176,17 @@ export class KpiBase {
             { key: '__dollar__', value: '$' }
         ];
 
+        const regexStrings = ['startWith', 'endWith', 'contains', 'regex'];
+        let regexExpression;
+
         Object.keys(filter).forEach(filterKey => {
             let newKey = filterKey;
+            let regexKey = newKey.split('__')[2];
+
+            if (regexStrings.indexOf(regexKey) !== -1) {
+                regexExpression = regexStrings[regexStrings.indexOf(regexKey)];
+                newKey = '__dollar__regex';
+            }
 
             replacementString.forEach(replacement => {
                 newKey = newKey.replace(replacement.key, replacement.value);
@@ -184,11 +194,16 @@ export class KpiBase {
 
             let value = filter[filterKey];
 
-            if (!_.isArray(value) && _.isObject(value)) {
+            if (!_.isArray(value) && (!isRexExp(value)) && _.isObject(value)) {
                 value = this._cleanFilter(value);
-            } else if (_.isArray(value)) {
+            } else if (isArrayObject(value)) {
                 for (let i = 0; i < value.length; i++) {
                     value[i] = this._cleanFilter(value[i]);
+                }
+            } else {
+                if (value && regexExpression) {
+                    value = this._regexPattern(regexExpression, value);
+
                 }
             }
 
@@ -399,4 +414,27 @@ export class KpiBase {
         return newResult;
     }
 
+    private _regexPattern(type: string, value: string) {
+        let expression = null;
+        const reg_expression = {
+            'startWith': {
+                searchValue: '^' + value,
+            },
+            'endWith': {
+                searchValue: value + '$',
+            },
+            'contains': {
+                searchValue: value,
+            },
+            'regex': {
+                searchValue: /\/(.*)\/(.*)/.exec(value)
+            }
+        };
+        expression = reg_expression[type];
+
+        if (type === 'regex') {
+            return new RegExp(expression.searchValue[1], expression.searchValue[2]);
+        }
+        return new RegExp(expression.searchValue, 'i');
+    }
 }

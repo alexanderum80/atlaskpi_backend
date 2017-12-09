@@ -3,6 +3,7 @@ import { SaleSchema } from '../../../models/app/sales';
 import { ExpenseSchema } from '../../../models/app/expenses';
 import { KPITypeMap, KPITypeEnum, getKPITypePropName, IKPISimpleDefinition, IKPIFilter } from './IKPI';
 import * as _ from 'lodash';
+import { isArrayObject } from '../../../../lib/utils/helpers';
 
 const Schemas = [
       SaleSchema,
@@ -101,7 +102,7 @@ export class KPIFilterHelper {
 
             if (!_.isArray(value) && _.isObject(value)) {
                 value = KPIFilterHelper._serializer(value, operation);
-            } else if (_.isArray(value)) {
+            } else if (isArrayObject(value)) {
                 for (let i = 0; i < value.length; i++) {
                     value[i] = this._serializer(value[i], operation);
                 }
@@ -134,6 +135,9 @@ export class KPIFilterHelper {
     }
 
     private static _operatorValuePairIntent(f: IKPIFilter, fieldset: any[]): any {
+        if (f.operator === 'regex' && !this._isRegularExpression(f.criteria)) {
+            return null;
+        }
         switch (f.operator) {
             case 'nin':
                 return KPIFilterHelper._handleAsArrayOperatorValuePairIntent(f, fieldset);
@@ -145,7 +149,7 @@ export class KPIFilterHelper {
     }
 
     private static _handleAsArrayOperatorValuePairIntent(f: IKPIFilter, fieldset: any[]): any {
-        return  f.criteria.split(',')
+        return  f.criteria.split('|')
                           .map(value =>
                                KPIFilterHelper._handleAsElementOperatorValuePairIntent(value, f.field, fieldset)
         );
@@ -180,7 +184,7 @@ export class KPIFilterHelper {
         let criteria;
 
         if (_.isArray(value)) {
-            criteria = value.map(v => String(v)).join(',');
+            criteria = value.map(v => String(v)).join('|');
         } else {
             criteria = String(value);
         }
@@ -190,6 +194,26 @@ export class KPIFilterHelper {
                                 operator: String(op).replace('$', ''),
                                 criteria: criteria
                             };
+    }
+
+    private static _isRegularExpression(criteria: string): boolean {
+        let newCriteria = this._removeForwardSlashes(criteria);
+        if (!newCriteria) {
+            return null;
+        }
+
+        let regex = new RegExp(newCriteria);
+        return regex instanceof RegExp;
+    }
+
+    private static _removeForwardSlashes(data: string) {
+        let lastSlashIndex = data.lastIndexOf('/');
+        if (lastSlashIndex === -1) {
+            return '';
+        }
+
+        const newData = data.substring(1, lastSlashIndex);
+        return newData;
     }
 
 }

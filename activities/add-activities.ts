@@ -34,7 +34,7 @@ import { getKpisActivity } from './app/kpis/get-kpis.activity';
 import { deleteAppointmentActivity } from './app/appointments/delete-appointment.activity';
 import { updateAppointmentActivity } from './app/appointments/update-appointment.activity';
 import { AppointmentByIdActivity } from './app/appointments/appointment-by-id.activity';
-import { AppointmentByDescriptionActivity } from './app/appointments/appointment-by-description.activity'; 
+import { AppointmentByDescriptionActivity } from './app/appointments/appointment-by-description.activity';
 import { createAppointmentActivity } from './app/appointments/create-appointment.activity';
 import { deleteLocationActivity } from './app/location/delete-location.activity';
 import { updateLocationActivity } from './app/location/update-location.activity';
@@ -55,6 +55,8 @@ import {
     getAccountActivity,
     getIndustriesActivity,
     accountNameAvailableActivity,
+    getConnectorsActivity,
+    removeConnectorActivity
 } from './master';
 
 import {
@@ -75,6 +77,7 @@ import {
     updateKPIActivity,
     removeKPIActivity,
     getKpiActivity,
+    getKpiCriteriaActivity,
 
     // business unit
     createBusinessUnitActivity,
@@ -121,6 +124,7 @@ import {
     findTargetActivity,
     findAllTargetsActivity,
     RemoveTargetFromChartActivity,
+    targetNotificationActivity,
 
     // device tokens
     addDeviceTokenActivity,
@@ -148,7 +152,9 @@ export function addActivities() {
         getAccountActivity,
         getIndustriesActivity,
         accountNameAvailableActivity,
-        getCountryInfo,
+        getConnectorsActivity,
+        removeConnectorActivity,
+    getCountryInfo,
 
         // app
         createUserActivity,
@@ -169,6 +175,7 @@ export function addActivities() {
         removeKPIActivity,
         getKpisActivity,
         getKpiActivity,
+        getKpiCriteriaActivity,
 
         // departments
         createDepartmentActivity,
@@ -234,6 +241,7 @@ export function addActivities() {
         findTargetActivity,
         findAllTargetsActivity,
         RemoveTargetFromChartActivity,
+        targetNotificationActivity,
 
         // device tokens
         addDeviceTokenActivity,

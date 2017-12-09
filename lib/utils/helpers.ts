@@ -1,6 +1,7 @@
 import { ExtendedRequest } from '../../middlewares';
 import { config } from '../../config';
 import * as logger from 'winston';
+import { isArray, isObject } from 'lodash';
 
 const loggerSuffix = '(FUNCTION getRequestHostname)';
 
@@ -34,4 +35,17 @@ export function getRequestHostname(req: ExtendedRequest): string {
 
     // make sure that we have at least 4 tokens, otherwise there is not a subdomain
     return hostTokens.length !== 4 ? null : hostname;
+}
+
+
+export function isRexExp(value: any): boolean {
+    return value instanceof RegExp;
+}
+
+export function isArrayOnly(arr: any[]): boolean {
+    return (isArray(arr)) && ( arr.findIndex((val) => isObject(val)) ) === -1;
+}
+
+export function isArrayObject(arr: any[]): boolean {
+    return (isArray(arr)) && ( arr.findIndex((val) => isObject(val)) ) !== -1;
 }
