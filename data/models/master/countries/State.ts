@@ -11,5 +11,5 @@ const stateSchema = new mongoose.Schema({
 
 
 export function getStateModel(): IStateModel {
-    return <IStateModel>mongoose.model('State', stateSchema);
+    return <IStateModel>mongoose.model('State', stateSchema, 'states');
 }

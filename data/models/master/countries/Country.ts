@@ -10,5 +10,5 @@ const countrySchema = new mongoose.Schema({
 
 
 export function getCountryModel(): ICountryModel {
-    return <ICountryModel>mongoose.model('Country', countrySchema);
+    return <ICountryModel>mongoose.model('Country', countrySchema, 'countries');
 }
