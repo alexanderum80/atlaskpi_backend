@@ -1,3 +1,4 @@
+import { mapsGql } from './app/maps.gql';
 import { reportsGql } from './app/reports.gql';
 import { businessUnitGql } from './app/business-unit.gql';
 import { countriesGql } from './master/countries.gql';
@@ -58,6 +59,7 @@ definitions.push(reportsGql);
 definitions.push(widgetsGql);
 definitions.push(businessUnitGql);
 definitions.push(departmentsGql);
+definitions.push(mapsGql);
 
 let moduleQueries = [];
 let moduleTypes = [];

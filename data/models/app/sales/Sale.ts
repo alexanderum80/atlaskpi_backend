@@ -1,4 +1,4 @@
-import { ISaleDocument } from './';
+import { ISaleByZip, ISaleDocument, TypeMap } from './';
 import {
     getCustomerSchema,
     getEmployeeSchema,
@@ -10,6 +10,7 @@ import { ISaleModel } from './ISale';
 import * as mongoose from 'mongoose';
 import * as Promise from 'bluebird';
 import * as logger from 'winston';
+import { IMapMarker } from '../../../queries/app/maps/map-markers.query';
 
 let Schema = mongoose.Schema;
 
@@ -144,6 +145,32 @@ SalesSchema.statics.findCriteria = function(field: string): Promise<ISaleDocumen
             reject(err);
             return;
         });
+    });
+};
+
+SalesSchema.statics.salesBy = function(type: TypeMap): Promise<ISaleByZip[]> {
+    const SalesModel = (<ISaleModel>this);
+    let aggregate = [];
+
+    return new Promise<ISaleByZip[]>((resolve, reject) => {
+        switch (type) {
+            case TypeMap.customerAndZip:
+                aggregate.push([
+                    { $group: { _id: '$customer.zip', sales: { $sum: '$product.amount' } } }
+                ]);
+                break;
+            case TypeMap.productAndZip:
+                break;
+        }
+
+        SalesModel.aggregate(aggregate).then(res => {
+            if (!res) {
+                resolve([]);
+            }
+
+            resolve(res as ISaleByZip[]);
+        })
+        .catch(err => reject(err));
     });
 };
 

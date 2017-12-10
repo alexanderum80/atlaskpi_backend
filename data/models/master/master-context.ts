@@ -1,3 +1,4 @@
+import { getZipToMapModel } from './zip-to-map/zip-to-map';
 import { getCountryModel, getStateModel } from './countries';
 import { getConnectorModel } from './connectors/connector-schema';
 import * as mongoose from 'mongoose';
@@ -26,7 +27,8 @@ export function getMasterContext(): Promise<IMasterModels> {
                 Account: getAccountModel(),
                 Industry: getIndustryModel(),
                 Country: getCountryModel(),
-                State: getStateModel()
+                State: getStateModel(),
+                ZipToMap: getZipToMapModel()
             };
 
             resolve(masterModels);
