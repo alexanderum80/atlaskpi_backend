@@ -23,7 +23,7 @@ log.post('/log', function user(req: ExtendedRequest, res: Response) {
     const log = new LogController(req.appContext);
 
     const logDetails: ILogDetails = {
-        timestamp:  new Date(req.headers['timestamp']),
+        timestamp:  new Date(req.headers['timestamp'] as string),
         ip: (req.headers['x-forwarded-for'] || req.connection.remoteAddress) as string,
         hostname: getRequestHostname(req),
         clientId: req.headers['user-agent'] as string,

@@ -118,7 +118,7 @@ export function fillEmployeeHours() {
             console.log('Inserting time records for day: ' + m.format('dddd') + ' ' + m.format('YYYY-MM-DD'));
 
             Employees.forEach(e => {
-                logs.push(getLogByEmployee(e, new Date(m)));
+                logs.push(getLogByEmployee(e, new Date(m.toString())));
             });
         }
 

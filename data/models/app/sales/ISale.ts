@@ -1,6 +1,7 @@
 import { IIdName } from '../../common';
 import * as mongoose from 'mongoose';
 import * as Promise from 'bluebird';
+import { IMapMarker } from '../../../queries/app/maps/map-markers.query';
 
 export interface IEntity {
     externalId: string | number;
@@ -73,9 +74,20 @@ export interface ISales {
     };
 }
 
+export enum TypeMap {
+    customerAndZip = 'customerAndZip',
+    productAndZip = 'productAndZip'
+}
+
+export interface ISaleByZip {
+    _id: string;
+    sales: number;
+}
 
 export interface ISaleDocument extends ISales, mongoose.Document { }
 
 export interface ISaleModel extends mongoose.Model<ISaleDocument> {
     findByPredefinedDateRange(predefinedDateRange: string): Promise<ISaleDocument[]>;
+    findCriteria(field: string): Promise<any[]>;
+    salesBy(type: TypeMap): Promise<ISaleByZip[]>;
 }

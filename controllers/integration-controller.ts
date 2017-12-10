@@ -10,7 +10,7 @@ import { IMasterModels } from './../data/models/master/master-models';
 import * as Promise from 'bluebird';
 import * as logger from 'winston';
 
-interface IExecutionFlowResult {
+export interface IExecutionFlowResult {
     success: boolean;
     connector?: IConnector;
     error?: string;
