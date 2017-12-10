@@ -359,6 +359,29 @@ function createIntegration(ctx: IMasterModels) {
     };
 
     ctx.Connector.create(facebookConnector, (err, connector) => {
+
+    const twitterConnector: IConnector = {
+        name: 'twitter',
+        type: 'integration-config',
+        databaseName: 'atlas',
+        active: true,
+        config: {
+            consumerKey: '8oZ5hSFpqbtqGHfXZXjnUkRZA',
+            consumerSecret: 'ozIUWUASgkwO7UCKhDfirCQ1LmZOAdrxyoCmalqu0di8TFJ6Yb',
+            callbackUrl: 'http://localhost:9091/integration/twitter/',
+            endpoints: {
+                'request_token': 'https://api.twitter.com/oauth/request_token',
+                'authenticate_url': 'https://api.twitter.com/oauth/authenticate',
+                'authorize_url': 'https://api.twitter.com/oauth/authorize',
+                'access_token': 'https://api.twitter.com/oauth/access_token',
+            }
+        },
+        createdOn: new Date(),
+        updatedOn: new Date(),
+        createdBy: 'xxrulixx@gmail.com',
+    };
+
+    ctx.Connector.create(twitterConnector, (err, connector) => {
         if (err) {
             console.log(err);
             return;

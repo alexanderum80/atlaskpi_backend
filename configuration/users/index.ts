@@ -27,6 +27,10 @@ export interface IUsersServiceConfig {
         enrollment: {
             emailTemplate: string;
             expiresIn: number | string; // a week
+        },
+        targetNotification: {
+            emailTemplate: string;
+            expiresIn: number | string;
         }
     };
 }
@@ -58,6 +62,10 @@ export const usersServiceConfig = {
         },
         enrollment: {
             emailTemplate: readTemplate('users', 'new-enrollment'),
+            expiresIn: '7 days'
+        },
+        targetNotification: {
+            emailTemplate: readTemplate('users', 'target-notification'),
             expiresIn: '7 days'
         }
     }

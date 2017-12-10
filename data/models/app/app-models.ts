@@ -1,3 +1,5 @@
+import { IBusinessUnitModel } from './business-unit/IBusinessUnit';
+import { IEmployeeModel } from './employees/IEmployee';
 import { IWidgetModel } from './widgets/IWidget';
 import { ISlideshowModel } from './slideshow/ISlideshow';
 import { IAppointmentModel } from './appointments/IAppointment';
@@ -15,9 +17,10 @@ import { IDepartmentModel } from './departments/IDepartment';
 // import { IProductModel } from './products';
 // import { IRevenueModel } from './revenue';
 // import { IExpenseModel } from './expenses';
+
+import { ILocationModel } from './location';
 import { IUserModel } from './users';
 import { IKPIModel } from './kpis';
-import { IBusinesUnitModel } from './business-unit/IBusinessUnit';
 import { IChartFormatModel } from './chart-formats';
 import { ISaleModel } from './sales';
 import { IDashboardModel } from './dashboards';
@@ -44,7 +47,6 @@ export interface IAppModels {
     KPI: IKPIModel;
     Survey: ISurveyModel;
     Inventory: IInventoryModel;
-    BusinessUnit: IBusinesUnitModel;
     Chart: IChartModel;
     ChartFormat: IChartFormatModel;
     Dashboard: IDashboardModel;
@@ -54,8 +56,10 @@ export interface IAppModels {
     AccessModel: IAccessModel;
     Target: ITargetModel;
     SlideshowModel: ISlideshowModel;
+    EmployeeModel: IEmployeeModel;
     AppointmentModel: IAppointmentModel;
     Widget: IWidgetModel;
-    BusinessUnitModel: IBusinesUnitModel;
+    BusinessUnitModel: IBusinessUnitModel;
     DepartmentModel: IDepartmentModel;
+  LocationModel: ILocationModel;
 }

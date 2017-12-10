@@ -1,4 +1,3 @@
-import { IBusinessUnit } from '../../app/business-units/IBusinessUnit';
 import { IMutationResponse, IUserToken } from '../../common';
 import { IIndustry, ISubIndustry } from '../industries';
 import mongoose = require('mongoose');
@@ -44,7 +43,6 @@ export interface IAccount {
     businessInfo?: IBusinessInfo;
     database?: IDatabaseInfo;
     audit?: IAudit;
-    businessUnits?: IBusinessUnit[];
     subdomain: string;
     initialToken?: IUserToken;
     seedData?: boolean;
