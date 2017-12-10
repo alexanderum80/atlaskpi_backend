@@ -13,6 +13,8 @@ export interface IInventoryProduct {
 }
 
 export interface IInventory {
+    source: string;
+    externalId: string;
     location: IIdName;
     product: IInventoryProduct;
     updatedAt: Date;
