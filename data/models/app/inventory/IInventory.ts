@@ -2,7 +2,6 @@ import { IIdName } from '../../common';
 import * as mongoose from 'mongoose';
 
 import { IProductDocument } from '../products';
-import { ILocationDocument } from '../locations';
 import { ICustomerDocument } from '../customers';
 import { IEmployeeDocument } from '../employees';
 

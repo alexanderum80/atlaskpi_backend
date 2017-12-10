@@ -1,3 +1,4 @@
+import { ICountryModel, IStateModel } from './countries';
 import { IIndustryModel } from './industries';
 import { IAccountModel } from './accounts';
 import { IConnectorModel } from './connectors';
@@ -8,4 +9,6 @@ export interface IMasterModels {
     Connector: IConnectorModel;
     Account: IAccountModel;
     Industry: IIndustryModel;
+    Country: ICountryModel;
+    State: IStateModel;
 }
