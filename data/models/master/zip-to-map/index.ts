@@ -1,2 +1,2 @@
-export * from './IIndustry';
-export * from './Industry';
+export * from './IZipToMap';
+export * from './zip-to-map';
