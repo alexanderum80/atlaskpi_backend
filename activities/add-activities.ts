@@ -1,17 +1,17 @@
-import { endOfDayReportActivity } from './app/reports/emd-of-day-report.activity';
-import { previewWidgetActivity } from './app/widgets/preview-widget.activity';
-import { createWidgetActivity } from './app/widgets/create-widget.activity';
-import { getWidgetActivity } from './app/widgets/get-widget.activity';
+import { listDepartmentsActivity } from './app/departments/list-departments.activity';
 import { deleteDepartmentActivity } from './app/departments/delete-department.activity';
 import { updateDepartmentActivity } from './app/departments/update-department.activity';
 import { DepartmentByIdActivity } from './app/departments/department-by-id.activity';
 import { createDepartmentActivity } from './app/departments/create-department.activity';
-import { listDepartmentsActivity } from './app/departments/list-departments.activity';
+import { getCountryInfo } from './master/get-country-info';
+import { endOfDayReportActivity } from './app/reports/emd-of-day-report.activity';
+import { previewWidgetActivity } from './app/widgets/preview-widget.activity';
+import { createWidgetActivity } from './app/widgets/create-widget.activity';
+import { getWidgetActivity } from './app/widgets/get-widget.activity';
 import { listBusinessUnitsActivity } from './app/business-unit/list-business-unit.activity';
 import { updateBusinessUnitActivity } from './app/business-unit/update-business-unit.activity';
 import { deleteBusinessUnitActivity } from './app/business-unit/delete-business-unit.activity';
 import { BusinessUnitByIdActivity } from './app/business-unit/business-unit-by-id.activity';
-
 import { listChartsByGroupActivity } from './app/charts/list-charts-by-group.activity';
 import { SlideshowByGroupActivity } from './app/slideshow/slideshows-by-group.activity';
 import { DeleteSlideshowActivity } from './app/slideshow/delete-slideshow.activity';
@@ -36,7 +36,19 @@ import { updateAppointmentActivity } from './app/appointments/update-appointment
 import { AppointmentByIdActivity } from './app/appointments/appointment-by-id.activity';
 import { AppointmentByDescriptionActivity } from './app/appointments/appointment-by-description.activity';
 import { createAppointmentActivity } from './app/appointments/create-appointment.activity';
+import { deleteLocationActivity } from './app/location/delete-location.activity';
+import { updateLocationActivity } from './app/location/update-location.activity';
+import { createLocationActivity} from './app/location/create-location.activity';
+import { listLocationsActivity } from './app/location/list-locations.activity';
+import { LocationByIdActivity } from './app/location/location-by-id.activity';
 
+
+// Employees
+import { deleteEmployeeActivity } from './app/employees/delete-employee.activity';
+import { updateEmployeeActivity } from './app/employees/update-employee.activity';
+import { employeeByIdActivity } from './app/employees/employee-by-id.activity';
+import { listEmployeesActivity } from './app/employees/list-employees.activity';
+import { createEmployeeActivity } from './app/employees/create-employee.activity';
 
 import {
     createAccountActivity,
@@ -142,6 +154,7 @@ export function addActivities() {
         accountNameAvailableActivity,
         getConnectorsActivity,
         removeConnectorActivity,
+    getCountryInfo,
 
         // app
         createUserActivity,
@@ -243,6 +256,7 @@ export function addActivities() {
         listAppointmentsActivity,
 
         // business-unit
+        createBusinessUnitActivity,
         BusinessUnitByIdActivity,
         updateBusinessUnitActivity,
         deleteBusinessUnitActivity,
@@ -259,9 +273,22 @@ export function addActivities() {
         DeleteSlideshowActivity,
         SlideshowByGroupActivity,
 
+        // Employees
+        createEmployeeActivity,
+        deleteEmployeeActivity,
+        listEmployeesActivity,
+        employeeByIdActivity,
+        updateEmployeeActivity,
+
         // date ranges
         getDateRangesActivity,
 
+        // locations
+        deleteLocationActivity,
+        updateLocationActivity,
+        createLocationActivity,
+        listLocationsActivity,
+        LocationByIdActivity,
         // reports
         endOfDayReportActivity,
         // widgets

@@ -1,12 +1,15 @@
 import { reportsGql } from './app/reports.gql';
 import { businessUnitGql } from './app/business-unit.gql';
+import { countriesGql } from './master/countries.gql';
 import { departmentsGql } from './app/departments.gql';
 import { slideshowGql } from './app/slideshow.gql';
+import { employeesGql } from './app/employees.gql';
 import { dateRangesGql } from './app/date-ranges.gql';
 import { appointmentsGql } from './app/appointments.gql';
 import { dataSourcesGql } from './app/data-sources.gql';
 import { industriesGql } from './master/industries.gql';
 import { spreadsheetGpl } from './master/import-from-spreadsheet';
+import { } from '.'
 // from: https://gist.github.com/icebob/553c1f9f1a9478d828bcb7a08d06790a
 
 import { GraphqlDefinition } from './graphql-definition';
@@ -18,13 +21,20 @@ import { accountsGql, connectorGql } from './master';
 import { usersGql, kpisGql, commonGql,
          // businessUnitsGql,
          chartFormatGql, chartsGql, dashboardGql, searchGql, rolesGql, permissionGql, targetGql, accessLogGql,
-         widgetsGql } from './app';
+         widgetsGql, locationsGql } from './app';
 
 // let files = getGlobbedFiles(path.join(__dirname, '**', '*.gql.ts'));
 let definitions: GraphqlDefinition[] = [];
+
 definitions.push(commonGql);
+
+// Master
 definitions.push(accountsGql);
+definitions.push(industriesGql);
+definitions.push(countriesGql);
 definitions.push(connectorGql);
+
+// App
 definitions.push(usersGql);
 definitions.push(kpisGql);
 // definitions.push(businessUnitsGql);
@@ -32,20 +42,22 @@ definitions.push(chartFormatGql);
 definitions.push(chartsGql);
 definitions.push(dashboardGql);
 definitions.push(spreadsheetGpl);
-definitions.push(industriesGql);
 definitions.push(searchGql);
 definitions.push(rolesGql);
 definitions.push(permissionGql);
 definitions.push(dataSourcesGql);
 definitions.push(targetGql);
 definitions.push(slideshowGql);
+definitions.push(employeesGql);
+
 definitions.push(dateRangesGql);
+definitions.push(locationsGql);
 definitions.push(accessLogGql);
 definitions.push(appointmentsGql);
 definitions.push(reportsGql);
 definitions.push(widgetsGql);
-definitions.push(departmentsGql);
 definitions.push(businessUnitGql);
+definitions.push(departmentsGql);
 
 let moduleQueries = [];
 let moduleTypes = [];

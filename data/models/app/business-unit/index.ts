@@ -1,2 +1,2 @@
-export * from './BusinessUnit';
 export * from './IBusinessUnit';
+export * from './business-unit';
