@@ -11,6 +11,8 @@ const inventoryProductSchema = {
 };
 
 export const InventorySchema = new Schema({
+    source: String,
+    externalId: { type: String, unique: true },
     location: IdName,
     product: inventoryProductSchema,
     updatedAt: Date,
