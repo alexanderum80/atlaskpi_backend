@@ -17,7 +17,7 @@ export class KPIGroupingsHelper {
         let bySimpleKPIGroupings;
 
         if (kpi.type && KPITypeMap[kpi.type] === KPITypeEnum.Simple) {
-            bySimpleKPIGroupings = this._getGroupingsForSimpleKPI(kpi.expression);
+            bySimpleKPIGroupings = this._getGroupingsForSimpleKPI(kpi.expression, GroupingMap, kpiService);
         }
 
         return byIdentifierGroupings || bySimpleKPIGroupings || [];
@@ -43,8 +43,8 @@ export class KPIGroupingsHelper {
         }
     }
 
-    private static _getGroupingsForSimpleKPI(expression: string) {
+    private static _getGroupingsForSimpleKPI(expression: string, GroupingMap: any, kpiService: any) {
         const definition: IKPISimpleDefinition = KPIExpressionHelper.DecomposeExpression(KPITypeEnum.Simple, expression);
-        return DataSourcesHelper.GetGroupingsForSchema(definition.dataSource);
+        return DataSourcesHelper.GetGroupingsExistInCollectionSchema(definition.dataSource, GroupingMap, kpiService);
     }
 }
