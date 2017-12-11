@@ -5,7 +5,7 @@ import { SaleSchema } from '../../../models/app/sales';
 import { GroupingMap } from '../charts';
 import { ExpenseSchema } from './../../../models/app/expenses/Expenses';
 import { InventorySchema } from './../../../models/app/inventory/Inventory';
-import { sortBy } from 'lodash';
+import { sortBy, flatten, isObject } from 'lodash';
 
 export const DataSourceSchemasMapping = [
     {
@@ -32,6 +32,21 @@ const BlackListedFieldNames = [
 interface ISchemaField {
     path: string;
     type: string;
+}
+
+function getObjects(arr: any[]): any {
+    if (!arr) { return; }
+    const newObject = {};
+    arr.forEach(singleArray => {
+        if (singleArray && Array.isArray(singleArray)) {
+            singleArray.forEach(obj => {
+                if (isObject(obj)) {
+                    Object.assign(newObject, obj);
+                }
+            });
+        }
+    });
+    return newObject;
 }
 
 export class DataSourcesHelper {
@@ -68,23 +83,33 @@ export class DataSourcesHelper {
         const collection = GroupingMap[schemaName];
 
         const permittedFields = [];
+        const collectionQuery = [];
 
         return new Promise<any>((resolve, reject) => {
-            // prop: i.e. 'location'
-            // field: i.e 'location.name'
-            // model[schemaName]: i.e. sales, expenses
             Object.keys(collection).forEach(prop => {
                 const field = collection[prop];
-                // check if field exists in collection
-                model[schemaName].findOne({ [field]: { $exists: true } }).then(res => {
-                    if (res) {
-                        // if field exists push the key from collection
-                        permittedFields.push(prop);
-                        return resolve(sortBy(permittedFields));
+                mongoose.set('debug', true);
+                collectionQuery.push(model[schemaName].aggregate([{
+                    $match: {
+                        [field]: { $exists: true}
                     }
-                }).catch(err => {
-                    return resolve([]);
-                });
+                }, {
+                    $project: {
+                        _id: 0,
+                        [prop]: field
+                    }
+                }, {
+                    $limit: 1
+                }]);
+            });
+
+            Promise.all(collectionQuery).then(fieldExist => {
+                if (fieldExist) {
+                    const formatToObject = getObjects(fieldExist);
+
+                    permittedFields = Object.keys(formatToObject);
+                    return resolve(sortBy(permittedFields));
+                }
             });
         });
 
