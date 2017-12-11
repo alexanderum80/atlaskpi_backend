@@ -17,7 +17,11 @@ export const GroupingMap = {
         category: 'category.name',
         product: 'product.itemDescription',
         serviceType: 'serviceType',
-        businessUnit: 'businessUnit.name'
+        businessUnit: 'businessUnit.name',
+        customerState: 'customer.state',
+        customerCity: 'customer.city',
+        customerZip: 'customer.zip',
+        customerGender: 'customer.gender'
     },
     expenses: {
         businessUnit: 'businessUnit.name',
@@ -40,7 +44,7 @@ export function getGroupingMetadata(chartDocument: IChart, groupings: string[]) 
     let result: string[] = [];
     let groups: string[] = [];
 
-    groups = groups.concat(chartDocument.groupings, groupings);
+    groups = _.uniq(groups.concat(chartDocument.groupings, groupings));
 
     let uniqGrouping = [];
     _.each(GroupingMap, collection => {

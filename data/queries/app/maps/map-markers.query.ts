@@ -61,7 +61,7 @@ export class MapMarkersQuery extends QueryBase < IMapMarker[] > {
                                     name: zip.zipCode,
                                     lat: zip.lat,
                                     lng: zip.lng,
-                                    color: 'green',
+                                    color: getMarkerColor(salesObject[zip.zipCode].sales),
                                     value: salesObject[zip.zipCode].sales
                                 };
                             });
@@ -72,4 +72,26 @@ export class MapMarkersQuery extends QueryBase < IMapMarker[] > {
                 .catch(err => reject(err));
         });
     }
+}
+
+export enum MarkerColorEnum {
+    // Black = 'black',
+    Purple = 'purple',
+    Red = 'red',
+    Blue = 'blue',
+    Green = 'green',
+    Yellow = 'yellow'
+}
+
+export const SalesColorMap = {
+    yellow: { min: 0, max: 250000 },
+    green: { min: 250001, max: 500000 },
+    blue: { min: 500001, max: 1000000 },
+    red: { min: 1000001, max: 5000000 },
+    purple: { min: 5000000, max: 5000000000 },
+};
+
+function getMarkerColor(sales: number): MarkerColorEnum {
+    const colors = Object.keys(SalesColorMap);
+    return colors.find(c => sales >= SalesColorMap[c].min && sales <= SalesColorMap[c].max) as MarkerColorEnum;
 }
