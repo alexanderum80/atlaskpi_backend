@@ -88,7 +88,7 @@ export class DataSourcesHelper {
         return new Promise<any>((resolve, reject) => {
             Object.keys(collection).forEach(prop => {
                 const field = collection[prop];
-                mongoose.set('debug', true);
+
                 collectionQuery.push(model[schemaName].aggregate([{
                     $match: {
                         [field]: { $exists: true}
