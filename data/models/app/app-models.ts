@@ -1,3 +1,4 @@
+import { ISocialNetworkModel } from './social-network/ISocialNetwork';
 import { IBusinessUnitModel } from './business-unit/IBusinessUnit';
 import { IEmployeeModel } from './employees/IEmployee';
 import { IWidgetModel } from './widgets/IWidget';
@@ -61,5 +62,6 @@ export interface IAppModels {
     Widget: IWidgetModel;
     BusinessUnitModel: IBusinessUnitModel;
     DepartmentModel: IDepartmentModel;
-  LocationModel: ILocationModel;
+    LocationModel: ILocationModel;
+    SocialNetwork: ISocialNetworkModel;
 }
