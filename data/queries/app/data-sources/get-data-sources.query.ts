@@ -4,6 +4,8 @@ import { IAppModels } from './../../../models/app/app-models';
 import { IDataSource } from './../../../models/app/data-sources/IData-source';
 import { QueryBase } from '../../query-base';
 import { IKPIModel, IKPI } from '../../../models/app/kpis';
+import { ISaleModel } from '../../../models/app/sales';
+import { IExpenseModel } from '../../../models/app/expenses';
 import * as Promise from 'bluebird';
 import { IQuery } from '../..';
 import * as mongoose from 'mongoose';
