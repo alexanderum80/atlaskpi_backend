@@ -5,6 +5,8 @@ import { SaleSchema } from '../../../models/app/sales';
 import { GroupingMap } from '../charts';
 import { ExpenseSchema } from './../../../models/app/expenses/Expenses';
 import { InventorySchema } from './../../../models/app/inventory/Inventory';
+import { ISalesModel } from '../../../models/app/sales';
+import { IExpenseModel } from '../../../models/app/expenses';
 
 export const DataSourceSchemasMapping = [
     {
@@ -33,6 +35,12 @@ interface ISchemaField {
     type: string;
 }
 
+interface IChartHelper {
+    isChartScreen: boolean;
+    salesModel: ISaleModel;
+    expenseModel: IExpenseModel;
+}
+
 
 export class DataSourcesHelper {
     public static GetFieldsFromSchemaDefinition(schema: mongoose.Schema): ISchemaField[] {
@@ -54,9 +62,36 @@ export class DataSourcesHelper {
         return filteredFields;
     }
 
-    public static GetGroupingsForSchema(schemaName: string): string[] {
+    public static GetGroupingsForSchema(schemaName: string, chartHelper?: IChartHelper): string[] {
         const collection = GroupingMap[schemaName];
-        return Object.keys(collection);
+        if (isChartScreen) {
+            return Object.keys(collection);
+        }
+
+        if (chartHelper.isChartScreen) {
+            const model = {
+                sales: chartHelper.salesModel,
+                expenses: chartHelper.expensesModel
+            };
+
+            const permittedFields = [];
+
+            // prop: i.e. 'location'
+            // field: i.e 'location.name'
+            // model[schemaName]: i.e. sales, expenses
+            Object.keys(collection).forEach(prop => {
+                const field = collection[prop];
+                // check if field exists in collection
+                model[schemaName].findOne({ [field]: { $exists: true } }).then(res => {
+                    if (res) {
+                        // if field exists push the key from collection
+                        permittedFields.push(prop);
+                    }
+                });
+            });
+
+            return permittedFields;
+        }
     }
 
 }
