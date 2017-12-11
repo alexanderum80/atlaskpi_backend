@@ -4,10 +4,15 @@ import { GroupingMap } from './../../../queries/app/charts/chart-grouping-map';
 import { IKPIDocument, KPITypeMap, KPITypeEnum, IKPISimpleDefinition } from './IKPI';
 import * as _ from 'lodash';
 
+const codeMapper = {
+    'Revenue': 'sales',
+    'Expenses': 'expenses'
+};
+
 export class KPIGroupingsHelper {
-    public static GetAvailableGroupings(kpi: IKPIDocument): string[] {
+    public static GetAvailableGroupings(kpi: IKPIDocument, kpiService?: any): string[] {
         const identifier = kpi.baseKpi || kpi.code;
-        const byIdentifierGroupings  = this._getGroupingsByIdentifier(identifier || null);
+        const byIdentifierGroupings  = this._getGroupingsByIdentifier(identifier || null, kpiService);
 
         let bySimpleKPIGroupings;
 
@@ -20,15 +25,15 @@ export class KPIGroupingsHelper {
 
     // This function it's no dynamic, is just mapping the predefined kpis
     // to the groping table on the chart-grouping-map file.
-    private static _getGroupingsByIdentifier(code: string): string[] {
+    private static _getGroupingsByIdentifier(code: string, kpiService?: any): any {
         if (!code) return null;
 
         switch (code) {
             case 'Revenue':
-                return Object.keys(GroupingMap.sales);
+                return DataSourcesHelper.GetGroupingsExistInCollectionSchema(codeMapper[code], GroupingMap, kpiService);
 
             case 'Expenses':
-                return Object.keys(GroupingMap.expenses);
+                return DataSourcesHelper.GetGroupingsExistInCollectionSchema(codeMapper[code], GroupingMap, kpiService);
 
             case 'Inventory':
                 return Object.keys(GroupingMap.inventory);

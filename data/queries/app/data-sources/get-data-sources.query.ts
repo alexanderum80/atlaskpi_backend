@@ -24,17 +24,12 @@ export class GetDataSourcesQuery extends QueryBase<IDataSource[]> {
 
     run(data: any): Promise<IDataSource[]> {
         const that = this;
-        const chartHelper = {
-            isChartScreen: true,
-            salesModel: this._salesModel,
-            expensesModel: this._expenseModel
-        };
 
         const dataSources = DataSourceSchemasMapping.map(s => {
             return {
                 name: s.name,
                 fields: DataSourcesHelper.GetFieldsFromSchemaDefinition(s.definition),
-                groupings: DataSourcesHelper.GetGroupingsForSchema(s.name, chartHelper)
+                groupings: DataSourcesHelper.GetGroupingsForSchema(s.name)
             };
         });
 
