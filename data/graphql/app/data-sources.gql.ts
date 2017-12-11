@@ -23,8 +23,7 @@ export const dataSourcesGql: GraphqlDefinition = {
     resolvers: {
         Query: {
             dataSources(root: any, args, ctx: IGraphqlContext) {
-                let query = new GetDataSourcesQuery(ctx.req.identity, ctx.req.appContext.Sale,
-                                                    ctx.req.appContext.Expense);
+                let query = new GetDataSourcesQuery(ctx.req.identity);
                 return ctx.queryBus.run('get-data-sources', query, args);
             }
         },
