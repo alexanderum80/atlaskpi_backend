@@ -2,7 +2,7 @@ import { DataSourcesHelper } from './../../../queries/app/data-sources/datasourc
 import { KPIExpressionHelper } from './kpi-expression.helper';
 import { GroupingMap } from './../../../queries/app/charts/chart-grouping-map';
 import { IKPIDocument, KPITypeMap, KPITypeEnum, IKPISimpleDefinition } from './IKPI';
-import * as _ from 'lodash';
+
 
 const codeMapper = {
     'Revenue': 'sales',
