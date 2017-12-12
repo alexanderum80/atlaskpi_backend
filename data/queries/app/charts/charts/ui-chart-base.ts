@@ -23,18 +23,17 @@ import {
     IDateRange,
 } from '../../../../models/common';
 import * as Promise from 'bluebird';
-// import * as _ from 'lodash';
 import {
-    find
-    filter
-    map
-    union
-    uniqBy
-    groupBy
-    isEmpty
-    cloneDeep
-    flatten
-    difference
+    find,
+    filter,
+    map,
+    union,
+    uniqBy,
+    groupBy,
+    isEmpty,
+    cloneDeep,
+    flatten,
+    difference,
     sortBy
 } from 'lodash';
 import * as moment from 'moment';
