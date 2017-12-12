@@ -202,192 +202,193 @@ import { getMasterContext } from './data/models/master';
 
 // });
 
-function createIntegration(ctx: IMasterModels) {
-    const qbConnector: IConnector = {
-        name: 'qbo',
-        type: 'integration-config',
-        databaseName: 'atlas',
-        active: true,
-        config: {
-            clientId: 'Q0yRWngdvGMcdpbZgc8hVgc7Dh1PrmbGB5fWJcW4taHIwe4XkH',
-            clientSecret: 'WbVeVcUDt9ntyckPP02qw8QPeG7jgY8StjNbsjOw',
-            companyApiUrl: 'https://sandbox-quickbooks.api.intuit.com/v3/company/',
-            requiredAuthScope: 'com.intuit.quickbooks.accounting',
-            openIdConfig: {
-                'issuer': 'https://oauth.platform.intuit.com/op/v1',
-                'authorization_endpoint': 'https://appcenter.intuit.com/connect/oauth2',
-                'token_endpoint': 'https://oauth.platform.intuit.com/oauth2/v1/tokens/bearer',
-                'userinfo_endpoint': 'https://sandbox-accounts.platform.intuit.com/v1/openid_connect/userinfo',
-                'revocation_endpoint': 'https://developer.api.intuit.com/v2/oauth2/tokens/revoke',
-                'jwks_uri': 'https://oauth.platform.intuit.com/op/v1/jwks',
-                'response_types_supported': [
-                   'code'
-                ],
-                'subject_types_supported': [
-                   'public'
-                ],
-                'id_token_signing_alg_values_supported': [
-                   'RS256'
-                ],
-                'scopes_supported': [
-                   'openid',
-                   'email',
-                   'profile',
-                   'address',
-                   'phone'
-                ],
-                'token_endpoint_auth_methods_supported': [
-                   'client_secret_post',
-                   'client_secret_basic'
-                ],
-                'claims_supported': [
-                   'aud',
-                   'exp',
-                   'iat',
-                   'iss',
-                   'realmid',
-                   'sub'
-                ]
-             }
-        },
-        createdOn: new Date(),
-        updatedOn: new Date(),
-        createdBy: 'xxrulixx@gmail.com',
-    };
+// function createIntegration(ctx: IMasterModels) {
+//     const qbConnector: IConnector = {
+//         name: 'qbo',
+//         type: 'integration-config',
+//         databaseName: 'atlas',
+//         active: true,
+//         config: {
+//             clientId: 'Q0yRWngdvGMcdpbZgc8hVgc7Dh1PrmbGB5fWJcW4taHIwe4XkH',
+//             clientSecret: 'WbVeVcUDt9ntyckPP02qw8QPeG7jgY8StjNbsjOw',
+//             companyApiUrl: 'https://sandbox-quickbooks.api.intuit.com/v3/company/',
+//             requiredAuthScope: 'com.intuit.quickbooks.accounting',
+//             openIdConfig: {
+//                 'issuer': 'https://oauth.platform.intuit.com/op/v1',
+//                 'authorization_endpoint': 'https://appcenter.intuit.com/connect/oauth2',
+//                 'token_endpoint': 'https://oauth.platform.intuit.com/oauth2/v1/tokens/bearer',
+//                 'userinfo_endpoint': 'https://sandbox-accounts.platform.intuit.com/v1/openid_connect/userinfo',
+//                 'revocation_endpoint': 'https://developer.api.intuit.com/v2/oauth2/tokens/revoke',
+//                 'jwks_uri': 'https://oauth.platform.intuit.com/op/v1/jwks',
+//                 'response_types_supported': [
+//                    'code'
+//                 ],
+//                 'subject_types_supported': [
+//                    'public'
+//                 ],
+//                 'id_token_signing_alg_values_supported': [
+//                    'RS256'
+//                 ],
+//                 'scopes_supported': [
+//                    'openid',
+//                    'email',
+//                    'profile',
+//                    'address',
+//                    'phone'
+//                 ],
+//                 'token_endpoint_auth_methods_supported': [
+//                    'client_secret_post',
+//                    'client_secret_basic'
+//                 ],
+//                 'claims_supported': [
+//                    'aud',
+//                    'exp',
+//                    'iat',
+//                    'iss',
+//                    'realmid',
+//                    'sub'
+//                 ]
+//              }
+//         },
+//         createdOn: new Date(),
+//         updatedOn: new Date(),
+//         createdBy: 'xxrulixx@gmail.com',
+//     };
 
-    const squareConnector: IConnector = {
-        name: 'square',
-        type: 'integration-config',
-        databaseName: 'atlas',
-        active: true,
-        config: {
-            clientId: 'sq0idp-_Ojf7lOc-mlVXV67a5MlPA',
-            clientSecret: 'sq0csp-8hJv6t0Xrbh2gkGqiziduQGgd47gBN5JnziuL4ZgA9k',
-            locationsApiUrl: 'https://connect.squareup.com/v2/locations',
-            requiredAuthScope: [
-                'MERCHANT_PROFILE_READ',
-                'PAYMENTS_READ',
-                'ORDERS_READ'
-            ],
-            square_configuration: {
-                'authorization_endpoint': 'https://connect.squareup.com/oauth2/authorize',
-                'token_endpoint': 'https://connect.squareup.com/oauth2/token',
-                'revocation_endpoint': 'https://connect.squareup.com/oauth2/revoke',
-                'subject_types_supported': [
-                    'public'
-                ],
-                'scopes_supported': [
-                    'MERCHANT_PROFILE_READ',
-                    'PAYMENTS_READ',
-                    'ORDERS_READ'
-                ]
-            }
-        },
-        createdOn: new Date(),
-        updatedOn: new Date(),
-        createdBy: 'xxrulixx@gmail.com',
-    };
+//     const squareConnector: IConnector = {
+//         name: 'square',
+//         type: 'integration-config',
+//         databaseName: 'atlas',
+//         active: true,
+//         config: {
+//             clientId: 'sq0idp-_Ojf7lOc-mlVXV67a5MlPA',
+//             clientSecret: 'sq0csp-8hJv6t0Xrbh2gkGqiziduQGgd47gBN5JnziuL4ZgA9k',
+//             locationsApiUrl: 'https://connect.squareup.com/v2/locations',
+//             requiredAuthScope: [
+//                 'MERCHANT_PROFILE_READ',
+//                 'PAYMENTS_READ',
+//                 'ORDERS_READ'
+//             ],
+//             square_configuration: {
+//                 'authorization_endpoint': 'https://connect.squareup.com/oauth2/authorize',
+//                 'token_endpoint': 'https://connect.squareup.com/oauth2/token',
+//                 'revocation_endpoint': 'https://connect.squareup.com/oauth2/revoke',
+//                 'subject_types_supported': [
+//                     'public'
+//                 ],
+//                 'scopes_supported': [
+//                     'MERCHANT_PROFILE_READ',
+//                     'PAYMENTS_READ',
+//                     'ORDERS_READ'
+//                 ]
+//             }
+//         },
+//         createdOn: new Date(),
+//         updatedOn: new Date(),
+//         createdBy: 'xxrulixx@gmail.com',
+//     };
 
-    const instagramConnector: IConnector = {
-        name: 'instagram',
-        type: 'integration-config',
-        databaseName: 'atlas',
-        active: true,
-        config: {
-            clientId: '7406fd8789c54973bcd31b43fb85b126',
-            clientSecret: 'f1c3d46b1bb049c985f3b93939d27d55',
-            requiredAuthScope: 'follower_list',
-            instagramConfig: {
-                'authorization_endpoint': 'https://api.instagram.com/oauth/authorize/',
-                'token_endpoint': 'https://api.instagram.com/oauth/access_token',
-                'revocation_endpoint': '',
-                'scopes_supported': [
-                    'basic',
-                    'public_content',
-                    'follower_list',
-                    'comments',
-                    'relationships',
-                    'likes'
-                ]
-            }
-        },
-        createdOn: new Date(),
-        updatedOn: new Date(),
-        createdBy: 'xxrulixx@gmail.com',
-    };
+//     const instagramConnector: IConnector = {
+//         name: 'instagram',
+//         type: 'integration-config',
+//         databaseName: 'atlas',
+//         active: true,
+//         config: {
+//             clientId: '7406fd8789c54973bcd31b43fb85b126',
+//             clientSecret: 'f1c3d46b1bb049c985f3b93939d27d55',
+//             requiredAuthScope: 'follower_list',
+//             instagramConfig: {
+//                 'authorization_endpoint': 'https://api.instagram.com/oauth/authorize/',
+//                 'token_endpoint': 'https://api.instagram.com/oauth/access_token',
+//                 'revocation_endpoint': '',
+//                 'scopes_supported': [
+//                     'basic',
+//                     'public_content',
+//                     'follower_list',
+//                     'comments',
+//                     'relationships',
+//                     'likes'
+//                 ]
+//             }
+//         },
+//         createdOn: new Date(),
+//         updatedOn: new Date(),
+//         createdBy: 'xxrulixx@gmail.com',
+//     };
 
-    const linkedInConnector: IConnector = {
-        name: 'linkedin',
-        type: 'integration-config',
-        databaseName: 'atlas',
-        active: true,
-        config: {
-            clientId: '779fab5lv1q2sm',
-            clientSecret: 'HbuStpg5x76aaxyu',
-            requiredAuthScope: 'r_basicprofile r_emailaddress rw_company_admin',
-            endpoints: {
-                'authorization_endpoint': 'https://www.linkedin.com/oauth/v2/authorization/',
-                'token_endpoint': 'https://www.linkedin.com/oauth/v2/accessToken',
-                'revocation_endpoint': '',
-                'company_endpoint': 'https://api.linkedin.com/v1/companies?format=json&is-company-admin=true',
-            }
-        },
-        createdOn: new Date(),
-        updatedOn: new Date(),
-        createdBy: 'xxrulixx@gmail.com',
-    };
+//     const linkedInConnector: IConnector = {
+//         name: 'linkedin',
+//         type: 'integration-config',
+//         databaseName: 'atlas',
+//         active: true,
+//         config: {
+//             clientId: '779fab5lv1q2sm',
+//             clientSecret: 'HbuStpg5x76aaxyu',
+//             requiredAuthScope: 'r_basicprofile r_emailaddress rw_company_admin',
+//             endpoints: {
+//                 'authorization_endpoint': 'https://www.linkedin.com/oauth/v2/authorization/',
+//                 'token_endpoint': 'https://www.linkedin.com/oauth/v2/accessToken',
+//                 'revocation_endpoint': '',
+//                 'company_endpoint': 'https://api.linkedin.com/v1/companies?format=json&is-company-admin=true',
+//             }
+//         },
+//         createdOn: new Date(),
+//         updatedOn: new Date(),
+//         createdBy: 'xxrulixx@gmail.com',
+//     };
 
-    const facebookConnector: IConnector = {
-        name: 'facebook',
-        type: 'integration-config',
-        databaseName: 'atlas',
-        active: true,
-        config: {
-            clientId: '151992245421431',
-            clientSecret: 'e3fcbf04c066f05d2eb0a07cfbf38268',
-            requiredAuthScope: 'read_insights manage_pages pages_show_list public_profile',
-            endpoints: {
-                'authorization_endpoint': 'https://www.facebook.com/v2.11/dialog/oauth/',
-                'token_endpoint': 'https://graph.facebook.com/v2.11/oauth/access_token',
-                'revocation_endpoint': '',
-                'pages_endpoint': 'https://graph.facebook.com/v2.11/me?fields=id,name,accounts',
-            }
-        },
-        createdOn: new Date(),
-        updatedOn: new Date(),
-        createdBy: 'xxrulixx@gmail.com',
-    };
+//     const facebookConnector: IConnector = {
+//         name: 'facebook',
+//         type: 'integration-config',
+//         databaseName: 'atlas',
+//         active: true,
+//         config: {
+//             clientId: '151992245421431',
+//             clientSecret: 'e3fcbf04c066f05d2eb0a07cfbf38268',
+//             requiredAuthScope: 'read_insights manage_pages pages_show_list public_profile',
+//             endpoints: {
+//                 'authorization_endpoint': 'https://www.facebook.com/v2.11/dialog/oauth/',
+//                 'token_endpoint': 'https://graph.facebook.com/v2.11/oauth/access_token',
+//                 'revocation_endpoint': '',
+//                 'pages_endpoint': 'https://graph.facebook.com/v2.11/me?fields=id,name,accounts',
+//             }
+//         },
+//         createdOn: new Date(),
+//         updatedOn: new Date(),
+//         createdBy: 'xxrulixx@gmail.com',
+//     };
 
-    ctx.Connector.create(facebookConnector, (err, connector) => {
+//     ctx.Connector.create(facebookConnector, (err, connector) => {
 
-    const twitterConnector: IConnector = {
-        name: 'twitter',
-        type: 'integration-config',
-        databaseName: 'atlas',
-        active: true,
-        config: {
-            consumerKey: '8oZ5hSFpqbtqGHfXZXjnUkRZA',
-            consumerSecret: 'ozIUWUASgkwO7UCKhDfirCQ1LmZOAdrxyoCmalqu0di8TFJ6Yb',
-            callbackUrl: 'http://localhost:9091/integration/twitter/',
-            endpoints: {
-                'request_token': 'https://api.twitter.com/oauth/request_token',
-                'authenticate_url': 'https://api.twitter.com/oauth/authenticate',
-                'authorize_url': 'https://api.twitter.com/oauth/authorize',
-                'access_token': 'https://api.twitter.com/oauth/access_token',
-            }
-        },
-        createdOn: new Date(),
-        updatedOn: new Date(),
-        createdBy: 'xxrulixx@gmail.com',
-    };
+//     const twitterConnector: IConnector = {
+//         name: 'twitter',
+//         type: 'integration-config',
+//         databaseName: 'atlas',
+//         active: true,
+//         config: {
+//             consumerKey: '8oZ5hSFpqbtqGHfXZXjnUkRZA',
+//             consumerSecret: 'ozIUWUASgkwO7UCKhDfirCQ1LmZOAdrxyoCmalqu0di8TFJ6Yb',
+//             callbackUrl: 'http://localhost:9091/integration/twitter/',
+//             endpoints: {
+//                 'request_token': 'https://api.twitter.com/oauth/request_token',
+//                 'authenticate_url': 'https://api.twitter.com/oauth/authenticate',
+//                 'authorize_url': 'https://api.twitter.com/oauth/authorize',
+//                 'access_token': 'https://api.twitter.com/oauth/access_token',
+//             }
+//         },
+//         createdOn: new Date(),
+//         updatedOn: new Date(),
+//         createdBy: 'xxrulixx@gmail.com',
+//     };
 
-    ctx.Connector.create(twitterConnector, (err, connector) => {
-        if (err) {
-            console.log(err);
-            return;
-        }
-        console.dir(connector);
-    });
+//     ctx.Connector.create(twitterConnector, (err, connector) => {
+//         if (err) {
+//             console.log(err);
+//             return;
+//         }
+//         console.dir(connector);
+//     });
+// }
 
     // ctx.Connector.create(instagramConnector, (err, connector) => {
     //     if (err) {
@@ -412,8 +413,8 @@ function createIntegration(ctx: IMasterModels) {
     //     }
     //     console.dir(connector);
     // });
-}
+// }
 
-getMasterContext().then(ctx => {
-    createIntegration(ctx);
-});
+// getMasterContext().then(ctx => {
+//     createIntegration(ctx);
+// });
