@@ -50,6 +50,9 @@ import { employeeByIdActivity } from './app/employees/employee-by-id.activity';
 import { listEmployeesActivity } from './app/employees/list-employees.activity';
 import { createEmployeeActivity } from './app/employees/create-employee.activity';
 
+// Social Widgets
+import { listSocialWidgetsActivity } from './app/social-widgets/list-social-widgets.activity';
+
 import {
     createAccountActivity,
     getAccountActivity,
@@ -138,7 +141,6 @@ import {
 
     // widgets
     listWidgetsActivity
-
 } from './app';
 
 import { getEnforcerConfig } from '../lib/enforcer';
@@ -295,7 +297,10 @@ export function addActivities() {
         listWidgetsActivity,
         getWidgetActivity,
         createWidgetActivity,
-        previewWidgetActivity
+        previewWidgetActivity,
+
+        // social widgets
+        listSocialWidgetsActivity
 
     ]);
 }
