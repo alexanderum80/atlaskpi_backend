@@ -54,4 +54,5 @@ export interface IOAuthConnector {
 
     // linkedin
     getLinkedInCompanies?(): IIdName[];
+    getFacebookPages?(): any[];
 }

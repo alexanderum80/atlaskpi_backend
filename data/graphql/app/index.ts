@@ -15,3 +15,4 @@ export * from './date-ranges.gql';
 export * from './location.gql';
 export * from './access-log.gql';
 export * from './widgets.gql';
+export * from './social-widgets.gql';
