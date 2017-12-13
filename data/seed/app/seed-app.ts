@@ -28,7 +28,8 @@ export function seedApp(obj: string | IAppModels): Promise<any> {
         { model: 'WorkLog', filename: 'workLogs.json' },
         { model: 'KPI', filename: 'kpis.json' },
         { model: 'Chart', filename: 'charts.json' },
-        { model: 'Dashboard', filename: 'dashboards.json' }
+        { model: 'Dashboard', filename: 'dashboards.json' },
+        { model: 'Inventory', filename: 'inventory.json' }
     ];
 
     return new Promise<any>((resolve, reject) => {
