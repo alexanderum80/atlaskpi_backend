@@ -6,6 +6,7 @@ import * as async from 'async';
 import * as Promise from 'bluebird';
 import { my_guid } from '../extentions';
 import * as logger from 'winston';
+import { Error } from 'mongoose';
 
 
 export default function importSpreadSheetData(data: any, ctx: IAppModels): Promise<any> {
@@ -16,6 +17,7 @@ export default function importSpreadSheetData(data: any, ctx: IAppModels): Promi
             async.apply(importWorklog, data, ctx),
             async.apply(importExpenses, data, ctx),
             async.apply(importAppointments, data, ctx)
+            async.apply(importInventory, data, ctx),
         ], function(err, results) {
             if (err) {
                 console.log('There was an error: ' + err.toString());
@@ -140,6 +142,56 @@ function importAppointments(data: DataContext, ctx: IAppModels, cb) {
     });
 }
 
+// export const InventorySchema = new Schema({
+//     source: String,
+//     externalId: { type: String, unique: true },
+//     location: IdName,
+//     product: inventoryProductSchema,
+//     updatedAt: Date,
+//     onHand: Number,
+//     onOrder: Number,
+//     cost: Number
+// });
+
+function importInventory(data: DataContext, ctx: IAppModels, cb) {
+    const inventory = data.inventory;
+
+    const mappedInventory = inventory.map(i => {
+        const location = getLocation(data.location, i.location);
+        const product = getProduct(data.product, i.product, 0, '0', new Date());
+
+        return {
+            externalId: my_guid(),
+            source: 'google sheet',
+            location: {
+                externalId: (<any>location).identifier,
+                name: (<any>location).name
+            },
+            product: {
+                externalId: (<any>product).externalId,
+                itemCode: (<any>product).itemCode,
+                itemDescription: (<any>product).itemDescription
+            },
+            updatedAt: new Date(),
+            onHand: +i.onHand,
+            onOrder: +i.onOrder,
+            cost: +i.cost.replace(/[\$,]/, '')
+        };
+    });
+
+    ctx.Inventory.remove({}).then(res => {
+        ctx.Inventory.insertMany(mappedInventory, (err, result) => {
+            if (err) {
+                console.error('Error inserting inventory', err);
+                cb(err, null);
+            } else {
+                console.info(`${result.length} inventory itmes inserted`);
+                cb(null, { name: 'inventory items', total: result.length });
+            }
+        });
+    });
+}
+
 
 // helper methods
 
@@ -147,7 +199,8 @@ function getLocation(locations, name) {
     const l = locations.find(loc => loc.name === name);
 
     if (!l) {
-        return logger.error(`Location "${name}" not found`);
+        logger.error(`Location "${name}" not found`);
+        return {};
     }
 
     return {

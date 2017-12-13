@@ -55,6 +55,9 @@ const dataSources: DataSource[] = [{
 }, {
     range: 'Appointments!A2:E',
     schema: { name: 'appointment', fields: ['customerId', 'reason', 'from', 'to', 'employeeId'] }
+}, {
+    range: 'Inventory!A2:E',
+    schema: { name: 'inventory', fields: ['location', 'product', 'cost', 'onHand', 'onOrder'] }
 }];
 
 export interface DataContext {
@@ -68,6 +71,7 @@ export interface DataContext {
     expense: any[];
     worklog: any[];
     appointment: any[];
+    inventory: any[];
 }
 
 /**
