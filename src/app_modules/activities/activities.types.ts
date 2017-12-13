@@ -30,6 +30,57 @@ export class SalesInput  {
 
 }
 
+@type()
+export class EmployeeSales {
+    @field({ type: GraphQLTypesMap.String })
+    fullName: string;
+
+    @field({ type: GraphQLTypesMap.String })
+    role: string;
+
+    @field({ type: GraphQLTypesMap.String })
+    type: string; // full time (f), part time (p)
+
+    @field({ type: GraphQLTypesMap.Int })
+    workedTime: number; // in seconds
+}
+
+@type()
+export class ProductSales {
+    @field({ type: GraphQLTypesMap.String })
+    itemCode: string;
+
+    @field({ type: GraphQLTypesMap.String })
+    itemDescription: string;
+
+    @field({ type: GraphQLTypesMap.Float })
+    quantity: number;
+
+    @field({ type: GraphQLTypesMap.Float })
+    unitPrice: number;
+
+    @field({ type: GraphQLTypesMap.Float })
+    tax: number;
+
+    @field({ type: GraphQLTypesMap.Float })
+    tax2: number;
+
+    @field({ type: GraphQLTypesMap.Float })
+    amount: number;
+
+    @field({ type: GraphQLTypesMap.Float })
+    paid: number;
+
+    @field({ type: GraphQLTypesMap.Float })
+    discount: number;
+
+    @field({ type: GraphQLTypesMap.String })
+    from: Date;
+
+    @field({ type: GraphQLTypesMap.String })
+    to: Date;
+
+}
 
 @type()
 export class Sale  {
@@ -48,11 +99,11 @@ export class Sale  {
     @field({ type: GraphQLTypesMap.String })
     customer: string;
 
-    @field({ type: GraphQLTypesMap.String })
-    employee: string;
+    @field({ type: EmployeeSales })
+    employee: EmployeeSales[];
 
-    @field({ type: GraphQLTypesMap.String })
-    product: string;
+    @field({ type: ProductSales })
+    product: ProductSales[];
 
     @field({ type: GraphQLTypesMap.String })
     category: string;

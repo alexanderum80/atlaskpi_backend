@@ -5,7 +5,13 @@ import * as logger from 'winston';
 
 import { ModelBase } from '../../../type-mongo/model-base';
 import { getCustomerSchema } from '../../common/customer.schema';
-import { getYesterdayDay, parsePredifinedDate, getTodayDay } from '../../common/date-range';
+import {
+    backInTime,
+    DateRange,
+    getYesterdayDate,
+    IDateRange,
+    parsePredifinedDate,
+} from '../../common/date-range';
 import { getEmployeeSchema } from '../../common/employee.schema';
 import { getLocationSchema } from '../../common/location.schema';
 import { getProductSchema } from '../../common/product.schema';
@@ -135,11 +141,13 @@ SalesSchema.statics.findByPredefinedDateRange = function(predefinedDateRange: st
     });
 };
 
-SalesSchema.statics.findByPredefinedDate = function(dateInput: string): Promise<ISaleDocument[]> {
+SalesSchema.statics.findYesterday = function(): Promise<ISaleDocument[]> {
     const SalesModel = (<ISaleModel>this);
 
+    const DateRange = getYesterdayDate();
+
     return new Promise<ISaleDocument[]>((resolve, reject) => {
-        SalesModel.find({ 'product.from': { '$gte': getYesterdayDay(dateInput), '$lt': getTodayDay(dateInput) } })
+        SalesModel.find({ 'product.from': { '$gte': DateRange.from, '$lt': DateRange.to }, 'count': { '$sum': 1 } })
         .then(sales => {
             resolve(sales);
         })

@@ -5,7 +5,7 @@ import { Users } from '../../../domain/app/security/users/user.model';
 import { IActivity } from '../../../framework/modules/security/activity';
 
 @injectable()
-export class SalesByDateActivity implements IActivity {
+export class YesterdaySalesActivity implements IActivity {
 
     constructor(@inject(Users.name) private _users: Users) {}
 
