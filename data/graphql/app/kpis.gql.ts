@@ -89,7 +89,7 @@ export const kpisGql: GraphqlDefinition = {
     resolvers: {
         Query: {
             kpis(root: any, args, ctx: IGraphqlContext) {
-                kpiService = new KpiService(ctx.req.appContext.Sale, ctx.req.appContext.Expense);
+                kpiService = new KpiService(ctx.req.appContext.Sale, ctx.req.appContext.Expense, ctx.req.appContext.Inventory);
                 let query = new GetKpisQuery(ctx.req.identity, ctx.req.appContext);
                 return ctx.queryBus.run('get-kpis', query, args, ctx.req).catch(e => console.error(e));
             },

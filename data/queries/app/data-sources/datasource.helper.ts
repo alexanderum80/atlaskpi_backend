@@ -79,7 +79,8 @@ export class DataSourcesHelper {
         // get sales and expense mongoose models
         const model = {
             sales: kpiService.salesModel,
-            expenses: kpiService.expensesModel
+            expenses: kpiService.expensesModel,
+            inventory: kpiService.inventoryModel
         };
         // get sales or expense object
         const collection = GroupingMap[schemaName];
