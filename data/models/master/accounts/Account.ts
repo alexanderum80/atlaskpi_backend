@@ -96,6 +96,9 @@ accountSchema.statics.createNewAccount = function(ip: string, clientId: string, 
             firstUser.lastName = fullName[1];
         }
 
+        // make sure account is created in demo mode
+        account.demoMode = true;
+
         that.create(account, (err, newAccount: IAccountDocument) => {
             if (err) {
                 resolve({ errors: [ {field: 'account', errors: [err.message] } ], entity: null });
