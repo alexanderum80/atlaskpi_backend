@@ -16,7 +16,7 @@ export default function importSpreadSheetData(data: any, ctx: IAppModels): Promi
             async.apply(importSales, data, ctx),
             async.apply(importWorklog, data, ctx),
             async.apply(importExpenses, data, ctx),
-            async.apply(importAppointments, data, ctx)
+            async.apply(importAppointments, data, ctx),
             async.apply(importInventory, data, ctx),
         ], function(err, results) {
             if (err) {
