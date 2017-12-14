@@ -153,7 +153,7 @@ export class TargetService {
                 return moment(targetDate).format('YYYY-MM-DD');
             case FrequencyEnum.Weekly:
                 return moment(targetDate).isoWeek();
-        };
+        }
     }
 
     static futureTargets(targets: ITargetDocument[]) {

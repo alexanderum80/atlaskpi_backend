@@ -52,6 +52,8 @@ export class TargetNotificationQuery extends QueryBase<any> {
                     pnsService.sendNotifications(users, message);
 
                     users.forEach(user => that._targetNotification.notify(user, user.username, notifyData) );
+                    resolve(true);
+                    return;
                 });
 
         });
