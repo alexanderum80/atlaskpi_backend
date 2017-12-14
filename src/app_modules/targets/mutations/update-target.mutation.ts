@@ -32,7 +32,7 @@ export class UpdateTargetMutation extends MutationBase<IMutationResponse> {
         return new Promise<IMutationResponse>((resolve, reject) => {
 
             // TODO: Refactor!!
-            that._targetService.caculateFormat(mutationData, that._ctx)
+            that._targetService.caculateFormat(mutationData)
                 .then((dataTarget) => {
                     mutationData.target = dataTarget;
                     that._targets.model.updateTarget(data.id, mutationData)
