@@ -1,14 +1,15 @@
-import { FacebookConnector } from './../data/integrations/models/facebook/facebook-connector';
-import { LinkedInConnector } from '../data/integrations/models/linkedin/linkedin-connector';
+import { ISocialNetworkModel } from './../data/models/app/social-network/ISocialNetwork';
+import * as Promise from 'bluebird';
 import { isObject } from 'util';
-import { IConnector, IConnectorDocument, IConnectorModel } from './../data/models/master/connectors/IConnector';
-import { ConnectorTypeEnum, getConnectorTypeId } from './../data/integrations/models/connector-type';
+
+import { getFacebookConnection } from '../data/integrations/models/facebook/facebook-connection-handler';
+import { FacebookService } from '../data/integrations/models/facebook/facebook.service';
+import { LinkedInConnector } from '../data/integrations/models/linkedin/linkedin-connector';
 import { IntegrationConnectorFactory } from './../data/integrations/integration-connectors.factory';
 import { IOAuthConnector } from './../data/integrations/models/connector-base';
-import { IAppModels } from './../data/models/app/app-models';
-import { IMasterModels } from './../data/models/master/master-models';
-import * as Promise from 'bluebird';
-import * as logger from 'winston';
+import { getConnectorTypeId } from './../data/integrations/models/connector-type';
+import { FacebookConnector } from './../data/integrations/models/facebook/facebook-connector';
+import { IConnector, IConnectorDocument, IConnectorModel } from './../data/models/master/connectors/IConnector';
 
 export interface IExecutionFlowResult {
     success: boolean;
@@ -38,7 +39,8 @@ export class IntegrationController {
     private _companyName: string;
     private stateTokens: string[];
 
-    constructor(private _connectorModel: IConnectorModel, private _query: any) {
+    constructor(private _connectorModel: IConnectorModel,
+                private _query: any) {
         if (!_connectorModel ||
             !_query) {
             console.log('missing parameters...');
@@ -240,7 +242,16 @@ export class IntegrationController {
         });
 
         return new Promise<IExecutionFlowResult>((resolve, reject) => {
-            Promise.all(promises).then(() => {
+            Promise.all(promises).then((connectors) => {
+
+                // this is where I pull the metrics I added this for the facebook certification
+                // pulling metrics is the job of the facebook-connector
+
+
+
+                // end of pulling metrics
+
+
                 const flowResult: IExecutionFlowResult = {
                     success: true,
                     connector: lastConnector
@@ -250,6 +261,35 @@ export class IntegrationController {
             })
             .catch(err => {
                 reject(err);
+                return;
+            });
+        });
+    }
+
+    private _getConnectorsMetrics(integration: IConnector, connector: IConnectorDocument): Promise<any> {
+        const that = this;
+        return new Promise<any>((resolve, reject) => {
+            getFacebookConnection(integration, connector).then(connectionResponse => {
+                const service = new FacebookService(    that._socialNetworkModel,
+                                                        connectionResponse,
+                                                        connector);
+                service .run()
+                        .then(() => {
+                    const msg = 'finished processing connector';
+                    dbLogger.log(appContext.Log, LogLevelEnum.Info, connector.id, msg);
+                    resolve('done');
+                    return;
+                })
+                .catch(err => {
+                    dbLogger.log(appContext.Log, LogLevelEnum.Critical, connector.id, err);
+                    resolve(err);
+                    return;
+                });
+            })
+            .catch(err => {
+                // usually Token invalid, should log the error, probably should send an email too
+                dbLogger.log(appContext.Log, LogLevelEnum.Critical, connector.id, JSON.stringify(err));
+                resolve(err);
                 return;
             });
         });
