@@ -43,7 +43,7 @@ export class RemoveKPIMutation extends MutationBase<IMutationResponse> {
                     return kpis;
                 }
             });
-            let documentExists: any;
+            let documentExists: any = {};
             return Promise.all([findCharts, findWidgets])
                 .spread((chart: IChartDocument[], widget: IWidgetDocument[]) => {
                     documentExists.chart = chart;
