@@ -24,7 +24,6 @@ export class RemoveTargetMutation extends MutationBase<IMutationResponse> {
     run(data: { id: string, owner: String }): Promise<IMutationResponse> {
         // TODO: Refactor this
         const that = this;
-        let _data = data.hasOwnProperty('data') ? data.data : data;
 
         return new Promise<IMutationResponse>((resolve, reject) => {
             that._targets.model.removeTarget(data.id)

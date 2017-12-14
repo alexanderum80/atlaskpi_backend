@@ -24,7 +24,8 @@ export class CreateTargetMutation extends MutationBase<IMutationResponse> {
     constructor(
         @inject('Targets') private _targets: Targets,
         @inject('Users') private _users: Users,
-        @inject('Charts') private _charts: Charts
+        @inject('Charts') private _charts: Charts,
+        @inject(TargetService.name) private _targetService: TargetService
     ) {
         super();
     }
@@ -34,11 +35,11 @@ export class CreateTargetMutation extends MutationBase<IMutationResponse> {
         const that = this;
         let mutationData = data.hasOwnProperty('data') ? data.data : data;
 
-        let targetService = new TargetService(this._users.model, this._targets.model, this._charts.model);
+        // let targetService = new TargetService(this._users.model, this._targets.model, this._charts.model);
 
         return new Promise<IMutationResponse>((resolve, reject) => {
             // TODO: Refactor
-            targetService.caculateFormat(mutationData)
+            this._targetService.caculateFormat(mutationData)
                 .then((dataTarget) => {
                     mutationData.target = dataTarget;
 
