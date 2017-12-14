@@ -1,7 +1,7 @@
 import * as mongoose from 'mongoose';
 
 import { IProductDocument } from '../products';
-import { ILocationDocument } from '../locations';
+import { ILocationDocument } from '../location';
 import { ICustomerDocument } from '../customers';
 import { IEmployeeDocument } from '../employees';
 

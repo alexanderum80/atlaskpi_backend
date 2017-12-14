@@ -1,5 +1,5 @@
-import { IQueryResponse } from '../../common';
-import { IMutationResponse } from '../../common';
+import { IQueryResponse } from '../../../framework/queries/index';
+import { IMutationResponse } from '../../../framework/mutations/index';
 import * as mongoose from 'mongoose';
 import * as Promise from 'bluebird';
 
@@ -22,7 +22,7 @@ export interface IAccessLogEntry {
 
 export interface IAccessLogDocument extends IAccessLogEntry, mongoose.Document {}
 
-export interface IAccessModel extends mongoose.Model<IAccessLogDocument> {
-    getAllAccessLogs(filter: string): Promise<IQueryResponse<IAccessLogDocument>>;
+export interface IAccessLogModel extends mongoose.Model<IAccessLogDocument> {
+    getAllAccessLogs(filter: string): Promise<IAccessLogDocument>;
     createLog(details: IAccessLogEntry): Promise<IMutationResponse>;
 }

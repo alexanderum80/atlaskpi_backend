@@ -38,7 +38,7 @@ export class CreateTargetMutation extends MutationBase<IMutationResponse> {
 
         return new Promise<IMutationResponse>((resolve, reject) => {
             // TODO: Refactor
-            targetService.caculateFormat(mutationData, this._ctx)
+            targetService.caculateFormat(mutationData)
                 .then((dataTarget) => {
                     mutationData.target = dataTarget;
 

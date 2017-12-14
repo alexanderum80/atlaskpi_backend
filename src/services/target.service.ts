@@ -34,7 +34,7 @@ export class TargetService {
         });
     }
 
-    periodData(data: any, ctx: any/* IAppModels */): Promise<any> {
+    periodData(data: any): Promise<any> {
         const that = this;
         return new Promise<any>((resolve, reject) => {
             that._charts.model.findById(data.chart[0])
@@ -100,10 +100,10 @@ export class TargetService {
         });
     }
 
-    caculateFormat(data: any, ctx: any/* IAppModels */): Promise<any> {
+    caculateFormat(data: any): Promise<any> {
 
         return new Promise((resolve, reject) => {
-            this.periodData(data, ctx)
+            this.periodData(data)
                 .then((response) => {
                     let dataAmount = parseFloat(data.amount);
                     let findValue = response.find(r => r.value);
@@ -156,7 +156,7 @@ export class TargetService {
                 return moment(targetDate).format('YYYY-MM-DD');
             case FrequencyEnum.Weekly:
                 return moment(targetDate).isoWeek();
-        };
+        }
     }
 
     static futureTargets(targets: ITargetDocument[]) {
