@@ -32,7 +32,9 @@ integration.get('/integration', (req: ExtendedRequest, res: Response) => {
         return res.status(401).json({ error: 'invalid query string' }).end();
     }
 
-    const integrationController = new IntegrationController(req.masterContext.Connector, req.query);
+    const integrationController = new IntegrationController(req.masterContext.Connector,
+                                                            req.masterContext.Account,
+                                                            req.query);
 
     if (!integrationController) {
         const err = 'something went wrong processing the integration...';
