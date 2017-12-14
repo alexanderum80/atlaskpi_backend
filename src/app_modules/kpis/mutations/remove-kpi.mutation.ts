@@ -1,4 +1,7 @@
+import { IWidgetDocument } from '../../../domain/app/widgets';
+import { IChartDocument } from '../../../domain/app/charts';
 import { Charts } from '../../../domain/app/charts';
+import { Widgets } from '../../../domain/app/widgets';
 
 import { injectable, inject } from 'inversify';
 import * as Promise from 'bluebird';
@@ -19,7 +22,8 @@ import { RemoveKPIActivity } from '../activities';
 export class RemoveKpiMutation extends MutationBase<IMutationResponse> {
     constructor(
         @inject('KPIs') private _kpis: KPIs,
-        @inject('Charts') private _charts: Charts
+        @inject('Charts') private _charts: Charts,
+        @inject('Widgets') private _widgets: Widgets
     ) {
         super();
     }
@@ -39,16 +43,30 @@ export class RemoveKpiMutation extends MutationBase<IMutationResponse> {
                         return kpis;
                     }
                 });
-            let promises = findCharts;
 
-            return Promise.all(promises).then(chartExists => {
-                return this._kpis.model.removeKPI(data.id, chartExists).then(chart => {
-                    const listCharts = Array.isArray(chart) ? chart : [chart];
-                    return resolve({ success: true, entity: listCharts});
-                });
-            }).catch(err => {
-                return resolve({ success: false, entity: err.entity, errors: [ { field: 'kpis', errors: [err.errors[0].errors] } ] });
+            let findWidgets = this._widgets.model.find({
+                'numericWidgetAttributes.kpi': data.id
+            })
+            .populate('kpis', '-_id, name')
+            .then(kpis => {
+                if (kpis) {
+                    return kpis;
+                }
             });
+
+            let documentExists: any = {};
+            return Promise.all([findCharts, findWidgets])
+                .spread((chart: IChartDocument[], widget: IWidgetDocument[]) => {
+                    documentExists.chart = chart;
+                    documentExists.widget = widget;
+                    return that._kpis.model.removeKPI(data.id, documentExists).then(foundDocument => {
+                        resolve({ success: true, entity: foundDocument });
+                        return;
+                    });
+                }).catch(err => {
+                    resolve({ success: false, entity: err.entity, errors: [ { field: 'kpi', errors: [err.error]}]});
+                    return;
+                });
         });
     }
 }

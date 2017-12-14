@@ -1,3 +1,4 @@
+import { Widget } from '../widgets/widgets.types';
 
 import { input, type, field, GraphQLTypesMap, ErrorDetails } from '../../framework';
 import { PaginationInfo, ChartDateRangeInput, ChartDateRange } from '../shared';
@@ -37,11 +38,21 @@ export class KPIAttributesInput  {
 
 }
 
+@type()
+export class KPIEntityResponse {
+    @field({ type: ChartEntityResponse, isArray: true})
+    chart: ChartEntityResponse[];
+
+    @field({ type: Widget, isArray: true})
+    widget: Widget[];
+}
+
+
 
 @type()
 export class KPIRemoveResponse  {
-    @field({ type: ChartEntityResponse, isArray: true })
-    entity: ChartEntityResponse[];
+    @field({ type: KPIEntityResponse })
+    entity: KPIEntityResponse;
 
     @field({ type: ErrorDetails, isArray: true })
     errors: ErrorDetails[];
