@@ -1,3 +1,4 @@
+import { IDocumentExist } from './index';
 import * as Promise from 'bluebird';
 import { inject, injectable } from 'inversify';
 import mongoose = require('mongoose');
@@ -101,7 +102,7 @@ KPISchema.statics.updateKPI = function(id: string, input: IKPI): Promise<IKPIDoc
     });
 };
 
-KPISchema.statics.removeKPI = function(id: string, chartExist?: IChartDocument[]): Promise<IMutationResponse> {
+KPISchema.statics.removeKPI = function(id: string, documentExists?: IDocumentExist): Promise<IMutationResponse> {
     let that = this;
 
     let document: IKPIDocument;
@@ -116,8 +117,8 @@ KPISchema.statics.removeKPI = function(id: string, chartExist?: IChartDocument[]
             resolve(MutationResponse.fromValidationErrors(idError));
         }
 
-        if (chartExist && chartExist.length) {
-            reject({ success: false, entity: chartExist, errors: [ { field: 'kpis', errors: ['KPIs is being used by '] } ] });
+        if (documentExists.chart.length || documentExists.widget.length) {
+            reject({ message: 'KPIs is being used by ', entity: documentExists, error: 'KPIs is being used by '});
             return;
         }
 

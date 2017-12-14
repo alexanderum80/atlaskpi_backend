@@ -4,6 +4,7 @@ import * as mongoose from 'mongoose';
 import { IMutationResponse, IPagedQueryResult, IPaginationDetails } from '../../../framework';
 import { IChartDateRange } from '../../common';
 import { IChartDocument } from '../charts';
+import { IWidgetDocument } from '../widgets';
 
 export enum KPITypeEnum {
     Simple = 'simple',
@@ -26,6 +27,11 @@ export function getKPITypePropName(type: KPITypeEnum) {
         case KPITypeEnum.Compound:
             return 'compound';
     }
+}
+
+export interface IDocumentExist {
+    chart?: IChartDocument[];
+    widget?: IWidgetDocument[];
 }
 
 export interface IKPIFilter {
@@ -82,5 +88,5 @@ export interface IKPIModel extends mongoose.Model<IKPIDocument> {
      /**
      * Remove a KPI by its id
      */
-    removeKPI(id: string, chartExist?: IChartDocument[]): Promise<IMutationResponse>;
+    removeKPI(id: string, documentExists?: IDocumentExist): Promise<IMutationResponse>;
 }
