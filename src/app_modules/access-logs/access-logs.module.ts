@@ -7,6 +7,9 @@ import {
 @AppModule({
     queries: [
         GetAllAccessLogsQuery
+    ],
+    mutations: [
+        CreateAccessLogMutation
     ]
 })
 export class AccessLogsModule extends ModuleBase { }

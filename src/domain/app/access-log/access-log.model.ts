@@ -1,3 +1,4 @@
+import { IMutationResponse } from '../../../framework/mutations/index';
 import {
     ModelBase
 } from '../../../type-mongo';
@@ -9,16 +10,10 @@ import {
     inject
 } from 'inversify';
 import {
-    IQueryResponse
-} from '../../common';
-import {
     IAccessLogDocument,
     IAccessLogModel,
     IAccessLogEntry
 } from './access-log';
-import {
-    IMutationResponse
-} from '../../common';
 import * as mongoose from 'mongoose';
 import * as Promise from 'bluebird';
 import {} from './';
