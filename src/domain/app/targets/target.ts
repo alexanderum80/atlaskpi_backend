@@ -16,8 +16,9 @@ export interface ITarget {
     period: string;
     notify: INotify;
     visible: string[];
-    delete?: boolean;
     owner: string;
+    delete?: boolean;
+    target?: number;
 }
 
 export interface ITargetDocument extends ITarget, mongoose.Document {}
