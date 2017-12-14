@@ -110,6 +110,18 @@ export class Sale  {
 
 }
 
+@type()
+export class SalesAmount {
+    @field({ type: GraphQLTypesMap.String })
+    _id: string;
+
+    @field({ type: GraphQLTypesMap.Int })
+    count: number;
+
+    @field({ type: GraphQLTypesMap.Float })
+    amount: number;
+
+}
 
 @type()
 export class ActivitiesMutationResponse  {

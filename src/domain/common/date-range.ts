@@ -156,7 +156,7 @@ export function parsePredifinedDate(textDate: string): IDateRange {
         case PredefinedDateRanges.yesterday:
             return {
                 from: moment().subtract(1, 'days').startOf('day').toDate(),
-                to: moment().endOf('day').toDate()
+                to: moment().startOf('day').toDate()
             };
         case PredefinedDateRanges.thisWeekToDate:
             return {
