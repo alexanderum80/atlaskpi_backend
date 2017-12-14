@@ -1,3 +1,5 @@
+import { getContext } from '../data/models/app/app-context';
+import { IAccountModel } from './../data/models/master/accounts/IAccount';
 import { ISocialNetworkModel } from './../data/models/app/social-network/ISocialNetwork';
 import * as Promise from 'bluebird';
 import { isObject } from 'util';
@@ -38,8 +40,10 @@ export class IntegrationController {
     private _connector: IOAuthConnector;
     private _companyName: string;
     private stateTokens: string[];
+    private _integrationConfig: IConnectorDocument;
 
     constructor(private _connectorModel: IConnectorModel,
+                private _accountModel: IAccountModel,
                 private _query: any) {
         if (!_connectorModel ||
             !_query) {
@@ -60,6 +64,7 @@ export class IntegrationController {
         const connectorCode = that.stateTokens[0];
         return new Promise<any>((resolve, reject) => {
             loadIntegrationConfig(that._connectorModel, connectorCode).then(configDoc => {
+                that._integrationConfig = configDoc;
                 const connector = IntegrationConnectorFactory.getInstance(configDoc.config, connectorCode, { query: this._query });
 
                 if (!connector) {
@@ -246,18 +251,24 @@ export class IntegrationController {
 
                 // this is where I pull the metrics I added this for the facebook certification
                 // pulling metrics is the job of the facebook-connector
+                Promise.map(connectors, c => that._getConnectorsMetrics(that._accountModel,
+                                                                        that._integrationConfig,
+                                                                        c))
+                        .then(() => {
+                          console.log('metrics updated for facebook integration');
+                        })
+                        .catch(err => {
+                            console.log('could not update all metrics for facebook integration' + err);
+                            return;
+                        });
+                // I'm not waiting this promises on purpose, the code between the comments is just for getting the facebook app approval
 
-
-
-                // end of pulling metrics
-
-
-                const flowResult: IExecutionFlowResult = {
-                    success: true,
-                    connector: lastConnector
-                };
-                resolve(flowResult);
-                return;
+            const flowResult: IExecutionFlowResult = {
+                success: true,
+                connector: lastConnector
+            };
+            resolve(flowResult);
+            return;
             })
             .catch(err => {
                 reject(err);
@@ -266,30 +277,46 @@ export class IntegrationController {
         });
     }
 
-    private _getConnectorsMetrics(integration: IConnector, connector: IConnectorDocument): Promise<any> {
+    private _getConnectorsMetrics(accountModel: IAccountModel, integration: IConnector, connector: IConnectorDocument): Promise<any> {
         const that = this;
         return new Promise<any>((resolve, reject) => {
-            getFacebookConnection(integration, connector).then(connectionResponse => {
-                const service = new FacebookService(    that._socialNetworkModel,
-                                                        connectionResponse,
-                                                        connector);
-                service .run()
-                        .then(() => {
-                    const msg = 'finished processing connector';
-                    dbLogger.log(appContext.Log, LogLevelEnum.Info, connector.id, msg);
-                    resolve('done');
+            accountModel.findAccountByHostname(connector.databaseName).then(account => {
+                if (!account) {
+                    reject('account not found');
                     return;
+                }
+                getContext(account.database.uri).then(appContext => {
+                    getFacebookConnection(integration, connector).then(connectionResponse => {
+                        const service = new FacebookService(    appContext.SocialNetwork,
+                                                                connectionResponse,
+                                                                connector);
+                        service .run()
+                                .then(() => {
+                            resolve('done');
+                            return;
+                        })
+                        .catch(err => {
+                            console.log(err);
+                            resolve(err);
+                            return;
+                        });
+                    })
+                    .catch(err => {
+                        // usually Token invalid, should log the error, probably should send an email too
+                        console.log(err);
+                        resolve(err);
+                        return;
+                    });
                 })
                 .catch(err => {
-                    dbLogger.log(appContext.Log, LogLevelEnum.Critical, connector.id, err);
-                    resolve(err);
+                    console.log('could not get app context for the connector');
+                    reject(err);
                     return;
                 });
             })
             .catch(err => {
-                // usually Token invalid, should log the error, probably should send an email too
-                dbLogger.log(appContext.Log, LogLevelEnum.Critical, connector.id, JSON.stringify(err));
-                resolve(err);
+                console.log('could not get the account for the connector');
+                reject(err);
                 return;
             });
         });
