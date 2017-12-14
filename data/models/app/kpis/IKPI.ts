@@ -27,6 +27,11 @@ export function getKPITypePropName(type: KPITypeEnum) {
     }
 }
 
+export interface IDocumentExist {
+    chart?: IChartDocument;
+    widget?: IWidgetDocument;
+}
+
 export interface IKPIFilter {
     order?: number;
     field: string;

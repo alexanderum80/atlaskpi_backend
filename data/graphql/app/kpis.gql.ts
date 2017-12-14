@@ -42,8 +42,12 @@ export const kpisGql: GraphqlDefinition = {
                 errors: [ErrorDetails]
                 success: Boolean
             }
+            type KPIEntityResponse {
+                chart: [ChartEntityResponse]
+                widget: [Widget]
+            }
             type KPIRemoveResponse {
-                entity: [ChartEntityResponse]
+                entity: KPIEntityResponse
                 errors: [ErrorDetails]
                 success: Boolean
             }
@@ -117,7 +121,8 @@ export const kpisGql: GraphqlDefinition = {
                 return ctx.mutationBus.run<IMutationResponse>('update-kpi', ctx.req, mutation, args);
             },
             removeKPI(root: any, args, ctx: IGraphqlContext) {
-                let mutation = new RemoveKPIMutation(ctx.req.identity, ctx.req.appContext.KPI, ctx.req.appContext.Chart);
+                let mutation = new RemoveKPIMutation(ctx.req.identity, ctx.req.appContext.KPI,
+                                                    ctx.req.appContext.Chart, ctx.req.appContext.Widget);
                 return ctx.mutationBus.run<IMutationResponse>('remove-kpi', ctx.req, mutation, args);
             },
         },
