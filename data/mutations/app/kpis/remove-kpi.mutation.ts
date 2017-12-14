@@ -1,4 +1,3 @@
-import { IDocumentExist } from '../../../models/app/kpis/index';
 import { IChartDocument } from '../../../models/app/charts/index';
 import { IWidgetDocument, IWidgetModel } from '../../../models/app/widgets/index';
 import { MutationBase } from '../../mutation-base';
@@ -44,9 +43,9 @@ export class RemoveKPIMutation extends MutationBase<IMutationResponse> {
                     return kpis;
                 }
             });
-            let documentExists: IDocumentExist = {};
+            let documentExists: any;
             return Promise.all([findCharts, findWidgets])
-                .spread((chart: IChartDocument, widget: IWidgetDocument) => {
+                .spread((chart: IChartDocument[], widget: IWidgetDocument[]) => {
                     documentExists.chart = chart;
                     documentExists.widget = widget;
                     return that._KPIModel.removeKPI(data.id, documentExists).then(foundDocument => {
@@ -56,16 +55,6 @@ export class RemoveKPIMutation extends MutationBase<IMutationResponse> {
                     resolve({ success: false, entity: err.entity, errors: [ { field: 'kpi', errors: [err.error]}]});
                     return;
                 });
-            // let promises = findCharts;
-
-            // return Promise.all(promises).then(chartExists => {
-            //     return this._KPIModel.removeKPI(data.id, chartExists).then(chart => {
-            //         const listCharts = Array.isArray(chart) ? chart : [chart];
-            //         return resolve({ success: true, entity: listCharts});
-            //     });
-            // }).catch(err => {
-            //     resolve({ success: false, entity: err.entity, errors: [ { field: 'kpi', errors: [err.error]}]});
-            // });
         });
     }
 }
