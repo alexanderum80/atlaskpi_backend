@@ -141,29 +141,12 @@ SalesSchema.statics.findByPredefinedDateRange = function(predefinedDateRange: st
     });
 };
 
-SalesSchema.statics.findYesterday = function(): Promise<ISaleDocument[]> {
-    const SalesModel = (<ISaleModel>this);
-
-    const DateRange = getYesterdayDate();
-
-    return new Promise<ISaleDocument[]>((resolve, reject) => {
-        SalesModel.find({ 'product.from': { '$gte': DateRange.from, '$lt': DateRange.to } })
-        .then(sales => {
-            resolve(sales);
-        })
-        .catch(err => {
-            logger.error('There was an error retrieving sales by predefined data range', err);
-            reject(err);
-        });
-    });
-};
-
-SalesSchema.statics.amountByDateRange = function(predefinedDateRange: string): Promise<Object[]> {
+SalesSchema.statics.amountByDateRange = function(predefinedDateRange: string): Promise<Object> {
     const SalesModel = (<ISaleModel>this);
 
     const DateRange = parsePredifinedDate(predefinedDateRange);
 
-    return new Promise<Object[]>((resolve, reject) => {
+    return new Promise<Object>((resolve, reject) => {
         SalesModel.aggregate({ '$match': { 'product.from': { '$gte': DateRange.from, '$lt': DateRange.to } } },
                             { '$group': { '_id': null, 'count': { '$sum': 1 }, 'amount': { '$sum': '$product.paid' } } })
         .then(sales => {

@@ -19,12 +19,12 @@ import { SalesAmountByDateActivity } from '../activities/sales-amount-by-date.ac
     ],
     output: { type: SalesAmount, isArray: true }
 })
-export class SalesAmountByDateRangeQuery extends MutationBase<Object[]> {
+export class SalesAmountByDateRangeQuery extends MutationBase<Object> {
     constructor(@inject(Sales.name) private _sales: Sales) {
         super();
     }
 
-    run(data: { predefinedDateRange: string }): Promise<Object[]> {
+    run(data: { predefinedDateRange: string }): Promise<Object> {
         return this._sales.model.amountByDateRange(data.predefinedDateRange);
     }
 }
