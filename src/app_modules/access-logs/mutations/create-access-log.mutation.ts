@@ -1,6 +1,6 @@
-import { MutationBase } from '../../../framework/mutations';
-import { AccessLogs } from '../../../domain/app/access-log';
-import { IMutationResponse } from '../../../framework';
+import { MutationBase } from '../../../framework/mutations/mutation-base';
+import { IMutationResponse } from '../../../framework/mutations/mutation-response';
+import { AccessLogs } from '../../../domain/app/access-log/access-log.model';
 import { injectable, inject } from 'inversify';
 import * as Promise from 'bluebird';
 
