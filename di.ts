@@ -12,7 +12,7 @@ import * as logger from 'winston';
 import { BridgeContainer, IBridgeContainer } from './src/framework/di/bridge-container';
 import { IExtendedRequest } from './src/middlewares/extended-request';
 import { injectable, inject } from 'inversify';
-import { KpiFactory } from './src/app_modules/kpis/queries/index';
+import { KpiFactory } from './src/app_modules/kpis/queries/kpi.factory';
 import { WidgetFactory } from './src/domain/app/widgets/widget-factory';
 
 @injectable()
