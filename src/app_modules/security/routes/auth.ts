@@ -11,7 +11,7 @@ auth.post('/token', function authenticate(req: IExtendedRequest, res: Response) 
     let hostname = getRequestHostname(req);
     let ip = (req.headers['x-forwarded-for'] || req.connection.remoteAddress) as string;
 
-    const authService = req.container.container.get<AuthService>(AuthService.name);
+    const authService = req.Container.instance.get<AuthService>(AuthService.name);
 
     const input: IUserAuthenticationData = {
         hostname: hostname,
