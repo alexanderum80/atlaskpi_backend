@@ -1,7 +1,5 @@
 import * as Promise from 'bluebird';
 import { inject, injectable } from 'inversify';
-import { Winston } from 'winston';
-
 import { getGroupingMetadata } from '../app_modules/charts/queries/chart-grouping-map';
 import { IChartMetadata } from '../app_modules/charts/queries/charts/chart-metadata';
 import { CurrentUser, Logger } from './../../di';
@@ -45,7 +43,7 @@ export class ChartsService {
         @inject('CurrentUser') private _currentUser: CurrentUser,
         @inject(ChartFactory.name) private _chartFactory: ChartFactory,
         @inject(KpiFactory.name) private _kpiFactory: KpiFactory,
-        @inject(Logger.name) private _logger: Winston
+        @inject('Logger') private _logger: Logger
     ) { }
 
     public renderDefinition(chart: IChart, options?: IRenderChartOptions): Promise<any> {
