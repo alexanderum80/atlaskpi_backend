@@ -1,8 +1,10 @@
-import { ModelBase } from '../../../type-mongo';
-import { MasterConnection } from '../master.connection';
-import { injectable, inject } from 'inversify';
-import { ICountryModel } from './country';
+import { inject, injectable } from 'inversify';
 import * as mongoose from 'mongoose';
+
+import { ModelBase } from '../../../type-mongo/model-base';
+import { MasterConnection } from '../master.connection';
+import { ICountryModel } from './Country';
+
 
 const countrySchema = new mongoose.Schema({
     _id: String,

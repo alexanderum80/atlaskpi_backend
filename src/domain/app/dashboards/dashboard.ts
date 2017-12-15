@@ -1,10 +1,12 @@
-import { IWidget } from './../widgets/IWidget';
-import { IUser } from '../users/IUser';
-import { IChart, IChartDocument } from '../charts';
-// import { IWidget } from '../widgets';
-import * as mongoose from 'mongoose';
 import * as Promise from 'bluebird';
+import * as mongoose from 'mongoose';
 
+import { IChart } from '../charts/chart';
+import { IUser } from '../security/users/user';
+import { IWidget } from '../widgets/widget';
+
+
+// import { IWidget } from '../widgets';
 export interface IDashboard {
     name: string;
     description: string;

@@ -4,11 +4,13 @@ import * as mongoose from 'mongoose';
 import * as validate from 'validate.js';
 import * as logger from 'winston';
 
-import { IMutationResponse, MutationResponse } from '../../../framework/mutations';
-import { IPagedQueryResult, IPaginationDetails, IQueryResponse, Paginator } from '../../../framework/queries';
-import { ModelBase } from '../../../type-mongo';
+import { IMutationResponse, MutationResponse } from '../../../framework/mutations/mutation-response';
+import { IPagedQueryResult, IPaginationDetails, Paginator } from '../../../framework/queries/pagination';
+import { IQueryResponse } from '../../../framework/queries/query-response';
+import { ModelBase } from '../../../type-mongo/model-base';
 import { AppConnection } from '../app.connection';
 import { IChartFormat, IChartFormatDocument, IChartFormatModel } from './chart-format';
+
 
 let Schema = mongoose.Schema;
 

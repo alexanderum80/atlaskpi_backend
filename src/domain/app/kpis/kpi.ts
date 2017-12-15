@@ -1,9 +1,11 @@
 import * as Promise from 'bluebird';
 import * as mongoose from 'mongoose';
 
-import { IMutationResponse, IPagedQueryResult, IPaginationDetails } from '../../../framework';
-import { IChartDateRange } from '../../common';
-import { IChartDocument } from '../charts';
+import { IMutationResponse } from '../../../framework/mutations/mutation-response';
+import { IPagedQueryResult, IPaginationDetails } from '../../../framework/queries/pagination';
+import { IChartDateRange } from '../../common/date-range';
+import { IChartDocument } from '../charts/chart';
+
 
 export enum KPITypeEnum {
     Simple = 'simple',

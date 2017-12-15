@@ -1,6 +1,8 @@
-import { IAddress, IEmploymentInfo } from '../../common';
-import * as mongoose from 'mongoose';
 import * as Promise from 'bluebird';
+import * as mongoose from 'mongoose';
+
+import { IAddress } from '../../common/address.model';
+import { IEmploymentInfo } from '../../common/employment-info.model';
 
 /*export enum EmploymentType {
     FULL_TIME,

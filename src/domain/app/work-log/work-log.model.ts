@@ -1,9 +1,9 @@
-import { ModelBase } from '../../../type-mongo';
-import { AppConnection } from '../app.connection';
-import { injectable, inject } from 'inversify';
-import { IWorkLogModel } from './work-log';
+import { inject, injectable } from 'inversify';
 import * as mongoose from 'mongoose';
-import * as Promise from 'bluebird';
+
+import { ModelBase } from '../../../type-mongo/model-base';
+import { AppConnection } from '../app.connection';
+import { IWorkLogModel } from './work-log';
 
 let Schema = mongoose.Schema;
 

@@ -1,15 +1,11 @@
-import { AppConnection } from '../';
-import { ModelBase } from '../../../type-mongo';
-import { injectable, inject } from 'inversify';
-
-import {
-    ILocationModel,
-    ILocationDocument,
-    ILocation
-} from './';
+import * as Promise from 'bluebird';
+import { inject, injectable } from 'inversify';
 import * as mongoose from 'mongoose';
 import * as logger from 'winston';
-import * as Promise from 'bluebird';
+
+import { ModelBase } from '../../../type-mongo/model-base';
+import { AppConnection } from '../app.connection';
+import { ILocation, ILocationDocument, ILocationModel } from './location';
 
 const LocationSchema = new mongoose.Schema({
     name: String,
