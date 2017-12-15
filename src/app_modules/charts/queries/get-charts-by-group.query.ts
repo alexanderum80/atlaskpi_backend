@@ -16,7 +16,6 @@ import { GetChartsByGroupActivity } from '../activities';
 })
 export class GetChartsByGroupQuery implements IQuery<IChartDocument[]> {
     constructor(@inject('Charts') private _charts: Charts) {
-        
     }
 
     run(data: { group: String,  }): Promise<IChartDocument[]> {

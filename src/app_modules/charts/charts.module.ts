@@ -1,3 +1,4 @@
+import { PreviewChartQuery } from './queries/preview-chart.query';
 import { AppModule, ModuleBase } from '../../framework';
 import { CreateChartMutation, DeleteChartMutation, UpdateChartMutation } from './mutations';
 import { ChartQuery, ChartsListQuery, ChartsQuery, GetChartsByGroupQuery, GetChartsGroupQuery } from './queries';
@@ -13,11 +14,12 @@ import { ListChartsQuery } from './queries/list-charts.query';
     queries: [
         ChartQuery,
         ChartsListQuery,
-        ChartsQuery,
-        GetChartsByGroupQuery,
-        GetChartsGroupQuery,
-        ListChartsByGroupQuery,
-        ListChartsQuery
+        // ChartsQuery,
+        // GetChartsByGroupQuery,
+        // GetChartsGroupQuery,
+        // ListChartsByGroupQuery,
+        ListChartsQuery,
+        PreviewChartQuery
     ],
 })
 export class ChartsModule extends ModuleBase {}
