@@ -1,8 +1,10 @@
-import { ModelBase } from '../../../type-mongo';
-import { AppConnection } from '../app.connection';
-import { injectable, inject } from 'inversify';
+import { inject, injectable } from 'inversify';
 import * as mongoose from 'mongoose';
-import { ISurveyModel } from './ISurvey';
+
+import { ModelBase } from '../../../type-mongo/model-base';
+import { AppConnection } from '../app.connection';
+import { ISurveyModel } from './survey';
+
 
 let Schema = mongoose.Schema;
 let SurveySchema = new Schema({

@@ -1,4 +1,4 @@
-import { IAddress } from '../../common';
+import { IAddress } from '../../common/address.model';
 import * as mongoose from 'mongoose';
 import * as Promise from 'bluebird';
 

@@ -1,5 +1,6 @@
-import { Expenses, IKPIDocument, Sales } from '../../../domain';
-import { KPITypeEnum } from '../../../domain/app/kpis/kpi';
+import { Sales } from '../../../domain/app/sales/sale.model';
+import { Expenses } from '../../../domain/app/expenses/expense.model';
+import { IKPIDocument, KPITypeEnum } from '../../../domain/app/kpis/kpi';
 import { KPIs } from '../../../domain/app/kpis/kpi.model';
 import { CompositeKpi } from './compound.kpi';
 import { Expenses as ExpensesKPI } from './expenses.kpi';

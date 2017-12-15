@@ -1,12 +1,13 @@
-import { IAppConfig } from '../../../configuration/config-models';
-import { UserForgotPasswordNotification } from '../../../services/notifications/users/user-forgot-password.notification';
-
-import { injectable, inject } from 'inversify';
 import * as Promise from 'bluebird';
-import { MutationBase, mutation } from '../../../framework';
-import { Users } from '../../../domain';
+import { inject, injectable } from 'inversify';
+
+import { IAppConfig } from '../../../configuration/config-models';
+import { Users } from '../../../domain/app/security/users/user.model';
+import { mutation } from '../../../framework/decorators/mutation.decorator';
+import { MutationBase } from '../../../framework/mutations/mutation-base';
+import { UserForgotPasswordNotification } from '../../../services/notifications/users/user-forgot-password.notification';
+import { UserForgotPasswordActivity } from '../activities/user-forgot-password.activity';
 import { ForgotPasswordResult } from '../users.types';
-import { UserForgotPasswordActivity } from '../activities';
 
 @injectable()
 @mutation({

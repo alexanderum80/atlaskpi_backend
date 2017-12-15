@@ -1,17 +1,19 @@
 import * as fs from 'fs';
 import * as path from 'path';
 import * as Promise from 'bluebird';
+import * as console from 'console';
+import { inject, injectable } from 'inversify';
 import * as mongoose from 'mongoose';
-import {
-    Expenses,
-    Sales,
-    Worklogs,
-    KPIs,
-    Charts,
-    Dashboards,
-    AppConnection
-} from '../domain';
-import { injectable, inject } from 'inversify';
+
+
+import { AppConnection } from '../domain/app/app.connection';
+import { Charts } from '../domain/app/charts/chart.model';
+import { Dashboards } from '../domain/app/dashboards/dashboard.model';
+import { Expenses } from '../domain/app/expenses/expense.model';
+import { KPIs } from '../domain/app/kpis/kpi.model';
+import { Sales } from '../domain/app/sales/sale.model';
+import { Worklogs } from '../domain/app/work-log/work-log.model';
+
 
 interface ISeedModels {
     expenses: Expenses;

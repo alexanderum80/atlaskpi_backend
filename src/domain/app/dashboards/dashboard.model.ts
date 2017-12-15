@@ -1,27 +1,13 @@
-import {
-    ModelBase
-} from '../../../type-mongo';
-import {
-    AppConnection
-} from '../app.connection';
-import {
-    injectable,
-    inject
-} from 'inversify';
-import {
-    IDashboardDocument
-} from './';
-import {
-    IDashboardModel,
-    IDashboardInput
-} from './dashboard';
-import {
-    IChartDocument
-} from '../charts';
-import * as mongoose from 'mongoose';
 import * as Promise from 'bluebird';
-import * as _ from 'lodash';
+import { inject, injectable } from 'inversify';
+import * as mongoose from 'mongoose';
 import * as logger from 'winston';
+
+import { input } from '../../../framework/decorators/input.decorator';
+import { ModelBase } from '../../../type-mongo/model-base';
+import { AppConnection } from '../app.connection';
+import { IDashboardDocument, IDashboardInput, IDashboardModel } from './dashboard';
+
 
 let Schema = mongoose.Schema;
 

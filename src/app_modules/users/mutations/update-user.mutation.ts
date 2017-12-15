@@ -1,11 +1,13 @@
-import { Roles } from '../../../domain/app/security/roles';
-
-import { injectable, inject } from 'inversify';
 import * as Promise from 'bluebird';
-import { MutationBase, mutation } from '../../../framework';
-import { Users } from '../../../domain';
+import { inject, injectable } from 'inversify';
+
+import { Roles } from '../../../domain/app/security/roles/role.model';
+import { Users } from '../../../domain/app/security/users/user.model';
+import { mutation } from '../../../framework/decorators/mutation.decorator';
+import { MutationBase } from '../../../framework/mutations/mutation-base';
+import { UpdateUserActivity } from '../activities/update-user.activity';
 import { CreateUserResult, UserDetails } from '../users.types';
-import { UpdateUserActivity } from '../activities';
+import { IMutationResponse } from '../../../framework/mutations/mutation-response';
 
 @injectable()
 @mutation({
@@ -17,7 +19,7 @@ import { UpdateUserActivity } from '../activities';
     ],
     output: { type: CreateUserResult }
 })
-export class UpdateUserMutation extends MutationBase<CreateUserResult> {
+export class UpdateUserMutation extends MutationBase<IMutationResponse> {
     constructor(
         @inject('Users') private _users: Users,
         @inject('Roles') private _roles: Roles
@@ -25,15 +27,12 @@ export class UpdateUserMutation extends MutationBase<CreateUserResult> {
         super();
     }
 
-    run(data: { id: string, data: UserDetails }): Promise<CreateUserResult> {
+    run(data: { id: string, data: UserDetails }): Promise<IMutationResponse> {
         const that = this;
 
         return this._roles.model.findAllRoles('')
         .then((resp) => {
-            return Promise.all(resp)
-                .then((r) => {
-                    return this._users.model.updateUser(data.id, data.data, r);
-                });
+            return this._users.model.updateUser(data.id, data.data, resp);
         });
     }
 }

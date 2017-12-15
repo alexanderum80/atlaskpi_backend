@@ -1,4 +1,3 @@
-import { IIdName } from '../../common';
 import * as mongoose from 'mongoose';
 
 export interface IWorkLog {

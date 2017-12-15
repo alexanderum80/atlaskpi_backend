@@ -2,9 +2,16 @@ import { inject, injectable } from 'inversify';
 import * as mongoose from 'mongoose';
 import * as validate from 'validate.js';
 
-import { ModelBase } from '../../../type-mongo';
+import { ModelBase } from '../../../type-mongo/model-base';
 import { AppConnection } from '../app.connection';
-import { ComparisonDirectionArrowMap, IWidgetDocument, IWidgetInput, IWidgetModel, WidgetSizeMap, WidgetTypeMap } from './';
+import {
+    ComparisonDirectionArrowMap,
+    IWidgetDocument,
+    IWidgetInput,
+    IWidgetModel,
+    WidgetSizeMap,
+    WidgetTypeMap,
+} from './widget';
 
 const Schema = mongoose.Schema;
 

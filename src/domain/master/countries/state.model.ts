@@ -1,8 +1,9 @@
-import { ModelBase } from '../../../type-mongo';
-import { MasterConnection } from '../master.connection';
-import { injectable, inject } from 'inversify';
-import { IStateModel } from './';
+import { inject, injectable } from 'inversify';
 import * as mongoose from 'mongoose';
+
+import { ModelBase } from '../../../type-mongo/model-base';
+import { MasterConnection } from '../master.connection';
+import { IStateModel } from './State';
 
 
 const stateSchema = new mongoose.Schema({

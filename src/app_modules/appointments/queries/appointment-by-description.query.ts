@@ -1,11 +1,13 @@
-import { IAppointmentDocument } from '../../../domain/app/appointments';
-import { Appointments } from '../../../domain';
-import { Appointment } from '../appointments.types';
-import { AppointmentByDescriptionActivity } from '../activities/appointment-by-description.activity';
-import { MutationBase, query } from '../../../framework';
-import { CreateAppointmentActivity } from '../activities';
-import { injectable, inject } from 'inversify';
+import { from } from 'apollo-link/lib';
 import * as Promise from 'bluebird';
+import { inject, injectable } from 'inversify';
+
+import { IAppointmentDocument } from '../../../domain/app/appointments/appointment';
+import { Appointments } from '../../../domain/app/appointments/appointment-model';
+import { query } from '../../../framework/decorators/query.decorator';
+import { MutationBase } from '../../../framework/mutations/mutation-base';
+import { AppointmentByDescriptionActivity } from '../activities/appointment-by-description.activity';
+import { Appointment } from '../appointments.types';
 
 @injectable()
 @query({
@@ -20,7 +22,7 @@ import * as Promise from 'bluebird';
 })
 export class AppointmentByDescriptionQuery extends MutationBase<IAppointmentDocument> {
     constructor(@inject('Appointments') private _appointments: Appointments) {
-        
+        super();
     }
 
     run(data: { from: string, to: string, name: string }): Promise<IAppointmentDocument> {

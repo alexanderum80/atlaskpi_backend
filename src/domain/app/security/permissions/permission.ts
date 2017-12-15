@@ -1,5 +1,6 @@
-import * as mongoose from 'mongoose';
 import * as Promise from 'bluebird';
+import * as mongoose from 'mongoose';
+
 import { IPermission } from '../../../../framework/modules/security/permission';
 
 export interface IPermissionInfo {

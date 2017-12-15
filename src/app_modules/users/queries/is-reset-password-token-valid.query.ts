@@ -1,11 +1,12 @@
-import { IAppConfig } from '../../../configuration/config-models';
-
-import { injectable, inject } from 'inversify';
 import * as Promise from 'bluebird';
-import { IQuery, query } from '../../../framework';
-import { Users } from '../../../domain';
+import { inject, injectable } from 'inversify';
+
+import { IAppConfig } from '../../../configuration/config-models';
+import { Users } from '../../../domain/app/security/users/user.model';
+import { query } from '../../../framework/decorators/query.decorator';
+import { IQuery } from '../../../framework/queries/query';
+import { VerifyResetPasswordActivity } from '../activities/verify-reset-password.activity';
 import { TokenVerification } from '../users.types';
-import { VerifyResetPasswordActivity } from '../activities';
 
 @injectable()
 @query({

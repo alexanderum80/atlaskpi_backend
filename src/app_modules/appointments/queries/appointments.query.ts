@@ -1,11 +1,14 @@
-import { IAppointmentDocument } from '../../../domain/app/appointments';
-import { QueryBase } from '../../../framework/queries';
-import { ListAppointmentsActivity } from '../activities/list-appointment.activity';
-import { Appointments } from '../../../domain';
-import { Appointment } from '../appointments.types';
-import { query } from '../../../framework';
-import { injectable, inject } from 'inversify';
 import * as Promise from 'bluebird';
+import { inject, injectable } from 'inversify';
+import { start } from 'repl';
+import { isArray } from 'util';
+
+import { IAppointmentDocument } from '../../../domain/app/appointments/appointment';
+import { Appointments } from '../../../domain/app/appointments/appointment-model';
+import { query } from '../../../framework/decorators/query.decorator';
+import { IQuery } from '../../../framework/queries/query';
+import { ListAppointmentsActivity } from '../activities/list-appointment.activity';
+import { Appointment } from '../appointments.types';
 
 @injectable()
 @query({
@@ -18,9 +21,7 @@ import * as Promise from 'bluebird';
     output: { type: Appointment, isArray: true }
 })
 export class AppointmentsQuery implements IQuery<IAppointmentDocument[]> {
-    constructor(@inject('Appointments') private _appointments: Appointments) {
-        
-    }
+    constructor(@inject('Appointments') private _appointments: Appointments) { }
 
     run(data: { start: string, end: string }): Promise<IAppointmentDocument[]> {
         return this._appointments.model.appointments(data.start, data.end);

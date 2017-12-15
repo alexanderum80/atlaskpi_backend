@@ -1,11 +1,13 @@
-import { ModelBase } from '../../../type-mongo';
-import { AppConnection } from '../app.connection';
-import { injectable, inject } from 'inversify';
-import { ITarget, ITargetDocument, ITargetModel } from './target';
-import * as mongoose from 'mongoose';
 import * as Promise from 'bluebird';
+import { inject, injectable } from 'inversify';
+import * as mongoose from 'mongoose';
 import * as validate from 'validate.js';
-import * as moment from 'moment';
+
+import { field } from '../../../framework/decorators/field.decorator';
+import { ModelBase } from '../../../type-mongo/model-base';
+import { AppConnection } from '../app.connection';
+import { ITarget, ITargetDocument, ITargetModel } from './target';
+
 
 let Schema = mongoose.Schema;
 

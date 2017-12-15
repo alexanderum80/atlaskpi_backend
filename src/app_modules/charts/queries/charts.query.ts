@@ -2,9 +2,12 @@ import { ChartQuery } from './chart.query';
 import * as Promise from 'bluebird';
 import { inject, injectable } from 'inversify';
 
-import { Charts } from '../../../domain';
-import { IQuery, query } from '../../../framework';
-import { ListChartsActivity } from '../activities';
+import { Charts } from '../../../domain/app/charts/chart.model';
+import { query } from '../../../framework/decorators/query.decorator';
+import { IQuery } from '../../../framework/queries/query';
+import { ListChartsActivity } from '../activities/list-charts.activity';
+
+
 
 @injectable()
 @query({

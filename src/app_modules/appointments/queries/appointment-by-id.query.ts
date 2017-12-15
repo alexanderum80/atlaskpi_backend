@@ -1,11 +1,12 @@
-import { QueryBase } from '../../../framework/queries';
-import { IAppointmentDocument } from '../../../domain/app/appointments';
-import { AppointmentByIdActivity } from '../activities/appointment-by-id.activity';
-import { Appointments } from '../../../domain';
-import { Appointment } from '../appointments.types';
-import { MutationBase, query } from '../../../framework';
-import { injectable, inject } from 'inversify';
 import * as Promise from 'bluebird';
+import { inject, injectable } from 'inversify';
+
+import { IAppointmentDocument } from '../../../domain/app/appointments/appointment';
+import { Appointments } from '../../../domain/app/appointments/appointment-model';
+import { query } from '../../../framework/decorators/query.decorator';
+import { IQuery } from '../../../framework/queries/query';
+import { AppointmentByIdActivity } from '../activities/appointment-by-id.activity';
+import { Appointment } from '../appointments.types';
 
 @injectable()
 @query({
@@ -17,9 +18,7 @@ import * as Promise from 'bluebird';
     output: { type: Appointment }
 })
 export class AppointmentByIdQuery implements IQuery<IAppointmentDocument> {
-    constructor(@inject('Appointments') private _appointments: Appointments) {
-        
-    }
+    constructor(@inject('Appointments') private _appointments: Appointments) { }
 
     run(data: { id: string }): Promise<IAppointmentDocument> {
         return this._appointments.model.appointmentById(data.id);

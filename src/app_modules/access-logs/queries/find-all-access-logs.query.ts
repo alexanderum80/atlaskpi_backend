@@ -1,10 +1,12 @@
-import { AccessLogs, IAccessLogDocument } from '../../../domain/app/access-log';
-import { MutationBase } from '../../../framework/mutations';
-import { AccessLogResponse } from '../access-log.types';
-import { query } from '../../../framework';
-import { GetAllAccessLogsActivity } from '../activities/get-all-access-logs.activity';
 import * as Promise from 'bluebird';
-import { injectable, inject } from 'inversify';
+import { inject, injectable } from 'inversify';
+
+import { IAccessLogDocument } from '../../../domain/app/access-log/access-log';
+import { AccessLogs } from '../../../domain/app/access-log/access-log.model';
+import { query } from '../../../framework/decorators/query.decorator';
+import { MutationBase } from '../../../framework/mutations/mutation-base';
+import { AccessLogResponse } from '../access-log.types';
+import { GetAllAccessLogsActivity } from '../activities/get-all-access-logs.activity';
 
 @injectable()
 @query({
@@ -15,12 +17,12 @@ import { injectable, inject } from 'inversify';
     ],
     output: { type: AccessLogResponse }
 })
-export class GetAllAccessLogsQuery extends MutationBase<IAccessLogDocument> {
-    constructor(@inject('') private _accessLogs: AccessLogs) {
-        
+export class GetAllAccessLogsQuery extends MutationBase<IAccessLogDocument[]> {
+    constructor(@inject(AccessLogs.name) private _accessLogs: AccessLogs) {
+        super();
     }
 
-    run(data: any): Promise<IAccessLogDocument> {
+    run(data: any): Promise<IAccessLogDocument[]> {
         return this._accessLogs.model.getAllAccessLogs(data);
     }
 }

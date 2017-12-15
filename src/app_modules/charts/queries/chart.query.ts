@@ -8,10 +8,9 @@ import { FrequencyTable } from '../../../domain/common';
 import { IQuery, query } from '../../../framework';
 import { ChartsService } from '../../../services/index';
 import { DateRangeHelper } from '../../date-ranges/queries/date-range.helper';
-import { GetChartActivity } from '../activities';
+import { GetChartActivity } from '../activities/get-chart.activity';
 import { GetChartInput } from '../charts.types';
-import { getGroupingMetadata } from './';
-import { IChartMetadata } from './charts';
+import { getGroupingMetadata } from './chart-grouping-map';
 
 // TODO: I need kind of a big refactory here
 @injectable()

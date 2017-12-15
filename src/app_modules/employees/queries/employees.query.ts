@@ -1,12 +1,13 @@
-import { isArray } from 'util';
-import { IEmployeeDocument } from '../../../domain/app/employees';
-
-import { injectable, inject } from 'inversify';
 import * as Promise from 'bluebird';
-import { IQuery, query } from '../../../framework';
-import { Employees } from '../../../domain';
+import { inject, injectable } from 'inversify';
+import { isArray } from 'util';
+
+import { IEmployeeDocument } from '../../../domain/app/employees/employee';
+import { Employees } from '../../../domain/app/employees/employee.model';
+import { query } from '../../../framework/decorators/query.decorator';
+import { IQuery } from '../../../framework/queries/query';
+import { ListEmployeesActivity } from '../activities/list-employees.activity';
 import { Employee } from '../employees.types';
-import { ListEmployeesActivity } from '../activities';
 
 @injectable()
 @query({

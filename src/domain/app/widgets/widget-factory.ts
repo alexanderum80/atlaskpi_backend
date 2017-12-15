@@ -1,14 +1,15 @@
-import { KPIs } from '../kpis/kpi.model';
-import { Charts } from '../charts';
-import { Expenses } from '../expenses';
-import { Sales } from '../sales';
-import { NumericWidget } from './numeric-widget';
-import { ChartWidget } from './chart-widget';
-import { IWidget, WidgetTypeEnum, WidgetTypeMap } from './';
-import { IUIWidget } from './ui-widget-base';
-import { injectable, inject } from 'inversify';
-import { KpiFactory } from '../../../app_modules/kpis/queries/index';
+import { inject, injectable } from 'inversify';
+
 import { ChartFactory } from '../../../app_modules/charts/queries/charts/chart-factory';
+import { KpiFactory } from '../../../app_modules/kpis/queries/kpi.factory';
+import { Charts } from '../charts/chart.model';
+import { Expenses } from '../expenses/expense.model';
+import { KPIs } from '../kpis/kpi.model';
+import { Sales } from '../sales/sale.model';
+import { ChartWidget } from './chart-widget';
+import { NumericWidget } from './numeric-widget';
+import { IUIWidget } from './ui-widget-base';
+import { IWidget, WidgetTypeEnum, WidgetTypeMap } from './widget';
 
 
 @injectable()

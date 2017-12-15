@@ -1,11 +1,13 @@
-import { IKPIDocument } from '../../../domain/app/kpis';
-
-import { injectable, inject } from 'inversify';
 import * as Promise from 'bluebird';
-import { IQuery, query } from '../../../framework';
-import { KPIs } from '../../../domain';
+import * as console from 'console';
+import { inject, injectable } from 'inversify';
+
+import { IKPIDocument } from '../../../domain/app/kpis/kpi';
+import { KPIs } from '../../../domain/app/kpis/kpi.model';
+import { query } from '../../../framework/decorators/query.decorator';
+import { IQuery } from '../../../framework/queries/query';
+import { GetKpiActivity } from '../activities/get-kpi.activity';
 import { KPI } from '../kpis.types';
-import { GetKpiActivity } from '../activities';
 
 @injectable()
 @query({
@@ -17,7 +19,7 @@ import { GetKpiActivity } from '../activities';
     output: { type: KPI }
 })
 export class KpiQuery implements IQuery<IKPIDocument> {
-    
+
     constructor(@inject('KPIs') private _kpis: KPIs) { }
 
     run(data: { id: string }): Promise<IKPIDocument> {

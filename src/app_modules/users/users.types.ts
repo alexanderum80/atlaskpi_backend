@@ -1,7 +1,10 @@
-
-import { input, type, field, GraphQLTypesMap, ErrorDetails } from '../../framework';
+import { type } from '../../framework/decorators/type.decorator';
+import { field } from '../../framework/decorators/field.decorator';
+import { GraphQLTypesMap } from '../../framework/decorators/graphql-types-map';
+import { input } from '../../framework/decorators/input.decorator';
+import { ErrorDetails } from '../../framework/graphql/common.types';
 import { Role } from '../roles/roles.types';
-import { PaginationInfo } from '../shared';
+import { PaginationInfo } from '../shared/shared.types';
 
 
 @input()

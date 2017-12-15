@@ -1,3 +1,4 @@
+import { Expenses } from './expenses/expense.model';
 import { IBridgeContainer } from '../../framework/di/bridge-container';
 import { AccessLogs } from './access-log/access-log.model';
 import { AppConnection } from './app.connection';
@@ -10,8 +11,6 @@ import { Dashboards } from './dashboards/dashboard.model';
 import { Departments } from './departments/department.model';
 import { EmployeeAttendance } from './employees-attendance/employee-attendance.model';
 import { Employees } from './employees/employee.model';
-import { Expenses } from './expenses/expense.model';
-import { Inventory } from './inventory/inventory.model';
 import { KPIs } from './kpis/kpi.model';
 import { Locations } from './location/location.model';
 import { Logs } from './log/log.model';
@@ -24,6 +23,8 @@ import { Surveys } from './surveys/survey.model';
 import { Targets } from './targets/target.model';
 import { Widgets } from './widgets/widget.model';
 import { Worklogs } from './work-log/work-log.model';
+import { Widgets } from './widgets/widget.model';
+import { Worklogs } from './work-log/work-log.model';
 
 interface IRegistrationInfo {
     name: string;
@@ -32,6 +33,7 @@ interface IRegistrationInfo {
 }
 
 const registrations: any[] = [
+    AppConnection,
     AccessLogs,
     Appointments,
     BusinessUnits,
@@ -43,7 +45,6 @@ const registrations: any[] = [
     Employees,
     EmployeeAttendance,
     Expenses,
-    Inventory,
     KPIs,
     Locations,
     Logs,
@@ -55,12 +56,12 @@ const registrations: any[] = [
     Permissions,
     Users,
     Widgets,
-    Worklogs,
-    AppConnection
+    Worklogs
 ];
 
 export function registerAppModels(container: IBridgeContainer) {
     registrations.forEach(m => {
+        console.log('Registering model: ' + m.name);
         container.registerPerWebRequest(m);
     });
 }

@@ -1,21 +1,12 @@
 import * as Promise from 'bluebird';
 
-import { IUIChart, UIChartBase } from './';
-import { IKpiBase } from './../../../../app_modules/kpis/queries/kpi-base';
-import { IChart } from './../../../../domain/app/charts/chart';
-import { ITargetDocument } from './../../../../domain/app/targets/target';
+import { IChart } from '../../../../domain/app/charts/chart';
+import { ITargetDocument } from '../../../../domain/app/targets/target';
+import { IKpiBase } from '../../../kpis/queries/kpi-base';
 import { IChartMetadata } from './chart-metadata';
 import { FrequencyHelper } from './frequency-values';
+import { IUIChart, UIChartBase } from './ui-chart-base';
 
-// const basicDefinition = {
-//     'plotOptions': {
-//         'pie': {
-//             'dataLabels': {
-//                 'enabled': true
-//             }
-//         }
-//     }
-// };
 
 export class PieChart extends UIChartBase implements IUIChart {
 

@@ -1,21 +1,10 @@
-import {
-    ModelBase
-} from '../../../type-mongo';
-import {
-    AppConnection
-} from '../app.connection';
-import {
-    injectable,
-    inject
-} from 'inversify';
-import {
-    IAppointment,
-    IAppointmentDocument,
-    IAppointmentModel
-} from './appointment';
+import { inject, injectable } from 'inversify';
 import * as mongoose from 'mongoose';
 import * as logger from 'winston';
-import * as moment from 'moment';
+
+import { ModelBase } from '../../../type-mongo/model-base';
+import { AppConnection } from '../app.connection';
+import { IAppointment, IAppointmentDocument, IAppointmentModel } from './appointment';
 
 const AppointmentSchema = new mongoose.Schema({
     source: String,

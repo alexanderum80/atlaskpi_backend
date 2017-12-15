@@ -4,7 +4,8 @@ import {
     IChartDateRange,
     PredefinedComparisonDateRanges,
     PredefinedDateRanges,
-} from '../../../domain/common';
+} from '../../../domain/common/date-range';
+
 
 
 export interface IDateRangeComparisonItem {

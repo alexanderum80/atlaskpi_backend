@@ -1,19 +1,16 @@
-import { IChart } from '../../../../domain/app/charts';
-
-import { FrequencyHelper } from './frequency-values';
-import {
-    AreaChart,
-    BarChart,
-    ChartType,
-    ColumnChart,
-    DonutChart,
-    IUIChart,
-    LineChart,
-    PieChart,
-    SPLineChart,
-    UIChartBase,
-} from '.';
 import { injectable } from 'inversify';
+
+import { IChart } from '../../../../domain/app/charts/chart';
+import { AreaChart } from './area.chart';
+import { BarChart } from './bar.chart';
+import { ChartType } from './chart-type';
+import { ColumnChart } from './column.chart';
+import { DonutChart } from './donut.chart';
+import { FrequencyHelper } from './frequency-values';
+import { LineChart } from './line.chart';
+import { PieChart } from './pie.chart';
+import { SPLineChart } from './spline.chart';
+import { IUIChart } from './ui-chart-base';
 
 @injectable()
 export class ChartFactory {
