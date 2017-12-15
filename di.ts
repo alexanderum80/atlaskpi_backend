@@ -56,6 +56,7 @@ export class Logger {
     }
 }
 
+
 export function registerDependencies(container: IBridgeContainer) {
     container.registerConstant(Logger.name, Logger);
 
@@ -71,4 +72,3 @@ export function registerDependencies(container: IBridgeContainer) {
     registerAppModels(container);
     registerServices(container);
 }
-
