@@ -1,9 +1,13 @@
 import { resolver } from '../../framework/decorators/index';
 import { Widget } from '../widgets/widgets.types';
-import { input, type, field, GraphQLTypesMap, ErrorDetails } from '../../framework';
-import { PaginationInfo, ChartDateRangeInput, ChartDateRange } from '../shared';
+import { type } from '../../framework/decorators/type.decorator';
+import { field } from '../../framework/decorators/field.decorator';
+import { GraphQLTypesMap } from '../../framework/decorators/graphql-types-map';
+import { input } from '../../framework/decorators/input.decorator';
+import { ErrorDetails } from '../../framework/graphql/common.types';
 import { ChartEntityResponse } from '../charts/charts.types';
 import { KPIFilterHelper } from '../../domain/app/kpis/kpi-filter.helper';
+import { ChartDateRange, ChartDateRangeInput, PaginationInfo } from '../shared/shared.types';
 import { KPIExpressionHelper } from '../../domain/app/kpis/kpi-expression.helper';
 import { KPIGroupingsHelper } from '../../domain/app/kpis/kpi-groupings.helper';
 import { IKPIDocument } from '../../domain/app/kpis/kpi';

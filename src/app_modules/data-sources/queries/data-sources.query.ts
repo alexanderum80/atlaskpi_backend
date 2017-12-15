@@ -1,12 +1,14 @@
 import { Expenses } from '../../../domain/app/expenses/expense.model';
 import { Sales } from '../../../domain/app/sales/sale.model';
-import { DataSourceSchemasMapping, DataSourcesHelper } from './datasource.helper';
 import { IKPIDataSourceHelper } from '../../../domain/app/kpis/kpi';
-import { injectable, inject } from 'inversify';
 import * as Promise from 'bluebird';
-import { IQuery, query } from '../../../framework';
+import { inject, injectable } from 'inversify';
+
+import { query } from '../../../framework/decorators/query.decorator';
+import { IQuery } from '../../../framework/queries/query';
+import { GetDataSourcesActivity } from '../activities/get-data-sources.activity';
 import { DataSourceResponse } from '../data-sources.types';
-import { GetDataSourcesActivity } from '../activities';
+import { DataSourceSchemasMapping, DataSourcesHelper } from './datasource.helper';
 
 
 @injectable()

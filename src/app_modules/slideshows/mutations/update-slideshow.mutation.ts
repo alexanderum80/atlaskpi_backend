@@ -1,11 +1,15 @@
-import { ISlideshowInput } from '../../../domain/app/slideshow';
-
-import { injectable, inject } from 'inversify';
 import * as Promise from 'bluebird';
-import { IMutationResponse, MutationBase, mutation } from '../../../framework';
-import { Slideshows } from '../../../domain';
-import { SlideshowResponse, SlideshowInput } from '../slideshows.types';
-import { UpdateSlideshowActivity } from '../activities';
+import { inject, injectable } from 'inversify';
+
+import { ISlideshowInput } from '../../../domain/app/slideshow/slideshow';
+import { Slideshows } from '../../../domain/app/slideshow/slideshow.model';
+import { field } from '../../../framework/decorators/field.decorator';
+import { input } from '../../../framework/decorators/input.decorator';
+import { mutation } from '../../../framework/decorators/mutation.decorator';
+import { MutationBase } from '../../../framework/mutations/mutation-base';
+import { IMutationResponse } from '../../../framework/mutations/mutation-response';
+import { UpdateSlideshowActivity } from '../activities/update-slideshow.activity';
+import { SlideshowInput, SlideshowResponse } from '../slideshows.types';
 
 @injectable()
 @mutation({

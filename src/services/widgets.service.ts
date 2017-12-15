@@ -1,12 +1,15 @@
-import { KPIs } from '../domain/app/kpis';
-import { Expenses } from '../domain/app/expenses';
-import { Sales } from '../domain/app/sales';
-import { Charts } from '../domain/app/charts';
-import { Widgets } from '../domain/app/widgets/widget.model';
-import { WidgetFactory } from '../domain/app/widgets/widget-factory';
-import { IUIWidget, IWidget, IWidgetDocument } from '../domain';
+import { Expenses } from '../domain/app/expenses/expense.model';
 import * as Promise from 'bluebird';
-import { injectable, inject } from 'inversify';
+import { inject, injectable } from 'inversify';
+
+import { Charts } from '../domain/app/charts/chart.model';
+import { KPIs } from '../domain/app/kpis/kpi.model';
+import { Sales } from '../domain/app/sales/sale.model';
+import { IUIWidget } from '../domain/app/widgets/ui-widget-base';
+import { IWidget, IWidgetDocument } from '../domain/app/widgets/widget';
+import { WidgetFactory } from '../domain/app/widgets/widget-factory';
+import { Widgets } from '../domain/app/widgets/widget.model';
+
 
 @injectable()
 export class WidgetsService {

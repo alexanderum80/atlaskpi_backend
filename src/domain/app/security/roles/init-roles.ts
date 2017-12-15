@@ -1,19 +1,12 @@
-import {
-    allPermissions
-} from './initial-roles';
-import {
-    Permissions,
-    IPermissionInfo
-} from '../permissions';
-import {
-    Roles
-} from '../roles';
-import {
-    IRoleDocument
-} from '../../../app';
-import {
-    difference
-} from 'lodash';
+import { difference } from 'lodash';
+import * as Promise from 'bluebird';
+
+import { IPermissionInfo } from '../permissions/permission';
+import { Permissions } from '../permissions/permission.model';
+import { allPermissions } from './initial-roles';
+import { IRoleDocument } from './role';
+import { Roles } from './role.model';
+
 
 
 export function initRoles(roles: Roles, permissions: Permissions, rolesAndPermissions: any, savedRoles: any[]): Promise < boolean > {

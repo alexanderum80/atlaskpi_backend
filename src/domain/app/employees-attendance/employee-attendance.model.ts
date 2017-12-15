@@ -1,8 +1,9 @@
-import { ModelBase } from '../../../type-mongo';
-import { AppConnection } from '../app.connection';
-import { injectable, inject } from 'inversify';
-import { IEmployeeAttendanceModel } from './employee-attendance';
+import { inject, injectable } from 'inversify';
 import * as mongoose from 'mongoose';
+
+import { ModelBase } from '../../../type-mongo/model-base';
+import { AppConnection } from '../app.connection';
+import { IEmployeeAttendanceModel } from './employee-attendance';
 
 let Schema = mongoose.Schema;
 let EmployeeAttendanceSchema = new Schema({

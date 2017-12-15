@@ -1,6 +1,7 @@
-import { IChart } from './../charts/IChart';
-import { IChartDateRange } from './../../common/date-range';
 import * as mongoose from 'mongoose';
+
+import { input } from '../../../framework/decorators/input.decorator';
+import { IChartDateRange } from './../../common/date-range';
 
 export enum WidgetTypeEnum {
     Undefined,

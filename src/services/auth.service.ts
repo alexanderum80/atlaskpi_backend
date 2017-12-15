@@ -1,8 +1,15 @@
-import { IAppConfig } from '../configuration/config-models';
-import { IUserToken, IAccountDocument, IUserDocument, Accounts, Users } from '../domain';
-import { injectable, inject } from 'inversify';
+import * as Promise from 'bluebird';
+import { inject, injectable } from 'inversify';
 import { Winston } from 'winston';
-import { Roles } from '../domain/app/security/roles/index';
+
+import { IAppConfig } from '../configuration/config-models';
+import { Roles } from '../domain/app/security/roles/role.model';
+import { IUserDocument } from '../domain/app/security/users/user';
+import { IUserToken } from '../domain/app/security/users/user-token';
+import { Users } from '../domain/app/security/users/user.model';
+import { IAccountDocument } from '../domain/master/accounts/Account';
+import { Accounts } from '../domain/master/accounts/account.model';
+
 
 export interface IUserAuthenticationData {
     hostname: string;

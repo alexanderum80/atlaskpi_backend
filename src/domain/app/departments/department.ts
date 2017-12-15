@@ -1,6 +1,5 @@
-// import { deleteAppointmentActivity } from '../../../../activities/app/appointments/delete-appointment.activity';
-import * as mongoose from 'mongoose';
 import * as Promise from 'bluebird';
+import * as mongoose from 'mongoose';
 
 export interface IDepartment {
     name: string;

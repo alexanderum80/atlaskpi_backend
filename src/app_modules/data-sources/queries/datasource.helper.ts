@@ -1,8 +1,9 @@
 import { injectable } from 'inversify';
 import * as mongoose from 'mongoose';
 import { SaleSchema } from '../../../domain/app/sales';
-import { ExpenseSchema } from '../../../domain/app/expenses';
-import { readMongooseSchema } from '../../../helpers';
+import { SaleSchema } from '../../../domain/app/sales/sale.model';
+import { field } from '../../../framework/decorators/field.decorator';
+import { readMongooseSchema } from '../../../helpers/mongodb.helpers';
 import { flatten } from '../../../helpers/object.helpers';
 import { GroupingMap } from '../../charts/queries/chart-grouping-map';
 import { IKPIDataSourceHelper } from '../../../domain/app/kpis/kpi';

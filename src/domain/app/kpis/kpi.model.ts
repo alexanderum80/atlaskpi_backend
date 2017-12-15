@@ -4,15 +4,12 @@ import { inject, injectable } from 'inversify';
 import mongoose = require('mongoose');
 import validate = require('validate.js');
 
-import { IKPI, IKPIDocument, IKPIModel, KPITypeMap } from '.';
-import { IMutationResponse, MutationResponse } from '../../../framework/mutations';
-import { IPagedQueryResult, IPaginationDetails, Paginator } from '../../../framework/queries';
-import { ModelBase } from '../../../type-mongo';
+import { input } from '../../../framework/decorators/input.decorator';
+import { ModelBase } from '../../../type-mongo/model-base';
 import { AppConnection } from '../app.connection';
-import { IChartDocument } from '../charts';
+import { IKPI, IKPIDocument, IKPIModel, KPITypeMap } from './kpi';
 import { KPIExpressionHelper } from './kpi-expression.helper';
 import { KPIFilterHelper } from './kpi-filter.helper';
-import { KPITypeEnum } from '../index';
 
 let Schema = mongoose.Schema;
 
@@ -74,33 +71,33 @@ KPISchema.statics.createKPI = function(input: IKPI): Promise<IKPIDocument> {
 };
 
 
-KPISchema.statics.updateKPI = function(id: string, input: IKPI): Promise<IKPIDocument> {
-    const that = this;
+// KPISchema.statics.updateKPI = function(id: string, input: IKPI): Promise<IKPIDocument> {
+//     const that = this;
 
-    return new Promise<IKPIDocument>((resolve, reject) => {
-        let constraints = {
-            name: { presence: { message: '^cannot be blank' }},
-            expression: { presence: { message: '^cannot be blank' } },
-            type: { presence: { message: '^cannot be blank' } }
-        };
+//     return new Promise<IKPIDocument>((resolve, reject) => {
+//         let constraints = {
+//             name: { presence: { message: '^cannot be blank' }},
+//             expression: { presence: { message: '^cannot be blank' } },
+//             type: { presence: { message: '^cannot be blank' } }
+//         };
 
-        let errors = (<any>validate)((<any>input), constraints, {fullMessages: false});
-        if (errors) {
-            reject(errors);
-            return;
-        }
+//         let errors = (<any>validate)((<any>input), constraints, {fullMessages: false});
+//         if (errors) {
+//             reject(errors);
+//             return;
+//         }
 
-        input.code = input.name;
-        let kpiType = KPITypeMap[input.type];
-        input.expression = KPIExpressionHelper.ComposeExpression(kpiType, input.expression);
-        input.filter = KPIFilterHelper.ComposeFilter(kpiType, input.filter);
+//         input.code = input.name;
+//         let kpiType = KPITypeMap[input.type];
+//         input.expression = KPIExpressionHelper.ComposeExpression(kpiType, input.expression);
+//         input.filter = KPIFilterHelper.ComposeFilter(kpiType, input.filter);
 
-        that.findOneAndUpdate({_id: id}, input, {new: true })
-        .exec()
-        .then((kpiDocument) => resolve(kpiDocument))
-        .catch((err) => reject(err));
-    });
-};
+//         that.findOneAndUpdate({_id: id}, input, {new: true })
+//         .exec()
+//         .then((kpiDocument) => resolve(kpiDocument))
+//         .catch((err) => reject(err));
+//     });
+// };
 
 KPISchema.statics.removeKPI = function(id: string, documentExists?: IDocumentExist): Promise<IMutationResponse> {
     let that = this;
@@ -158,3 +155,4 @@ export class KPIs extends ModelBase<IKPIModel> {
         this.initializeModel(appConnection.get, 'KPI', KPISchema, 'kpis');
     }
 }
+

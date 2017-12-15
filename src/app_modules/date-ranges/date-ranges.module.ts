@@ -1,7 +1,6 @@
-import { DateRangesQuery } from './queries';
-import {
-    AppModule, ModuleBase
-} from '../../framework';
+import { AppModule, ModuleBase } from '../../framework/decorators/app-module';
+import { DateRangesQuery } from './queries/date-ranges.query';
+
 
 @AppModule({
     queries: [

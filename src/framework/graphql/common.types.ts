@@ -1,4 +1,6 @@
-import { type, field, GraphQLTypesMap } from '../../framework';
+import { type } from '../decorators/type.decorator';
+import { field } from '../decorators/field.decorator';
+import { GraphQLTypesMap } from '../decorators/graphql-types-map';
 
 @type()
 export class ErrorDetails {

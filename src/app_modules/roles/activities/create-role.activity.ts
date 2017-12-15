@@ -1,8 +1,9 @@
-import { BasicRoleChecker } from '../../../services';
-import { IUserDocument, Users } from '../../../domain/app/security/users';
-import { IActivity } from '../../../framework';
 import * as Promise from 'bluebird';
-import { injectable, inject } from 'inversify';
+import { inject, injectable } from 'inversify';
+
+import { IUserDocument } from '../../../domain/app/security/users/user';
+import { IActivity } from '../../../framework/modules/security/activity';
+import { BasicRoleChecker } from '../../../services/security.service';
 
 @injectable()
 export class CreateRoleActivity implements IActivity {

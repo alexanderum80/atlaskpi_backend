@@ -1,10 +1,13 @@
-import { injectable, inject } from 'inversify';
 import * as Promise from 'bluebird';
-import { IQuery, query } from '../../../framework';
-import { KPIs } from '../../../domain';
+import { inject, injectable } from 'inversify';
+
+import { KPIs } from '../../../domain/app/kpis/kpi.model';
+import { query } from '../../../framework/decorators/query.decorator';
+import { IQuery } from '../../../framework/queries/query';
+import { PaginationDetails } from '../../shared/shared.types';
+import { GetAllKPIsActivity } from '../activities/get-all-kpis.activity';
 import { KPIPagedQueryResult } from '../kpis.types';
-import { GetAllKPIsActivity } from '../activities';
-import { PaginationDetails } from '../../shared';
+
 import { IPaginationDetails, IPagedQueryResult } from '../../../framework/queries/pagination';
 import { IKPI } from '../../../domain/app/kpis/kpi';
 

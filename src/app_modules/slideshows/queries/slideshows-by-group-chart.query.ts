@@ -1,11 +1,13 @@
-import { ISlideshowDocument } from '../../../domain/app/slideshow';
-
-import { injectable, inject } from 'inversify';
 import * as Promise from 'bluebird';
-import { IQuery, query } from '../../../framework';
-import { Slideshows } from '../../../domain';
+import { inject, injectable } from 'inversify';
+import { isArray } from 'util';
+
+import { ISlideshowDocument } from '../../../domain/app/slideshow/slideshow';
+import { Slideshows } from '../../../domain/app/slideshow/slideshow.model';
+import { query } from '../../../framework/decorators/query.decorator';
+import { IQuery } from '../../../framework/queries/query';
+import { SlideshowByGroupActivity } from '../activities/slideshows-by-group.activity';
 import { Slideshow } from '../slideshows.types';
-import { SlideshowByGroupActivity } from '../activities';
 
 @injectable()
 @query({
@@ -17,9 +19,7 @@ import { SlideshowByGroupActivity } from '../activities';
     output: { type: Slideshow, isArray: true }
 })
 export class SlideShowsByGroupChartQuery implements IQuery<ISlideshowDocument[]> {
-    constructor(@inject('Slideshows') private _slideshows: Slideshows) {
-        
-    }
+    constructor(@inject('Slideshows') private _slideshows: Slideshows) { }
 
     run(data: { group: string }): Promise<ISlideshowDocument[]> {
         return this._slideshows.model.slideshowsByGroupChart(data.group);

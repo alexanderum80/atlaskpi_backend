@@ -1,42 +1,23 @@
-import { BridgeContainer, IWebRequestContainerDetails } from './di/bridge-container';
-import { IEnforcer } from './modules/security';
-import { Enforcer } from '../app_modules/security/enforcer';
-import { Request, Response } from 'Express';
-import { IQueryBus, QueryBus } from './queries/query-bus';
-import { IMutationBus, MutationBus } from './mutations/mutation-bus';
-import { makeGraphqlSchemaExecutable } from './graphql/graphql-schema-generator';
-import { IAppModule } from './decorators/app-module';
-import {
-    IModuleOptions
-} from './decorators';
-import {
-    IQuery
-} from './queries';
-import {
-    IMutation
-} from './mutations';
-import {
-    GraphqlDefinition,
-    GraphqlSchema
-} from './graphql';
-import {
-    MetadataFieldsMap
-} from './decorators';
-import {
-    Container,
-    interfaces
-} from 'inversify';
-import * as express from 'express';
-import { IExecutableSchemaDefinition } from 'graphql-tools/dist/Interfaces';
-import * as cors from 'cors';
 import * as bodyParser from 'body-parser';
+import * as cors from 'cors';
+import * as express from 'Express';
+import { IExecutableSchemaDefinition } from 'graphql-tools/dist/Interfaces';
 import { Server } from 'http';
-import { Express } from 'express';
-import { RequestHandlerParams } from 'express-serve-static-core';
-import { RequestHandler } from 'apollo-link';
-import { graphqlExpress } from 'apollo-server-express/dist/expressApollo';
-import { BRIDGE } from './index';
-import { IExtendedRequest } from '../middlewares/index';
+import { Container } from 'inversify';
+
+import { Enforcer } from '../app_modules/security/enforcer/enforcer';
+import { IExtendedRequest } from '../middlewares/extended-request';
+import { IAppModule } from './decorators/app-module';
+import { BRIDGE } from './decorators/helpers';
+import { MetadataFieldsMap } from './decorators/metadata-fields.map';
+import { BridgeContainer } from './di/bridge-container';
+import { makeGraphqlSchemaExecutable } from './graphql/graphql-schema-generator';
+import { MutationBus } from './mutations/mutation-bus';
+import { IQuery } from './queries/query';
+import { QueryBus } from './queries/query-bus';
+import { graphqlExpress } from 'graphql-server-express';
+
+
 
 interface IQueryData {
     types: string[];
@@ -60,7 +41,7 @@ const defaultServerOptions: IFrameworkOptions = {
 };
 
 export class Bridge {
-    private _server: Express;
+    private _server: express.Express;
     private _httpServer: Server;
 
     static create(appModule: new() => IAppModule, options?: IFrameworkOptions): Bridge {
@@ -132,7 +113,7 @@ export class Bridge {
         ));
     }
 
-    get server(): Express {
+    get server(): express.Express {
         return this._server;
     }
 
@@ -145,12 +126,12 @@ function registerBridgeDependencies(container: BridgeContainer) {
 }
 
 
-function setBridgeContainer(req: Request, res: Response, next) {
+function setBridgeContainer(req: express.Request, res: express.Response, next) {
     (<any>req).container = BRIDGE.getRequestContainer(req);
     next();
 }
 
-function cleanup(req: IExtendedRequest, res: Response, next) {
+function cleanup(req: IExtendedRequest, res: express.Response, next) {
     res.on('finish', function() {
       // perform your cleanups...
       const containerDetails = req.container;

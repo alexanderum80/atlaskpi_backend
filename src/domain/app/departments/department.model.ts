@@ -1,10 +1,12 @@
-import { ModelBase } from '../../../type-mongo';
-import { AppConnection } from '../app.connection';
-import { injectable, inject } from 'inversify';
-import { IDepartmentModel, IDepartmentDocument, IDepartment } from './department';
+import * as Promise from 'bluebird';
+import { inject, injectable } from 'inversify';
 import * as mongoose from 'mongoose';
 import * as logger from 'winston';
-import * as Promise from 'bluebird';
+
+import { ModelBase } from '../../../type-mongo/model-base';
+import { AppConnection } from '../app.connection';
+import { IDepartmentDocument, IDepartmentModel } from './department';
+
 
 const DepartmentSchema = new mongoose.Schema({
     name: String,

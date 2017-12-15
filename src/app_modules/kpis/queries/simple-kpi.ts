@@ -1,8 +1,13 @@
-import { Expenses } from '../../../domain/app/expenses';
-import { Sales } from '../../../domain/app/sales';
-import { FrequencyEnum } from '../../../domain/common';
-import { KPIExpressionHelper } from '../../../domain/app/kpis';
+import { Expenses } from '../../../domain/app/expenses/expense.model';
 import * as Promise from 'bluebird';
+import { cloneDeep, isArray, isObject } from 'lodash';
+
+import { IKPI, IKPIDocument, IKPISimpleDefinition, KPITypeEnum } from '../../../domain/app/kpis/kpi';
+import { KPIExpressionHelper } from '../../../domain/app/kpis/kpi-expression.helper';
+import { Sales } from '../../../domain/app/sales/sale.model';
+import { IDateRange } from '../../../domain/common/date-range';
+import { FrequencyEnum } from '../../../domain/common/frequency-enum';
+import { field } from '../../../framework/decorators/field.decorator';
 import { AggregateStage } from './aggregate';
 import { IGetDataOptions, IKpiBase, KpiBase } from './kpi-base';
 

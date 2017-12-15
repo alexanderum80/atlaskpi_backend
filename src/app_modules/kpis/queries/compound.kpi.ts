@@ -1,15 +1,17 @@
-import { getGroupingMetadata } from '../../charts/queries';
-import { FrequencyTable, IChartDateRange, IDateRange, parsePredifinedDate } from '../../../domain/common';
+import { from } from 'apollo-link/lib';
 import * as Promise from 'bluebird';
 import * as jsep from 'jsep';
-import * as _ from 'lodash';
+import { clone, isArray, remove } from 'lodash';
 import * as math from 'mathjs';
 
-import { Expenses } from '../../../domain/app/expenses';
+import { IKPIDocument } from '../../../domain/app/kpis/kpi';
 import { KPIs } from '../../../domain/app/kpis/kpi.model';
-import { Sales, IKPIDocument } from '../../../domain';
+import { IChartDateRange, IDateRange, parsePredifinedDate } from '../../../domain/common/date-range';
+import { FrequencyTable } from '../../../domain/common/frequency-enum';
+import { getGroupingMetadata } from '../../charts/queries/chart-grouping-map';
 import { IGetDataOptions, IKpiBase } from './kpi-base';
 import { KpiFactory } from './kpi.factory';
+
 
 type KpiOperators = {
     '-', '+', '*', '/'
@@ -95,8 +97,8 @@ export class CompositeKpi implements IKpiBase {
         // I need to make sure that both sets have the same data
         // algorhitm: Start running one collection
         const that = this;
-        const leftIsArray = _.isArray(left);
-        const rightIsArray = _.isArray(right);
+        const leftIsArray = isArray(left);
+        const rightIsArray = isArray(right);
 
         if (leftIsArray && rightIsArray) {
             return this._mergeList(left, operator, right);
@@ -118,7 +120,7 @@ export class CompositeKpi implements IKpiBase {
         (<Array<any>>leftList).forEach(l => {
             const rightSide = that._popWithSameGroupings(rightList, l, keysToTest);
             const rightValue = rightSide.length > 0 ? rightSide[0].value : 0;
-            let newDataItem = _.clone(l);
+            let newDataItem = clone(l);
 
             newDataItem.value = that._doCalculation(l.value, operator, rightValue);
             result.push(newDataItem);
@@ -127,7 +129,7 @@ export class CompositeKpi implements IKpiBase {
         (<Array<any>>rightList).forEach(r => {
             const leftSide = that._popWithSameGroupings(leftList, r, keysToTest);
             const leftValue = leftSide.length > 0 ? leftSide[0].value : 0;
-            let newDataItem = _.clone(r);
+            let newDataItem = clone(r);
 
             newDataItem.value = that._doCalculation(leftValue, operator, r.value);
             result.push(newDataItem);
@@ -137,7 +139,7 @@ export class CompositeKpi implements IKpiBase {
     }
 
     private _popWithSameGroupings(collection: any[], ele: any, keys: string[]) {
-        return _.remove(collection, (e) => {
+        return remove(collection, (e) => {
             let found = true;
             // build the comparison object with all the jeys for this object
             keys.forEach(key => {

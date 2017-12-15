@@ -1,32 +1,16 @@
-import { initialRoles } from './initial-roles';
-import { initRoles } from './init-roles';
-import {
-    ModelBase
-} from '../../../../type-mongo';
-import {
-    AppConnection
-} from '../../app.connection';
-import {
-    injectable,
-    inject
-} from 'inversify';
-import * as mongoose from 'mongoose';
-import * as async from 'async';
 import * as Promise from 'bluebird';
+import { inject, injectable } from 'inversify';
+import * as mongoose from 'mongoose';
 import * as validate from 'validate.js';
 
-import {
-    doCan,
-    CAN_ALL,
-    CAN_ANY
-} from './utils';
-import {
-    IRoleDocument,
-    IRoleResponse,
-    IRoleModel,
-    IRoleCustom
-} from './index';
-import { Permissions } from '../../../index';
+import { field } from '../../../../framework/decorators/field.decorator';
+import { ModelBase } from '../../../../type-mongo/model-base';
+import { AppConnection } from '../../app.connection';
+import { Permissions } from '../permissions/permission.model';
+import { initRoles } from './init-roles';
+import { initialRoles } from './initial-roles';
+import { IRoleCustom, IRoleDocument, IRoleModel, IRoleResponse } from './role';
+import { CAN_ALL, CAN_ANY, doCan } from './utils';
 
 // INTERFACES
 

@@ -1,22 +1,13 @@
 import { IMutationResponse } from '../../../framework/mutations/index';
-import {
-    ModelBase
-} from '../../../type-mongo';
-import {
-    AppConnection
-} from '../app.connection';
-import {
-    injectable,
-    inject
-} from 'inversify';
-import {
-    IAccessLogDocument,
-    IAccessLogModel,
-    IAccessLogEntry
-} from './access-log';
-import * as mongoose from 'mongoose';
 import * as Promise from 'bluebird';
-import {} from './';
+import { inject, injectable } from 'inversify';
+import * as mongoose from 'mongoose';
+
+import { field } from '../../../framework/decorators/field.decorator';
+import { IMutationResponse } from '../../../framework/mutations/mutation-response';
+import { ModelBase } from '../../../type-mongo/model-base';
+import { AppConnection } from '../app.connection';
+import { IAccessLogDocument, IAccessLogEntry, IAccessLogModel } from './access-log';
 
 let Schema = mongoose.Schema;
 

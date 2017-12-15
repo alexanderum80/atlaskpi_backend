@@ -1,11 +1,14 @@
-import { TargetService } from '../../../services/target.service';
-
-import { injectable, inject } from 'inversify';
 import * as Promise from 'bluebird';
-import { IMutationResponse, MutationBase, mutation } from '../../../framework';
-import { Targets } from '../../../domain';
-import { TargetResult, TargetInput } from '../targets.types';
-import { UpdateTargetActivity } from '../activities';
+import { inject, injectable } from 'inversify';
+
+import { Targets } from '../../../domain/app/targets/target.model';
+import { field } from '../../../framework/decorators/field.decorator';
+import { mutation } from '../../../framework/decorators/mutation.decorator';
+import { MutationBase } from '../../../framework/mutations/mutation-base';
+import { IMutationResponse } from '../../../framework/mutations/mutation-response';
+import { TargetService } from '../../../services/target.service';
+import { UpdateTargetActivity } from '../activities/update-target.activity';
+import { TargetInput, TargetResult } from '../targets.types';
 
 @injectable()
 @mutation({

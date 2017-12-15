@@ -1,10 +1,11 @@
 import * as mongoose from 'mongoose';
 
-import { IProductDocument } from '../products';
-// import { ILocationDocument } from '../common/location';
-import { ICustomerDocument } from '../customers';
-import { IEmployeeDocument } from '../employees';
+import { ICustomerDocument } from '../customers/customer';
+import { IEmployeeDocument } from '../employees/employee';
+import { IProductDocument } from '../products/product';
 
+
+// import { ILocationDocument } from '../common/location';
 export interface ISurvey {
     // location: ILocationDocument;
     customer: ICustomerDocument;
