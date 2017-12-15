@@ -5,7 +5,7 @@ import { input } from '../../../framework/decorators/input.decorator';
 import { query } from '../../../framework/decorators/query.decorator';
 import { IQuery } from '../../../framework/queries/query';
 import { PreviewChartActivity } from '../activities/preview-chart.activity';
-import { Logger } from './../../../../di';
+import { Logger } from './../../../domain/app/logger';
 import { ChartsService } from './../../../services/charts.service';
 import { ChartAttributesInput } from './../charts.types';
 

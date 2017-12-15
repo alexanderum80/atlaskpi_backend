@@ -2,9 +2,10 @@ import * as Promise from 'bluebird';
 import * as console from 'console';
 import { inject, injectable } from 'inversify';
 
-import { CurrentUser } from '../../../../di';
+import { CurrentUser } from '../../../domain/app/current-user';
 import { IDashboard } from '../../../domain/app/dashboards/dashboard';
 import { Dashboards } from '../../../domain/app/dashboards/dashboard.model';
+import { Logger } from '../../../domain/app/logger';
 import { IUIWidget } from '../../../domain/app/widgets/ui-widget-base';
 import { query } from '../../../framework/decorators/query.decorator';
 import { IQuery } from '../../../framework/queries/query';
@@ -12,7 +13,6 @@ import { WidgetsService } from '../../../services/widgets.service';
 import { ChartQuery } from '../../charts/queries/chart.query';
 import { GetDashboardActivity } from '../activities/get-dashboard.activity';
 import { Dashboard } from '../dashboards.types';
-import { Logger } from './../../../../di';
 
 @injectable()
 @query({
@@ -25,7 +25,7 @@ import { Logger } from './../../../../di';
 })
 export class DashboardQuery implements IQuery<IDashboard> {
     constructor(
-        @inject(CurrentUser.name) private _user: CurrentUser,
+        @inject('CurrentUser') private _user: CurrentUser,
         @inject('Logger') private _logger: Logger,
         @inject(WidgetsService.name) private _widgetService: WidgetsService,
         @inject(ChartQuery.name) private _chartQuery: ChartQuery,
