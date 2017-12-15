@@ -1,14 +1,16 @@
+import { Response } from 'express';
+import * as mongoose from 'mongoose';
+import { hostname } from 'os';
+import * as logger from 'winston';
+
 import { config } from '../configuration/config';
-import { Accounts, IAccountDocument } from '../domain/master/accounts';
+import { IAccountDocument, IAccountModel } from '../domain/master/accounts/Account';
+import { Accounts } from '../domain/master/accounts/account.model';
+import { getRequestHostname } from '../helpers/express.helpers';
+import { makeDefaultConnection } from '../helpers/mongodb.helpers';
 import { AppConnectionPool } from './app-connection-pool';
 import { IExtendedRequest } from './extended-request';
-import { Request, Response } from 'express';
-import * as logger from 'winston';
-import * as mongoose from 'mongoose';
-import { makeDefaultConnection } from '../helpers/mongodb.helpers';
-import { MasterConnection, IAccountModel } from '../domain/index';
-import { getRequestHostname } from '../helpers';
-import { BRIDGE } from '../framework/index';
+
 
 const graphqlOperationExceptions = [
     'AccountNameAvailable',
