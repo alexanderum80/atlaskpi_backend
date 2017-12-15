@@ -1,9 +1,8 @@
 import * as Promise from 'bluebird';
 import { inject, injectable } from 'inversify';
 import { isArray } from 'util';
-import { Winston } from 'winston';
 
-import { CurrentUser } from '../../../../di';
+import { CurrentUser, Logger } from '../../../../di';
 import { Charts } from '../../../domain/app/charts/chart.model';
 import { IDashboard } from '../../../domain/app/dashboards/dashboard';
 import { Dashboards } from '../../../domain/app/dashboards/dashboard.model';
@@ -28,7 +27,7 @@ export class DashboardsQuery implements IQuery<IDashboard[]> {
         @inject(Dashboards.name) private _dashboards: Dashboards,
         @inject(Charts.name) private _charts: Charts,
         @inject(KPIs.name) private kpis: KPIs,
-        @inject('logger') private _logger: Winston,
+        @inject(Logger.name) private _logger: Logger,
         @inject(CurrentUser.name) private _currentUser: CurrentUser
     ) { }
 

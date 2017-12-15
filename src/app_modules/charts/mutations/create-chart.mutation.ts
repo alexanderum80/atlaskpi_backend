@@ -1,8 +1,8 @@
-import { attachToDashboards } from './common';
 import * as Promise from 'bluebird';
 import { inject, injectable } from 'inversify';
 import { Winston } from 'winston';
 
+import { Logger } from '../../../../di';
 import { IChartInput } from '../../../domain/app/charts/chart';
 import { Charts } from '../../../domain/app/charts/chart.model';
 import { Dashboards } from '../../../domain/app/dashboards/dashboard.model';
@@ -14,6 +14,7 @@ import { MutationBase } from '../../../framework/mutations/mutation-base';
 import { IMutationResponse } from '../../../framework/mutations/mutation-response';
 import { CreateChartActivity } from '../activities/create-chart.activity';
 import { ChartAttributesInput, ChartMutationResponse } from '../charts.types';
+import { attachToDashboards } from './common';
 
 
 @injectable()
@@ -27,10 +28,10 @@ import { ChartAttributesInput, ChartMutationResponse } from '../charts.types';
 })
 export class CreateChartMutation extends MutationBase<IMutationResponse> {
     constructor(
-        @inject('KPIs') private _kpis: KPIs,
-        @inject('Charts') private _charts: Charts,
-        @inject('Dashboards') private _dashboards: Dashboards,
-        @inject('logger') private _logger: Winston
+        @inject(KPIs.name) private _kpis: KPIs,
+        @inject(Charts.name) private _charts: Charts,
+        @inject(Dashboards.name) private _dashboards: Dashboards,
+        @inject(Logger.name) private _logger: Winston
     ) {
         super();
     }

@@ -11,7 +11,7 @@ import { IBridgeContainer } from './src/framework/di/bridge-container';
 import { AppConnectionPool } from './src/middlewares/app-connection-pool';
 import { IExtendedRequest } from './src/middlewares/extended-request';
 import { registerServices } from './src/services/register-service-dependencies';
-import { LoggerInstance } from 'winston';
+import { LoggerInstance, LogCallback } from 'winston';
 
 
 @injectable()
@@ -37,6 +37,22 @@ export class Logger {
 
     get(): LoggerInstance {
         return this._logger;
+    }
+
+    error(msg: string, meta?: any): LoggerInstance {
+        return this._logger.error(msg, meta);
+    }
+
+    warn(msg: string, meta?: any): LoggerInstance {
+        return this._logger.warn(msg, meta);
+    }
+
+    info(msg: string, meta?: any): LoggerInstance {
+        return this._logger.info(msg, meta);
+    }
+
+    debug(msg: string, meta?: any): LoggerInstance {
+        return this._logger.debug(msg, meta);
     }
 }
 

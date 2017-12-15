@@ -1,21 +1,15 @@
-import { Request } from 'Express';
 import * as mongoose from 'mongoose';
+import { LoggerInstance } from 'winston';
 
 import { IIdentity } from '../domain/app/security/users/identity';
 import { IUserDocument } from '../domain/app/security/users/user';
-import { IWebRequestContainerDetails } from '../framework/di/bridge-container';
-import { LoggerInstance } from 'winston';
+import { IBridgeRequest } from '../framework/bridge.request';
 
 
 /**
  * Extension of the express request object
  */
-export interface IExtendedRequest extends Request {
-
-    /**
-     * Bridge Container
-     */
-    Container: IWebRequestContainerDetails;
+export interface IExtendedRequest extends IBridgeRequest {
 
     /**
      * User's identity
