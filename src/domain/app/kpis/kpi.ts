@@ -6,7 +6,7 @@ import * as mongoose from 'mongoose';
 import { IMutationResponse } from '../../../framework/mutations/mutation-response';
 import { IPagedQueryResult, IPaginationDetails } from '../../../framework/queries/pagination';
 import { IChartDateRange } from '../../common/date-range';
-import { IWidgetDocument } from '../widgets';
+import { IWidgetDocument } from '../widgets/widget';
 import { IChartDocument } from '../charts/chart';
 
 
