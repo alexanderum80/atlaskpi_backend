@@ -17,12 +17,12 @@ import { GetAllAccessLogsActivity } from '../activities/get-all-access-logs.acti
     ],
     output: { type: AccessLogResponse }
 })
-export class GetAllAccessLogsQuery extends MutationBase<IAccessLogDocument> {
-    constructor(@inject('') private _accessLogs: AccessLogs) {
+export class GetAllAccessLogsQuery extends MutationBase<IAccessLogDocument[]> {
+    constructor(@inject(AccessLogs.name) private _accessLogs: AccessLogs) {
         super();
     }
 
-    run(data: any): Promise<IAccessLogDocument> {
+    run(data: any): Promise<IAccessLogDocument[]> {
         return this._accessLogs.model.getAllAccessLogs(data);
     }
 }

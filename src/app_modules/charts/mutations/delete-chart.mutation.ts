@@ -1,3 +1,4 @@
+import { detachFromAllDashboards } from './common';
 import * as Promise from 'bluebird';
 import { inject, injectable } from 'inversify';
 

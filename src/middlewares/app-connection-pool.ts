@@ -1,5 +1,4 @@
 import * as Promise from 'bluebird';
-import * as e from 'e';
 import { injectable } from 'inversify';
 import { remove } from 'lodash';
 import * as mongoose from 'mongoose';

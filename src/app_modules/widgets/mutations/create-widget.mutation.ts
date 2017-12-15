@@ -7,6 +7,7 @@ import { MutationBase } from '../../../framework/mutations/mutation-base';
 import { IMutationResponse } from '../../../framework/mutations/mutation-response';
 import { CreateWidgetActivity } from '../activities/create-widget.activity';
 import { WidgetInput, WidgetMutationResponse } from '../widgets.types';
+import { IWidgetInput } from '../../../domain/app/widgets/widget';
 
 
 @injectable()
@@ -23,7 +24,7 @@ export class CreateWidgetMutation extends MutationBase<IMutationResponse> {
         super();
     }
 
-    run(data: { input: WidgetInput }): Promise<IMutationResponse> {
+    run(data: { input: IWidgetInput }): Promise<IMutationResponse> {
         const that = this;
 
         return new Promise<IMutationResponse>((resolve, reject) => {

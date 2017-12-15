@@ -24,6 +24,6 @@ export interface IAccessLogEntry {
 export interface IAccessLogDocument extends IAccessLogEntry, mongoose.Document {}
 
 export interface IAccessLogModel extends mongoose.Model<IAccessLogDocument> {
-    getAllAccessLogs(filter: string): Promise<IQueryResponse<IAccessLogDocument>>;
+    getAllAccessLogs(filter: string): Promise<IAccessLogDocument[]>;
     createLog(details: IAccessLogEntry): Promise<IMutationResponse>;
 }

@@ -928,7 +928,7 @@ export function userPlugin(schema: mongoose.Schema, options: any) {
                     resolve(null);
                 }
             }).catch((err) => {
-                winston.error('Error retrieving the user by the identity: ' + err);
+                logger.error('Error retrieving the user by the identity: ' + err);
                 resolve(err);
             });
         });
