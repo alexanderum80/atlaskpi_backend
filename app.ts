@@ -1,12 +1,15 @@
 // This is a must because inversify uses it
 import 'reflect-metadata';
 
-import { auth } from './src/app_modules/security/routes';
-import { Bridge } from './src/framework';
-import { healthCheck, loadUser, logger, tokenValidator } from './src/middlewares';
+import { auth } from './src/app_modules/security/routes/auth';
+import { Bridge } from './src/framework/bridge';
+import { healthCheck } from './src/middlewares/health-check.middleware';
+import { loadUser } from './src/middlewares/load-user.middleware';
+import { logger } from './src/middlewares/logger.middleware';
+import { tokenValidator } from './src/middlewares/token-validator.middleware';
 import { registerDependencies } from './di';
-import { me } from './src/app_modules/security/index';
-import { AtlasApp } from './src/app_modules';
+import { me } from './src/app_modules/security/routes/me';
+import { AtlasApp } from './src/app_modules/application';
 import { initializeConnections } from './src/middlewares/initialize-connections.middleware';
 
 const app = Bridge.create(AtlasApp);
