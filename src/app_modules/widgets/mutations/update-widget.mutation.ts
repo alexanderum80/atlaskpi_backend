@@ -1,10 +1,13 @@
 import * as Promise from 'bluebird';
 import { inject, injectable } from 'inversify';
 
-import { Widgets } from '../../../domain';
-import { IMutationResponse, mutation, MutationBase } from '../../../framework';
-import { UpdateWidgetActivity } from '../activities';
+import { Widgets } from '../../../domain/app/widgets/widget.model';
+import { mutation } from '../../../framework/decorators/mutation.decorator';
+import { MutationBase } from '../../../framework/mutations/mutation-base';
+import { IMutationResponse } from '../../../framework/mutations/mutation-response';
+import { UpdateWidgetActivity } from '../activities/update-widget.activity';
 import { WidgetInput, WidgetMutationResponse } from '../widgets.types';
+
 
 
 @injectable()

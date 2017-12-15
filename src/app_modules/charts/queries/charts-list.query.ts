@@ -1,10 +1,12 @@
-import { IChartDocument } from '../../../domain/app/charts';
-
-import { injectable, inject } from 'inversify';
 import * as Promise from 'bluebird';
-import { IQuery, query } from '../../../framework';
-import { Charts } from '../../../domain';
-import { ListChartsActivity } from '../activities';
+import { inject, injectable } from 'inversify';
+
+import { IChartDocument } from '../../../domain/app/charts/chart';
+import { Charts } from '../../../domain/app/charts/chart.model';
+import { query } from '../../../framework/decorators/query.decorator';
+import { IQuery } from '../../../framework/queries/query';
+import { ListChartsActivity } from '../activities/list-charts.activity';
+
 
 @injectable()
 @query({
@@ -16,9 +18,7 @@ import { ListChartsActivity } from '../activities';
     output: { type: String }
 })
 export class ChartsListQuery implements IQuery<IChartDocument[]> {
-    constructor(@inject('Charts') private _charts: Charts) {
-        
-    }
+    constructor(@inject('Charts') private _charts: Charts) { }
 
     run(data: { preview: Boolean,  }): Promise<IChartDocument[]> {
         const that = this;

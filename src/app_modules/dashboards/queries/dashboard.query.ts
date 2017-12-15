@@ -1,18 +1,19 @@
-import { IQuery } from '../../../framework/queries';
 import * as Promise from 'bluebird';
+import * as console from 'console';
 import { inject, injectable } from 'inversify';
 import { Winston } from 'winston';
 
-import { Dashboards } from '../../../domain';
-import { IDashboard } from '../../../domain/app/dashboards';
-import { IUserDocument } from '../../../domain/app/security/users';
+import { CurrentUser } from '../../../../di';
+import { IDashboard } from '../../../domain/app/dashboards/dashboard';
+import { Dashboards } from '../../../domain/app/dashboards/dashboard.model';
 import { IUIWidget } from '../../../domain/app/widgets/ui-widget-base';
-import { query, QueryBase } from '../../../framework';
+import { query } from '../../../framework/decorators/query.decorator';
+import { IQuery } from '../../../framework/queries/query';
 import { WidgetsService } from '../../../services/widgets.service';
 import { ChartQuery } from '../../charts/queries/chart.query';
-import { GetDashboardActivity } from '../activities';
+import { GetDashboardActivity } from '../activities/get-dashboard.activity';
 import { Dashboard } from '../dashboards.types';
-import { CurrentUser } from '../../../../di';
+
 
 
 @injectable()

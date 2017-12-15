@@ -1,16 +1,11 @@
-import {
-    CreateWidgetMutation,
-    RemoveWidgetMutation,
-    UpdateWidgetMutation
-} from './mutations';
-import {
-    WidgetsQuery,
-    WidgetQuery,
-    PreviewWidgetQuery
-} from './queries';
-import {
-    AppModule, ModuleBase
-} from '../../framework';
+import { AppModule, ModuleBase } from '../../framework/decorators/app-module';
+import { CreateWidgetMutation } from './mutations/create-widget.mutation';
+import { RemoveWidgetMutation } from './mutations/remove-widget.mutation';
+import { UpdateWidgetMutation } from './mutations/update-widget.mutation';
+import { PreviewWidgetQuery } from './queries/preview-widget.query';
+import { WidgetQuery } from './queries/widget.query';
+import { WidgetsQuery } from './queries/widgets.query';
+
 
 @AppModule({
     mutations: [

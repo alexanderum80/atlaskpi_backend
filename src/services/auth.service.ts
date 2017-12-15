@@ -3,6 +3,7 @@ import { IUserToken, IAccountDocument, IUserDocument, Accounts, Users } from '..
 import { injectable, inject } from 'inversify';
 import { Winston } from 'winston';
 import { Roles } from '../domain/app/security/roles/index';
+import * as Promise from 'bluebird';
 
 export interface IUserAuthenticationData {
     hostname: string;

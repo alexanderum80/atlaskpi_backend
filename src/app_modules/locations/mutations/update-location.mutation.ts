@@ -1,10 +1,14 @@
-
-import { injectable, inject } from 'inversify';
 import * as Promise from 'bluebird';
-import { IMutationResponse, MutationBase, mutation } from '../../../framework';
-import { Locations, ILocation } from '../../../domain';
-import { UpdateLocationResponse, ILocationInput } from '../locations.types';
-import { UpdateLocationActivity } from '../activities';
+import { inject, injectable } from 'inversify';
+
+import { ILocation } from '../../../domain/app/location/location';
+import { Locations } from '../../../domain/app/location/location.model';
+import { mutation } from '../../../framework/decorators/mutation.decorator';
+import { MutationBase } from '../../../framework/mutations/mutation-base';
+import { IMutationResponse } from '../../../framework/mutations/mutation-response';
+import { UpdateLocationActivity } from '../activities/update-location.activity';
+import { ILocationInput, UpdateLocationResponse } from '../locations.types';
+
 
 @injectable()
 @mutation({

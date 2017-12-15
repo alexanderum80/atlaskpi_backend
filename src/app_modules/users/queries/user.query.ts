@@ -1,11 +1,13 @@
-
-import { injectable, inject } from 'inversify';
 import * as Promise from 'bluebird';
-import { IQuery, query } from '../../../framework';
-import { Users, IUserDocument } from '../../../domain';
-import { User } from '../users.types';
-import { FindUserByIdActivity } from '../activities';
+import { inject, injectable } from 'inversify';
+
 import { CurrentUser } from '../../../../di';
+import { IUserDocument } from '../../../domain/app/security/users/user';
+import { Users } from '../../../domain/app/security/users/user.model';
+import { query } from '../../../framework/decorators/query.decorator';
+import { IQuery } from '../../../framework/queries/query';
+import { FindUserByIdActivity } from '../activities/find-user-by-id.activity';
+import { User } from '../users.types';
 
 @injectable()
 @query({

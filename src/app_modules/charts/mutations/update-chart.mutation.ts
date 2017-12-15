@@ -1,15 +1,18 @@
-import { attachToDashboards, detachFromDashboards } from '../../dashboards/mutations/common';
-import { IChartInput } from '../../../domain/app/charts';
-import { Winston } from 'winston';
-import { Dashboards } from '../../../domain/app/dashboards';
-import { KPIs } from '../../../domain/app/kpis';
 import * as Promise from 'bluebird';
 import { inject, injectable } from 'inversify';
 import { difference } from 'lodash';
+import { Winston } from 'winston';
 
-import { Charts } from '../../../domain';
-import { IMutationResponse, mutation, MutationBase } from '../../../framework';
-import { UpdateChartActivity } from '../activities';
+import { IChartInput } from '../../../domain/app/charts/chart';
+import { Charts } from '../../../domain/app/charts/chart.model';
+import { Dashboards } from '../../../domain/app/dashboards/dashboard.model';
+import { KPIs } from '../../../domain/app/kpis/kpi.model';
+import { field } from '../../../framework/decorators/field.decorator';
+import { input } from '../../../framework/decorators/input.decorator';
+import { mutation } from '../../../framework/decorators/mutation.decorator';
+import { MutationBase } from '../../../framework/mutations/mutation-base';
+import { IMutationResponse } from '../../../framework/mutations/mutation-response';
+import { UpdateChartActivity } from '../activities/update-chart.activity';
 import { ChartAttributesInput, ChartMutationResponse } from '../charts.types';
 
 

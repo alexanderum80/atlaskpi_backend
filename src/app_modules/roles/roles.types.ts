@@ -1,7 +1,9 @@
+import { type } from '../../framework/decorators/type.decorator';
+import { field } from '../../framework/decorators/field.decorator';
+import { GraphQLTypesMap } from '../../framework/decorators/graphql-types-map';
+import { input } from '../../framework/decorators/input.decorator';
+import { ErrorDetails } from '../../framework/graphql/common.types';
 import { Permission } from '../permissions/permissions.types';
-
-import { input, type, field, GraphQLTypesMap, ErrorDetails } from '../../framework';
-import { User } from '../users/users.types';
 
 @type()
 export class Role  {

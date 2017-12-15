@@ -1,11 +1,10 @@
-import { DepartmentsQuery } from './queries/departments.query';
+import { AppModule, ModuleBase } from '../../framework/decorators/app-module';
+import { CreateDepartmentMutation } from './mutations/create-department.mutation.new';
+import { DeleteDepartmentMutation } from './mutations/delete-department.mutation.new';
+import { UpdateDepartmentMutation } from './mutations/update-department.mutation.new';
 import { DepartmentByIdQuery } from './queries/department-by-id.query';
-import { UpdateDepartmentMutation } from './mutations/update-department.mutation';
-import { DeleteDepartmentMutation } from './mutations/delete-department.mutation';
-import { CreateDepartmentMutation } from './mutations/create-department.mutation';
-import {
-    AppModule, ModuleBase
-} from '../../framework';
+import { DepartmentsQuery } from './queries/departments.query';
+
 
 @AppModule({
     mutations: [

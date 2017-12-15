@@ -1,30 +1,37 @@
 import 'datejs';
 
+import { from } from 'apollo-link/lib';
 import * as Promise from 'bluebird';
+import * as console from 'console';
 import { cloneDeep, difference, flatten, groupBy, isEmpty, map, union, uniq, uniqBy } from 'lodash';
 import * as moment from 'moment';
 import * as logger from 'winston';
 
-import { ChartType, IChartMetadata, IChartSerie } from '.';
-import { IChart } from '../../../../domain/app/charts';
-import { ITargetDocument } from '../../../../domain/app/targets';
+import { IChart } from '../../../../domain/app/charts/chart';
+import { ITargetDocument } from '../../../../domain/app/targets/target';
 import {
-    FREQUENCY_GROUPING_NAME,
-    FrequencyEnum,
     getDateRangeIdFromString,
-    getFrequencyPropName,
-    getFrequencySequence,
     IChartDateRange,
     IDateRange,
     parseComparisonDateRange,
     parsePredifinedDate,
     PredefinedComparisonDateRanges,
     PredefinedDateRanges,
-} from '../../../../domain/common';
+} from '../../../../domain/common/date-range';
+import {
+    FREQUENCY_GROUPING_NAME,
+    FrequencyEnum,
+    getFrequencyPropName,
+    getFrequencySequence,
+} from '../../../../domain/common/frequency-enum';
 import { TargetService } from '../../../../services/target.service';
 import { IKpiBase } from '../../../kpis/queries/kpi-base';
+import { IChartMetadata } from './chart-metadata';
 import { ChartPreProcessorExtention } from './chart-preprocessor-extention';
+import { IChartSerie } from './chart-serie';
+import { ChartType } from './chart-type';
 import { FrequencyHelper } from './frequency-values';
+
 
 interface Dictionary<T> { [key: string]: T; }
 

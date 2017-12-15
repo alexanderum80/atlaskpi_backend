@@ -1,11 +1,15 @@
-import { Charts } from '../../../domain/app/charts';
-
-import { injectable, inject } from 'inversify';
 import * as Promise from 'bluebird';
-import { IMutationResponse, MutationBase, mutation } from '../../../framework';
-import { KPIs } from '../../../domain';
+import { inject, injectable } from 'inversify';
+
+import { Charts } from '../../../domain/app/charts/chart.model';
+import { KPIs } from '../../../domain/app/kpis/kpi.model';
+import { field } from '../../../framework/decorators/field.decorator';
+import { mutation } from '../../../framework/decorators/mutation.decorator';
+import { MutationBase } from '../../../framework/mutations/mutation-base';
+import { IMutationResponse } from '../../../framework/mutations/mutation-response';
+import { RemoveKPIActivity } from '../activities/remove-kpi.activity';
 import { KPIRemoveResponse } from '../kpis.types';
-import { RemoveKPIActivity } from '../activities';
+
 
 @injectable()
 @mutation({

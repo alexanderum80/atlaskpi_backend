@@ -1,6 +1,8 @@
-import { FrequencyEnum, IDateRange } from '../../../domain/common';
-import { IExpenseModel, IKPIDocument } from '../../../domain';
 import * as Promise from 'bluebird';
+
+import { IExpenseModel } from '../../../domain/app/expenses/expense';
+import { IDateRange } from '../../../domain/common/date-range';
+import { FrequencyEnum } from '../../../domain/common/frequency-enum';
 import { AggregateStage } from './aggregate';
 import { IGetDataOptions, IKpiBase, KpiBase } from './kpi-base';
 

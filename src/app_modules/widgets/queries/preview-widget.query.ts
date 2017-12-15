@@ -1,11 +1,12 @@
-import { WidgetsService } from '../../../services/widgets.service';
-
-import { injectable, inject } from 'inversify';
 import * as Promise from 'bluebird';
-import { IQuery, query } from '../../../framework';
-import { Widgets } from '../../../domain';
+import { inject, injectable } from 'inversify';
+
+import { Widgets } from '../../../domain/app/widgets/widget.model';
+import { query } from '../../../framework/decorators/query.decorator';
+import { IQuery } from '../../../framework/queries/query';
+import { WidgetsService } from '../../../services/widgets.service';
+import { PreviewWidgetActivity } from '../activities/preview-widget.activity';
 import { Widget, WidgetInput } from '../widgets.types';
-import { PreviewWidgetActivity } from '../activities';
 
 @injectable()
 @query({
