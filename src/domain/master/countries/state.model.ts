@@ -15,6 +15,7 @@ const stateSchema = new mongoose.Schema({
 @injectable()
 export class States extends ModelBase<IStateModel> {
     constructor(@inject('MasterConnection') appConnection: MasterConnection) {
-        super(appConnection, 'State', stateSchema, 'states');
+        super();
+        this.initializeModel(appConnection.get, 'State', stateSchema, 'states');
     }
 }

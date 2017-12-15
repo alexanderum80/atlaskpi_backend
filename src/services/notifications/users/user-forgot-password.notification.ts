@@ -1,4 +1,4 @@
-import { IUserDocument, IUserForgotPasswordDataSource } from '../../../data';
+import { IUserForgotPasswordDataSource, IUserDocument } from './../../../domain/app/security/users/user';
 import { IEmailNotifier } from '../email-notifier';
 import * as Promise from 'bluebird';
 import * as nodemailer from 'nodemailer';

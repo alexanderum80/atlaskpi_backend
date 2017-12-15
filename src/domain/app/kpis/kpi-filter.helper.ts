@@ -100,7 +100,7 @@ export class KPIFilterHelper {
 
             if (!isArray(value) && isObject(value)) {
                 value = KPIFilterHelper._serializer(value, operation);
-            } else if (_.isArray(value)) {
+            } else if (isArray(value)) {
                 for (let i = 0; i < value.length; i++) {
                     value[i] = this._serializer(value[i], operation);
                 }

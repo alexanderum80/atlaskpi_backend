@@ -1,10 +1,10 @@
+import { ChartQuery } from './chart.query';
 import * as Promise from 'bluebird';
 import { inject, injectable } from 'inversify';
 
 import { Charts } from '../../../domain';
-import { query, QueryBase, IQuery } from '../../../framework';
+import { IQuery, query } from '../../../framework';
 import { ListChartsActivity } from '../activities';
-
 
 @injectable()
 @query({
@@ -18,7 +18,8 @@ import { ListChartsActivity } from '../activities';
     output: { type: String }
 })
 export class ChartsQuery implements IQuery<string> {
-    constructor(@inject('Charts') private _charts: Charts) {
+    constructor(@inject('Charts') private _charts: Charts,
+                @inject('KPIs') private _kpis: Charts) {
     }
 
     run(data: { from: string, to: string, preview: boolean }): Promise<string> {
@@ -34,8 +35,8 @@ export class ChartsQuery implements IQuery<string> {
                 // process charts
                 let promises = chartsCollection.map(c => {
                     // TODO: Refactoring needed here
-                    let chartQuery = new GetChartQuery(that.identity, that._ctx);
-                    return chartQuery.run({ id: c._id });
+                    // const chartQuery = new ChartQuery();
+                    // return chartQuery.run({ id: c._id });
                 });
 
                 Promise.all(promises).then((charts) => {

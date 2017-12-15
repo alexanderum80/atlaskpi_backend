@@ -1,24 +1,11 @@
-import { ITarget, ITargetDocument } from '../../../../models/app/targets/ITarget';
 import * as Promise from 'bluebird';
-import {
-    IDateRange
-} from '../../../../models/common';
-import {
-    IKpiBase
-} from '../../kpis/kpi-base';
-import {
-    IChartMetadata
-} from './chart-metadata';
-import {
-    FrequencyHelper
-} from './frequency-values';
-import {
-    IChart
-} from '../../../../models/app/charts';
-import {
-    IUIChart,
-    UIChartBase
-} from './';
+
+import { IUIChart, UIChartBase } from './';
+import { IKpiBase } from './../../../../app_modules/kpis/queries/kpi-base';
+import { IChart } from './../../../../domain/app/charts/chart';
+import { ITargetDocument } from './../../../../domain/app/targets/target';
+import { IChartMetadata } from './chart-metadata';
+import { FrequencyHelper } from './frequency-values';
 
 export class BarChart extends UIChartBase implements IUIChart {
     protected basicDefinition = { 'chart'       : { 'type': 'bar' } };

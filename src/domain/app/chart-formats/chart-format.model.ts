@@ -279,6 +279,6 @@ ChartFormatSchema.statics.getChartFormatById = function(data): Promise < IQueryR
 export class ChartFormats extends ModelBase < IChartFormatModel > {
     constructor(@inject('AppConnection') appConnection: AppConnection) {
         super();
-        this.initializeModel(appConnection, 'ChartFormat', ChartFormatSchema, 'chartFormats');
+        this.initializeModel(appConnection.get, 'ChartFormat', ChartFormatSchema, 'chartFormats');
     }
 }
