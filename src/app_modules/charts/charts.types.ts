@@ -1,7 +1,9 @@
-
-import { input, type, field, GraphQLTypesMap, ErrorDetails } from '../../framework';
-import { ChartDateRangeInput, ChartDateRange } from '../shared';
+import { IChart } from '../../domain/app/charts/chart';
+import { resolver } from '../../framework/decorators/resolver.decorator';
+import { ErrorDetails, field, GraphQLTypesMap, input, type } from '../../framework';
 import { Dashboard } from '../dashboards/dashboards.types';
+import { ChartDateRange, ChartDateRangeInput } from '../shared';
+
 
 
 @input()
@@ -118,6 +120,14 @@ export class ChartEntityResponse  {
     @field({ type: Dashboard, isArray: true })
     dashboards: Dashboard[];
 
+    @resolver({ forField: 'dateRange' })
+    static resolveDateRange = (entity: IChart) => entity.dateRange[0] || null
+
+    @resolver({ forField: 'chartDefinition' })
+    static resolveDefinition = (entity: IChart) => JSON.stringify(entity.chartDefinition)
+
+    @resolver({ forField: 'dashboards' })
+    static resolveDashboards = (entity: IChart) => entity.dashboards
 }
 
 
@@ -140,6 +150,8 @@ export class ListChartsQueryResponse  {
     @field({ type: ChartEntityResponse, isArray: true })
     data: ChartEntityResponse[];
 
+    @resolver({ forField: 'data' })
+    static resolveData = (res: [IChart]) => res
 }
 
 

@@ -50,6 +50,10 @@ export class ChartQuery implements IQuery<String> {
                     chart.chartDefinition = definition;
                     resolve(JSON.stringify(chart));
                 });
+            })
+            .catch(err => {
+                that._logger.error(err);
+                reject(err);
             });
         });
     }
