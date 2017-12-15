@@ -92,7 +92,7 @@ export class AccessLogResult  {
     entity: AccessLogResponse;
 
     @field({ type: ErrorDetails, isArray: true })
-    error: ErrorDetails[];
+    error: ErrorDetails;
 
 }
 

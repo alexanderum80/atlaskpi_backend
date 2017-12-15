@@ -6,6 +6,7 @@ import { ChartEntityResponse } from '../charts/charts.types';
 import { KPIFilterHelper } from '../../domain/app/kpis/kpi-filter.helper';
 import { KPIExpressionHelper } from '../../domain/app/kpis/kpi-expression.helper';
 import { KPIGroupingsHelper } from '../../domain/app/kpis/kpi-groupings.helper';
+import { IKPIDocument } from '../../domain/app/kpis/kpi';
 
 @input()
 export class KPIAttributesInput  {
@@ -28,7 +29,7 @@ export class KPIAttributesInput  {
     frequency: string;
 
     @field({ type: GraphQLTypesMap.String, isArray: true })
-    groupings: string[];
+    groupings: string;
 
     @field({ type: GraphQLTypesMap.String })
     type: string;
@@ -44,10 +45,10 @@ export class KPIAttributesInput  {
 @type()
 export class KPIEntityResponse {
     @field({ type: ChartEntityResponse, isArray: true})
-    chart: ChartEntityResponse[];
+    chart: ChartEntityResponse;
 
     @field({ type: Widget, isArray: true})
-    widget: Widget[];
+    widget: Widget;
 }
 
 
@@ -58,7 +59,7 @@ export class KPIRemoveResponse  {
     entity: KPIEntityResponse;
 
     @field({ type: ErrorDetails, isArray: true })
-    errors: ErrorDetails[];
+    errors: ErrorDetails;
 
     @field({ type: GraphQLTypesMap.Boolean })
     success: boolean;
@@ -87,13 +88,13 @@ export class KPI  {
     group: string;
 
     @field({ type: GraphQLTypesMap.String, isArray: true })
-    groupings: string[];
+    groupings: string;
 
     @field({ type: ChartDateRange })
     dateRange: ChartDateRange;
 
     @resolver({ forField: 'dateRange' })
-    static resolveDateRange(entity: any) {
+    static resolveDateRange(entity: IKPIDocument) {
         return entity.dateRange;
     }
 
@@ -101,8 +102,8 @@ export class KPI  {
     filter: string;
 
     @resolver({ forField: 'filter' })
-    static resolveFilter(entity: any) {
-        return KPIFilterHelper.PrepareFilterField(entity.type, entity.filter);
+    static resolveFilter(entity: IKPIDocument) {
+        return JSON.stringify(KPIFilterHelper.PrepareFilterField(entity.type, entity.filter));
     }
 
     @field({ type: GraphQLTypesMap.String })
@@ -118,7 +119,7 @@ export class KPI  {
     expression: string;
 
     @resolver({ forField: 'expression' })
-    static resolveExpression(entity: any)  {
+    static resolveExpression(entity: IKPIDocument)  {
         return KPIExpressionHelper.PrepareExpressionField(entity.type, entity.expression);
     }
 
@@ -126,11 +127,11 @@ export class KPI  {
     type: string;
 
     @field({ type: GraphQLTypesMap.String, isArray: true })
-    availableGroupings: string[];
+    availableGroupings: string;
 
     @resolver({ forField: 'availableGroupings'})
-    static resolveavailableGroupings(entity: any) {
-        KPIGroupingsHelper.GetAvailableGroupings(entity);
+    static resolveavailableGroupings(entity: IKPIDocument) {
+        return KPIGroupingsHelper.GetAvailableGroupings(entity);
     }
 
 }
@@ -143,7 +144,7 @@ export class KPIMutationResponse  {
     entity: KPI;
 
     @field({ type: ErrorDetails, isArray: true })
-    errors: ErrorDetails[];
+    errors: ErrorDetails;
 
     @field({ type: GraphQLTypesMap.Boolean })
     success: boolean;
@@ -157,7 +158,7 @@ export class KPIPagedQueryResult  {
     pagination: PaginationInfo;
 
     @field({ type: KPI, isArray: true })
-    data: KPI[];
+    data: KPI;
 
 }
 
