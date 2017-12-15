@@ -10,11 +10,13 @@ export function logger(req: IExtendedRequest, res: Response, next) {
 
     let logger = new(winston.Logger)({
         transports: [
-            new(winston.transports.Console)({ colorize: true }),
+            new(winston.transports.Console)({
+                colorize: true,
+            }),
             new(winston.transports.File)({
                 name: 'logs-file',
                 filename: 'app-logs.log',
-                level: 'info'
+                level: 'debug'
             }),
             new(winston.transports.File)({
                 name: 'errors-file',
