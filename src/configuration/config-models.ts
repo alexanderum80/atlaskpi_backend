@@ -1,7 +1,7 @@
-import { ITokenInfo } from '../data/models/app/users';
-import { IEmailServiceConfig }from './email-service.config';
-import { IUsersServiceConfig } from './users';
-import { IAppServicesConfig } from './';
+import { IAppServicesConfig } from './app/app-services.config';
+import { IEmailServiceConfig } from './email-service.config';
+import { IUsersServiceConfig } from './users/users-service-config';
+
 
 /*
 
