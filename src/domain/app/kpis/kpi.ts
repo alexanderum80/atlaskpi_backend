@@ -1,3 +1,5 @@
+import { Expenses } from '../expenses/expense.model';
+import { Sales } from '../sales/sale.model';
 import * as Promise from 'bluebird';
 import * as mongoose from 'mongoose';
 
@@ -32,6 +34,11 @@ export function getKPITypePropName(type: KPITypeEnum) {
 export interface IDocumentExist {
     chart?: IChartDocument[];
     widget?: IWidgetDocument[];
+}
+
+export interface IKPIDataSourceHelper {
+    salesModel: Sales;
+    expenseModel: Expenses;
 }
 
 export interface IKPIFilter {
