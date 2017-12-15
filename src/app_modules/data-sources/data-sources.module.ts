@@ -1,11 +1,11 @@
-import { GetDataSourcesQuery } from './queries';
+import { DataSourcesQuery } from './queries';
 import {
     AppModule, ModuleBase
 } from '../../framework';
 
 @AppModule({
     queries: [
-        GetDataSourcesQuery
+        DataSourcesQuery
     ]
 })
 export class DataSourcesModule extends ModuleBase { }

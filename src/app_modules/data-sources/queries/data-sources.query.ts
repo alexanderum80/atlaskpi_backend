@@ -16,7 +16,7 @@ import { GetDataSourcesActivity } from '../activities';
     output: { type: DataSourceResponse, isArray: true }
 })
 export class DataSourcesQuery implements IQuery<DataSourceResponse[]> {
-    constructor(@inject('DatasourceHelper') private _datasourceHelper: DataSourcesHelper) { }
+    constructor() { }
 
     run(data: { filter: String,  }): Promise<DataSourceResponse[]> {
         const that = this;

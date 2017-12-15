@@ -16,7 +16,6 @@ import { GetKpisActivity } from '../activities';
 })
 export class KpisQuery implements IQuery<IKPIDocument[]> {
     constructor(@inject('KPIs') private _kpis: KPIs) {
-        
     }
 
     run(data: { id: string }): Promise<IKPIDocument[]> {

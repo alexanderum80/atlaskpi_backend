@@ -136,10 +136,6 @@ SalesSchema.statics.findByPredefinedDateRange = function(predefinedDateRange: st
     });
 };
 
-export function getSaleModel(m: mongoose.Connection): ISaleModel {
-    return <ISaleModel>m.model('Sale', SalesSchema, 'sales');
-}
-
 @injectable()
 export class Sales extends ModelBase<ISaleModel> {
     constructor(@inject('AppConnection') appConnection: AppConnection) {
