@@ -22,13 +22,11 @@ import { WidgetsModule } from './widgets/widgets.module';
     imports: [
         AccessLogsModule,
         AppointmentsModule,
-        BusinessUnitModule,
         ChartsModule,
         DashboardsModule,
         DataSourcesModule,
         DateRangesModule,
         EmployeesModule,
-        InventoryModule,
         KpisModule,
         LocationsModule,
         PermissionsModule,
