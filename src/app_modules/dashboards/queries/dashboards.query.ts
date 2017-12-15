@@ -3,15 +3,15 @@ import { inject, injectable } from 'inversify';
 import { isArray } from 'util';
 
 import { Charts } from '../../../domain/app/charts/chart.model';
+import { CurrentUser } from '../../../domain/app/current-user';
 import { IDashboard } from '../../../domain/app/dashboards/dashboard';
 import { Dashboards } from '../../../domain/app/dashboards/dashboard.model';
 import { KPIs } from '../../../domain/app/kpis/kpi.model';
+import { Logger } from '../../../domain/app/logger';
 import { query } from '../../../framework/decorators/query.decorator';
 import { IQuery } from '../../../framework/queries/query';
 import { GetDashboardsActivity } from '../activities/get-dashboards.activity';
 import { Dashboard } from '../dashboards.types';
-import { CurrentUser } from './../../../../di';
-import { Logger } from './../../../../di';
 
 
 @injectable()
@@ -29,7 +29,7 @@ export class DashboardsQuery implements IQuery<IDashboard[]> {
         @inject(Charts.name) private _charts: Charts,
         @inject(KPIs.name) private kpis: KPIs,
         @inject('Logger') private _logger: Logger,
-        @inject(CurrentUser.name) private _currentUser: CurrentUser
+        @inject('CurrentUser') private _currentUser: CurrentUser
     ) { }
 
     run(data: { group: String,  }): Promise<IDashboard[]> {

@@ -3,9 +3,9 @@ import * as changeCase from 'change-case';
 import { inject, injectable } from 'inversify';
 import * as validate from 'validate.js';
 
-import { Logger } from '../../di';
 import { IAppConfig, IMongoDBAtlasCredentials } from '../configuration/config-models';
 import { AppConnection } from '../domain/app/app.connection';
+import { Logger } from '../domain/app/logger';
 import { Permissions } from '../domain/app/security/permissions/permission.model';
 import { initRoles } from '../domain/app/security/roles/init-roles';
 import { initialRoles } from '../domain/app/security/roles/initial-roles';

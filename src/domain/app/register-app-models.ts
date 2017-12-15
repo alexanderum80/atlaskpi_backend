@@ -65,6 +65,6 @@ export function registerAppModels(container: IBridgeContainer) {
         container.registerPerWebRequest(m);
     });
 
-    container.registerConstant(Logger.name, Logger);
+    container.registerPerWebRequest(Logger);
     container.registerPerWebRequest(CurrentUser);
 }

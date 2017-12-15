@@ -5,6 +5,7 @@ import { IChartInput } from '../../../domain/app/charts/chart';
 import { Charts } from '../../../domain/app/charts/chart.model';
 import { Dashboards } from '../../../domain/app/dashboards/dashboard.model';
 import { KPIs } from '../../../domain/app/kpis/kpi.model';
+import { Logger } from '../../../domain/app/logger';
 import { field } from '../../../framework/decorators/field.decorator';
 import { input } from '../../../framework/decorators/input.decorator';
 import { mutation } from '../../../framework/decorators/mutation.decorator';
@@ -12,7 +13,6 @@ import { MutationBase } from '../../../framework/mutations/mutation-base';
 import { IMutationResponse } from '../../../framework/mutations/mutation-response';
 import { CreateChartActivity } from '../activities/create-chart.activity';
 import { ChartAttributesInput, ChartMutationResponse } from '../charts.types';
-import { Logger } from './../../../../di';
 import { attachToDashboards } from './common';
 
 @injectable()

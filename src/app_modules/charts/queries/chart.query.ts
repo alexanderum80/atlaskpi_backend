@@ -6,9 +6,9 @@ import { query } from '../../../framework/decorators/query.decorator';
 import { ChartsService } from '../../../services/charts.service';
 import { GetChartActivity } from '../activities/get-chart.activity';
 import { GetChartInput } from '../charts.types';
-import { Logger } from './../../../../di';
 import { IChart } from './../../../domain/app/charts/chart';
 import { IQuery } from './../../../framework/queries/query';
+import { Logger } from '../../../domain/app/logger';
 
 // TODO: I need kind of a big refactory here
 @injectable()
