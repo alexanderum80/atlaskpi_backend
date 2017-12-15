@@ -4,9 +4,6 @@ import * as Promise from 'bluebird';
 import { AggregateStage } from './aggregate';
 import { IGetDataOptions, IKpiBase, KpiBase } from './kpi-base';
 
-
-import * as _ from 'lodash';
-
 export class Revenue extends KpiBase implements IKpiBase {
 
     constructor(sales: ISaleModel) {
