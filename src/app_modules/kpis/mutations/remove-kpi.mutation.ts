@@ -1,6 +1,6 @@
-import { IWidgetDocument } from '../../../domain/app/widgets';
-import { IChartDocument } from '../../../domain/app/charts';
-import { Widgets } from '../../../domain/app/widgets';
+import { IWidgetDocument } from '../../../domain/app/widgets/widget';
+import { IChartDocument } from '../../../domain/app/charts/chart';
+import { Widgets } from '../../../domain/app/widgets/widget.model';
 import * as Promise from 'bluebird';
 import { inject, injectable } from 'inversify';
 
