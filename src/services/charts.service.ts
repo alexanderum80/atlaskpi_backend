@@ -102,6 +102,20 @@ export class ChartsService {
         });
     }
 
+    public listCharts(): Promise<IChart[]> {
+        const that = this;
+        return new Promise<IChart[]>((resolve, reject) => {
+            that._charts.model
+            .find({})
+            .then(chartDocuments => {
+                return resolve(chartDocuments);
+            })
+            .catch(err => {
+                return reject(err);
+            });
+        });
+    }
+
     private _resolveDashboards(chart): Promise<IDashboardDocument[]> {
         const that = this;
         return new Promise<IDashboardDocument[]>((resolve, reject) => {

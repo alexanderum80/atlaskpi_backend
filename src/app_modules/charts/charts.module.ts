@@ -1,16 +1,8 @@
-import {
-    ListChartsByGroupQuery
-} from './queries/list-charts-by-group.query';
+import { AppModule, ModuleBase } from '../../framework';
+import { CreateChartMutation, DeleteChartMutation, UpdateChartMutation } from './mutations';
 import { ChartQuery, ChartsListQuery, ChartsQuery, GetChartsByGroupQuery, GetChartsGroupQuery } from './queries';
-import {
-    CreateChartMutation,
-    DeleteChartMutation,
-    UpdateChartMutation
-} from './mutations';
-import {
-    AppModule,
-    ModuleBase
-} from '../../framework';
+import { ListChartsByGroupQuery } from './queries/list-charts-by-group.query';
+import { ListChartsQuery } from './queries/list-charts.query';
 
 @AppModule({
     mutations: [
@@ -24,7 +16,8 @@ import {
         ChartsQuery,
         GetChartsByGroupQuery,
         GetChartsGroupQuery,
-        ListChartsByGroupQuery
+        ListChartsByGroupQuery,
+        ListChartsQuery
     ],
 })
 export class ChartsModule extends ModuleBase {}
