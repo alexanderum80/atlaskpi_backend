@@ -1,8 +1,10 @@
-import { IBridgeContainer, IWebRequestContainerDetails } from '../framework/di/bridge-container';
 import { Request } from 'Express';
 import * as mongoose from 'mongoose';
+
 import { IIdentity } from '../domain/app/security/users/identity';
-import { IUserDocument } from '../domain/app/index';
+import { IUserDocument } from '../domain/app/security/users/user';
+import { IWebRequestContainerDetails } from '../framework/di/bridge-container';
+
 
 /**
  * Extension of the express request object
