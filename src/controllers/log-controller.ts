@@ -5,6 +5,7 @@ import { Winston } from 'winston';
 import { ILogEntry, ILogEntryDocument } from '../domain/app/log/log';
 import { Logs } from '../domain/app/log/log.model';
 import { TechnicalSupportIssueNotification } from '../services/notifications/app/technical-support-issue.notification';
+import { Logger } from './../../di';
 
 
 export interface ILogDetails {
@@ -23,7 +24,7 @@ export class LogController {
     constructor(
         @inject('TechnicalSupportIssueNotification') private _supportNotifier: TechnicalSupportIssueNotification,
         @inject('Logs') private _logs: Logs,
-        @inject('logger') private _logger: Winston) { }
+        @inject(Logger.name) private _logger: Winston) { }
 
     processLogEntry(details: ILogDetails): Promise<any> {
         const that = this;

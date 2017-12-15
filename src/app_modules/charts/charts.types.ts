@@ -1,12 +1,12 @@
 import { field } from '../../framework/decorators/field.decorator';
 import { GraphQLTypesMap } from '../../framework/decorators/graphql-types-map';
 import { input } from '../../framework/decorators/input.decorator';
+import { resolver } from '../../framework/decorators/resolver.decorator';
 import { type } from '../../framework/decorators/type.decorator';
 import { ErrorDetails } from '../../framework/graphql/common.types';
 import { Dashboard } from '../dashboards/dashboards.types';
 import { ChartDateRange, ChartDateRangeInput } from '../shared/shared.types';
-
-
+import { IChart } from './../../domain/app/charts/chart';
 
 @input()
 export class GetChartInput  {

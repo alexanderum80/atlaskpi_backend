@@ -4,10 +4,8 @@ import { DeleteChartMutation } from './mutations/delete-chart.mutation';
 import { UpdateChartMutation } from './mutations/update-chart.mutation';
 import { ChartQuery } from './queries/chart.query';
 import { ChartsListQuery } from './queries/charts-list.query';
-import { ChartsQuery } from './queries/charts.query';
-import { GetChartsByGroupQuery } from './queries/get-charts-by-group.query';
-import { GetChartsGroupQuery } from './queries/get-charts-groups.query';
-import { ListChartsByGroupQuery } from './queries/list-charts-by-group.query';
+import { ListChartsQuery } from './queries/list-charts.query';
+import { PreviewChartQuery } from './queries/preview-chart.query';
 
 
 @AppModule({

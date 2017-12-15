@@ -1,15 +1,14 @@
 import * as Promise from 'bluebird';
 import { inject, injectable } from 'inversify';
+import { Winston } from 'winston';
 
-import { Charts } from '../../../domain/app/charts/chart.model';
-import { KPIs } from '../../../domain/app/kpis/kpi.model';
 import { input } from '../../../framework/decorators/input.decorator';
 import { query } from '../../../framework/decorators/query.decorator';
 import { IQuery } from '../../../framework/queries/query';
 import { PreviewChartActivity } from '../activities/preview-chart.activity';
-import { ChartQuery } from './chart.query';
-
+import { Logger } from './../../../../di';
 import { ChartsService } from './../../../services/charts.service';
+import { ChartAttributesInput } from './../charts.types';
 
 @injectable()
 @query({
@@ -23,7 +22,7 @@ import { ChartsService } from './../../../services/charts.service';
 export class PreviewChartQuery implements IQuery<String> {
     constructor(
         @inject(ChartsService.name) private _chartsService: ChartsService,
-        @inject('logger') private _logger: Winston
+        @inject(Logger.name) private _logger: Winston
     ) { }
 
     run(data: { input: ChartAttributesInput }): Promise<String> {

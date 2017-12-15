@@ -1,10 +1,10 @@
 import { GroupingMap } from '../../../app_modules/charts/queries/chart-grouping-map';
 import { DataSourcesHelper } from '../../../app_modules/data-sources/queries/datasource.helper';
-import { IKPIDocument, IKPISimpleDefinition, KPITypeEnum } from './kpi';
+import { IKPIDocument, IKPISimpleDefinition, KPITypeEnum, IKPI } from './kpi';
 import { KPIExpressionHelper } from './kpi-expression.helper';
 
 export class KPIGroupingsHelper {
-    public static GetAvailableGroupings(kpi: IKPIDocument): string[] {
+    public static GetAvailableGroupings(kpi: IKPIDocument | IKPI): string[] {
         const identifier = kpi.baseKpi || kpi.code;
         const byIdentifierGroupings  = this._getGroupungsByIdentifier(identifier || null);
 
