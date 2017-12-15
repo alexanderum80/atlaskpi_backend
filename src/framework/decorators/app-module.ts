@@ -1,28 +1,20 @@
-import { MetadataFieldsMap } from './metadata-fields.map';
+import { interfaces } from 'inversify';
+
+import { registerDependencies } from '../../../di';
+import { IBridgeContainer } from '../di/bridge-container';
+import { IGraphqlContext } from '../graphql/graphql-context';
+import { IMutation } from '../mutations/mutation';
+import { IQuery } from '../queries/query';
 import {
     addGlobalModuleMetadata,
     getGraphqlMetadata,
     IArtifactDetails,
-    IGraphqlArtifacts,
     IModuleMetadata,
     IQueryOrMutationDetails,
     MetadataType,
     updateMetadata,
 } from './helpers';
-import {
-    IQuery
-} from '../queries/query';
-import {
-    IMutation
-} from '../mutations/mutation';
-import {
-    Container,
-    ContainerModule,
-    interfaces
-} from 'inversify';
-import { IGraphqlContext } from '../graphql';
-import { GraphqlMetaType } from './graphql-meta-types.enum';
-import { BridgeContainer, IBridgeContainer } from '../di/bridge-container';
+import { MetadataFieldsMap } from './metadata-fields.map';
 
 export interface IDIRegistrator {
     bind: interfaces.Bind;
