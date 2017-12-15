@@ -76,12 +76,12 @@ export class DataSourcesHelper {
         return Object.keys(collection);
     }
 
-    public static GetGroupingsExistInCollectionSchema(schemaName: string, groupMappings: any, kpiService: IKPIDataSourceHelper): any {
+    public static GetGroupingsExistInCollectionSchema(schemaName: string, groupMappings: any, models: IKPIDataSourceHelper): any {
         const that = this;
         // get sales and expense mongoose models
         const model = {
-            sales: kpiService.sales,
-            expenses: kpiService.expenses
+            sales: models.sales,
+            expenses: models.expenses
         };
         // get sales or expense mongoose models
         const collection = GroupingMap[schemaName];
