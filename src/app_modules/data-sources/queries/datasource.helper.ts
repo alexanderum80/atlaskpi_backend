@@ -80,8 +80,8 @@ export class DataSourcesHelper {
         const that = this;
         // get sales and expense mongoose models
         const model = {
-            sales: kpiService.salesModel,
-            expenses: kpiService.expenseModel
+            sales: kpiService.sales,
+            expenses: kpiService.expenses
         };
         // get sales or expense mongoose models
         const collection = GroupingMap[schemaName];

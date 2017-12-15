@@ -39,8 +39,8 @@ export interface IDocumentExist {
 }
 
 export interface IKPIDataSourceHelper {
-    salesModel: Sales;
-    expenseModel: Expenses;
+    sales: Sales;
+    expenses: Expenses;
 }
 
 export interface IKPIFilter {
