@@ -14,7 +14,7 @@ import { MutationBase } from '../../../framework/mutations/mutation-base';
 import { IMutationResponse } from '../../../framework/mutations/mutation-response';
 import { CreateChartActivity } from '../activities/create-chart.activity';
 import { ChartAttributesInput, ChartMutationResponse } from '../charts.types';
-
+import { Logger } from '../../../../di';
 
 @injectable()
 @mutation({
@@ -30,7 +30,7 @@ export class CreateChartMutation extends MutationBase<IMutationResponse> {
         @inject('KPIs') private _kpis: KPIs,
         @inject('Charts') private _charts: Charts,
         @inject('Dashboards') private _dashboards: Dashboards,
-        @inject('logger') private _logger: Winston
+        @inject(Logger.name) private _logger: Winston
     ) {
         super();
     }

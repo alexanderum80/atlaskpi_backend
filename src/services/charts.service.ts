@@ -1,11 +1,11 @@
-import { ChartAttributesInput } from './../app_modules/charts/charts.types';
 import * as Promise from 'bluebird';
 import { inject, injectable } from 'inversify';
 import { Winston } from 'winston';
 
 import { getGroupingMetadata } from '../app_modules/charts/queries/chart-grouping-map';
-import { CurrentUser } from './../../di';
-import { IChartMetadata } from './../app_modules/charts/queries/charts';
+import { IChartMetadata } from '../app_modules/charts/queries/charts/chart-metadata';
+import { CurrentUser, Logger } from './../../di';
+import { ChartAttributesInput } from './../app_modules/charts/charts.types';
 import { ChartFactory } from './../app_modules/charts/queries/charts/chart-factory';
 import { IUIChart } from './../app_modules/charts/queries/charts/ui-chart-base';
 import { DateRangeHelper } from './../app_modules/date-ranges/queries/date-range.helper';
@@ -42,10 +42,10 @@ export class ChartsService {
         @inject('KPIs') private _kpis: KPIs,
         @inject(Targets.name) private _targets: Targets,
         @inject(TargetService.name) private _targetService: TargetService,
-        @inject(CurrentUser.name) private _currentUser: CurrentUser,
+        @inject('CurrentUser') private _currentUser: CurrentUser,
         @inject(ChartFactory.name) private _chartFactory: ChartFactory,
         @inject(KpiFactory.name) private _kpiFactory: KpiFactory,
-        @inject('logger') private _logger: Winston
+        @inject(Logger.name) private _logger: Winston
     ) { }
 
     public renderDefinition(chart: IChart, options?: IRenderChartOptions): Promise<any> {

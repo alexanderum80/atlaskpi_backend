@@ -2,10 +2,12 @@ import * as Promise from 'bluebird';
 import { inject, injectable } from 'inversify';
 import { Winston } from 'winston';
 
-import { IChart, IChartDocument } from '../../../domain/app/charts';
-import { IQuery, query } from '../../../framework';
-import { ListChartsActivity } from '../activities';
+import { IChart } from '../../../domain/app/charts/chart';
+import { query } from '../../../framework/decorators/query.decorator';
+import { IQuery } from '../../../framework/queries/query';
+import { Logger } from './../../../../di';
 import { ChartsService } from './../../../services/charts.service';
+import { ListChartsActivity } from './../activities/list-charts.activity';
 import { ListChartsQueryResponse } from './../charts.types';
 
 @injectable()
@@ -17,7 +19,7 @@ import { ListChartsQueryResponse } from './../charts.types';
 export class ListChartsQuery implements IQuery<IChart[]> {
     constructor(
         @inject(ChartsService.name) private _chartsService: ChartsService,
-        @inject('logger') private _logger: Winston
+        @inject(Logger.name) private _logger: Winston
     ) { }
 
     run(data: { }): Promise<IChart[]> {

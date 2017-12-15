@@ -26,7 +26,7 @@ import { getGroupingMetadata } from './chart-grouping-map';
 export class ChartQuery implements IQuery<String> {
     constructor(
         @inject(ChartsService.name) private _chartsService: ChartsService,
-        @inject('logger') private _logger: Winston
+        @inject(Logger.name) private _logger: Winston
     ) { }
 
     run(data: { id: string, input: IChartInput, /* TODO: I added this extra parameter here maually */ chart: any }): Promise<String> {

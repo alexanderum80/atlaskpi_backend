@@ -40,7 +40,6 @@ export class Logger {
     }
 }
 
-
 export function registerDependencies(container: IBridgeContainer) {
     container.registerConstant(Logger.name, Logger);
 

@@ -12,6 +12,7 @@ import { query } from '../../../framework/decorators/query.decorator';
 import { IQuery } from '../../../framework/queries/query';
 import { GetDashboardsActivity } from '../activities/get-dashboards.activity';
 import { Dashboard } from '../dashboards.types';
+import { Logger } from './../../../../di';
 
 
 @injectable()
@@ -28,7 +29,7 @@ export class DashboardsQuery implements IQuery<IDashboard[]> {
         @inject(Dashboards.name) private _dashboards: Dashboards,
         @inject(Charts.name) private _charts: Charts,
         @inject(KPIs.name) private kpis: KPIs,
-        @inject('logger') private _logger: Winston,
+        @inject(Logger.name) private _logger: Winston,
         @inject(CurrentUser.name) private _currentUser: CurrentUser
     ) { }
 

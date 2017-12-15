@@ -4,6 +4,7 @@ import { inject, injectable } from 'inversify';
 import * as validate from 'validate.js';
 import { Winston } from 'winston';
 
+import { Logger } from '../../di';
 import { IAppConfig, IMongoDBAtlasCredentials } from '../configuration/config-models';
 import { AppConnection } from '../domain/app/app.connection';
 import { Permissions } from '../domain/app/security/permissions/permission.model';
@@ -74,7 +75,7 @@ export class AccountsService {
         @inject('Accounts') private _accounts: Accounts,
         @inject('EnrollmentNotification') private _enrollmentNotification: EnrollmentNotification,
         @inject('AuthService') private _authService: AuthService,
-        @inject('logger') private _logger: Winston) {}
+        @inject(Logger.name) private _logger: Winston) {}
 
     createAccount(input: ICreateAccountInfo): Promise < IMutationResponse > {
         let that = this;

@@ -9,6 +9,7 @@ import { IUserToken } from '../domain/app/security/users/user-token';
 import { Users } from '../domain/app/security/users/user.model';
 import { IAccountDocument } from '../domain/master/accounts/Account';
 import { Accounts } from '../domain/master/accounts/account.model';
+import { Logger } from './../../di';
 
 
 export interface IUserAuthenticationData {
@@ -28,7 +29,7 @@ export class AuthService {
         @inject('Accounts') private _accounts: Accounts,
         @inject('Users') private _users: Users,
         @inject('Roles') private _roles: Roles,
-        @inject('logger') private _logger: Winston ) { }
+        @inject(Logger.name) private _logger: Winston ) { }
 
     authenticateUser(input: IUserAuthenticationData): Promise < IUserToken > {
         let that = this;
