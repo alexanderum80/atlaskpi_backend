@@ -1,11 +1,12 @@
 import * as Promise from 'bluebird';
-import * as nodemailer from 'nodemailer';
 import * as Handlebars from 'handlebars';
+import { inject, injectable } from 'inversify';
+import * as nodemailer from 'nodemailer';
+
+import { IAppConfig } from '../../../configuration/config-models';
+import { IUserDocument } from '../../../domain/app/security/users/user';
 import { IEmailNotifier } from '../email-notifier';
-import { sendEmail } from '../..';
-import { IAppConfig } from '../../../configuration';
-import { injectable, inject } from 'inversify';
-import { IUserDocument } from '../../../domain/index';
+
 
 export interface IEnrollmentNotifier extends IEmailNotifier { }
 
