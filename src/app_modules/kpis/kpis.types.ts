@@ -1,5 +1,6 @@
+import { resolver } from '../../framework/decorators/index';
 import { Widget } from '../widgets/widgets.types';
-
+import { KPIExpressionHelper } from '../../domain/app/kpis/kpi-expression.helper';
 import { input, type, field, GraphQLTypesMap, ErrorDetails } from '../../framework';
 import { PaginationInfo, ChartDateRangeInput, ChartDateRange } from '../shared';
 import { ChartEntityResponse } from '../charts/charts.types';
@@ -103,6 +104,11 @@ export class KPI  {
 
     @field({ type: GraphQLTypesMap.String })
     expression: string;
+
+    @resolver({ forField: 'expression' })
+    static resolveExpression(data: string)  {
+        return data;
+    }
 
     @field({ type: GraphQLTypesMap.String })
     type: string;
