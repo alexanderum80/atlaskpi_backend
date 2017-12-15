@@ -1,8 +1,5 @@
-import { Expenses } from '../../../domain/app/expenses/expense.model';
-import { Sales } from '../../../domain/app/sales/sale.model';
-import { IKPIDataSourceHelper } from '../../../domain/app/kpis/kpi';
 import * as Promise from 'bluebird';
-import { inject, injectable } from 'inversify';
+import { injectable } from 'inversify';
 
 import { query } from '../../../framework/decorators/query.decorator';
 import { IQuery } from '../../../framework/queries/query';
@@ -21,9 +18,7 @@ import { DataSourceSchemasMapping, DataSourcesHelper } from './datasource.helper
     output: { type: DataSourceResponse, isArray: true }
 })
 export class DataSourcesQuery implements IQuery<DataSourceResponse[]> {
-    private _kpiService: IKPIDataSourceHelper;
-
-    constructor(@inject('Sale') private _sale: Sales, @inject('Expenses') private _expense: Expenses ) { }
+    constructor() { }
 
     run(data: { filter: String,  }): Promise<DataSourceResponse[]> {
         const that = this;
