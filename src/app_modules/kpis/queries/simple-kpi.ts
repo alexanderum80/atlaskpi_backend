@@ -1,7 +1,5 @@
 import { Expenses } from '../../../domain/app/expenses/expense.model';
 import * as Promise from 'bluebird';
-import { cloneDeep, isArray, isObject } from 'lodash';
-
 import { IKPI, IKPIDocument, IKPISimpleDefinition, KPITypeEnum } from '../../../domain/app/kpis/kpi';
 import { KPIExpressionHelper } from '../../../domain/app/kpis/kpi-expression.helper';
 import { Sales } from '../../../domain/app/sales/sale.model';
@@ -18,8 +16,7 @@ import {
     isArray,
     isObject
 } from 'lodash';
-import { IKPIDocument, IDateRange } from '../../../domain';
-import { IKPISimpleDefinition, KPITypeEnum, IKPI } from '../../../domain/app/index';
+
 
 interface ICollection {
     modelName: string;
