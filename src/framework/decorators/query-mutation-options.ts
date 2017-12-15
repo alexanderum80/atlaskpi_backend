@@ -1,4 +1,4 @@
-import { IActivity } from '../modules/security';
+import { IActivity } from '../modules/security/activity';
 
 export interface GraphQLQueryMutationDecoratorOptions {
     name?: string;

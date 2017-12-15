@@ -1,16 +1,10 @@
-import {
-    BRIDGE
-} from '../decorators/helpers';
-import {
-    IAppModule,
-    MetadataType
-} from '../index';
-import {
-    makeExecutableSchema
-} from 'graphql-tools';
-import {
-    IExecutableSchemaDefinition
-} from 'graphql-tools/dist/Interfaces';
+import { makeExecutableSchema } from 'graphql-tools';
+import { IExecutableSchemaDefinition } from 'graphql-tools/dist/Interfaces';
+
+import { IAppModule } from '../decorators/app-module';
+import { BRIDGE, MetadataType } from '../decorators/helpers';
+import { resolver } from '../decorators/resolver.decorator';
+
 
 interface ITypeDetails {
     name: string;
