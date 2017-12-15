@@ -1,8 +1,6 @@
-import { GetAllAccessLogsQuery } from './queries';
-import { CreateAccessLogMutation } from './mutations';
-import {
-    AppModule, ModuleBase
-} from '../../framework';
+import { AppModule, ModuleBase } from '../../framework/decorators/app-module';
+import { GetAllAccessLogsQuery } from './queries/find-all-access-logs.query';
+
 
 @AppModule({
     queries: [

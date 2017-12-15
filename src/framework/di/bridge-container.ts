@@ -59,6 +59,10 @@ export class BridgeContainer implements IBridgeContainer {
     }
 
     registerPerWebRequest<T extends Newable<any>>(type: T): void {
+        if (!type) {
+            throw new Error('A type is required for the registration');
+        }
+
         if (this.__perRequestTypesRegistrations[type.name]) {
             throw new Error(`Duplicated registration for: ${type.name}`);
         }

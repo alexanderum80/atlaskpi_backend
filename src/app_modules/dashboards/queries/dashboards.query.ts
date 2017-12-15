@@ -1,3 +1,4 @@
+import { KPIs } from '../../../domain/app/kpis/kpi.model';
 import { Charts } from '../../../domain/app/charts';
 import { IDashboard } from '../../../domain/app/dashboards';
 import { Winston } from 'winston';
@@ -10,7 +11,6 @@ import { Dashboards } from '../../../domain';
 import { Dashboard } from '../dashboards.types';
 import { GetDashboardsActivity } from '../activities';
 import { CurrentUser } from '../../../../di';
-import { KPIs } from '../../../domain/app/index';
 
 @injectable()
 @query({
