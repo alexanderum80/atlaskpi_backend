@@ -14,54 +14,8 @@ import { registerServices } from './src/services/register-service-dependencies';
 import { LoggerInstance, LogCallback } from 'winston';
 
 
-@injectable()
-export class CurrentUser {
-    private _user: IUserDocument;
-
-    constructor(@inject('Request') req: IExtendedRequest) {
-        this._user = req.user;
-    }
-
-    get(): IUserDocument {
-        return this._user;
-    }
-}
-
-@injectable()
-export class Logger {
-    private _logger: LoggerInstance;
-
-    constructor(@inject('Request') req: IExtendedRequest) {
-        this._logger = req.logger;
-    }
-
-    get(): LoggerInstance {
-        return this._logger;
-    }
-
-    error(msg: string, meta?: any): LoggerInstance {
-        return this._logger.error(msg, meta);
-    }
-
-    warn(msg: string, meta?: any): LoggerInstance {
-        return this._logger.warn(msg, meta);
-    }
-
-    info(msg: string, meta?: any): LoggerInstance {
-        return this._logger.info(msg, meta);
-    }
-
-    debug(msg: string, meta?: any): LoggerInstance {
-        return this._logger.debug(msg, meta);
-    }
-}
-
-
 export function registerDependencies(container: IBridgeContainer) {
-    container.registerConstant(Logger.name, Logger);
-
     container.registerSingleton(AppConnectionPool);
-    container.registerPerWebRequest(CurrentUser);
 
     container.registerPerWebRequest(KpiFactory);
     container.registerPerWebRequest(ChartFactory);
