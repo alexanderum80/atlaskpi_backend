@@ -2,7 +2,6 @@ import * as Promise from 'bluebird';
 import * as changeCase from 'change-case';
 import { inject, injectable } from 'inversify';
 import * as validate from 'validate.js';
-import { Winston } from 'winston';
 
 import { Logger } from '../../di';
 import { IAppConfig, IMongoDBAtlasCredentials } from '../configuration/config-models';
@@ -71,11 +70,11 @@ export class AccountsService {
 
     constructor(
         @inject('Config') private _config: IAppConfig,
-        @inject('AppConnectionPool') private _appConnectionPool: AppConnectionPool,
-        @inject('Accounts') private _accounts: Accounts,
-        @inject('EnrollmentNotification') private _enrollmentNotification: EnrollmentNotification,
-        @inject('AuthService') private _authService: AuthService,
-        @inject(Logger.name) private _logger: Winston) {}
+        @inject(AppConnectionPool.name) private _appConnectionPool: AppConnectionPool,
+        @inject(Accounts.name) private _accounts: Accounts,
+        @inject(EnrollmentNotification.name) private _enrollmentNotification: EnrollmentNotification,
+        @inject(AuthService.name) private _authService: AuthService,
+        @inject(Logger.name) private _logger: Logger) {}
 
     createAccount(input: ICreateAccountInfo): Promise < IMutationResponse > {
         let that = this;
