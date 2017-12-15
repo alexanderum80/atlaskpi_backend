@@ -1,12 +1,12 @@
-import { DateRange, IDateRange, parsePredifinedDate, PredefinedDateRanges } from '../../models/common';
-import { ReportServiceBase } from './report-service-base';
-import { ISaleModel, ISaleDocument } from '../../models/app/sales';
-import { IExpenseDocument, IExpenseModel } from '../../models/app/expenses';
-import { IUserModel } from '../../models/app';
 import * as Promise from 'bluebird';
-import * as moment from 'moment';
+import { filter, last, toArray } from 'lodash';
 import * as logger from 'winston';
-import * as _ from 'lodash';
+
+import { IExpenseDocument, IExpenseModel } from '../../domain/app/expenses/expense';
+import { ISaleDocument, ISaleModel } from '../../domain/app/sales/sale';
+import { IDateRange, parsePredifinedDate, PredefinedDateRanges } from '../../domain/common/date-range';
+import { ReportServiceBase } from './report-service-base';
+
 
 export interface IEndOfDayReportWinner {
     name: string;
@@ -69,7 +69,7 @@ export class EndOfDayReportService extends ReportServiceBase<Promise<IEndOfDayRe
     }
 
     private _getTotalSalesFor(dateRange: IDateRange, sales: ISaleDocument[]): number {
-        const todaySales = _.filter(sales, s => {
+        const todaySales = filter(sales, s => {
             return s.product.from >= dateRange.from
                 && s.product.to <= dateRange.to;
         });
@@ -78,7 +78,7 @@ export class EndOfDayReportService extends ReportServiceBase<Promise<IEndOfDayRe
     }
 
     private _getExpensesFor(dateRange: IDateRange, expenses: IExpenseDocument[]): number {
-        const todayExpenses = _.filter(expenses, e => {
+        const todayExpenses = filter(expenses, e => {
             return e.timestamp >= dateRange.from
                 && e.timestamp <= dateRange.to;
         });
@@ -118,8 +118,8 @@ export class EndOfDayReportService extends ReportServiceBase<Promise<IEndOfDayRe
     private _pickWinners(itemsMap: { [key: string]: number; }): IEndOfDayReportWinner[] {
         let winners: IEndOfDayReportWinner[] = [];
 
-        const productSalesSorted = _.toArray(itemsMap).sort();
-        const biggestSale = _.last(productSalesSorted);
+        const productSalesSorted = toArray(itemsMap).sort();
+        const biggestSale = last(productSalesSorted);
 
         // find out who the winner is
         Object.keys(itemsMap).forEach(e => {
