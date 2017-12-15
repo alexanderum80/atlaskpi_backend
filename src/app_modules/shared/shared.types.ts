@@ -1,6 +1,6 @@
-
-import { input, type, field, GraphQLTypesMap } from '../../framework';
-
+import { input } from '../../framework/decorators/input.decorator';
+import { field } from '../../framework/decorators/field.decorator';
+import { GraphQLTypesMap } from '../../framework/decorators/graphql-types-map';
 
 @input()
 export class PaginationDetails  {

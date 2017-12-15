@@ -5,7 +5,7 @@ import { isEmpty } from 'lodash';
 
 import { Charts } from '../../../domain';
 import { Dashboards, Expenses, IChart, IChartInput, IDashboardDocument, KPIs, Sales } from '../../../domain';
-import { Users } from '../../../domain/app/security/users';
+import { Users } from '../../../domain/app/security/users/user.model';
 import { Targets } from '../../../domain/app/targets';
 import { FrequencyTable } from '../../../domain/common';
 import { IQuery, query } from '../../../framework';

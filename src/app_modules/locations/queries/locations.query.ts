@@ -1,11 +1,14 @@
-import { Location } from '../locations.types';
 import * as Promise from 'bluebird';
 import { inject, injectable } from 'inversify';
 
-import { ILocationDocument } from '../../../domain';
+import { ILocationDocument } from '../../../domain/app/location/location';
 import { Locations } from '../../../domain/app/location/location.model';
-import { query, QueryBase } from '../../../framework';
-import { ListLocationsActivity } from '../activities';
+import { query } from '../../../framework/decorators/query.decorator';
+import { IQuery } from '../../../framework/queries/query';
+import { ListLocationsActivity } from '../activities/list-locations.activity';
+import { Location } from '../locations.types';
+
+
 
 @injectable()
 @query({
@@ -14,9 +17,7 @@ import { ListLocationsActivity } from '../activities';
     output: { type: Location, isArray: true }
 })
 export class LocationsQuery implements IQuery<ILocationDocument[]> {
-    constructor(@inject('Locations') private _locations: Locations) {
-        
-    }
+    constructor(@inject('Locations') private _locations: Locations) { }
 
     run(data: { id: string }): Promise<ILocationDocument[]> {
         return this._locations.model.locations();

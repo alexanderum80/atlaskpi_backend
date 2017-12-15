@@ -1,9 +1,8 @@
-import { BRIDGE } from '../../../framework/decorators';
-import * as url from 'url';
 import * as express from 'express';
-import { Request, Response } from 'express';
-import { getRequestHostname } from '../../../helpers/index';
-import { IExtendedRequest } from '../../../middlewares';
+import { Response } from 'express';
+
+import { getRequestHostname } from '../../../helpers/express.helpers';
+import { IExtendedRequest } from '../../../middlewares/extended-request';
 import { AuthService, IUserAuthenticationData } from '../../../services/auth.service';
 
 const auth = express.Router();

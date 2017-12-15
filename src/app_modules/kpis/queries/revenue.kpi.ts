@@ -1,11 +1,11 @@
-import { FrequencyEnum, IDateRange } from '../../../domain/common';
-import { ISaleModel, IKPIDocument } from '../../../domain';
 import * as Promise from 'bluebird';
+
+import { ISaleModel } from '../../../domain/app/sales/sale';
+import { IDateRange } from '../../../domain/common/date-range';
+import { FrequencyEnum } from '../../../domain/common/frequency-enum';
 import { AggregateStage } from './aggregate';
 import { IGetDataOptions, IKpiBase, KpiBase } from './kpi-base';
 
-
-import * as _ from 'lodash';
 
 export class Revenue extends KpiBase implements IKpiBase {
 

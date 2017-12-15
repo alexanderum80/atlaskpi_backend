@@ -1,10 +1,14 @@
-
-import { injectable, inject } from 'inversify';
 import * as Promise from 'bluebird';
-import { IQuery, query } from '../../../framework';
-import { Permissions, IPermissionInfo } from '../../../domain';
+import { inject, injectable } from 'inversify';
+import { isArray } from 'util';
+
+import { IPermissionInfo } from '../../../domain/app/security/permissions/permission';
+import { Permissions } from '../../../domain/app/security/permissions/permission.model';
+import { query } from '../../../framework/decorators/query.decorator';
+import { IQuery } from '../../../framework/queries/query';
+import { FindAllPermissionsActivity } from '../activities/find-all-permissions.activity';
 import { PermissionInfo } from '../permissions.types';
-import { FindAllPermissionsActivity } from '../activities';
+
 
 @injectable()
 @query({
@@ -16,9 +20,7 @@ import { FindAllPermissionsActivity } from '../activities';
     output: { type: PermissionInfo, isArray: true }
 })
 export class FindAllPermissionsQuery implements IQuery<IPermissionInfo[]> {
-    constructor(@inject('Permissions') private _permissions: Permissions) {
-        
-    }
+    constructor(@inject('Permissions') private _permissions: Permissions) { }
 
     run(data: { filter: String,  }): Promise<IPermissionInfo[]> {
         return this._permissions.model.findAllPermissions('');

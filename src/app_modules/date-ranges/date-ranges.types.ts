@@ -1,5 +1,7 @@
-import { ChartDateRange } from '../shared';
-import { field, GraphQLTypesMap, type } from '../../framework';
+import { type } from '../../framework/decorators/type.decorator';
+import { field } from '../../framework/decorators/field.decorator';
+import { GraphQLTypesMap } from '../../framework/decorators/graphql-types-map';
+import { ChartDateRange } from '../shared/shared.types';
 
 @type()
 export class DateRangeComparisonItem  {

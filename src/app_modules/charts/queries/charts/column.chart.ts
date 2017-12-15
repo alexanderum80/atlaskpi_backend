@@ -1,15 +1,13 @@
-import { ITarget, ITargetDocument } from '../../../../models/app/targets/ITarget';
-import { IChartOptions } from './chart-type';
-import { UIChartBase, IUIChart } from './ui-chart-base';
-import * as Handlebars from 'handlebars';
-import { IAppModels } from '../../../../models/app';
-import { IChart, IChartDocument } from '../../../../models/app/charts';
-import { FrequencyEnum, IDateRange } from '../../../../models/common';
-import { ChartPreProcessorExtention } from './chart-preprocessor-extention';
-import { IFrequencyValues, FrequencyHelper } from './frequency-values';
-import { IChartMetadata } from './chart-metadata';
-import { IKpiBase } from '../../kpis/kpi-base';
 import * as Promise from 'bluebird';
+import * as console from 'console';
+import { min } from 'moment';
+
+import { IChart } from '../../../../domain/app/charts/chart';
+import { ITargetDocument } from '../../../../domain/app/targets/target';
+import { IKpiBase } from '../../../kpis/queries/kpi-base';
+import { IChartMetadata } from './chart-metadata';
+import { FrequencyHelper } from './frequency-values';
+import { IUIChart, UIChartBase } from './ui-chart-base';
 
 export class ColumnChart extends UIChartBase implements IUIChart {
 
@@ -35,18 +33,4 @@ export class ColumnChart extends UIChartBase implements IUIChart {
             ? this.getDefinitionOfComparisonChart(kpi, metadata)
             : this.getDefinitionForDateRange(kpi, metadata, target);
     }
-
-    // getDefinition(kpi: IKpiBase, dateRange: IDateRange, metadata?: IChartMetadata): Promise<string> {
-    //     let that = this;
-
-    //     return new Promise<string>((resolve, reject) => {
-    //         that.getKPIData(kpi, dateRange, metadata).then(elements => {
-    //             let output = that.chart;
-    //             let xAxis = output.chartDefinition.xAxis || {};
-    //             xAxis.categories = elements.categories;
-    //             output.chartDefinition.series = elements.series;
-    //             resolve(JSON.stringify(output));
-    //         });
-    //     });
-    // }
 }

@@ -1,11 +1,12 @@
-import { IMobileDevice, IUserDocument } from '../../../domain/app/security/users';
-
-import { injectable, inject } from 'inversify';
 import * as Promise from 'bluebird';
-import { MutationBase, mutation } from '../../../framework';
-import { Users } from '../../../domain';
+import { inject, injectable } from 'inversify';
+
+import { IMobileDevice, IUserDocument } from '../../../domain/app/security/users/user';
+import { Users } from '../../../domain/app/security/users/user.model';
+import { mutation } from '../../../framework/decorators/mutation.decorator';
+import { MutationBase } from '../../../framework/mutations/mutation-base';
+import { AddDeviceTokenActivity } from '../activities/add-device-token.activity';
 import { AddMobileDeviceDetails } from '../users.types';
-import { AddDeviceTokenActivity } from '../activities';
 
 @injectable()
 @mutation({

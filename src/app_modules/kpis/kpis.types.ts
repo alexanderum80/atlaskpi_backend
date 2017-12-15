@@ -1,7 +1,9 @@
-
-import { input, type, field, GraphQLTypesMap, ErrorDetails } from '../../framework';
-import { PaginationInfo, ChartDateRangeInput, ChartDateRange } from '../shared';
+import { field } from '../../framework/decorators/field.decorator';
+import { GraphQLTypesMap } from '../../framework/decorators/graphql-types-map';
+import { input } from '../../framework/decorators/input.decorator';
+import { ErrorDetails } from '../../framework/graphql/common.types';
 import { ChartEntityResponse } from '../charts/charts.types';
+import { ChartDateRange, ChartDateRangeInput, PaginationInfo } from '../shared/shared.types';
 
 @input()
 export class KPIAttributesInput  {

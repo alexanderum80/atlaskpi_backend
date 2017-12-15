@@ -1,11 +1,19 @@
-import { resolver } from '../../../framework/decorators/resolver.decorator';
-import { IAppModule, ModuleBase } from '../../../framework/decorators/app-module';
-import { IAppConfig } from '../../../configuration/config-models';
+import { type } from '../../../framework/decorators/type.decorator';
 import * as Promise from 'bluebird';
-import { type, field, input, mutation, query, GraphQLTypesMap, IActivity, AppModule, IQuery, QueryBase, MutationBase } from './../../../framework';
 import { inject } from 'inversify';
-import { Container } from 'inversify';
 import { injectable } from 'inversify';
+
+import { IAppConfig } from '../../../configuration/config-models';
+import { AppModule, ModuleBase } from '../../../framework/decorators/app-module';
+import { field } from '../../../framework/decorators/field.decorator';
+import { GraphQLTypesMap } from '../../../framework/decorators/graphql-types-map';
+import { input } from '../../../framework/decorators/input.decorator';
+import { mutation } from '../../../framework/decorators/mutation.decorator';
+import { query } from '../../../framework/decorators/query.decorator';
+import { resolver } from '../../../framework/decorators/resolver.decorator';
+import { IActivity } from '../../../framework/modules/security/activity';
+import { MutationBase } from '../../../framework/mutations/mutation-base';
+import { IQuery } from '../../../framework/queries/query';
 
 @type()
 export class Location {

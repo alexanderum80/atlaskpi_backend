@@ -1,24 +1,12 @@
-import { ITarget, ITargetDocument } from '../../../../models/app/targets/ITarget';
 import * as Promise from 'bluebird';
-import {
-    IDateRange
-} from '../../../../models/common';
-import {
-    IKpiBase
-} from '../../kpis/kpi-base';
-import {
-    IChartMetadata
-} from './chart-metadata';
-import {
-    FrequencyHelper
-} from './frequency-values';
-import {
-    IChart
-} from '../../../../models/app/charts';
-import {
-    IUIChart,
-    UIChartBase
-} from './';
+
+import { IChart } from '../../../../domain/app/charts/chart';
+import { ITargetDocument } from '../../../../domain/app/targets/target';
+import { IKpiBase } from '../../../kpis/queries/kpi-base';
+import { IChartMetadata } from './chart-metadata';
+import { FrequencyHelper } from './frequency-values';
+import { IUIChart, UIChartBase } from './ui-chart-base';
+
 
 export class DonutChart extends UIChartBase implements IUIChart {
 

@@ -1,12 +1,13 @@
-import { ICreateUserDetails } from '../../../domain/common';
-import { AccountCreatedNotification } from '../../../services/notifications/users';
-
-import { injectable, inject } from 'inversify';
 import * as Promise from 'bluebird';
-import { MutationBase, mutation } from '../../../framework';
-import { Users } from '../../../domain';
+import { inject, injectable } from 'inversify';
+
+import { Users } from '../../../domain/app/security/users/user.model';
+import { ICreateUserDetails } from '../../../domain/common/create-user';
+import { mutation } from '../../../framework/decorators/mutation.decorator';
+import { MutationBase } from '../../../framework/mutations/mutation-base';
+import { AccountCreatedNotification } from '../../../services/notifications/users/account-created.notification';
+import { CreateUserActivity } from '../activities/create-user.activity';
 import { CreateUserResult, UserDetails } from '../users.types';
-import { CreateUserActivity } from '../activities';
 
 @injectable()
 @mutation({

@@ -1,10 +1,13 @@
 import * as Promise from 'bluebird';
 import { injectable } from 'inversify';
+import { isArray } from 'util';
 
-import { query, IQuery } from '../../../framework';
-import { GetDateRangesActivity } from '../activities';
+import { query } from '../../../framework/decorators/query.decorator';
+import { IQuery } from '../../../framework/queries/query';
+import { GetDateRangesActivity } from '../activities/get-date-ranges.activity';
 import { DateRangeResponse } from '../date-ranges.types';
 import { DateRangeHelper, IDateRangeItem } from './date-range.helper';
+
 
 @injectable()
 @query({

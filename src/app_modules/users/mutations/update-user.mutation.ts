@@ -1,11 +1,12 @@
-import { Roles } from '../../../domain/app/security/roles';
-
-import { injectable, inject } from 'inversify';
 import * as Promise from 'bluebird';
-import { MutationBase, mutation } from '../../../framework';
-import { Users } from '../../../domain';
+import { inject, injectable } from 'inversify';
+
+import { Roles } from '../../../domain/app/security/roles/role.model';
+import { Users } from '../../../domain/app/security/users/user.model';
+import { mutation } from '../../../framework/decorators/mutation.decorator';
+import { MutationBase } from '../../../framework/mutations/mutation-base';
+import { UpdateUserActivity } from '../activities/update-user.activity';
 import { CreateUserResult, UserDetails } from '../users.types';
-import { UpdateUserActivity } from '../activities';
 
 @injectable()
 @mutation({

@@ -1,6 +1,6 @@
 import { BasicRoleChecker } from '../../../services';
 import { IUserDocument, Users } from '../../../domain/app/security/users';
-import { IActivity } from '../../../framework';
+import { IActivity } from '../../../framework/modules/security/activity';
 import * as Promise from 'bluebird';
 import { injectable, inject } from 'inversify';
 

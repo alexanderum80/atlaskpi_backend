@@ -1,11 +1,12 @@
-import { IUserProfile } from '../../../domain/app/security/users';
-
-import { injectable, inject } from 'inversify';
 import * as Promise from 'bluebird';
-import { MutationBase, mutation } from '../../../framework';
-import { Users } from '../../../domain';
-import { ResetPasswordResult, InputUserProfile } from '../users.types';
-import { ResetPasswordActivity } from '../activities';
+import { inject, injectable } from 'inversify';
+
+import { IUserProfile } from '../../../domain/app/security/users/user';
+import { Users } from '../../../domain/app/security/users/user.model';
+import { mutation } from '../../../framework/decorators/mutation.decorator';
+import { MutationBase } from '../../../framework/mutations/mutation-base';
+import { ResetPasswordActivity } from '../activities/reset-password.activity';
+import { InputUserProfile, ResetPasswordResult } from '../users.types';
 
 @injectable()
 @mutation({
