@@ -1,9 +1,11 @@
 import { resolver } from '../../framework/decorators/index';
 import { Widget } from '../widgets/widgets.types';
-import { KPIExpressionHelper } from '../../domain/app/kpis/kpi-expression.helper';
 import { input, type, field, GraphQLTypesMap, ErrorDetails } from '../../framework';
 import { PaginationInfo, ChartDateRangeInput, ChartDateRange } from '../shared';
 import { ChartEntityResponse } from '../charts/charts.types';
+import { KPIFilterHelper } from '../../domain/app/kpis/kpi-filter.helper';
+import { KPIExpressionHelper } from '../../domain/app/kpis/kpi-expression.helper';
+import { KPIGroupingsHelper } from '../../domain/app/kpis/kpi-groupings.helper';
 
 @input()
 export class KPIAttributesInput  {
@@ -90,8 +92,18 @@ export class KPI  {
     @field({ type: ChartDateRange })
     dateRange: ChartDateRange;
 
+    @resolver({ forField: 'dateRange' })
+    static resolveDateRange(entity: any) {
+        return entity.dateRange;
+    }
+
     @field({ type: GraphQLTypesMap.String })
     filter: string;
+
+    @resolver({ forField: 'filter' })
+    static resolveFilter(entity: any) {
+        return KPIFilterHelper.PrepareFilterField(entity.type, entity.filter);
+    }
 
     @field({ type: GraphQLTypesMap.String })
     frequency: string;
@@ -106,8 +118,8 @@ export class KPI  {
     expression: string;
 
     @resolver({ forField: 'expression' })
-    static resolveExpression(data: string)  {
-        return data;
+    static resolveExpression(entity: any)  {
+        return KPIExpressionHelper.PrepareExpressionField(entity.type, entity.expression);
     }
 
     @field({ type: GraphQLTypesMap.String })
@@ -115,6 +127,11 @@ export class KPI  {
 
     @field({ type: GraphQLTypesMap.String, isArray: true })
     availableGroupings: string[];
+
+    @resolver({ forField: 'availableGroupings'})
+    static resolveavailableGroupings(entity: any) {
+        KPIGroupingsHelper.GetAvailableGroupings(entity);
+    }
 
 }
 
