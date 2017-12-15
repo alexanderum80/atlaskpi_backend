@@ -1,12 +1,16 @@
+import { detachFromAllDashboards } from './common';
 import * as Promise from 'bluebird';
 import { inject, injectable } from 'inversify';
 
-import { Charts } from '../../../domain';
-import { Dashboards } from '../../../domain/app/dashboards';
-import { IMutationResponse, mutation, MutationBase } from '../../../framework';
-import { detachFromAllDashboards } from '../../dashboards/mutations/common';
-import { DeleteChartActivity } from '../activities';
+import { Charts } from '../../../domain/app/charts/chart.model';
+import { Dashboards } from '../../../domain/app/dashboards/dashboard.model';
+import { field } from '../../../framework/decorators/field.decorator';
+import { mutation } from '../../../framework/decorators/mutation.decorator';
+import { MutationBase } from '../../../framework/mutations/mutation-base';
+import { IMutationResponse } from '../../../framework/mutations/mutation-response';
+import { DeleteChartActivity } from '../activities/delete-chart.activity';
 import { ChartMutationResponse } from '../charts.types';
+
 
 @injectable()
 @mutation({

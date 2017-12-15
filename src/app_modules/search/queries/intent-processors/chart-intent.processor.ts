@@ -1,11 +1,8 @@
-import { IChartInput } from './../../../../models/app/charts/IChart';
-import { IKPI, IKPIDocument } from '../../../../models/app/kpis';
-import { IChart, IChartDocument } from '../../../../models/app/charts';
-import { GetChartQuery } from '../../charts';
-import { IAppModels } from '../../../../models/app/app-models';
-import { IIdentity } from '../../../../models/app/identity';
-import * as Promise from 'bluebird';
 import { ISearchResult } from '../search.query';
+import * as Promise from 'bluebird';
+
+import { IChart } from '../../../../domain/app/charts/chart';
+import { IKPIDocument } from '../../../../domain/app/kpis/kpi';
 
 const SalesKPI: IKPIDocument = <any>{
     _id: '59c3bd0c3da88e92a1703fd6',

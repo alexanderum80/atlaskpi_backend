@@ -1,17 +1,10 @@
-import * as mongoose from 'mongoose';
 import * as Promise from 'bluebird';
-import { IMutationResponse, IPagedQueryResult, IPaginationDetails, IQueryResponse } from '../../common';
-// {
-//   name: "string",
-//   type: "string, date, number",
+import * as mongoose from 'mongoose';
 
-//   typeFormat: {
-//     before: "",
-//     afer: "",
-//     decimal: 0,
-//     formula: ""
-//   }
-// }
+import { IMutationResponse } from '../../../framework/mutations/mutation-response';
+import { IPagedQueryResult, IPaginationDetails } from '../../../framework/queries/pagination';
+import { IQueryResponse } from '../../../framework/queries/query-response';
+
 export interface IChartFormat {
     name: string;
     type: string;

@@ -1,11 +1,12 @@
-import { ISlideshowDocument } from '../../../domain/app/slideshow';
-
-import { injectable, inject } from 'inversify';
 import * as Promise from 'bluebird';
-import { IQuery, query } from '../../../framework';
-import { Slideshows } from '../../../domain';
+import { inject, injectable } from 'inversify';
+
+import { ISlideshowDocument } from '../../../domain/app/slideshow/slideshow';
+import { Slideshows } from '../../../domain/app/slideshow/slideshow.model';
+import { query } from '../../../framework/decorators/query.decorator';
+import { IQuery } from '../../../framework/queries/query';
+import { SlideshowByIdActivity } from '../activities/slideshow-by-id.activity';
 import { Slideshow } from '../slideshows.types';
-import { SlideshowByIdActivity } from '../activities';
 
 @injectable()
 @query({
@@ -17,9 +18,7 @@ import { SlideshowByIdActivity } from '../activities';
     output: { type: Slideshow }
 })
 export class SlideshowByIdQuery implements IQuery<ISlideshowDocument> {
-    constructor(@inject('Slideshows') private _slideshows: Slideshows) {
-        
-    }
+    constructor(@inject('Slideshows') private _slideshows: Slideshows) { }
 
     run(data: { _id: string }): Promise<ISlideshowDocument> {
         return this._slideshows.model.slideshowById(data._id);

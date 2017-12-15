@@ -1,12 +1,13 @@
-import { IUserDocument, IUserForgotPasswordDataSource } from '../../../data';
-import { IEmailNotifier } from '../email-notifier';
+import { sendEmail } from '../../email/email.service';
 import * as Promise from 'bluebird';
-import * as nodemailer from 'nodemailer';
 import * as Handlebars from 'handlebars';
-import * as winston from 'winston';
-import { sendEmail } from '../..';
-import { IAppConfig } from '../../../configuration';
-import { injectable, inject } from 'inversify';
+import { inject, injectable } from 'inversify';
+import * as nodemailer from 'nodemailer';
+
+import { IAppConfig } from '../../../configuration/config-models';
+import { IUserDocument, IUserForgotPasswordDataSource } from '../../../domain/app/security/users/user';
+import { IEmailNotifier } from '../email-notifier';
+
 
 export interface IForgotPasswordNotifier extends IEmailNotifier { }
 

@@ -1,39 +1,13 @@
-import {
-    ModelBase
-} from '../../../type-mongo';
-import {
-    AppConnection
-} from '../app.connection';
-import {
-    injectable,
-    inject
-} from 'inversify';
-import {
-    IDashboardDocument
-} from '../dashboards';
-import {
-    IKPIDocument
-} from '../kpis';
-import {
-    IChartInput
-} from './';
-import {
-    DateRange
-} from '../../common';
-import {
-    IChart,
-    IChartModel,
-    IChartDocument
-} from './chart';
-import {
-    IMutationResponse,
-    MutationResponse
-} from '../../';
-import * as mongoose from 'mongoose';
+import { from } from 'apollo-link/lib';
 import * as Promise from 'bluebird';
+import { inject, injectable } from 'inversify';
+import * as mongoose from 'mongoose';
 import * as validate from 'validate.js';
-import * as winston from 'winston';
-import * as _ from 'lodash';
+
+import { input } from '../../../framework/decorators/input.decorator';
+import { ModelBase } from '../../../type-mongo/model-base';
+import { AppConnection } from '../app.connection';
+import { IChartDocument, IChartInput, IChartModel } from './chart';
 
 
 let Schema = mongoose.Schema;

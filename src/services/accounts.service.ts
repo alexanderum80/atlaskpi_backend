@@ -1,61 +1,30 @@
-import { AuthService, IUserAuthenticationData } from './auth.service';
-import {
-    SeedService
-} from './seed.service';
-import * as mongoose from 'mongoose';
-import {
-    initialRoles
-} from '../domain/app/security/roles/initial-roles';
-import {
-    Roles
-} from '../domain/app/security/roles/role.model';
-import {
-    IAppConfig
-} from '../configuration/config-models';
-import {
-    IMongoDBAtlasCredentials
-} from '../configuration';
-import {
-    MutationResponse
-} from '../framework';
-import {
-    injectable,
-    inject
-} from 'inversify';
-import {
-    IAccount,
-    IDatabaseInfo,
-    ICreateUserDetails,
-    Accounts,
-    IAccountDocument,
-    Permissions,
-    AppConnection,
-    Users,
-    IUserDocument
-} from '../domain';
 import * as Promise from 'bluebird';
-import {
-    IMutationResponse
-} from '../framework';
 import * as changeCase from 'change-case';
+import { inject, injectable } from 'inversify';
 import * as validate from 'validate.js';
-import {
-    generateUniqueHash,
-    IsNullOrWhiteSpace
-} from '../helpers';
-import {
-    Winston
-} from 'winston';
-import {
-    AppConnectionPool
-} from '../middlewares/app-connection-pool';
-import {
-    initRoles
-} from '../domain/app/security/roles/init-roles';
-import {
-    EnrollmentNotification
-} from './notifications/users';
-import { IUserToken } from '../domain';
+import { Winston } from 'winston';
+
+import { IAppConfig, IMongoDBAtlasCredentials } from '../configuration/config-models';
+import { AppConnection } from '../domain/app/app.connection';
+import { Permissions } from '../domain/app/security/permissions/permission.model';
+import { initRoles } from '../domain/app/security/roles/init-roles';
+import { initialRoles } from '../domain/app/security/roles/initial-roles';
+import { Roles } from '../domain/app/security/roles/role.model';
+import { IUserDocument } from '../domain/app/security/users/user';
+import { IUserToken } from '../domain/app/security/users/user-token';
+import { Users } from '../domain/app/security/users/user.model';
+import { ICreateUserDetails } from '../domain/common/create-user';
+import { IAccount, IAccountDocument, IDatabaseInfo } from '../domain/master/accounts/Account';
+import { Accounts } from '../domain/master/accounts/account.model';
+import { field } from '../framework/decorators/field.decorator';
+import { input } from '../framework/decorators/input.decorator';
+import { IMutationResponse, MutationResponse } from '../framework/mutations/mutation-response';
+import { generateUniqueHash } from '../helpers/security.helpers';
+import { IsNullOrWhiteSpace } from '../helpers/string.helpers';
+import { AppConnectionPool } from '../middlewares/app-connection-pool';
+import { AuthService, IUserAuthenticationData } from './auth.service';
+import { EnrollmentNotification } from './notifications/users/enrollment.notification';
+import { SeedService } from './seed.service';
 
 export interface ICreateAccountInfo {
     ip: string;

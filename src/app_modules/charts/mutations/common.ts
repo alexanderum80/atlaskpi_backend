@@ -1,4 +1,6 @@
-import { IDashboardModel } from '../../../models/app/dashboards';
+import * as Promise from 'bluebird';
+
+import { IDashboardModel } from '../../../domain/app/dashboards/dashboard';
 
 export function detachFromAllDashboards(dashboardModel: IDashboardModel, chartId: string): Promise<boolean> {
     return new Promise<boolean>((resolve, reject) => {

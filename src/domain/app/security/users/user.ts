@@ -1,15 +1,18 @@
-import {
-    IAccountCreatedNotifier,
-    IEnrollmentNotifier,
-    IForgotPasswordNotifier,
-} from '../../../../services/notifications/users';
-import mongoose = require('mongoose');
 import * as Promise from 'bluebird';
+import mongoose = require('mongoose');
 import * as nodemailer from 'nodemailer';
-import { IRoleDocument, IRole } from '../roles';
-import { IUserToken, ICreateUserDetails, IMutationResponse, IRoleList, IPaginationDetails, IPagedQueryResult } from '../../../index';
-import { IEmailNotifier } from '../../../../services/index';
+
+import { IMutationResponse } from '../../../../framework/mutations/mutation-response';
+import { IPagedQueryResult, IPaginationDetails } from '../../../../framework/queries/pagination';
+import { IEmailNotifier } from '../../../../services/notifications/email-notifier';
+import { IAccountCreatedNotifier } from '../../../../services/notifications/users/account-created.notification';
+import { IEnrollmentNotifier } from '../../../../services/notifications/users/enrollment.notification';
+import { IForgotPasswordNotifier } from '../../../../services/notifications/users/user-forgot-password.notification';
+import { ICreateUserDetails } from '../../../common/create-user';
+import { IRole, IRoleDocument, IRoleList } from '../roles/role';
 import { IIdentity } from './identity';
+import { IUserToken } from './user-token';
+
 
 
 export interface IEmbeddedDocument {

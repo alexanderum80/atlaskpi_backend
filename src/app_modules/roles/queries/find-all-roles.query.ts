@@ -1,11 +1,13 @@
-import { IRoleDocument } from '../../../domain/app/security/roles';
-
-import { injectable, inject } from 'inversify';
 import * as Promise from 'bluebird';
-import { IQuery, query } from '../../../framework';
-import { Roles } from '../../../domain';
+import { inject, injectable } from 'inversify';
+
+import { IRoleDocument } from '../../../domain/app/security/roles/role';
+import { Roles } from '../../../domain/app/security/roles/role.model';
+import { query } from '../../../framework/decorators/query.decorator';
+import { IQuery } from '../../../framework/queries/query';
+import { FindAllRolesActivity } from '../activities/find-all-roles.activity';
 import { RoleList } from '../roles.types';
-import { FindAllRolesActivity } from '../activities';
+
 
 @injectable()
 @query({
@@ -17,9 +19,7 @@ import { FindAllRolesActivity } from '../activities';
     output: { type: RoleList, isArray: true }
 })
 export class FindAllRolesQuery implements IQuery<IRoleDocument[]> {
-    constructor(@inject('Roles') private _roles: Roles) {
-        
-    }
+    constructor(@inject('Roles') private _roles: Roles) { }
 
     run(data: { filter: String,  }): Promise<IRoleDocument[]> {
         return this._roles.model.findAllRoles('');

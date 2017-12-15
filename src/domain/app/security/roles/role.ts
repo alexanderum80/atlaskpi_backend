@@ -1,8 +1,8 @@
-import { IPermission } from '../../../../framework/modules/security';
-import * as mongoose from 'mongoose';
-import * as async from 'async';
 import * as Promise from 'bluebird';
-import * as validate from 'validate.js';
+import * as mongoose from 'mongoose';
+
+import { IPermission } from '../../../../framework/modules/security/permission';
+
 
 export interface IRole {
     name: string;

@@ -1,5 +1,3 @@
-import * as mongoose from 'mongoose';
-
 export const CAN_ALL = 'all';
 export const CAN_ANY = 'any';
 

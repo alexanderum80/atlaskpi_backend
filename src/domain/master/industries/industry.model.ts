@@ -1,11 +1,11 @@
-import { ModelBase } from '../../../type-mongo';
-import { MasterConnection } from '../master.connection';
-import { injectable, inject } from 'inversify';
-import * as mongoose from 'mongoose';
 import * as Promise from 'bluebird';
-import * as validate from 'validate.js';
-import * as winston from 'winston';
-import { IIndustryDocument, IIndustryModel } from './industry';
+import { inject, injectable } from 'inversify';
+import * as mongoose from 'mongoose';
+
+import { ModelBase } from '../../../type-mongo/model-base';
+import { MasterConnection } from '../master.connection';
+import { IIndustryDocument, IIndustryModel } from './Industry';
+
 
 // define mongo schema
 

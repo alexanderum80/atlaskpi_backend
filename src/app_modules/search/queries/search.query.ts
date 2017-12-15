@@ -1,13 +1,13 @@
-import { GetChartQuery } from '../../charts/queries';
-import { ChartIntentProcessor } from './intent-processors';
-import { AdaptEngine, AdaptIntents, IntentsMap } from './adap-engine';
-import { ISearchResult } from './';
-
-import { injectable, inject } from 'inversify';
 import * as Promise from 'bluebird';
-import { IQuery, query } from '../../../framework';
+import { inject, injectable } from 'inversify';
+import { isArray } from 'util';
+
+import { query } from '../../../framework/decorators/query.decorator';
+import { IQuery } from '../../../framework/queries/query';
+import { SearchActivity } from '../activities/search.activity';
 import { SearchResultItem } from '../search.types';
-import { SearchActivity } from '../activities';
+import { AdaptEngine, AdaptIntents, IntentsMap } from './adap-engine';
+import { ChartIntentProcessor } from './intent-processors/chart-intent.processor';
 
 const searchSections = [
     'dashboards',
@@ -31,6 +31,11 @@ const sectionsModelsMap = {
     'expenses': 'Expense'
 };
 
+export interface ISearchResult {
+    section: string;
+    data: SearchResultItem[] | string;
+}
+
 @injectable()
 @query({
     name: 'search',
@@ -41,11 +46,11 @@ const sectionsModelsMap = {
     ],
     output: { type: SearchResultItem, isArray: true }
 })
+// TODO: MAKE SURE THIS WORKS
 export class SearchQuery implements IQuery<ISearchResult[]> {
     private _adaptEngine: AdaptEngine;
 
     constructor(@inject('GetChartQuery') private _getChartQuery: GetChartQuery) {
-        
         this._adaptEngine = new AdaptEngine([AdaptIntents.Chart]);
     }
 

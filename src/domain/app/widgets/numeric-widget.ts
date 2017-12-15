@@ -1,16 +1,8 @@
-import { KPIs } from '../kpis/kpi.model';
-import { Expenses } from '../expenses';
-import { Sales } from '../sales';
-import { Charts } from '../charts';
-import { KpiFactory } from '../../../app_modules/kpis/queries';
-import {
-    ComparisonDirectionArrowEnum,
-    ComparisonDirectionArrowMap,
-    IMaterializedComparison,
-    IWidget,
-    IWidgetMaterializedFields,
-} from './';
+import * as Promise from 'bluebird';
+import { cloneDeep } from 'lodash';
+
 import { IKpiBase } from '../../../app_modules/kpis/queries/kpi-base';
+import { KpiFactory } from '../../../app_modules/kpis/queries/kpi.factory';
 import {
     getComparisonDateRanges,
     getDateRangeIdFromString,
@@ -18,12 +10,17 @@ import {
     IDateRange,
     parsePredifinedDate,
     PredefinedComparisonDateRanges,
-    PredefinedDateRanges,
-} from '../../common';
+} from '../../common/date-range';
+import { KPIs } from '../kpis/kpi.model';
 import { IUIWidget, UIWidgetBase } from './ui-widget-base';
-import * as Promise from 'bluebird';
-import { injectable, inject } from 'inversify';
-import { cloneDeep } from 'lodash';
+import {
+    ComparisonDirectionArrowEnum,
+    ComparisonDirectionArrowMap,
+    IMaterializedComparison,
+    IWidget,
+    IWidgetMaterializedFields,
+} from './widget';
+
 
 export class NumericWidget extends UIWidgetBase implements IUIWidget {
 

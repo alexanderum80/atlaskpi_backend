@@ -1,9 +1,10 @@
 import { isArray, isObject } from 'lodash';
 
-import { flatten, readMongooseSchema } from '../../../helpers';
-import { ExpenseSchema } from '../expenses';
-import { SaleSchema } from '../sales';
-import { IKPIFilter, KPITypeEnum } from './';
+import { readMongooseSchema } from '../../../helpers/mongodb.helpers';
+import { flatten } from '../../../helpers/object.helpers';
+import { ExpenseSchema } from '../expenses/expense.model';
+import { SaleSchema } from '../sales/sale.model';
+import { IKPIFilter, KPITypeEnum } from './kpi';
 
 const Schemas = [
       SaleSchema,

@@ -1,7 +1,8 @@
-import { IQueryResponse } from '../../../framework/queries/index';
-import { IMutationResponse } from '../../../framework/mutations/index';
-import * as mongoose from 'mongoose';
 import * as Promise from 'bluebird';
+import * as mongoose from 'mongoose';
+
+import { IMutationResponse } from '../../../framework/mutations/mutation-response';
+import { IQueryResponse } from '../../../framework/queries/query-response';
 
 export interface IResultEntry {
     authorized: boolean;
@@ -23,6 +24,6 @@ export interface IAccessLogEntry {
 export interface IAccessLogDocument extends IAccessLogEntry, mongoose.Document {}
 
 export interface IAccessLogModel extends mongoose.Model<IAccessLogDocument> {
-    getAllAccessLogs(filter: string): Promise<IAccessLogDocument>;
+    getAllAccessLogs(filter: string): Promise<IAccessLogDocument[]>;
     createLog(details: IAccessLogEntry): Promise<IMutationResponse>;
 }

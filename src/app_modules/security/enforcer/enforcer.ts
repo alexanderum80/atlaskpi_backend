@@ -1,11 +1,14 @@
+import { IActivity } from '../../../framework/modules/security/activity';
+import { IPermission } from '../../../framework/modules/security/permission';
+import { IEnforcer } from '../../../framework/modules/security/enforcer';
 import { Request } from 'Express';
 import * as Promise from 'bluebird';
 import * as logger from 'winston';
 import { injectable } from 'inversify';
-import { IActivity, IEnforcer, IPermission } from '../../../framework/index';
 import { find } from 'lodash';
 
 const OWNER = 'owner';
+
 
 @injectable()
 export class Enforcer implements IEnforcer {
@@ -35,6 +38,7 @@ export class Enforcer implements IEnforcer {
     }
 }
 
+// TODO: FInish this
 function checkAuthorization(activity: IActivity, roles: string[], permissions: IPermission[]): Promise<boolean> {
     return new Promise<boolean>((resolve, reject) => {
 

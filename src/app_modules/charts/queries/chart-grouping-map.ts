@@ -1,13 +1,7 @@
-import { IChart } from '../../../domain/app/charts';
-
-
 import * as _ from 'lodash';
-// export interface IGroupingMap {
-//     location: {
-//         expenses: string,
-//         sales: string;
-//     };
-// }
+
+import { IChart } from '../../../domain/app/charts/chart';
+
 
 export const GroupingMap = {
     sales: {

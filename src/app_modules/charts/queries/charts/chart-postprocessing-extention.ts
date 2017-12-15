@@ -1,6 +1,8 @@
-import { IChart } from '../../../../models/app/charts';
-import * as _ from 'lodash';
+import { map, uniq } from 'lodash';
 import * as moment from 'moment';
+import { start } from 'repl';
+
+import { IChart } from '../../../../domain/app/charts/chart';
 
 const serieElementsToCategories = function(series: any[]) {
         let categories = [];
@@ -10,8 +12,7 @@ const serieElementsToCategories = function(series: any[]) {
             });
         });
 
-        // categories = _.uniq(categories).sort();
-        categories = _.uniq(categories);
+        categories = uniq(categories);
 
         return categories;
 };
@@ -97,7 +98,7 @@ export class ChartPostProcessingExtention {
 
                 definition.series = newSeries;
                 chart.chartDefinition = definition;
-                
+
                 return chart.chartDefinition;
                 // return this._seriesAreDateWithIntervals(series, chart.chartDefinition);
 
@@ -161,8 +162,8 @@ export class ChartPostProcessingExtention {
 
     private _serieToMonthNameCategories(series: any[], definition: any): any {
          let xAxis = definition.xAxis || {};
-         let categories = _.map(serieElementsToCategories(series), c => c.split('-')[1]);
-         categories = _.uniq(categories).sort();
+         let categories = map(serieElementsToCategories(series), c => c.split('-')[1]);
+         categories = uniq(categories).sort();
          // moment.js enumerate the monthnames starting 0
          xAxis.categories = categories.map(c => moment().month(Number(c) - 1).format('MMM'));
          xAxis.categories = xAxis.categories.sort((a, b) => {

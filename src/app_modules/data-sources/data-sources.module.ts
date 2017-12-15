@@ -1,7 +1,5 @@
-import { DataSourcesQuery } from './queries';
-import {
-    AppModule, ModuleBase
-} from '../../framework';
+import { AppModule, ModuleBase } from '../../framework/decorators/app-module';
+import { DataSourcesQuery } from './queries/data-sources.query';
 
 @AppModule({
     queries: [

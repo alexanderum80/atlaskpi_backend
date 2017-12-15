@@ -1,15 +1,18 @@
-import { IExtendedRequest } from '../../middlewares/extended-request';
-import { IActivity } from '../modules/security';
-import {
-    IQuery
-} from '..';
-import { IEnforcer } from '../modules/security/enforcer';
 import * as Promise from 'bluebird';
-import * as logger from 'winston';
 import { injectable } from 'inversify';
 import { inject } from 'inversify';
 import { flatMap } from 'lodash';
-import { AccessLogs } from '../../domain/app/index';
+import { run } from 'tslint/lib/runner';
+import * as logger from 'winston';
+
+import { AccessLogs } from '../../domain/app/access-log/access-log.model';
+import { IExtendedRequest } from '../../middlewares/extended-request';
+import { query } from '../decorators/query.decorator';
+import { IActivity } from '../modules/security/activity';
+import { IEnforcer } from '../modules/security/enforcer';
+import { IQuery } from './query';
+
+
 
 
 export interface IQueryBus {

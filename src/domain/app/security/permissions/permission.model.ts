@@ -1,20 +1,11 @@
-import {
-    ModelBase
-} from '../../../../type-mongo';
-import {
-    AppConnection
-} from '../../app.connection';
-import {
-    injectable,
-    inject
-} from 'inversify';
-import * as mongoose from 'mongoose';
 import * as Promise from 'bluebird';
-import {
-    IPermissionInfo,
-    IPermissionDocument,
-    IPermissionModel
-} from './index';
+import { inject, injectable } from 'inversify';
+import * as mongoose from 'mongoose';
+
+import { field } from '../../../../framework/decorators/field.decorator';
+import { ModelBase } from '../../../../type-mongo/model-base';
+import { AppConnection } from '../../app.connection';
+import { IPermissionDocument, IPermissionInfo, IPermissionModel } from './permission';
 
 export const PermissionSchema = new mongoose.Schema({
     subject: {

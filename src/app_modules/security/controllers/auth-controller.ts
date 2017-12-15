@@ -1,6 +1,7 @@
+import * as Promise from 'bluebird';
+import { IUserToken } from '../../../domain/app/security/users/user-token';
 import { AuthService } from '../../../services/auth.service';
 import { injectable, inject } from 'inversify';
-import { IUserToken } from '../../../domain';
 
 @injectable()
 export class AuthController {

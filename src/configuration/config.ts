@@ -1,5 +1,7 @@
-import { injectable } from 'inversify';
-import { IAppConfig, emailServiceConfig, usersServiceConfig, appServicesConfig } from './';
+import { appServicesConfig } from './app/app-services.config';
+import { IAppConfig } from './config-models';
+import { emailServiceConfig } from './email-service.config';
+import { usersServiceConfig } from './users/users-service-config';
 
 /*
 

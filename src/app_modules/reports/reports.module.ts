@@ -1,7 +1,5 @@
-import { EndOfDayReportQuery } from './queries';
-import {
-    AppModule, ModuleBase
-} from '../../framework';
+import { AppModule, ModuleBase } from '../../framework/decorators/app-module';
+import { EndOfDayReportQuery } from './queries/end-of-day-report.query';
 
 @AppModule({
     queries: [

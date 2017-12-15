@@ -1,10 +1,14 @@
-
-import { injectable, inject } from 'inversify';
 import * as Promise from 'bluebird';
-import { IMutationResponse, MutationBase, mutation } from '../../../framework';
-import { Departments } from '../../../domain';
+import { inject, injectable } from 'inversify';
+
+import { Departments } from '../../../domain/app/departments/department.model';
+import { field } from '../../../framework/decorators/field.decorator';
+import { mutation } from '../../../framework/decorators/mutation.decorator';
+import { MutationBase } from '../../../framework/mutations/mutation-base';
+import { IMutationResponse } from '../../../framework/mutations/mutation-response';
+import { CreateDepartmentActivity } from '../activities/create-department.activity';
 import { CreateDepartmentResponse } from '../departments.types';
-import { CreateDepartmentActivity } from '../activities';
+
 
 @injectable()
 @mutation({

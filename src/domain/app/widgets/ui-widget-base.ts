@@ -1,6 +1,7 @@
 import * as Promise from 'bluebird';
 
-import { IChartWidgetAttributes, INumericWidgetAttributes, IWidget, IWidgetMaterializedFields } from './';
+import { IChartWidgetAttributes, INumericWidgetAttributes, IWidget, IWidgetMaterializedFields } from './widget';
+
 
 export interface IUIWidget extends UIWidgetBase {
     materialize(): Promise<IUIWidget>;

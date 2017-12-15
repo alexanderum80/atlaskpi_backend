@@ -1,10 +1,10 @@
-import { IMongoDBAtlasCredentials } from '../../../configuration/config-models';
-import { IIndustry, ISubIndustry } from '../industries';
-import mongoose = require('mongoose');
 import * as Promise from 'bluebird';
-import { IBusinessUnit, IUserToken } from '../../app';
-import { IMutationResponse } from '../../../framework';
-import { AccountsService } from '../../../services';
+import mongoose = require('mongoose');
+
+import { IMongoDBAtlasCredentials } from '../../../configuration/config-models';
+import { IBusinessUnit } from '../../app/business-unit/business-unit';
+import { IUserToken } from '../../app/security/users/user-token';
+
 
 export interface IParticularDBUserRole {
     databaseName: string;

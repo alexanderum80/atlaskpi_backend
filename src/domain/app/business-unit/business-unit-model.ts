@@ -1,9 +1,10 @@
-import { ModelBase } from '../../../type-mongo';
-import { AppConnection } from '../app.connection';
-import { injectable, inject } from 'inversify';
-import { IBusinessUnitModel, IBusinessUnitDocument } from './business-unit';
+import { inject, injectable } from 'inversify';
 import * as mongoose from 'mongoose';
 import * as logger from 'winston';
+
+import { ModelBase } from '../../../type-mongo/model-base';
+import { AppConnection } from '../app.connection';
+import { IBusinessUnitDocument, IBusinessUnitModel } from './business-unit';
 
 const BusinessUnitSchema = new mongoose.Schema({
     name: String,

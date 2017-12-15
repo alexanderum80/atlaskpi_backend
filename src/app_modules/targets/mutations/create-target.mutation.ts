@@ -1,13 +1,16 @@
-import { ITarget } from '../../../domain/app/targets';
-import { Charts } from '../../../domain/app/charts';
-import { Users } from '../../../domain/app/security/users';
-import { TargetService } from '../../../services/target.service';
 import * as Promise from 'bluebird';
 import { inject, injectable } from 'inversify';
 
-import { Targets } from '../../../domain';
-import { IMutationResponse, mutation, MutationBase } from '../../../framework';
-import { CreateTargetActivity } from '../activities';
+import { Charts } from '../../../domain/app/charts/chart.model';
+import { Users } from '../../../domain/app/security/users/user.model';
+import { ITarget } from '../../../domain/app/targets/target';
+import { Targets } from '../../../domain/app/targets/target.model';
+import { field } from '../../../framework/decorators/field.decorator';
+import { mutation } from '../../../framework/decorators/mutation.decorator';
+import { MutationBase } from '../../../framework/mutations/mutation-base';
+import { IMutationResponse } from '../../../framework/mutations/mutation-response';
+import { TargetService } from '../../../services/target.service';
+import { CreateTargetActivity } from '../activities/create-target.activity';
 import { TargetInput, TargetResult } from '../targets.types';
 
 
@@ -20,6 +23,7 @@ import { TargetInput, TargetResult } from '../targets.types';
     ],
     output: { type: TargetResult }
 })
+// TODO: Refactor!!! Refator!!
 export class CreateTargetMutation extends MutationBase<IMutationResponse> {
     constructor(
         @inject('Targets') private _targets: Targets,
