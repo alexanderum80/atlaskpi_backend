@@ -1,22 +1,13 @@
 import * as Promise from 'bluebird';
+import * as console from 'console';
 
-import { IUIChart, UIChartBase } from './';
-import { IKpiBase } from './../../../../app_modules/kpis/queries/kpi-base';
-import { IChart } from './../../../../domain/app/charts/chart';
-import { ITargetDocument } from './../../../../domain/app/targets/target';
+import { IChart } from '../../../../domain/app/charts/chart';
+import { ITargetDocument } from '../../../../domain/app/targets/target';
+import { IKpiBase } from '../../../kpis/queries/kpi-base';
 import { IChartMetadata } from './chart-metadata';
 import { FrequencyHelper } from './frequency-values';
+import { IUIChart, UIChartBase } from './ui-chart-base';
 
-// const basicDefinition = { 'chart'    : { 'type': 'spline', 'inverted' : false },
-//   'plotOptions': { 'series': { 'lineWidth': 4 }, 'line': { 'dataLabels': { 'enabled': false } } },
-//   'yAxis'    : { 'plotLines' : [ { 'value' : 0,
-//                                    'width' : 1,
-//                                    'color' : '#808080' } ] },
-//   'legend'   : { 'layout'        : 'vertical',
-//                  'align'         : 'right',
-//                  'verticalAlign' : 'middle',
-//                  'borderWidth'   : 0 }
-// };
 
 export class SPLineChart extends UIChartBase implements IUIChart {
 

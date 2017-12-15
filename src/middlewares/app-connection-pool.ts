@@ -1,9 +1,10 @@
-import * as mongoose from 'mongoose';
-import * as logger from 'winston';
 import * as Promise from 'bluebird';
 import { injectable } from 'inversify';
-import { connectToMongoDb } from '../helpers';
 import { remove } from 'lodash';
+import * as mongoose from 'mongoose';
+import * as logger from 'winston';
+
+import { connectToMongoDb } from '../helpers/mongodb.helpers';
 
 export interface IConnectionDetails {
     uri: string;

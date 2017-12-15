@@ -1,6 +1,7 @@
-
-import { input, type, field, GraphQLTypesMap, ErrorDetails } from '../../framework';
-
+import { field } from '../../framework/decorators/field.decorator';
+import { GraphQLTypesMap } from '../../framework/decorators/graphql-types-map';
+import { type } from '../../framework/decorators/type.decorator';
+import { ErrorDetails } from '../../framework/graphql/common.types';
 
 @type()
 export class Department  {

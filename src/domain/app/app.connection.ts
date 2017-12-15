@@ -1,7 +1,9 @@
+import { inject, injectable } from 'inversify';
 import * as mongoose from 'mongoose';
+
 import { IExtendedRequest } from '../../middlewares/extended-request';
-import { injectable, inject } from 'inversify';
-import { DbConnection } from '../../type-mongo';
+import { DbConnection } from '../../type-mongo/connection';
+
 
 @injectable()
 export class AppConnection extends DbConnection {

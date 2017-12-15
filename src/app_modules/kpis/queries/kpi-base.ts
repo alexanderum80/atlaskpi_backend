@@ -1,10 +1,12 @@
-import { AggregateStage } from './aggregate';
-import { IChartDateRange } from '../../../domain/common';
-import { FrequencyEnum, IDateRange, IKPIDocument, IKPI } from '../../../domain';
-
 import * as Promise from 'bluebird';
-import * as logger from 'winston';
 import * as _ from 'lodash';
+import * as logger from 'winston';
+
+import { IKPI } from '../../../domain/app/kpis/kpi';
+import { IChartDateRange, IDateRange } from '../../../domain/common/date-range';
+import { FrequencyEnum } from '../../../domain/common/frequency-enum';
+import { field } from '../../../framework/decorators/field.decorator';
+import { AggregateStage } from './aggregate';
 
 export interface IKPIMetadata {
     name?: string;

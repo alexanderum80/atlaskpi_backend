@@ -1,8 +1,9 @@
-import { DashboardQuery, DashboardsQuery } from './queries';
-import { CreateDashboardMutation, DeleteDashboardMutation, UpdateDashboardMutation } from './mutations';
-import {
-    AppModule, ModuleBase
-} from '../../framework';
+import { AppModule, ModuleBase } from '../../framework/decorators/app-module';
+import { CreateDashboardMutation } from './mutations/create-dashboard.mutation';
+import { DeleteDashboardMutation } from './mutations/delete-dashboard.mutation';
+import { UpdateDashboardMutation } from './mutations/update-dashboard.mutation';
+import { DashboardQuery } from './queries/dashboard.query';
+import { DashboardsQuery } from './queries/dashboards.query';
 
 @AppModule({
     mutations: [

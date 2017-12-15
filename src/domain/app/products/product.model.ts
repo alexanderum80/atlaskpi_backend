@@ -1,9 +1,10 @@
-import { ModelBase } from '../../../type-mongo';
-import { AppConnection } from '../app.connection';
-import { injectable, inject } from 'inversify';
-import { IProductModel } from './product';
+import { inject, injectable } from 'inversify';
 import * as mongoose from 'mongoose';
-import * as Promise from 'bluebird';
+
+import { ModelBase } from '../../../type-mongo/model-base';
+import { AppConnection } from '../app.connection';
+import { IProductModel } from './product';
+
 
 let Schema = mongoose.Schema;
 

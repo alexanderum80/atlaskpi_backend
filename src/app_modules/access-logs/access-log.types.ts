@@ -1,5 +1,9 @@
+import { ErrorDetails } from '../../framework/graphql/common.types';
+import { type } from '../../framework/decorators/type.decorator';
+import { GraphQLTypesMap } from '../../framework/decorators/graphql-types-map';
+import { field } from '../../framework/decorators/field.decorator';
+import { input } from '../../framework/decorators/input.decorator';
 
-import { input, type, field, GraphQLTypesMap, ErrorDetails } from '../../framework';
 
 @input()
 export class IResultEntry  {

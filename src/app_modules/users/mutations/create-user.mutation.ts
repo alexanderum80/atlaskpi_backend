@@ -1,12 +1,14 @@
-import { ICreateUserDetails } from '../../../domain/common';
-import { AccountCreatedNotification } from '../../../services/notifications/users';
-
-import { injectable, inject } from 'inversify';
 import * as Promise from 'bluebird';
-import { MutationBase, mutation } from '../../../framework';
-import { Users } from '../../../domain';
+import { inject, injectable } from 'inversify';
+
+import { Users } from '../../../domain/app/security/users/user.model';
+import { ICreateUserDetails } from '../../../domain/common/create-user';
+import { mutation } from '../../../framework/decorators/mutation.decorator';
+import { MutationBase } from '../../../framework/mutations/mutation-base';
+import { AccountCreatedNotification } from '../../../services/notifications/users/account-created.notification';
+import { CreateUserActivity } from '../activities/create-user.activity';
 import { CreateUserResult, UserDetails } from '../users.types';
-import { CreateUserActivity } from '../activities';
+import { IMutationResponse } from '../../../framework/mutations/mutation-response';
 
 @injectable()
 @mutation({
@@ -17,7 +19,7 @@ import { CreateUserActivity } from '../activities';
     ],
     output: { type: CreateUserResult }
 })
-export class CreateUserMutation extends MutationBase<CreateUserResult> {
+export class CreateUserMutation extends MutationBase<IMutationResponse> {
     constructor(
         @inject('Users') private _users: Users,
         @inject('AccountCreatedNotification') private _accountCreatedNotification: AccountCreatedNotification
@@ -25,7 +27,7 @@ export class CreateUserMutation extends MutationBase<CreateUserResult> {
         super();
     }
 
-    run(data: ICreateUserDetails): Promise<CreateUserResult> {
+    run(data: ICreateUserDetails): Promise<IMutationResponse> {
         return this._users.model.createUser(data, this._accountCreatedNotification);
     }
 }

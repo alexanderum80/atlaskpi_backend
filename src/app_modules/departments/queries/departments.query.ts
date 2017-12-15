@@ -1,9 +1,13 @@
-import { injectable, inject } from 'inversify';
 import * as Promise from 'bluebird';
-import { IQuery, query } from '../../../framework';
-import { Departments, IDepartmentDocument } from '../../../domain';
+import { inject, injectable } from 'inversify';
+
+import { IDepartmentDocument } from '../../../domain/app/departments/department';
+import { Departments } from '../../../domain/app/departments/department.model';
+import { query } from '../../../framework/decorators/query.decorator';
+import { IQuery } from '../../../framework/queries/query';
+import { DepartmentByIdActivity } from '../activities/department-by-id.activity';
 import { Department } from '../departments.types';
-import { DepartmentByIdActivity } from '../activities';
+
 
 @injectable()
 @query({
@@ -12,9 +16,7 @@ import { DepartmentByIdActivity } from '../activities';
     output: { type: Department }
 })
 export class DepartmentsQuery implements IQuery<IDepartmentDocument[]> {
-    constructor(@inject('Departments') private _departments: Departments) {
-        
-    }
+    constructor(@inject('Departments') private _departments: Departments) { }
 
     run(data: { id: string }): Promise<IDepartmentDocument[]> {
         return this._departments.model.departments();

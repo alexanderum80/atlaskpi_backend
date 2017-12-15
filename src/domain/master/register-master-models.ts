@@ -1,9 +1,9 @@
+import { IBridgeContainer } from '../../framework/di/bridge-container';
+import { Accounts } from './accounts/account.model';
 import { Countries } from './countries/country.model';
 import { Industries } from './industries/industry.model';
-import { MasterConnection } from './';
-import { Accounts } from './accounts/account.model';
-import { Container } from 'inversify';
-import { IBridgeContainer } from '../../framework/di/bridge-container';
+import { MasterConnection } from './master.connection';
+
 
 export function registerMasterModels(container: IBridgeContainer) {
     container.registerPerWebRequest(Accounts);

@@ -1,7 +1,6 @@
 import * as url from 'url';
 import * as express from 'express';
 import { Request, Response } from 'express';
-import { AuthController } from '../controllers';
 
 const me = express.Router();
 

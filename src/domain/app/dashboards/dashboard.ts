@@ -1,9 +1,10 @@
 import * as Promise from 'bluebird';
 import * as mongoose from 'mongoose';
 
-import { IChart } from '../charts';
-import { IWidget } from '../widgets';
-import { IUser } from '../security/users';
+import { IChart } from '../charts/chart';
+import { IUser } from '../security/users/user';
+import { IWidget } from '../widgets/widget';
+
 
 // import { IWidget } from '../widgets';
 export interface IDashboard {

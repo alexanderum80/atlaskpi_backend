@@ -1,11 +1,15 @@
-import { IRoleResponse } from '../../../domain/app/security/roles';
-
-import { injectable, inject } from 'inversify';
 import * as Promise from 'bluebird';
-import { IMutationResponse, MutationBase, mutation } from '../../../framework';
-import { Roles } from '../../../domain';
+import { inject, injectable } from 'inversify';
+
+import { IRoleResponse } from '../../../domain/app/security/roles/role';
+import { Roles } from '../../../domain/app/security/roles/role.model';
+import { field } from '../../../framework/decorators/field.decorator';
+import { mutation } from '../../../framework/decorators/mutation.decorator';
+import { MutationBase } from '../../../framework/mutations/mutation-base';
+import { IMutationResponse } from '../../../framework/mutations/mutation-response';
+import { UpdateRoleActivity } from '../activities/update-role.activity';
 import { Role, RoleDetailsInput } from '../roles.types';
-import { UpdateRoleActivity } from '../activities';
+
 
 @injectable()
 @mutation({

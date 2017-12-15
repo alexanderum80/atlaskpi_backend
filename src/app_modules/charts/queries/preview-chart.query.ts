@@ -1,10 +1,14 @@
 import * as Promise from 'bluebird';
 import { inject, injectable } from 'inversify';
-import { Winston } from 'winston';
 
-import { IQuery, query } from '../../../framework';
-import { PreviewChartActivity } from '../activities';
-import { ChartAttributesInput } from '../charts.types';
+import { Charts } from '../../../domain/app/charts/chart.model';
+import { KPIs } from '../../../domain/app/kpis/kpi.model';
+import { input } from '../../../framework/decorators/input.decorator';
+import { query } from '../../../framework/decorators/query.decorator';
+import { IQuery } from '../../../framework/queries/query';
+import { PreviewChartActivity } from '../activities/preview-chart.activity';
+import { ChartQuery } from './chart.query';
+
 import { ChartsService } from './../../../services/charts.service';
 
 @injectable()

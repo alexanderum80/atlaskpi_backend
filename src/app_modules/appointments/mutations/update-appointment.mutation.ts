@@ -1,11 +1,14 @@
-import { Appointments, IAppointment } from '../../../domain/app/appointments';
-import { UpdateAppointmentActivity } from '../activities/update-appointment.activity';
-import { MutationBase } from '../../../framework/mutations';
-import { AppointmentInput, AppointmentMutationResponse } from '../appointments.types';
-import { CreateAppointmentActivity } from '../activities';
-import { mutation } from '../../../framework';
-import { injectable, inject } from 'inversify';
 import * as Promise from 'bluebird';
+import { inject, injectable } from 'inversify';
+
+import { IAppointment } from '../../../domain/app/appointments/appointment';
+import { Appointments } from '../../../domain/app/appointments/appointment-model';
+import { field } from '../../../framework/decorators/field.decorator';
+import { input } from '../../../framework/decorators/input.decorator';
+import { mutation } from '../../../framework/decorators/mutation.decorator';
+import { MutationBase } from '../../../framework/mutations/mutation-base';
+import { UpdateAppointmentActivity } from '../activities/update-appointment.activity';
+import { AppointmentInput, AppointmentMutationResponse } from '../appointments.types';
 
 @injectable()
 @mutation({

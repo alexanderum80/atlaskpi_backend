@@ -1,11 +1,14 @@
-import { ModelBase } from '../../../type-mongo';
-import { AppConnection } from '../app.connection';
-import { injectable, inject } from 'inversify';
-import { Address, IAddress, IEmploymentInfo, EmploymentInfo } from '../../common';
-import { IEmployeeModel, IEmployeeDocument, IEmployeeInput } from './employee';
-import * as mongoose from 'mongoose';
+import { EmploymentInfo } from '../../common/employment-info.model';
+import { Address } from '../../common/address.model';
 import * as Promise from 'bluebird';
+import { inject, injectable } from 'inversify';
+import * as mongoose from 'mongoose';
 import * as logger from 'winston';
+
+import { ModelBase } from '../../../type-mongo/model-base';
+import { AppConnection } from '../app.connection';
+import { IEmployeeDocument, IEmployeeInput, IEmployeeModel } from './employee';
+
 
 let Schema = mongoose.Schema;
 

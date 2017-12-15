@@ -1,11 +1,16 @@
-import { IKPI } from '../../../domain/app/kpis';
 import * as Promise from 'bluebird';
 import { inject, injectable } from 'inversify';
 
-import { KPIs } from '../../../domain';
-import { IMutationResponse, mutation, MutationBase } from '../../../framework';
-import { CreateKPIActivity } from '../activities';
-import { KPIMutationResponse, KPIAttributesInput } from '../kpis.types';
+import { IKPI } from '../../../domain/app/kpis/kpi';
+import { KPIs } from '../../../domain/app/kpis/kpi.model';
+import { field } from '../../../framework/decorators/field.decorator';
+import { input } from '../../../framework/decorators/input.decorator';
+import { mutation } from '../../../framework/decorators/mutation.decorator';
+import { MutationBase } from '../../../framework/mutations/mutation-base';
+import { IMutationResponse } from '../../../framework/mutations/mutation-response';
+import { CreateKPIActivity } from '../activities/create-kpi.activity';
+import { KPIAttributesInput, KPIMutationResponse } from '../kpis.types';
+
 
 
 @injectable()

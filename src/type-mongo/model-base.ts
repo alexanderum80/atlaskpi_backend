@@ -1,6 +1,5 @@
-import * as mongoose from 'mongoose';
 import { injectable } from 'inversify';
-import { getModelMetadata, DbConnection } from './';
+import * as mongoose from 'mongoose';
 
 @injectable()
 export class ModelBase<T> {

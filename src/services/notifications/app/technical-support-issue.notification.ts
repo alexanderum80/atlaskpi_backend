@@ -1,10 +1,13 @@
+import { sendEmail } from '../../email/email.service';
 import * as Promise from 'bluebird';
+import { inject, injectable } from 'inversify';
+import { isDate, isNumber } from 'lodash';
 import * as nodemailer from 'nodemailer';
-import { isNumber, isDate } from 'lodash';
-import { sendEmail } from '../../email';
-import { ISupportEmailNotifier } from '../';
-import { injectable, inject } from 'inversify';
-import { IAppConfig } from '../../../configuration';
+
+import { IAppConfig } from '../../../configuration/config-models';
+import { ISupportEmailNotifier } from '../email-notifier';
+
+
 
 export enum IssueLevelEnum {
     Critical,

@@ -1,28 +1,18 @@
-import {
-    flatMap
-} from 'tslint/lib/utils';
-import {
-    AccessLogs
-} from '../../domain/app/access-log';
-import {
-    IExtendedRequest
-} from '../../middlewares/extended-request';
-import {
-    IActivity,
-    IEnforcer
-} from '../modules/security';
-import {
-    IMutation,
-    IValidationResult
-} from '..';
 import * as Promise from 'bluebird';
+import { injectable } from 'inversify';
+import { inject } from 'inversify';
+import { run } from 'tslint/lib/runner';
+import { flatMap } from 'tslint/lib/utils';
 import * as logger from 'winston';
-import {
-    injectable
-} from 'inversify';
-import {
-    inject
-} from 'inversify';
+
+import { AccessLogs } from '../../domain/app/access-log/access-log.model';
+import { IExtendedRequest } from '../../middlewares/extended-request';
+import { mutation } from '../decorators/mutation.decorator';
+import { IActivity } from '../modules/security/activity';
+import { IEnforcer } from '../modules/security/enforcer';
+import { IMutation } from './mutation';
+import { IValidationResult } from './validation-result';
+
 
 
 export interface IMutationBus {

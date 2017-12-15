@@ -1,12 +1,14 @@
-
-import { ModelBase } from '../../../type-mongo';
-import { AppConnection } from '../app.connection';
-import { injectable, inject } from 'inversify';
-import { ISlideshowInput } from './';
-import { ISlideshowDocument, ISlideshowModel } from './slideshow';
-import * as mongoose from 'mongoose';
 import * as Promise from 'bluebird';
+import { inject, injectable } from 'inversify';
+import * as mongoose from 'mongoose';
 import * as logger from 'winston';
+
+import { input } from '../../../framework/decorators/input.decorator';
+import { ModelBase } from '../../../type-mongo/model-base';
+import { AppConnection } from '../app.connection';
+import { ISlideshowDocument, ISlideshowInput, ISlideshowModel } from './slideshow';
+
+
 
 const SlideshowSchema = new mongoose.Schema({
 

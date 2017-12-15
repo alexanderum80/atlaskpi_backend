@@ -2,10 +2,16 @@ import * as Promise from 'bluebird';
 import { inject, injectable } from 'inversify';
 import * as moment from 'moment';
 
-import { getGroupingMetadata } from '../app_modules/charts/queries/index';
-import { KpiFactory } from '../app_modules/kpis/queries';
-import { Charts, FrequencyEnum, IDateRange, parsePredifinedDate, Targets, Users } from '../domain';
-import { ITargetDocument } from '../domain/app/index';
+import { getGroupingMetadata } from '../app_modules/charts/queries/chart-grouping-map';
+import { KpiFactory } from '../app_modules/kpis/queries/kpi.factory';
+import { Charts } from '../domain/app/charts/chart.model';
+import { Users } from '../domain/app/security/users/user.model';
+import { ITargetDocument } from '../domain/app/targets/target';
+import { Targets } from '../domain/app/targets/target.model';
+import { IDateRange, parsePredifinedDate } from '../domain/common/date-range';
+import { FrequencyEnum } from '../domain/common/frequency-enum';
+import { field } from '../framework/decorators/field.decorator';
+
 
 
 // TODO: REFACTOR, and prepare for dependency injection

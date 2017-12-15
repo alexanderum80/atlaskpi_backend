@@ -1,17 +1,14 @@
-import {
-    Request,
-    Response
-} from 'express';
-import {
-    IExtendedRequest
-} from './extended-request';
+import { model } from 'mongoose';
 import * as logger from 'winston';
-import * as Promise from 'bluebird';
-import {
-    Users, Permissions
-} from '../domain/app/index';
+
+import { config } from '../configuration/config';
 import { IAppConfig } from '../configuration/config-models';
-import { Roles } from '../domain/app/security/roles/index';
+import { Permissions } from '../domain/app/security/permissions/permission.model';
+import { Roles } from '../domain/app/security/roles/role.model';
+import { Users } from '../domain/app/security/users/user.model';
+import { IExtendedRequest } from './extended-request';
+import { Response } from 'express';
+
 
 export function loadUser(req: IExtendedRequest, res: Response, next) {
 

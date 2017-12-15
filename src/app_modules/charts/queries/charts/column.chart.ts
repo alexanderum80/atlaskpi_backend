@@ -1,4 +1,13 @@
 import * as Promise from 'bluebird';
+import * as console from 'console';
+import { min } from 'moment';
+
+import { IChart } from '../../../../domain/app/charts/chart';
+import { ITargetDocument } from '../../../../domain/app/targets/target';
+import { IKpiBase } from '../../../kpis/queries/kpi-base';
+import { IChartMetadata } from './chart-metadata';
+import { FrequencyHelper } from './frequency-values';
+import { IUIChart, UIChartBase } from './ui-chart-base';
 
 import { IKpiBase } from './../../../../app_modules/kpis/queries/kpi-base';
 import { IChart } from './../../../../domain/app/charts/chart';
@@ -31,18 +40,4 @@ export class ColumnChart extends UIChartBase implements IUIChart {
             ? this.getDefinitionOfComparisonChart(kpi, metadata)
             : this.getDefinitionForDateRange(kpi, metadata, target);
     }
-
-    // getDefinition(kpi: IKpiBase, dateRange: IDateRange, metadata?: IChartMetadata): Promise<string> {
-    //     let that = this;
-
-    //     return new Promise<string>((resolve, reject) => {
-    //         that.getKPIData(kpi, dateRange, metadata).then(elements => {
-    //             let output = that.chart;
-    //             let xAxis = output.chartDefinition.xAxis || {};
-    //             xAxis.categories = elements.categories;
-    //             output.chartDefinition.series = elements.series;
-    //             resolve(JSON.stringify(output));
-    //         });
-    //     });
-    // }
 }

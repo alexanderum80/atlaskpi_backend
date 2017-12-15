@@ -1,10 +1,14 @@
-
-import { injectable, inject } from 'inversify';
 import * as Promise from 'bluebird';
-import { IMutationResponse, MutationBase, mutation } from '../../../framework';
-import { Widgets } from '../../../domain';
-import { WidgetMutationResponse, WidgetInput } from '../widgets.types';
-import { CreateWidgetActivity } from '../activities';
+import { inject, injectable } from 'inversify';
+
+import { Widgets } from '../../../domain/app/widgets/widget.model';
+import { mutation } from '../../../framework/decorators/mutation.decorator';
+import { MutationBase } from '../../../framework/mutations/mutation-base';
+import { IMutationResponse } from '../../../framework/mutations/mutation-response';
+import { CreateWidgetActivity } from '../activities/create-widget.activity';
+import { WidgetInput, WidgetMutationResponse } from '../widgets.types';
+import { IWidgetInput } from '../../../domain/app/widgets/widget';
+
 
 @injectable()
 @mutation({
@@ -20,7 +24,7 @@ export class CreateWidgetMutation extends MutationBase<IMutationResponse> {
         super();
     }
 
-    run(data: { input: WidgetInput }): Promise<IMutationResponse> {
+    run(data: { input: IWidgetInput }): Promise<IMutationResponse> {
         const that = this;
 
         return new Promise<IMutationResponse>((resolve, reject) => {

@@ -1,16 +1,18 @@
-import { Charts } from '../../../domain/app/charts';
-import { IDashboard } from '../../../domain/app/dashboards';
-import { Winston } from 'winston';
-import { IUserDocument } from '../../../domain/app/security/users';
-
-import { injectable, inject } from 'inversify';
 import * as Promise from 'bluebird';
-import { IQuery, query } from '../../../framework';
-import { Dashboards } from '../../../domain';
-import { Dashboard } from '../dashboards.types';
-import { GetDashboardsActivity } from '../activities';
+import { inject, injectable } from 'inversify';
+import { isArray } from 'util';
+import { Winston } from 'winston';
+
 import { CurrentUser } from '../../../../di';
-import { KPIs } from '../../../domain/app/index';
+import { Charts } from '../../../domain/app/charts/chart.model';
+import { IDashboard } from '../../../domain/app/dashboards/dashboard';
+import { Dashboards } from '../../../domain/app/dashboards/dashboard.model';
+import { KPIs } from '../../../domain/app/kpis/kpi.model';
+import { query } from '../../../framework/decorators/query.decorator';
+import { IQuery } from '../../../framework/queries/query';
+import { GetDashboardsActivity } from '../activities/get-dashboards.activity';
+import { Dashboard } from '../dashboards.types';
+
 
 @injectable()
 @query({

@@ -1,18 +1,17 @@
+import { inject, injectable } from 'inversify';
+
 import { ChartFactory } from './src/app_modules/charts/queries/charts/chart-factory';
-import { IUserDocument } from './src/domain/app/security/users';
-import { Winston } from 'winston';
-import { registerMasterModels } from './src/domain/master/register-master-models';
-import { registerAppModels } from './src/domain/app/register-app-models';
+import { KpiFactory } from './src/app_modules/kpis/queries/kpi.factory';
 import { registerConfiguration } from './src/configuration/register-configuration-dependencies';
-import { registerServices } from './src/services/register-service-dependencies';
-import { AppConnectionPool } from './src/middlewares/app-connection-pool';
-import { Container } from 'inversify';
-import * as logger from 'winston';
-import { BridgeContainer, IBridgeContainer } from './src/framework/di/bridge-container';
-import { IExtendedRequest } from './src/middlewares/index';
-import { injectable, inject } from 'inversify';
-import { KpiFactory } from './src/app_modules/kpis/queries/index';
+import { registerAppModels } from './src/domain/app/register-app-models';
+import { IUserDocument } from './src/domain/app/security/users/user';
 import { WidgetFactory } from './src/domain/app/widgets/widget-factory';
+import { registerMasterModels } from './src/domain/master/register-master-models';
+import { IBridgeContainer } from './src/framework/di/bridge-container';
+import { AppConnectionPool } from './src/middlewares/app-connection-pool';
+import { IExtendedRequest } from './src/middlewares/extended-request';
+import { registerServices } from './src/services/register-service-dependencies';
+
 
 @injectable()
 export class CurrentUser {

@@ -1,8 +1,11 @@
+import * as Promise from 'bluebird';
+import { inject, injectable } from 'inversify';
 import { Winston } from 'winston';
-import { ILogEntry } from '../domain/app/log';
-import { injectable, inject } from 'inversify';
-import { TechnicalSupportIssueNotification } from '../services/notifications/app/index';
-import { ILogEntryDocument, Logs } from '../domain/index';
+
+import { ILogEntry, ILogEntryDocument } from '../domain/app/log/log';
+import { Logs } from '../domain/app/log/log.model';
+import { TechnicalSupportIssueNotification } from '../services/notifications/app/technical-support-issue.notification';
+
 
 export interface ILogDetails {
     timestamp: Date;

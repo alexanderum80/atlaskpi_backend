@@ -1,8 +1,8 @@
-import { FrequencyEnum } from '../../../../models/common/frequency-enum';
-import { IDateRange } from '../../../../models/common/date-range';
-import { IKPIMetadata, IKPIResult } from '../../kpis/kpi-base';
-import * as _ from 'lodash';
+import { max, min, sortBy, uniq } from 'lodash';
 import * as moment from 'moment';
+
+import { FrequencyEnum } from '../../../../domain/common/frequency-enum';
+import { IKPIResult } from '../../../kpis/queries/kpi-base';
 
 // export interface ISerieOptions {
 //     name: string;
@@ -170,8 +170,8 @@ export class ChartPreProcessorExtention {
     private _getYearsInData(rawData: any[]): string[] {
         let years = [];
         try {
-            let frequencies = _.uniq(rawData.map(item => item._id.frequency)).sort();
-            years = _.uniq(frequencies.map(f => { return f.split('-')[0]; }));
+            let frequencies = uniq(rawData.map(item => item._id.frequency)).sort();
+            years = uniq(frequencies.map(f => { return f.split('-')[0]; }));
         }
         catch (err) {
             console.log('error trying to extract year...: ' + err);
@@ -182,8 +182,8 @@ export class ChartPreProcessorExtention {
     private _getMonthsInData(rawData: any[]): string[] {
         let months = [];
         try {
-            let frequencies = _.uniq(rawData.map(item => item._id.frequency)).sort();
-            months = _.uniq(frequencies.map(f => { return f.split('-')[1]; }));
+            let frequencies = uniq(rawData.map(item => item._id.frequency)).sort();
+            months = uniq(frequencies.map(f => { return f.split('-')[1]; }));
         }
         catch (err) {
             console.log('error trying to extract months...: ' + err);
@@ -194,8 +194,8 @@ export class ChartPreProcessorExtention {
     private _getQuartersInData(rawData: any[]): string[] {
         let qs = [];
         try {
-            let frequencies = _.uniq(rawData.map(item => item._id.frequency)).sort();
-            qs = _.uniq(frequencies.map(f => { return f.split('-')[1]; }));
+            let frequencies = uniq(rawData.map(item => item._id.frequency)).sort();
+            qs = uniq(frequencies.map(f => { return f.split('-')[1]; }));
         }
         catch (err) {
             console.log('error trying to extract months...: ' + err);
@@ -206,8 +206,8 @@ export class ChartPreProcessorExtention {
     private _getDaysInData(rawData: any[]): string[] {
         let days = [];
         try {
-            let frequencies = _.uniq(rawData.map(item => item._id.frequency)).sort();
-            days = _.uniq(frequencies.map(f => { return f.split('-')[2]; }));
+            let frequencies = uniq(rawData.map(item => item._id.frequency)).sort();
+            days = uniq(frequencies.map(f => { return f.split('-')[2]; }));
         }
         catch (err) {
             console.log('error trying to extract days...: ' + err);
@@ -221,7 +221,7 @@ export class ChartPreProcessorExtention {
             return d;
         });
 
-        data = _.sortBy(data, '_id.frequency');
+        data = sortBy(data, '_id.frequency');
         return data.map(item => [ moment(String(item._id.frequency + '-01')).format('MMM'), item.value]);
     }
 
@@ -231,7 +231,7 @@ export class ChartPreProcessorExtention {
             return d;
         });
 
-        data = _.sortBy(data, '_id.frequency');
+        data = sortBy(data, '_id.frequency');
         return data.map(item => [ Number(item._id.frequency.split('-')[2]), item.value]);
     }
 
@@ -284,19 +284,19 @@ export class ChartPreProcessorExtention {
             } else {
                 simpleSerie.push([currDay, null]);
             }
-        };
+        }
 
         return simpleSerie;
     }
 
     private _getFirstDayInSerie(series: any[]) {
-        let allMinimun = series.map(s =>  _.min(s.data.map(d => d[0])));
-        return _.min(allMinimun);
+        let allMinimun = series.map(s =>  min(s.data.map(d => d[0])));
+        return min(allMinimun);
     }
 
     private _getLastDayInSerie(series: any[]) {
-        let allMaximun = series.map(s =>  _.max(s.data.map(d => d[0])));
-        return _.max(allMaximun);
+        let allMaximun = series.map(s =>  max(s.data.map(d => d[0])));
+        return max(allMaximun);
     }
 
     private _getDailyFrequencies() {
