@@ -1,13 +1,13 @@
-import 'reflect-metadata';
-import { Bridge } from './framework';
-import { AtlasApp } from './app_modules/business-units/mutations/mutations.gql';
-import { healthCheck, initializeContexts, loadUser, logger, tokenValidator } from './middlewares';
-import { auth, me } from './routes';
-import { registerDependencies } from './di';
+// import 'reflect-metadata';
+// import { Bridge } from './framework';
+// import { AtlasApp } from './app_modules/business-units/mutations/mutations.gql';
+// import { healthCheck, initializeContexts, loadUser, logger, tokenValidator } from './middlewares';
+// import { auth, me } from './routes';
+// import { registerDependencies } from './di';
 
-const app = Bridge.create(AtlasApp);
+// const app = Bridge.create(AtlasApp);
 
-registerDependencies(app.Container);
+// registerDependencies(app.Container);
 
 // middlewares
 // app.server.use(healthCheck);
