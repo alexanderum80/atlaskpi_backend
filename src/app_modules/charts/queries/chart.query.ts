@@ -1,9 +1,8 @@
 import * as Promise from 'bluebird';
 import { inject, injectable } from 'inversify';
 import { isEmpty } from 'lodash';
-import { Winston } from 'winston';
 
-import { IChart, IChartInput, IDashboardDocument } from '../../../domain';
+import { Logger } from '../../../../di';
 import { FrequencyTable } from '../../../domain/common';
 import { IQuery, query } from '../../../framework';
 import { ChartsService } from '../../../services/index';

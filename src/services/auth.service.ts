@@ -1,7 +1,7 @@
 import * as Promise from 'bluebird';
 import { inject, injectable } from 'inversify';
-import { Winston } from 'winston';
 
+import { Logger } from '../../di';
 import { IAppConfig } from '../configuration/config-models';
 import { Roles } from '../domain/app/security/roles/role.model';
 import { IUserDocument } from '../domain/app/security/users/user';
@@ -26,10 +26,10 @@ export class AuthService {
 
     constructor(
         @inject('Config') private _config: IAppConfig,
-        @inject('Accounts') private _accounts: Accounts,
-        @inject('Users') private _users: Users,
-        @inject('Roles') private _roles: Roles,
-        @inject(Logger.name) private _logger: Winston ) { }
+        @inject(Accounts.name) private _accounts: Accounts,
+        @inject(Users.name) private _users: Users,
+        @inject(Roles.name) private _roles: Roles,
+        @inject(Logger.name) private _logger: Logger ) { }
 
     authenticateUser(input: IUserAuthenticationData): Promise < IUserToken > {
         let that = this;

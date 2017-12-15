@@ -1,7 +1,7 @@
 import * as Promise from 'bluebird';
 import { inject, injectable } from 'inversify';
-import { Winston } from 'winston';
 
+import { Logger } from '../../di';
 import { ILogEntry, ILogEntryDocument } from '../domain/app/log/log';
 import { Logs } from '../domain/app/log/log.model';
 import { TechnicalSupportIssueNotification } from '../services/notifications/app/technical-support-issue.notification';
@@ -23,8 +23,8 @@ export class LogController {
 
     constructor(
         @inject('TechnicalSupportIssueNotification') private _supportNotifier: TechnicalSupportIssueNotification,
-        @inject('Logs') private _logs: Logs,
-        @inject(Logger.name) private _logger: Winston) { }
+        @inject(Logs.name) private _logs: Logs,
+        @inject(Logger.name) private _logger: Logger) { }
 
     processLogEntry(details: ILogDetails): Promise<any> {
         const that = this;
