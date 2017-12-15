@@ -152,7 +152,7 @@ function _getResolverFunction(metaType: MetadataType, artifact: IQueryOrMutation
     return function _executeResolver(root: any, args, ctx: IGraphqlContext) {
         // get an intance using the dependency injection container
         console.debug(`Resolving: ${artifact.constructor.name}`);
-        const i = ctx.requestContainer.container.get(artifact.constructor.name) as any;
+        const i = ctx.requestContainer.instance.get(artifact.constructor.name) as any;
         // ejecute the query or mutation bus
         return (ctx[bus] as any).run(artifact.activity, ctx.req, i, args).then(res => {
             return res;

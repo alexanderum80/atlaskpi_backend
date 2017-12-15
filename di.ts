@@ -6,6 +6,7 @@ import { registerAppModels } from './src/domain/app/register-app-models';
 import { registerConfiguration } from './src/configuration/register-configuration-dependencies';
 import { registerServices } from './src/services/register-service-dependencies';
 import { AppConnectionPool } from './src/middlewares/app-connection-pool';
+import { LoggerInstance } from 'winston';
 import { Container } from 'inversify';
 import * as logger from 'winston';
 import { BridgeContainer, IBridgeContainer } from './src/framework/di/bridge-container';
@@ -27,9 +28,22 @@ export class CurrentUser {
     }
 }
 
+@injectable()
+export class Logger {
+    private _logger: LoggerInstance;
+
+    constructor(@inject('Request') req: IExtendedRequest) {
+        this._logger = req.logger;
+    }
+
+    get(): LoggerInstance {
+        return this._logger;
+    }
+}
+
 
 export function registerDependencies(container: IBridgeContainer) {
-    container.registerConstant('logger', logger);
+    container.registerConstant(Logger.name, Logger);
 
     container.registerSingleton(AppConnectionPool);
     container.registerPerWebRequest(CurrentUser);
