@@ -1,6 +1,5 @@
 import { injectable } from 'inversify';
 import * as mongoose from 'mongoose';
-import { SaleSchema } from '../../../domain/app/sales';
 import { SaleSchema } from '../../../domain/app/sales/sale.model';
 import { field } from '../../../framework/decorators/field.decorator';
 import { readMongooseSchema } from '../../../helpers/mongodb.helpers';
