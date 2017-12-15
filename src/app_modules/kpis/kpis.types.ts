@@ -1,4 +1,4 @@
-import { resolver } from '../../framework/decorators/index';
+import { resolver } from '../../framework/decorators/resolver.decorator';
 import { Widget } from '../widgets/widgets.types';
 import { type } from '../../framework/decorators/type.decorator';
 import { field } from '../../framework/decorators/field.decorator';
