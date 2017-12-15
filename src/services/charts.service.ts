@@ -61,7 +61,7 @@ export class ChartsService {
             groupings: getGroupingMetadata(chart, options && options.groupings || []),
             comparison: options && options.comparison || chart.comparison,
             xAxisSource: options && options.xAxisSource,
-            dateRange: (!options.isFutureTarget && options && options.dateRange) || null,
+            dateRange: (options && !options.isFutureTarget && options.dateRange) || null,
             isDrillDown: options && options.isDrillDown || false,
             isFutureTarget: options && options.isFutureTarget || false,
         };
@@ -73,7 +73,7 @@ export class ChartsService {
                                                         .map(item => item.key);
         }
 
-        if (!meta.isDrillDown && options.chartId) {
+        if (!meta.isDrillDown && options && options.chartId) {
             return this._renderRegularDefinition(options.chartId, kpi, uiChart, meta);
         }
 
