@@ -23,8 +23,8 @@ import { Surveys } from './surveys/survey.model';
 import { Targets } from './targets/target.model';
 import { Widgets } from './widgets/widget.model';
 import { Worklogs } from './work-log/work-log.model';
-import { Widgets } from './widgets/widget.model';
-import { Worklogs } from './work-log/work-log.model';
+import { Logger } from './logger';
+import { CurrentUser } from './current-user';
 
 interface IRegistrationInfo {
     name: string;
@@ -64,4 +64,7 @@ export function registerAppModels(container: IBridgeContainer) {
         console.log('Registering model: ' + m.name);
         container.registerPerWebRequest(m);
     });
+
+    container.registerConstant(Logger.name, Logger);
+    container.registerPerWebRequest(CurrentUser);
 }
