@@ -22,7 +22,7 @@ import { UserPagedQueryResult } from '../users.types';
 export class UsersQuery implements IQuery<IPagedQueryResult<IUserDocument>> {
     constructor(@inject('Users') private _users: Users) { }
 
-    run(data: { details: IPaginationDetails }): Promise<IPagedQueryResult<IUserDocument>> {
+    run(data: IPaginationDetails ): Promise<IPagedQueryResult<IUserDocument>> {
         return this._users.model.search(data);
     }
 }

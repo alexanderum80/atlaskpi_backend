@@ -1,5 +1,6 @@
 import { Expenses } from '../../../domain/app/expenses/expense.model';
 import * as Promise from 'bluebird';
+import { cloneDeep, isArray, isObject } from 'lodash';
 
 import { IKPI, IKPIDocument, IKPISimpleDefinition, KPITypeEnum } from '../../../domain/app/kpis/kpi';
 import { KPIExpressionHelper } from '../../../domain/app/kpis/kpi-expression.helper';
@@ -89,7 +90,7 @@ export class SimpleKPI extends KpiBase implements IKpiBase {
         if (deserializedFilter)
             this._injectPostGroupStageFilters(deserializedFilter, definition.field);
 
-        this.pristineAggregate = _.cloneDeep(baseAggregate);
+        this.pristineAggregate = cloneDeep(baseAggregate);
     }
 
     getData(dateRange: IDateRange[], options?: IGetDataOptions): Promise<any> {
@@ -130,7 +131,7 @@ export class SimpleKPI extends KpiBase implements IKpiBase {
             throw 'KpiBase#_injectPreGroupStageFilters: Cannot inject filter because a dateRange/$match stage could not be found';
         }
 
-        const clone = _.cloneDeep(filter);
+        const clone = cloneDeep(filter);
         const preFilter = this._filterWithNoAggField(clone, excludedField);
 
         Object.keys(preFilter).forEach(filterKey => {
@@ -146,9 +147,9 @@ export class SimpleKPI extends KpiBase implements IKpiBase {
 
             let value = filter[filterKey];
 
-            if (!_.isArray(value) && _.isObject(value)) {
+            if (!isArray(value) && isObject(value)) {
                 value = this._filterWithNoAggField(value, fieldName);
-            } else if (_.isArray(value)) {
+            } else if (isArray(value)) {
                 for (let i = 0; i < value.length; i++) {
                     value[i] = this._filterWithNoAggField(value[i], fieldName);
                 }
@@ -170,10 +171,10 @@ export class SimpleKPI extends KpiBase implements IKpiBase {
 
             let value = filter[filterKey];
 
-            if (!_.isArray(value) && _.isObject(value)) {
+            if (!isArray(value) && isObject(value)) {
                 const found = this.aggFieldFilterOnly(value, fieldName);
                 if (found) { filterObj = found; }
-            } else if (_.isArray(value)) {
+            } else if (isArray(value)) {
                 for (let i = 0; i < value.length; i++) {
                     const found = this.aggFieldFilterOnly(value[i], fieldName);
                     if (found) { filterObj = found; }
@@ -191,7 +192,7 @@ export class SimpleKPI extends KpiBase implements IKpiBase {
             throw 'KpiBase#_injectPostGroupStageFilters: Cannot inject filter because a postGroupMatch stage could not be found';
         }
 
-        const clone = _.cloneDeep(filter);
+        const clone = cloneDeep(filter);
         const postGroupFilter = this.aggFieldFilterOnly(clone, aggField);
 
         if (postGroupFilter) {

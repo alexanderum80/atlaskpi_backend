@@ -7,6 +7,8 @@ import { IQuery } from '../../../framework/queries/query';
 import { WidgetsService } from '../../../services/widgets.service';
 import { PreviewWidgetActivity } from '../activities/preview-widget.activity';
 import { Widget, WidgetInput } from '../widgets.types';
+import { IWidgetInput } from '../../../domain/app/widgets/widget';
+import { IUIWidget } from '../../../domain/app/widgets/ui-widget-base';
 
 @injectable()
 @query({
@@ -17,15 +19,13 @@ import { Widget, WidgetInput } from '../widgets.types';
     ],
     output: { type: Widget }
 })
-export class PreviewWidgetQuery implements IQuery<Widget> {
+export class PreviewWidgetQuery implements IQuery<IUIWidget> {
     constructor(
         @inject('Widgets') private _widgets: Widgets,
         @inject('WidgetsService') private _widgetsService: WidgetsService
-    ) {
-        
-    }
+    ) { }
 
-    run(data: { input: WidgetInput }): Promise<Widget> {
+    run(data: { input: IWidgetInput }): Promise<IUIWidget> {
         return this._widgetsService.previewWidget(data.input);
     }
 }

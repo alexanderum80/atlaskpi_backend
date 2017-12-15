@@ -1,4 +1,4 @@
-import { IAccountModel, IAccountDocument } from '../../data/models';
+import { IAccountModel } from '../../src/domain/master/accounts/Account';
 import * as sinon from 'sinon';
 
 export function getAccountModelMock(): IAccountModel {

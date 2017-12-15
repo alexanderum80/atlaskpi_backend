@@ -1,3 +1,4 @@
+import { ISearchResult } from '../search.query';
 import * as Promise from 'bluebird';
 
 import { IChart } from '../../../../domain/app/charts/chart';

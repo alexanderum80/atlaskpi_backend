@@ -1,12 +1,11 @@
-import { graphqlExpress } from 'apollo-server-express/dist/expressApollo';
 import * as bodyParser from 'body-parser';
-import * as console from 'console';
 import * as cors from 'cors';
 import * as express from 'Express';
 import { IExecutableSchemaDefinition } from 'graphql-tools/dist/Interfaces';
 import { Server } from 'http';
 import { Container } from 'inversify';
 
+import { Enforcer } from '../app_modules/security/enforcer/enforcer';
 import { IExtendedRequest } from '../middlewares/extended-request';
 import { IAppModule } from './decorators/app-module';
 import { BRIDGE } from './decorators/helpers';
@@ -16,6 +15,8 @@ import { makeGraphqlSchemaExecutable } from './graphql/graphql-schema-generator'
 import { MutationBus } from './mutations/mutation-bus';
 import { IQuery } from './queries/query';
 import { QueryBus } from './queries/query-bus';
+import { graphqlExpress } from 'graphql-server-express';
+
 
 
 interface IQueryData {
@@ -40,7 +41,7 @@ const defaultServerOptions: IFrameworkOptions = {
 };
 
 export class Bridge {
-    private _server: Express;
+    private _server: express.Express;
     private _httpServer: Server;
 
     static create(appModule: new() => IAppModule, options?: IFrameworkOptions): Bridge {
@@ -112,7 +113,7 @@ export class Bridge {
         ));
     }
 
-    get server(): Express {
+    get server(): express.Express {
         return this._server;
     }
 
@@ -125,12 +126,12 @@ function registerBridgeDependencies(container: BridgeContainer) {
 }
 
 
-function setBridgeContainer(req: Request, res: Response, next) {
+function setBridgeContainer(req: express.Request, res: express.Response, next) {
     (<any>req).container = BRIDGE.getRequestContainer(req);
     next();
 }
 
-function cleanup(req: IExtendedRequest, res: Response, next) {
+function cleanup(req: IExtendedRequest, res: express.Response, next) {
     res.on('finish', function() {
       // perform your cleanups...
       const containerDetails = req.container;

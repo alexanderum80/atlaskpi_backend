@@ -11,7 +11,6 @@ import { Dashboards } from './dashboards/dashboard.model';
 import { Departments } from './departments/department.model';
 import { EmployeeAttendance } from './employees-attendance/employee-attendance.model';
 import { Employees } from './employees/employee.model';
-import { Inventory } from './inventory/inventory.model';
 import { KPIs } from './kpis/kpi.model';
 import { Locations } from './location/location.model';
 import { Logs } from './log/log.model';
@@ -44,7 +43,6 @@ const registrations: any[] = [
     Employees,
     EmployeeAttendance,
     Expenses,
-    Inventory,
     KPIs,
     Locations,
     Logs,

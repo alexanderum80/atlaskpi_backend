@@ -7,6 +7,7 @@ import { Permissions } from '../domain/app/security/permissions/permission.model
 import { Roles } from '../domain/app/security/roles/role.model';
 import { Users } from '../domain/app/security/users/user.model';
 import { IExtendedRequest } from './extended-request';
+import { Response } from 'express';
 
 
 export function loadUser(req: IExtendedRequest, res: Response, next) {

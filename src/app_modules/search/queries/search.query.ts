@@ -31,6 +31,11 @@ const sectionsModelsMap = {
     'expenses': 'Expense'
 };
 
+export interface ISearchResult {
+    section: string;
+    data: SearchResultItem[] | string;
+}
+
 @injectable()
 @query({
     name: 'search',

@@ -1,3 +1,4 @@
+import { attachToDashboards, detachFromDashboards } from './common';
 import * as Promise from 'bluebird';
 import { inject, injectable } from 'inversify';
 import { difference } from 'lodash';
@@ -59,9 +60,9 @@ export class UpdateChartMutation extends MutationBase<IMutationResponse> {
                         const toRemoveDashboardIds = difference(currentDashboardIds, data.input.dashboards);
                         const toAddDashboardIds = difference(data.input.dashboards, currentDashboardIds);
 
-                        detachFromDashboards(that._dashboards, toRemoveDashboardIds, chart._id)
+                        detachFromDashboards(that._dashboards.model, toRemoveDashboardIds, chart._id)
                         .then(() => {
-                            attachToDashboards(that._dashboards, toAddDashboardIds, chart._id)
+                            attachToDashboards(that._dashboards.model, toAddDashboardIds, chart._id)
                             .then(() => {
                                 resolve({ entity: chart, success: true });
                                 return;

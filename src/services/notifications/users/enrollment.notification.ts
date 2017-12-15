@@ -1,3 +1,4 @@
+import { sendEmail } from '../../email/email.service';
 import * as Promise from 'bluebird';
 import * as Handlebars from 'handlebars';
 import { inject, injectable } from 'inversify';

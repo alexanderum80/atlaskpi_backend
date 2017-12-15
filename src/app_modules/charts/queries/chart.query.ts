@@ -1,22 +1,28 @@
 import * as Promise from 'bluebird';
 import { inject, injectable } from 'inversify';
-import { Winston } from 'winston';
 import { isEmpty } from 'lodash';
+import { Winston } from 'winston';
 
-import { Charts } from '../../../domain';
-import { Dashboards, Expenses, IChart, IChartInput, IDashboardDocument, KPIs, Sales } from '../../../domain';
+import { IChart, IChartInput } from '../../../domain/app/charts/chart';
+import { Charts } from '../../../domain/app/charts/chart.model';
+import { IDashboardDocument } from '../../../domain/app/dashboards/dashboard';
+import { Dashboards } from '../../../domain/app/dashboards/dashboard.model';
+import { KPIs } from '../../../domain/app/kpis/kpi.model';
 import { Users } from '../../../domain/app/security/users/user.model';
-import { Targets } from '../../../domain/app/targets';
-import { FrequencyTable } from '../../../domain/common';
-import { IQuery, query } from '../../../framework';
-import { TargetService } from '../../../services/index';
+import { Targets } from '../../../domain/app/targets/target.model';
+import { FrequencyTable } from '../../../domain/common/frequency-enum';
+import { input } from '../../../framework/decorators/input.decorator';
+import { query } from '../../../framework/decorators/query.decorator';
+import { IQuery } from '../../../framework/queries/query';
+import { TargetService } from '../../../services/target.service';
 import { DateRangeHelper } from '../../date-ranges/queries/date-range.helper';
-import { KpiFactory } from '../../kpis/queries';
-import { GetChartActivity } from '../activities';
+import { KpiFactory } from '../../kpis/queries/kpi.factory';
+import { GetChartActivity } from '../activities/get-chart.activity';
 import { GetChartInput } from '../charts.types';
-import { getGroupingMetadata } from './';
-import { IChartMetadata } from './charts';
+import { getGroupingMetadata } from './chart-grouping-map';
 import { ChartFactory } from './charts/chart-factory';
+import { IChartMetadata } from './charts/chart-metadata';
+
 
 // TODO: I need kind of a big refactory here
 @injectable()
