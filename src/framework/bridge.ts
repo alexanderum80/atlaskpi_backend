@@ -134,9 +134,9 @@ function setBridgeContainer(req: express.Request, res: express.Response, next) {
 function cleanup(req: IExtendedRequest, res: express.Response, next) {
     res.on('finish', function() {
       // perform your cleanups...
-      const containerDetails = req.container;
-      containerDetails.bridgeModule.cleanup(containerDetails.container);
-      delete(req.container);
+      const containerDetails = req.Container;
+      containerDetails.bridgeModule.cleanup(containerDetails.instance);
+      delete(req.Container);
     });
 
     next();
