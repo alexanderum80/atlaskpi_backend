@@ -16,6 +16,7 @@ import { MutationBus } from './mutations/mutation-bus';
 import { IQuery } from './queries/query';
 import { QueryBus } from './queries/query-bus';
 import { graphqlExpress } from 'graphql-server-express';
+import { IBridgeRequest } from './bridge.request';
 
 
 
@@ -96,11 +97,11 @@ export class Bridge {
     }
 
     start() {
-        this._server.use('/graphql', bodyParser.json(), graphqlExpress((req) => (
+        this._server.use('/graphql', bodyParser.json(), graphqlExpress((req: IBridgeRequest) => (
             {
               context: {
                 req: req,
-                requestContainer: (<any>req).container,
+                requestContainer: req.Container,
                 mutationBus: this._container.get(MutationBus.name),
                 queryBus: this._container.get(QueryBus.name)
               },
@@ -126,8 +127,8 @@ function registerBridgeDependencies(container: BridgeContainer) {
 }
 
 
-function setBridgeContainer(req: express.Request, res: express.Response, next) {
-    (<any>req).container = BRIDGE.getRequestContainer(req);
+function setBridgeContainer(req: IBridgeRequest, res: express.Response, next) {
+    req.Container = BRIDGE.getRequestContainer(req);
     next();
 }
 
