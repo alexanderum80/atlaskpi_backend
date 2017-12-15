@@ -1,4 +1,4 @@
-import { GroupingMap } from '../../../app_modules/charts/queries';
+import { GroupingMap } from '../../../app_modules/charts/queries/chart-grouping-map';
 import { DataSourcesHelper } from '../../../app_modules/data-sources/queries/datasource.helper';
 import { IKPIDocument, IKPISimpleDefinition, KPITypeEnum } from './';
 import { KPIExpressionHelper } from './kpi-expression.helper';

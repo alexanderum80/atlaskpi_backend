@@ -46,7 +46,7 @@ export class ChartQuery implements IQuery<String> {
         const that = this;
         return new Promise<string>((resolve, reject) => {
             chartPromise.then(chart => {
-                that._chartsService.renderDefinition(chart).then(definition => {
+                that._chartsService.renderDefinition(chart, data.input).then(definition => {
                     chart.chartDefinition = definition;
                     resolve(JSON.stringify(chart));
                 });
