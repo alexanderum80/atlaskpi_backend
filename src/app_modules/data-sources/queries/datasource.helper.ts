@@ -1,7 +1,7 @@
 import { injectable } from 'inversify';
 import * as mongoose from 'mongoose';
 
-import { SaleSchema } from '../../../domain';
+import { SaleSchema } from '../../../domain/app/sales';
 import { ExpenseSchema } from '../../../domain/app/expenses';
 import { readMongooseSchema } from '../../../helpers';
 import { flatten } from '../../../helpers/object.helpers';
