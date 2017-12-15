@@ -15,7 +15,7 @@ export interface IExtendedRequest extends Request {
     /**
      * Bridge Container
      */
-    container: IWebRequestContainerDetails;
+    Container: IWebRequestContainerDetails;
 
     /**
      * User's identity

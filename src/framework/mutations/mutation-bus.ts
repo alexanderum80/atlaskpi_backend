@@ -98,7 +98,7 @@ export class MutationBus implements IMutationBus {
                         }
                     };
 
-                    const accessLogs = request.container.get < AccessLogs > (AccessLogs.name);
+                    const accessLogs = request.Container.instance.get < AccessLogs > (AccessLogs.name);
 
                     accessLogs.model.create(that.logParams);
                 }
