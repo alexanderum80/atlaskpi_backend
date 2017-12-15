@@ -67,6 +67,11 @@ export class ChartAttributesInput  {
     @field({ type: GraphQLTypesMap.String, isArray: true })
     dashboards: string[];
 
+    @field({ type: GraphQLTypesMap.Boolean })
+    isFutureTarget?: boolean;
+
+    @field({ type: GraphQLTypesMap.Boolean })
+    isDrillDown?: boolean;
 }
 
 
@@ -121,7 +126,7 @@ export class ChartEntityResponse  {
     dashboards: Dashboard[];
 
     @resolver({ forField: 'dateRange' })
-    static resolveDateRange = (entity: IChart) => entity.dateRange[0] || null
+    static resolveDateRange = (entity: IChart) => entity.dateRange[0]
 
     @resolver({ forField: 'chartDefinition' })
     static resolveDefinition = (entity: IChart) => JSON.stringify(entity.chartDefinition)
@@ -141,7 +146,6 @@ export class ChartMutationResponse  {
 
     @field({ type: ErrorDetails, isArray: true })
     errors: ErrorDetails[];
-
 }
 
 

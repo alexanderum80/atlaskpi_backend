@@ -41,6 +41,8 @@ export interface IChartInput {
     xAxisSource: string;
     comparison: string[];
     dashboards?: string[];
+    isFutureTarget?: boolean;
+    isDrillDown?: boolean;
 }
 
 export interface IGetChartInput {

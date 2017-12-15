@@ -1,3 +1,4 @@
+import { ChartAttributesInput } from './../app_modules/charts/charts.types';
 import * as Promise from 'bluebird';
 import { inject, injectable } from 'inversify';
 import { Winston } from 'winston';
@@ -113,6 +114,26 @@ export class ChartsService {
             .catch(err => {
                 return reject(err);
             });
+        });
+    }
+
+    public previewChart(input: ChartAttributesInput): Promise<IChart> {
+        const that = this;
+        return new Promise<IChart>((resolve, reject) => {
+            that._kpis.model.findOne({ _id: input.kpis[0]})
+                .then(kpi => {
+                    const chart = <any>{ ... input };
+                    chart.chartDefinition = JSON.parse(input.chartDefinition);
+                    chart.kpis[0] = kpi;
+                    that.renderDefinition(chart)
+                        .then(definition => {
+                            chart.chartDefinition = definition;
+                            resolve(chart);
+                            return;
+                        })
+                        .catch(err => reject(err));
+                })
+                .catch(err => reject(err));
         });
     }
 

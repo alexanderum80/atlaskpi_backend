@@ -1,7 +1,6 @@
 import { IChart } from '../../../domain/app/charts';
+import { each } from 'lodash';
 
-
-import * as _ from 'lodash';
 // export interface IGroupingMap {
 //     location: {
 //         expenses: string,
@@ -39,7 +38,7 @@ export function getGroupingMetadata(chartDocument: IChart, groupings: string[]) 
     groups = groups.concat(chartDocument.groupings, groupings);
 
     let uniqGrouping = [];
-    _.each(GroupingMap, collection => {
+    each(GroupingMap, collection => {
         Object.keys(collection).forEach(key => {
             uniqGrouping[key] = collection[key];
         });
