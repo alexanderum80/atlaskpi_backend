@@ -1,16 +1,18 @@
+import { Expenses } from '../expenses/expense.model';
 import * as Promise from 'bluebird';
 
-import { getGroupingMetadata } from '../../../app_modules/charts/queries';
-import { IChartMetadata } from '../../../app_modules/charts/queries/charts';
+import { getGroupingMetadata } from '../../../app_modules/charts/queries/chart-grouping-map';
 import { ChartFactory } from '../../../app_modules/charts/queries/charts/chart-factory';
-import { KpiFactory } from '../../../app_modules/kpis/queries';
-import { FrequencyTable } from '../../common';
-import { Charts, IChart } from '../charts';
-import { Expenses } from '../expenses';
+import { IChartMetadata } from '../../../app_modules/charts/queries/charts/chart-metadata';
+import { KpiFactory } from '../../../app_modules/kpis/queries/kpi.factory';
+import { FrequencyTable } from '../../common/frequency-enum';
+import { IChart } from '../charts/chart';
+import { Charts } from '../charts/chart.model';
 import { KPIs } from '../kpis/kpi.model';
-import { Sales } from '../sales';
-import { IWidget, IWidgetMaterializedFields } from './';
+import { Sales } from '../sales/sale.model';
 import { IUIWidget, UIWidgetBase } from './ui-widget-base';
+import { IWidget, IWidgetMaterializedFields } from './widget';
+
 
 export class ChartWidget extends UIWidgetBase implements IUIWidget {
     chart: string; // stringified representation of an IChart with its definition

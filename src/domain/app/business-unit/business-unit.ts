@@ -1,4 +1,3 @@
-// import { deleteAppointmentActivity } from '../../../../activities/app/appointments/delete-appointment.activity';
 import * as mongoose from 'mongoose';
 import * as Promise from 'bluebird';
 

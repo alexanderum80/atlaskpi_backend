@@ -1,18 +1,17 @@
-import { ModelBase } from '../../../type-mongo';
-import { AppConnection } from '../app.connection';
-import { injectable, inject } from 'inversify';
-import { ISaleDocument } from './';
-import {
-    getCustomerSchema,
-    getEmployeeSchema,
-    getLocationSchema,
-    getProductSchema,
-    parsePredifinedDate,
-} from '../../common';
-import { ISaleModel } from './sale';
-import * as mongoose from 'mongoose';
 import * as Promise from 'bluebird';
+import { inject, injectable } from 'inversify';
+import * as mongoose from 'mongoose';
 import * as logger from 'winston';
+
+import { ModelBase } from '../../../type-mongo/model-base';
+import { getCustomerSchema } from '../../common/customer.schema';
+import { parsePredifinedDate } from '../../common/date-range';
+import { getEmployeeSchema } from '../../common/employee.schema';
+import { getLocationSchema } from '../../common/location.schema';
+import { getProductSchema } from '../../common/product.schema';
+import { AppConnection } from '../app.connection';
+import { ISaleDocument, ISaleModel } from './sale';
+
 
 let Schema = mongoose.Schema;
 

@@ -1,9 +1,10 @@
 import * as mongoose from 'mongoose';
 
-import { IProductDocument } from '../products';
-import { ILocationDocument } from '../locations';
-import { ICustomerDocument } from '../customers';
-import { IEmployeeDocument } from '../employees';
+import { ICustomerDocument } from '../customers/customer';
+import { IEmployeeDocument } from '../employees/employee';
+import { ILocationDocument } from '../location/location';
+import { IProductDocument } from '../products/product';
+
 
 export interface IInventory {
     location: ILocationDocument;

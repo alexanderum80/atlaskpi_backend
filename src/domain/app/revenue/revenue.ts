@@ -1,6 +1,6 @@
-import { IIdName } from '../../common';
 import * as mongoose from 'mongoose';
-import * as Promise from 'bluebird';
+
+import { IIdName } from '../../common/id-name';
 
 export interface ISaleItem extends IIdName {
     type: string; // service, item

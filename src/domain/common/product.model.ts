@@ -1,4 +1,4 @@
-import { Entity } from './';
+import { Entity } from './entity';
 
 export interface Product extends Entity {
     itemCode: string;

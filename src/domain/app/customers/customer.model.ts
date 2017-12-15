@@ -1,21 +1,10 @@
-import {
-    ModelBase
-} from '../../../type-mongo';
-import {
-    AppConnection
-} from '../app.connection';
-import {
-    injectable,
-    inject
-} from 'inversify';
-import {
-    Address
-} from '../../common';
-import {
-    ICustomerModel
-} from './customer';
+import { Address } from '../../common/address.model';
+import { inject, injectable } from 'inversify';
 import * as mongoose from 'mongoose';
-import * as Promise from 'bluebird';
+
+import { ModelBase } from '../../../type-mongo/model-base';
+import { AppConnection } from '../app.connection';
+import { ICustomerModel } from './customer';
 
 let Schema = mongoose.Schema;
 

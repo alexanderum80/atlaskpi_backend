@@ -1,7 +1,9 @@
 import * as jsep from 'jsep';
 
 import { GroupingMap } from '../../../app_modules/charts/queries/chart-grouping-map';
+import { field } from '../../../framework/decorators/field.decorator';
 import { IKPISimpleDefinition, KPITypeEnum } from './kpi';
+
 
 interface ICallExpression extends jsep.IExpression {
     type: 'CallExpression';

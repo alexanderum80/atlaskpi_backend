@@ -1,21 +1,39 @@
-import * as mongoose from 'mongoose';
 import * as bcrypt from 'bcrypt';
-import * as moment from 'moment';
+import * as Promise from 'bluebird';
 import * as jwt from 'jsonwebtoken';
+import * as moment from 'moment';
+import * as mongoose from 'mongoose';
+import ms = require('ms');
+import * as nodemailer from 'nodemailer';
 import * as validate from 'validate.js';
 import * as logger from 'winston';
-import * as nodemailer from 'nodemailer';
-import * as Promise from 'bluebird';
-import ms = require('ms');
-import { IAccountCreatedNotifier } from '../../../../services/notifications/users';
-import { IUserDocument, ITokenDetails, ICreateUserOptions, IUser, IUserProfile, ITokenVerification } from './';
-import { generateUniqueHash } from '../../../../helpers';
-import { IUserToken, Paginator, IPaginationDetails, IPagedQueryResult } from '../../../common';
+
+import { User } from '../../../../app_modules/users/users.types';
+import { field } from '../../../../framework/decorators/field.decorator';
+import { query } from '../../../../framework/decorators/query.decorator';
+import { IMutationResponse, MutationResponse } from '../../../../framework/mutations/mutation-response';
+import { IPagedQueryResult, IPaginationDetails, Paginator } from '../../../../framework/queries/pagination';
+import { IQueryResponse } from '../../../../framework/queries/query-response';
+import { generateUniqueHash } from '../../../../helpers/security.helpers';
+import { IEmailNotifier } from '../../../../services/notifications/email-notifier';
+import { IAccountCreatedNotifier } from '../../../../services/notifications/users/account-created.notification';
+import { IEnrollmentNotifier } from '../../../../services/notifications/users/enrollment.notification';
+import { IForgotPasswordNotifier } from '../../../../services/notifications/users/user-forgot-password.notification';
+import { ICreateUserDetails } from '../../../common/create-user';
 import { IIdentity } from './identity';
-import { IAppConfig } from '../../../../configuration/config-models';
-import { ITokenInfo, IUserModel, IMobileDevice } from './user';
-import { ICreateUserDetails, IMutationResponse, MutationResponse, IQueryResponse } from '../../../common';
-import { IForgotPasswordNotifier, IEnrollmentNotifier, IEmailNotifier } from '../../../../services';
+import { ITokenDetails } from './token-details';
+import {
+    ICreateUserOptions,
+    IMobileDevice,
+    ITokenInfo,
+    ITokenVerification,
+    IUser,
+    IUserDocument,
+    IUserModel,
+    IUserProfile,
+} from './user';
+import { IUserToken } from './user-token';
+
 
 export function userPlugin(schema: mongoose.Schema, options: any) {
     options || (options = {});

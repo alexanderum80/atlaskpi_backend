@@ -1,8 +1,8 @@
-import { ModelBase } from '../../../type-mongo';
-import { AppConnection } from '../app.connection';
-import { injectable, inject } from 'inversify';
-import { IInventoryModel } from './inventory';
+import { inject, injectable } from 'inversify';
 import * as mongoose from 'mongoose';
+
+import { ModelBase } from '../../../type-mongo/model-base';
+import { AppConnection } from '../app.connection';
 
 let Schema = mongoose.Schema;
 let InventorySchema = new Schema({

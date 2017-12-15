@@ -1,10 +1,12 @@
-import { IUserModel } from './user';
-import { ModelBase } from '../../../../type-mongo';
-import { AppConnection } from '../../app.connection';
-import { injectable, inject } from 'inversify';
+import { inject, injectable } from 'inversify';
 import * as mongoose from 'mongoose';
-import { userPlugin } from './user-plugin';
+
+import { ModelBase } from '../../../../type-mongo/model-base';
+import { AppConnection } from '../../app.connection';
 import { rbacPlugin } from './rbac-plugin';
+import { IUserModel } from './user';
+import { userPlugin } from './user-plugin';
+
 
 const Schema = mongoose.Schema;
 const UserSchema = new Schema({});

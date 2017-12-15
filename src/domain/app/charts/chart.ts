@@ -1,10 +1,10 @@
-import { IChartDateRange } from '../../common/date-range';
-import { IKPIDocument } from '../kpis';
-import { IDateRange } from '../../common';
-import { IMutationResponse } from '../../';
-import * as mongoose from 'mongoose';
 import * as Promise from 'bluebird';
-import { IDashboardDocument } from '../dashboards';
+import * as mongoose from 'mongoose';
+
+import { input } from '../../../framework/decorators/input.decorator';
+import { IChartDateRange } from '../../common/date-range';
+import { IDashboardDocument } from '../dashboards/dashboard';
+import { IKPIDocument } from '../kpis/kpi';
 
 export interface IChart {
     // _id?: string;

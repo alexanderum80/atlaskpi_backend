@@ -1,6 +1,7 @@
-import * as mongoose from 'mongoose';
-import { IIdName } from '../../common';
 import * as Promise from 'bluebird';
+import * as mongoose from 'mongoose';
+
+import { IIdName } from '../../common/id-name';
 
 export interface IExpenseLine {
     concept: string;

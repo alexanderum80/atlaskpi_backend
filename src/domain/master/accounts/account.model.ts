@@ -1,19 +1,17 @@
-import { IMongoDBAtlasCredentials } from '../../../configuration/config-models';
-import { MasterConnection } from '../master.connection';
-import { Container, injectable, inject } from 'inversify';import mongoose = require('mongoose');
-import { ModelBase } from '../../../type-mongo';
 import * as Promise from 'bluebird';
-import * as validate from 'validate.js';
-import * as winston from 'winston';
-import * as request from 'request';
-import * as changeCase from 'change-case';
+import * as console from 'console';
 import * as Handlebars from 'handlebars';
-import { IsNullOrWhiteSpace, generateUniqueHash } from '../../../helpers';
-import { IAccountModel, IAccountDocument, IAccount, IDatabaseInfo, IAccountDBUser } from './account';
-import { AppConnectionPool } from '../../../middlewares/app-connection-pool';
-import { IMutationResponse, MutationResponse } from '../../../framework';
-import { ICreateUserDetails } from '../../common';
-import { AccountsService } from '../../../services';
+import { inject, injectable } from 'inversify';
+import * as mongoose from 'mongoose';
+import { hostname } from 'os';
+import * as request from 'request';
+import { error } from 'util';
+import * as winston from 'winston';
+
+import { IMongoDBAtlasCredentials } from '../../../configuration/config-models';
+import { ModelBase } from '../../../type-mongo/model-base';
+import { MasterConnection } from '../master.connection';
+import { IAccountDBUser, IAccountDocument, IAccountModel } from './Account';
 
 
 // define mongo schema

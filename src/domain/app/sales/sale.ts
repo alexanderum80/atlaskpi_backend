@@ -1,6 +1,5 @@
-import { IIdName } from '../../common';
-import * as mongoose from 'mongoose';
 import * as Promise from 'bluebird';
+import * as mongoose from 'mongoose';
 
 export interface IEntity {
     externalId: string | number;
