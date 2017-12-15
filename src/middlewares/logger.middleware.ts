@@ -18,7 +18,7 @@ export function logger(req: IExtendedRequest, res: Response, next) {
         ]
         });
 
-    req.logger = logger;
+    // req.logger = logger;
     winston.debug('Winston logger added to the middlewares');
     next();
 }

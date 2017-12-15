@@ -65,12 +65,12 @@ function checkAuthorization(activity: IActivity, roles: string[], permissions: I
             }
         }
 
-        activity.when(roles, permissions, (err, authorized) => {
-            if (err) {
-                throw err;
-            }
+        // activity.when(roles, permissions, (err, authorized) => {
+        //     if (err) {
+        //         throw err;
+        //     }
 
-            resolve(authorized);
-        });
+        //     resolve(authorized);
+        // });
     });
 }

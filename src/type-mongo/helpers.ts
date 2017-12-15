@@ -5,4 +5,5 @@ export interface IModelMetadata {
 
 export function getModelMetadata(instance: any): IModelMetadata {
     // go and get model metadata from global namespace
+    return null;
 }

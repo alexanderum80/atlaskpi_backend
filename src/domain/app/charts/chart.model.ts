@@ -1,40 +1,12 @@
-import {
-    ModelBase
-} from '../../../type-mongo';
-import {
-    AppConnection
-} from '../app.connection';
-import {
-    injectable,
-    inject
-} from 'inversify';
-import {
-    IDashboardDocument
-} from '../dashboards';
-import {
-    IKPIDocument
-} from '../kpis';
-import {
-    IChartInput
-} from './';
-import {
-    DateRange
-} from '../../common';
-import {
-    IChart,
-    IChartModel,
-    IChartDocument
-} from './chart';
-import {
-    IMutationResponse,
-    MutationResponse
-} from '../../';
-import * as mongoose from 'mongoose';
 import * as Promise from 'bluebird';
+import { inject, injectable } from 'inversify';
+import * as mongoose from 'mongoose';
 import * as validate from 'validate.js';
-import * as winston from 'winston';
-import * as _ from 'lodash';
 
+import { ModelBase } from '../../../type-mongo';
+import { AppConnection } from '../app.connection';
+import { IChartInput } from './';
+import { IChartDocument, IChartModel } from './chart';
 
 let Schema = mongoose.Schema;
 

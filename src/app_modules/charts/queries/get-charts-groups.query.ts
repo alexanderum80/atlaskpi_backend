@@ -2,7 +2,8 @@ import * as Promise from 'bluebird';
 import { inject, injectable } from 'inversify';
 
 import { Charts } from '../../../domain';
-import { query, QueryBase } from '../../../framework';
+import { query } from '../../../framework';
+import { IQuery } from '../../../framework/queries';
 import { GetChartsByGroupActivity } from '../activities';
 import { ListChartsQueryResponse } from '../charts.types';
 
@@ -17,7 +18,6 @@ import { ListChartsQueryResponse } from '../charts.types';
 })
 export class GetChartsGroupQuery implements IQuery<string[]> {
     constructor(@inject('Charts') private _charts: Charts) {
-        
     }
 
     run(data: { group: String,  }): Promise<string[]> {

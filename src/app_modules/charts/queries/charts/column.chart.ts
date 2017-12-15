@@ -1,15 +1,11 @@
-import { ITarget, ITargetDocument } from '../../../../models/app/targets/ITarget';
-import { IChartOptions } from './chart-type';
-import { UIChartBase, IUIChart } from './ui-chart-base';
-import * as Handlebars from 'handlebars';
-import { IAppModels } from '../../../../models/app';
-import { IChart, IChartDocument } from '../../../../models/app/charts';
-import { FrequencyEnum, IDateRange } from '../../../../models/common';
-import { ChartPreProcessorExtention } from './chart-preprocessor-extention';
-import { IFrequencyValues, FrequencyHelper } from './frequency-values';
-import { IChartMetadata } from './chart-metadata';
-import { IKpiBase } from '../../kpis/kpi-base';
 import * as Promise from 'bluebird';
+
+import { IKpiBase } from './../../../../app_modules/kpis/queries/kpi-base';
+import { IChart } from './../../../../domain/app/charts/chart';
+import { ITargetDocument } from './../../../../domain/app/targets/target';
+import { IChartMetadata } from './chart-metadata';
+import { FrequencyHelper } from './frequency-values';
+import { IUIChart, UIChartBase } from './ui-chart-base';
 
 export class ColumnChart extends UIChartBase implements IUIChart {
 

@@ -1,4 +1,3 @@
-import { IChart } from './../charts/IChart';
 import { IChartDateRange } from './../../common/date-range';
 import * as mongoose from 'mongoose';
 

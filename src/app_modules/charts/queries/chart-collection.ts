@@ -1,37 +1,34 @@
-import { GetChartsQuery } from './get-charts.query';
-import { IChartFormatDocument } from '../../../models/app/chart-formats';
 import * as Promise from 'bluebird';
-// import { ChartProcessor } from './chart-processor';
-import { IAppModels } from '../../../models/app/app-models';
 
+// import { ChartProcessor } from './chart-processor';
 export class ChartCollection {
 
-    constructor(private _ctx: IAppModels) {}
+    // constructor(private _ctx: IAppModels) {}
 
-    public getCharts(data: { from: Date, to: Date, preview: boolean }): Promise<string> {
-        let that = this;
+    // public getCharts(data: { from: Date, to: Date, preview: boolean }): Promise<string> {
+    //     let that = this;
 
-        return new Promise<string>((resolve, reject) => {
-            let definitions = [];
+    //     return new Promise<string>((resolve, reject) => {
+    //         let definitions = [];
 
-            this._ctx.Chart.find().then(charts => {
-                charts.forEach(chart => {
-                    let payload = {
-                        id: chart._id,
-                        from: data.from,
-                        to: data.to
-                    };
+    //         this._ctx.Chart.find().then(charts => {
+    //             charts.forEach(chart => {
+    //                 let payload = {
+    //                     id: chart._id,
+    //                     from: data.from,
+    //                     to: data.to
+    //                 };
 
-                    if (data.preview) {
-                        definitions.push(chart);
-                    }
-                });
+    //                 if (data.preview) {
+    //                     definitions.push(chart);
+    //                 }
+    //             });
 
-                 Promise.all(definitions).then(data => {
-                    resolve(JSON.stringify(data));
-                });
-            });
+    //              Promise.all(definitions).then(data => {
+    //                 resolve(JSON.stringify(data));
+    //             });
+    //         });
 
-        });
-    }
+    //     });
+    // }
 }
