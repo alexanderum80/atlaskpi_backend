@@ -160,17 +160,17 @@ export class ChartsService {
                     }
 
                     uiChart.getDefinition(kpi, { ...meta }, res).then((definition) => {
-                        that._logger.debug('chart definition received for id: ' + chartId);
+                        // that._logger.debug('chart definition received for id: ' + chartId);
                         resolve(definition);
                         return;
                     }).catch(e => {
-                        that._logger.error(e);
+                        // that._logger.error(e);
                         reject(e);
                         return;
                     });
                 })
                 .catch(err => {
-                    that._logger.error(err);
+                    // that._logger.error(err);
                     reject(err);
                 });
         });
@@ -182,11 +182,11 @@ export class ChartsService {
         const that = this;
         return new Promise<any>((resolve, reject) => {
             uiChart.getDefinition(kpi, { ...meta }, []).then((definition) => {
-                that._logger.debug('chart definition received for a preview');
+                // that._logger.debug('chart definition received for a preview');
                 resolve(definition);
                 return;
             }).catch(e => {
-                that._logger.error(e);
+                // that._logger.error(e);
                 reject(e);
                 return;
             });
