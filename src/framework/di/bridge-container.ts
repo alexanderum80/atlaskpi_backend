@@ -14,7 +14,7 @@ interface Abstract<T> {
 }
 
 export interface IWebRequestContainerDetails {
-    container: interfaces.Container;
+    instance: interfaces.Container;
     bridgeModule: IBridgeContainer;
 }
 
@@ -108,7 +108,7 @@ export class BridgeContainer implements IBridgeContainer {
         this._containerModules.forEach(m => _bindPerRequestRegistrations(container, m.__perRequestTypesRegistrations)); 
 
         return {
-            container: Container.merge(this._container, container),
+            instance: Container.merge(this._container, container),
             bridgeModule: this
         };
     }

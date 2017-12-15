@@ -82,7 +82,7 @@ export class QueryBus implements IQueryBus {
                         }
                     };
 
-                    const accessLogs = request.container.container.get<AccessLogs>(AccessLogs.name);
+                    const accessLogs = request.Container.instance.get<AccessLogs>(AccessLogs.name);
 
                     accessLogs.model.create(that.logParams);
                 }

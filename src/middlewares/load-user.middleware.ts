@@ -18,7 +18,7 @@ export function loadUser(req: IExtendedRequest, res: Response, next) {
         return next();
     }
 
-    const container = req.container.container;
+    const container = req.Container.instance;
     const users = container.get < Users > (Users.name);
     const roles = container.get < Roles > (Roles.name);
     const permissions = container.get < Permissions > (Permissions.name);
