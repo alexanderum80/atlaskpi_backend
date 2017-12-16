@@ -1,16 +1,14 @@
-import { detachFromAllDashboards } from './common';
 import * as Promise from 'bluebird';
 import { inject, injectable } from 'inversify';
 
-import { Charts } from '../../../domain/app/charts/chart.model';
-import { Dashboards } from '../../../domain/app/dashboards/dashboard.model';
 import { field } from '../../../framework/decorators/field.decorator';
 import { mutation } from '../../../framework/decorators/mutation.decorator';
 import { MutationBase } from '../../../framework/mutations/mutation-base';
 import { IMutationResponse } from '../../../framework/mutations/mutation-response';
+import { ChartsService } from '../../../services/charts.service';
 import { DeleteChartActivity } from '../activities/delete-chart.activity';
 import { ChartMutationResponse } from '../charts.types';
-
+import { Logger } from './../../../domain/app/logger';
 
 @injectable()
 @mutation({
@@ -23,36 +21,24 @@ import { ChartMutationResponse } from '../charts.types';
 })
 export class DeleteChartMutation extends MutationBase<IMutationResponse> {
     constructor(
-        @inject(Charts.name) private _charts: Charts,
-        @inject(Dashboards.name) private _dashboards: Dashboards) {
+        @inject(ChartsService.name) private _chartsService: ChartsService,
+        @inject(Logger.name) private _logger: Logger) {
         super();
     }
 
     run(data: { id: string }): Promise<IMutationResponse> {
         const that = this;
         return new Promise<IMutationResponse>((resolve, reject) => {
-            if (!data.id ) {
-                return reject({ success: false,
-                                 errors: [ { field: 'id', errors: ['Chart not found']} ] });
-              }
-            that._charts.model.findOne({ _id: data.id})
-            .exec()
-            .then((chart) => {
-                if (!chart) {
-                    reject({ success: false,
-                             errors: [ { field: 'id', errors: ['Chart not found']} ] });
+            that._chartsService
+                .deleteChart(data.id)
+                .then(chart => {
+                    resolve({ success: true, entity: chart });
                     return;
-                }
-
-                detachFromAllDashboards(that._dashboards.model, chart._id)
-                .then(() => {
-                    chart.remove().then(() =>  {
-                        resolve({ success: true });
-                        return;
-                    });
+                })
+                .catch(err => {
+                    resolve({ success: false, errors: [ { field: 'id', errors: [err]} ] });
+                    return;
                 });
-            })
-            .catch(err => reject({ success: false, errors: [ { field: 'id', errors: [err]} ] }));
         });
     }
 }

@@ -1,9 +1,14 @@
-import { attachToDashboards } from '../app_modules/dashboards/mutations/common';
 import * as Promise from 'bluebird';
 import { inject, injectable } from 'inversify';
+import { difference } from 'lodash';
 
 import { getGroupingMetadata } from '../app_modules/charts/queries/chart-grouping-map';
 import { IChartMetadata } from '../app_modules/charts/queries/charts/chart-metadata';
+import {
+    attachToDashboards,
+    detachFromAllDashboards,
+    detachFromDashboards,
+} from '../app_modules/dashboards/mutations/common';
 import { CurrentUser } from '../domain/app/current-user';
 import { Logger } from '../domain/app/logger';
 import { ChartAttributesInput } from './../app_modules/charts/charts.types';
@@ -46,8 +51,23 @@ export class ChartsService {
         @inject(CurrentUser.name) private _currentUser: CurrentUser,
         @inject(ChartFactory.name) private _chartFactory: ChartFactory,
         @inject(KpiFactory.name) private _kpiFactory: KpiFactory,
-        @inject(Logger) private _logger: Logger
+        @inject(Logger.name) private _logger: Logger
     ) { }
+
+    public getChartsWithoutDefinition(criteria?: { }): Promise<IChart[]> {
+        const that = this;
+        return new Promise<IChart[]>((resolve, reject) => {
+            that._charts.model
+            .find()
+            .then(chartDocuments => {
+                resolve(chartDocuments.map(d => <IChart>d.toObject()));
+                return;
+            })
+            .catch(err => {
+                return reject(err);
+            });
+        });
+    }
 
     public renderDefinition(chart: IChart, options?: IRenderChartOptions): Promise<any> {
         if (!chart) {
@@ -80,6 +100,33 @@ export class ChartsService {
         }
 
         return this._renderPreviewDefinition(kpi, uiChart, meta);
+    }
+
+    public getChart(id: string, input: IChartInput, chart?: any): Promise<IChart> {
+        // in order for this query to make sense I need either a chart definition or an id
+        if (!chart && !id && !input) {
+            return Promise.reject('An id or a chart definition is needed');
+        }
+
+        let chartPromise = chart ?
+                Promise.resolve(<IChart>chart)
+                : this.getChartById(id);
+
+        const that = this;
+        return new Promise<IChart>((resolve, reject) => {
+            chartPromise.then(chart => {
+                that.renderDefinition(chart, input).then(definition => {
+                    chart.chartDefinition = definition;
+                    resolve(chart);
+                    return;
+                });
+            })
+            .catch(err => {
+                that._logger.error(err);
+                reject(err);
+            });
+        });
+
     }
 
     public getChartById(id: string): Promise<IChart> {
@@ -177,6 +224,76 @@ export class ChartsService {
         });
     }
 
+    public deleteChart(id: string): Promise<IChart> {
+        const that = this;
+        return new Promise<IChart>((resolve, reject) => {
+            if (!id ) {
+                return reject({ field: 'id', errors: ['Chart not found']});
+            }
+
+            that._charts.model.findOne({ _id: id})
+            .exec()
+            .then((chart) => {
+                if (!chart) {
+                    reject({ field: 'id', errors: ['Chart not found']});
+                    return;
+                }
+
+                detachFromAllDashboards(that._dashboards.model, chart._id)
+                .then(() => {
+                    chart.remove().then(() =>  {
+                        resolve(<IChart>chart.toObject());
+                        return;
+                    });
+                })
+                .catch(err => reject(err));
+            });
+        });
+    }
+
+    public updateChart(id: string, input: IChartInput): Promise<IChart> {
+        const that = this;
+        return new Promise<IChart>((resolve, reject) => {
+            // resolve kpis
+            that._kpis
+                .model
+                .find({ _id: { $in: input.kpis }})
+                .then((kpis) => {
+                if (!kpis || kpis.length !== input.kpis.length) {
+                    that._logger.error('one or more kpi not found:' + id);
+                    reject({ field: 'kpis', errors: ['one or more kpis not found']});
+                    return;
+                }
+
+                // resolve dashboards the chart is in
+                that._dashboards.model.find( {charts: { $in: [id]}})
+                    .then((chartDashboards) => {
+                        // update the chart
+                        that._charts.model.updateChart(id, input)
+                            .then((chart) => {
+                                const currentDashboardIds = chartDashboards.map(d => String(d._id));
+                                const toRemoveDashboardIds = difference(currentDashboardIds, input.dashboards);
+                                const toAddDashboardIds = difference(input.dashboards, currentDashboardIds);
+
+                                detachFromDashboards(that._dashboards.model, toRemoveDashboardIds, chart._id)
+                                .then(() => {
+                                    attachToDashboards(that._dashboards.model, toAddDashboardIds, chart._id)
+                                    .then(() => {
+                                        resolve(chart);
+                                        return;
+                                    })
+                                    .catch(err => reject({ field: 'dashboard', errors: ['could not attach chart to dashboard']}));
+                                })
+                                .catch(err => reject({ field: 'dashboard', errors: ['could not detach chart from dashboard']}));
+                            })
+                            .catch(err => reject({ field: 'chart', errors: ['could not update chart']}));
+                    })
+                    .catch(err => reject({ field: 'dashboard', errors: ['could get the dashboard list']}));
+                })
+                .catch(err => reject({ field: 'kpi', errors: ['could get the kpi list']}));
+        });
+    }
+
     private _resolveDashboards(chart): Promise<IDashboardDocument[]> {
         const that = this;
         return new Promise<IDashboardDocument[]>((resolve, reject) => {
@@ -205,7 +322,8 @@ export class ChartsService {
                         that._logger.debug('chart definition received for id: ' + chartId);
                         resolve(definition);
                         return;
-                    }).catch(e => {
+                    })
+                    .catch(e => {
                         that._logger.error(e);
                         reject(e);
                         return;
