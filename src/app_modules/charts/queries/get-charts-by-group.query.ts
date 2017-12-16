@@ -21,7 +21,7 @@ import { ListChartsQueryResponse } from '../charts.types';
 export class GetChartsByGroupQuery implements IQuery<IChartDocument[]> {
     constructor(@inject(Charts.name) private _charts: Charts) { }
 
-    run(data: { group: String,  }): Promise<IChartDocument[]> {
+    run(data: { group: string,  }): Promise<IChartDocument[]> {
         const that = this;
 
         return new Promise<IChartDocument[]>((resolve, reject) => {
