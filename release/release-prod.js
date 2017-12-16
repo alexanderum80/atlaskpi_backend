@@ -5,6 +5,7 @@ const chalk = require('chalk');
 var fs = require('fs');
 const Handlebars = require('handlebars');
 var jsonminify = require("jsonminify");
+var path = require('path');
 
 exports.release = function(version) {
     console.log('Releasing to production');
@@ -38,9 +39,9 @@ exports.release = function(version) {
         const selectedVersion = parseSelectedVersion(answers.releaseType);
         const releaseType = answers.releaseType.split('(')[0].trim().toLowerCase();
 
+        buildApp(selectedVersion);
         applyGitChanges(answers.git, selectedVersion);
         changePackageVersion(releaseType, selectedVersion);
-        buildApp(selectedVersion);
         dockerizeApp(selectedVersion);
         uploadAppToEC2(selectedVersion);
         const task = createTaskRevision(selectedVersion);
@@ -127,7 +128,8 @@ function uploadAppToEC2(version) {
 function createTaskRevision(version) {
     log('Creating new task revision');
 
-    const taskTmpl = fs.readFileSync(__dirname + '/api.task.json.tmpl').toString();
+    const taskTmplPath = path.join(__dirname, '../../release', 'api.task.json.tmpl');
+    const taskTmpl = fs.readFileSync(taskTmplPath).toString();
     const compiledTmpl = Handlebars.compile(taskTmpl);
     const task = compiledTmpl({ tag: version });
 

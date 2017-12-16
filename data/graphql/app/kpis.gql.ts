@@ -1,3 +1,4 @@
+import { KpiService } from '../../services/kpis/kpi.service';
 import { GetKpisCriteriaQuery } from '../../queries/app/kpis/get-kpi-criteria.query';
 import { KPIExpressionHelper } from '../../models/app/kpis/kpi-expression.helper';
 import { KPIFilterHelper } from './../../models/app/kpis/kpi-filter.helper';
@@ -18,6 +19,7 @@ import { GetAllKPIsQuery } from '../../queries/app/kpis';
 import * as logger from 'winston';
 
 import { IKPI } from '../../models/app/kpis';
+let kpiService = null;
 
 export const kpisGql: GraphqlDefinition = {
     name: 'kpis',
@@ -40,8 +42,12 @@ export const kpisGql: GraphqlDefinition = {
                 errors: [ErrorDetails]
                 success: Boolean
             }
+            type KPIEntityResponse {
+                chart: [ChartEntityResponse]
+                widget: [Widget]
+            }
             type KPIRemoveResponse {
-                entity: [ChartEntityResponse]
+                entity: KPIEntityResponse
                 errors: [ErrorDetails]
                 success: Boolean
             }
@@ -87,6 +93,7 @@ export const kpisGql: GraphqlDefinition = {
     resolvers: {
         Query: {
             kpis(root: any, args, ctx: IGraphqlContext) {
+                kpiService = new KpiService(ctx.req.appContext.Sale, ctx.req.appContext.Expense, ctx.req.appContext.Inventory);
                 let query = new GetKpisQuery(ctx.req.identity, ctx.req.appContext);
                 return ctx.queryBus.run('get-kpis', query, args, ctx.req).catch(e => console.error(e));
             },
@@ -114,7 +121,8 @@ export const kpisGql: GraphqlDefinition = {
                 return ctx.mutationBus.run<IMutationResponse>('update-kpi', ctx.req, mutation, args);
             },
             removeKPI(root: any, args, ctx: IGraphqlContext) {
-                let mutation = new RemoveKPIMutation(ctx.req.identity, ctx.req.appContext.KPI, ctx.req.appContext.Chart);
+                let mutation = new RemoveKPIMutation(ctx.req.identity, ctx.req.appContext.KPI,
+                                                    ctx.req.appContext.Chart, ctx.req.appContext.Widget);
                 return ctx.mutationBus.run<IMutationResponse>('remove-kpi', ctx.req, mutation, args);
             },
         },
@@ -142,7 +150,7 @@ export const kpisGql: GraphqlDefinition = {
             dateRange(entity: IKPIDocument) { return entity.dateRange; },
             expression(entity: IKPIDocument) { return KPIExpressionHelper.PrepareExpressionField(entity.type, entity.expression); },
             filter(entity: IKPIDocument) { return JSON.stringify(KPIFilterHelper.PrepareFilterField(entity.type, entity.filter)); },
-            availableGroupings(entity: IKPIDocument) { return KPIGroupingsHelper.GetAvailableGroupings(entity); }
+            availableGroupings(entity: IKPIDocument) { return KPIGroupingsHelper.GetAvailableGroupings(entity, kpiService); }
         }
     }
 };

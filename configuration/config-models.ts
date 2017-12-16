@@ -16,6 +16,8 @@ import { IAppServicesConfig } from './';
         AKPI_MONGODB_ADMIN_USERNAME      -- MongoDB username with access to create new users
         AKPI_MONGODB_API_KEY             -- API Key to authenticate agains MongoDB Atlas and create new users
         AKPI_MONGODB_API_URI             -- MongoDB Atlas API URI
+        AKPI_PNS_SERVER                  -- Push Notification Server Address
+        AKPI_PNS_APP_IDENTIFIER          -- Push Notification Client Identifier
 
 */
 
@@ -32,6 +34,11 @@ export interface ITokenConfig {
     expiresIn: string;
 }
 
+export interface IPnsConfig {
+    pnsServer: string;
+    appIdentifier: string;
+}
+
 export interface IAppConfig {
     impersonateHost: string;
     subdomain: string;
@@ -42,6 +49,7 @@ export interface IAppConfig {
     emailService: IEmailServiceConfig;
     usersService: IUsersServiceConfig;
     appServices: IAppServicesConfig;
+    pns: IPnsConfig;
 
     integrationRedirectUrl: string;
 }

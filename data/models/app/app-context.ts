@@ -8,7 +8,7 @@ import { getSaleModel } from './sales/Sale';
 import { getExpenseModel } from './expenses/Expenses';
 import { getInventoryModel } from './inventory/Inventory';
 import { getSurveyModel } from './surveys';
-//import { getEmployeeAttendanceModel } from './employees-attendance/';
+// import { getEmployeeAttendanceModel } from './employees-attendance/';
 import * as Promise from 'bluebird';
 import connectToMongoDb from '../../mongo-utils';
 import { IAppModels } from './app-models';
@@ -28,6 +28,7 @@ import { getDashboardModel } from './dashboards';
 import { getWorkLogModel } from './work-log/WorkLog';
 import { getLogModel } from './log';
 import { getLocationModel } from './location';
+import { getSocialNetworkModel } from './social-network/social-network-schema';
 
 import * as winston from 'winston';
 
@@ -66,7 +67,8 @@ export function getContext(dbUri: string): Promise<IAppModels> {
                 BusinessUnitModel: getBusinessUnitModel(m),
                 DepartmentModel: getDepartmentModel(m),
                 Widget: getWidgetModel(m),
-        LocationModel: getLocationModel(m),
+                LocationModel: getLocationModel(m),
+                SocialNetwork: getSocialNetworkModel(m)
             });
         }, (err) => reject(err));
     });

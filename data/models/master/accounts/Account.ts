@@ -47,6 +47,7 @@ let accountSchema = new mongoose.Schema({
         createdOn: { type: Date, default: Date.now },
         updatedOn: { type: Date, default: Date.now },
     },
+    demoMode: Boolean
 });
 
 // static methods
@@ -94,6 +95,9 @@ accountSchema.statics.createNewAccount = function(ip: string, clientId: string, 
             firstUser.firstName = fullName[0];
             firstUser.lastName = fullName[1];
         }
+
+        // make sure account is created in demo mode
+        account.demoMode = true;
 
         that.create(account, (err, newAccount: IAccountDocument) => {
             if (err) {
