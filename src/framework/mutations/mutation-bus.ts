@@ -1,4 +1,3 @@
-import { Enforcer } from '../../../lib/enforcer';
 import * as Promise from 'bluebird';
 import { injectable } from 'inversify';
 import { inject } from 'inversify';
@@ -13,6 +12,7 @@ import { IActivity } from '../modules/security/activity';
 import { IEnforcer } from '../modules/security/enforcer';
 import { IMutation } from './mutation';
 import { IValidationResult } from './validation-result';
+import { Enforcer } from '../../app_modules/security/enforcer/enforcer';
 
 
 
