@@ -28,7 +28,7 @@ export class DeleteChartMutation extends MutationBase<IMutationResponse> {
         super();
     }
 
-    run(data: { id: String }): Promise<IMutationResponse> {
+    run(data: { id: string }): Promise<IMutationResponse> {
         const that = this;
         return new Promise<IMutationResponse>((resolve, reject) => {
             if (!data.id ) {

@@ -32,7 +32,7 @@ export class DashboardQuery implements IQuery<IDashboard> {
         @inject(ChartQuery.name) private _chartQuery: ChartQuery,
         @inject(Dashboards.name) private _dashboards: Dashboards) { }
 
-    run(data: { id: String,  }): Promise<IDashboard> {
+    run(data: { id: string,  }): Promise<IDashboard> {
         let that = this;
 
         if (!this._user) {

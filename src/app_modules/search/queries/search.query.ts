@@ -54,7 +54,7 @@ export class SearchQuery implements IQuery<ISearchResult[]> {
         this._adaptEngine = new AdaptEngine([AdaptIntents.Chart]);
     }
 
-    run(data: { sections: String, query: string,  }): Promise<ISearchResult[]> {
+    run(data: { sections: string, query: string,  }): Promise<ISearchResult[]> {
         const that = this;
 
         return new Promise<ISearchResult[]>((resolve, reject) => {
