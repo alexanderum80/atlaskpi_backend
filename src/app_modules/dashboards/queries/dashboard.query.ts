@@ -25,8 +25,8 @@ import { Dashboard } from '../dashboards.types';
 })
 export class DashboardQuery implements IQuery<IDashboard> {
     constructor(
-        @inject('CurrentUser') private _user: CurrentUser,
-        @inject('Logger') private _logger: Logger,
+        @inject(CurrentUser.name) private _user: CurrentUser,
+        // @inject('Logger') private _logger: Logger,
         @inject(WidgetsService.name) private _widgetService: WidgetsService,
         @inject(ChartQuery.name) private _chartQuery: ChartQuery,
         @inject(Dashboards.name) private _dashboards: Dashboards) { }
@@ -35,7 +35,7 @@ export class DashboardQuery implements IQuery<IDashboard> {
         let that = this;
 
         if (!this._user) {
-            this._logger.error('No user logged in at this point, so not dashboard can be generated');
+            // this._logger.error('No user logged in at this point, so not dashboard can be generated');
             return Promise.resolve(null);
         }
 
@@ -62,7 +62,7 @@ export class DashboardQuery implements IQuery<IDashboard> {
                 .then(dashboard => {
 
                     if (!dashboard) {
-                        that._logger.debug('dashbord doenst exists, or not enought permissions to see it.');
+                        // that._logger.debug('dashbord doenst exists, or not enought permissions to see it.');
                         reject('not found');
                         return;
                     }

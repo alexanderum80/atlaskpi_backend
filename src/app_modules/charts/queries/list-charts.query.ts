@@ -2,9 +2,9 @@ import * as Promise from 'bluebird';
 import { inject, injectable } from 'inversify';
 
 import { IChart } from '../../../domain/app/charts/chart';
-import { Logger } from '../../../domain/app/logger';
 import { query } from '../../../framework/decorators/query.decorator';
 import { IQuery } from '../../../framework/queries/query';
+import { Logger } from './../../../domain/app/logger';
 import { ChartsService } from './../../../services/charts.service';
 import { ListChartsActivity } from './../activities/list-charts.activity';
 import { ListChartsQueryResponse } from './../charts.types';
@@ -18,7 +18,7 @@ import { ListChartsQueryResponse } from './../charts.types';
 export class ListChartsQuery implements IQuery<IChart[]> {
     constructor(
         @inject(ChartsService.name) private _chartsService: ChartsService,
-        @inject('Logger') private _logger: Logger
+        // @inject('Logger') private _logger: Logger
     ) { }
 
     run(data: { }): Promise<IChart[]> {
@@ -31,7 +31,7 @@ export class ListChartsQuery implements IQuery<IChart[]> {
                     return;
                 })
                 .catch(err => {
-                    that._logger.error(err);
+                    // that._logger.error(err);
                     reject(err);
                 });
         });

@@ -1,9 +1,9 @@
 import * as Promise from 'bluebird';
 import { inject, injectable } from 'inversify';
 
+import { Logger } from '../../di';
 import { ILogEntry, ILogEntryDocument } from '../domain/app/log/log';
 import { Logs } from '../domain/app/log/log.model';
-import { Logger } from '../domain/app/logger';
 import { TechnicalSupportIssueNotification } from '../services/notifications/app/technical-support-issue.notification';
 
 

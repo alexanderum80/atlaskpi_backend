@@ -1,14 +1,13 @@
-import { IActivity } from '../../../framework/modules/security/activity';
-import { IPermission } from '../../../framework/modules/security/permission';
-import { IEnforcer } from '../../../framework/modules/security/enforcer';
-import { Request } from 'Express';
 import * as Promise from 'bluebird';
-import * as logger from 'winston';
 import { injectable } from 'inversify';
 import { find } from 'lodash';
+import * as logger from 'winston';
+
+import { IActivity } from '../../../framework/modules/security/activity';
+import { IEnforcer } from '../../../framework/modules/security/enforcer';
+import { IPermission } from '../../../framework/modules/security/permission';
 
 const OWNER = 'owner';
-
 
 @injectable()
 export class Enforcer implements IEnforcer {
@@ -69,12 +68,12 @@ function checkAuthorization(activity: IActivity, roles: string[], permissions: I
             }
         }
 
-        // activity.when(roles, permissions, (err, authorized) => {
-        //     if (err) {
-        //         throw err;
-        //     }
+        activity.when(roles, permissions, (err, authorized) => {
+            if (err) {
+                throw err;
+            }
 
-        //     resolve(authorized);
-        // });
+            resolve(authorized);
+        });
     });
 }
