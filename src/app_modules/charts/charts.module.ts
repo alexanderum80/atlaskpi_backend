@@ -1,3 +1,4 @@
+import { ListChartsByGroupQuery } from './queries/list-charts-by-group.query';
 import { AppModule, ModuleBase } from '../../framework/decorators/app-module';
 import { CreateChartMutation } from './mutations/create-chart.mutation';
 import { DeleteChartMutation } from './mutations/delete-chart.mutation';
@@ -20,7 +21,6 @@ import { PreviewChartQuery } from './queries/preview-chart.query';
         // ChartsQuery,
         // GetChartsByGroupQuery,
         // GetChartsGroupQuery,
-        // ListChartsByGroupQuery,
         ListChartsQuery,
         PreviewChartQuery
     ],

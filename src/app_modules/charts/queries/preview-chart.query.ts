@@ -21,7 +21,7 @@ import { ChartAttributesInput } from './../charts.types';
 export class PreviewChartQuery implements IQuery<String> {
     constructor(
         @inject(ChartsService.name) private _chartsService: ChartsService,
-        @inject('Logger') private _logger: Logger
+        @inject(Logger.name) private _logger: Logger
     ) { }
 
     run(data: { input: ChartAttributesInput }): Promise<String> {

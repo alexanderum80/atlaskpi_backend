@@ -24,34 +24,24 @@ import { Logger } from '../../../domain/app/logger';
 export class ChartQuery implements IQuery<String> {
     constructor(
         @inject(ChartsService.name) private _chartsService: ChartsService,
-        @inject('Logger') private _logger: Logger
+        @inject(Logger.name) private _logger: Logger
     ) { }
 
     run(data: { id: string, input: IChartInput, /* TODO: I added this extra parameter here maually */ chart: any }): Promise<String> {
         this._logger.debug('running get chart query for id:' + data.id);
 
-
-        // in order for this query to make sense I need either a chart definition or an id
-        if (!data.chart && !data.id && !data.input) {
-            return Promise.reject('An id or a chart definition is needed');
-        }
-
-        let chartPromise = data.chart ?
-                Promise.resolve(<IChart>data.chart)
-                : this._chartsService.getChartById(data.id);
-
         const that = this;
         return new Promise<string>((resolve, reject) => {
-            chartPromise.then(chart => {
-                that._chartsService.renderDefinition(chart, data.input).then(definition => {
-                    chart.chartDefinition = definition;
-                    resolve(JSON.stringify(chart));
+            that._chartsService
+                .getChart(data.id, data.input, data.chart)
+                .then((res) => {
+                    resolve(JSON.stringify(res));
+                    return;
+                })
+                .catch(err => {
+                    that._logger.error(err);
+                    reject(err);
                 });
-            })
-            .catch(err => {
-                that._logger.error(err);
-                reject(err);
-            });
         });
     }
 }

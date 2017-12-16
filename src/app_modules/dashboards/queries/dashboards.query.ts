@@ -28,7 +28,7 @@ export class DashboardsQuery implements IQuery<IDashboard[]> {
         @inject(Dashboards.name) private _dashboards: Dashboards,
         @inject(Charts.name) private _charts: Charts,
         @inject(KPIs.name) private kpis: KPIs,
-        @inject('Logger') private _logger: Logger,
+        @inject(Logger.name) private _logger: Logger,
         @inject('CurrentUser') private _currentUser: CurrentUser
     ) { }
 
