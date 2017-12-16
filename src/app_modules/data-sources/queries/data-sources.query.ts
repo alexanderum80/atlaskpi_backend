@@ -1,5 +1,5 @@
 import * as Promise from 'bluebird';
-import { injectable } from 'inversify';
+import { inject, injectable } from 'inversify';
 
 import { query } from '../../../framework/decorators/query.decorator';
 import { IQuery } from '../../../framework/queries/query';
