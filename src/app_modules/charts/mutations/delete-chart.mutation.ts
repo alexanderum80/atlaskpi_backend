@@ -36,6 +36,7 @@ export class DeleteChartMutation extends MutationBase<IMutationResponse> {
                     return;
                 })
                 .catch(err => {
+                    that._logger.error(err);
                     resolve({ success: false, errors: [ { field: 'id', errors: [err]} ] });
                     return;
                 });

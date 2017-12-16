@@ -18,7 +18,7 @@ import { ListChartsQueryResponse } from './../charts.types';
 export class ListChartsQuery implements IQuery<IChart[]> {
     constructor(
         @inject(ChartsService.name) private _chartsService: ChartsService,
-        // @inject(Logger.name) private _logger: Logger
+        @inject(Logger.name) private _logger: Logger
     ) { }
 
     run(data: { }): Promise<IChart[]> {
@@ -31,7 +31,7 @@ export class ListChartsQuery implements IQuery<IChart[]> {
                     return;
                 })
                 .catch(err => {
-                    // that._logger.error(err);
+                    that._logger.error(err);
                     reject(err);
                 });
         });

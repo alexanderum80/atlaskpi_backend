@@ -17,7 +17,7 @@ import { PreviewChartQuery } from './queries/preview-chart.query';
     ],
     queries: [
         ChartQuery,
-        ChartsListQuery,
+        // ChartsListQuery,
         // ChartsQuery,
         // GetChartsByGroupQuery,
         // GetChartsGroupQuery,
