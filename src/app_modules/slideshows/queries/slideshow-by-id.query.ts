@@ -18,7 +18,7 @@ import { Slideshow } from '../slideshows.types';
     output: { type: Slideshow }
 })
 export class SlideshowByIdQuery implements IQuery<ISlideshowDocument> {
-    constructor(@inject('Slideshows') private _slideshows: Slideshows) { }
+    constructor(@inject(Slideshows.name) private _slideshows: Slideshows) { }
 
     run(data: { _id: string }): Promise<ISlideshowDocument> {
         return this._slideshows.model.slideshowById(data._id);

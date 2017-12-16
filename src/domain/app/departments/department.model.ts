@@ -96,7 +96,7 @@ DepartmentSchema.statics.departmentById = function(id: string): Promise<IDepartm
 
 @injectable()
 export class Departments extends ModelBase<IDepartmentModel> {
-    constructor(@inject('AppConnection') appConnection: AppConnection) {
+    constructor(@inject(AppConnection.name) appConnection: AppConnection) {
         super();
         this.initializeModel(appConnection.get, 'Department', DepartmentSchema, 'departments');
     }

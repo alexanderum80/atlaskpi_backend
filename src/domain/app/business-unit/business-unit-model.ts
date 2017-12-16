@@ -95,7 +95,7 @@ BusinessUnitSchema.statics.businessUnitById = function(id: string): Promise<IBus
 
 @injectable()
 export class BusinessUnits extends ModelBase<IBusinessUnitModel> {
-    constructor(@inject('AppConnection') appConnection: AppConnection) {
+    constructor(@inject(AppConnection.name) appConnection: AppConnection) {
         super();
         this.initializeModel(appConnection.get, 'BusinessUnit', BusinessUnitSchema, 'business-unit');
     }

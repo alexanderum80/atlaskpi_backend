@@ -16,7 +16,7 @@ import { BusinessUnitByIdActivity } from '../activities/business-unit-by-id.acti
     output: { type: BusinessUnit }
 })
 export class BusinessUnitsQuery implements IQuery<IBusinessUnitDocument[]> {
-    constructor(@inject('BusinessUnits') private _businessUnits: BusinessUnits) { }
+    constructor(@inject(BusinessUnits.name) private _businessUnits: BusinessUnits) { }
 
     run(data: { id: string }): Promise<IBusinessUnitDocument[]> {
         return this._businessUnits.model.businessUnits();

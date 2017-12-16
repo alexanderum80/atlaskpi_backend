@@ -21,7 +21,7 @@ import { AppointmentInput, AppointmentMutationResponse } from '../appointments.t
     output: { type: AppointmentMutationResponse }
 })
 export class UpdateAppointmentMutation extends MutationBase<AppointmentMutationResponse> {
-    constructor(@inject('Appointments') private _appointments: Appointments) {
+    constructor(@inject(Appointments.name) private _appointments: Appointments) {
         super();
     }
 

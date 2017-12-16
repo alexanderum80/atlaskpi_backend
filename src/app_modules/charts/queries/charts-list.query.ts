@@ -18,7 +18,7 @@ import { ListChartsActivity } from '../activities/list-charts.activity';
     output: { type: String }
 })
 export class ChartsListQuery implements IQuery<IChartDocument[]> {
-    constructor(@inject('Charts') private _charts: Charts) { }
+    constructor(@inject(Charts.name) private _charts: Charts) { }
 
     run(data: { preview: Boolean,  }): Promise<IChartDocument[]> {
         const that = this;

@@ -1,7 +1,7 @@
 import * as Promise from 'bluebird';
 import { inject, injectable } from 'inversify';
 
-import { CurrentUser } from '../../../../di';
+import { CurrentUser } from '../../../domain/app/current-user';
 import { IUserDocument } from '../../../domain/app/security/users/user';
 import { Users } from '../../../domain/app/security/users/user.model';
 import { query } from '../../../framework/decorators/query.decorator';
@@ -20,8 +20,8 @@ import { User } from '../users.types';
 })
 export class UserQuery implements IQuery<IUserDocument> {
     constructor(
-        @inject('Users') private _users: Users,
-        @inject('CurrentUser') private _currentUser: CurrentUser
+        @inject(Users.name) private _users: Users,
+        @inject(CurrentUser.name) private _currentUser: CurrentUser
     ) { }
 
     run(data: { id: string }): Promise<IUserDocument> {

@@ -131,7 +131,7 @@ AppointmentSchema.statics.appointmentByDescription = function(from: Date, to: Da
 
 @injectable()
 export class Appointments extends ModelBase < IAppointmentModel > {
-    constructor(@inject('AppConnection') appConnection: AppConnection) {
+    constructor(@inject(AppConnection.name) appConnection: AppConnection) {
         super();
         this.initializeModel(appConnection.get, 'Appointment', AppointmentSchema, 'appointments');
     }

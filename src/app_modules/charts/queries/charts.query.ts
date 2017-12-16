@@ -21,7 +21,7 @@ import { ListChartsActivity } from '../activities/list-charts.activity';
     output: { type: String }
 })
 export class ChartsQuery implements IQuery<string> {
-    constructor(@inject('Charts') private _charts: Charts,
+    constructor(@inject(Charts.name) private _charts: Charts) {
                 @inject('KPIs') private _kpis: Charts) {
     }
 

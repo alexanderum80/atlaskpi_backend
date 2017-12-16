@@ -18,7 +18,7 @@ import { WidgetMutationResponse } from '../widgets.types';
     output: { type: WidgetMutationResponse }
 })
 export class RemoveWidgetMutation extends MutationBase<IMutationResponse> {
-    constructor(@inject('Widgets') private _widgets: Widgets) {
+    constructor(@inject(Widgets.name) private _widgets: Widgets) {
         super();
     }
 

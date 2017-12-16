@@ -15,11 +15,11 @@ import { Widgets } from '../domain/app/widgets/widget.model';
 export class WidgetsService {
 
     constructor(
-        @inject('Widgets') private _widgets: Widgets,
-        @inject('Charts') private _charts: Charts,
-        @inject('Sales') private _sales: Sales,
-        @inject('Expenses') private _expenses: Expenses,
-        @inject('KPIs') private _kpis: KPIs,
+        @inject(Widgets.name) private _widgets: Widgets,
+        @inject(Charts.name) private _charts: Charts,
+        @inject(Sales.name) private _sales: Sales,
+        @inject(Expenses.name) private _expenses: Expenses,
+        @inject(KPIs.name) private _kpis: KPIs,
         @inject(WidgetFactory.name) private _widgetFactory: WidgetFactory
     ) { }
 

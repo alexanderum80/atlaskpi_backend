@@ -10,12 +10,12 @@ import { EndOfDayReport } from '../reports.types';
 
 @injectable()
 @query({
-    name: 'departments',
+    name: 'endOfDayReport',
     activity: EndOfDayReportActivity,
     output: { type: EndOfDayReport }
 })
 export class EndOfDayReportQuery implements IQuery<IEndOfDayReport> {
-    constructor(@inject('EndOfDayReportService') private _endOfDayReportService: EndOfDayReportService) { }
+    constructor(@inject(EndOfDayReportService.name) private _endOfDayReportService: EndOfDayReportService) { }
 
     run(data: { id: string }): Promise<IEndOfDayReport> {
         return this._endOfDayReportService.generateReport();
