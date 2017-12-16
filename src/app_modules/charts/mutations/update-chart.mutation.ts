@@ -32,7 +32,7 @@ export class UpdateChartMutation extends MutationBase<IMutationResponse> {
         @inject(KPIs.name) private _kpis: KPIs,
         @inject(Charts.name) private _charts: Charts,
         @inject(Dashboards.name) private _dashboards: Dashboards,
-        @inject('Logger') private _logger: Logger
+        // @inject('Logger') private _logger: Logger
     ) {
         super();
     }
@@ -45,7 +45,7 @@ export class UpdateChartMutation extends MutationBase<IMutationResponse> {
             that._kpis.model.find({ _id: { $in: data.input.kpis }})
             .then((kpis) => {
                 if (!kpis || kpis.length !== data.input.kpis.length) {
-                    that._logger.error('one or more kpi not found:' + data.id);
+                    // that._logger.error('one or more kpi not found:' + data.id);
                     resolve({ success: false, errors: [ { field: 'kpis', errors: ['one or more kpis not found'] } ]});
                     return;
                 }

@@ -26,3 +26,4 @@ export function registerDependencies(container: IBridgeContainer) {
     registerAppModels(container);
     registerServices(container);
 }
+

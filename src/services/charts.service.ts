@@ -1,3 +1,4 @@
+import { attachToDashboards } from '../app_modules/dashboards/mutations/common';
 import * as Promise from 'bluebird';
 import { inject, injectable } from 'inversify';
 
@@ -11,7 +12,7 @@ import { IUIChart } from './../app_modules/charts/queries/charts/ui-chart-base';
 import { DateRangeHelper } from './../app_modules/date-ranges/queries/date-range.helper';
 import { IKpiBase } from './../app_modules/kpis/queries/kpi-base';
 import { KpiFactory } from './../app_modules/kpis/queries/kpi.factory';
-import { IChart } from './../domain/app/charts/chart';
+import { IChart, IChartInput } from './../domain/app/charts/chart';
 import { Charts } from './../domain/app/charts/chart.model';
 import { IDashboardDocument } from './../domain/app/dashboards/dashboard';
 import { Dashboards } from './../domain/app/dashboards/dashboard.model';
@@ -39,13 +40,13 @@ export class ChartsService {
     constructor(
         @inject(Charts.name) private _charts: Charts,
         @inject(Dashboards.name) private _dashboards: Dashboards,
-        @inject('KPIs') private _kpis: KPIs,
+        @inject(KPIs.name) private _kpis: KPIs,
         @inject(Targets.name) private _targets: Targets,
         @inject(TargetService.name) private _targetService: TargetService,
-        @inject('CurrentUser') private _currentUser: CurrentUser,
+        @inject(CurrentUser.name) private _currentUser: CurrentUser,
         @inject(ChartFactory.name) private _chartFactory: ChartFactory,
         @inject(KpiFactory.name) private _kpiFactory: KpiFactory,
-        @inject('Logger') private _logger: Logger
+        @inject(Logger) private _logger: Logger
     ) { }
 
     public renderDefinition(chart: IChart, options?: IRenderChartOptions): Promise<any> {
@@ -134,6 +135,45 @@ export class ChartsService {
                         .catch(err => reject(err));
                 })
                 .catch(err => reject(err));
+        });
+    }
+
+    public createChart(input: IChartInput): Promise<IChart> {
+        const that = this;
+        return new Promise<IChart>((resolve, reject) => {
+            that._kpis.model.find({ _id: { $in: input.kpis }})
+            .then((kpis) => {
+                if (!kpis || kpis.length !== input.kpis.length) {
+                    that._logger.error('one or more kpi not found');
+                    reject({ field: 'dashboards', errors: ['one or more kpis not found']});
+                    return;
+                }
+
+                // resolve dashboards to include the chart
+                that._dashboards.model.find( {_id: { $in: input.dashboards }})
+                .then((dashboards) => {
+                    const inputDashboards = input.dashboards || [];
+                    if (!dashboards || dashboards.length !== inputDashboards.length) {
+                        that._logger.error('one or more dashboard not found');
+                        reject({ field: 'dashboards', errors: ['one or more dashboards not found'] });
+                        return;
+                    }
+
+                    // create the chart
+                    that._charts.model.createChart(input)
+                    .then((chart) => {
+                        attachToDashboards(that._dashboards.model, input.dashboards, chart._id)
+                        .then(() => {
+                            resolve(chart);
+                            return;
+                        })
+                        .catch(err => reject(err));
+                    })
+                    .catch(err => reject(err));
+                })
+                .catch(err => reject(err));
+            })
+            .catch(err => reject(err));
         });
     }
 
