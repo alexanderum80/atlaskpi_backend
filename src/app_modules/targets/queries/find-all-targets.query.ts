@@ -19,7 +19,7 @@ import { TargetResponse } from '../targets.types';
     output: { type: TargetResponse }
 })
 export class FindAllTargetsQuery implements IQuery<ITargetDocument[]> {
-    constructor(@inject('Targets') private _targets: Targets) { }
+    constructor(@inject(Targets.name) private _targets: Targets) { }
 
     run(data: { filter: string,  }): Promise<ITargetDocument[]> {
         const that = this;

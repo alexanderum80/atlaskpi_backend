@@ -19,7 +19,7 @@ import { DeleteLocationResponse } from '../locations.types';
     output: { type: DeleteLocationResponse }
 })
 export class DeleteLocationMutation extends MutationBase<IMutationResponse> {
-    constructor(@inject('Locations') private _locations: Locations) {
+    constructor(@inject(Locations.name) private _locations: Locations) {
         super();
     }
 

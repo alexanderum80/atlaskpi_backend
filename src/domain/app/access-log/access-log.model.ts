@@ -64,7 +64,7 @@ AccessLogSchema.statics.getAllAccessLogs = function(filter: string): Promise < I
 
 @injectable()
 export class AccessLogs extends ModelBase < IAccessLogModel > {
-    constructor(@inject('AppConnection') appConnection: AppConnection) {
+    constructor(@inject(AppConnection.name) appConnection: AppConnection) {
         super();
         this.initializeModel(appConnection.get, 'AccessLog', AccessLogSchema, 'accessLog');
     }

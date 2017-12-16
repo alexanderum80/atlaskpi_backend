@@ -21,8 +21,8 @@ import { IUIWidget } from '../../../domain/app/widgets/ui-widget-base';
 })
 export class PreviewWidgetQuery implements IQuery<IUIWidget> {
     constructor(
-        @inject('Widgets') private _widgets: Widgets,
-        @inject('WidgetsService') private _widgetsService: WidgetsService
+        @inject(Widgets.name) private _widgets: Widgets,
+        @inject(WidgetsService.name) private _widgetsService: WidgetsService
     ) { }
 
     run(data: { input: IWidgetInput }): Promise<IUIWidget> {

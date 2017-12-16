@@ -25,8 +25,8 @@ import { KPIRemoveResponse } from '../kpis.types';
 })
 export class RemoveKpiMutation extends MutationBase<IMutationResponse> {
     constructor(
-        @inject('KPIs') private _kpis: KPIs,
-        @inject('Charts') private _charts: Charts,
+        @inject(KPIs.name) private _kpis: KPIs,
+        @inject(Charts.name) private _charts: Charts
         @inject('Widgets') private _widgets: Widgets
     ) {
         super();

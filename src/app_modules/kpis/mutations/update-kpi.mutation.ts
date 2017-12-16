@@ -23,7 +23,7 @@ import { KPIAttributesInput, KPIMutationResponse } from '../kpis.types';
     output: { type: KPIMutationResponse }
 })
 export class UpdateKpiMutation extends MutationBase<IMutationResponse> {
-    constructor(@inject('KPIs') private _kpis: KPIs) {
+    constructor(@inject(KPIs.name) private _kpis: KPIs) {
         super();
     }
 

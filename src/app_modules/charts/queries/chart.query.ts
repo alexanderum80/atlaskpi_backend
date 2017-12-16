@@ -1,8 +1,8 @@
 import * as Promise from 'bluebird';
 import { inject, injectable } from 'inversify';
 import { isEmpty } from 'lodash';
-import { Winston } from 'winston';
 
+import { Logger } from '../../../../di';
 import { IChart, IChartInput } from '../../../domain/app/charts/chart';
 import { Charts } from '../../../domain/app/charts/chart.model';
 import { IDashboardDocument } from '../../../domain/app/dashboards/dashboard';
@@ -39,13 +39,13 @@ export class ChartQuery implements IQuery<String> {
     constructor(
         @inject(KpiFactory.name) private _kpiFactory: KpiFactory,
         @inject(ChartFactory.name) private _chartFactory: ChartFactory,
-        @inject('KPIs') private _kpis: KPIs,
+        @inject(KPIs.name) private _kpis: KPIs,
         @inject(Charts.name) private _charts: Charts,
         @inject(Dashboards.name) private _dashboards: Dashboards,
         @inject(Users.name) private _users: Users,
         @inject(Targets.name) private _targets: Targets,
         @inject(TargetService.name) private _targetService: TargetService,
-        @inject('logger') private _logger: Winston
+        @inject(Logger.name) private _logger: Logger
     ) { }
 
     run(data: { id: string, input: IChartInput, /* TODO: I added this extra parameter here maually */ chart: any }): Promise<String> {

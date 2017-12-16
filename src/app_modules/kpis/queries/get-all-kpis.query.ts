@@ -22,7 +22,7 @@ import { IKPI } from '../../../domain/app/kpis/kpi';
 })
 export class GetAllKpIsQuery implements IQuery<IPagedQueryResult<IKPI>> {
 
-    constructor(@inject('Kpis') private _kpis: KPIs) { }
+    constructor(@inject(Kpis.name) private _kpis: KPIs) { }
 
     run(data: IPaginationDetails): Promise<IPagedQueryResult<IKPI>> {
         return this._kpis.model.getAllKPIs(data);

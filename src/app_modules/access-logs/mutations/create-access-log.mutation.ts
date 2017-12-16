@@ -6,7 +6,7 @@ import * as Promise from 'bluebird';
 
 @injectable()
 export class CreateAccessLogMutation extends MutationBase<IMutationResponse> {
-    constructor(@inject('AccessLogs') private _accessLogs: AccessLogs) {
+    constructor(@inject(AccessLogs.name) private _accessLogs: AccessLogs) {
         super();
     }
 

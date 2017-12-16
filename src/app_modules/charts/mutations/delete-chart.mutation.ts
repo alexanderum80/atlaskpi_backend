@@ -23,12 +23,12 @@ import { ChartMutationResponse } from '../charts.types';
 })
 export class DeleteChartMutation extends MutationBase<IMutationResponse> {
     constructor(
-        @inject('Charts') private _charts: Charts,
-        @inject('Dashboards') private _dashboards: Dashboards) {
+        @inject(Charts.name) private _charts: Charts,
+        @inject(Dashboards.name) private _dashboards: Dashboards) {
         super();
     }
 
-    run(data: { id: String }): Promise<IMutationResponse> {
+    run(data: { id: string }): Promise<IMutationResponse> {
         const that = this;
         return new Promise<IMutationResponse>((resolve, reject) => {
             if (!data.id ) {

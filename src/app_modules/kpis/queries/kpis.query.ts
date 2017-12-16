@@ -16,7 +16,7 @@ import { KPI } from '../kpis.types';
     output: { type: KPI, isArray: true }
 })
 export class KpisQuery implements IQuery<IKPIDocument[]> {
-    constructor(@inject('KPIs') private _kpis: KPIs) { }
+    constructor(@inject(KPIs.name) private _kpis: KPIs) { }
 
     run(data: { id: string }): Promise<IKPIDocument[]> {
         const that = this;

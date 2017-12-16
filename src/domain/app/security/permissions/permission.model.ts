@@ -93,7 +93,7 @@ PermissionSchema.statics.findAllPermissions = function(filter: string): Promise 
 
 @injectable()
 export class Permissions extends ModelBase < IPermissionModel > {
-    constructor(@inject('AppConnection') appConnection: AppConnection) {
+    constructor(@inject(AppConnection.name) appConnection: AppConnection) {
         super();
         this.initializeModel(appConnection.get, 'Permission', PermissionSchema, 'permissions');
     }

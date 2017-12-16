@@ -19,7 +19,7 @@ import { CreateLocationResponse, ILocationInput } from '../locations.types';
     output: { type: CreateLocationResponse }
 })
 export class CreateLocationMutation extends MutationBase<IMutationResponse> {
-    constructor(@inject('Locations') private _locations: Locations) {
+    constructor(@inject(Locations.name) private _locations: Locations) {
         super();
     }
 

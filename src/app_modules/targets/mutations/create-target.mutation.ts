@@ -26,9 +26,9 @@ import { TargetInput, TargetResult } from '../targets.types';
 // TODO: Refactor!!! Refator!!
 export class CreateTargetMutation extends MutationBase<IMutationResponse> {
     constructor(
-        @inject('Targets') private _targets: Targets,
-        @inject('Users') private _users: Users,
-        @inject('Charts') private _charts: Charts,
+        @inject(Targets.name) private _targets: Targets,
+        @inject(Users.name) private _users: Users,
+        @inject(Charts.name) private _charts: Charts
         @inject(TargetService.name) private _targetService: TargetService
     ) {
         super();
