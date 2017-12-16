@@ -31,8 +31,8 @@ export class UpdateUserMutation extends MutationBase<IMutationResponse> {
         const that = this;
 
         return this._roles.model.findAllRoles('')
-        .then((resp) => {
-            return this._users.model.updateUser(data.id, data.data, resp);
+        .then((res) => {
+            return this._users.model.updateUser(data.id, data.data, res);
         });
     }
 }

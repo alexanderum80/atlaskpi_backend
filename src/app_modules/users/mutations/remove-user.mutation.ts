@@ -22,7 +22,7 @@ export class RemoveUserMutation extends MutationBase<IMutationResponse> {
         super();
     }
 
-    run(data: { id: string,  }): Promise<IMutationResponse> {
+    run(data: { id: string }): Promise<IMutationResponse> {
         return this._users.model.removeUser(data.id);
     }
 }

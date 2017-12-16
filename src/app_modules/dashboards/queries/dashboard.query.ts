@@ -2,9 +2,10 @@ import * as Promise from 'bluebird';
 import * as console from 'console';
 import { inject, injectable } from 'inversify';
 
-import { CurrentUser, Logger } from '../../../../di';
+import { CurrentUser } from '../../../domain/app/current-user';
 import { IDashboard } from '../../../domain/app/dashboards/dashboard';
 import { Dashboards } from '../../../domain/app/dashboards/dashboard.model';
+import { Logger } from '../../../domain/app/logger';
 import { IUIWidget } from '../../../domain/app/widgets/ui-widget-base';
 import { query } from '../../../framework/decorators/query.decorator';
 import { IQuery } from '../../../framework/queries/query';

@@ -1,7 +1,7 @@
 import * as Promise from 'bluebird';
 import { inject, injectable } from 'inversify';
 
-import { CurrentUser } from '../../../../di';
+import { CurrentUser } from '../../../domain/app/current-user';
 import { IUserDocument } from '../../../domain/app/security/users/user';
 import { Users } from '../../../domain/app/security/users/user.model';
 import { query } from '../../../framework/decorators/query.decorator';

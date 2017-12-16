@@ -2,7 +2,6 @@ import * as Promise from 'bluebird';
 import { inject, injectable } from 'inversify';
 import { isArray } from 'util';
 
-import { CurrentUser, Logger } from '../../../../di';
 import { Charts } from '../../../domain/app/charts/chart.model';
 import { IDashboard } from '../../../domain/app/dashboards/dashboard';
 import { Dashboards } from '../../../domain/app/dashboards/dashboard.model';
@@ -11,6 +10,8 @@ import { query } from '../../../framework/decorators/query.decorator';
 import { IQuery } from '../../../framework/queries/query';
 import { GetDashboardsActivity } from '../activities/get-dashboards.activity';
 import { Dashboard } from '../dashboards.types';
+import { Logger } from '../../../domain/app/logger';
+import { CurrentUser } from '../../../domain/app/current-user';
 
 
 @injectable()

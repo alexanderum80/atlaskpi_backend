@@ -21,7 +21,7 @@ export class RemoveMobileDeviceMutation extends MutationBase<Boolean> {
         super();
     }
 
-    run(data: { network: string, token: string,  }): Promise<Boolean> {
+    run(data: { network: string, token: string }): Promise<Boolean> {
         return this._users.model.removeMobileDevice(data.network, data.token);
     }
 }
