@@ -20,7 +20,7 @@ import { DeleteEmployeeResponse } from '../employees.types';
     output: { type: DeleteEmployeeResponse }
 })
 export class DeleteEmployeeMutation extends MutationBase<IMutationResponse> {
-    constructor(@inject('Employees') private _employees: Employees) {
+    constructor(@inject(Employees.name) private _employees: Employees) {
         super();
     }
 

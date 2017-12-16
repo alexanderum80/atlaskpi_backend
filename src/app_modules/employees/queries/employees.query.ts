@@ -17,7 +17,7 @@ import { Employee } from '../employees.types';
 })
 export class EmployeesQuery implements IQuery<IEmployeeDocument[]> {
 
-    constructor(@inject('Employees') private _employees: Employees) { }
+    constructor(@inject(Employees.name) private _employees: Employees) { }
 
     run(): Promise<IEmployeeDocument[]> {
         const that = this;

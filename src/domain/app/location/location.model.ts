@@ -83,6 +83,18 @@ LocationSchema.statics.locations = function(): Promise < ILocationDocument[] > {
     });
 };
 
+LocationSchema.statics.locationById = function(id: string): Promise<ILocationDocument> {
+    const that = <ILocationModel> this;
+    return new Promise<ILocationDocument>((resolve, reject) => {
+        that.findOne({_id: id}).then(location => {
+            resolve(location);
+        }).catch(err => {
+            logger.error(err);
+            reject('There was an error retrieving department');
+        });
+    });
+};
+
 @injectable()
 export class Locations extends ModelBase < ILocationModel > {
     constructor(@inject('AppConnection') appConnection: AppConnection) {

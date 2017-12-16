@@ -5,21 +5,24 @@ import { ILocationDocument } from '../../../domain/app/location/location';
 import { Locations } from '../../../domain/app/location/location.model';
 import { query } from '../../../framework/decorators/query.decorator';
 import { IQuery } from '../../../framework/queries/query';
-import { ListLocationsActivity } from '../activities/list-locations.activity';
+import { LocationByIdActivity } from '../activities/location-by-id.activity';
 import { Location } from '../locations.types';
 
 
 
 @injectable()
 @query({
-    name: 'locations',
-    activity: ListLocationsActivity,
+    name: 'locationById',
+    activity: LocationByIdActivity,
+    parameters: [
+        { name: 'id', type: String, required: true }
+    ],
     output: { type: Location, isArray: true }
 })
-export class LocationsQuery implements IQuery<ILocationDocument[]> {
+export class LocationByIdQuery implements IQuery<ILocationDocument> {
     constructor(@inject('Locations') private _locations: Locations) { }
 
-    run(data: any): Promise<ILocationDocument[]> {
-        return this._locations.model.locations();
+    run(data: { id: string }): Promise<ILocationDocument> {
+        return this._locations.model.locationById(data.id);
     }
 }
