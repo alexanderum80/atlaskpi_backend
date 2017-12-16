@@ -1,6 +1,7 @@
-import { IPermission } from './permission';
 import * as Promise from 'bluebird';
+
 import { IActivity } from './activity';
+import { IPermission } from './permission';
 
 export interface IAuthorizationResult {
     err?: any;
