@@ -50,7 +50,7 @@ export interface ISearchResult {
 export class SearchQuery implements IQuery<ISearchResult[]> {
     private _adaptEngine: AdaptEngine;
 
-    constructor(@inject('GetChartQuery') private _getChartQuery: GetChartQuery) {
+    constructor(@inject(GetChartQuery.name) private _getChartQuery: GetChartQuery) {
         this._adaptEngine = new AdaptEngine([AdaptIntents.Chart]);
     }
 

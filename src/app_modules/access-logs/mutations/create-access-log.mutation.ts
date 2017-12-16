@@ -7,7 +7,7 @@ import { IMutationResponse } from '../../../framework/mutations/mutation-respons
 
 @injectable()
 export class CreateAccessLogMutation extends MutationBase<IMutationResponse> {
-    constructor(@inject('AccessLogs') private _accessLogs: AccessLogs) {
+    constructor(@inject(AccessLogs.name) private _accessLogs: AccessLogs) {
         super();
     }
 

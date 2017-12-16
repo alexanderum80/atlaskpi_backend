@@ -21,7 +21,7 @@ export interface ILogDetails {
 export class LogController {
 
     constructor(
-        @inject('TechnicalSupportIssueNotification') private _supportNotifier: TechnicalSupportIssueNotification,
+        @inject(TechnicalSupportIssueNotification.name) private _supportNotifier: TechnicalSupportIssueNotification,
         @inject(Logs.name) private _logs: Logs,
         @inject(Logger.name) private _logger: Logger) { }
 

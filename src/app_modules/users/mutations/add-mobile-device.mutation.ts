@@ -19,8 +19,8 @@ import { AddMobileDeviceDetails } from '../users.types';
 })
 export class AddMobileDeviceMutation extends MutationBase<Boolean> {
     constructor(
-        @inject('CurrentUser') private _currentUser: IUserDocument,
-        @inject('Users') private _users: Users
+        @inject(CurrentUser.name) private _currentUser: IUserDocument,
+        @inject(Users.name) private _users: Users
     ) {
         super();
     }

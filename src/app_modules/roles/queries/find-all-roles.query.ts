@@ -19,7 +19,7 @@ import { RoleList } from '../roles.types';
     output: { type: RoleList, isArray: true }
 })
 export class FindAllRolesQuery implements IQuery<IRoleDocument[]> {
-    constructor(@inject('Roles') private _roles: Roles) { }
+    constructor(@inject(Roles.name) private _roles: Roles) { }
 
     run(data: { filter: String,  }): Promise<IRoleDocument[]> {
         return this._roles.model.findAllRoles('');

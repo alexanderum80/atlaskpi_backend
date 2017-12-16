@@ -23,8 +23,8 @@ import { ChartMutationResponse } from '../charts.types';
 })
 export class DeleteChartMutation extends MutationBase<IMutationResponse> {
     constructor(
-        @inject('Charts') private _charts: Charts,
-        @inject('Dashboards') private _dashboards: Dashboards) {
+        @inject(Charts.name) private _charts: Charts,
+        @inject(Dashboards.name) private _dashboards: Dashboards) {
         super();
     }
 

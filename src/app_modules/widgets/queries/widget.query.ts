@@ -17,7 +17,7 @@ import { Widget } from '../widgets.types';
     output: { type: Widget }
 })
 export class WidgetQuery implements IQuery<Widget> {
-    constructor(@inject('Widgets') private _widgets: Widgets) { }
+    constructor(@inject(Widgets.name) private _widgets: Widgets) { }
 
     run(data: { id: string }): Promise<Widget> {
         return this._widgets.model.getWidgetById(data.id);

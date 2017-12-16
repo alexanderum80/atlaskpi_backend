@@ -223,7 +223,7 @@ WidgetSchema.statics.removeWidget = function(id: string): Promise<IWidgetDocumen
 
 @injectable()
 export class Widgets extends ModelBase<IWidgetModel> {
-    constructor(@inject('AppConnection') appConnection: AppConnection) {
+    constructor(@inject(AppConnection.name) appConnection: AppConnection) {
         super();
         this.initializeModel(appConnection.get, 'Widget', WidgetSchema, 'widgets');
     }

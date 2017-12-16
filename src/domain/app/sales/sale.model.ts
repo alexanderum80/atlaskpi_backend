@@ -141,7 +141,7 @@ export function getSaleModel(m: mongoose.Connection): ISaleModel {
 
 @injectable()
 export class Sales extends ModelBase<ISaleModel> {
-    constructor(@inject('AppConnection') appConnection: AppConnection) {
+    constructor(@inject(AppConnection.name) appConnection: AppConnection) {
         super();
         this.initializeModel(appConnection.get, 'Sale', SalesSchema, 'sales');
     }

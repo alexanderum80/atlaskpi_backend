@@ -6,7 +6,7 @@ import { injectable, inject } from 'inversify';
 @injectable()
 export class UpdateDashboardActivity implements IActivity {
 
-    constructor(@inject('Users') private _users: Users) {}
+    constructor(@inject(Users.name) private _users: Users) {}
 
     check(): Promise<boolean> {
         return Promise.resolve(true);

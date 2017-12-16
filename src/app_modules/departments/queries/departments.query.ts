@@ -16,7 +16,7 @@ import { Department } from '../departments.types';
     output: { type: Department }
 })
 export class DepartmentsQuery implements IQuery<IDepartmentDocument[]> {
-    constructor(@inject('Departments') private _departments: Departments) { }
+    constructor(@inject(Departments.name) private _departments: Departments) { }
 
     run(data: { id: string }): Promise<IDepartmentDocument[]> {
         return this._departments.model.departments();

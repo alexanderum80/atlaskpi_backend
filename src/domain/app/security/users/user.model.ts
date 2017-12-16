@@ -16,7 +16,7 @@ UserSchema.plugin(rbacPlugin);
 
 @injectable()
 export class Users extends ModelBase<IUserModel> {
-    constructor(@inject('AppConnection') appConnection: AppConnection) {
+    constructor(@inject(AppConnection.name) appConnection: AppConnection) {
         super();
         this.initializeModel(appConnection.get, 'User', UserSchema, 'users');
     }

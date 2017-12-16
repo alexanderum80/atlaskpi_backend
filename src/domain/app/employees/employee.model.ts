@@ -123,7 +123,7 @@ EmployeeSchema.statics.employeeById = function(id: string): Promise<IEmployeeDoc
 
 @injectable()
 export class Employees extends ModelBase<IEmployeeModel> {
-    constructor(@inject('AppConnection') appConnection: AppConnection) {
+    constructor(@inject(AppConnection.name) appConnection: AppConnection) {
         super();
         this.initializeModel(appConnection.get, 'Employee', EmployeeSchema, 'employees');
     }

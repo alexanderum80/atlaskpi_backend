@@ -20,7 +20,7 @@ import { CreateBusinessUnitResponse } from '../business-units.types';
     output: { type: CreateBusinessUnitResponse }
 })
 export class CreateBusinessUnitMutation extends MutationBase<IMutationResponse> {
-    constructor(@inject('BusinessUnits') private _businessUnits: BusinessUnits) {
+    constructor(@inject(BusinessUnits.name) private _businessUnits: BusinessUnits) {
         super();
     }
 

@@ -19,7 +19,7 @@ import { TokenVerification } from '../users.types';
 })
 export class IsEnrollmentTokenValidQuery implements IQuery<boolean> {
     constructor(
-        @inject('Users') private _users: Users,
+        @inject(Users.name) private _users: Users,
         @inject('Config') private _config: IAppConfig) {
         
     }

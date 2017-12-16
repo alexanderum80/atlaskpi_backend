@@ -97,7 +97,7 @@ LocationSchema.statics.locationById = function(id: string): Promise<ILocationDoc
 
 @injectable()
 export class Locations extends ModelBase < ILocationModel > {
-    constructor(@inject('AppConnection') appConnection: AppConnection) {
+    constructor(@inject(AppConnection.name) appConnection: AppConnection) {
         super();
         this.initializeModel(appConnection.get, 'Location', LocationSchema, 'locations');
     }

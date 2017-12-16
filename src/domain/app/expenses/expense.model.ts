@@ -60,7 +60,7 @@ ExpenseSchema.statics.findByPredefinedDateRange = function(predefinedDateRange: 
 
 @injectable()
 export class Expenses extends ModelBase<IExpenseModel> {
-    constructor(@inject('AppConnection') appConnection: AppConnection) {
+    constructor(@inject(AppConnection.name) appConnection: AppConnection) {
         super();
         this.initializeModel(appConnection.get, 'Expense', ExpenseSchema, 'expenses');
     }
