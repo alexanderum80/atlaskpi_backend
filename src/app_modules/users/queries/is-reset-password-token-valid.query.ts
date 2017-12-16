@@ -20,9 +20,7 @@ import { TokenVerification } from '../users.types';
 export class IsResetPasswordTokenValidQuery implements IQuery<boolean> {
     constructor(
         @inject(Users.name) private _users: Users,
-        @inject('Config') private _config: IAppConfig) {
-        
-    }
+        @inject('Config') private _config: IAppConfig) { }
 
     run(data: { token: string }): Promise<boolean> {
         return this._users.model.verifyResetPasswordToken(data.token, this._config.token.expiresIn);

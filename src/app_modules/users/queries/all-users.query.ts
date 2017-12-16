@@ -18,9 +18,7 @@ import { User } from '../users.types';
     output: { type: User, isArray: true }
 })
 export class AllUsersQuery implements IQuery<IUserDocument[]> {
-    constructor(@inject(Users.name) private _users: Users) {
-        
-    }
+    constructor(@inject(Users.name) private _users: Users) { }
 
     run(data: { filter: string }): Promise<IUserDocument[]> {
         return this._users.model.findAllUsers(data.filter);
