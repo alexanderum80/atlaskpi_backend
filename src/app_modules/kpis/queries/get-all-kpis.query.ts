@@ -20,7 +20,7 @@ import { KPIPagedQueryResult } from '../kpis.types';
 })
 export class GetAllKpIsQuery implements IQuery<KPIPagedQueryResult> {
 
-    constructor(@inject('Kpis') private _kpis: KPIs) { }
+    constructor(@inject(Kpis.name) private _kpis: KPIs) { }
 
     run(data: { details: PaginationDetails }): Promise<KPIPagedQueryResult> {
         return this._kpis.model.getAllKPIs(data);

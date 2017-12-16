@@ -19,7 +19,7 @@ import { EmployeeByIdActivity } from '../activities/employee-by-id.activity';
     output: { type: Employee }
 })
 export class EmployeeByIdQuery implements IQuery<IEmployeeDocument> {
-    constructor(@inject('Employees') private _employees: Employees) { }
+    constructor(@inject(Employees.name) private _employees: Employees) { }
 
     run(data: { id: string }): Promise<IEmployeeDocument> {
         return this._employees.model.employeeById(data.id);

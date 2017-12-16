@@ -4,7 +4,7 @@ import * as Promise from 'bluebird';
 import { injectable, inject } from 'inversify';
 
 @injectable()
-export class GetDashboardsActivity implements IActivity {
+export class LocationByIdActivity implements IActivity {
 
     constructor(@inject(Users.name) private _users: Users) {}
 

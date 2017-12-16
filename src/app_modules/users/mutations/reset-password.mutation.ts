@@ -22,7 +22,7 @@ import { IMutationResponse } from '../../../framework/mutations/mutation-respons
     output: { type: ResetPasswordResult }
 })
 export class ResetPasswordMutation extends MutationBase<IMutationResponse> {
-    constructor(@inject('Users') private _users: Users) {
+    constructor(@inject(Users.name) private _users: Users) {
         super();
     }
 

@@ -21,7 +21,7 @@ import { Appointment } from '../appointments.types';
     output: { type: Appointment }
 })
 export class AppointmentByDescriptionQuery extends MutationBase<IAppointmentDocument> {
-    constructor(@inject('Appointments') private _appointments: Appointments) {
+    constructor(@inject(Appointments.name) private _appointments: Appointments) {
         super();
     }
 

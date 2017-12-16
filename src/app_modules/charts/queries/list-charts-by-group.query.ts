@@ -19,7 +19,7 @@ import { ListChartsQueryResponse } from '../charts.types';
     output: { type: ListChartsQueryResponse }
 })
 export class ListChartsByGroupQuery implements IQuery<IChartDocument[]> {
-    constructor(@inject('Charts') private _charts: Charts) { }
+    constructor(@inject(Charts.name) private _charts: Charts) { }
 
     run(data: { group: string }): Promise<IChartDocument[]> {
         return this._charts.model.listChartByGroup(data.group);

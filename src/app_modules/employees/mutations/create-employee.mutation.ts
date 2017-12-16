@@ -21,7 +21,7 @@ import { CreateEmployeeResponse, EmployeeAttributesInput } from '../employees.ty
     output: { type: CreateEmployeeResponse }
 })
 export class CreateEmployeeMutation extends MutationBase<IMutationResponse> {
-    constructor(@inject('Employees') private _employees: Employees) {
+    constructor(@inject(Employees.name) private _employees: Employees) {
         super();
     }
 

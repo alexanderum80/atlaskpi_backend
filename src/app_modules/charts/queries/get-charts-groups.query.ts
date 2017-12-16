@@ -18,9 +18,9 @@ import { ListChartsQueryResponse } from '../charts.types';
     output: { type: ListChartsQueryResponse }
 })
 export class GetChartsGroupQuery implements IQuery<string[]> {
-    constructor(@inject('Charts') private _charts: Charts) { }
+    constructor(@inject(Charts.name) private _charts: Charts) { }
 
-    run(data: { group: String,  }): Promise<string[]> {
+    run(data: { group: string,  }): Promise<string[]> {
         const that = this;
 
         return new Promise<string[]>((resolve, reject) => {

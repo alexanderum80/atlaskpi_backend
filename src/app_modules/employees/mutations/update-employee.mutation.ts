@@ -22,7 +22,7 @@ import { EmployeeAttributesInput, UpdateEmployeeResponse } from '../employees.ty
     output: { type: UpdateEmployeeResponse }
 })
 export class UpdateEmployeeMutation extends MutationBase<IMutationResponse> {
-    constructor(@inject('Employees') private _employees: Employees) {
+    constructor(@inject(Employees.name) private _employees: Employees) {
         super();
     }
 

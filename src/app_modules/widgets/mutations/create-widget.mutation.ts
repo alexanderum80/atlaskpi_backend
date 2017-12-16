@@ -20,7 +20,7 @@ import { IWidgetInput } from '../../../domain/app/widgets/widget';
     output: { type: WidgetMutationResponse }
 })
 export class CreateWidgetMutation extends MutationBase<IMutationResponse> {
-    constructor(@inject('Widgets') private _widgets: Widgets) {
+    constructor(@inject(Widgets.name) private _widgets: Widgets) {
         super();
     }
 

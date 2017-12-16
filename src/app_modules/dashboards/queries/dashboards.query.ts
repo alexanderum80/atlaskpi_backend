@@ -12,6 +12,8 @@ import { query } from '../../../framework/decorators/query.decorator';
 import { IQuery } from '../../../framework/queries/query';
 import { GetDashboardsActivity } from '../activities/get-dashboards.activity';
 import { Dashboard } from '../dashboards.types';
+import { Logger } from '../../../domain/app/logger';
+import { CurrentUser } from '../../../domain/app/current-user';
 
 
 @injectable()
@@ -32,7 +34,7 @@ export class DashboardsQuery implements IQuery<IDashboard[]> {
         @inject('CurrentUser') private _currentUser: CurrentUser
     ) { }
 
-    run(data: { group: String,  }): Promise<IDashboard[]> {
+    run(data: { group: string,  }): Promise<IDashboard[]> {
         const that = this;
 
         if (!this._currentUser) {

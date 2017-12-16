@@ -20,7 +20,7 @@ import { DashboardInput, DashboardResponse } from '../dashboards.types';
     output: { type: DashboardResponse }
 })
 export class UpdateDashboardMutation extends MutationBase<IMutationResponse> {
-    constructor(@inject('Dashboards') private _dashboards: Dashboards) {
+    constructor(@inject(Dashboards.name) private _dashboards: Dashboards) {
         super();
     }
 

@@ -22,8 +22,8 @@ import { TargetInput, TargetResult } from '../targets.types';
 })
 export class UpdateTargetMutation extends MutationBase<IMutationResponse> {
     constructor(
-        @inject('Targets') private _targets: Targets,
-        @inject('TargetService') private _targetService: TargetService
+        @inject(Targets.name) private _targets: Targets,
+        @inject(TargetService.name) private _targetService: TargetService
     ) {
         super();
     }

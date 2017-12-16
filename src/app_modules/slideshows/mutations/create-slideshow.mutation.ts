@@ -21,7 +21,7 @@ import { SlideshowInput, SlideshowResponse } from '../slideshows.types';
     output: { type: SlideshowResponse }
 })
 export class CreateSlideshowMutation extends MutationBase<IMutationResponse> {
-    constructor(@inject('Slideshows') private _slideshows: Slideshows) {
+    constructor(@inject(Slideshows.name) private _slideshows: Slideshows) {
         super();
     }
 
