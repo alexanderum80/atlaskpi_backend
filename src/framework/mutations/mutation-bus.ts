@@ -1,3 +1,4 @@
+import { Enforcer } from '../../../lib/enforcer';
 import * as Promise from 'bluebird';
 import { injectable } from 'inversify';
 import { inject } from 'inversify';
