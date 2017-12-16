@@ -6,7 +6,7 @@ import { injectable, inject } from 'inversify';
 @injectable()
 export class AuthController {
 
-    constructor(@inject('AuthService') private _authservice: AuthService) {}
+    constructor(@inject(AuthService.name) private _authservice: AuthService) {}
 
     authenticateUser(hostname: string, username: string, password: string, ip: string, clientId: string, clientDetails: string): Promise < IUserToken > {
         return this._authservice.authenticateUser({

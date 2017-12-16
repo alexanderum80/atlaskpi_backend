@@ -21,8 +21,8 @@ import { ForgotPasswordResult } from '../users.types';
 export class UserForgotPasswordMutation extends MutationBase<ForgotPasswordResult> {
     constructor(
         @inject('Config') private _config: IAppConfig,
-        @inject('Users') private _users: Users,
-        @inject('UserForgotPasswordNotification') private _userForgotPasswordNotification: UserForgotPasswordNotification
+        @inject(Users.name) private _users: Users,
+        @inject(UserForgotPasswordNotification.name) private _userForgotPasswordNotification: UserForgotPasswordNotification
     ) {
         super();
     }

@@ -20,7 +20,7 @@ import { KPI } from '../kpis.types';
 })
 export class KpiQuery implements IQuery<IKPIDocument> {
 
-    constructor(@inject('KPIs') private _kpis: KPIs) { }
+    constructor(@inject(KPIs.name) private _kpis: KPIs) { }
 
     run(data: { id: string }): Promise<IKPIDocument> {
         console.log(data);

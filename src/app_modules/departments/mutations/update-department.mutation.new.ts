@@ -21,7 +21,7 @@ import { UpdateDepartmentResponse } from '../departments.types';
     output: { type: UpdateDepartmentResponse }
 })
 export class UpdateDepartmentMutation extends MutationBase<IMutationResponse> {
-    constructor(@inject('Departments') private _departments: Departments) {
+    constructor(@inject(Departments.name) private _departments: Departments) {
         super();
     }
 

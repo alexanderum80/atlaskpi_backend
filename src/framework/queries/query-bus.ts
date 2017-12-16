@@ -31,7 +31,7 @@ export class QueryBus implements IQueryBus {
         return this._enforcer;
     }
 
-    constructor(@inject('Enforcer') private _enforcer: IEnforcer) { }
+    constructor(@inject(Enforcer.name) private _enforcer: IEnforcer) { }
 
     run<T>(activity: IActivity, request: IExtendedRequest, query: IQuery<T>, data: any): Promise<any> {
         const that = this;

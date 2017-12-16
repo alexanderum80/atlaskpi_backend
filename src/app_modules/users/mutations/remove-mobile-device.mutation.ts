@@ -17,11 +17,11 @@ import { RemoveDeviceTokenActivity } from '../activities/remove-device-token.act
     output: { type: Boolean }
 })
 export class RemoveMobileDeviceMutation extends MutationBase<Boolean> {
-    constructor(@inject('Users') private _users: Users) {
+    constructor(@inject(Users.name) private _users: Users) {
         super();
     }
 
-    run(data: { network: string, token: string,  }): Promise<Boolean> {
+    run(data: { network: string, token: string }): Promise<Boolean> {
         return this._users.model.removeMobileDevice(data.network, data.token);
     }
 }

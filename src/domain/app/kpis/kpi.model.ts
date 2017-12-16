@@ -152,7 +152,7 @@ KPISchema.statics.getAllKPIs = function(details: IPaginationDetails): Promise<IP
 
 @injectable()
 export class KPIs extends ModelBase<IKPIModel> {
-    constructor(@inject('AppConnection') appConnection: AppConnection) {
+    constructor(@inject(AppConnection.name) appConnection: AppConnection) {
         super();
         this.initializeModel(appConnection.get, 'KPI', KPISchema, 'kpis');
     }

@@ -18,7 +18,7 @@ import { AppointmentMutationResponse } from '../appointments.types';
     output: { type: AppointmentMutationResponse }
 })
 export class DeleteAppointmentMutation extends MutationBase<AppointmentMutationResponse> {
-    constructor(@inject('Appointments') private _appointments: Appointments) {
+    constructor(@inject(Appointments.name) private _appointments: Appointments) {
         super();
     }
 

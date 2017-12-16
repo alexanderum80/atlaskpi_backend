@@ -40,7 +40,7 @@ export function getProductModel(m: mongoose.Connection): IProductModel {
 
 @injectable()
 export class Products extends ModelBase<IProductModel> {
-    constructor(@inject('AppConnection') appConnection: AppConnection) {
+    constructor(@inject(AppConnection.name) appConnection: AppConnection) {
         super();
         this.initializeModel(appConnection.get, 'Product', ProductSchema, 'products');
     }

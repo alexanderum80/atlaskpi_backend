@@ -16,12 +16,12 @@ import { IWidget, WidgetTypeEnum, WidgetTypeMap } from './widget';
 export class WidgetFactory {
 
     constructor(
-        @inject('KPIs') private _kpis: KPIs,
-        @inject('Charts') private _charts: Charts,
-        @inject('Sales') private _sales: Sales,
-        @inject('Expenses') private _expenses: Expenses,
-        @inject('KpiFactory') private _kpiFactory: KpiFactory,
-        @inject('ChartFactory') private _chartFactory: ChartFactory,
+        @inject(KPIs.name) private _kpis: KPIs,
+        @inject(Charts.name) private _charts: Charts,
+        @inject(Sales.name) private _sales: Sales,
+        @inject(Expenses.name) private _expenses: Expenses,
+        @inject(KpiFactory.name) private _kpiFactory: KpiFactory,
+        @inject(ChartFactory.name) private _chartFactory: ChartFactory,
     ) { }
 
     getInstance(widget: IWidget): IUIWidget {

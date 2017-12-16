@@ -22,7 +22,7 @@ import { Role, RoleDetailsInput } from '../roles.types';
     output: { type: Role }
 })
 export class UpdateRoleMutation extends MutationBase<IMutationResponse> {
-    constructor(@inject('Roles') private _roles: Roles) {
+    constructor(@inject(Roles.name) private _roles: Roles) {
         super();
     }
 

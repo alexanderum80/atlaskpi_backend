@@ -22,9 +22,9 @@ import { ChartQuery } from './chart.query';
 })
 export class PreviewChartQuery implements IQuery<String> {
     constructor(
-        @inject('Charts') private _charts: Charts,
-        @inject('KPIs') private _kpis: KPIs,
-        @inject('GetChartQuery') private _getChartQuery: ChartQuery) { }
+        @inject(Charts.name) private _charts: Charts,
+        @inject(KPIs.name) private _kpis: KPIs,
+        @inject(GetChartQuery.name) private _getChartQuery: ChartQuery) { }
 
     run(data: { input: ChartAttributesInput, chart: any }): Promise<String> {
         const that = this;
