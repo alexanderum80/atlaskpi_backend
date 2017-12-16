@@ -21,7 +21,7 @@ import { DeleteDepartmentResponse } from '../departments.types';
     output: { type: DeleteDepartmentResponse }
 })
 export class DeleteDepartmentMutation extends MutationBase<IMutationResponse> {
-    constructor(@inject('Departments') private _departments: Departments) {
+    constructor(@inject(Departments.name) private _departments: Departments) {
         super();
     }
 

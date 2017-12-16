@@ -20,8 +20,8 @@ import { User } from '../users.types';
 })
 export class UserQuery implements IQuery<IUserDocument> {
     constructor(
-        @inject('Users') private _users: Users,
-        @inject('CurrentUser') private _currentUser: CurrentUser
+        @inject(Users.name) private _users: Users,
+        @inject(CurrentUser.name) private _currentUser: CurrentUser
     ) { }
 
     run(data: { id: string }): Promise<IUserDocument> {

@@ -21,8 +21,8 @@ import { IMutationResponse } from '../../../framework/mutations/mutation-respons
 })
 export class UpdateUserMutation extends MutationBase<IMutationResponse> {
     constructor(
-        @inject('Users') private _users: Users,
-        @inject('Roles') private _roles: Roles
+        @inject(Users.name) private _users: Users,
+        @inject(Roles.name) private _roles: Roles
     ) {
         super();
     }

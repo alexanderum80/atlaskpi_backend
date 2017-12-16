@@ -7,7 +7,7 @@ import { IActivity } from '../../../framework/modules/security/activity';
 @injectable()
 export class GetAllAccessLogsActivity implements IActivity {
 
-    constructor(@inject('Users') private _users: Users) {}
+    constructor(@inject(Users.name) private _users: Users) {}
 
     check(): Promise<boolean> {
         return Promise.resolve(true);

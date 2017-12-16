@@ -17,7 +17,7 @@ import { Location } from '../locations.types';
     output: { type: Location, isArray: true }
 })
 export class LocationsQuery implements IQuery<ILocationDocument[]> {
-    constructor(@inject('Locations') private _locations: Locations) { }
+    constructor(@inject(Locations.name) private _locations: Locations) { }
 
     run(data: any): Promise<ILocationDocument[]> {
         return this._locations.model.locations();

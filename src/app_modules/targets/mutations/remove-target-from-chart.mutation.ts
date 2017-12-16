@@ -19,7 +19,7 @@ import { TargetRemoveResult } from '../targets.types';
     output: { type: TargetRemoveResult }
 })
 export class RemoveTargetFromChartMutation extends MutationBase<IMutationResponse> {
-    constructor(@inject('Targets') private _targets: Targets) {
+    constructor(@inject(Targets.name) private _targets: Targets) {
         super();
     }
 

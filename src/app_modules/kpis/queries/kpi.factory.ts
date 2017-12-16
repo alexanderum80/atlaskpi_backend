@@ -13,8 +13,8 @@ import { injectable, inject } from 'inversify';
 export class KpiFactory {
 
     constructor(
-        @inject('Container') private _kpis: KPIs,
-        @inject('Sales') private _sales: Sales,
+        @inject(Container.name) private _kpis: KPIs,
+        @inject(Sales.name) private _sales: Sales,
         @inject(Expenses.name) private _expenses: Expenses,
     ) { }
 

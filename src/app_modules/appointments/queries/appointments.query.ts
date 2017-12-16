@@ -21,7 +21,7 @@ import { Appointment } from '../appointments.types';
     output: { type: Appointment, isArray: true }
 })
 export class AppointmentsQuery implements IQuery<IAppointmentDocument[]> {
-    constructor(@inject('Appointments') private _appointments: Appointments) { }
+    constructor(@inject(Appointments.name) private _appointments: Appointments) { }
 
     run(data: { start: string, end: string }): Promise<IAppointmentDocument[]> {
         return this._appointments.model.appointments(data.start, data.end);

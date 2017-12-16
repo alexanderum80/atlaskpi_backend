@@ -149,7 +149,7 @@ KPISchema.statics.createKPI = function(input: IKPI): Promise<IKPIDocument> {
 
 @injectable()
 export class KPIs extends ModelBase<IKPIModel> {
-    constructor(@inject('AppConnection') appConnection: AppConnection) {
+    constructor(@inject(AppConnection.name) appConnection: AppConnection) {
         super();
         this.initializeModel(appConnection.get, 'KPI', KPISchema, 'kpis');
     }

@@ -22,10 +22,10 @@ export class TargetService {
     chartInfo: any;
     isStacked: any;
 
-    constructor(@inject('Users') private _users: Users,
+    constructor(@inject(Users.name) private _users: Users,
                 @inject(KpiFactory.name) private _kpiFactory: KpiFactory,
-                @inject('Targets') private _targets: Targets,
-                @inject('Charts') private _charts: Charts) { }
+                @inject(Targets.name) private _targets: Targets,
+                @inject(Charts.name) private _charts: Charts) { }
 
     getTargets(chartId: string, userId: string): Promise<any> {
         return new Promise((resolve, reject) => {

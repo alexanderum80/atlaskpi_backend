@@ -18,7 +18,7 @@ import { CreateUserResult } from '../users.types';
     output: { type: CreateUserResult }
 })
 export class RemoveUserMutation extends MutationBase<IMutationResponse> {
-    constructor(@inject('Users') private _users: Users) {
+    constructor(@inject(Users.name) private _users: Users) {
         super();
     }
 

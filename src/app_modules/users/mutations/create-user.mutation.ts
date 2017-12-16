@@ -21,8 +21,8 @@ import { IMutationResponse } from '../../../framework/mutations/mutation-respons
 })
 export class CreateUserMutation extends MutationBase<IMutationResponse> {
     constructor(
-        @inject('Users') private _users: Users,
-        @inject('AccountCreatedNotification') private _accountCreatedNotification: AccountCreatedNotification
+        @inject(Users.name) private _users: Users,
+        @inject(AccountCreatedNotification.name) private _accountCreatedNotification: AccountCreatedNotification
     ) {
         super();
     }

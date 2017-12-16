@@ -28,7 +28,7 @@ interface ISeedModels {
 export class SeedService {
     private _models: ISeedModels;
 
-    constructor(@inject('AppConnection') appConnection: AppConnection) {
+    constructor(@inject(AppConnection.name) appConnection: AppConnection) {
         this._models = {
             expenses: new Expenses(appConnection),
             sales: new Sales(appConnection),
