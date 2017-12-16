@@ -1,3 +1,4 @@
+import { IAccountDocument } from '../data/models/master/accounts';
 import { IAppConfig } from '../configuration/config-models';
 import { IIdentity, IMutationBus, IQueryBus } from '../data';
 import { Request } from 'express';
@@ -8,6 +9,11 @@ import * as winston from 'winston';
  * Extension of the express request object
  */
 export interface ExtendedRequest extends Request, i18nAPI {
+
+    /**
+     * Account related to this request
+     */
+    account: IAccountDocument;
 
     /**
      * Value mainly used for testing multiple accounts

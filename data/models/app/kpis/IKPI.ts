@@ -1,3 +1,4 @@
+import { IWidgetDocument } from '../widgets/index';
 import { IMutationResponse } from '../../';
 import { IChartDateRange, IPagedQueryResult, IPaginationDetails, IQueryResponse } from '../../common';
 import * as mongoose from 'mongoose';
@@ -25,6 +26,11 @@ export function getKPITypePropName(type: KPITypeEnum) {
         case KPITypeEnum.Compound:
             return 'compound';
     }
+}
+
+export interface IDocumentExist {
+    chart?: IChartDocument[];
+    widget?: IWidgetDocument[];
 }
 
 export interface IKPIFilter {

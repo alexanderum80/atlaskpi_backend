@@ -4,8 +4,7 @@ import { RemoveTargetMutation } from '../../mutations/app/targets/remove-target.
 import { UpdateTargetMutation } from '../../mutations/app/targets/update-target.mutation';
 import { IMutationResponse } from '../../models/common';
 import { CreateTargetMutation } from '../../mutations/app/targets';
-import { FindAllTargetsQuery, TargetNotificationQuery } from '../../queries/app/targets';
-import { FindTargetQuery } from '../../queries/app/targets';
+import { FindAllTargetsQuery, TargetNotificationQuery, FindTargetQuery, GetTargetAmount } from '../../queries/app/targets';
 import { IGraphqlContext } from '../';
 import { GraphqlDefinition } from '../graphql-definition';
 import { getRequestHostname } from '../../../lib/utils/helpers';
@@ -33,6 +32,15 @@ export const targetGql: GraphqlDefinition = {
                 chart: [String]
                 stackName: String
                 nonStackName: String
+            }
+            input TargetAmountInput {
+                amount: String
+                amountBy: String
+                period: String
+                vary: String
+                nonStackName: String
+                stackName: String
+                chart: [String]
             }
             input TargetOwner {
                 owner: String
@@ -89,11 +97,15 @@ export const targetGql: GraphqlDefinition = {
                 errors: [ErrorDetails]
                 success: Boolean
             }
+            type TargetAmountResponse {
+                amount: Float
+            }
         `,
         queries: `
             findTarget(id: String): TargetResponse
             findAllTargets(filter: String): TargetResponse
             targetNotification(input: NotificationInput): NotificationResponse
+            targetAmount(input: TargetAmountInput): TargetAmountResponse
         `,
         mutations: `
             createTarget(data: TargetInput): TargetResult
@@ -117,6 +129,10 @@ export const targetGql: GraphqlDefinition = {
                 const query = new TargetNotificationQuery(ctx.req.identity, notifier,
                                 ctx.req.appContext.User, ctx.req.appContext.Chart, ctx.req.appContext.Dashboard);
                 return ctx.queryBus.run('target-notification', query, args, ctx.req);
+            },
+            targetAmount(root: any, args, ctx: IGraphqlContext) {
+                const query = new GetTargetAmount(ctx.req.identity, ctx.req.appContext);
+                return ctx.queryBus.run('get-target-amount', query, args, ctx.req);
             }
         },
         Mutation: {

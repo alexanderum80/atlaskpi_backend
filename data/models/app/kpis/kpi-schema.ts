@@ -1,3 +1,4 @@
+import { IDocumentExist } from './index';
 import { KPIFilterHelper } from './kpi-filter.helper';
 import { KPITypeMap } from './IKPI';
 import { KPIExpressionHelper } from './kpi-expression.helper';
@@ -137,7 +138,7 @@ KPISchema.statics.updateKPI = function(id: string, input: IKPI): Promise<IKPIDoc
     });
 };
 
-KPISchema.statics.removeKPI = function(id: string, chartExist?: IChartDocument[]): Promise<IMutationResponse> {
+KPISchema.statics.removeKPI = function(id: string, documentExists?: IDocumentExist): Promise<IMutationResponse> {
     let that = this;
 
     let document: IKPIDocument;
@@ -152,8 +153,8 @@ KPISchema.statics.removeKPI = function(id: string, chartExist?: IChartDocument[]
             resolve(MutationResponse.fromValidationErrors(idError));
         }
 
-        if (chartExist && chartExist.length) {
-            reject({ message: 'KPIs is being used by ', entity: chartExist, error: 'KPIs is being used by '});
+        if (documentExists.chart.length || documentExists.widget.length) {
+            reject({ message: 'KPIs is being used by ', entity: documentExists, error: 'KPIs is being used by '});
             return;
         }
 

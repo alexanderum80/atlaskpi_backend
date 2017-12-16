@@ -21,7 +21,8 @@ ConnectorSchema.statics.addConnector = function(data: IConnector): Promise<IConn
         const findOneKey = data.uniqueKeyValue;
 
         that.findOne({ 'type': data.type,
-            [findOneKey.key]: findOneKey.value
+                        [findOneKey.key]: findOneKey.value,
+                        databaseName: data.databaseName
         }, (err, doc) => {
             if (err) {
                 reject({ message: 'unknown error', error: err });
@@ -29,7 +30,9 @@ ConnectorSchema.statics.addConnector = function(data: IConnector): Promise<IConn
             }
             if (doc) {
                 that.update({
-                    [findOneKey.key]: findOneKey.value
+                     'type': data.type,
+                     [findOneKey.key]: findOneKey.value,
+                     databaseName: data.databaseName
                 }, data)
                 .then(updateResp => {
                     resolve(updateResp);
