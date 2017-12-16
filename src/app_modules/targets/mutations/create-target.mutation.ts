@@ -28,7 +28,7 @@ export class CreateTargetMutation extends MutationBase<IMutationResponse> {
     constructor(
         @inject(Targets.name) private _targets: Targets,
         @inject(Users.name) private _users: Users,
-        @inject(Charts.name) private _charts: Charts
+        @inject(Charts.name) private _charts: Charts,
         @inject(TargetService.name) private _targetService: TargetService
     ) {
         super();
