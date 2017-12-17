@@ -10,13 +10,12 @@ import { Widget } from '../widgets.types';
 
 @injectable()
 @query({
-    name: 'widgets',
+    name: 'listWidgets',
     activity: ListWidgetsActivity,
     output: { type: Widget, isArray: true }
 })
-export class WidgetsQuery implements IQuery<any> {
+export class ListWidgetsQuery implements IQuery<any> {
     constructor(
-        @inject(Widgets.name) private _widgets: Widgets,
         @inject(WidgetsService.name) private _widgetsService: WidgetsService
     ) { }
 
