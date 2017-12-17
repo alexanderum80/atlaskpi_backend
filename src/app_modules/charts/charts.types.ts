@@ -157,7 +157,7 @@ export class ListChartsQueryResponse  {
     data: ChartEntityResponse[];
 
     @resolver({ forField: 'data' })
-    static resolveData = (res: [IChart]) => res
+    static resolveData = data => data
 }
 
 
