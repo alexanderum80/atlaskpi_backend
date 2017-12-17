@@ -1,5 +1,3 @@
-import { inject, injectable } from 'inversify';
-
 import { ChartFactory } from './src/app_modules/charts/queries/charts/chart-factory';
 import { IUserDocument } from './src/domain/app/security/users';
 import { Winston } from 'winston';
