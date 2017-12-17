@@ -4,7 +4,7 @@ import { AccessLogs } from './access-log/access-log.model';
 import { AppConnection } from './app.connection';
 import { Appointments } from './appointments/appointment-model';
 import { BusinessUnits } from './business-unit/business-unit-model';
-import { ChartFormats } from './chart-formats/chart-format.model';
+// import { ChartFormats } from './chart-formats/chart-format.model';
 import { Charts } from './charts/chart.model';
 import { Customers } from './customers/customer.model';
 import { Dashboards } from './dashboards/dashboard.model';
@@ -37,7 +37,7 @@ const registrations: any[] = [
     AccessLogs,
     Appointments,
     BusinessUnits,
-    ChartFormats,
+    // ChartFormats,
     Charts,
     Customers,
     Dashboards,
