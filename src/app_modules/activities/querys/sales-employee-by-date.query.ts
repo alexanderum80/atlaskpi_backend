@@ -8,24 +8,23 @@ import { ISaleDocument } from '../../../domain/app/sales/sale';
 import { Sales } from '../../../domain/app/sales/sale.model';
 import { SalesAmount } from '../activities.types';
 import { parsePredifinedDate } from '../../../domain/common/date-range';
-import { SalesAmountByDateActivity } from '../activities/sales-amount-by-date.activity';
+import { SalesEmployeeByDateActivity } from '../activities/sales-employee-by-date.activity';
 
 @injectable()
 @query({
-    name: 'salesAmountByDateRange',
-    activity: SalesAmountByDateActivity,
+    name: 'salesEmployeeByDateRange',
+    activity: SalesEmployeeByDateActivity,
     parameters: [
-        { name: 'from', type: String, required: true },
-        { name: 'to', type: String, required: true },
+        { name: 'predefinedDateRange', type: String, required: true },
     ],
     output: { type: SalesAmount, isArray: true }
 })
-export class SalesAmountByDateRangeQuery extends MutationBase<Object> {
+export class SalesEmployeeByDateRangeQuery extends MutationBase<Object> {
     constructor(@inject(Sales.name) private _sales: Sales) {
         super();
     }
 
-    run(data: { from: string, to: string }): Promise<Object> {
-        return this._sales.model.amountByDateRange(data.from, data.to);
+    run(data: { predefinedDateRange: string }): Promise<Object> {
+        return this._sales.model.salesEmployeeByDateRange(data.predefinedDateRange);
     }
 }

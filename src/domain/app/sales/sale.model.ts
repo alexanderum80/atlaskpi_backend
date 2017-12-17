@@ -2,6 +2,7 @@ import * as Promise from 'bluebird';
 import { inject, injectable } from 'inversify';
 import * as mongoose from 'mongoose';
 import * as logger from 'winston';
+import * as moment from 'moment';
 
 import { ModelBase } from '../../../type-mongo/model-base';
 import { getCustomerSchema } from '../../common/customer.schema';
@@ -141,19 +142,64 @@ SalesSchema.statics.findByPredefinedDateRange = function(predefinedDateRange: st
     });
 };
 
-SalesSchema.statics.amountByDateRange = function(predefinedDateRange: string): Promise<Object> {
+SalesSchema.statics.amountByDateRange = function(fromDate: Date, toDate: Date): Promise<Object> {
     const SalesModel = (<ISaleModel>this);
 
-    const DateRange = parsePredifinedDate(predefinedDateRange);
+    const from = moment(fromDate).utc().subtract(1, 'month').startOf('day').toDate();
+    const to = moment(fromDate).utc().startOf('day').toDate();
 
     return new Promise<Object>((resolve, reject) => {
-        SalesModel.aggregate({ '$match': { 'product.from': { '$gte': DateRange.from, '$lt': DateRange.to } } },
+        SalesModel.aggregate({ '$match': { 'product.from': { '$gte': from, '$lt': to } } },
                             { '$group': { '_id': null, 'count': { '$sum': 1 }, 'amount': { '$sum': '$product.paid' } } })
         .then(sales => {
             resolve(sales);
         })
         .catch(err => {
             logger.error('There was an error retrieving sales by predefined data range', err);
+            reject(err);
+        });
+    });
+};
+
+SalesSchema.statics.monthsAvgSales = function(date: string): Promise<Object> {
+    const SalesModel = (<ISaleModel>this);
+
+    let _year = moment(date).utc().toDate().getUTCFullYear();
+    let _month = moment(date).utc().toDate().getUTCMonth();
+
+    if (_month === 0) {
+        _month = 12;
+    }
+
+    return new Promise<Object>((resolve, reject) => {
+        SalesModel.aggregate({ '$group': { '_id': { 'year': { '$year': '$product.from' }, 'month': { '$month': '$product.from' } }, 'amount': { '$sum': '$product.paid' } } },
+                        { '$match': { '_id.year': { '$lt': _year } , '_id.month': _month } } ,
+                        { '$group': { '_id': null, 'amount': { '$avg': '$amount' } } })
+        .then(sales => {
+            resolve(sales);
+        })
+        .catch(err => {
+            logger.error('There was an error retrieving sales by months of previous years ', err);
+            reject(err);
+        });
+    });
+};
+
+SalesSchema.statics.salesEmployeeByDateRange = function(predefinedDateRange: string): Promise<Object> {
+    const SalesModel = (<ISaleModel>this);
+
+    const DateRange = parsePredifinedDate(predefinedDateRange);
+
+    return new Promise<Object>((resolve, reject) => {
+        SalesModel.aggregate({ '$match': { 'product.from': { '$gte': DateRange.from, '$lt': DateRange.to } } },
+                            { '$group': { '_id': '$employee._id', 'amount': { '$sum': '$product.paid' } } },
+                            { '$sort': { 'amount': 1 } },
+                            { '$group': { '_id': null, 'employee': { '$last': '$_id'}, 'amount': { '$last': '$amount' } } })
+        .then(sales => {
+            resolve(sales);
+        })
+        .catch(err => {
+            logger.error('There was an error retrieving employee sales by predefined data range', err);
             reject(err);
         });
     });

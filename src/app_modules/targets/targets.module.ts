@@ -16,7 +16,7 @@ import { FindTargetQuery } from './queries/find-target.query';
     ],
     queries: [
         FindAllTargetsQuery,
-        FindTargetQuery
+        FindTargetQuery,
     ]
 })
 export class TargetsModule extends ModuleBase { }

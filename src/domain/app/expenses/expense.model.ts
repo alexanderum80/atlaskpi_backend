@@ -72,6 +72,24 @@ ExpenseSchema.statics.findCriteria = function(field: string): Promise<any[]> {
     });
 };
 
+ExpenseSchema.statics.amountByDateRange = function(predefinedDateRange: string): Promise<Object> {
+    const ExpenseModel = (<IExpenseModel>this);
+
+    const DateRange = parsePredifinedDate(predefinedDateRange);
+
+    return new Promise<Object>((resolve, reject) => {
+        ExpenseModel.aggregate({ '$match': { 'timestamp': { '$gte': DateRange.from, '$lt': DateRange.to } } },
+                            { '$group': { '_id': null, 'count': { '$sum': 1 }, 'amount': { '$sum': '$expense.amount' } } })
+        .then(expenses => {
+            resolve(expenses);
+        })
+        .catch(err => {
+            logger.error('There was an error retrieving expenses by predefined data range', err);
+            reject(err);
+        });
+    });
+};
+
 @injectable()
 export class Expenses extends ModelBase<IExpenseModel> {
     constructor(@inject(AppConnection.name) appConnection: AppConnection) {

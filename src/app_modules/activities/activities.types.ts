@@ -121,6 +121,25 @@ export class SalesAmount {
     @field({ type: GraphQLTypesMap.Float })
     amount: number;
 
+    @field({ type: GraphQLTypesMap.String })
+    employee: string;
+
+}
+
+@type()
+export class ExpensesAmount {
+    @field({ type: GraphQLTypesMap.String })
+    _id: string;
+
+    @field({ type: GraphQLTypesMap.Int })
+    count: number;
+
+    @field({ type: GraphQLTypesMap.Float })
+    amount: number;
+
+    @field({ type: GraphQLTypesMap.String })
+    employee: string;
+
 }
 
 @type()
