@@ -135,6 +135,20 @@ SalesSchema.statics.findByPredefinedDateRange = function(predefinedDateRange: st
     });
 };
 
+SalesSchema.statics.findCriteria = function(field: string): Promise<any[]> {
+    const that = this;
+
+    return new Promise<any[]>((resolve, reject) => {
+        that.distinct(field).then(sales => {
+            resolve(sales);
+            return;
+        }).catch(err => {
+            reject(err);
+            return;
+        });
+    });
+};
+
 @injectable()
 export class Sales extends ModelBase<ISaleModel> {
     constructor(@inject(AppConnection.name) appConnection: AppConnection) {
