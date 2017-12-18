@@ -7,6 +7,7 @@ import { GetDataSourcesActivity } from '../activities/get-data-sources.activity'
 import { DataSourceResponse } from '../data-sources.types';
 import { DataSourceSchemasMapping, DataSourcesHelper } from './datasource.helper';
 
+
 @injectable()
 @query({
     name: 'dataSources',
@@ -17,9 +18,9 @@ import { DataSourceSchemasMapping, DataSourcesHelper } from './datasource.helper
     output: { type: DataSourceResponse, isArray: true }
 })
 export class DataSourcesQuery implements IQuery<DataSourceResponse[]> {
-    constructor(@inject(DataSourcesHelper.name) private _datasourceHelper: DataSourcesHelper) { }
+    constructor() { }
 
-    run(data: { filter: string,  }): Promise<DataSourceResponse[]> {
+    run(data: { filter: string }): Promise<DataSourceResponse[]> {
         const that = this;
         const dataSources = DataSourceSchemasMapping.map(s => {
             return {

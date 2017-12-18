@@ -1,5 +1,6 @@
+import { resolver } from '../../framework/decorators/resolver.decorator';
+import { Widget } from '../widgets/widgets.types';
 import { KPIGroupingsHelper } from './../../domain/app/kpis/kpi-groupings.helper';
-import { KPIFilterHelper } from './../../domain/app/kpis/kpi-filter.helper';
 import { KPIExpressionHelper } from './../../domain/app/kpis/kpi-expression.helper';
 import { type } from '../../framework/decorators/type.decorator';
 import { field } from '../../framework/decorators/field.decorator';
@@ -7,9 +8,10 @@ import { GraphQLTypesMap } from '../../framework/decorators/graphql-types-map';
 import { input } from '../../framework/decorators/input.decorator';
 import { ErrorDetails } from '../../framework/graphql/common.types';
 import { ChartEntityResponse } from '../charts/charts.types';
+import { KPIFilterHelper } from '../../domain/app/kpis/kpi-filter.helper';
 import { ChartDateRange, ChartDateRangeInput, PaginationInfo } from '../shared/shared.types';
-import { resolver } from '../../framework/decorators/resolver.decorator';
 import { IKPI } from '../../domain/app/kpis/kpi';
+import { IKPIDocument } from '../../domain/app/kpis/kpi';
 
 @input()
 export class KPIAttributesInput  {
@@ -45,11 +47,21 @@ export class KPIAttributesInput  {
 
 }
 
+@type()
+export class KPIEntityResponse {
+    @field({ type: ChartEntityResponse, isArray: true})
+    chart: ChartEntityResponse[];
+
+    @field({ type: Widget, isArray: true})
+    widget: Widget[];
+}
+
+
 
 @type()
 export class KPIRemoveResponse  {
-    @field({ type: ChartEntityResponse, isArray: true })
-    entity: ChartEntityResponse[];
+    @field({ type: KPIEntityResponse })
+    entity: KPIEntityResponse;
 
     @field({ type: ErrorDetails, isArray: true })
     errors: ErrorDetails[];
@@ -85,8 +97,18 @@ export class KPI  {
     @field({ type: ChartDateRange })
     dateRange: ChartDateRange;
 
+    @resolver({ forField: 'dateRange' })
+    static resolveDateRange(entity: IKPIDocument) {
+        return entity.dateRange;
+    }
+
     @field({ type: GraphQLTypesMap.String })
     filter: string;
+
+    @resolver({ forField: 'filter' })
+    static resolveFilter(entity: IKPIDocument) {
+        return JSON.stringify(KPIFilterHelper.PrepareFilterField(entity.type, entity.filter));
+    }
 
     @field({ type: GraphQLTypesMap.String })
     frequency: string;
@@ -100,23 +122,21 @@ export class KPI  {
     @field({ type: GraphQLTypesMap.String })
     expression: string;
 
+    @resolver({ forField: 'expression' })
+    static resolveExpression(entity: IKPIDocument)  {
+        return KPIExpressionHelper.PrepareExpressionField(entity.type, entity.expression);
+    }
+
     @field({ type: GraphQLTypesMap.String })
     type: string;
 
     @field({ type: GraphQLTypesMap.String, isArray: true })
     availableGroupings: string[];
 
-    @resolver({ forField: 'dateRange' })
-    static resolveDateRange = (entity: IKPI) => entity.dateRange[0]
-
-    @resolver({ forField: 'expression' })
-    static resolveExpression = (entity: IKPI) =>  KPIExpressionHelper.PrepareExpressionField(entity.type, entity.expression)
-
-    @resolver({ forField: 'filter' })
-    static resolveFilter = (entity: IKPI) => JSON.stringify(KPIFilterHelper.PrepareFilterField(entity.type, entity.filter))
-
-    @resolver({ forField: 'availableGroupings' })
-    static resolveAvailableGroupings = (entity: IKPI) => KPIGroupingsHelper.GetAvailableGroupings(entity)
+    @resolver({ forField: 'availableGroupings'})
+    static resolveavailableGroupings(entity: IKPIDocument) {
+        return KPIGroupingsHelper.GetAvailableGroupings(entity);
+    }
 }
 
 

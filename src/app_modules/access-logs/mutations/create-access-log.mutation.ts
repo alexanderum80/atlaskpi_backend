@@ -1,9 +1,8 @@
-import * as Promise from 'bluebird';
-import { inject, injectable } from 'inversify';
-
-import { AccessLogs } from '../../../domain/app/access-log/access-log.model';
 import { MutationBase } from '../../../framework/mutations/mutation-base';
 import { IMutationResponse } from '../../../framework/mutations/mutation-response';
+import { AccessLogs } from '../../../domain/app/access-log/access-log.model';
+import { injectable, inject } from 'inversify';
+import * as Promise from 'bluebird';
 
 @injectable()
 export class CreateAccessLogMutation extends MutationBase<IMutationResponse> {

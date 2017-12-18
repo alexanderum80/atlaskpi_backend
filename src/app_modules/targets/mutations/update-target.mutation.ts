@@ -1,3 +1,4 @@
+import { ITarget } from '../../../domain/app/targets/target';
 import * as Promise from 'bluebird';
 import { inject, injectable } from 'inversify';
 
@@ -28,14 +29,14 @@ export class UpdateTargetMutation extends MutationBase<IMutationResponse> {
         super();
     }
 
-    run(data: { id: string, data: TargetInput,  }): Promise<IMutationResponse> {
+    run(data: { id: string, data: ITarget}): Promise<IMutationResponse> {
         const that = this;
-        let mutationData = data.hasOwnProperty('data') ? data.data : data;
+        let mutationData = data.data;
 
         return new Promise<IMutationResponse>((resolve, reject) => {
 
             // TODO: Refactor!!
-            that._targetService.caculateFormat(mutationData, that._ctx)
+            that._targetService.caculateFormat(mutationData)
                 .then((dataTarget) => {
                     mutationData.target = dataTarget;
                     that._targets.model.updateTarget(data.id, mutationData)
