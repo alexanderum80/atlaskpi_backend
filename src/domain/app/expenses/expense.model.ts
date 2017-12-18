@@ -58,6 +58,20 @@ ExpenseSchema.statics.findByPredefinedDateRange = function(predefinedDateRange: 
     });
 };
 
+ExpenseSchema.statics.findCriteria = function(field: string): Promise<any[]> {
+    const that = this;
+
+    return new Promise<any[]>((resolve, reject) => {
+        that.distinct(field).then(expenses => {
+            resolve(expenses);
+            return;
+        }).catch(err => {
+            reject(err);
+            return;
+        });
+    });
+};
+
 @injectable()
 export class Expenses extends ModelBase<IExpenseModel> {
     constructor(@inject(AppConnection.name) appConnection: AppConnection) {
