@@ -1,12 +1,7 @@
 import * as Promise from 'bluebird';
 import { inject, injectable } from 'inversify';
-import { difference } from 'lodash';
 
-import { Logger } from '../../../../di';
 import { IChartInput } from '../../../domain/app/charts/chart';
-import { Charts } from '../../../domain/app/charts/chart.model';
-import { Dashboards } from '../../../domain/app/dashboards/dashboard.model';
-import { KPIs } from '../../../domain/app/kpis/kpi.model';
 import { field } from '../../../framework/decorators/field.decorator';
 import { input } from '../../../framework/decorators/input.decorator';
 import { mutation } from '../../../framework/decorators/mutation.decorator';
@@ -14,8 +9,8 @@ import { MutationBase } from '../../../framework/mutations/mutation-base';
 import { IMutationResponse } from '../../../framework/mutations/mutation-response';
 import { UpdateChartActivity } from '../activities/update-chart.activity';
 import { ChartAttributesInput, ChartMutationResponse } from '../charts.types';
-import { attachToDashboards, detachFromDashboards } from './common';
-
+import { Logger } from './../../../domain/app/logger';
+import { ChartsService } from './../../../services/charts.service';
 
 @injectable()
 @mutation({
@@ -29,11 +24,8 @@ import { attachToDashboards, detachFromDashboards } from './common';
 })
 export class UpdateChartMutation extends MutationBase<IMutationResponse> {
     constructor(
-        @inject(KPIs.name) private _kpis: KPIs,
-        @inject(Charts.name) private _charts: Charts,
-        @inject(Dashboards.name) private _dashboards: Dashboards,
-        @inject(Logger.name) private _logger: Logger
-    ) {
+        @inject(ChartsService.name) private _chartsService: ChartsService,
+        @inject(Logger.name) private _logger: Logger) {
         super();
     }
 
@@ -41,38 +33,17 @@ export class UpdateChartMutation extends MutationBase<IMutationResponse> {
         const that = this;
 
         return new Promise<IMutationResponse>((resolve, reject) => {
-            // resolve kpis
-            that._kpis.model.find({ _id: { $in: data.input.kpis }})
-            .then((kpis) => {
-                if (!kpis || kpis.length !== data.input.kpis.length) {
-                    that._logger.error('one or more kpi not found:' + data.id);
-                    resolve({ success: false, errors: [ { field: 'kpis', errors: ['one or more kpis not found'] } ]});
+            that._chartsService
+                .updateChart(data.id, data.input)
+                .then((chart) => {
+                    resolve({ entity: chart, success: true });
                     return;
-                }
-
-                // resolve dashboards the chart is in
-                that._dashboards.model.find( {charts: { $in: [data.id]}})
-                .then((chartDashboards) => {
-                    // update the chart
-                    that._charts.model.updateChart(data.id, data.input)
-                    .then((chart) => {
-                        const currentDashboardIds = chartDashboards.map(d => String(d._id));
-                        const toRemoveDashboardIds = difference(currentDashboardIds, data.input.dashboards);
-                        const toAddDashboardIds = difference(data.input.dashboards, currentDashboardIds);
-
-                        detachFromDashboards(that._dashboards.model, toRemoveDashboardIds, chart._id)
-                        .then(() => {
-                            attachToDashboards(that._dashboards.model, toAddDashboardIds, chart._id)
-                            .then(() => {
-                                resolve({ entity: chart, success: true });
-                                return;
-                            });
-                        });
-
-                    });
+                })
+                .catch(err => {
+                    that._logger.error(err);
+                    resolve({ success: false, errors: [ { field: 'chart', errors: [err] } ]})
+                    return;
                 });
-            })
-            .catch(err => resolve({ success: false, errors: [ { field: 'chart', errors: [err] } ]}));
         });
     }
 }

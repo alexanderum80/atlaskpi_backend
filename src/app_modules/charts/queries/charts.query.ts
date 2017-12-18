@@ -1,3 +1,4 @@
+import { ChartQuery } from './chart.query';
 import * as Promise from 'bluebird';
 import { inject, injectable } from 'inversify';
 
@@ -5,7 +6,6 @@ import { Charts } from '../../../domain/app/charts/chart.model';
 import { query } from '../../../framework/decorators/query.decorator';
 import { IQuery } from '../../../framework/queries/query';
 import { ListChartsActivity } from '../activities/list-charts.activity';
-
 
 
 
@@ -22,6 +22,7 @@ import { ListChartsActivity } from '../activities/list-charts.activity';
 })
 export class ChartsQuery implements IQuery<string> {
     constructor(@inject(Charts.name) private _charts: Charts) {
+                @inject('KPIs') private _kpis: Charts) {
     }
 
     run(data: { from: string, to: string, preview: boolean }): Promise<string> {
@@ -37,8 +38,8 @@ export class ChartsQuery implements IQuery<string> {
                 // process charts
                 let promises = chartsCollection.map(c => {
                     // TODO: Refactoring needed here
-                    let chartQuery = new GetChartQuery(that.identity, that._ctx);
-                    return chartQuery.run({ id: c._id });
+                    // const chartQuery = new ChartQuery();
+                    // return chartQuery.run({ id: c._id });
                 });
 
                 Promise.all(promises).then((charts) => {
