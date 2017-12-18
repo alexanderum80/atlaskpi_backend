@@ -18,7 +18,7 @@ import { DataSourceSchemasMapping, DataSourcesHelper } from './datasource.helper
     output: { type: DataSourceResponse, isArray: true }
 })
 export class DataSourcesQuery implements IQuery<DataSourceResponse[]> {
-    constructor(@inject(DataSourcesHelper.name) private _datasourceHelper: DataSourcesHelper) { }
+    constructor() { }
 
     run(data: { filter: string,  }): Promise<DataSourceResponse[]> {
         const that = this;

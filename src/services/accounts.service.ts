@@ -73,8 +73,8 @@ export class AccountsService {
         @inject(AppConnectionPool.name) private _appConnectionPool: AppConnectionPool,
         @inject(Accounts.name) private _accounts: Accounts,
         @inject(EnrollmentNotification.name) private _enrollmentNotification: EnrollmentNotification,
-        @inject(AuthService.name) private _authService: AuthService,
-        @inject(Logger.name) private _logger: Logger) {}
+        @inject('AuthService') private _authService: AuthService,
+        @inject('Logger') private _logger: Logger) {}
 
     createAccount(input: ICreateAccountInfo): Promise < IMutationResponse > {
         let that = this;

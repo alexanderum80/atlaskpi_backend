@@ -23,7 +23,7 @@ export class LogController {
     constructor(
         @inject(TechnicalSupportIssueNotification.name) private _supportNotifier: TechnicalSupportIssueNotification,
         @inject(Logs.name) private _logs: Logs,
-        @inject(Logger.name) private _logger: Logger) { }
+        @inject('Logger') private _logger: Logger) { }
 
     processLogEntry(details: ILogDetails): Promise<any> {
         const that = this;
