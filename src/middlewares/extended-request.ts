@@ -4,6 +4,7 @@ import { LoggerInstance } from 'winston';
 import { IIdentity } from '../domain/app/security/users/identity';
 import { IUserDocument } from '../domain/app/security/users/user';
 import { IBridgeRequest } from '../framework/bridge.request';
+import { IAccountDocument } from '../domain/master/accounts/Account';
 
 
 /**
@@ -15,6 +16,11 @@ export interface IExtendedRequest extends IBridgeRequest {
      * User's identity
      */
     identity: IIdentity;
+
+    /**
+     * Account related to the request
+     */
+    account: IAccountDocument;
 
     /**
      * Current User

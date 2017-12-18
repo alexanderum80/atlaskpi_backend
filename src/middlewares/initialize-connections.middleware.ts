@@ -69,6 +69,9 @@ function getAppConnection(accounts: IAccountModel, req: IExtendedRequest, res: R
                 return reject(`Account ${accountName} not found`);
             }
 
+            // assign account to request
+            req.account = account;
+
             logger.debug(`${loggerSuffix} Account found`);
 
             // TODO: I need to test this
