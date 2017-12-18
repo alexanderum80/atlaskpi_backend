@@ -114,7 +114,12 @@ export class ChartsService {
 
         const that = this;
         if (id && (typeof id === 'string')) {
-            (<any>input).chartId = id;
+            if (!input) {
+                (<any>input) = {};
+                (<any>input).chartId = id;
+            } else {
+                (<any>input).chartId = id;
+            }
         }
         return new Promise<IChart>((resolve, reject) => {
             chartPromise.then(chart => {
