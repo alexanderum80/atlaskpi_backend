@@ -113,6 +113,9 @@ export class ChartsService {
                 : this.getChartById(id);
 
         const that = this;
+        if (id && (typeof id === 'string')) {
+            (<any>input).chartId = id;
+        }
         return new Promise<IChart>((resolve, reject) => {
             chartPromise.then(chart => {
                 that.renderDefinition(chart, input).then(definition => {
@@ -309,7 +312,7 @@ export class ChartsService {
                                         meta: IChartMetadata ): Promise<any> {
         const that = this;
         return new Promise<any>((resolve, reject) => {
-            that._targetService.getTargets(chartId, (<any>that._currentUser.get)._id)
+            that._targetService.getTargets(chartId, that._currentUser.get()._id)
                 .then((res) => {
                     if (meta.isFutureTarget &&
                         meta.frequency !== FrequencyTable.yearly) {
