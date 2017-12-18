@@ -4,6 +4,15 @@ import { type } from '../../framework/decorators/type.decorator';
 import { ErrorDetails } from '../../framework/graphql/common.types';
 
 @type()
+export class HistoricalData {
+    @field({ type: GraphQLTypesMap.Int })
+    value: number;
+
+    @field({ type: GraphQLTypesMap.String})
+    period: string;
+}
+
+@type()
 export class SocialWidget  {
     @field({ type: GraphQLTypesMap.String })
     connectorId: string;
@@ -15,15 +24,12 @@ export class SocialWidget  {
     value: number;
 
     @field({ type: GraphQLTypesMap.String})
-    type: string;
-
-}
-
-@type()
-export class HistoricalData {
-    @field({ type: GraphQLTypesMap.Int })
-    value: number;
+    valueDescription: string;
 
     @field({ type: GraphQLTypesMap.String})
-    period: string;
+    type: string;
+
+    @field({ type: HistoricalData })
+    historicalData: HistoricalData;
+
 }
