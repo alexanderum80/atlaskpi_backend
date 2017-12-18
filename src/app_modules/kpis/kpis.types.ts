@@ -137,9 +137,6 @@ export class KPI  {
     static resolveavailableGroupings(entity: IKPIDocument) {
         return KPIGroupingsHelper.GetAvailableGroupings(entity);
     }
-
-    @resolver({ forField: 'availableGroupings' })
-    static resolveAvailableGroupings = (entity: IKPI) => KPIGroupingsHelper.GetAvailableGroupings(entity)
 }
 
 
