@@ -1,4 +1,4 @@
-import { ChartQuery } from '../../charts/queries/chart.query';
+import { ChartQuery } from './../../charts/queries/chart.query';
 import * as Promise from 'bluebird';
 import { inject, injectable } from 'inversify';
 import { isArray } from 'util';
@@ -51,7 +51,7 @@ export interface ISearchResult {
 export class SearchQuery implements IQuery<ISearchResult[]> {
     private _adaptEngine: AdaptEngine;
 
-    constructor(@inject('ChartQuery') private _getChartQuery: ChartQuery) {
+    constructor(@inject(ChartQuery.name) private _getChartQuery: ChartQuery) {
         this._adaptEngine = new AdaptEngine([AdaptIntents.Chart]);
     }
 

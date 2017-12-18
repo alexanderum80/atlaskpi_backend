@@ -14,8 +14,6 @@ import { ChartQuery } from '../../charts/queries/chart.query';
 import { GetDashboardActivity } from '../activities/get-dashboard.activity';
 import { Dashboard } from '../dashboards.types';
 
-
-
 @injectable()
 @query({
     name: 'dashboard',
@@ -37,7 +35,7 @@ export class DashboardQuery implements IQuery<IDashboard> {
         let that = this;
 
         if (!this._user) {
-            this._logger.error('No user logged in at this point, so not dashboard can be generated');
+            // this._logger.error('No user logged in at this point, so not dashboard can be generated');
             return Promise.resolve(null);
         }
 
@@ -64,7 +62,7 @@ export class DashboardQuery implements IQuery<IDashboard> {
                 .then(dashboard => {
 
                     if (!dashboard) {
-                        that._logger.debug('dashbord doenst exists, or not enought permissions to see it.');
+                        // that._logger.debug('dashbord doenst exists, or not enought permissions to see it.');
                         reject('not found');
                         return;
                     }

@@ -1,5 +1,7 @@
 import { resolver } from '../../framework/decorators/resolver.decorator';
 import { Widget } from '../widgets/widgets.types';
+import { KPIGroupingsHelper } from './../../domain/app/kpis/kpi-groupings.helper';
+import { KPIExpressionHelper } from './../../domain/app/kpis/kpi-expression.helper';
 import { type } from '../../framework/decorators/type.decorator';
 import { field } from '../../framework/decorators/field.decorator';
 import { GraphQLTypesMap } from '../../framework/decorators/graphql-types-map';
@@ -8,8 +10,7 @@ import { ErrorDetails } from '../../framework/graphql/common.types';
 import { ChartEntityResponse } from '../charts/charts.types';
 import { KPIFilterHelper } from '../../domain/app/kpis/kpi-filter.helper';
 import { ChartDateRange, ChartDateRangeInput, PaginationInfo } from '../shared/shared.types';
-import { KPIExpressionHelper } from '../../domain/app/kpis/kpi-expression.helper';
-import { KPIGroupingsHelper } from '../../domain/app/kpis/kpi-groupings.helper';
+import { IKPI } from '../../domain/app/kpis/kpi';
 import { IKPIDocument } from '../../domain/app/kpis/kpi';
 
 @input()
@@ -67,7 +68,6 @@ export class KPIRemoveResponse  {
 
     @field({ type: GraphQLTypesMap.Boolean })
     success: boolean;
-
 }
 
 
@@ -138,6 +138,17 @@ export class KPI  {
         return KPIGroupingsHelper.GetAvailableGroupings(entity);
     }
 
+    @resolver({ forField: 'dateRange' })
+    static resolveDateRange = (entity: IKPI) => entity.dateRange[0]
+
+    @resolver({ forField: 'expression' })
+    static resolveExpression = (entity: IKPI) =>  KPIExpressionHelper.PrepareExpressionField(entity.type, entity.expression)
+
+    @resolver({ forField: 'filter' })
+    static resolveFilter = (entity: IKPI) => JSON.stringify(KPIFilterHelper.PrepareFilterField(entity.type, entity.filter))
+
+    @resolver({ forField: 'availableGroupings' })
+    static resolveAvailableGroupings = (entity: IKPI) => KPIGroupingsHelper.GetAvailableGroupings(entity)
 }
 
 
