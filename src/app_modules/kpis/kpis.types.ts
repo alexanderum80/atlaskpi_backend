@@ -138,15 +138,6 @@ export class KPI  {
         return KPIGroupingsHelper.GetAvailableGroupings(entity);
     }
 
-    @resolver({ forField: 'dateRange' })
-    static resolveDateRange = (entity: IKPI) => entity.dateRange[0]
-
-    @resolver({ forField: 'expression' })
-    static resolveExpression = (entity: IKPI) =>  KPIExpressionHelper.PrepareExpressionField(entity.type, entity.expression)
-
-    @resolver({ forField: 'filter' })
-    static resolveFilter = (entity: IKPI) => JSON.stringify(KPIFilterHelper.PrepareFilterField(entity.type, entity.filter))
-
     @resolver({ forField: 'availableGroupings' })
     static resolveAvailableGroupings = (entity: IKPI) => KPIGroupingsHelper.GetAvailableGroupings(entity)
 }

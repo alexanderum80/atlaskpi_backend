@@ -9,11 +9,6 @@ import { ModelBase } from '../../../type-mongo/model-base';
 import { AppConnection } from '../app.connection';
 import { IChartDocument, IChartInput, IChartModel } from './chart';
 
-import { ModelBase } from '../../../type-mongo';
-import { AppConnection } from '../app.connection';
-import { IChartInput } from './';
-import { IChartDocument, IChartModel } from './chart';
-
 let Schema = mongoose.Schema;
 
 const customDateRangeSchema = {
