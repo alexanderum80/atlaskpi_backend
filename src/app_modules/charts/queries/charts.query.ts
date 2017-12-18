@@ -22,7 +22,6 @@ import { ListChartsActivity } from '../activities/list-charts.activity';
 })
 export class ChartsQuery implements IQuery<string> {
     constructor(@inject(Charts.name) private _charts: Charts) {
-                @inject('KPIs') private _kpis: Charts) {
     }
 
     run(data: { from: string, to: string, preview: boolean }): Promise<string> {

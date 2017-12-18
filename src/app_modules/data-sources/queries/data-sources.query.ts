@@ -20,7 +20,7 @@ import { DataSourceSchemasMapping, DataSourcesHelper } from './datasource.helper
 export class DataSourcesQuery implements IQuery<DataSourceResponse[]> {
     constructor() { }
 
-    run(data: { filter: string,  }): Promise<DataSourceResponse[]> {
+    run(data: { filter: string }): Promise<DataSourceResponse[]> {
         const that = this;
         const dataSources = DataSourceSchemasMapping.map(s => {
             return {
