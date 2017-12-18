@@ -45,7 +45,7 @@ export class ChartQuery implements IQuery<String> {
         @inject(Users.name) private _users: Users,
         @inject(Targets.name) private _targets: Targets,
         @inject(TargetService.name) private _targetService: TargetService,
-        @inject(Logger.name) private _logger: Logger
+        @inject('Logger') private _logger: Logger
     ) { }
 
     run(data: { id: string, input: IChartInput, /* TODO: I added this extra parameter here maually */ chart: any }): Promise<String> {

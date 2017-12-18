@@ -30,7 +30,7 @@ export class CreateChartMutation extends MutationBase<IMutationResponse> {
         @inject(KPIs.name) private _kpis: KPIs,
         @inject(Charts.name) private _charts: Charts,
         @inject(Dashboards.name) private _dashboards: Dashboards,
-        @inject(Logger.name) private _logger: Logger
+        @inject('Logger') private _logger: Logger
     ) {
         super();
     }

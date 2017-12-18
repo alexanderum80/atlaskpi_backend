@@ -28,7 +28,7 @@ import { Dashboard } from '../dashboards.types';
 export class DashboardQuery implements IQuery<IDashboard> {
     constructor(
         @inject(CurrentUser.name) private _user: CurrentUser,
-        @inject(Logger.name) private _logger: Logger,
+        @inject('Logger') private _logger: Logger,
         @inject(WidgetsService.name) private _widgetService: WidgetsService,
         @inject(ChartQuery.name) private _chartQuery: ChartQuery,
         @inject(Dashboards.name) private _dashboards: Dashboards) { }
