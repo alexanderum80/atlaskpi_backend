@@ -1,11 +1,12 @@
 import { field } from '../../framework/decorators/field.decorator';
 import { GraphQLTypesMap } from '../../framework/decorators/graphql-types-map';
 import { input } from '../../framework/decorators/input.decorator';
+import { resolver } from '../../framework/decorators/resolver.decorator';
 import { type } from '../../framework/decorators/type.decorator';
 import { ErrorDetails } from '../../framework/graphql/common.types';
 import { Dashboard } from '../dashboards/dashboards.types';
 import { ChartDateRange, ChartDateRangeInput } from '../shared/shared.types';
-
+import { IChart } from './../../domain/app/charts/chart';
 
 @input()
 export class GetChartInput  {
@@ -68,6 +69,11 @@ export class ChartAttributesInput  {
     @field({ type: GraphQLTypesMap.String, isArray: true })
     dashboards: string[];
 
+    @field({ type: GraphQLTypesMap.Boolean })
+    isFutureTarget?: boolean;
+
+    @field({ type: GraphQLTypesMap.Boolean })
+    isDrillDown?: boolean;
 }
 
 
@@ -121,6 +127,14 @@ export class ChartEntityResponse  {
     @field({ type: Dashboard, isArray: true })
     dashboards: Dashboard[];
 
+    @resolver({ forField: 'dateRange' })
+    static resolveDateRange = (entity: IChart) => entity.dateRange[0]
+
+    @resolver({ forField: 'chartDefinition' })
+    static resolveDefinition = (entity: IChart) => JSON.stringify(entity.chartDefinition)
+
+    @resolver({ forField: 'dashboards' })
+    static resolveDashboards = (entity: IChart) => entity.dashboards
 }
 
 
@@ -134,7 +148,6 @@ export class ChartMutationResponse  {
 
     @field({ type: ErrorDetails, isArray: true })
     errors: ErrorDetails[];
-
 }
 
 
@@ -143,6 +156,8 @@ export class ListChartsQueryResponse  {
     @field({ type: ChartEntityResponse, isArray: true })
     data: ChartEntityResponse[];
 
+    @resolver({ forField: 'data' })
+    static resolveData = data => data
 }
 
 

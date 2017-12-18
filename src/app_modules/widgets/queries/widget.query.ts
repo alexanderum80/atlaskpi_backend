@@ -1,11 +1,12 @@
 import * as Promise from 'bluebird';
 import { inject, injectable } from 'inversify';
 
-import { Widgets } from '../../../domain/app/widgets/widget.model';
+import { IUIWidget } from '../../../domain/app/widgets/ui-widget-base';
 import { query } from '../../../framework/decorators/query.decorator';
 import { IQuery } from '../../../framework/queries/query';
 import { GetWidgetActivity } from '../activities/get-widget.activity';
 import { Widget } from '../widgets.types';
+import { WidgetsService } from './../../../services/widgets.service';
 
 @injectable()
 @query({
@@ -16,10 +17,12 @@ import { Widget } from '../widgets.types';
     ],
     output: { type: Widget }
 })
-export class WidgetQuery implements IQuery<Widget> {
-    constructor(@inject(Widgets.name) private _widgets: Widgets) { }
+export class WidgetQuery implements IQuery<IUIWidget> {
+    constructor(
+        @inject(WidgetsService.name) private _widgetsService: WidgetsService
+    ) { }
 
-    run(data: { id: string }): Promise<Widget> {
-        return this._widgets.model.getWidgetById(data.id);
+    run(data: { id: string }): Promise<IUIWidget> {
+        return this._widgetsService.getWidgetById(data.id);
     }
 }
