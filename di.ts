@@ -1,5 +1,5 @@
+import { AppConnectionPool } from './src/middlewares/app-connection-pool';
 import { ChartFactory } from './src/app_modules/charts/queries/charts/chart-factory';
-import { IUserDocument } from './src/domain/app/security/users';
 import { Winston } from 'winston';
 import { registerMasterModels } from './src/domain/master/register-master-models';
 import { registerAppModels } from './src/domain/app/register-app-models';
