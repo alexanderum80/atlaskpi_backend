@@ -5,6 +5,7 @@ import { flatMap } from 'lodash';
 import { run } from 'tslint/lib/runner';
 import * as logger from 'winston';
 
+import { Enforcer } from '../../app_modules/security/enforcer/enforcer';
 import { AccessLogs } from '../../domain/app/access-log/access-log.model';
 import { IExtendedRequest } from '../../middlewares/extended-request';
 import { query } from '../decorators/query.decorator';
