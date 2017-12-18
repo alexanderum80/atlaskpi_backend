@@ -1,3 +1,4 @@
+import { IntegrationController } from './src/app_modules/integrations/oauth2/oauth2-integration-controller';
 import { AppConnectionPool } from './src/middlewares/app-connection-pool';
 import { ChartFactory } from './src/app_modules/charts/queries/charts/chart-factory';
 import { Winston } from 'winston';
@@ -13,10 +14,15 @@ import { IExtendedRequest } from './src/middlewares/extended-request';
 import { injectable, inject } from 'inversify';
 import { KpiFactory } from './src/app_modules/kpis/queries/kpi.factory';
 import { WidgetFactory } from './src/domain/app/widgets/widget-factory';
+import { IntegrationConnectorFactory } from './src/app_modules/integrations/models/integration-connectors.factory';
 
 
 export function registerDependencies(container: IBridgeContainer) {
     container.registerSingleton(AppConnectionPool);
+
+    // Integration Registration, in a future move to its own project
+    container.registerSingleton(IntegrationController);
+    container.registerSingleton(IntegrationConnectorFactory);
 
     container.registerPerWebRequest(KpiFactory);
     container.registerPerWebRequest(ChartFactory);
