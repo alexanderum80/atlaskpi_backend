@@ -33,7 +33,7 @@ export class ChartQuery implements IQuery<String> {
         const that = this;
         return new Promise<string>((resolve, reject) => {
             that._chartsService
-                .getChart(data.id, data.input, data.chart)
+                .getChart(data.id.toString(), data.input, data.chart)
                 .then((res) => {
                     resolve(JSON.stringify(res));
                     return;
