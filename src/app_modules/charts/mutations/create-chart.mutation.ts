@@ -23,7 +23,7 @@ import { ChartAttributesInput, ChartMutationResponse } from '../charts.types';
 export class CreateChartMutation extends MutationBase<IMutationResponse> {
     constructor(
         @inject(ChartsService.name) private _chartsService: ChartsService,
-        @inject(Logger.name) private _logger: Logger
+        @inject('Logger') private _logger: Logger
     ) {
         super();
     }

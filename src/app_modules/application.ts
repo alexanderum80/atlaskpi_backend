@@ -1,3 +1,4 @@
+import { DataSourcesModule } from './data-sources/data-sources.module';
 import { AppModule, ModuleBase } from '../framework/decorators/app-module';
 import { AccessLogsModule } from './access-logs/access-logs.module';
 import { AppointmentsModule } from './appointments/appointments.module';
@@ -23,9 +24,9 @@ import { WidgetsModule } from './widgets/widgets.module';
     imports: [
         AccessLogsModule,
         AppointmentsModule,
-        BusinessUnitModule,
         ChartsModule,
         DashboardsModule,
+        DataSourcesModule,
         DateRangesModule,
         EmployeesModule,
         KpisModule,

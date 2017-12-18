@@ -1,9 +1,12 @@
+import { Expenses } from '../expenses/expense.model';
+import { Sales } from '../sales/sale.model';
 import * as Promise from 'bluebird';
 import * as mongoose from 'mongoose';
 
 import { IMutationResponse } from '../../../framework/mutations/mutation-response';
 import { IPagedQueryResult, IPaginationDetails } from '../../../framework/queries/pagination';
 import { IChartDateRange } from '../../common/date-range';
+import { IWidgetDocument } from '../widgets/widget';
 import { IChartDocument } from '../charts/chart';
 
 
@@ -28,6 +31,16 @@ export function getKPITypePropName(type: KPITypeEnum) {
         case KPITypeEnum.Compound:
             return 'compound';
     }
+}
+
+export interface IDocumentExist {
+    chart?: IChartDocument[];
+    widget?: IWidgetDocument[];
+}
+
+export interface IKPIDataSourceHelper {
+    sales: Sales;
+    expenses: Expenses;
 }
 
 export interface IKPIFilter {
@@ -69,7 +82,7 @@ export interface IKPIModel extends mongoose.Model<IKPIDocument> {
      * Get all kpis by page
      * @param { IPaginationDetails }  details - pagination details
      */
-    // getAllKPIs(details?: IPaginationDetails): Promise<IPagedQueryResult<IKPI>>;
+    getAllKPIs(details?: IPaginationDetails): Promise<IPagedQueryResult<IKPI>>;
 
     /**
      * Create a KPI providing all its elements
@@ -84,5 +97,5 @@ export interface IKPIModel extends mongoose.Model<IKPIDocument> {
      /**
      * Remove a KPI by its id
      */
-    removeKPI(id: string, chartExist?: IChartDocument[]): Promise<IMutationResponse>;
+    removeKPI(id: string, documentExists?: IDocumentExist): Promise<IMutationResponse>;
 }

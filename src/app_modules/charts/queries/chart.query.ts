@@ -24,7 +24,7 @@ import { Logger } from '../../../domain/app/logger';
 export class ChartQuery implements IQuery<String> {
     constructor(
         @inject(ChartsService.name) private _chartsService: ChartsService,
-        @inject(Logger.name) private _logger: Logger
+        @inject('Logger') private _logger: Logger
     ) { }
 
     run(data: { id: string, input: IChartInput, /* TODO: I added this extra parameter here maually */ chart: any }): Promise<String> {
@@ -33,7 +33,7 @@ export class ChartQuery implements IQuery<String> {
         const that = this;
         return new Promise<string>((resolve, reject) => {
             that._chartsService
-                .getChart(data.id, data.input, data.chart)
+                .getChart(data.id.toString(), data.input, data.chart)
                 .then((res) => {
                     resolve(JSON.stringify(res));
                     return;

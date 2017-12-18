@@ -1,9 +1,8 @@
-import { ErrorDetails } from '../../framework/graphql/common.types';
-import { type } from '../../framework/decorators/type.decorator';
-import { GraphQLTypesMap } from '../../framework/decorators/graphql-types-map';
-import { field } from '../../framework/decorators/field.decorator';
 import { input } from '../../framework/decorators/input.decorator';
-
+import { type } from '../../framework/decorators/type.decorator';
+import { field } from '../../framework/decorators/field.decorator';
+import { ErrorDetails } from '../../framework/graphql/common.types';
+import { GraphQLTypesMap } from '../../framework/decorators/graphql-types-map';
 
 @input()
 export class IResultEntry  {
