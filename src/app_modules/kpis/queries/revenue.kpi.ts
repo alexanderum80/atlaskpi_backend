@@ -6,7 +6,6 @@ import { FrequencyEnum } from '../../../domain/common/frequency-enum';
 import { AggregateStage } from './aggregate';
 import { IGetDataOptions, IKpiBase, KpiBase } from './kpi-base';
 
-
 export class Revenue extends KpiBase implements IKpiBase {
 
     constructor(sales: ISaleModel) {

@@ -1,7 +1,6 @@
 import * as Promise from 'bluebird';
 import { inject, injectable } from 'inversify';
 import * as mongoose from 'mongoose';
-
 import { field } from '../../../framework/decorators/field.decorator';
 import { IMutationResponse } from '../../../framework/mutations/mutation-response';
 import { ModelBase } from '../../../type-mongo/model-base';

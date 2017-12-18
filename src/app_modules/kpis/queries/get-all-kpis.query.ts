@@ -8,6 +8,8 @@ import { PaginationDetails } from '../../shared/shared.types';
 import { GetAllKPIsActivity } from '../activities/get-all-kpis.activity';
 import { KPIPagedQueryResult } from '../kpis.types';
 
+import { IPaginationDetails, IPagedQueryResult } from '../../../framework/queries/pagination';
+import { IKPI } from '../../../domain/app/kpis/kpi';
 
 @injectable()
 @query({
@@ -18,11 +20,11 @@ import { KPIPagedQueryResult } from '../kpis.types';
     ],
     output: { type: KPIPagedQueryResult }
 })
-export class GetAllKpIsQuery implements IQuery<KPIPagedQueryResult> {
+export class GetAllKpIsQuery implements IQuery<IPagedQueryResult<IKPI>> {
 
-    constructor(@inject(KPIs.name) private _kpis: KPIs) { }
+    constructor(@inject('KPIs') private _kpis: KPIs) { }
 
-    run(data: { details: PaginationDetails }): Promise<KPIPagedQueryResult> {
+    run(data: IPaginationDetails): Promise<IPagedQueryResult<IKPI>> {
         return this._kpis.model.getAllKPIs(data);
     }
 }

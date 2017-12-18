@@ -1,5 +1,17 @@
 import * as Promise from 'bluebird';
-import * as _ from 'lodash';
+import {
+    cloneDeep,
+    isArray,
+    isObject,
+    remove,
+    negate,
+    isNull,
+    groupBy,
+    find,
+    pick,
+    sortBy
+} from 'lodash';
+
 import * as logger from 'winston';
 
 import { IKPI } from '../../../domain/app/kpis/kpi';
@@ -44,12 +56,12 @@ export class KpiBase {
 
     constructor(public model: any, public aggregate: AggregateStage[]) {
         // for multimple executeQuery iterations in the same instance we need to preserve the aggregate
-        this.pristineAggregate = _.cloneDeep(aggregate);
+        this.pristineAggregate = cloneDeep(aggregate);
     }
 
     executeQuery(dateField: string, dateRange?: IDateRange[], options?: IGetDataOptions): Promise<any> {
         // for multimple executeQuery iterations in the same instance we need to preserve the aggregate
-        this.aggregate = _.cloneDeep(this.pristineAggregate);
+        this.aggregate = cloneDeep(this.pristineAggregate);
 
         logger.debug('executing query: ' + this.constructor.name);
 
@@ -184,9 +196,9 @@ export class KpiBase {
 
             let value = filter[filterKey];
 
-            if (!_.isArray(value) && _.isObject(value)) {
+            if (!isArray(value) && isObject(value)) {
                 value = this._cleanFilter(value);
-            } else if (_.isArray(value)) {
+            } else if (isArray(value)) {
                 for (let i = 0; i < value.length; i++) {
                     value[i] = this._cleanFilter(value[i]);
                 }
@@ -372,7 +384,7 @@ export class KpiBase {
         // get first record to extract the groupings
         let groupings = Object.keys(data[0]._id);
         // remove out of that group the filed use for the top
-        _.remove(groupings, g => g === top.field);
+        remove(groupings, g => g === top.field);
 
         if (groupings.length === 0) {
             groupings = ['frequency'];
@@ -380,9 +392,9 @@ export class KpiBase {
 
         // now group the results and remove all values that exceed the group size
         // https://stackoverflow.com/questions/29587488/grouping-objects-by-multiple-columns-with-lodash-or-underscore
-        const notNull = _.negate(_.isNull);
-        const dataGroups = _.groupBy(data, (item) => {
-            return _.find(_.pick(item._id, groupings), notNull);
+        const notNull = negate(isNull);
+        const dataGroups = groupBy(data, (item) => {
+            return find(pick(item._id, groupings), notNull);
         });
 
         let newResult: any[] = [];
@@ -390,7 +402,7 @@ export class KpiBase {
         // sort / slice results
         for (let k in dataGroups) {
             let groupData = dataGroups[k];
-            const sortedResult = _.sortBy(groupData, (item: any) => -item.value );
+            const sortedResult = sortBy(groupData, (item: any) => -item.value );
             const slicedList = sortedResult.slice(0, top.value);
 
             newResult = newResult.concat(slicedList);
