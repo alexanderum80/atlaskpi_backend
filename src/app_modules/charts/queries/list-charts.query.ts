@@ -1,36 +1,33 @@
 import * as Promise from 'bluebird';
 import { inject, injectable } from 'inversify';
 
-import { input } from '../../../framework/decorators/input.decorator';
+import { IChart } from '../../../domain/app/charts/chart';
 import { query } from '../../../framework/decorators/query.decorator';
 import { IQuery } from '../../../framework/queries/query';
-import { PreviewChartActivity } from '../activities/preview-chart.activity';
 import { Logger } from './../../../domain/app/logger';
 import { ChartsService } from './../../../services/charts.service';
-import { ChartAttributesInput } from './../charts.types';
+import { ListChartsActivity } from './../activities/list-charts.activity';
+import { ListChartsQueryResponse } from './../charts.types';
 
 @injectable()
 @query({
-    name: 'previewChart',
-    activity: PreviewChartActivity,
-    parameters: [
-        { name: 'input', type: ChartAttributesInput },
-    ],
-    output: { type: String }
+    name: 'listCharts',
+    activity: ListChartsActivity,
+    output: { type: ListChartsQueryResponse }
 })
-export class PreviewChartQuery implements IQuery<String> {
+export class ListChartsQuery implements IQuery<IChart[]> {
     constructor(
         @inject(ChartsService.name) private _chartsService: ChartsService,
         @inject(Logger.name) private _logger: Logger
     ) { }
 
-    run(data: { input: ChartAttributesInput }): Promise<String> {
+    run(data: { }): Promise<IChart[]> {
         const that = this;
-
-        return new Promise<string>((resolve, reject) => {
-            that._chartsService.previewChart(data.input)
-                .then(chart => {
-                    resolve(JSON.stringify(chart));
+        return new Promise<IChart[]>((resolve, reject) => {
+            that._chartsService
+                .listCharts()
+                .then(charts => {
+                    resolve(charts);
                     return;
                 })
                 .catch(err => {

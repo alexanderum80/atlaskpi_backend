@@ -26,7 +26,6 @@ export interface IDashboardInput {
     users: string[];
 }
 
-
 export interface IDashboardDocument extends IDashboard, mongoose.Document {
     // hasChart(chart: string | IChartDocument): boolean;
     // addChart(id: string): Promise<IChartDocument>;

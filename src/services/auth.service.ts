@@ -1,8 +1,8 @@
 import * as Promise from 'bluebird';
 import { inject, injectable } from 'inversify';
 
-import { Logger } from '../../di';
 import { IAppConfig } from '../configuration/config-models';
+import { Logger } from '../domain/app/logger';
 import { Roles } from '../domain/app/security/roles/role.model';
 import { IUserDocument } from '../domain/app/security/users/user';
 import { IUserToken } from '../domain/app/security/users/user-token';

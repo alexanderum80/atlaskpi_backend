@@ -69,7 +69,7 @@ export interface IKPIModel extends mongoose.Model<IKPIDocument> {
      * Get all kpis by page
      * @param { IPaginationDetails }  details - pagination details
      */
-    getAllKPIs(details?: IPaginationDetails): Promise<IPagedQueryResult<IKPI>>;
+    // getAllKPIs(details?: IPaginationDetails): Promise<IPagedQueryResult<IKPI>>;
 
     /**
      * Create a KPI providing all its elements

@@ -9,6 +9,13 @@ import { IChartMetadata } from './chart-metadata';
 import { FrequencyHelper } from './frequency-values';
 import { IUIChart, UIChartBase } from './ui-chart-base';
 
+import { IKpiBase } from './../../../../app_modules/kpis/queries/kpi-base';
+import { IChart } from './../../../../domain/app/charts/chart';
+import { ITargetDocument } from './../../../../domain/app/targets/target';
+import { IChartMetadata } from './chart-metadata';
+import { FrequencyHelper } from './frequency-values';
+import { IUIChart, UIChartBase } from './ui-chart-base';
+
 export class ColumnChart extends UIChartBase implements IUIChart {
 
     protected basicDefinition = {
