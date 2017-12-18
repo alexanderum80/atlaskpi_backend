@@ -34,7 +34,7 @@ export class KPIAttributesInput  {
     frequency: string;
 
     @field({ type: GraphQLTypesMap.String, isArray: true })
-    groupings: string;
+    groupings: string[];
 
     @field({ type: GraphQLTypesMap.String })
     type: string;
@@ -50,10 +50,10 @@ export class KPIAttributesInput  {
 @type()
 export class KPIEntityResponse {
     @field({ type: ChartEntityResponse, isArray: true})
-    chart: ChartEntityResponse;
+    chart: ChartEntityResponse[];
 
     @field({ type: Widget, isArray: true})
-    widget: Widget;
+    widget: Widget[];
 }
 
 
@@ -64,7 +64,7 @@ export class KPIRemoveResponse  {
     entity: KPIEntityResponse;
 
     @field({ type: ErrorDetails, isArray: true })
-    errors: ErrorDetails;
+    errors: ErrorDetails[];
 
     @field({ type: GraphQLTypesMap.Boolean })
     success: boolean;
@@ -92,7 +92,7 @@ export class KPI  {
     group: string;
 
     @field({ type: GraphQLTypesMap.String, isArray: true })
-    groupings: string;
+    groupings: string[];
 
     @field({ type: ChartDateRange })
     dateRange: ChartDateRange;
@@ -131,7 +131,7 @@ export class KPI  {
     type: string;
 
     @field({ type: GraphQLTypesMap.String, isArray: true })
-    availableGroupings: string;
+    availableGroupings: string[];
 
     @resolver({ forField: 'availableGroupings'})
     static resolveavailableGroupings(entity: IKPIDocument) {
@@ -147,7 +147,7 @@ export class KPIMutationResponse  {
     entity: KPI;
 
     @field({ type: ErrorDetails, isArray: true })
-    errors: ErrorDetails;
+    errors: ErrorDetails[];
 
     @field({ type: GraphQLTypesMap.Boolean })
     success: boolean;
@@ -161,7 +161,7 @@ export class KPIPagedQueryResult  {
     pagination: PaginationInfo;
 
     @field({ type: KPI, isArray: true })
-    data: KPI;
+    data: KPI[];
 
 }
 
