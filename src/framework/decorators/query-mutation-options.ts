@@ -4,6 +4,7 @@ export interface IParameterDefinition {
     name: string;
     type: any;
     required?: boolean;
+    isArray?: boolean;
 }
 
 export interface GraphQLQueryMutationDecoratorOptions {
