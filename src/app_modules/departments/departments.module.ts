@@ -17,4 +17,4 @@ import { DepartmentsQuery } from './queries/departments.query';
         DepartmentsQuery
     ]
 })
-export class Module extends ModuleBase { }
+export class DepartmentsModule extends ModuleBase { }

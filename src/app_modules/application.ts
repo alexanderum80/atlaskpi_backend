@@ -18,19 +18,26 @@ import { SocialWidgetsModule } from './social-widgets/social-widgets.module';
 import { TargetsModule } from './targets/targets.module';
 import { UsersModule } from './users/users.module';
 import { WidgetsModule } from './widgets/widgets.module';
+import { AccountsModule } from './accounts/accounts.module';
+import { MapsModule } from './maps/maps.module';
+import { DepartmentsModule } from './departments/departments.module';
 
 
 @AppModule({
     imports: [
+        AccountsModule,
         AccessLogsModule,
         AppointmentsModule,
+        BusinessUnitModule,
         ChartsModule,
         DashboardsModule,
         DataSourcesModule,
         DateRangesModule,
+        DepartmentsModule,
         EmployeesModule,
         KpisModule,
         LocationsModule,
+        MapsModule,
         PermissionsModule,
         ReportsModule,
         RolesModule,
