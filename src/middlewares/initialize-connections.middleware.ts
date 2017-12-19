@@ -46,7 +46,7 @@ function getAppConnection(accounts: IAccountModel, req: IExtendedRequest, res: R
 
     return new Promise<mongoose.Connection>((resolve, reject) => {
 
-        let hostname =  getStateParamHostname(req) || getRequestHostname(req);
+        let hostname =  getRequestHostname(req) || getStateParamHostname(req);
         logger.debug(`${loggerSuffix} Hostname: ${hostname}`);
 
         if ((!req.identity && !hostname) || graphqlOperationExceptions.indexOf(req.body.operationName) !== -1) {

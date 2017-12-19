@@ -13,7 +13,7 @@ import { ConnectorTypeEnum } from '../models/connector-type';
 export interface ILinkedInConfig {
     clientId: string;
     requiredAuthScope: string;
-    instagramConfig: any;
+    config: any;
 }
 
 export class LinkedInConnector implements IOAuthConnector {
@@ -109,7 +109,7 @@ export class LinkedInConnector implements IOAuthConnector {
         return {
             clientId: this._connectorConfig.clientId,
             clientSecret: this._connectorConfig.clientSecret,
-            redirectUri: config.integrationRedirectUrl,
+            redirectUri: this._config.integrationRedirectUrl,
             authorizationUri: this._connectorConfig.endpoints.authorization_endpoint,
             accessTokenUri: this._connectorConfig.endpoints.token_endpoint,
             scopes: this._connectorConfig.requiredAuthScope

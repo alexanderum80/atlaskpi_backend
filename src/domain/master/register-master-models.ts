@@ -1,8 +1,8 @@
 import { IBridgeContainer } from '../../framework/di/bridge-container';
 import { Accounts } from './accounts/account.model';
+import { Connectors } from './connectors/connector.model';
 import { Countries } from './countries/country.model';
 import { Industries } from './industries/industry.model';
-import { Connectors } from './connectors/connector.model';
 import { MasterConnection } from './master.connection';
 
 

@@ -1,8 +1,10 @@
+import { LinkedInConnector } from './../linkedin/linkedin-connector';
 import { inject, injectable } from 'inversify';
 
 import { IAppConfig } from '../../../configuration/config-models';
 import { IConnectorDocument } from '../../../domain/master/connectors/connector';
 import { FacebookConnector } from '../facebook/facebook-connector';
+import { InstagramConnector } from './../instagram/instagram-connector';
 import { IOAuthConnector } from './connector-base';
 import { ConnectorTypeEnum, getConnectorType } from './connector-type';
 
@@ -21,10 +23,10 @@ export class IntegrationConnectorFactory {
             //     return new QuickBooksOnlineConnector(integrationConfig, options.query.realmId);
             // case ConnectorTypeEnum.Square:
             //     return new SquareConnector(integrationConfig);
-            // case ConnectorTypeEnum.Instagram:
-            //     return new InstagramConnector(integrationConfig);
-            // case ConnectorTypeEnum.LinkedIn:
-            //     return new LinkedInConnector(integrationConfig);
+            case ConnectorTypeEnum.Instagram:
+                return new InstagramConnector(integrationConfig, this._config);
+            case ConnectorTypeEnum.LinkedIn:
+                return new LinkedInConnector(integrationConfig, this._config);
             case ConnectorTypeEnum.Facebook:
                 return new FacebookConnector(integrationConfig, this._config);
             default:
@@ -38,10 +40,10 @@ export class IntegrationConnectorFactory {
             //     return IntegrationConnectorFactory.getQuickBooksConnector(integrationConfig, connector);
             // case ConnectorTypeEnum.Square:
             //     return IntegrationConnectorFactory.getSquareConnector(integrationConfig, connector);
-            // case ConnectorTypeEnum.Instagram:
-            //     return IntegrationConnectorFactory.getInstagramConnector(integrationConfig, connector);
-            // case ConnectorTypeEnum.LinkedIn:
-            //     return IntegrationConnectorFactory.getLinkedInConnector(integrationConfig, connector);
+            case ConnectorTypeEnum.Instagram:
+                return IntegrationConnectorFactory.getInstagramConnector(integrationConfig, connector);
+            case ConnectorTypeEnum.LinkedIn:
+                return IntegrationConnectorFactory.getLinkedInConnector(integrationConfig, connector);
             case ConnectorTypeEnum.Facebook:
                 return IntegrationConnectorFactory.getFacebookConnector(integrationConfig, connector);
             default:
@@ -62,17 +64,17 @@ export class IntegrationConnectorFactory {
     //     return qbConnector;
     // }
 
-    // private static getInstagramConnector(integrationConfig, connector: IConnectorDocument): InstagramConnector {
-    //     const instaConnector = new InstagramConnector(integrationConfig);
-    //     instaConnector.setToken(connector.config.token);
-    //     return instaConnector;
-    // }
+    private static getInstagramConnector(integrationConfig, connector: IConnectorDocument): InstagramConnector {
+        const instaConnector = new InstagramConnector(integrationConfig);
+        instaConnector.setToken(connector.config.token);
+        return instaConnector;
+    }
 
-    // private static getLinkedInConnector(integrationConfig, connector: IConnectorDocument): LinkedInConnector {
-    //     const linkedInConnector = new LinkedInConnector(integrationConfig);
-    //     linkedInConnector.setToken(connector.config.token);
-    //     return linkedInConnector;
-    // }
+    private static getLinkedInConnector(integrationConfig, connector: IConnectorDocument): LinkedInConnector {
+        const linkedInConnector = new LinkedInConnector(integrationConfig);
+        linkedInConnector.setToken(connector.config.token);
+        return linkedInConnector;
+    }
 
     private static getFacebookConnector(integrationConfig, connector: IConnectorDocument): FacebookConnector {
         const facebookConnector = new FacebookConnector(integrationConfig);
