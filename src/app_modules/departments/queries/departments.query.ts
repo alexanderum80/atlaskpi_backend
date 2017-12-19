@@ -13,7 +13,7 @@ import { Department } from '../departments.types';
 @query({
     name: 'departments',
     activity: DepartmentByIdActivity,
-    output: { type: Department }
+    output: { type: Department, isArray: true }
 })
 export class DepartmentsQuery implements IQuery<IDepartmentDocument[]> {
     constructor(@inject(Departments.name) private _departments: Departments) { }

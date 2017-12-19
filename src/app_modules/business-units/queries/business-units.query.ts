@@ -13,7 +13,7 @@ import { BusinessUnitByIdActivity } from '../activities/business-unit-by-id.acti
 @query({
     name: 'businessUnits',
     activity: BusinessUnitByIdActivity,
-    output: { type: BusinessUnit }
+    output: { type: BusinessUnit, isArray: true }
 })
 export class BusinessUnitsQuery implements IQuery<IBusinessUnitDocument[]> {
     constructor(@inject(BusinessUnits.name) private _businessUnits: BusinessUnits) { }
