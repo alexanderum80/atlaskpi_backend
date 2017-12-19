@@ -1,0 +1,1161 @@
+[
+  {
+    "rate": 2,
+    "product": {
+      "name": "Product 5",
+      "id": 5
+    },
+    "employee": {
+      "name": "Employee 1",
+      "id": 1
+    },
+    "customer": {
+      "name": "Customer 4",
+      "id": 4
+    },
+    "location": {
+      "name": "Location 4",
+      "id": 4
+    }
+  },
+  {
+    "rate": 1,
+    "product": {
+      "name": "Product 6",
+      "id": 6
+    },
+    "employee": {
+      "name": "Employee 3",
+      "id": 3
+    },
+    "customer": {
+      "name": "Customer 3",
+      "id": 3
+    },
+    "location": {
+      "name": "Location 4",
+      "id": 4
+    }
+  },
+  {
+    "rate": 1,
+    "product": {
+      "name": "Product 5",
+      "id": 5
+    },
+    "employee": {
+      "name": "Employee 1",
+      "id": 1
+    },
+    "customer": {
+      "name": "Customer 4",
+      "id": 4
+    },
+    "location": {
+      "name": "Location 3",
+      "id": 3
+    }
+  },
+  {
+    "rate": 5,
+    "product": {
+      "name": "Product 6",
+      "id": 6
+    },
+    "employee": {
+      "name": "Employee 4",
+      "id": 4
+    },
+    "customer": {
+      "name": "Customer 3",
+      "id": 3
+    },
+    "location": {
+      "name": "Location 5",
+      "id": 5
+    }
+  },
+  {
+    "rate": 2,
+    "product": {
+      "name": "Product 4",
+      "id": 4
+    },
+    "employee": {
+      "name": "Employee 2",
+      "id": 2
+    },
+    "customer": {
+      "name": "Customer 4",
+      "id": 4
+    },
+    "location": {
+      "name": "Location 6",
+      "id": 6
+    }
+  },
+  {
+    "rate": 1,
+    "product": {
+      "name": "Product 4",
+      "id": 4
+    },
+    "employee": {
+      "name": "Employee 3",
+      "id": 3
+    },
+    "customer": {
+      "name": "Customer 2",
+      "id": 2
+    },
+    "location": {
+      "name": "Location 2",
+      "id": 2
+    }
+  },
+  {
+    "rate": 4,
+    "product": {
+      "name": "Product 3",
+      "id": 3
+    },
+    "employee": {
+      "name": "Employee 3",
+      "id": 3
+    },
+    "customer": {
+      "name": "Customer 3",
+      "id": 3
+    },
+    "location": {
+      "name": "Location 2",
+      "id": 2
+    }
+  },
+  {
+    "rate": 3,
+    "product": {
+      "name": "Product 6",
+      "id": 6
+    },
+    "employee": {
+      "name": "Employee 2",
+      "id": 2
+    },
+    "customer": {
+      "name": "Customer 5",
+      "id": 5
+    },
+    "location": {
+      "name": "Location 5",
+      "id": 5
+    }
+  },
+  {
+    "rate": 5,
+    "product": {
+      "name": "Product 1",
+      "id": 1
+    },
+    "employee": {
+      "name": "Employee 3",
+      "id": 3
+    },
+    "customer": {
+      "name": "Customer 4",
+      "id": 4
+    },
+    "location": {
+      "name": "Location 5",
+      "id": 5
+    }
+  },
+  {
+    "rate": 4,
+    "product": {
+      "name": "Product 1",
+      "id": 1
+    },
+    "employee": {
+      "name": "Employee 3",
+      "id": 3
+    },
+    "customer": {
+      "name": "Customer 4",
+      "id": 4
+    },
+    "location": {
+      "name": "Location 3",
+      "id": 3
+    }
+  },
+  {
+    "rate": 1,
+    "product": {
+      "name": "Product 6",
+      "id": 6
+    },
+    "employee": {
+      "name": "Employee 1",
+      "id": 1
+    },
+    "customer": {
+      "name": "Customer 3",
+      "id": 3
+    },
+    "location": {
+      "name": "Location 3",
+      "id": 3
+    }
+  },
+  {
+    "rate": 4,
+    "product": {
+      "name": "Product 1",
+      "id": 1
+    },
+    "employee": {
+      "name": "Employee 6",
+      "id": 6
+    },
+    "customer": {
+      "name": "Customer 1",
+      "id": 1
+    },
+    "location": {
+      "name": "Location 6",
+      "id": 6
+    }
+  },
+  {
+    "rate": 3,
+    "product": {
+      "name": "Product 2",
+      "id": 2
+    },
+    "employee": {
+      "name": "Employee 5",
+      "id": 5
+    },
+    "customer": {
+      "name": "Customer 6",
+      "id": 6
+    },
+    "location": {
+      "name": "Location 6",
+      "id": 6
+    }
+  },
+  {
+    "rate": 3,
+    "product": {
+      "name": "Product 5",
+      "id": 5
+    },
+    "employee": {
+      "name": "Employee 2",
+      "id": 2
+    },
+    "customer": {
+      "name": "Customer 6",
+      "id": 6
+    },
+    "location": {
+      "name": "Location 6",
+      "id": 6
+    }
+  },
+  {
+    "rate": 4,
+    "product": {
+      "name": "Product 5",
+      "id": 5
+    },
+    "employee": {
+      "name": "Employee 6",
+      "id": 6
+    },
+    "customer": {
+      "name": "Customer 2",
+      "id": 2
+    },
+    "location": {
+      "name": "Location 5",
+      "id": 5
+    }
+  },
+  {
+    "rate": 5,
+    "product": {
+      "name": "Product 1",
+      "id": 1
+    },
+    "employee": {
+      "name": "Employee 4",
+      "id": 4
+    },
+    "customer": {
+      "name": "Customer 1",
+      "id": 1
+    },
+    "location": {
+      "name": "Location 3",
+      "id": 3
+    }
+  },
+  {
+    "rate": 4,
+    "product": {
+      "name": "Product 5",
+      "id": 5
+    },
+    "employee": {
+      "name": "Employee 4",
+      "id": 4
+    },
+    "customer": {
+      "name": "Customer 5",
+      "id": 5
+    },
+    "location": {
+      "name": "Location 4",
+      "id": 4
+    }
+  },
+  {
+    "rate": 2,
+    "product": {
+      "name": "Product 3",
+      "id": 3
+    },
+    "employee": {
+      "name": "Employee 4",
+      "id": 4
+    },
+    "customer": {
+      "name": "Customer 2",
+      "id": 2
+    },
+    "location": {
+      "name": "Location 5",
+      "id": 5
+    }
+  },
+  {
+    "rate": 4,
+    "product": {
+      "name": "Product 6",
+      "id": 6
+    },
+    "employee": {
+      "name": "Employee 6",
+      "id": 6
+    },
+    "customer": {
+      "name": "Customer 2",
+      "id": 2
+    },
+    "location": {
+      "name": "Location 3",
+      "id": 3
+    }
+  },
+  {
+    "rate": 1,
+    "product": {
+      "name": "Product 4",
+      "id": 4
+    },
+    "employee": {
+      "name": "Employee 1",
+      "id": 1
+    },
+    "customer": {
+      "name": "Customer 4",
+      "id": 4
+    },
+    "location": {
+      "name": "Location 3",
+      "id": 3
+    }
+  },
+  {
+    "rate": 3,
+    "product": {
+      "name": "Product 3",
+      "id": 3
+    },
+    "employee": {
+      "name": "Employee 3",
+      "id": 3
+    },
+    "customer": {
+      "name": "Customer 4",
+      "id": 4
+    },
+    "location": {
+      "name": "Location 6",
+      "id": 6
+    }
+  },
+  {
+    "rate": 1,
+    "product": {
+      "name": "Product 3",
+      "id": 3
+    },
+    "employee": {
+      "name": "Employee 6",
+      "id": 6
+    },
+    "customer": {
+      "name": "Customer 5",
+      "id": 5
+    },
+    "location": {
+      "name": "Location 5",
+      "id": 5
+    }
+  },
+  {
+    "rate": 3,
+    "product": {
+      "name": "Product 1",
+      "id": 1
+    },
+    "employee": {
+      "name": "Employee 3",
+      "id": 3
+    },
+    "customer": {
+      "name": "Customer 3",
+      "id": 3
+    },
+    "location": {
+      "name": "Location 5",
+      "id": 5
+    }
+  },
+  {
+    "rate": 4,
+    "product": {
+      "name": "Product 5",
+      "id": 5
+    },
+    "employee": {
+      "name": "Employee 3",
+      "id": 3
+    },
+    "customer": {
+      "name": "Customer 5",
+      "id": 5
+    },
+    "location": {
+      "name": "Location 6",
+      "id": 6
+    }
+  },
+  {
+    "rate": 2,
+    "product": {
+      "name": "Product 4",
+      "id": 4
+    },
+    "employee": {
+      "name": "Employee 1",
+      "id": 1
+    },
+    "customer": {
+      "name": "Customer 2",
+      "id": 2
+    },
+    "location": {
+      "name": "Location 5",
+      "id": 5
+    }
+  },
+  {
+    "rate": 3,
+    "product": {
+      "name": "Product 2",
+      "id": 2
+    },
+    "employee": {
+      "name": "Employee 2",
+      "id": 2
+    },
+    "customer": {
+      "name": "Customer 1",
+      "id": 1
+    },
+    "location": {
+      "name": "Location 4",
+      "id": 4
+    }
+  },
+  {
+    "rate": 5,
+    "product": {
+      "name": "Product 4",
+      "id": 4
+    },
+    "employee": {
+      "name": "Employee 6",
+      "id": 6
+    },
+    "customer": {
+      "name": "Customer 3",
+      "id": 3
+    },
+    "location": {
+      "name": "Location 1",
+      "id": 1
+    }
+  },
+  {
+    "rate": 1,
+    "product": {
+      "name": "Product 4",
+      "id": 4
+    },
+    "employee": {
+      "name": "Employee 1",
+      "id": 1
+    },
+    "customer": {
+      "name": "Customer 3",
+      "id": 3
+    },
+    "location": {
+      "name": "Location 6",
+      "id": 6
+    }
+  },
+  {
+    "rate": 4,
+    "product": {
+      "name": "Product 6",
+      "id": 6
+    },
+    "employee": {
+      "name": "Employee 6",
+      "id": 6
+    },
+    "customer": {
+      "name": "Customer 3",
+      "id": 3
+    },
+    "location": {
+      "name": "Location 3",
+      "id": 3
+    }
+  },
+  {
+    "rate": 3,
+    "product": {
+      "name": "Product 1",
+      "id": 1
+    },
+    "employee": {
+      "name": "Employee 4",
+      "id": 4
+    },
+    "customer": {
+      "name": "Customer 5",
+      "id": 5
+    },
+    "location": {
+      "name": "Location 2",
+      "id": 2
+    }
+  },
+  {
+    "rate": 2,
+    "product": {
+      "name": "Product 1",
+      "id": 1
+    },
+    "employee": {
+      "name": "Employee 2",
+      "id": 2
+    },
+    "customer": {
+      "name": "Customer 2",
+      "id": 2
+    },
+    "location": {
+      "name": "Location 4",
+      "id": 4
+    }
+  },
+  {
+    "rate": 5,
+    "product": {
+      "name": "Product 4",
+      "id": 4
+    },
+    "employee": {
+      "name": "Employee 3",
+      "id": 3
+    },
+    "customer": {
+      "name": "Customer 2",
+      "id": 2
+    },
+    "location": {
+      "name": "Location 1",
+      "id": 1
+    }
+  },
+  {
+    "rate": 4,
+    "product": {
+      "name": "Product 2",
+      "id": 2
+    },
+    "employee": {
+      "name": "Employee 3",
+      "id": 3
+    },
+    "customer": {
+      "name": "Customer 1",
+      "id": 1
+    },
+    "location": {
+      "name": "Location 1",
+      "id": 1
+    }
+  },
+  {
+    "rate": 4,
+    "product": {
+      "name": "Product 2",
+      "id": 2
+    },
+    "employee": {
+      "name": "Employee 1",
+      "id": 1
+    },
+    "customer": {
+      "name": "Customer 5",
+      "id": 5
+    },
+    "location": {
+      "name": "Location 1",
+      "id": 1
+    }
+  },
+  {
+    "rate": 1,
+    "product": {
+      "name": "Product 4",
+      "id": 4
+    },
+    "employee": {
+      "name": "Employee 5",
+      "id": 5
+    },
+    "customer": {
+      "name": "Customer 2",
+      "id": 2
+    },
+    "location": {
+      "name": "Location 3",
+      "id": 3
+    }
+  },
+  {
+    "rate": 1,
+    "product": {
+      "name": "Product 4",
+      "id": 4
+    },
+    "employee": {
+      "name": "Employee 3",
+      "id": 3
+    },
+    "customer": {
+      "name": "Customer 5",
+      "id": 5
+    },
+    "location": {
+      "name": "Location 5",
+      "id": 5
+    }
+  },
+  {
+    "rate": 5,
+    "product": {
+      "name": "Product 6",
+      "id": 6
+    },
+    "employee": {
+      "name": "Employee 6",
+      "id": 6
+    },
+    "customer": {
+      "name": "Customer 6",
+      "id": 6
+    },
+    "location": {
+      "name": "Location 5",
+      "id": 5
+    }
+  },
+  {
+    "rate": 5,
+    "product": {
+      "name": "Product 6",
+      "id": 6
+    },
+    "employee": {
+      "name": "Employee 4",
+      "id": 4
+    },
+    "customer": {
+      "name": "Customer 6",
+      "id": 6
+    },
+    "location": {
+      "name": "Location 5",
+      "id": 5
+    }
+  },
+  {
+    "rate": 2,
+    "product": {
+      "name": "Product 3",
+      "id": 3
+    },
+    "employee": {
+      "name": "Employee 1",
+      "id": 1
+    },
+    "customer": {
+      "name": "Customer 2",
+      "id": 2
+    },
+    "location": {
+      "name": "Location 5",
+      "id": 5
+    }
+  },
+  {
+    "rate": 4,
+    "product": {
+      "name": "Product 6",
+      "id": 6
+    },
+    "employee": {
+      "name": "Employee 2",
+      "id": 2
+    },
+    "customer": {
+      "name": "Customer 5",
+      "id": 5
+    },
+    "location": {
+      "name": "Location 2",
+      "id": 2
+    }
+  },
+  {
+    "rate": 4,
+    "product": {
+      "name": "Product 4",
+      "id": 4
+    },
+    "employee": {
+      "name": "Employee 1",
+      "id": 1
+    },
+    "customer": {
+      "name": "Customer 3",
+      "id": 3
+    },
+    "location": {
+      "name": "Location 2",
+      "id": 2
+    }
+  },
+  {
+    "rate": 1,
+    "product": {
+      "name": "Product 3",
+      "id": 3
+    },
+    "employee": {
+      "name": "Employee 4",
+      "id": 4
+    },
+    "customer": {
+      "name": "Customer 4",
+      "id": 4
+    },
+    "location": {
+      "name": "Location 1",
+      "id": 1
+    }
+  },
+  {
+    "rate": 3,
+    "product": {
+      "name": "Product 5",
+      "id": 5
+    },
+    "employee": {
+      "name": "Employee 1",
+      "id": 1
+    },
+    "customer": {
+      "name": "Customer 3",
+      "id": 3
+    },
+    "location": {
+      "name": "Location 5",
+      "id": 5
+    }
+  },
+  {
+    "rate": 5,
+    "product": {
+      "name": "Product 6",
+      "id": 6
+    },
+    "employee": {
+      "name": "Employee 1",
+      "id": 1
+    },
+    "customer": {
+      "name": "Customer 2",
+      "id": 2
+    },
+    "location": {
+      "name": "Location 3",
+      "id": 3
+    }
+  },
+  {
+    "rate": 2,
+    "product": {
+      "name": "Product 2",
+      "id": 2
+    },
+    "employee": {
+      "name": "Employee 6",
+      "id": 6
+    },
+    "customer": {
+      "name": "Customer 5",
+      "id": 5
+    },
+    "location": {
+      "name": "Location 5",
+      "id": 5
+    }
+  },
+  {
+    "rate": 2,
+    "product": {
+      "name": "Product 3",
+      "id": 3
+    },
+    "employee": {
+      "name": "Employee 5",
+      "id": 5
+    },
+    "customer": {
+      "name": "Customer 6",
+      "id": 6
+    },
+    "location": {
+      "name": "Location 4",
+      "id": 4
+    }
+  },
+  {
+    "rate": 3,
+    "product": {
+      "name": "Product 2",
+      "id": 2
+    },
+    "employee": {
+      "name": "Employee 3",
+      "id": 3
+    },
+    "customer": {
+      "name": "Customer 2",
+      "id": 2
+    },
+    "location": {
+      "name": "Location 5",
+      "id": 5
+    }
+  },
+  {
+    "rate": 3,
+    "product": {
+      "name": "Product 4",
+      "id": 4
+    },
+    "employee": {
+      "name": "Employee 3",
+      "id": 3
+    },
+    "customer": {
+      "name": "Customer 3",
+      "id": 3
+    },
+    "location": {
+      "name": "Location 4",
+      "id": 4
+    }
+  },
+  {
+    "rate": 4,
+    "product": {
+      "name": "Product 1",
+      "id": 1
+    },
+    "employee": {
+      "name": "Employee 2",
+      "id": 2
+    },
+    "customer": {
+      "name": "Customer 3",
+      "id": 3
+    },
+    "location": {
+      "name": "Location 5",
+      "id": 5
+    }
+  },
+  {
+    "rate": 2,
+    "product": {
+      "name": "Product 6",
+      "id": 6
+    },
+    "employee": {
+      "name": "Employee 5",
+      "id": 5
+    },
+    "customer": {
+      "name": "Customer 6",
+      "id": 6
+    },
+    "location": {
+      "name": "Location 6",
+      "id": 6
+    }
+  },
+  {
+    "rate": 1,
+    "product": {
+      "name": "Product 1",
+      "id": 1
+    },
+    "employee": {
+      "name": "Employee 6",
+      "id": 6
+    },
+    "customer": {
+      "name": "Customer 2",
+      "id": 2
+    },
+    "location": {
+      "name": "Location 2",
+      "id": 2
+    }
+  },
+  {
+    "rate": 1,
+    "product": {
+      "name": "Product 6",
+      "id": 6
+    },
+    "employee": {
+      "name": "Employee 2",
+      "id": 2
+    },
+    "customer": {
+      "name": "Customer 5",
+      "id": 5
+    },
+    "location": {
+      "name": "Location 2",
+      "id": 2
+    }
+  },
+  {
+    "rate": 3,
+    "product": {
+      "name": "Product 1",
+      "id": 1
+    },
+    "employee": {
+      "name": "Employee 5",
+      "id": 5
+    },
+    "customer": {
+      "name": "Customer 1",
+      "id": 1
+    },
+    "location": {
+      "name": "Location 2",
+      "id": 2
+    }
+  },
+  {
+    "rate": 3,
+    "product": {
+      "name": "Product 1",
+      "id": 1
+    },
+    "employee": {
+      "name": "Employee 5",
+      "id": 5
+    },
+    "customer": {
+      "name": "Customer 4",
+      "id": 4
+    },
+    "location": {
+      "name": "Location 1",
+      "id": 1
+    }
+  },
+  {
+    "rate": 4,
+    "product": {
+      "name": "Product 1",
+      "id": 1
+    },
+    "employee": {
+      "name": "Employee 4",
+      "id": 4
+    },
+    "customer": {
+      "name": "Customer 4",
+      "id": 4
+    },
+    "location": {
+      "name": "Location 4",
+      "id": 4
+    }
+  },
+  {
+    "rate": 4,
+    "product": {
+      "name": "Product 1",
+      "id": 1
+    },
+    "employee": {
+      "name": "Employee 3",
+      "id": 3
+    },
+    "customer": {
+      "name": "Customer 6",
+      "id": 6
+    },
+    "location": {
+      "name": "Location 5",
+      "id": 5
+    }
+  },
+  {
+    "rate": 1,
+    "product": {
+      "name": "Product 4",
+      "id": 4
+    },
+    "employee": {
+      "name": "Employee 3",
+      "id": 3
+    },
+    "customer": {
+      "name": "Customer 5",
+      "id": 5
+    },
+    "location": {
+      "name": "Location 5",
+      "id": 5
+    }
+  },
+  {
+    "rate": 2,
+    "product": {
+      "name": "Product 3",
+      "id": 3
+    },
+    "employee": {
+      "name": "Employee 6",
+      "id": 6
+    },
+    "customer": {
+      "name": "Customer 4",
+      "id": 4
+    },
+    "location": {
+      "name": "Location 5",
+      "id": 5
+    }
+  },
+  {
+    "rate": 3,
+    "product": {
+      "name": "Product 5",
+      "id": 5
+    },
+    "employee": {
+      "name": "Employee 5",
+      "id": 5
+    },
+    "customer": {
+      "name": "Customer 5",
+      "id": 5
+    },
+    "location": {
+      "name": "Location 2",
+      "id": 2
+    }
+  },
+  {
+    "rate": 2,
+    "product": {
+      "name": "Product 6",
+      "id": 6
+    },
+    "employee": {
+      "name": "Employee 6",
+      "id": 6
+    },
+    "customer": {
+      "name": "Customer 6",
+      "id": 6
+    },
+    "location": {
+      "name": "Location 2",
+      "id": 2
+    }
+  },
+  {
+    "rate": 1,
+    "product": {
+      "name": "Product 3",
+      "id": 3
+    },
+    "employee": {
+      "name": "Employee 4",
+      "id": 4
+    },
+    "customer": {
+      "name": "Customer 1",
+      "id": 1
+    },
+    "location": {
+      "name": "Location 3",
+      "id": 3
+    }
+  }
+]
