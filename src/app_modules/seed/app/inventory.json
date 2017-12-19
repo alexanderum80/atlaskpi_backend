@@ -1,0 +1,363 @@
+[
+    { 
+        
+        "externalId" : "ad89b526-e357-430f-19c7-a60dfed1e3b5", 
+        "source" : "google sheet", 
+        "updatedAt" : "2017-12-13T14:06:57.580+0000", 
+        "onHand" : 100, 
+        "onOrder" : 50, 
+        "cost" : 100, 
+        "product" : {
+            "externalId" : "1391a808de-2317-caf1-f75c-8c0327891328", 
+            "itemCode" : "13", 
+            "itemDescription" : "Face Cream"
+        }, 
+        "location" : {
+            "externalId" : "2", 
+            "name" : "Orlando"
+        }
+    },
+    { 
+        
+        "externalId" : "648bd280-6ecc-8317-86ec-81fac2908010", 
+        "source" : "google sheet", 
+        "updatedAt" : "2017-12-13T14:07:04.279+0000", 
+        "onHand" : 50, 
+        "onOrder" : 50, 
+        "cost" : 50, 
+        "product" : {
+            "externalId" : "16c8334305-bf6e-53fc-e2c3-561fb3960682", 
+            "itemCode" : "16", 
+            "itemDescription" : "Booster Treatment Kit"
+        }, 
+        "location" : {
+            "externalId" : "2", 
+            "name" : "Orlando"
+        }
+    },
+    { 
+        
+        "externalId" : "85f62773-c4bf-0ec6-c6d9-021ef1433cf5", 
+        "source" : "google sheet", 
+        "updatedAt" : "2017-12-13T14:07:04.279+0000", 
+        "onHand" : 100, 
+        "onOrder" : 50, 
+        "cost" : 100, 
+        "product" : {
+            "externalId" : "1449c8f816-2290-1208-52cb-7f7ff1a63cd1", 
+            "itemCode" : "14", 
+            "itemDescription" : "Face Serum"
+        }, 
+        "location" : {
+            "externalId" : "2", 
+            "name" : "Orlando"
+        }
+    },
+    { 
+        
+        "externalId" : "85de729c-9e91-984e-d803-15abef282c06", 
+        "source" : "google sheet", 
+        "updatedAt" : "2017-12-13T14:07:04.279+0000", 
+        "onHand" : 75, 
+        "onOrder" : 25, 
+        "cost" : 245, 
+        "product" : {
+            "externalId" : "76c97f443-85e7-983a-2638-528196c6d55e", 
+            "itemCode" : "7", 
+            "itemDescription" : "Dermal Fillers"
+        }, 
+        "location" : {
+            "externalId" : "2", 
+            "name" : "Orlando"
+        }
+    },
+    { 
+        
+        "externalId" : "6fad30c6-0ca1-d625-9df8-6cdcb2db40cc", 
+        "source" : "google sheet", 
+        "updatedAt" : "2017-12-13T14:07:04.279+0000", 
+        "onHand" : 591, 
+        "onOrder" : 150, 
+        "cost" : 15, 
+        "product" : {
+            "externalId" : "83456de77-e711-18e7-f816-e5949c3dec2f", 
+            "itemCode" : "8", 
+            "itemDescription" : "Botox"
+        }, 
+        "location" : {
+            "externalId" : "2", 
+            "name" : "Orlando"
+        }
+    },
+    { 
+        
+        "externalId" : "4a4ea573-be81-0ff0-d302-3ed39c268c56", 
+        "source" : "google sheet", 
+        "updatedAt" : "2017-12-13T14:07:04.279+0000", 
+        "onHand" : 323, 
+        "onOrder" : 50, 
+        "cost" : 90, 
+        "product" : {
+            "externalId" : "928e7753e-0253-3d27-19e8-739410172830", 
+            "itemCode" : "9", 
+            "itemDescription" : "Venus"
+        }, 
+        "location" : {
+            "externalId" : "2", 
+            "name" : "Orlando"
+        }
+    },
+    { 
+        
+        "externalId" : "de959bc8-d5dd-264b-9e46-e6524aa12820", 
+        "source" : "google sheet", 
+        "updatedAt" : "2017-12-13T14:07:04.279+0000", 
+        "onHand" : 106, 
+        "onOrder" : 20, 
+        "cost" : 115, 
+        "product" : {
+            "externalId" : "12e1a2a1ef-0549-e567-2d0d-9971cd3af6fb", 
+            "itemCode" : "12", 
+            "itemDescription" : "Infini"
+        }, 
+        "location" : {
+            "externalId" : "2", 
+            "name" : "Orlando"
+        }
+    },
+    { 
+        
+        "externalId" : "e9ecc9a3-79a2-74d1-887a-a5f5050e59b2", 
+        "source" : "google sheet", 
+        "updatedAt" : "2017-12-13T14:07:04.279+0000", 
+        "onHand" : 78, 
+        "onOrder" : 0, 
+        "cost" : 35, 
+        "product" : {
+            "externalId" : "154a9c4c10-877c-928e-938f-22d5da077b94", 
+            "itemCode" : "15", 
+            "itemDescription" : "Nutitive Balm"
+        }, 
+        "location" : {
+            "externalId" : "2", 
+            "name" : "Orlando"
+        }
+    },
+    { 
+        
+        "externalId" : "9ac56f08-b476-c7cd-942a-4cf209b71ea8", 
+        "source" : "google sheet", 
+        "updatedAt" : "2017-12-13T14:07:04.279+0000", 
+        "onHand" : 39, 
+        "onOrder" : 10, 
+        "cost" : 175, 
+        "product" : {
+            "externalId" : "17767f66b9-85a2-b0e3-36d7-369a70d4324b", 
+            "itemCode" : "17", 
+            "itemDescription" : "Synactif Cream"
+        }, 
+        "location" : {
+            "externalId" : "2", 
+            "name" : "Orlando"
+        }
+    },
+    { 
+        
+        "externalId" : "896d1d8e-956a-0bb7-043b-a10929a89632", 
+        "source" : "google sheet", 
+        "updatedAt" : "2017-12-13T14:07:04.279+0000", 
+        "onHand" : 32, 
+        "onOrder" : 10, 
+        "cost" : 45, 
+        "product" : {
+            "externalId" : "18d8350fbb-8015-e9f1-7c1d-90b6de310ef2", 
+            "itemCode" : "18", 
+            "itemDescription" : "Facial Mask"
+        }, 
+        "location" : {
+            "externalId" : "2", 
+            "name" : "Orlando"
+        }
+    },
+    { 
+        
+        "externalId" : "95a50bb1-67ad-6470-ed1e-24a5d97e8ee5", 
+        "source" : "google sheet", 
+        "updatedAt" : "2017-12-13T14:07:04.279+0000", 
+        "onHand" : 82, 
+        "onOrder" : 25, 
+        "cost" : 100, 
+        "product" : {
+            "externalId" : "13f0a4ce46-4a87-2db7-ba34-fcd423140aed", 
+            "itemCode" : "13", 
+            "itemDescription" : "Face Cream"
+        }, 
+        "location" : {
+            "externalId" : "1", 
+            "name" : "Miami"
+        }
+    },
+    { 
+        
+        "externalId" : "d632e301-beaa-0e9e-2ef0-081f1ee4f2f0", 
+        "source" : "google sheet", 
+        "updatedAt" : "2017-12-13T14:07:04.279+0000", 
+        "onHand" : 76, 
+        "onOrder" : 0, 
+        "cost" : 50, 
+        "product" : {
+            "externalId" : "1624fb06d2-40e1-2588-beed-e272dc162aed", 
+            "itemCode" : "16", 
+            "itemDescription" : "Booster Treatment Kit"
+        }, 
+        "location" : {
+            "externalId" : "1", 
+            "name" : "Miami"
+        }
+    },
+    { 
+        
+        "externalId" : "02bd99f1-ab06-3dff-1e42-af02434465da", 
+        "source" : "google sheet", 
+        "updatedAt" : "2017-12-13T14:07:04.279+0000", 
+        "onHand" : 84, 
+        "onOrder" : 20, 
+        "cost" : 100, 
+        "product" : {
+            "externalId" : "145fc18885-adf4-51e8-386d-076cb22c1989", 
+            "itemCode" : "14", 
+            "itemDescription" : "Face Serum"
+        }, 
+        "location" : {
+            "externalId" : "1", 
+            "name" : "Miami"
+        }
+    },
+    { 
+        
+        "externalId" : "f2c864c3-b9cf-b4a6-696c-cd19f11ead78", 
+        "source" : "google sheet", 
+        "updatedAt" : "2017-12-13T14:07:04.279+0000", 
+        "onHand" : 47, 
+        "onOrder" : 15, 
+        "cost" : 245, 
+        "product" : {
+            "externalId" : "78ed4f2e9-f9f0-a1ba-e5dc-84a4c5d575a3", 
+            "itemCode" : "7", 
+            "itemDescription" : "Dermal Fillers"
+        }, 
+        "location" : {
+            "externalId" : "1", 
+            "name" : "Miami"
+        }
+    },
+    { 
+        
+        "externalId" : "2f5000f2-e449-5733-ae74-a0a197167ae2", 
+        "source" : "google sheet", 
+        "updatedAt" : "2017-12-13T14:07:04.279+0000", 
+        "onHand" : 476, 
+        "onOrder" : 200, 
+        "cost" : 15, 
+        "product" : {
+            "externalId" : "89bf0e1c1-4fb0-8e83-67f8-b15f3be7a07e", 
+            "itemCode" : "8", 
+            "itemDescription" : "Botox"
+        }, 
+        "location" : {
+            "externalId" : "1", 
+            "name" : "Miami"
+        }
+    },
+    { 
+        
+        "externalId" : "80bd02a1-c232-abad-6b09-fddff190d5d6", 
+        "source" : "google sheet", 
+        "updatedAt" : "2017-12-13T14:07:04.279+0000", 
+        "onHand" : 108, 
+        "onOrder" : 20, 
+        "cost" : 90, 
+        "product" : {
+            "externalId" : "9417eefd1-0ee1-11e8-497e-47199ab82777", 
+            "itemCode" : "9", 
+            "itemDescription" : "Venus"
+        }, 
+        "location" : {
+            "externalId" : "1", 
+            "name" : "Miami"
+        }
+    },
+    { 
+        
+        "externalId" : "1c5b5ab9-1492-652e-1e1f-740acf50c9c4", 
+        "source" : "google sheet", 
+        "updatedAt" : "2017-12-13T14:07:04.279+0000", 
+        "onHand" : 24, 
+        "onOrder" : 30, 
+        "cost" : 115, 
+        "product" : {
+            "externalId" : "12f84381a6-b5c6-3680-185d-038caeb55be7", 
+            "itemCode" : "12", 
+            "itemDescription" : "Infini"
+        }, 
+        "location" : {
+            "externalId" : "1", 
+            "name" : "Miami"
+        }
+    },
+    { 
+        
+        "externalId" : "f5516725-9665-f336-7752-4cf586f8ee9b", 
+        "source" : "google sheet", 
+        "updatedAt" : "2017-12-13T14:07:04.279+0000", 
+        "onHand" : 33, 
+        "onOrder" : 20, 
+        "cost" : 35, 
+        "product" : {
+            "externalId" : "1560046062-fdf1-3442-2f9e-6510187a46e3", 
+            "itemCode" : "15", 
+            "itemDescription" : "Nutitive Balm"
+        }, 
+        "location" : {
+            "externalId" : "1", 
+            "name" : "Miami"
+        }
+    },
+    { 
+        
+        "externalId" : "4d317478-b947-d3af-fff6-0a1055f0404b", 
+        "source" : "google sheet", 
+        "updatedAt" : "2017-12-13T14:07:04.279+0000", 
+        "onHand" : 87, 
+        "onOrder" : 20, 
+        "cost" : 175, 
+        "product" : {
+            "externalId" : "174d041ed7-4b5d-1098-3088-c3c4a573a30a", 
+            "itemCode" : "17", 
+            "itemDescription" : "Synactif Cream"
+        }, 
+        "location" : {
+            "externalId" : "1", 
+            "name" : "Miami"
+        }
+    },
+    { 
+        
+        "externalId" : "1cb63114-28e5-0258-3a0c-1a27b262fe04", 
+        "source" : "google sheet", 
+        "updatedAt" : "2017-12-13T14:07:04.279+0000", 
+        "onHand" : 104, 
+        "onOrder" : 40, 
+        "cost" : 45, 
+        "product" : {
+            "externalId" : "18b319965e-bd2c-32f8-0581-3377cb77b1be", 
+            "itemCode" : "18", 
+            "itemDescription" : "Facial Mask"
+        }, 
+        "location" : {
+            "externalId" : "1", 
+            "name" : "Miami"
+        }
+    }
+    ]
+    
