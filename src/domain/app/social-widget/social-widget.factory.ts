@@ -1,3 +1,5 @@
+import { injectable } from 'inversify';
+
 import { IConnectorDocument } from '../../master/connectors/connector';
 import { FacebookSocialWidget } from './facebook-social-widget';
 import { InstagramSocialWidget } from './instagram-social-widget';
@@ -5,8 +7,9 @@ import { LinkedInSocialWidget } from './linkedin-social-widget';
 import { SocialWidgetBase } from './social-widget-base';
 import { TwitterSocialWidget } from './twitter-social-widget';
 
+@injectable()
 export class SocialWidgetFactory {
-    static getInstance(doc: IConnectorDocument): SocialWidgetBase {
+    getInstance(doc: IConnectorDocument): SocialWidgetBase {
         switch (doc.type) {
             case 'linkedin':
                 return new LinkedInSocialWidget(doc);
