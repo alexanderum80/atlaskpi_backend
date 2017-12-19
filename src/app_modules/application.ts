@@ -21,6 +21,7 @@ import { WidgetsModule } from './widgets/widgets.module';
 import { AccountsModule } from './accounts/accounts.module';
 import { MapsModule } from './maps/maps.module';
 import { DepartmentsModule } from './departments/departments.module';
+import { CountriesModule } from './countries/countries.module';
 
 
 @AppModule({
@@ -30,6 +31,7 @@ import { DepartmentsModule } from './departments/departments.module';
         AppointmentsModule,
         BusinessUnitModule,
         ChartsModule,
+        CountriesModule,
         DashboardsModule,
         DataSourcesModule,
         DateRangesModule,
