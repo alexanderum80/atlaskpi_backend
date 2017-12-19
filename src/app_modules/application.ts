@@ -18,10 +18,13 @@ import { SocialWidgetsModule } from './social-widgets/social-widgets.module';
 import { TargetsModule } from './targets/targets.module';
 import { UsersModule } from './users/users.module';
 import { WidgetsModule } from './widgets/widgets.module';
+import { AccountsModule } from './accounts/accounts.module';
+import { MapsModule } from './maps/maps.module';
 
 
 @AppModule({
     imports: [
+        AccountsModule,
         AccessLogsModule,
         AppointmentsModule,
         ChartsModule,
@@ -31,6 +34,7 @@ import { WidgetsModule } from './widgets/widgets.module';
         EmployeesModule,
         KpisModule,
         LocationsModule,
+        MapsModule,
         PermissionsModule,
         ReportsModule,
         RolesModule,

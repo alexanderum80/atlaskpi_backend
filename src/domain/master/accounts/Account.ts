@@ -50,6 +50,7 @@ export interface IAccount {
     subdomain: string;
     initialToken?: IUserToken;
     seedData?: boolean;
+    demoMode?: boolean;
 }
 
 // declare interface to mix account and mongo docuemnt properties/methods
