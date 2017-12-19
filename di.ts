@@ -1,5 +1,6 @@
 import { ChartFactory } from './src/app_modules/charts/queries/charts/chart-factory';
 import { addModulesRegistrations } from './src/app_modules/di-registrations';
+import { SocialWidgetFactory } from './src/domain/app/social-widget/social-widget.factory';
 import { KpiFactory } from './src/app_modules/kpis/queries/kpi.factory';
 import { registerConfiguration } from './src/configuration/register-configuration-dependencies';
 import { registerAppModels } from './src/domain/app/register-app-models';
@@ -16,6 +17,7 @@ export function registerDependencies(container: IBridgeContainer) {
     container.registerPerWebRequest(KpiFactory);
     container.registerPerWebRequest(ChartFactory);
     container.registerPerWebRequest(WidgetFactory);
+    container.registerPerWebRequest(SocialWidgetFactory);
 
     registerConfiguration(container);
     registerMasterModels(container);
