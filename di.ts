@@ -17,6 +17,7 @@ export function registerDependencies(container: IBridgeContainer) {
     container.registerPerWebRequest(KpiFactory);
     container.registerPerWebRequest(ChartFactory);
     container.registerPerWebRequest(WidgetFactory);
+    container.registerPerWebRequest(SocialWidgetFactory);
 
     registerConfiguration(container);
     registerMasterModels(container);

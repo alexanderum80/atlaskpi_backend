@@ -7,7 +7,6 @@ import {
 } from '../../../domain/common/date-range';
 
 
-
 export interface IDateRangeComparisonItem {
     key: string;
     value: string;
