@@ -32,16 +32,18 @@ export class ChartQuery implements IQuery<String> {
 
         const that = this;
         return new Promise<string>((resolve, reject) => {
-            that._chartsService
-                .getChart(data.id.toString(), data.input, data.chart)
-                .then((res) => {
-                    resolve(JSON.stringify(res));
-                    return;
-                })
-                .catch(err => {
-                    that._logger.error(err);
-                    reject(err);
-                });
+            let chartPromise: Promise<IChart> =  data.chart !== undefined ?
+                that._chartsService.getChart(data.chart) :
+                that._chartsService.getChart(data.id.toString(), data.input);
+
+            chartPromise.then((res) => {
+                resolve(JSON.stringify(res));
+                return;
+            })
+            .catch(err => {
+                that._logger.error(err);
+                reject(err);
+            });
         });
     }
 }
