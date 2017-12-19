@@ -1,6 +1,9 @@
 import * as Promise from 'bluebird';
-import { injectable } from 'inversify';
+import { inject, injectable } from 'inversify';
 import * as Twitter from 'node-twitter-api';
+
+import { loadIntegrationConfig } from '../models/load-integration-controller';
+import { Connectors } from './../../../domain/master/connectors/connector.model';
 
 @injectable()
 export class TwitterIntegrationController {
@@ -8,15 +11,17 @@ export class TwitterIntegrationController {
     private _twitter: Twitter;
     private _requestSecret: any;
     private _config: any;
+    private _companyName: string;
 
-    constructor(private _connectorModel: IConneZctorModel, private _companyName: string) {
-        if (!_connectorModel || !_companyName) {
+    constructor(@inject(Connectors.name) private _connectorModel: Connectors) {
+        if (!_connectorModel) {
             console.log('missing parameters...');
             return null;
         }
     }
 
-    public initialize(): Promise<any> {
+    public initialize(companyName?: string): Promise<any> {
+        this._companyName = companyName;
         const that = this;
         return new Promise<any>((resolve, reject) => {
             loadIntegrationConfig(that._connectorModel, 'twitter').then(configDoc => {

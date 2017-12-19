@@ -1,6 +1,7 @@
 import { ChartFactory } from './src/app_modules/charts/queries/charts/chart-factory';
 import { IntegrationConnectorFactory } from './src/app_modules/integrations/models/integration-connectors.factory';
 import { IntegrationController } from './src/app_modules/integrations/oauth2/oauth2-integration-controller';
+import { TwitterIntegrationController } from './src/app_modules/integrations/twitter/twitter-integration-controller';
 import { KpiFactory } from './src/app_modules/kpis/queries/kpi.factory';
 import { registerConfiguration } from './src/configuration/register-configuration-dependencies';
 import { registerAppModels } from './src/domain/app/register-app-models';
@@ -15,6 +16,7 @@ export function registerDependencies(container: IBridgeContainer) {
 
     // Integration Registration, in a future move to its own project
     container.registerSingleton(IntegrationController);
+    container.registerSingleton(TwitterIntegrationController);
     container.registerSingleton(IntegrationConnectorFactory);
 
     container.registerPerWebRequest(KpiFactory);
