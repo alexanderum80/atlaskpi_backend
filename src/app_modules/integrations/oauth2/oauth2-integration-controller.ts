@@ -4,14 +4,16 @@ import { isObject } from 'util';
 
 import { IAccountModel } from '../../../domain/master/accounts/Account';
 import { IConnector, IConnectorDocument } from '../../../domain/master/connectors/connector';
-import { AppConnectionPool } from '../../../middlewares/app-connection-pool';
 import { IExtendedRequest } from '../../../middlewares/extended-request';
+import { getFacebookConnection } from '../facebook/facebook-connection-handler';
 import { FacebookConnector } from '../facebook/facebook-connector';
+import { FacebookService } from '../facebook/facebook.service';
 import { IOAuthConnector } from '../models/connector-base';
 import { getConnectorTypeId } from '../models/connector-type';
-import { IExecutionFlowResult } from '../models/execution-flow';
+import { SocialNetwork } from './../../../domain/app/social-networks/social-network.model';
 import { Accounts } from './../../../domain/master/accounts/account.model';
 import { Connector } from './../../../domain/master/connectors/connector.model';
+import { IExecutionFlowResult } from './../models/execution-flow';
 import { IntegrationConnectorFactory } from './../models/integration-connectors.factory';
 
 export function loadIntegrationConfig(connector: Connector, code: string): Promise<IConnectorDocument> {
@@ -41,9 +43,8 @@ export class IntegrationController {
     private _query: any;
 
     constructor(@inject(Connector.name) private _connectorModel: Connector,
-                @inject(Accounts.name) private _accountsModel: Accounts,
                 @inject(IntegrationConnectorFactory.name) private _integrationConnectorFactory: IntegrationConnectorFactory,
-                @inject(AppConnectionPool.name) private _appConnectionPool: AppConnectionPool,
+                @inject(SocialNetwork.name) private _socialNetworkModel: SocialNetwork,
                 @inject('Request') private req: IExtendedRequest) {
 
         this._query = req.query;
@@ -282,37 +283,30 @@ export class IntegrationController {
                     reject('account not found');
                     return;
                 }
-                getContext(account.database.uri).then(appContext => {
-                    getFacebookConnection(integration, connector).then(connectionResponse => {
-                        const service = new FacebookService(    appContext.SocialNetwork,
-                                                                connectionResponse,
-                                                                connector);
-                        service .run()
-                                .then(() => {
-                            resolve('done');
-                            return;
-                        })
-                        .catch(err => {
-                            console.log(err);
-                            resolve(err);
-                            return;
-                        });
+                getFacebookConnection(integration, connector).then(connectionResponse => {
+                    const service = new FacebookService(    that._socialNetworkModel,
+                                                            connectionResponse,
+                                                            connector);
+                    service .run()
+                            .then(() => {
+                        resolve('done');
+                        return;
                     })
                     .catch(err => {
-                        // usually Token invalid, should log the error, probably should send an email too
                         console.log(err);
                         resolve(err);
                         return;
                     });
                 })
                 .catch(err => {
-                    console.log('could not get app context for the connector');
-                    reject(err);
+                    // usually Token invalid, should log the error, probably should send an email too
+                    console.log(err);
+                    resolve(err);
                     return;
                 });
             })
             .catch(err => {
-                console.log('could not get the account for the connector');
+                console.log('could not get app context for the connector');
                 reject(err);
                 return;
             });

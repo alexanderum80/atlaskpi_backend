@@ -92,6 +92,7 @@
     "morgan": "^1.7.0",
     "ms": "^0.7.2",
     "natural": "^0.5.4",
+    "node-twitter-api": "^1.8.0",
     "nodemailer": "^2.7.0",
     "nodemailer-mailgun-transport": "^1.2.4",
     "object-mapper": "^3.0.1",

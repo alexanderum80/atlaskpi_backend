@@ -1,17 +1,10 @@
 import * as Promise from 'bluebird';
 
+import { IKeyValuePair } from '../../../domain/common/key-value-pair';
+import { IOAuth2Token } from '../../../domain/common/oauth2-token';
 import { IIdName } from './../../../domain/common/id-name';
 import { IConnector } from './../../../domain/master/connectors/connector';
 import { ConnectorTypeEnum } from './connector-type';
-
-export interface IOAuth2Token {
-    access_token: string;
-    token_type: string;
-    expires_at: string;
-    merchant_id?: string;
-    refresh_token?: string;
-    x_refresh_token_expires_in?: string|number;
-}
 
 export interface IOAuthConfigOptions {
     clientId?: string;
@@ -31,11 +24,6 @@ export interface IOAuthConfigOptions {
     headers?: {
       [key: string]: string | string[];
     };
-}
-
-export interface IKeyValuePair {
-    key: string;
-    value: string;
 }
 
 export interface IOAuthConnector {

@@ -3,6 +3,7 @@ import * as moment from 'moment';
 import { ISocialNetwork, ISocialNetworkModel } from '../../../domain/app/social-networks/social-network';
 import { IConnectorDocument } from '../../../domain/master/connectors/connector';
 import { IFBConnectionResponse } from './facebook-connection-handler';
+import { SocialNetwork } from '../../../domain/app/social-networks/social-network.model';
 
 interface IFacebookMetrics {
     'fan_count': number;
@@ -13,7 +14,7 @@ interface IFacebookMetrics {
 }
 
 export class FacebookService {
-    constructor(private _socialNetworkModel: ISocialNetworkModel,
+    constructor(private _socialNetworkModel: SocialNetwork,
                 private _connResponse: IFBConnectionResponse,
                 private _connector: IConnectorDocument) {}
 
@@ -42,7 +43,7 @@ export class FacebookService {
                 const query = { date: entry.date, name: entry.name, source: entry.source };
                 const options = { upsert: true, new: true };
 
-                that._socialNetworkModel.findOneAndUpdate(query, entry, options)
+                that._socialNetworkModel.model.findOneAndUpdate(query, entry, options)
                 .then(doc => {
                     console.log('metrics upserted for date: ' + entry.date.toUTCString());
                     resolve();
