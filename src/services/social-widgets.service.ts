@@ -18,7 +18,8 @@ export class SocialWidgetsService {
     constructor(
         @inject(SocialNetwork.name) private _socialNetworks: SocialNetwork,
         @inject(Connectors.name) private _connectors: Connectors,
-        @inject(CurrentAccount.name) private _currentAccount: CurrentAccount
+        @inject(CurrentAccount.name) private _currentAccount: CurrentAccount,
+        @inject(SocialWidgetFactory.name) private _socialWidgetFactory: SocialWidgetFactory
     ) { }
 
     getSocialWidgets(startDate: string, textDate: string): Promise<ISocialWidget[]> {
@@ -57,7 +58,7 @@ export class SocialWidgetsService {
     private _toSocialWidget(doc: IConnectorDocument, date: Date, textDate: string): Promise<ISocialWidget> {
         const that = this;
         return new Promise<ISocialWidget>((resolve, reject) => {
-            const socialWidget = SocialWidgetFactory.getInstance(doc);
+            const socialWidget = that._socialWidgetFactory.getInstance(doc);
 
             if (!socialWidget) {
                 reject('connector unknown');
