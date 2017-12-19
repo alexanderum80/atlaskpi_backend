@@ -67,6 +67,9 @@ export class Location  {
     state: string;
 
     @field({ type: GraphQLTypesMap.String })
+    country: string;
+
+    @field({ type: GraphQLTypesMap.String })
     zip: string;
 
 }
