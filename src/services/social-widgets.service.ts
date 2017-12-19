@@ -10,14 +10,14 @@ import { SocialNetwork } from './../domain/app/social-networks/social-network.mo
 import { ISocialWidget } from './../domain/app/social-widget/social-widget-base';
 import { SocialWidgetFactory } from './../domain/app/social-widget/social-widget.factory';
 import { IConnectorDocument } from './../domain/master/connectors/connector';
-import { Connector } from './../domain/master/connectors/connector.model';
+import { Connectors } from './../domain/master/connectors/connector.model';
 
 @injectable()
 export class SocialWidgetsService {
 
     constructor(
         @inject(SocialNetwork.name) private _socialNetworks: SocialNetwork,
-        @inject(Connector.name) private _connectors: Connector,
+        @inject(Connectors.name) private _connectors: Connectors,
         @inject(CurrentAccount.name) private _currentAccount: CurrentAccount
     ) { }
 

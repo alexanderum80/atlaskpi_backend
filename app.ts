@@ -11,6 +11,8 @@ import { registerDependencies } from './di';
 import { me } from './src/app_modules/security/routes/me';
 import { AtlasApp } from './src/app_modules/application';
 import { initializeConnections } from './src/middlewares/initialize-connections.middleware';
+import { integration } from './src/app_modules/integrations/routes';
+
 
 const app = Bridge.create(AtlasApp);
 
@@ -35,6 +37,7 @@ app.server.use(loadUser);
 // routes
 app.server.use('/auth', auth);
 app.server.use('/users', me);
+app.server.use('/integration', integration);
 
 // start the application
 app.start();

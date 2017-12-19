@@ -10,28 +10,11 @@ import { FacebookConnector } from '../facebook/facebook-connector';
 import { FacebookService } from '../facebook/facebook.service';
 import { IOAuthConnector } from '../models/connector-base';
 import { getConnectorTypeId } from '../models/connector-type';
+import { loadIntegrationConfig } from '../models/load-integration-controller';
 import { SocialNetwork } from './../../../domain/app/social-networks/social-network.model';
-import { Accounts } from './../../../domain/master/accounts/account.model';
-import { Connector } from './../../../domain/master/connectors/connector.model';
+import { Connectors } from './../../../domain/master/connectors/connector.model';
 import { IExecutionFlowResult } from './../models/execution-flow';
 import { IntegrationConnectorFactory } from './../models/integration-connectors.factory';
-
-export function loadIntegrationConfig(connector: Connector, code: string): Promise<IConnectorDocument> {
-    const that = this;
-    return new Promise<IConnectorDocument>((resolve, reject) => {
-        connector   .model
-                    .findOne({ databaseName: 'atlas', type: 'integration-config', name: code, active: true })
-                    .then(doc => {
-                        if (!doc) {
-                            reject('integration configuration not found or inactive...');
-                            return;
-                        }
-                        resolve(doc);
-                        return;
-                    })
-                    .catch(err => reject(err));
-    });
-}
 
 @injectable()
 export class IntegrationController {
@@ -42,7 +25,7 @@ export class IntegrationController {
     private _integrationConfig: IConnectorDocument;
     private _query: any;
 
-    constructor(@inject(Connector.name) private _connectorModel: Connector,
+    constructor(@inject(Connectors.name) private _connectorModel: Connectors,
                 @inject(IntegrationConnectorFactory.name) private _integrationConnectorFactory: IntegrationConnectorFactory,
                 @inject(SocialNetwork.name) private _socialNetworkModel: SocialNetwork,
                 @inject('Request') private req: IExtendedRequest) {
