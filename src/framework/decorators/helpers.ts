@@ -220,11 +220,11 @@ export function processQueryAndMutation(target: any, type: GraphqlMetaType, defi
     const inputTemplateText = parameters !== undefined ?
         `{{name}}({{#each parameters}}{{this}},{{/each}}): {{output}}`
         : `{{name}}: {{output}}`;
-    const payload = {
-        name: name,
-        parameters: parameters,
-        output: definition.output.isArray ? `[${definition.output.type.name}]` : definition.output.type.name
-    };
+
+    const output = definition.output.isArray ? 
+        `[${definition.output.type.name}]` :
+        definition.output.type.name !== undefined ? definition.output.type.name : definition.output.type;
+    const payload = { name, parameters, output };
     let graphqlType = Hbs.compile(inputTemplateText)(payload);
 
     // remove extra comma

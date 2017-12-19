@@ -10,7 +10,7 @@ import { getEmployeeSchema } from '../../common/employee.schema';
 import { getLocationSchema } from '../../common/location.schema';
 import { getProductSchema } from '../../common/product.schema';
 import { AppConnection } from '../app.connection';
-import { ISaleDocument, ISaleModel } from './sale';
+import { ISaleDocument, ISaleModel, TypeMap, ISaleByZip } from './sale';
 
 
 let Schema = mongoose.Schema;
@@ -146,6 +146,32 @@ SalesSchema.statics.findCriteria = function(field: string): Promise<any[]> {
             reject(err);
             return;
         });
+    });
+};
+
+SalesSchema.statics.salesBy = function(type: TypeMap): Promise<ISaleByZip[]> {
+    const SalesModel = (<ISaleModel>this);
+    let aggregate = [];
+
+    return new Promise<ISaleByZip[]>((resolve, reject) => {
+        switch (type) {
+            case TypeMap.customerAndZip:
+                aggregate.push([
+                    { $group: { _id: '$customer.zip', sales: { $sum: '$product.amount' } } }
+                ]);
+                break;
+            case TypeMap.productAndZip:
+                break;
+        }
+
+        SalesModel.aggregate(aggregate).then(res => {
+            if (!res) {
+                resolve([]);
+            }
+
+            resolve(res as ISaleByZip[]);
+        })
+        .catch(err => reject(err));
     });
 };
 

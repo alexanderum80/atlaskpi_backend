@@ -36,6 +36,7 @@ let accountSchema = new mongoose.Schema({
         createdOn: { type: Date, default: Date.now },
         updatedOn: { type: Date, default: Date.now },
     },
+    demoMode: Boolean
 });
 
 accountSchema.statics.findAccountByUsername = function(username: string): Promise<IAccountDocument> {
