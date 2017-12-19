@@ -20,6 +20,7 @@ import { UsersModule } from './users/users.module';
 import { WidgetsModule } from './widgets/widgets.module';
 import { AccountsModule } from './accounts/accounts.module';
 import { MapsModule } from './maps/maps.module';
+import { DepartmentsModule } from './departments/departments.module';
 
 
 @AppModule({
@@ -27,10 +28,12 @@ import { MapsModule } from './maps/maps.module';
         AccountsModule,
         AccessLogsModule,
         AppointmentsModule,
+        BusinessUnitModule,
         ChartsModule,
         DashboardsModule,
         DataSourcesModule,
         DateRangesModule,
+        DepartmentsModule,
         EmployeesModule,
         KpisModule,
         LocationsModule,
