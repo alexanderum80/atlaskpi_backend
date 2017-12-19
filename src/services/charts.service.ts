@@ -1,6 +1,6 @@
 import * as Promise from 'bluebird';
 import { inject, injectable } from 'inversify';
-import { difference } from 'lodash';
+import { difference, isString } from 'lodash';
 
 import { getGroupingMetadata } from '../app_modules/charts/queries/chart-grouping-map';
 import { IChartMetadata } from '../app_modules/charts/queries/charts/chart-metadata';
@@ -102,23 +102,31 @@ export class ChartsService {
         return this._renderPreviewDefinition(kpi, uiChart, meta);
     }
 
-    public getChart(id: string, input: IChartInput, chart?: any): Promise<IChart> {
+    public getChart(chart: any): Promise<IChart>;
+    public getChart(id: string, input?: IChartInput): Promise<IChart>;
+    public getChart(idOrChart: string, input?: IChartInput): Promise<IChart> {
         // in order for this query to make sense I need either a chart definition or an id
-        if (!chart && !id && !input) {
+        if (!idOrChart && !input) {
             return Promise.reject('An id or a chart definition is needed');
+        }
+
+        let chart = null;
+
+        if (!isString(idOrChart)) {
+            chart = idOrChart;
         }
 
         let chartPromise = chart ?
                 Promise.resolve(<IChart>chart)
-                : this.getChartById(id);
+                : this.getChartById(idOrChart);
 
         const that = this;
-        if (id && (typeof id === 'string')) {
+        if (idOrChart && (typeof idOrChart === 'string')) {
             if (!input) {
                 (<any>input) = {};
-                (<any>input).chartId = id;
+                (<any>input).chartId = idOrChart;
             } else {
-                (<any>input).chartId = id;
+                (<any>input).chartId = idOrChart;
             }
         }
         return new Promise<IChart>((resolve, reject) => {
