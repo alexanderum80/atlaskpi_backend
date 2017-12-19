@@ -1,0 +1,270 @@
+// locations
+[
+  {
+    'repeat(50, 99)': {
+      _id: '{{objectId()}}',
+      name: '{{firstName()}}',
+      address: {
+        street1: '{{street()}}',
+        city: '{{city()}}',
+        state: '{{state()}}',
+        country: '{{country()}}'
+      }
+    }
+  }
+]
+
+// customers
+[
+  {
+    'repeat(50, 99)': {
+      _id: '{{objectId()}}',
+      firstName: '{{firstName()}}',
+      middleName: '{{firstName()}}',
+      lastName: '{{surname()}}',
+      gender: '{{random("M", "F")}}',
+      dob: '{{date(new Date(1940.1,1), new Date(2005,1,1))}}',
+      address: {
+        street1: '{{street()}}',
+        city: '{{city()}}',
+        state: '{{state()}}',
+        country: '{{country()}}'
+      }
+    }
+  }
+]
+
+
+// employees
+[
+  {
+    'repeat(50, 99)': {
+      _id: '{{objectId()}}',
+      firstName: '{{firstName()}}',
+      middleName: '{{firstName()}}',
+      lastName: '{{surname()}}',
+      gender: '{{random("M", "F")}}',
+      dob: '{{date(new Date(1940.1,1), new Date(2005,1,1))}}',
+      address: {
+        street1: '{{street()}}',
+        city: '{{city()}}',
+        state: '{{state()}}',
+        country: '{{country()}}'
+      },
+      classification: {
+        type: '{{random("f", "p")}}',
+        role: '{{random("Physician", "Non Physician", "Aesthetical")}}'
+      }
+    }
+  }
+]
+
+// products
+[
+  {
+    'repeat(50, 99)': {
+      _id: '{{objectId()}}',
+      name: '{{lorem(1, "words")}}',
+      description: '{{lorem(1, "paragraphs")}}',
+      category: '{{random("Category1", "Category2", "Category3", "Category4")}}',
+      sku: '{{integer(100000, 999999)}}',
+      barcode: '{{integer(100000, 999999)}}',
+      cost: '{{floating(1, 1500, 2)}}',
+      price: '{{floating(1, 5000, 2)}}',
+      tax: '{{integer(6, 7)}}',
+      vendor: '{{random("Vendor1", "Vendor2", "Vendor3", "Vendor4")}}',
+      unitOfMeasure: '{{random("unit", "cm", "min", "sq ft")}}',
+      condition: '{{random("new", "used")}}',
+      brand: ''
+    }
+  }
+]
+
+// revenues
+[
+  {
+    'repeat(80, 100)': {
+      externalId: '{{objectId()}}',
+      concept: '{{random("surgical", "non-surgical", "retail")}}',
+      code: '{{guid()}}',
+      type: '{{random("regular", "tax exempt", "refund", "layaway")}}',
+      timestamp: '{{date(new Date(2000, 1, 1), new Date(2017, 2, 1))}}',
+      location: {
+        id: '{{random("1", "2", "3", "4", "5", "6")}}',
+        name: function(tags) {
+          return "Location " + this.id;
+        }        
+      },
+      customer: {
+        id: '{{random("1", "2", "3", "4", "5", "6")}}',
+        name: function(tags) {
+          return "Customer " + this.id;
+        }        
+      },
+      employees: [
+        {
+          'repeat(0, 5)': {
+            id: '{{random("1", "2", "3", "4", "5", "6")}}',
+            name: function(tags) {
+              return "Employee " + this.id;
+            },
+            percent: '{{floating(0, 100)}}',
+            amount: '{{floating(10, 500)}}'
+          }
+        }
+      ],
+      items: [
+        {
+          'repeat(1, 5)': {
+            type: '{{random("service", "retail")}}',
+            name: '{{lorem(1, "words")}}',
+            cost: '{{floating(1, 300)}}',
+            price: function(tags) {
+              return this.cost * 1.15;
+            },
+            tax: function() {
+              return this.price * 0.7;
+            }
+          }
+        }
+      ],
+      payments: [
+        {
+          'repeat(1, 4)': {
+            transactionId: '{{guid()}}',
+            paymentMethod: '{{random("cash", "cc", "check")}}',
+            amount: '{{floating(5, 300)}}',
+            tax: function() {
+              return parseFloat(this.amount) * 0.7;
+            },
+            total: function() {
+              return parseFloat(this.amount) + parseFloat(this.tax);
+            }
+          }
+        }
+      ],
+      coupons: [
+        {
+          'repeat(0, 2)': {
+            type: 'any',
+            name: '{{lorem(1, "words")}}',
+            value: {
+              type: '{{random("percent", "fixed")}}',
+              amount: '{{floating(5, 10)}}'
+            },
+            discount: '{{floating(2, 20)}}'
+          }
+        }
+      ],
+      globalDiscount: {
+        type: '{{random("percent", "fixed")}}',
+        value: '{{floating(2, 10)}}',
+        discount: '{{floating(5, 15)}}'
+      },
+      totals: {
+        subtotal: '{{floating(10, 500)}}',
+        salesTax: '{{floating(10, 30)}}',
+        discount: '{{floating(0, 15)}}',
+        total: '{{floating(50, 700)}}'        
+      }
+    }
+  }
+]
+
+// surveys
+[
+  {
+    'repeat(50, 100)': {
+      location: {
+        id: '{{random("1", "2", "3", "4", "5", "6")}}',
+        name: function(tags) {
+          return "Location " + this.id;
+        }        
+      },
+      customer: {
+        id: '{{random("1", "2", "3", "4", "5", "6")}}',
+        name: function(tags) {
+          return "Customer " + this.id;
+        }        
+      },
+      employee: {
+        id: '{{random("1", "2", "3", "4", "5", "6")}}',
+        name: function(tags) {
+          return "Employee " + this.id;
+        }        
+      },
+      product: {
+        id: '{{random("1", "2", "3", "4", "5", "6")}}',
+        name: function(tags) {
+          return "Product " + this.id;
+        }        
+      },
+      rate: '{{integer(1, 5)}}'
+    }
+  }
+]
+
+// inventory
+[
+  {
+    'repeat(50, 100)': {
+      location: {
+        id: '{{random("1", "2", "3", "4", "5", "6")}}',
+        name: function(tags) {
+          return "Location " + this.id;
+        }        
+      },
+      customer: {
+        id: '{{random("1", "2", "3", "4", "5", "6")}}',
+        name: function(tags) {
+          return "Customer " + this.id;
+        }        
+      },
+      employee: {
+        id: '{{random("1", "2", "3", "4", "5", "6")}}',
+        name: function(tags) {
+          return "Employee " + this.id;
+        }        
+      },
+      product: {
+        id: '{{random("1", "2", "3", "4", "5", "6")}}',
+        name: function(tags) {
+          return "Product " + this.id;
+        }        
+      },
+      type: '{{random("sent", "received", "sold", "loss")}}',
+      quantity: '{{integer(1, 1000)}}'
+    }
+  }
+]
+
+// expenses
+[
+  {
+    'repeat(50, 100)': {
+      location: {
+        id: '{{random("1", "2", "3", "4", "5", "6")}}',
+        name: function(tags) {
+          return "Location " + this.id;
+        }        
+      },
+      employee: {
+        id: '{{random("1", "2", "3", "4", "5", "6")}}',
+        name: function(tags) {
+          return "Employee " + this.id;
+        }        
+      },
+      product: {
+        id: '{{random("1", "2", "3", "4", "5", "6")}}',
+        name: function(tags) {
+          return "Product " + this.id;
+        }        
+      },
+      expense: {
+        concept: '{{random("advertising", "transportsation", "legal", "maintenance", "office", "rent", "salary", "meals")}}',
+        amount: '{{floating(1.0, 300.0, 2)}}'
+      }
+    }
+  }
+]
+
