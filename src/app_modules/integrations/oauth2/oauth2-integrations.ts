@@ -1,7 +1,7 @@
-import { IntegrationController } from './oauth2-integration-controller';
 import { Response } from 'express';
 
 import { IExtendedRequest } from '../../../middlewares/extended-request';
+import { IntegrationController } from './oauth2-integration-controller';
 
 export function handleOAuth2Itegration(req: IExtendedRequest, res: Response) {
     const logger = req.logger;

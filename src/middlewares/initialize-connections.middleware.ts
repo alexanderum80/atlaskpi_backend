@@ -6,7 +6,7 @@ import * as logger from 'winston';
 import { config } from '../configuration/config';
 import { IAccountDocument, IAccountModel } from '../domain/master/accounts/Account';
 import { Accounts } from '../domain/master/accounts/account.model';
-import { getRequestHostname } from '../helpers/express.helpers';
+import { getRequestHostname, getStateParamHostname } from '../helpers/express.helpers';
 import { makeDefaultConnection } from '../helpers/mongodb.helpers';
 import { AppConnectionPool } from './app-connection-pool';
 import { IExtendedRequest } from './extended-request';
@@ -45,7 +45,8 @@ export function initializeConnections(req: IExtendedRequest, res: Response, next
 function getAppConnection(accounts: IAccountModel, req: IExtendedRequest, res: Response, next): Promise<mongoose.Connection> {
 
     return new Promise<mongoose.Connection>((resolve, reject) => {
-        let hostname = getRequestHostname(req);
+
+        let hostname =  getStateParamHostname(req) || getRequestHostname(req);
         logger.debug(`${loggerSuffix} Hostname: ${hostname}`);
 
         if ((!req.identity && !hostname) || graphqlOperationExceptions.indexOf(req.body.operationName) !== -1) {

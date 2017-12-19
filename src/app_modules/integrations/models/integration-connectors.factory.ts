@@ -1,4 +1,4 @@
-import { injectable, inject } from 'inversify';
+import { inject, injectable } from 'inversify';
 
 import { IAppConfig } from '../../../configuration/config-models';
 import { IConnectorDocument } from '../../../domain/master/connectors/connector';
