@@ -1,7 +1,8 @@
-import { IKeyValuePair } from '../../../domain/common/key-value-pair';
 import * as Promise from 'bluebird';
 import * as ClientOAuth2 from 'client-oauth2';
 
+import { IAppConfig } from '../../../configuration/config-models';
+import { IKeyValuePair } from '../../../domain/common/key-value-pair';
 import { IOAuth2Token } from '../../../domain/common/oauth2-token';
 import { IConnectorConfig, IConnectorConfigScope } from '../../../domain/master/connectors/connector';
 import { IOAuthConfigOptions, IOAuthConnector } from '../models/connector-base';
@@ -21,8 +22,8 @@ export class InstagramConnector implements IOAuthConnector {
     private _scope;
     private _companyInfo: any;
 
-    constructor(private _config: any) {
-        if (!_config) {
+    constructor(private _connectorConfig: any, private _config?: IAppConfig) {
+        if (!_connectorConfig) {
             console.log('you tried to create a quickbooks connector without config...');
             return null;
         }
@@ -47,8 +48,8 @@ export class InstagramConnector implements IOAuthConnector {
         return new Promise<IOAuth2Token>((resolve, reject) => {
             that._client.code.getToken(url, {
                 body: {
-                    client_id: this._config.clientId,
-                    client_secret: this._config.clientSecret
+                    client_id: this._connectorConfig.clientId,
+                    client_secret: this._connectorConfig.clientSecret
                 }
             }).then(token => {
                 that._token = <any>token.data;
@@ -94,12 +95,12 @@ export class InstagramConnector implements IOAuthConnector {
 
     private getAuthConfiguration(): IOAuthConfigOptions {
         return {
-            clientId: this._config.clientId,
-            clientSecret: this._config.clientSecret,
+            clientId: this._connectorConfig.clientId,
+            clientSecret: this._connectorConfig.clientSecret,
             redirectUri: this._config.integrationRedirectUrl,
-            authorizationUri: this._config.instagramConfig.authorization_endpoint,
-            accessTokenUri: this._config.instagramConfig.token_endpoint,
-            scopes: this._config.requiredAuthScope
+            authorizationUri: this._connectorConfig.instagramConfig.authorization_endpoint,
+            accessTokenUri: this._connectorConfig.instagramConfig.token_endpoint,
+            scopes: this._connectorConfig.requiredAuthScope
         };
     }
 

@@ -1,3 +1,4 @@
+import { LinkedInConnector } from './../linkedin/linkedin-connector';
 import * as Promise from 'bluebird';
 import { inject, injectable } from 'inversify';
 import { isObject } from 'util';
@@ -78,18 +79,18 @@ export class IntegrationController {
 
                 // Special case of LinkedIn
                 // Linkedin doesnt let you chose wich company you are adding
-                // if (that._connector instanceof LinkedInConnector) {
-                //     that._handleLinkedInConnectorFlow().then(flowResult => {
-                //         resolve(flowResult);
-                //         return;
-                //     })
-                //     .catch(err => {
-                //         reject(err);
-                //         return;
-                //     });
+                if (that._connector instanceof LinkedInConnector) {
+                    that._handleLinkedInConnectorFlow().then(flowResult => {
+                        resolve(flowResult);
+                        return;
+                    })
+                    .catch(err => {
+                        reject(err);
+                        return;
+                    });
 
-                //     return;
-                // }
+                    return;
+                }
 
                 // Special case of Faceook
                 // Facebook doesnt let you chose wich page you are adding
@@ -232,7 +233,7 @@ export class IntegrationController {
 
                 // this is where I pull the metrics I added this for the facebook certification
                 // pulling metrics is the job of the facebook-connector
-                Promise.map(connectors, c => that._getConnectorsMetrics(that._accountsModel.model,
+                Promise.map(connectors, c => that._getConnectorsMetrics(that._socialNetworkModel,
                                                                         that._integrationConfig,
                                                                         c))
                         .then(() => {
@@ -258,40 +259,29 @@ export class IntegrationController {
         });
     }
 
-    private _getConnectorsMetrics(accountModel: IAccountModel, integration: IConnector, connector: IConnectorDocument): Promise<any> {
+    private _getConnectorsMetrics(socialNetworkModel: SocialNetwork, integration: IConnector, connector: IConnectorDocument): Promise<any> {
         const that = this;
         return new Promise<any>((resolve, reject) => {
-            accountModel.findAccountByHostname(connector.databaseName).then(account => {
-                if (!account) {
-                    reject('account not found');
+            getFacebookConnection(integration, connector).then(connectionResponse => {
+                const service = new FacebookService(    that._socialNetworkModel,
+                                                        connectionResponse,
+                                                        connector);
+                service .run()
+                        .then(() => {
+                    resolve('done');
                     return;
-                }
-                getFacebookConnection(integration, connector).then(connectionResponse => {
-                    const service = new FacebookService(    that._socialNetworkModel,
-                                                            connectionResponse,
-                                                            connector);
-                    service .run()
-                            .then(() => {
-                        resolve('done');
-                        return;
-                    })
-                    .catch(err => {
-                        console.log(err);
-                        resolve(err);
-                        return;
-                    });
                 })
                 .catch(err => {
-                    // usually Token invalid, should log the error, probably should send an email too
                     console.log(err);
                     resolve(err);
                     return;
                 });
             })
             .catch(err => {
-                console.log('could not get app context for the connector');
-                reject(err);
-                return;
+                    // usually Token invalid, should log the error, probably should send an email too
+                    console.log(err);
+                    resolve(err);
+                    return;
             });
         });
     }

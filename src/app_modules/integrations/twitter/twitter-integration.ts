@@ -1,6 +1,10 @@
 import { Response } from 'express';
 
+import { IConnector } from '../../../domain/master/connectors/connector';
+import { Connectors } from '../../../domain/master/connectors/connector.model';
 import { IExtendedRequest } from '../../../middlewares/extended-request';
+import { ConnectorTypeEnum, getConnectorTypeId } from '../models/connector-type';
+import { IExecutionFlowResult } from '../models/execution-flow';
 import { TwitterIntegrationController } from './twitter-integration-controller';
 
 export function handleTwitterRequestToken(req: IExtendedRequest, res: Response) {
@@ -37,7 +41,9 @@ export function handleTwitterAccessToekn(req: IExtendedRequest, res: Response) {
                                       value: user.id }
                 };
 
-                req.masterContext.Connector.addConnector(connObj).then(() => {
+                const connector = req.Container.instance.get<Connectors>(Connectors.name);
+
+                connector.model.addConnector(connObj).then(() => {
                     const flowResult: IExecutionFlowResult = {
                         success: true,
                         connector: connObj
@@ -67,6 +73,6 @@ export function handleTwitterAccessToekn(req: IExtendedRequest, res: Response) {
                 res.status(500).send(err);
                 return;
             });
-        })
+        });
     });
 }

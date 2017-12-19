@@ -15,7 +15,7 @@ import { Connector } from '../connectors.types';
 import { CurrentUser } from './../../../domain/app/current-user';
 import { IConnector } from './../../../domain/master/connectors/connector';
 import { Connectors } from '../../../domain/master/connectors/connector.model';
-
+import { ConnectorsService } from '../../../services/connectors.service';
 
 @injectable()
 @query({
@@ -25,7 +25,7 @@ import { Connectors } from '../../../domain/master/connectors/connector.model';
 })
 export class ConnectorsQuery implements IQuery<IConnector[]> {
     constructor(
-        @inject(Connectors.name) private _connectors: Connectors,
+        @inject(ConnectorsService.name) private _connectorsService: ConnectorsService,
         @inject(CurrentAccount.name) private _currentAccount: CurrentAccount,
         @inject(Logger.name) private _logger: Logger,
     ) { }
@@ -33,13 +33,15 @@ export class ConnectorsQuery implements IQuery<IConnector[]> {
     run(data: { }): Promise<IConnector[]> {
         const that = this;
         return new Promise<IConnector[]>((resolve, reject) => {
-            that._connectors.model.find({ databaseName: that._currentAccount.get.name })
-                .then(connectors => {
-                    return resolve(connectors);
-                })
-                .catch(err => {
-                    return reject(err);
-                });
+            that    ._connectorsService
+                    .findConnectorsByDatabaseName(that._currentAccount.get.database.name)
+                    .then(connectors => {
+                        return resolve(connectors);
+                    })
+                    .catch(err => {
+                        that._logger.error(err);
+                        reject(err);
+                    });
         });
     }
 }

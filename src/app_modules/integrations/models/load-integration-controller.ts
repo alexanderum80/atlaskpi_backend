@@ -1,3 +1,5 @@
+import * as Promise from 'bluebird';
+
 import { IConnectorDocument } from '../../../domain/master/connectors/connector';
 import { Connectors } from '../../../domain/master/connectors/connector.model';
 
