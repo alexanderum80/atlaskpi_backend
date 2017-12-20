@@ -22,6 +22,7 @@ import { SocialWidgetsModule } from './social-widgets/social-widgets.module';
 import { TargetsModule } from './targets/targets.module';
 import { UsersModule } from './users/users.module';
 import { WidgetsModule } from './widgets/widgets.module';
+import { CountriesModule } from './countries/countries.module';
 
 
 @AppModule({
@@ -31,6 +32,7 @@ import { WidgetsModule } from './widgets/widgets.module';
         AppointmentsModule,
         BusinessUnitModule,
         ChartsModule,
+        CountriesModule,
         DashboardsModule,
         DataSourcesModule,
         DateRangesModule,

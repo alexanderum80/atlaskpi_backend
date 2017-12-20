@@ -17,7 +17,7 @@ import { Location } from '../locations.types';
     parameters: [
         { name: 'id', type: String, required: true }
     ],
-    output: { type: Location, isArray: true }
+    output: { type: Location }
 })
 export class LocationByIdQuery implements IQuery<ILocationDocument> {
     constructor(@inject(Locations.name) private _locations: Locations) { }
