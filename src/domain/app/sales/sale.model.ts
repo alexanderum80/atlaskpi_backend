@@ -150,7 +150,7 @@ SalesSchema.statics.amountByDateRange = function(fromDate: Date, toDate: Date): 
 
     return new Promise<Object>((resolve, reject) => {
         SalesModel.aggregate({ '$match': { 'product.from': { '$gte': from, '$lt': to } } },
-                            { '$group': { '_id': null, 'count': { '$sum': 1 }, 'amount': { '$sum': '$product.paid' } } })
+                            { '$group': { '_id': { 'source': '$source', 'timestamp': '$timestamp' }, 'count': { '$sum': 1 }, 'amount': { '$sum': '$product.paid' } } })
         .then(sales => {
             resolve(sales);
         })

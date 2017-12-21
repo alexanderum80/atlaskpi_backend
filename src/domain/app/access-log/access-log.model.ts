@@ -70,7 +70,7 @@ AccessLogSchema.statics.getAccessLogsByDate = function(fromDate: string, toDate:
     const to = moment(toDate).utc().toDate();
 
     return new Promise < IAccessLogDocument[] > ((resolve, reject) => {
-        ( < IAccessLogModel > this).find({ timestamp: { '$gte': from, '$lt': to }, eventType: { '$ne': 'query' } })
+        ( < IAccessLogModel > this).find({ timestamp: { '$gte': from, '$lt': to }, eventType: 'mutation' })
             .then((accessLog) => {
                 return resolve(accessLog);
             }).catch((err) => {

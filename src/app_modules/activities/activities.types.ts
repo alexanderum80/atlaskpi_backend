@@ -111,9 +111,19 @@ export class Sale  {
 }
 
 @type()
-export class SalesAmount {
+export class SalesAmountId {
     @field({ type: GraphQLTypesMap.String })
-    _id: string;
+    source: string;
+
+    @field({ type: GraphQLTypesMap.String })
+    timestamp: string;
+
+}
+
+@type()
+export class SalesAmount {
+    @field({ type: SalesAmountId })
+    _id: SalesAmountId[];
 
     @field({ type: GraphQLTypesMap.Int })
     count: number;
