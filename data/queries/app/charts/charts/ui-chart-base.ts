@@ -749,7 +749,7 @@ export class UIChartBase {
     }
 
     private _noSerieName(serieName: any): boolean {
-        return _.isEmpty(serieName) ||
+        return isEmpty(serieName) ||
                 serieName === 'undefined' ||
                 serieName === 'null';
     }
