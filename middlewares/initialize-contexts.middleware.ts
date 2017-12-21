@@ -43,6 +43,9 @@ export function initializeContexts(req: ExtendedRequest, res: Response, next) {
         logger.debug('creating app context for account name: ' + accountName);
 
         ctx.Account.findAccountByHostname(accountName).then((account: IAccountDocument) => {
+            // save account on request
+            req.account = account;
+
             // I not always need to create a new connection I may be able to re-use an existent one
             if (!account) {
                 logger.debug('account not found, ending the request...');

@@ -4,10 +4,12 @@ import { ExpenseSchema } from '../../../models/app/expenses';
 import { KPITypeMap, KPITypeEnum, getKPITypePropName, IKPISimpleDefinition, IKPIFilter } from './IKPI';
 import * as _ from 'lodash';
 import { isArrayObject } from '../../../../lib/utils/helpers';
+import { InventorySchema } from '../inventory/index';
 
 const Schemas = [
       SaleSchema,
-      ExpenseSchema
+      ExpenseSchema,
+      InventorySchema
 ];
 
 const replacementStrings = [
