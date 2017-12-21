@@ -6,6 +6,8 @@ import { IUserModel } from '../../../models/app/users/index';
 import { IIdentity } from '../../../models/app/identity';
 import { QueryBase } from '../..';
 import * as Promise from 'bluebird';
+import { PnsService } from '../../../services/pns/pns.service';
+import { config } from '../../../../config';
 
 export class TargetNotificationQuery extends QueryBase<any> {
     constructor(public identity: IIdentity,
@@ -20,6 +22,9 @@ export class TargetNotificationQuery extends QueryBase<any> {
                         targetDate: string, chartId: string, businessUnit: string}}): Promise<any> {
         const that = this;
         const input = data.input;
+
+        const pnsService = new PnsService(config.pns);
+
         return new Promise<any>((resolve, reject) => {
 
             const chartQuery = that._chart.findById(input.chartId);
@@ -32,17 +37,23 @@ export class TargetNotificationQuery extends QueryBase<any> {
                     if (!chart || !dashboard || !users) {
                         reject({field: 'target notification', errors: 'inefficient data'});
                     }
-                    users.forEach(user => {
-                        const notifyData = {
-                            targetName: input.targetName,
-                            targetAmount: parseInt(input.targetAmount).toFixed(2),
-                            targetDate: input.targetDate,
-                            dashboardName: dashboard,
-                            chartName: chart.title,
-                            businessUnitName: input.businessUnit
-                        };
-                        that._targetNotification.notify(user, user.username, notifyData);
-                    });
+
+                    const notifyData = {
+                        targetName: input.targetName,
+                        targetAmount: parseInt(input.targetAmount).toFixed(2),
+                        targetDate: input.targetDate,
+                        dashboardName: dashboard,
+                        chartName: chart.title,
+                        businessUnitName: input.businessUnit
+                    };
+
+                    const message = `Name: ${input.targetName}, amount: ${input.targetAmount}, date: ${input.targetDate}, chart: ${chart.title}`;
+
+                    pnsService.sendNotifications(users, message);
+
+                    users.forEach(user => that._targetNotification.notify(user, user.username, notifyData) );
+                    resolve(true);
+                    return;
                 });
 
         });

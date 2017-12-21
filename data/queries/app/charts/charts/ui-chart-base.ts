@@ -23,7 +23,20 @@ import {
     IDateRange,
 } from '../../../../models/common';
 import * as Promise from 'bluebird';
-import * as _ from 'lodash';
+import {
+    find,
+    filter,
+    map,
+    union,
+    uniq,
+    uniqBy,
+    groupBy,
+    isEmpty,
+    cloneDeep,
+    flatten,
+    difference,
+    sortBy
+} from 'lodash';
 import * as moment from 'moment';
 import * as mongoose from 'mongoose';
 import * as logger from 'winston';
@@ -253,7 +266,7 @@ export class UIChartBase {
             return this.frequencyHelper.getCategories(metadata.frequency);
         }
 
-        const uniqueCategories = <string[]> _.uniq(data.map(item => item._id[metadata.xAxisSource]));
+        const uniqueCategories = <string[]> uniq(data.map(item => item._id[metadata.xAxisSource]));
 
         return uniqueCategories.map(category => {
             return {
@@ -297,7 +310,7 @@ export class UIChartBase {
                 break;
         }
         if (duplicateCategories.length) {
-            duplicateCategories = _.flatten(duplicateCategories);
+            duplicateCategories = flatten(duplicateCategories);
         }
         return duplicateCategories;
     }
@@ -331,7 +344,7 @@ export class UIChartBase {
          *  so I need to get a list of the rest of the grouping fields so I can build the series
          */
 
-        const availableGroupingsForSeries = _.difference(groupings, [meta.xAxisSource]);
+        const availableGroupingsForSeries = difference(groupings, [meta.xAxisSource]);
 
 
         if (availableGroupingsForSeries.length === 0) {
@@ -367,7 +380,7 @@ export class UIChartBase {
             return [{
                 name: '',
                 data:  categories.map(cat => {
-                    let dataItem = _.find(data, (item: any) => {
+                    let dataItem = find(data, (item: any) => {
                         return item._id[group] === cat.id;
                     });
 
@@ -390,7 +403,7 @@ export class UIChartBase {
         /**
          * First I need to group the results using the next groupig field
          */
-        let groupedData: Dictionary<any> = _.groupBy(data, '_id.' + groupByField);
+        let groupedData: Dictionary<any> = groupBy(data, '_id.' + groupByField);
 
         let series: IChartSerie[] = [];
         let matchField: string;
@@ -399,6 +412,8 @@ export class UIChartBase {
             matchField = getFrequencyPropName(meta.frequency);
         } else {
             matchField = meta.xAxisSource;
+            categories = sortBy(categories, 'id');
+            this.categories = categories;
         }
 
         return this._createSeriesFromgroupedData(groupedData, categories, matchField);
@@ -414,7 +429,7 @@ export class UIChartBase {
             };
 
             categories.forEach(cat => {
-                let dataItem = _.find(groupedData[serieName], (item: any) => {
+                let dataItem = find(groupedData[serieName], (item: any) => {
                     return item._id[matchField] === cat.id;
                 });
 
@@ -429,7 +444,7 @@ export class UIChartBase {
 
     private _formatTarget(target: any[], metadata: any, groupings: any) {
         if (groupings && groupings.length) {
-            this.commonField = _.filter(groupings, (v, k) => {
+            this.commonField = filter(groupings, (v, k) => {
                 return v !== 'frequency';
             });
         }
@@ -455,7 +470,7 @@ export class UIChartBase {
                 }
             }
 
-            this.targetData = _.map(filterActiveTargets, (v, k) => {
+            this.targetData = map(filterActiveTargets, (v, k) => {
                 return (<any>v).stackName ? {
                     _id: {
                         frequency: TargetService.formatFrequency(metadata.frequency, v.datepicker),
@@ -480,7 +495,7 @@ export class UIChartBase {
     }
 
     private _injectTargets(data: any[], meta: IChartMetadata, categories: IXAxisCategory[], groupings: string[], series: any[]) {
-        let groupDifference = _.difference(groupings, [meta.xAxisSource]);
+        let groupDifference = difference(groupings, [meta.xAxisSource]);
         this.targets = this._targetGrouping(data, groupDifference.length, groupDifference[0], meta, categories);
 
         if (this.targets && this.targets.length) {
@@ -513,10 +528,10 @@ export class UIChartBase {
             });
 
             let missingCategories = this._addMissingDates(categories);
-            categories = _.union(categories, targetCategories);
+            categories = union(categories, targetCategories);
 
-            categories = _.union(categories, missingCategories);
-            categories = _.uniqBy(categories, 'name');
+            categories = union(categories, missingCategories);
+            categories = uniqBy(categories, 'name');
 
             this.categories = categories;
         }
@@ -525,7 +540,7 @@ export class UIChartBase {
             this.categories = this._createCategories(data, meta);
         }
 
-        let groupedData: Dictionary<any> = _.groupBy(data, (val) => {
+        let groupedData: Dictionary<any> = groupBy(data, (val) => {
             if (val['_id'].hasOwnProperty('stackName')) {
                 return val._id[groupByField] + '_' + val._id['stackName'];
             }
@@ -577,7 +592,7 @@ export class UIChartBase {
             serie['targetId'] = groupedData[serieName][0].targetId;
 
             categories.forEach(cat => {
-                let dataItem = _.find(groupedData[serieName], (item: any) => {
+                let dataItem = find(groupedData[serieName], (item: any) => {
                     if (item._id.hasOwnProperty('stackName') && item._id.stackName) {
                         return item._id.stackName === cat.id;
                     }
@@ -645,7 +660,7 @@ export class UIChartBase {
        if (!dateRange || !comparisonOptions) return;
 
        return comparisonOptions.map(c => {
-            if (_.isEmpty(c)) return;
+            if (isEmpty(c)) return;
             return parseComparisonDateRange(this._processChartDateRange(dateRange[0]), c);
        });
     }
@@ -663,8 +678,8 @@ export class UIChartBase {
         };
 
         this.comparison.forEach((comparisonDateRange, index) => {
-            const newChart = _.cloneDeep(this);
-            const newMetadata = _.cloneDeep(metadata);
+            const newChart = cloneDeep(this);
+            const newMetadata = cloneDeep(metadata);
             newMetadata.dateRange = [ { custom: comparisonDateRange } ];
             chartPromises[metadata.comparison[index]] = newChart.getDefinitionForDateRange(kpi, newMetadata, []);
         });

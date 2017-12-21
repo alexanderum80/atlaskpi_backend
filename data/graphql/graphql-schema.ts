@@ -10,7 +10,7 @@ import { appointmentsGql } from './app/appointments.gql';
 import { dataSourcesGql } from './app/data-sources.gql';
 import { industriesGql } from './master/industries.gql';
 import { spreadsheetGpl } from './master/import-from-spreadsheet';
-import { } from '.'
+import { } from '.';
 // from: https://gist.github.com/icebob/553c1f9f1a9478d828bcb7a08d06790a
 
 import { GraphqlDefinition } from './graphql-definition';
@@ -22,7 +22,7 @@ import { accountsGql, connectorGql } from './master';
 import { usersGql, kpisGql, commonGql,
          // businessUnitsGql,
          chartFormatGql, chartsGql, dashboardGql, searchGql, rolesGql, permissionGql, targetGql, accessLogGql,
-         widgetsGql, locationsGql } from './app';
+         widgetsGql, locationsGql, socialWidgetsGql } from './app';
 
 // let files = getGlobbedFiles(path.join(__dirname, '**', '*.gql.ts'));
 let definitions: GraphqlDefinition[] = [];
@@ -60,6 +60,7 @@ definitions.push(widgetsGql);
 definitions.push(businessUnitGql);
 definitions.push(departmentsGql);
 definitions.push(mapsGql);
+definitions.push(socialWidgetsGql);
 
 let moduleQueries = [];
 let moduleTypes = [];

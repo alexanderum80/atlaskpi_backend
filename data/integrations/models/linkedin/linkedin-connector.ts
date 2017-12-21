@@ -22,7 +22,7 @@ export class LinkedInConnector implements IOAuthConnector {
 
     constructor(private _config: any) {
         if (!_config) {
-            console.log('you tried to create a quickbooks connector without config...');
+            console.log('you tried to create a connector without config...');
             return null;
         }
 

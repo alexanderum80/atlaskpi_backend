@@ -1,3 +1,4 @@
+import { GetIsDemoModeQuery } from '../../queries/master/get-is-demo-mode.query';
 import { GraphqlDefinition } from '../graphql-definition';
 import { IAccount } from '../../models';
 import { ExtendedRequest } from '../../../middlewares';
@@ -42,7 +43,7 @@ export const accountsGql: GraphqlDefinition = {
                 _id: String
                 name: String
                 personalInfo: PersonalInfo
-                businessInfo: BusinessInfo  
+                businessInfo: BusinessInfo
                 subdomain: String!
                 initialToken: UserToken
             }
@@ -57,6 +58,7 @@ export const accountsGql: GraphqlDefinition = {
         queries: `
             account(name: String): Account
             accountNameAvailable(name: String!): AccountNameAvailability
+            inDemoMode: Boolean
         `,
         mutations: `
             createAccount(account: AccountDetails) : AccountResult
@@ -74,6 +76,10 @@ export const accountsGql: GraphqlDefinition = {
                 let query = new AccountNameAvailableQuery(ctx.req.identity, ctx.req.masterContext.Account);
                 return ctx.queryBus.run('account-name-available', query, args);
             },
+            inDemoMode(root: any, args, ctx: IGraphqlContext) {
+                let query = new GetIsDemoModeQuery(ctx.req.identity, ctx.req.account, ctx.req.appContext.User);
+                return ctx.queryBus.run('account-name-available', query, args);
+            }
         },
 
         Mutation: {
