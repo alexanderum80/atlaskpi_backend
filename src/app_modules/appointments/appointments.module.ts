@@ -5,6 +5,7 @@ import { UpdateAppointmentMutation } from './mutations/update-appointment.mutati
 import { AppointmentByDescriptionQuery } from './queries/appointment-by-description.query';
 import { AppointmentByIdQuery } from './queries/appointment-by-id.query';
 import { AppointmentsQuery } from './queries/appointments.query';
+import { AppointmentsByDateQuery } from './queries/appointments-by-date.query';
 
 
 @AppModule({
@@ -15,6 +16,7 @@ import { AppointmentsQuery } from './queries/appointments.query';
     ],
     queries: [
         AppointmentByDescriptionQuery,
+        AppointmentsByDateQuery,
         AppointmentByIdQuery,
         AppointmentsQuery
     ]
