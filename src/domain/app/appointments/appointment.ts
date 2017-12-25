@@ -26,5 +26,6 @@ export interface IAppointmentModel extends mongoose.Model<IAppointmentDocument> 
     appointments(start: string, end: string): Promise<IAppointmentDocument[]>;
     appointmentById(id: string): Promise<IAppointmentDocument>;
     appointmentByDescription(from: Date, to: Date, name: string): Promise<IAppointmentDocument>;
+    appointmentsByDate(date: Date): Promise<IAppointmentDocument[]>;
     deleteAppointment(id: string): Promise<IAppointmentDocument>;
 }
