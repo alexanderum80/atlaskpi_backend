@@ -410,7 +410,7 @@ export class UIChartBase {
 
         for (let serieName in groupedData) {
             let serie: IChartSerie = {
-                name: (serieName || 'Other'),
+                name: this._noSerieName(serieName) ? 'Other' : serieName,
                 data: []
             };
 
@@ -732,5 +732,11 @@ export class UIChartBase {
         });
 
         return series;
+    }
+
+    private _noSerieName(serieName: any): boolean {
+        return isEmpty(serieName) ||
+               serieName === 'undefined' ||
+               serieName === 'null';
     }
 }
