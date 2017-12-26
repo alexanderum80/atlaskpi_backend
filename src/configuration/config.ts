@@ -43,6 +43,10 @@ import { usersServiceConfig } from './users/users-service-config';
 
             Ex: "872623874hdfh734646d222"
 
+        AKPI_INTEGRATION_REDIRECT_URL    -- The enpoint to recieve oauth2 calls
+
+            Ex: "https://api.atlaskpi.com:9091/integration"
+
 */
 
 export const config: IAppConfig = {
@@ -63,5 +67,6 @@ export const config: IAppConfig = {
     },
     emailService: emailServiceConfig,
     usersService: usersServiceConfig,
-    appServices: appServicesConfig
+    appServices: appServicesConfig,
+    integrationRedirectUrl: process.env.AKPI_INTEGRATION_REDIRECT_URL  || 'http://localhost:9091/integration',
 };

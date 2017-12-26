@@ -97,7 +97,7 @@ ConnectorSchema.statics.removeConnector = function(id: string): Promise<IConnect
 };
 
 @injectable()
-export class Connector extends ModelBase<IConnectorModel> {
+export class Connectors extends ModelBase<IConnectorModel> {
     constructor(@inject(MasterConnection.name) masterConnection: MasterConnection) {
         super();
         this.initializeModel(masterConnection.get, 'Connector', ConnectorSchema, 'connectors');
