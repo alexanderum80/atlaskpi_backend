@@ -133,7 +133,6 @@ export class WidgetMaterializedFields  {
 
 }
 
-
 @type()
 export class Widget  {
     @field({ type: GraphQLTypesMap.String })

@@ -15,6 +15,7 @@ import { IUsersServiceConfig } from './users/users-service-config';
         AKPI_MONGODB_ADMIN_USERNAME      -- MongoDB username with access to create new users
         AKPI_MONGODB_API_KEY             -- API Key to authenticate agains MongoDB Atlas and create new users
         AKPI_MONGODB_API_URI             -- MongoDB Atlas API URI
+        AKPI_INTEGRATION_REDIRECT_URL    -- The enpoint to recieve oauth2 calls
 
 */
 
@@ -41,4 +42,5 @@ export interface IAppConfig {
     emailService: IEmailServiceConfig;
     usersService: IUsersServiceConfig;
     appServices: IAppServicesConfig;
+    integrationRedirectUrl: string;
 }
