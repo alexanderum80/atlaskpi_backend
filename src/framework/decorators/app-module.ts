@@ -48,7 +48,7 @@ export function AppModule(options: IModuleOptions) {
         // a utility function to generate instances of a class
         function construct(constructor, args) {
             const c: any = function() {
-                const instance = constructor.apply(this, args);
+                const instance = new constructor(...args); // constructor.apply(this, args);
                 // this parameter comes when when the framework bootstrap this module
                 const container = args[0] as IBridgeContainer;
 
