@@ -3,7 +3,6 @@ import { inject, injectable } from 'inversify';
 
 import { ILogEntry, ILogEntryDocument } from '../domain/app/log/log';
 import { Logs } from '../domain/app/log/log.model';
-import { Logger } from '../domain/app/logger';
 import { TechnicalSupportIssueNotification } from '../services/notifications/app/technical-support-issue.notification';
 import { Logger } from './../domain/app/logger';
 
