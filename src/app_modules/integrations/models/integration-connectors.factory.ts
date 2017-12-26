@@ -1,10 +1,11 @@
-import { LinkedInConnector } from './../linkedin/linkedin-connector';
 import { inject, injectable } from 'inversify';
 
 import { IAppConfig } from '../../../configuration/config-models';
 import { IConnectorDocument } from '../../../domain/master/connectors/connector';
 import { FacebookConnector } from '../facebook/facebook-connector';
 import { InstagramConnector } from './../instagram/instagram-connector';
+import { LinkedInConnector } from './../linkedin/linkedin-connector';
+import { QuickBooksOnlineConnector } from './../quickbooks-online/quickbooks-online-connector';
 import { IOAuthConnector } from './connector-base';
 import { ConnectorTypeEnum, getConnectorType } from './connector-type';
 
@@ -19,8 +20,8 @@ export class IntegrationConnectorFactory {
 
     getInstance(integrationConfig: any, code: string, options?: any): IOAuthConnector {
         switch (getConnectorType(code)) {
-            // case ConnectorTypeEnum.QuickBooksOnline:
-            //     return new QuickBooksOnlineConnector(integrationConfig, options.query.realmId);
+            case ConnectorTypeEnum.QuickBooksOnline:
+                return new QuickBooksOnlineConnector(integrationConfig, this._config, options.query.realmId);
             // case ConnectorTypeEnum.Square:
             //     return new SquareConnector(integrationConfig);
             case ConnectorTypeEnum.Instagram:
