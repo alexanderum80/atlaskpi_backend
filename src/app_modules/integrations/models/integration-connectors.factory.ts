@@ -38,7 +38,7 @@ export class IntegrationConnectorFactory {
     getInstanceFromDocument(integrationConfig: any, connector: IConnectorDocument): IOAuthConnector {
         switch (getConnectorType(connector.type)) {
             case ConnectorTypeEnum.QuickBooksOnline:
-            //     return IntegrationConnectorFactory.getQuickBooksConnector(integrationConfig, connector);
+                return IntegrationConnectorFactory.getQuickBooksConnector(integrationConfig, connector);
             // case ConnectorTypeEnum.Square:
             //     return IntegrationConnectorFactory.getSquareConnector(integrationConfig, connector);
             case ConnectorTypeEnum.Instagram:
@@ -58,12 +58,12 @@ export class IntegrationConnectorFactory {
     //     return squareConnector;
     // }
 
-    // private static getQuickBooksConnector(integrationConfig: any, connector: IConnectorDocument): QuickBooksOnlineConnector {
-    //     const qbConnector = new QuickBooksOnlineConnector(integrationConfig);
-    //     qbConnector.setRealmId(connector.config.realmId);
-    //     qbConnector.setToken(connector.config.token);
-    //     return qbConnector;
-    // }
+    private static getQuickBooksConnector(integrationConfig: any, connector: IConnectorDocument): QuickBooksOnlineConnector {
+        const qbConnector = new QuickBooksOnlineConnector(integrationConfig);
+        qbConnector.setRealmId(connector.config.realmId);
+        qbConnector.setToken(connector.config.token);
+        return qbConnector;
+    }
 
     private static getInstagramConnector(integrationConfig, connector: IConnectorDocument): InstagramConnector {
         const instaConnector = new InstagramConnector(integrationConfig);
