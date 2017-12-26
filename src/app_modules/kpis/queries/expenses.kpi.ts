@@ -19,7 +19,8 @@ export class Expenses extends KpiBase implements IKpiBase {
                 frequency: true,
                 $project: {
                     'expense': 1,
-                    '_id': 0
+                    '_id': 0,
+                    timestamp: 1
                 }
             },
             {
