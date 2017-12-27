@@ -707,16 +707,19 @@ export class UIChartBase {
                 defObject['data'] = {};
             }
             defObject['data'][keys[i]] = [];
+
             const definition = definitions[keys[i]];
-            const dateRangeId = getDateRangeIdFromString(that.chart.dateRange[0].predefined);
             const cats =  definition.xAxis.categories;
+
             for (let j = 0; j < definition.series.length; j++) {
                 const serie = definition.series[j];
+
                 for (let k = 0; k < cats.length; k++) {
                     const catExists = defObject['uniqCategories'].find(c => c === cats[k]);
                     if (!catExists) {
                         defObject['uniqCategories'].push(cats[k]);
                     }
+
                     defObject['data'][keys[i]].push({
                         category: cats[k],
                         serieName: serie.name,
@@ -737,9 +740,11 @@ export class UIChartBase {
 
         const series = [];
         let objData = {};
+        const that = this;
 
         for (let i = 0; i < keys.length; i++) {
             const stack = keys[i];
+
             for (let j = 0; j < allCategories.length; j++) {
                 const filteredByCategory = data[stack].filter(e => e.category === allCategories[j]);
                 serieData = serieData.concat(
@@ -747,8 +752,11 @@ export class UIChartBase {
                 );
                 objData.serieName = filteredByCategory[0].serieName;
             }
+            const dateRangeId = getDateRangeIdFromString(that.chart.dateRange[0].predefined);
+            const comparisonString = (stack === 'main') ?
+                        that.chart.dateRange[0].predefined : PredefinedComparisonDateRanges[dateRangeId][stack];
             series.push({
-                name: objData.serieName + '-' + stack,
+                name: objData.serieName + `(${comparisonString})`,
                 data: serieData,
                 stack: stack
             });
