@@ -677,23 +677,29 @@ export class UIChartBase {
 
     private _mergeMultipleChartDefinitions(definitions: any, metadata: IChartMetadata): any {
         const mainDefinition = definitions['main'] || {};
-
-        if (metadata.xAxisSource !== FREQUENCY_GROUPING_NAME) {
             let comparisonCategoriesWithValues = this._getComparisonCategoriesWithValues(definitions);
             let definitionSeries = this._getComparisonSeries(comparisonCategoriesWithValues);
 
-            mainDefinition.xAxis.categories = this._getComparisonCategories(definitions);
+            mainDefinition.xAxis.categories = this._getComparisonCategories(definitions, metadata);
             mainDefinition.series = definitionSeries;
 
             return mainDefinition;
-        } else {
-            let mergedSeries = [];
-            mergedSeries = mergedSeries.concat(this._getComparisonSeriesFrequency(definitions));
-            mergedSeries = mergedSeries.concat(this._getMainComparisonSeries(definitions));
-            mainDefinition.series = mergedSeries;
+        // if (metadata.xAxisSource !== FREQUENCY_GROUPING_NAME) {
+        //     let comparisonCategoriesWithValues = this._getComparisonCategoriesWithValues(definitions);
+        //     let definitionSeries = this._getComparisonSeries(comparisonCategoriesWithValues);
 
-            return mainDefinition;
-        }
+        //     mainDefinition.xAxis.categories = this._getComparisonCategories(definitions);
+        //     mainDefinition.series = definitionSeries;
+
+        //     return mainDefinition;
+        // } else {
+        //     let mergedSeries = [];
+        //     mergedSeries = mergedSeries.concat(this._getComparisonSeriesFrequency(definitions));
+        //     mergedSeries = mergedSeries.concat(this._getMainComparisonSeries(definitions));
+        //     mainDefinition.series = mergedSeries;
+
+        //     return mainDefinition;
+        // }
     }
 
     private _getComparisonCategoriesWithValues(definitions: any): any {
@@ -736,31 +742,60 @@ export class UIChartBase {
         const allCategories = obj['uniqCategories'];
         const data = obj['data'];
         const keys = Object.keys(data);
-        const serieData = [];
+        let serieData = [];
 
         const series = [];
-        let objData = {};
+        let objData: any = {};
         const that = this;
 
+        // for (let i = 0; i < keys.length; i++) {
+        //     const stack = keys[i];
+        //     let bySerieName = groupBy(data[stack], 'serieName');
+        //     let serieNameKeys = Object.keys(bySerieName);
+
+        //     for (let j = 0; j < allCategories.length; j++) {
+        //         const filteredByCategory = data[stack].filter(e => e.category === allCategories[j]);
+        //         serieData = serieData.concat(
+        //             filteredByCategory.length ? filteredByCategory[0].serieValue : null
+        //         );
+        //         objData.serieName = filteredByCategory[0].serieName;
+        //     }
+        //     const dateRangeId = getDateRangeIdFromString(that.chart.dateRange[0].predefined);
+        //     const comparisonString = (stack === 'main') ?
+        //                 that.chart.dateRange[0].predefined : PredefinedComparisonDateRanges[dateRangeId][stack];
+        //     series.push({
+        //         name: objData.serieName + `(${comparisonString})`,
+        //         data: serieData,
+        //         stack: stack
+        //     });
+        //     serieData = [];
+        // }
+        // return series;
         for (let i = 0; i < keys.length; i++) {
             const stack = keys[i];
+            let bySerieName = groupBy(data[stack], 'serieName');
+            let serieNameKeys = Object.keys(bySerieName);
 
-            for (let j = 0; j < allCategories.length; j++) {
-                const filteredByCategory = data[stack].filter(e => e.category === allCategories[j]);
-                serieData = serieData.concat(
-                    filteredByCategory.length ? filteredByCategory[0].serieValue : null
-                );
-                objData.serieName = filteredByCategory[0].serieName;
+
+            for (let k = 0; k < serieNameKeys.length; k++) {
+                for (let j = 0; j < allCategories.length; j++) {
+                    const groupKeys = serieNameKeys[k];
+                    const filteredByCategory = bySerieName[groupKeys].filter(obj => obj.category === allCategories[j]);
+                    serieData = serieData.concat(
+                        filteredByCategory[0].serieValue
+                    );
+                    objData.serieName = groupKeys;
+                }
+                const dateRangeId = getDateRangeIdFromString(that.chart.dateRange[0].predefined);
+                const comparisonString = (stack === 'main') ?
+                            that.chart.dateRange[0].predefined : PredefinedComparisonDateRanges[dateRangeId][stack];
+                series.push({
+                    name: objData.serieName + `(${comparisonString})`,
+                    data: serieData,
+                    stack: stack
+                });
+                serieData = [];
             }
-            const dateRangeId = getDateRangeIdFromString(that.chart.dateRange[0].predefined);
-            const comparisonString = (stack === 'main') ?
-                        that.chart.dateRange[0].predefined : PredefinedComparisonDateRanges[dateRangeId][stack];
-            series.push({
-                name: objData.serieName + `(${comparisonString})`,
-                data: serieData,
-                stack: stack
-            });
-            serieData = [];
         }
         return series;
     }
@@ -812,7 +847,7 @@ export class UIChartBase {
         return series;
     }
 
-    private _getComparisonCategories(definitions: any): string[] {
+    private _getComparisonCategories(definitions: any, metadata: IChartMetadata): string[] {
         let listCategories = [];
 
         Object.keys(definitions).forEach(key => {
@@ -822,7 +857,9 @@ export class UIChartBase {
         });
 
         listCategories = uniq(listCategories);
-        listCategories = listCategories.sort();
+        if (metadata.xAxisSource !== FREQUENCY_GROUPING_NAME) {
+            listCategories = listCategories.sort();
+        }
         return listCategories;
     }
 
