@@ -3,7 +3,7 @@ import 'datejs';
 import { from } from 'apollo-link/lib';
 import * as Promise from 'bluebird';
 import * as console from 'console';
-import { cloneDeep, difference, flatten, groupBy, isEmpty, map, union, uniq, uniqBy } from 'lodash';
+import { cloneDeep, difference, flatten, groupBy, isEmpty, map, union, uniq, uniqBy, orderBy } from 'lodash';
 import * as moment from 'moment';
 import * as logger from 'winston';
 
@@ -254,7 +254,7 @@ export class UIChartBase {
             return this.frequencyHelper.getCategories(metadata.frequency);
         }
 
-        const uniqueCategories = <string[]> uniq(data.map(item => item._id[metadata.xAxisSource]));
+        const uniqueCategories = <string[]> orderBy(uniq(data.map(item => item._id[metadata.xAxisSource])));
 
         return uniqueCategories.map(category => {
             return {
@@ -678,16 +678,86 @@ export class UIChartBase {
     private _mergeMultipleChartDefinitions(definitions: any, metadata: IChartMetadata): any {
         const mainDefinition = definitions['main'] || {};
 
-        let mergedSeries = [];
+        if (metadata.xAxisSource !== FREQUENCY_GROUPING_NAME) {
+            let comparisonCategoriesWithValues = this._getComparisonCategoriesWithValues(definitions);
+            let definitionSeries = this._getComparisonSeries(comparisonCategoriesWithValues);
 
-        mergedSeries = mergedSeries.concat(this._getComparisonSeries(definitions));
-        mergedSeries = mergedSeries.concat(this._getMainComparisonSeries(definitions));
-        mainDefinition.series = mergedSeries;
+            mainDefinition.xAxis.categories = this._getComparisonCategories(definitions);
+            mainDefinition.series = definitionSeries;
 
-        return mainDefinition;
+            return mainDefinition;
+        } else {
+            let mergedSeries = [];
+            mergedSeries = mergedSeries.concat(this._getComparisonSeriesFrequency(definitions));
+            mergedSeries = mergedSeries.concat(this._getMainComparisonSeries(definitions));
+            mainDefinition.series = mergedSeries;
+
+            return mainDefinition;
+        }
     }
 
-    private _getComparisonSeries(definitions: any): any {
+    private _getComparisonCategoriesWithValues(definitions: any): any {
+        let defObject = {};
+        defObject['uniqCategories'] = [];
+        const keys = Object.keys(definitions);
+        const that = this;
+
+        for (let i = 0; i < keys.length; i++) {
+            if (defObject['data'] === undefined) {
+                defObject['data'] = {};
+            }
+            defObject['data'][keys[i]] = [];
+            const definition = definitions[keys[i]];
+            const dateRangeId = getDateRangeIdFromString(that.chart.dateRange[0].predefined);
+            const cats =  definition.xAxis.categories;
+            for (let j = 0; j < definition.series.length; j++) {
+                const serie = definition.series[j];
+                for (let k = 0; k < cats.length; k++) {
+                    const catExists = defObject['uniqCategories'].find(c => c === cats[k]);
+                    if (!catExists) {
+                        defObject['uniqCategories'].push(cats[k]);
+                    }
+                    defObject['data'][keys[i]].push({
+                        category: cats[k],
+                        serieName: serie.name,
+                        serieValue: serie.data[k]
+                    });
+                }
+            }
+        }
+
+        return defObject;
+    }
+
+    private _getComparisonSeries(obj: any): any {
+        const allCategories = obj['uniqCategories'];
+        const data = obj['data'];
+        const keys = Object.keys(data);
+        const serieData = [];
+
+        const series = [];
+        let objData = {};
+
+        for (let i = 0; i < keys.length; i++) {
+            const stack = keys[i];
+            for (let j = 0; j < allCategories.length; j++) {
+                const filteredByCategory = data[stack].filter(e => e.category === allCategories[j]);
+                serieData = serieData.concat(
+                    filteredByCategory.length ? filteredByCategory[0].serieValue : null
+                );
+                objData.serieName = filteredByCategory[0].serieName;
+            }
+            series.push({
+                name: objData.serieName + '-' + stack,
+                data: serieData,
+                stack: stack
+            });
+            serieData = [];
+        }
+        return series;
+    }
+
+    private _getComparisonSeriesFrequency(definitions: any): any {
         const that = this;
 
         const definitionsIds = Object.keys(definitions).filter(d => d !== 'main');
@@ -732,6 +802,20 @@ export class UIChartBase {
         });
 
         return series;
+    }
+
+    private _getComparisonCategories(definitions: any): string[] {
+        let listCategories = [];
+
+        Object.keys(definitions).forEach(key => {
+            listCategories = listCategories.concat(
+                definitions[key].xAxis.categories
+            );
+        });
+
+        listCategories = uniq(listCategories);
+        listCategories = listCategories.sort();
+        return listCategories;
     }
 
     private _noSerieName(serieName: any): boolean {
