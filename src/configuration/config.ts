@@ -68,5 +68,6 @@ export const config: IAppConfig = {
     emailService: emailServiceConfig,
     usersService: usersServiceConfig,
     appServices: appServicesConfig,
-    integrationRedirectUrl: process.env.AKPI_INTEGRATION_REDIRECT_URL  || 'http://localhost:9091/integration',
+    // integrationRedirectUrl: process.env.AKPI_INTEGRATION_REDIRECT_URL  || 'http://localhost:9091/integration',
+    integrationRedirectUrl: process.env.AKPI_INTEGRATION_REDIRECT_URL  || 'https://5dffabdd.ngrok.io/integration'
 };
