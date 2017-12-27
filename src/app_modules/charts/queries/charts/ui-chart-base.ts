@@ -684,22 +684,6 @@ export class UIChartBase {
             mainDefinition.series = definitionSeries;
 
             return mainDefinition;
-        // if (metadata.xAxisSource !== FREQUENCY_GROUPING_NAME) {
-        //     let comparisonCategoriesWithValues = this._getComparisonCategoriesWithValues(definitions);
-        //     let definitionSeries = this._getComparisonSeries(comparisonCategoriesWithValues);
-
-        //     mainDefinition.xAxis.categories = this._getComparisonCategories(definitions);
-        //     mainDefinition.series = definitionSeries;
-
-        //     return mainDefinition;
-        // } else {
-        //     let mergedSeries = [];
-        //     mergedSeries = mergedSeries.concat(this._getComparisonSeriesFrequency(definitions));
-        //     mergedSeries = mergedSeries.concat(this._getMainComparisonSeries(definitions));
-        //     mainDefinition.series = mergedSeries;
-
-        //     return mainDefinition;
-        // }
     }
 
     private _getComparisonCategoriesWithValues(definitions: any): any {
@@ -748,29 +732,6 @@ export class UIChartBase {
         let objData: any = {};
         const that = this;
 
-        // for (let i = 0; i < keys.length; i++) {
-        //     const stack = keys[i];
-        //     let bySerieName = groupBy(data[stack], 'serieName');
-        //     let serieNameKeys = Object.keys(bySerieName);
-
-        //     for (let j = 0; j < allCategories.length; j++) {
-        //         const filteredByCategory = data[stack].filter(e => e.category === allCategories[j]);
-        //         serieData = serieData.concat(
-        //             filteredByCategory.length ? filteredByCategory[0].serieValue : null
-        //         );
-        //         objData.serieName = filteredByCategory[0].serieName;
-        //     }
-        //     const dateRangeId = getDateRangeIdFromString(that.chart.dateRange[0].predefined);
-        //     const comparisonString = (stack === 'main') ?
-        //                 that.chart.dateRange[0].predefined : PredefinedComparisonDateRanges[dateRangeId][stack];
-        //     series.push({
-        //         name: objData.serieName + `(${comparisonString})`,
-        //         data: serieData,
-        //         stack: stack
-        //     });
-        //     serieData = [];
-        // }
-        // return series;
         for (let i = 0; i < keys.length; i++) {
             const stack = keys[i];
             let bySerieName = groupBy(data[stack], 'serieName');
@@ -782,7 +743,7 @@ export class UIChartBase {
                     const groupKeys = serieNameKeys[k];
                     const filteredByCategory = bySerieName[groupKeys].filter(obj => obj.category === allCategories[j]);
                     serieData = serieData.concat(
-                        filteredByCategory[0].serieValue
+                        filteredByCategory.length ? filteredByCategory[0].serieValue : null
                     );
                     objData.serieName = groupKeys;
                 }
@@ -857,9 +818,6 @@ export class UIChartBase {
         });
 
         listCategories = uniq(listCategories);
-        if (metadata.xAxisSource !== FREQUENCY_GROUPING_NAME) {
-            listCategories = listCategories.sort();
-        }
         return listCategories;
     }
 
