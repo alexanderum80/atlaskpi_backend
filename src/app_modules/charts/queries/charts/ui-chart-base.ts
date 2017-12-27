@@ -761,53 +761,6 @@ export class UIChartBase {
         return series;
     }
 
-    private _getComparisonSeriesFrequency(definitions: any): any {
-        const that = this;
-
-        const definitionsIds = Object.keys(definitions).filter(d => d !== 'main');
-
-        if (!definitionsIds || definitionsIds.length < 1) return [];
-
-        const series = [];
-
-        for (let i = definitionsIds.length; i > 0; i--) {
-            if (definitions[definitionsIds[i - 1]].series && definitions[definitionsIds[i - 1]].series.length > 0) {
-                const definitionKey = definitionsIds[i - 1];
-                definitions[definitionKey].series.forEach(serie => {
-                    const dateRangeId = getDateRangeIdFromString(that.chart.dateRange[0].predefined);
-                    const comparisonString = PredefinedComparisonDateRanges[dateRangeId][definitionKey];
-                    const serieElement = {
-                        name: `${serie.name}(${comparisonString})`,
-                        data: serie.data,
-                        stack: definitionKey
-                    };
-                    series.push(serieElement);
-                });
-            }
-        }
-
-        return series;
-    }
-
-    private _getMainComparisonSeries(definitions: any): any {
-        const that = this;
-        const main = definitions['main'];
-
-        const series = [];
-
-        main.series.forEach(serie => {
-            const comparisonString = that.chart.dateRange[0].predefined;
-            const serieElement = {
-                name: `${serie.name}(${comparisonString})`,
-                data: serie.data,
-                stack: 'main'
-            };
-            series.push(serieElement);
-        });
-
-        return series;
-    }
-
     private _getComparisonCategories(definitions: any, metadata: IChartMetadata): string[] {
         let listCategories = [];
 
