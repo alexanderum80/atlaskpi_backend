@@ -1,3 +1,4 @@
+import { PnsService } from '../../../services/pns.service';
 import { TargetNotification } from '../../../services/notifications/users/target.notification';
 import { IUserDocument } from '../../../domain/app/security/users/user';
 import { IChartDocument } from '../../../domain/app/charts/chart';
@@ -26,7 +27,8 @@ export class TargetNotificationMutation implements MutationBase<IMutationRespons
         @inject(Charts.name) private _chart: Charts,
         @inject(Dashboards.name) private _dashboard: Dashboards,
         @inject(Users.name) private _user: Users,
-        @inject(TargetNotification.name) private _targetNotification: TargetNotification
+        @inject(TargetNotification.name) private _targetNotification: TargetNotification,
+        @inject(PnsService.name) private _pnsService: PnsService
     ) {
         super();
     }

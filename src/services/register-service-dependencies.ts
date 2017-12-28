@@ -1,3 +1,4 @@
+import { PnsService } from './pns.service';
 import { EnrollmentNotification } from './notifications/users/enrollment.notification';
 import { UserForgotPasswordNotification } from './notifications/users/user-forgot-password.notification';
 import { AccountCreatedNotification } from './notifications/users/account-created.notification';
@@ -15,6 +16,7 @@ import { WidgetsService } from './widgets.service';
 export function registerServices(container: IBridgeContainer) {
     container.registerSingleton(AccountsService);
     container.registerSingleton(AuthService);
+    container.registerSingleton(PnsService);
 
     // notifications
     container.registerSingleton(TargetNotification);
