@@ -2,6 +2,7 @@ import { IPnsConfig } from '../configuration/config-models';
 import * as Promise from 'bluebird';
 import axios, { AxiosInstance } from 'axios';
 import { inject, injectable } from 'inversify';
+import { IUserDocument } from '../domaim/app/security/users/user';
 
 export interface IPnsNotificatiopnPayload {
 
@@ -46,4 +47,44 @@ export class PnsService {
     }
 
 
+}
+
+
+interface IMessageTarget {
+    appId: string;
+    token: string;
+}
+
+interface IPnsMessagePayload {
+    appTokens: IMessageTarget[];
+    message: string;
+    payload?: string;
+}
+
+function _preparePayload(users: IUserDocument[], message: string, extraInfo?: any): IPnsMessagePayload {
+    const payload: IPnsMessagePayload = {
+        message: message,
+        appTokens: []
+    };
+
+    if (extraInfo) {
+        payload.payload = extraInfo;
+    }
+
+    users.forEach(u => {
+        if (!u.mobileDevices) {
+            return;
+        }
+
+        u.mobileDevices.forEach(d => {
+            const appId = d.network === 'Apple' ? iosAppId : androidAppId;
+
+            payload.appTokens.push({
+                appId: appId,
+                token: d.token
+            });
+        });
+    });
+
+    return payload;
 }
