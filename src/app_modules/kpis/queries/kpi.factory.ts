@@ -19,6 +19,9 @@ export class KpiFactory {
     ) { }
 
     getInstance(kpiDocument: IKPIDocument): IKpiBase {
+
+        if (!kpiDocument) { return null; }
+
         if (kpiDocument.type && kpiDocument.type === KPITypeEnum.Compound) {
             // TODO: Refactor this
             return new CompositeKpi(kpiDocument, this, this._kpis);
