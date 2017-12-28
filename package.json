@@ -62,8 +62,9 @@
         "typescript": "2.6.1"
     },
     "dependencies": {
+        "@types/axios": "^0.14.0",
+        "axios": "^0.14.0",
         "adaptjs": "^1.0.3",
-        "axios": "^0.17.1",
         "apollo-link": "^1.0.0",
         "async": "^2.1.4",
         "bcrypt": "^0.8.7",

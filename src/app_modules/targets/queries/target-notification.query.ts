@@ -46,10 +46,11 @@ export class TargetNotificationQuery implements IQuery<boolean> {
                     // pass data to the notification
                     if (!chart || !dashboard || !users) {
                         reject({ field: 'target notification', errors: 'inefficient data'});
+                        return;
                     }
                     const notifyData = {
                         targetName: input.targetName,
-                        targetAmount: input.targetAmount.toFixed(2),
+                        targetAmount: input.targetAmount,
                         targetDate: input.targetDate,
                         dashboardName: dashboard,
                         chartName: chart.title,
