@@ -1,8 +1,8 @@
-import { IPnsConfig } from '../configuration/config-models';
+import { IAppConfig, IPnsConfig } from '../configuration/config-models';
 import * as Promise from 'bluebird';
 import axios, { AxiosInstance } from 'axios';
 import { inject, injectable } from 'inversify';
-import { IUserDocument } from '../domaim/app/security/users/user';
+import { IUserDocument } from '../domain/app/security/users/user';
 
 export interface IPnsNotificatiopnPayload {
 

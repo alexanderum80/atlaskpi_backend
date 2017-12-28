@@ -9,7 +9,7 @@ import { query } from '../../../framework/decorators/query.decorator';
 @injectable()
 @query({
     name: 'targetAmount',
-    activity: GetTargetAmountActivity
+    activity: GetTargetAmountActivity,
     parameters: [
         { name: 'input', type: TargetAmountInput }
     ],
