@@ -1,4 +1,4 @@
-import { TargetNotificationMutation } from './mutations/target-notification.mutation';
+import { TargetNotificationQuery } from './queries/target-notification.query';
 import { GetTargetAmountQuery } from './queries/get-target-amount.query';
 import { AppModule, ModuleBase } from '../../framework/decorators/app-module';
 import { CreateTargetMutation } from './mutations/create-target.mutation';
@@ -14,13 +14,13 @@ import { FindTargetQuery } from './queries/find-target.query';
         CreateTargetMutation,
         RemoveTargetFromChartMutation,
         RemoveTargetMutation,
-        UpdateTargetMutation,
-        TargetNotificationMutation
+        UpdateTargetMutation
     ],
     queries: [
         FindAllTargetsQuery,
         FindTargetQuery,
-        GetTargetAmountQuery
+        GetTargetAmountQuery,
+        TargetNotificationQuery
     ]
 })
 export class TargetsModule extends ModuleBase { }

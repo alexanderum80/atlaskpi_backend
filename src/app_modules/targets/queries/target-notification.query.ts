@@ -9,12 +9,11 @@ import { NotificationInput, NotificationResponse } from '../targets.types';
 import { TargetNotificationActivity } from '../activities/target-notification.activity';
 import * as Promise from 'bluebird';
 import { inject, injectable } from 'inversify';
-import { mutation } from '../../../framework/decorators/mutation.decorator';
-import { MutationBase } from '../../../framework/mutations/mutation-base';
-import { IMutationResponse } from '../../../framework/mutations/mutation-response';
+import { query } from '../../../framework/decorators/query.decorator';
+import { IQuery } from '../../../framework/queries/query';
 
 @injectable()
-@mutation({
+@query({
     name: 'targetNotification',
     activity: TargetNotificationActivity,
     parameters: [
@@ -22,21 +21,19 @@ import { IMutationResponse } from '../../../framework/mutations/mutation-respons
     ],
     output: { type: NotificationResponse }
 })
-export class TargetNotificationMutation implements MutationBase<IMutationResponse> {
+export class TargetNotificationQuery implements IQuery<boolean> {
     constructor(
         @inject(Charts.name) private _chart: Charts,
         @inject(Dashboards.name) private _dashboard: Dashboards,
         @inject(Users.name) private _user: Users,
         @inject(TargetNotification.name) private _targetNotification: TargetNotification,
         @inject(PnsService.name) private _pnsService: PnsService
-    ) {
-        super();
-    }
+    ) {}
 
-    run(data: { input: NotificationInput }): Promise<IMutationResponse> {
+    run(data: { input: NotificationInput }): Promise<boolean> {
         const that = this;
 
-        return new Promise<IMutationResponse>((resolve, reject) => {
+        return new Promise<boolean>((resolve, reject) => {
             const that = this;
             const input = data.input;
 
@@ -60,6 +57,7 @@ export class TargetNotificationMutation implements MutationBase<IMutationRespons
                     };
 
                     const message = `Name: ${input.targetName}, amount: ${input.targetAmount}, date: ${input.targetDate}, chart: ${chart.title}`;
+                    this._pnsService.sendNotifications(users, message);
 
                     users.forEach(user => that._targetNotification.notify(user, user.username, notifyData));
                     resolve(true);
