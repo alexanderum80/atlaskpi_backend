@@ -1,17 +1,16 @@
+import * as Promise from 'bluebird';
 import { injectable } from 'inversify';
+import { isObject, sortBy } from 'lodash';
 import * as mongoose from 'mongoose';
-import { SaleSchema } from '../../../domain/app/sales/sale.model';
+
 import { ExpenseSchema } from '../../../domain/app/expenses/expense.model';
+import { InventorySchema } from '../../../domain/app/inventory/inventory.model';
+import { IKPIDataSourceHelper } from '../../../domain/app/kpis/kpi';
+import { SaleSchema } from '../../../domain/app/sales/sale.model';
 import { field } from '../../../framework/decorators/field.decorator';
 import { readMongooseSchema } from '../../../helpers/mongodb.helpers';
 import { flatten } from '../../../helpers/object.helpers';
 import { GroupingMap } from '../../charts/queries/chart-grouping-map';
-import { IKPIDataSourceHelper } from '../../../domain/app/kpis/kpi';
-import {
-    sortBy,
-    isObject
-} from 'lodash';
-import * as Promise from 'bluebird';
 
 export const DataSourceSchemasMapping = [
     {
@@ -21,6 +20,10 @@ export const DataSourceSchemasMapping = [
     {
         name: 'expenses',
         definition: ExpenseSchema
+    },
+    {
+        name: 'inventory',
+        definition: InventorySchema
     }
 ];
 
@@ -81,7 +84,8 @@ export class DataSourcesHelper {
         // get sales and expense mongoose models
         const model = {
             sales: models.sales,
-            expenses: models.expenses
+            expenses: models.expenses,
+            inventory: models.inventory
         };
         // get sales or expense mongoose models
         const collection = GroupingMap[schemaName];

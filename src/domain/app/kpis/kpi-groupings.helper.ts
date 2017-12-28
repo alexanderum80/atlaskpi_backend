@@ -29,6 +29,9 @@ export class KPIGroupingsHelper {
             case 'Expenses':
                 return Object.keys(GroupingMap.expenses);
 
+            case 'Inventory':
+                return Object.keys(GroupingMap.inventory);
+
             default:
                 return null;
         }

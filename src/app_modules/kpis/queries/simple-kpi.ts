@@ -1,3 +1,4 @@
+import { Inventory } from './../../../domain/app/inventory/inventory.model';
 import { Expenses } from '../../../domain/app/expenses/expense.model';
 import * as Promise from 'bluebird';
 import { IKPI, IKPIDocument, IKPISimpleDefinition, KPITypeEnum } from '../../../domain/app/kpis/kpi';
@@ -31,12 +32,16 @@ const CollectionsMapping = {
     expenses: {
         modelName: 'Expense',
         timestampField: 'timestamp'
+    },
+    inventory: {
+        modelName: 'Inventory',
+        timestampField: 'updatedAt'
     }
 };
 
 export class SimpleKPI extends KpiBase implements IKpiBase {
 
-    public static CreateFromExpression(kpi: IKPIDocument, sales: Sales, expenses: Expenses): SimpleKPI {
+    public static CreateFromExpression(kpi: IKPIDocument, sales: Sales, expenses: Expenses, inventory: Inventory): SimpleKPI {
         const simpleKPIDefinition: IKPISimpleDefinition = KPIExpressionHelper.DecomposeExpression(KPITypeEnum.Simple, kpi.expression);
 
         const collection: ICollection = CollectionsMapping[simpleKPIDefinition.dataSource];
@@ -44,7 +49,8 @@ export class SimpleKPI extends KpiBase implements IKpiBase {
 
         const models = {
             Sale: sales.model,
-            Expense: expenses.model
+            Expense: expenses.model,
+            Inventory: inventory.model
         };
 
         const model = models[collection.modelName];

@@ -1,3 +1,4 @@
+import { Inventory } from './inventory/inventory.model';
 import { CurrentAccount } from './../master/current-account';
 import { IBridgeContainer } from '../../framework/di/bridge-container';
 import { AccessLogs } from './access-log/access-log.model';
@@ -58,7 +59,8 @@ const registrations: any[] = [
     Permissions,
     Users,
     Widgets,
-    Worklogs
+    Worklogs,
+    Inventory
 ];
 
 export function registerAppModels(container: IBridgeContainer) {

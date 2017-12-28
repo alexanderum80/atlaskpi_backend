@@ -5,10 +5,12 @@ import { flatten } from '../../../helpers/object.helpers';
 import { ExpenseSchema } from '../expenses/expense.model';
 import { SaleSchema } from '../sales/sale.model';
 import { IKPIFilter, KPITypeEnum } from './kpi';
+import { InventorySchema } from '../inventory/inventory.model';
 
 const Schemas = [
       SaleSchema,
-      ExpenseSchema
+      ExpenseSchema,
+      InventorySchema
 ];
 
 const replacementStrings = [
