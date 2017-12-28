@@ -23,8 +23,6 @@ export class TargetNotification implements IEmailNotifier {
             dataSource.name = user.profile.firstName + ' ' + user.profile.lastName;
         }
 
-        // dataSource.host = data.host;
-        // dataSource.subdomain = this._config.subdomain;
         dataSource.targetName = data.targetName;
         dataSource.targetAmount = parseInt(data.targetAmount).toFixed(2);
         dataSource.targetDate = data.targetDate;
