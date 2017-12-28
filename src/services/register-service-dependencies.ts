@@ -1,3 +1,7 @@
+import { EnrollmentNotification } from './notifications/users/enrollment.notification';
+import { UserForgotPasswordNotification } from './notifications/users/user-forgot-password.notification';
+import { AccountCreatedNotification } from './notifications/users/account-created.notification';
+import { TargetNotification } from './notifications/users/target.notification';
 import { IBridgeContainer } from '../framework/di/bridge-container';
 import { AccountsService } from './accounts.service';
 import { AuthService } from './auth.service';
@@ -11,6 +15,12 @@ import { WidgetsService } from './widgets.service';
 export function registerServices(container: IBridgeContainer) {
     container.registerSingleton(AccountsService);
     container.registerSingleton(AuthService);
+
+    // notifications
+    container.registerSingleton(TargetNotification);
+    container.registerSingleton(AccountCreatedNotification);
+    container.registerSingleton(UserForgotPasswordNotification);
+    container.registerSingleton(EnrollmentNotification);
 
     container.registerPerWebRequest(SeedService);
     container.registerPerWebRequest(TargetService);
