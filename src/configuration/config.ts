@@ -68,5 +68,9 @@ export const config: IAppConfig = {
     emailService: emailServiceConfig,
     usersService: usersServiceConfig,
     appServices: appServicesConfig,
+    pns: {
+        pnsServer: process.env.AKPI_PNS_SERVER || 'http://pns.test.atlaskpi.com:9093',
+        appIdentifier: process.env.AKPI_PNS_APP_IDENTIFIER || 'GpINyWutMVBCRRAgo7Cv0SZ9sQI34pgW'
+    },
     integrationRedirectUrl: process.env.AKPI_INTEGRATION_REDIRECT_URL  || 'http://localhost:9091/integration',
 };

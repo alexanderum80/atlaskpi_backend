@@ -1008,4 +1008,18 @@ export function userPlugin(schema: mongoose.Schema, options: any) {
         });
     };
 
+    schema.statics.findUsersById = function(id: string[]): Promise<IUserDocument[]> {
+        const UserModel = (<IUserModel>this);
+        return new Promise<IUserDocument[]>((resolve, reject) => {
+            UserModel.find({ _id: { $in: id } }).then(users => {
+                if (users) {
+                    resolve(users);
+                    return;
+                }
+                resolve(null);
+                return;
+            }).catch(err => reject(err));
+        });
+    };
+
 }

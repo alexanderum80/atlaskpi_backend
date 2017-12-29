@@ -6,6 +6,12 @@
   version "2.0.45"
   resolved "https://registry.yarnpkg.com/@types/async/-/async-2.0.45.tgz#0cfe971d7ed5542695740338e0455c91078a0e83"
 
+"@types/axios@^0.14.0":
+  version "0.14.0"
+  resolved "https://registry.yarnpkg.com/@types/axios/-/axios-0.14.0.tgz#ec2300fbe7d7dddd7eb9d3abf87999964cafce46"
+  dependencies:
+    axios "*"
+
 "@types/bcrypt@0.0.30":
   version "0.0.30"
   resolved "https://registry.yarnpkg.com/@types/bcrypt/-/bcrypt-0.0.30.tgz#f669b61a4c83f042103317c1d10daf7822f36f33"
@@ -482,6 +488,12 @@ aws-sign2@~0.7.0:
 aws4@^1.2.1, aws4@^1.6.0:
   version "1.6.0"
   resolved "https://registry.yarnpkg.com/aws4/-/aws4-1.6.0.tgz#83ef5ca860b2b32e4a0deedee8c771b9db57471e"
+
+axios@*, axios@^0.14.0:
+  version "0.14.0"
+  resolved "https://registry.yarnpkg.com/axios/-/axios-0.14.0.tgz#40f24f2f4e913b9faa43d3a7b2e40ab8729afa90"
+  dependencies:
+    follow-redirects "0.0.7"
 
 babel-code-frame@^6.22.0:
   version "6.26.0"
@@ -1311,6 +1323,13 @@ finalhandler@0.4.1:
     escape-html "~1.0.3"
     on-finished "~2.3.0"
     unpipe "~1.0.0"
+
+follow-redirects@0.0.7:
+  version "0.0.7"
+  resolved "https://registry.yarnpkg.com/follow-redirects/-/follow-redirects-0.0.7.tgz#34b90bab2a911aa347571da90f22bd36ecd8a919"
+  dependencies:
+    debug "^2.2.0"
+    stream-consume "^0.1.0"
 
 for-in@^1.0.1:
   version "1.0.2"
@@ -3498,6 +3517,10 @@ stream-combiner@~0.0.4:
   resolved "https://registry.yarnpkg.com/stream-combiner/-/stream-combiner-0.0.4.tgz#4d5e433c185261dde623ca3f44c586bcf5c4ad14"
   dependencies:
     duplexer "~0.1.1"
+
+stream-consume@^0.1.0:
+  version "0.1.0"
+  resolved "https://registry.yarnpkg.com/stream-consume/-/stream-consume-0.1.0.tgz#a41ead1a6d6081ceb79f65b061901b6d8f3d1d0f"
 
 string-template@~1.0.0:
   version "1.0.0"
