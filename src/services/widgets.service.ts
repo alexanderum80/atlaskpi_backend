@@ -98,7 +98,9 @@ export class WidgetsService {
                 resolve(materializedWidgets);
                 return;
             })
-            .catch(err => reject(err));
+            .catch(err => {
+                reject(err);
+            });
         });
     }
 
