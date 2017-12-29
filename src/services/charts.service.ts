@@ -80,10 +80,10 @@ export class ChartsService {
         const meta: IChartMetadata = {
             filter: options && options.filter || chart.filter,
             frequency: FrequencyTable[options && options.frequency || chart.frequency],
-            groupings: getGroupingMetadata(chart, options && options.groupings || []),
+            groupings: getGroupingMetadata(chart, options && options.groupings || chart.groupings || []),
             comparison: options && options.comparison || chart.comparison,
-            xAxisSource: options && options.xAxisSource,
-            dateRange: (options && !options.isFutureTarget && options.dateRange) || null,
+            xAxisSource: options && options.xAxisSource || chart.xAxisSource,
+            dateRange: (options && !options.isFutureTarget && options.dateRange) || chart.dateRange || null,
             isDrillDown: options && options.isDrillDown || false,
             isFutureTarget: options && options.isFutureTarget || false,
         };
