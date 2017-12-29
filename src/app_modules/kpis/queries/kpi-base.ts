@@ -1,3 +1,4 @@
+import { isArrayObject } from '../../../helpers/express.helpers';
 import * as Promise from 'bluebird';
 import {
     cloneDeep,
@@ -198,7 +199,7 @@ export class KpiBase {
 
             if (!isArray(value) && isObject(value)) {
                 value = this._cleanFilter(value);
-            } else if (isArray(value)) {
+            } else if (isArrayObject(value)) {
                 for (let i = 0; i < value.length; i++) {
                     value[i] = this._cleanFilter(value[i]);
                 }
