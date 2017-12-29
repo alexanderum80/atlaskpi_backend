@@ -145,8 +145,8 @@ export class KPIFilterHelper {
     }
 
     private static _handleAsArrayOperatorValuePairIntent(f: IKPIFilter, fieldset: any[]): any {
-        const hasComma = f.criteria.indexOf('|') !== -1;
-        return !hasComma ?
+        const hasPipe = f.criteria.indexOf('|') !== -1;
+        return !hasPipe ?
             f.criteria : f.criteria.split('|')
                           .map(value =>
                                KPIFilterHelper._handleAsElementOperatorValuePairIntent(value, f.field, fieldset)
