@@ -165,3 +165,12 @@ export class KPIPagedQueryResult  {
 
 }
 
+
+@type()
+export class KPICriteriaResult {
+    @field({ type: GraphQLTypesMap.String, isArray: true })
+    criteriaValue: string[];
+
+    @field({ type: ErrorDetails, isArray: true })
+    errors: ErrorDetails[];
+}

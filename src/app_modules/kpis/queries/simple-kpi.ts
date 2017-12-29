@@ -1,4 +1,4 @@
-import { Inventory } from './../../../domain/app/inventory/inventory.model';
+import { isArrayObject, isRegExp } from '../../../helpers/express.helpers';
 import { Expenses } from '../../../domain/app/expenses/expense.model';
 import * as Promise from 'bluebird';
 import { IKPI, IKPIDocument, IKPISimpleDefinition, KPITypeEnum } from '../../../domain/app/kpis/kpi';
@@ -160,9 +160,9 @@ export class SimpleKPI extends KpiBase implements IKpiBase {
 
             let value = filter[filterKey];
 
-            if (!isArray(value) && isObject(value)) {
+            if (!isArray(value) && (!isRegExp(value)) && isObject(value)) {
                 value = this._filterWithNoAggField(value, fieldName);
-            } else if (isArray(value)) {
+            } else if (isArrayObject(value)) {
                 for (let i = 0; i < value.length; i++) {
                     value[i] = this._filterWithNoAggField(value[i], fieldName);
                 }
