@@ -96,6 +96,20 @@ DashboardSchema.statics.deleteDashboard = function(id: string):
         });
     };
 
+DashboardSchema.statics.findDashboardByChartId = function(id): Promise<any> {
+    const DashboardModel = (<IDashboardModel>this);
+    return new Promise<any>((resolve, reject) => {
+        DashboardModel.findOne({ charts: { $in: [id] } }).distinct('name').then(dashboard => {
+            resolve(dashboard[0]);
+            return;
+        }).catch(err => {
+            logger.error(err);
+            reject('there was an error getting a dashboard');
+            return;
+        });
+    });
+};
+
 @injectable()
 export class Dashboards extends ModelBase < IDashboardModel > {
     constructor(@inject(AppConnection.name) appConnection: AppConnection) {

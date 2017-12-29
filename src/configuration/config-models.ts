@@ -32,6 +32,11 @@ export interface ITokenConfig {
     expiresIn: string;
 }
 
+export interface IPnsConfig {
+    pnsServer: string;
+    appIdentifier: string;
+}
+
 export interface IAppConfig {
     impersonateHost: string;
     subdomain: string;
@@ -42,5 +47,6 @@ export interface IAppConfig {
     emailService: IEmailServiceConfig;
     usersService: IUsersServiceConfig;
     appServices: IAppServicesConfig;
+    pns: IPnsConfig;
     integrationRedirectUrl: string;
 }
