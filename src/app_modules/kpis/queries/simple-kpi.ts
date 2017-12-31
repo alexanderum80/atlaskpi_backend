@@ -1,4 +1,3 @@
-import { isArrayObject, isRegExp } from '../../../helpers/express.helpers';
 import { Expenses } from '../../../domain/app/expenses/expense.model';
 import * as Promise from 'bluebird';
 import { IKPI, IKPIDocument, IKPISimpleDefinition, KPITypeEnum } from '../../../domain/app/kpis/kpi';
