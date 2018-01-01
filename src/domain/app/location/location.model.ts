@@ -5,21 +5,23 @@ import * as logger from 'winston';
 
 import { ModelBase } from '../../../type-mongo/model-base';
 import { AppConnection } from '../app.connection';
-import { ILocation, ILocationDocument, ILocationModel } from './location';
+import { ILocation, ILocationDocument, ILocationModel, ILocationInput } from './location';
+import { OperationHoursInfo } from '../../common/location-info.model';
 
 const LocationSchema = new mongoose.Schema({
     name: String,
     description: String,
     alias: String,
     businessunits: String,
-    operhours: String,
     street: String,
     city: String,
     state: String,
-    zip: String
+    country: String,
+    zip: String,
+    operhours: [OperationHoursInfo],
 });
 
-LocationSchema.statics.createLocation = function(input: ILocation): Promise < ILocationDocument > {
+LocationSchema.statics.createLocation = function(input: ILocationInput): Promise < ILocationDocument > {
 
     const that = this;
 
@@ -27,9 +29,7 @@ LocationSchema.statics.createLocation = function(input: ILocation): Promise < IL
         if (!input.name) {
             return reject('Information not valid');
         }
-        that.create({
-            input
-        }).then(location => {
+        that.create(input).then(location => {
             resolve(location);
         }).catch(err => {
             logger.error(err);
@@ -46,9 +46,7 @@ LocationSchema.statics.updateLocation = function(id: string, input: ILocation): 
         if (!input.name) {
             return reject('Information not valid');
         }
-        that.findByIdAndUpdate(id, {
-            input
-        }).then(location => {
+        that.findByIdAndUpdate(id, input).then(location => {
             resolve(location);
         }).catch(err => {
             logger.error(err);

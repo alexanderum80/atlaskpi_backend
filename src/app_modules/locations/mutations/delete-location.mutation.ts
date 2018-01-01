@@ -23,11 +23,11 @@ export class DeleteLocationMutation extends MutationBase<IMutationResponse> {
         super();
     }
 
-    run(data: { _id: string }): Promise<IMutationResponse> {
+    run(data: { id: string }): Promise<IMutationResponse> {
         const that = this;
 
         return new Promise<IMutationResponse>((resolve, reject) => {
-            that._locations.model.deleteLocation(data._id).then(location => {
+            that._locations.model.deleteLocation(data.id).then(location => {
                 resolve({
                     success: location !== null,
                     errors: location !== null ? [] : [{ field: 'general', errors: ['Location not found'] }]

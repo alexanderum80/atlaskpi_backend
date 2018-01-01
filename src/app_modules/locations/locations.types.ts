@@ -4,9 +4,26 @@ import { field } from '../../framework/decorators/field.decorator';
 import { GraphQLTypesMap } from '../../framework/decorators/graphql-types-map';
 import { ErrorDetails } from '../../framework/graphql/common.types';
 
+@input()
+export class OperationHoursInput  {
+    @field({ type: GraphQLTypesMap.String })
+    from: string;
+
+    @field({ type: GraphQLTypesMap.String })
+    to: string;
+}
+
+@type()
+export class OperationHoursInfo  {
+    @field({ type: GraphQLTypesMap.String })
+    from: string;
+
+    @field({ type: GraphQLTypesMap.String })
+    to: string;
+}
 
 @input()
-export class ILocationInput  {
+export class LocationInput  {
     @field({ type: GraphQLTypesMap.String, required: true })
     name: string;
 
@@ -18,22 +35,24 @@ export class ILocationInput  {
 
     @field({ type: GraphQLTypesMap.String })
     businessunits: string;
-
-    @field({ type: GraphQLTypesMap.String })
-    operhours: string;
-
+    
     @field({ type: GraphQLTypesMap.String })
     street: string;
-
+    
     @field({ type: GraphQLTypesMap.String })
     city: string;
-
+    
     @field({ type: GraphQLTypesMap.String })
     state: string;
 
     @field({ type: GraphQLTypesMap.String })
+    country: string;
+    
+    @field({ type: GraphQLTypesMap.String })
     zip: string;
-
+    
+    @field({ type: OperationHoursInput, isArray: true })
+    operhours: OperationHoursInput[];
 }
 
 
@@ -55,9 +74,6 @@ export class Location  {
     businessunits: string;
 
     @field({ type: GraphQLTypesMap.String })
-    operhours: string;
-
-    @field({ type: GraphQLTypesMap.String })
     street: string;
 
     @field({ type: GraphQLTypesMap.String })
@@ -71,6 +87,9 @@ export class Location  {
 
     @field({ type: GraphQLTypesMap.String })
     zip: string;
+
+    @field({ type: OperationHoursInfo, isArray: true })
+    operhours: OperationHoursInfo[];
 
 }
 
