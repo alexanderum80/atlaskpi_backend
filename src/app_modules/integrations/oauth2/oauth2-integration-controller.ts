@@ -15,8 +15,9 @@ import { SocialNetwork } from './../../../domain/app/social-networks/social-netw
 import { Connectors } from './../../../domain/master/connectors/connector.model';
 import { GoogleAnalyticsConnector } from './../google-analytics/google-analytics-connector';
 import { LinkedInConnector } from './../linkedin/linkedin-connector';
-import { IExecutionFlowResult } from './../models/execution-flow';
+import { IExecutionFlowResult, errorExecutionFlow } from './../models/execution-flow';
 import { IntegrationConnectorFactory } from './../models/integration-connectors.factory';
+import { getGoogleAnalyticsConnectors } from '../google-analytics/google-analytics-integration-flow';
 
 @injectable()
 export class IntegrationController {
@@ -306,154 +307,28 @@ export class IntegrationController {
         const token = this._connector.token();
 
         if (!token) {
-            const flowResult: IExecutionFlowResult = {
-                success: false,
-                error: 'google analytics integration couldn\'t obtain a token'
-            };
-            return Promise.resolve(flowResult);
+            return Promise.resolve(errorExecutionFlow( 'google analytics integration couldn\'t obtain a token'));
         }
 
         const that = this;
-
         return new Promise<IExecutionFlowResult>((resolve, reject) => {
-            const oauth2Client = new googleapis.auth.OAuth2(
-                that._integrationConfig.config.clientId,
-                that._integrationConfig.config.clientSecret,
-                ''
-            );
-
-            oauth2Client.credentials = token;
-
-            // set auth as a global default
-            googleapis.options({
-              auth: oauth2Client
-            });
-            const analytics = googleapis.analytics('v3');
-            const webPropertiesAsync = Promise.promisify<any>(analytics.management.webproperties.list);
-            const profilesAsync = Promise.promisify<any>(analytics.management.profiles.list);
-
-            const connectors = [];
-            const accountElements = [];
-            const webPropertyElements = [];
-
-            Promise.promisify<any>(analytics.management.accounts.list)().then((accounts) => {
-                console.log('found ' + accounts.items.length + ' analytics accounts...');
-                const webPropertiesTasks = [];
-                const profilesTasks = [];
-
-                accounts.items.forEach(accountElement => {
-                    accountElements.push(accountElement);
-                    webPropertiesTasks.push((<any>webPropertiesAsync)({ accountId: accountElement.id }));
-                });
-
-                Promise .all(webPropertiesTasks)
-                        .then((webProperties: any) => {
-                            console.log(`found : ${webProperties.length} webproperties...`);
-                            webProperties.forEach(property => {
-                                property.items.forEach(propertyItem => {
-                                    console.log(`webProperty: ${propertyItem.name}`);
-                                    webPropertyElements.push(propertyItem);
-                                    profilesTasks.push((<any>profilesAsync)({
-                                        accountId: propertyItem.accountId,
-                                        webPropertyId: propertyItem.id
-                                    }));
-                                });
-                            });
-
-                            Promise
-                            .all(profilesTasks)
-                            .then((profiles: any) => {
-                                profiles.forEach(profile => {
-                                    console.log(`found : ${profile.items.length} views...`);
-                                    const connectorConfig = this._connector.getConfiguration();
-                                    const type = getConnectorTypeId(this._connector.getType());
-                                    const view = profile.items[0];
-                                    console.log(`view id: ${view.id}`);
-                                    const uniqueKeyValue = this._connector.getUniqueKeyValue();
-                                    connectorConfig.view = view;
-                                    uniqueKeyValue.value = view.id;
-
-                                    const accountElement = accountElements.find(e => e.id === view.accountId);
-                                    const propElement = webPropertyElements.find(e => e.id === view.webPropertyId);
-
-                                    const newConnector = {
-                                        name: `${accountElement.name}(${propElement.name})`,
-                                        active: true,
-                                        config: { ... connectorConfig },
-                                        databaseName: that._companyName,
-                                        type: type,
-                                        createdBy: 'backend',
-                                        createdOn: new Date(Date.now()),
-                                        uniqueKeyValue: { ... uniqueKeyValue }
-                                    };
-                                    connectors.push(newConnector);
-                                });
-
-                                Promise .map(connectors, c => that._connectorModel.model.addConnector(c))
-                                        .then(() => {
-                                            const flowResult: IExecutionFlowResult = {
-                                                success: true,
-                                                connector: connectors[0]
-                                            };
-                                            resolve(flowResult);
-                                            return;
-                                        })
-                                        .catch(err => reject(err));
-                            })
-                            .catch(err => reject(err));
+            getGoogleAnalyticsConnectors(that._connector, that._integrationConfig, that._companyName)
+            .then(connectors => {
+                Promise .map(connectors, c => that._connectorModel.model.addConnector(c))
+                        .then(() => {
+                            const flowResult: IExecutionFlowResult = {
+                                success: true,
+                                connector: connectors[0]
+                            };
+                            resolve(flowResult);
+                            return;
                         })
                         .catch(err => reject(err));
-                    })
-                    .catch(err => reject(err));
+            })
+            .catch(err => {
+                resolve(errorExecutionFlow(err));
+                return;
+            });
         });
-
-        // const accounts = this._connector.getGoogleAnalyticsAccounts();
-
-        // if (!accounts || !accounts.length) {
-        //     const flowResult: IExecutionFlowResult = {
-        //         success: false,
-        //         error: 'Google account does not contains analytics accounts'
-        //     };
-        //     return Promise.resolve(flowResult);
-        // }
-
-        // const that = this;
-        // const promises = [];
-        // const connectorConfig = this._connector.getConfiguration();
-        // const uniqueKeyValue = this._connector.getUniqueKeyValue();
-        // const type = getConnectorTypeId(this._connector.getType());
-        // let lastConnector;
-
-        // accounts.forEach(c => {
-        //     connectorConfig.accountId = c.id;
-        //     uniqueKeyValue.value = c.id;
-        //     const newConnector = {
-        //         name: c.name,
-        //         active: true,
-        //         config: { ... connectorConfig },
-        //         databaseName: that._companyName,
-        //         type: type,
-        //         createdBy: 'backend',
-        //         createdOn: new Date(Date.now()),
-        //         uniqueKeyValue: { ... uniqueKeyValue }
-        //     };
-        //     promises.push(that._connectorModel.model.addConnector(newConnector));
-        //     lastConnector = newConnector;
-        // });
-
-        // return new Promise<IExecutionFlowResult>((resolve, reject) => {
-        //     Promise.all(promises).then(() => {
-        //         const flowResult: IExecutionFlowResult = {
-        //             success: true,
-        //             connector: lastConnector
-        //         };
-        //         resolve(flowResult);
-        //         return;
-        //     })
-        //     .catch(err => {
-        //         reject(err);
-        //         return;
-        //     });
-        // });
     }
 }
