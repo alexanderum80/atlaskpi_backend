@@ -1,3 +1,4 @@
+import { isArrayObject } from '../../../helpers/express.helpers';
 import { isArray, isObject } from 'lodash';
 
 import { readMongooseSchema } from '../../../helpers/mongodb.helpers';
@@ -103,7 +104,7 @@ export class KPIFilterHelper {
 
             if (!isArray(value) && isObject(value)) {
                 value = KPIFilterHelper._serializer(value, operation);
-            } else if (isArray(value)) {
+            } else if (isArrayObject(value)) {
                 for (let i = 0; i < value.length; i++) {
                     value[i] = this._serializer(value[i], operation);
                 }
@@ -147,9 +148,7 @@ export class KPIFilterHelper {
     }
 
     private static _handleAsArrayOperatorValuePairIntent(f: IKPIFilter, fieldset: any[]): any {
-        const hasPipe = f.criteria.indexOf('|') !== -1;
-        return !hasPipe ?
-            f.criteria : f.criteria.split('|')
+        return f.criteria.split('|')
                           .map(value =>
                                KPIFilterHelper._handleAsElementOperatorValuePairIntent(value, f.field, fieldset)
         );
