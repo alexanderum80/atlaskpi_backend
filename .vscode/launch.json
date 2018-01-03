@@ -24,7 +24,7 @@
         {
             "args": [],
             "cwd": "${workspaceRoot}",
-            "env": { "NODE_ENV": "local", "AKPI_APP_SUBDOMAIN": "d.atlaskpi.com", "AKPI_MASTER_DB_URI": "mongodb://localhost/kpibi", "AKPI_MONGODB_API_KEY": "", "AKPI_MONGODB_API_URI": "", "AKPI_MONGODB_API_USERNAME": "orlando@atlaskpi.com", "AKPI_MONGODB_GROUP_ID": "", "AKPI_NEW_ACCOUNT_DB_URI_FORMAT": "mongodb://localhost/{{database}}", "AKPI_TOKEN_EXPIRATION": "10 d", "AKPI_TOKEN_SECRET": "E12CF3551A239BB5EC3F38E848B6F" },
+            "env": { "NODE_ENV": "local", "AKPI_APP_SUBDOMAIN": "d.atlaskpi.com:4200", "AKPI_MASTER_DB_URI": "mongodb://localhost/kpibi", "AKPI_MONGODB_API_KEY": "", "AKPI_MONGODB_API_URI": "", "AKPI_MONGODB_API_USERNAME": "orlando@atlaskpi.com", "AKPI_MONGODB_GROUP_ID": "", "AKPI_NEW_ACCOUNT_DB_URI_FORMAT": "mongodb://localhost/{{database}}", "AKPI_TOKEN_EXPIRATION": "10 d", "AKPI_TOKEN_SECRET": "E12CF3551A239BB5EC3F38E848B6F" },
             // "console": false,
             "name": "DEBUG - Local",
             "outFiles": ["${workspaceRoot}/build/debug/**/*.js"],
