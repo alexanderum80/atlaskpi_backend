@@ -1,3 +1,4 @@
+import { CurrentAccount } from './../../../domain/master/current-account';
 import * as Promise from 'bluebird';
 import { inject, injectable } from 'inversify';
 
@@ -22,12 +23,11 @@ import { IMutationResponse } from '../../../framework/mutations/mutation-respons
 export class CreateUserMutation extends MutationBase<IMutationResponse> {
     constructor(
         @inject(Users.name) private _users: Users,
-        @inject(AccountCreatedNotification.name) private _accountCreatedNotification: AccountCreatedNotification
     ) {
         super();
     }
 
     run(data: ICreateUserDetails): Promise<IMutationResponse> {
-        return this._users.model.createUser(data, this._accountCreatedNotification);
+        return this._users.model.createUser(data, this._accountCreatedNotification, { notifyUser: true });
     }
 }

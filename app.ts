@@ -12,12 +12,15 @@ import { me } from './src/app_modules/security/routes/me';
 import { AtlasApp } from './src/app_modules/application';
 import { initializeConnections } from './src/middlewares/initialize-connections.middleware';
 import { integration } from './src/app_modules/integrations/routes';
-
+import { registerValidators } from './src/validators/validatos';
 
 const app = Bridge.create(AtlasApp);
 
 // bind dependencies
 registerDependencies(app.Container);
+
+// set custom validators
+registerValidators();
 
 // middlewares
 app.server.use(healthCheck);
