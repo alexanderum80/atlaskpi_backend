@@ -69,12 +69,12 @@ export class CreateCallRailConnectorMutation extends MutationBase<IMutationRespo
                             resolve({ success: true });
                             return;
                         }).catch(err => {
-                            reject({ success: false, errors: [{ field: 'connector', errors: ['Unable to add connector'] }] });
+                            resolve({ success: false, errors: [{ field: 'connector', errors: ['Unable to add connector'] }] });
                             return;
                         });
                     });
                 } else {
-                    reject({ success: false, errors: [{ field: 'callrail', errors: ['invalid credentials'] }] });
+                    resolve({ success: false, errors: [{ field: 'callrail', errors: ['invalid credentials'] }] });
                     return;
                 }
             });
