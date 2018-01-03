@@ -32,6 +32,8 @@ export function getConnectorTypeId(type: ConnectorTypeEnum) {
             return 'facebook';
         case ConnectorTypeEnum.Twitter:
             return 'twitter';
+        case ConnectorTypeEnum.CallRail:
+            return 'callrail';
         default: null;
     }
 }
