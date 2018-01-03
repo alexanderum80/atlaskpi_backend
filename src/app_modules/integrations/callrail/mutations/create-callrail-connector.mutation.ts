@@ -43,35 +43,41 @@ export class CreateCallRailConnectorMutation extends MutationBase<IMutationRespo
                 return;
             }
 
-            that._callrailService.getUserName(that._connectorModel, input).then(callRailUser => {
-                const connObj: IConnector = {
-                    name: callRailUser.name, // karl smith, query to get name
-                    active: true,
-                    config: {
-                        token: {
-                            accountId: input.accountId,
-                            apiKey: input.apiKey
-                        }
-                    },
-                    databaseName: that._currentAccount.get.database.name, // local database name
-                    type: getConnectorTypeId(ConnectorTypeEnum.CallRail),
-                    createdBy: 'backend',
-                    createdOn: new Date(Date.now()),
-                    uniqueKeyValue: {
-                        key: 'config.token.apiKey',
-                        value: input.apiKey
-                    }
-                };
-                that._connectorModel.model.addConnector(connObj).then(() => {
-                    resolve({ success: true, entity: null });
+            that._callrailService.hasValidCredentialsTest(that._connectorModel, input).then(valid => {
+                if (valid) {
+                    // integration callrails
+                    that._callrailService.getUserName(that._connectorModel, input).then(callRailUser => {
+                        const connObj: IConnector = {
+                            name: callRailUser.name, // karl smith, query to get name
+                            active: true,
+                            config: {
+                                token: {
+                                    accountId: input.accountId,
+                                    apiKey: input.apiKey
+                                }
+                            },
+                            databaseName: that._currentAccount.get.database.name, // local database name
+                            type: getConnectorTypeId(ConnectorTypeEnum.CallRail),
+                            createdBy: 'backend',
+                            createdOn: new Date(Date.now()),
+                            uniqueKeyValue: {
+                                key: 'config.token.apiKey',
+                                value: input.apiKey
+                            }
+                        };
+                        that._connectorModel.model.addConnector(connObj).then(() => {
+                            resolve({ success: true, entity: null });
+                            return;
+                        }).catch(err => {
+                            reject({ success: false, errors: [{ field: 'connector', errors: ['Unable to add connector'] }] });
+                            return;
+                        });
+                    });
+                } else {
+                    reject({ success: false, errors: [{ field: 'callrail', errors: ['invalid credentials'] }] });
                     return;
-                }).catch(err => {
-                    reject({ success: false, errors: [{ field: 'connector', errors: ['Unable to add connector'] }] });
-                    return;
-                });
+                }
             });
-
-
 
         });
     }
