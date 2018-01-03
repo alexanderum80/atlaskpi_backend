@@ -48,7 +48,9 @@ export class CallRailService {
                     method: 'GET',
                     headers: headers
                 }, (error, response, body) => {
-                    resolve(isNull(error));
+                    const data = JSON.parse(body);
+                    resolve(data.error ? false : true);
+                    return;
                 });
             });
         });

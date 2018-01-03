@@ -66,7 +66,7 @@ export class CreateCallRailConnectorMutation extends MutationBase<IMutationRespo
                             }
                         };
                         that._connectorModel.model.addConnector(connObj).then(() => {
-                            resolve({ success: true, entity: null });
+                            resolve({ success: true });
                             return;
                         }).catch(err => {
                             reject({ success: false, errors: [{ field: 'connector', errors: ['Unable to add connector'] }] });
