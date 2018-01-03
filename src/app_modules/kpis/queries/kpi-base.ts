@@ -1,4 +1,4 @@
-import { isArrayObject } from '../../../helpers/express.helpers';
+import { isArrayObject, isRegExp } from '../../../helpers/express.helpers';
 import * as Promise from 'bluebird';
 import {
     cloneDeep,
@@ -121,7 +121,7 @@ export class KpiBase {
             '$geoNear', '$lookup', '$out', '$sortByCount', '$addFields', '$count'];
 
         Object.keys(stage).forEach(k => {
-            if (operators.indexOf(k) !== -1) {
+            if ((operators.indexOf(k) !== -1)) {
                 operator = {};
                 operator[k] = stage[k];
             }
@@ -188,8 +188,17 @@ export class KpiBase {
             { key: '__dollar__', value: '$' }
         ];
 
+        const regexStrings = ['startWith', 'endWith', 'contains', 'regex'];
+        let regexExpression;
+
         Object.keys(filter).forEach(filterKey => {
             let newKey = filterKey;
+            let regexKey = newKey.split('__')[2];
+
+            if (regexStrings.indexOf(regexKey) !== -1) {
+                regexExpression = regexStrings[regexStrings.indexOf(regexKey)];
+                newKey = '__dollar__regex';
+            }
 
             replacementString.forEach(replacement => {
                 newKey = newKey.replace(replacement.key, replacement.value);
@@ -197,11 +206,15 @@ export class KpiBase {
 
             let value = filter[filterKey];
 
-            if (!isArray(value) && isObject(value)) {
+            if (!isArray(value) && (!isRegExp(value)) && isObject(value)) {
                 value = this._cleanFilter(value);
             } else if (isArrayObject(value)) {
                 for (let i = 0; i < value.length; i++) {
                     value[i] = this._cleanFilter(value[i]);
+                }
+            } else {
+                if (value && regexExpression) {
+                    value = this._regexPattern(regexExpression, value);
                 }
             }
 
@@ -410,6 +423,30 @@ export class KpiBase {
         }
 
         return newResult;
+    }
+
+    private _regexPattern(type: string, value: string) {
+        let expression = null;
+        const reg_expression = {
+            'startWith': {
+                searchValue: '^' + value,
+            },
+            'endWith': {
+                searchValue: value + '$',
+            },
+            'contains': {
+                searchValue: value,
+            },
+            'regex': {
+                searchValue: /\/(.*)\/(.*)/.exec(value)
+            }
+        };
+        expression = reg_expression[type];
+
+        if (type === 'regex') {
+            return new RegExp(expression.searchValue[1], expression.searchValue[2]);
+        }
+        return new RegExp(expression.searchValue, 'i');
     }
 
 }
