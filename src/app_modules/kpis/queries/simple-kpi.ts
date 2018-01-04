@@ -1,5 +1,6 @@
 import { isArrayObject, isRegExp } from '../../../helpers/express.helpers';
 import { Expenses } from '../../../domain/app/expenses/expense.model';
+import { Inventory } from '../../../domain/app/inventory/inventory.model';
 import * as Promise from 'bluebird';
 import { IKPI, IKPIDocument, IKPISimpleDefinition, KPITypeEnum } from '../../../domain/app/kpis/kpi';
 import { KPIExpressionHelper } from '../../../domain/app/kpis/kpi-expression.helper';

@@ -39,6 +39,7 @@ export class GetKpisCriteriaQuery implements IQuery<any> {
                 return;
             }
 
+            // sales, expenses, inventory
             const kpi = kpiMapper[data.kpi].model;
 
             if (kpi) {
