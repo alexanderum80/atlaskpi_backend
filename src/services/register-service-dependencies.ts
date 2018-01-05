@@ -26,7 +26,7 @@ export function registerServices(container: IBridgeContainer) {
     container.registerSingleton(EnrollmentNotification);
 
     // integration callrail service
-    container.registerSingleton(CallRailService);
+    container.registerPerWebRequest(CallRailService);
 
     container.registerPerWebRequest(SeedService);
     container.registerPerWebRequest(TargetService);
