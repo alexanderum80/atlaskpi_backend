@@ -1,3 +1,4 @@
+import { CallRailModule } from './integrations/callrail/callrail.module';
 import { AppModule, ModuleBase } from '../framework/decorators/app-module';
 import { AccessLogsModule } from './access-logs/access-logs.module';
 import { AccountsModule } from './accounts/accounts.module';
@@ -31,6 +32,7 @@ import { CountriesModule } from './countries/countries.module';
         AccessLogsModule,
         AppointmentsModule,
         BusinessUnitModule,
+        CallRailModule,
         ChartsModule,
         CountriesModule,
         DashboardsModule,
