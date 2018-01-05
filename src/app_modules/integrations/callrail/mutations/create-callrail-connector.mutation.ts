@@ -34,49 +34,54 @@ export class CreateCallRailConnectorMutation extends MutationBase<IMutationRespo
         const input = data.input;
         return new Promise<IMutationResponse>((resolve, reject) => {
             if (!input) {
-                reject({ success: false, errors: [{ field: 'input', errors: ['No data provided'] }] });
+                resolve({ success: false, errors: [{ field: 'input', errors: ['No data provided'] }] });
                 return;
             }
 
             if (!input.accountId || !input.apiKey) {
-                reject({ success: false, errors: [{ field: 'input', errors: ['Missing one field']}] });
+                resolve({ success: false, errors: [{ field: 'input', errors: ['Missing one field']}] });
                 return;
             }
 
-            that._callrailService.hasValidCredentialsTest(that._connectorModel, input).then(valid => {
-                if (valid) {
-                    // integration callrails
-                    that._callrailService.getUserName(that._connectorModel, input).then(callRailUser => {
-                        const connObj: IConnector = {
-                            name: callRailUser.name, // karl smith, query to get name
-                            active: true,
-                            config: {
-                                token: {
-                                    accountId: input.accountId,
-                                    apiKey: input.apiKey
+            that._callrailService.initialize().then((service) => {
+                that._callrailService.validateCredentials(input).then(valid => {
+                    if (valid) {
+                        that._callrailService.getUserName(input).then(callRailUser => {
+                            const connObj: IConnector = {
+                                name: callRailUser.name, // karl smith, query to get name
+                                active: true,
+                                config: {
+                                    token: {
+                                        accountId: input.accountId,
+                                        apiKey: input.apiKey
+                                    }
+                                },
+                                databaseName: that._currentAccount.get.database.name, // local database name
+                                type: getConnectorTypeId(ConnectorTypeEnum.CallRail),
+                                createdBy: 'backend',
+                                createdOn: new Date(Date.now()),
+                                uniqueKeyValue: {
+                                    key: 'config.token.apiKey',
+                                    value: input.apiKey
                                 }
-                            },
-                            databaseName: that._currentAccount.get.database.name, // local database name
-                            type: getConnectorTypeId(ConnectorTypeEnum.CallRail),
-                            createdBy: 'backend',
-                            createdOn: new Date(Date.now()),
-                            uniqueKeyValue: {
-                                key: 'config.token.apiKey',
-                                value: input.apiKey
-                            }
-                        };
-                        that._connectorModel.model.addConnector(connObj).then(() => {
-                            resolve({ success: true });
-                            return;
-                        }).catch(err => {
-                            resolve({ success: false, errors: [{ field: 'connector', errors: ['Unable to add connector'] }] });
-                            return;
+                            };
+
+                            that._connectorModel.model.addConnector(connObj).then(() => {
+                                resolve({ success: true });
+                                return;
+                            }).catch(err => {
+                                resolve({ success: false, errors: [{ field: 'connector', errors: ['Unable to add connector'] }] });
+                                return;
+                            });
                         });
-                    });
-                } else {
-                    resolve({ success: false, errors: [{ field: 'callrail', errors: ['invalid credentials'] }] });
-                    return;
-                }
+                    } else {
+                        resolve({ success: false, errors: [{ field: 'callrail', errors: ['invalid credentials'] }] });
+                        return;
+                    }
+                });
+            }).catch(err => {
+                reject({ success: false, errors: [{ field: 'callrail', errors: ['unknown error'] } ]});
+                return;
             });
 
         });
