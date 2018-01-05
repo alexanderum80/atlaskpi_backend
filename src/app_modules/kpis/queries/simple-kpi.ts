@@ -1,5 +1,6 @@
 import { isArrayObject, isRegExp } from '../../../helpers/express.helpers';
 import { Expenses } from '../../../domain/app/expenses/expense.model';
+import { Inventory } from '../../../domain/app/inventory/inventory.model';
 import * as Promise from 'bluebird';
 import { IKPI, IKPIDocument, IKPISimpleDefinition, KPITypeEnum } from '../../../domain/app/kpis/kpi';
 import { KPIExpressionHelper } from '../../../domain/app/kpis/kpi-expression.helper';
@@ -184,7 +185,7 @@ export class SimpleKPI extends KpiBase implements IKpiBase {
 
             let value = filter[filterKey];
 
-            if (!isArray(value) && isObject(value)) {
+            if (!isArray(value) && (!isRegExp(value)) && isObject(value)) {
                 const found = this.aggFieldFilterOnly(value, fieldName);
                 if (found) { filterObj = found; }
             } else if (isArray(value)) {
