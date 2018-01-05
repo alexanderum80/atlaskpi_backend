@@ -121,6 +121,7 @@ export interface ITokenVerification {
 export interface ICreateUserOptions {
     notifyUser?: boolean;
     emailVerified?: boolean;
+    host?: string;
 }
 
 /**
