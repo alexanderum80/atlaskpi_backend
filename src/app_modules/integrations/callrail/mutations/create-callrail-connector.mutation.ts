@@ -80,7 +80,7 @@ export class CreateCallRailConnectorMutation extends MutationBase<IMutationRespo
                     }
                 });
             }).catch(err => {
-                reject({ success: false, errors: [{ field: 'callrail', errors: ['unknown error'] } ]});
+                resolve({ success: false, errors: [{ field: 'callrail', errors: ['unknown error'] } ]});
                 return;
             });
 
