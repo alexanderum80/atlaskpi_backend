@@ -43,7 +43,7 @@ export class CreateCallRailConnectorMutation extends MutationBase<IMutationRespo
                 return;
             }
 
-            that._callrailService.initialize().then((service) => {
+            that._callrailService.initialize().then(() => {
                 that._callrailService.validateCredentials(input).then(valid => {
                     if (valid) {
                         that._callrailService.getUserName(input).then(callRailUser => {
