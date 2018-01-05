@@ -9,6 +9,7 @@ import { FrequencyEnum } from '../../../domain/common/frequency-enum';
 import { field } from '../../../framework/decorators/field.decorator';
 import { AggregateStage } from './aggregate';
 import { IGetDataOptions, IKpiBase, KpiBase } from './kpi-base';
+import { isArrayObject, isRegExp } from '../../../helpers/express.helpers';
 
 import * as changeCase from 'change-case';
 
@@ -17,6 +18,7 @@ import {
     isArray,
     isObject
 } from 'lodash';
+import { GoogleAnalytics } from '../../../domain/app/google-analytics/google-analytics.model';
 
 
 interface ICollection {
@@ -36,12 +38,20 @@ const CollectionsMapping = {
     inventory: {
         modelName: 'Inventory',
         timestampField: 'updatedAt'
+    },
+    googleanalytics: {
+        modelName: 'GoogleAnalytics',
+        timestampField: 'date'
     }
 };
 
 export class SimpleKPI extends KpiBase implements IKpiBase {
 
-    public static CreateFromExpression(kpi: IKPIDocument, sales: Sales, expenses: Expenses, inventory: Inventory): SimpleKPI {
+    public static CreateFromExpression( kpi: IKPIDocument,
+                                        sales: Sales,
+                                        expenses: Expenses,
+                                        inventory: Inventory,
+                                        googleanalytics: GoogleAnalytics): SimpleKPI {
         const simpleKPIDefinition: IKPISimpleDefinition = KPIExpressionHelper.DecomposeExpression(KPITypeEnum.Simple, kpi.expression);
 
         const collection: ICollection = CollectionsMapping[simpleKPIDefinition.dataSource];
@@ -50,7 +60,8 @@ export class SimpleKPI extends KpiBase implements IKpiBase {
         const models = {
             Sale: sales.model,
             Expense: expenses.model,
-            Inventory: inventory.model
+            Inventory: inventory.model,
+            GoogleAnalytics: googleanalytics.model
         };
 
         const model = models[collection.modelName];

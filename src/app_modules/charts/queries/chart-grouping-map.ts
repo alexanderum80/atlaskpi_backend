@@ -21,6 +21,16 @@ export const GroupingMap = {
     inventory: {
         location: 'location.name',
         product: 'product.itemDescription',
+    },
+    googleanalytics: {
+        connector: 'connector.connectorId',
+        website: 'websiteUrl',
+        browser: 'browser',
+        city: 'city',
+        country: 'country',
+        deviceCategory: 'deviceCategory',
+        language: 'language',
+        operatingSystem: 'operatingSystem'
     }
 };
 

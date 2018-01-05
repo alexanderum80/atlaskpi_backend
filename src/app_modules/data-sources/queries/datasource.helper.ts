@@ -11,6 +11,7 @@ import { field } from '../../../framework/decorators/field.decorator';
 import { readMongooseSchema } from '../../../helpers/mongodb.helpers';
 import { flatten } from '../../../helpers/object.helpers';
 import { GroupingMap } from '../../charts/queries/chart-grouping-map';
+import { GoogleAnalyticsSchema } from './../../../domain/app/google-analytics/google-analytics.model';
 
 export const DataSourceSchemasMapping = [
     {
@@ -24,6 +25,10 @@ export const DataSourceSchemasMapping = [
     {
         name: 'inventory',
         definition: InventorySchema
+    },
+    {
+        name: 'googleanalytics',
+        definition: GoogleAnalyticsSchema
     }
 ];
 
@@ -85,7 +90,8 @@ export class DataSourcesHelper {
         const model = {
             sales: models.sales,
             expenses: models.expenses,
-            inventory: models.inventory
+            inventory: models.inventory,
+            googleanalytics: models.googleanalytics
         };
         // get sales or expense mongoose models
         const collection = GroupingMap[schemaName];

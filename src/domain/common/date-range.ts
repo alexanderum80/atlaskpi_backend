@@ -358,8 +358,8 @@ export function previousPeriod(dateRange: IDateRange): IDateRange {
     const duration = end.diff(start);
 
     return {
-        from: start.subtract(duration).toDate(),
-        to: end.subtract(duration).toDate()
+        from: start.subtract(duration).startOf('day').toDate(),
+        to: end.subtract(duration).endOf('day').toDate()
     };
 }
 

@@ -140,13 +140,13 @@ export class KpiBase {
         if (dateRange &&
             (<any>dateRange).length) {
             if ((<any>dateRange).length === 1) {
-                matchStage.$match[field] = { '$gte': dateRange[0].from, '$lte': dateRange[0].to };
+                matchStage.$match[field] = { '$gte': dateRange[0].from, '$lt': dateRange[0].to };
             } else {
                 (<any>dateRange).map((dateParams) => {
                     matchStage.$match = {
                         $or: [
                             {
-                                [field]: { '$gte': dateParams.from, '$lte': dateParams.to }
+                                [field]: { '$gt': dateParams.from, '$lt': dateParams.to }
                             }
                         ]
                     };
