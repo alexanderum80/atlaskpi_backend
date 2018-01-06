@@ -1,3 +1,4 @@
+import { Slideshows } from '../../../domain/app/slideshow/slideshow.model';
 import { Widgets } from '../../../domain/app/widgets/widget.model';
 import * as Promise from 'bluebird';
 import { inject, injectable } from 'inversify';
@@ -10,6 +11,7 @@ import { ChartsService } from '../../../services/charts.service';
 import { DeleteChartActivity } from '../activities/delete-chart.activity';
 import { ChartMutationResponse } from '../charts.types';
 import { Logger } from './../../../domain/app/logger';
+import { concat } from 'lodash';
 
 @injectable()
 @mutation({
@@ -24,7 +26,8 @@ export class DeleteChartMutation extends MutationBase<IMutationResponse> {
     constructor(
         @inject(ChartsService.name) private _chartsService: ChartsService,
         @inject(Logger.name) private _logger: Logger,
-        @inject(Widgets.name) private _widgetModel: Widgets) {
+        @inject(Widgets.name) private _widgetModel: Widgets,
+        @inject(Slideshows.name) private _slideShowModel: Slideshows) {
         super();
     }
 
@@ -37,18 +40,35 @@ export class DeleteChartMutation extends MutationBase<IMutationResponse> {
                 'chartWidgetAttributes.chart': data.id
             });
 
+            const findSlideShow = that._slideShowModel.model.find({
+                charts: {
+                    $in: [data.id]
+                }
+            });
+
             const models = {
-                widget: findWidget
+                widget: findWidget,
+                slideshow: findSlideShow
             };
 
             Promise.props(models).then(documents => {
-                if (documents.widget && documents.widget.length) {
+                const hasWidget = documents.widget && documents.widget.length;
+                const hasSlideShow = documents.slideshow && documents.slideshow.length;
+
+                if (hasWidget || hasSlideShow) {
+                    let widgetArray = [];
+                    let slideShowArray = [];
+
+                    widgetArray = hasWidget ? documents.widget.map(document => `Widget ${document.name}`) : widgetArray;
+                    slideShowArray = hasSlideShow ? documents.slideshow.map(document => `SlideShow ${document.name}`) : [];
+
+                    const combineModelErrors = concat(widgetArray, slideShowArray);
                     resolve({
                         success: false,
                         errors: [
                             {
                                 field: '__isDependencyOf',
-                                errors: documents.widget.map(document => `Widget: ${document.name}`)
+                                errors: combineModelErrors
                             }
                           ]
                         });
