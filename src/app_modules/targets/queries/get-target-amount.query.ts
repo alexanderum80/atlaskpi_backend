@@ -22,14 +22,20 @@ export class GetTargetAmountQuery implements IQuery<any> {
     run(data: { input: TargetAmountInput }): Promise<any> {
         const that = this;
         return new Promise<any>((resolve, reject) => {
-            that._targetService.caculateFormat(data.input)
-                .then((targetAmount) => {
-                    resolve({ amount: targetAmount });
-                    return;
-                }).catch(err => {
-                    reject(err);
-                    return;
-                });
+            const targetAmount = that._targetService.caculateFormat(data.input);
+            const targetMet = that._targetService.getTargetMet(data.input);
+
+            const queries = {
+                targetAmount: targetAmount,
+                targetMet: targetMet
+            };
+
+            Promise.props(queries).then(target => {
+                resolve({ amount: target.targetAmount, met: target.targetMet });
+                return;
+            }).catch(err => {
+                reject(err);
+            });
         });
     }
 }
