@@ -81,7 +81,7 @@ export class CompositeKpi implements IKpiBase {
                     groupings: getGroupingMetadata(null, kpiDocument.groupings)
                 };
 
-                kpi.getData(dateRange[0], options)
+                kpi.getData(dateRange, options)
                     .then(res => resolve(res))
                     .catch(e => reject(e));
             });
