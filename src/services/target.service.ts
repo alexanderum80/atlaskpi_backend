@@ -12,9 +12,13 @@ import { IDateRange, parsePredifinedDate } from '../domain/common/date-range';
 import { FrequencyEnum } from '../domain/common/frequency-enum';
 import { field } from '../framework/decorators/field.decorator';
 
-
-
-// TODO: REFACTOR, and prepare for dependency injection
+const MomentFrequencyTable = {
+    daily: 'daily',
+    weekly: 'weekly',
+    monthly: 'month',
+    quartely: 'quarter',
+    yearly: 'year',
+};
 
 @injectable()
 export class TargetService {
@@ -146,6 +150,51 @@ export class TargetService {
         });
     }
 
+
+    getTargetMet(input: any) {
+        const that = this;
+
+        return new Promise<any>((resolve, reject) => {
+
+            // get kpi from the chart with input.chart[0]
+            that._charts.model.findById(input.chart[0])
+                .populate({ path: 'kpis' })
+                .then((chart) => {
+                    const kpi = that._kpiFactory.getInstance(chart.kpis[0]);
+                    const getDateRange = that._getDateRange(
+                            input.notificationDate,
+                            MomentFrequencyTable[chart.frequency]);
+
+                    const dateRange: any = getDateRange;
+                    const groupings = getGroupingMetadata(chart, chart.groupings ? chart.groupings : []);
+
+                    const stackName = input.stackName ? input.stackName : input.nonStackName;
+                    const noStackName = stackName.toLowerCase() === 'all';
+
+                    const options = {
+                        filter: chart.filter
+                    };
+
+                    if (!noStackName) {
+                        Object.assign(options, {
+                            groupings: groupings,
+                            stackName: stackName
+                        });
+                    }
+
+                    kpi.getData([dateRange], options).then(data => {
+                        let findValue = data.find(r => r.value);
+                        let responseValue = findValue ? findValue.value : 0;
+                        resolve(responseValue);
+                        return;
+                    }).catch(err => {
+                        reject(err);
+                        return;
+                    });
+                });
+        });
+    }
+
     getDate(period: string): IDateRange {
         return parsePredifinedDate(period);
     }
@@ -180,5 +229,12 @@ export class TargetService {
             });
             return futureDateRange;
         }
+    }
+
+    private _getDateRange(notify: any, frequency: any) {
+        return {
+            from: moment(notify, 'MM/DD/YYYY').startOf(frequency).toDate(),
+            to: moment(notify, 'MM/DD/YYYY').toDate()
+        };
     }
 }
