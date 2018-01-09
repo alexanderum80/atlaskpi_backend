@@ -42,6 +42,7 @@ export interface IAppConfig {
     subdomain: string;
     token: ITokenConfig;
     masterDb: string;
+    newAccountEmailNotification: string;
     newAccountDbUriFormat: string;
     mongoDBAtlasCredentials?: IMongoDBAtlasCredentials;
     emailService: IEmailServiceConfig;
