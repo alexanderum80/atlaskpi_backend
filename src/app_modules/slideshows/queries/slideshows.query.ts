@@ -6,13 +6,13 @@ import { ISlideshowDocument } from '../../../domain/app/slideshow/slideshow';
 import { Slideshows } from '../../../domain/app/slideshow/slideshow.model';
 import { query } from '../../../framework/decorators/query.decorator';
 import { IQuery } from '../../../framework/queries/query';
-import { SlideshowByIdActivity } from '../activities/slideshow-by-id.activity';
+import { ListSlideshowActivity } from '../activities/list-slideshows.activity';
 import { Slideshow } from '../slideshows.types';
 
 @injectable()
 @query({
     name: 'slideshows',
-    activity: SlideshowByIdActivity,
+    activity: ListSlideshowActivity,
     output: { type: Slideshow, isArray: true }
 })
 export class SlideshowsQuery implements IQuery<ISlideshowDocument[]> {

@@ -5,9 +5,9 @@ import { Users } from '../../../domain/app/security/users/user.model';
 import { IActivity } from '../../../framework/modules/security/activity';
 
 @injectable()
-export class CheckIsDemoAccountActivity implements IActivity {
+export class GetStatesActivity implements IActivity {
 
-    constructor() {}
+    constructor(@inject(Users.name) private _users: Users) {}
 
     check(): Promise<boolean> {
         return Promise.resolve(true);

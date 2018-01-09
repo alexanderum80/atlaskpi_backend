@@ -34,13 +34,26 @@ export class QueryBus implements IQueryBus {
 
     constructor(@inject(Enforcer.name) private _enforcer: IEnforcer) { }
 
-    run<T>(activity: IActivity, request: IExtendedRequest, query: IQuery<T>, data: any): Promise<any> {
+    run<T>(activity: new () => IActivity, request: IExtendedRequest, query: IQuery<T>, data: any): Promise<any> {
         const that = this;
+
+        // we are not going to have a user for every request so we need to take that into consideration
+        let roles = [];
+        let permissions = [];
+
+        if (request.user) {
+            roles = request.user.roles.map(r => r.name);
+            permissions = flatMap(request.user.roles, (r) => r.permissions);
+        }
+
+        // get activity instance
+        const act: IActivity = request.Container.instance.get(activity.name);
+
         // chack activity authorization
         return this.enforcer.authorizationTo(
-            activity,
-            request.user.roles.map(r => r.name),
-            flatMap(request.user.roles, (r) => r.permissions))
+            act,
+            roles,
+            permissions)
             .then((authorized) => {
                 if (!authorized) {
                     return Promise.reject(authorized);
