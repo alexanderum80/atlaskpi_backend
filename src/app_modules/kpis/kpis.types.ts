@@ -132,6 +132,11 @@ export class KPI  {
 
     @field({ type: GraphQLTypesMap.String, isArray: true })
     availableGroupings: string[];
+
+    @resolver({ forField: 'availableGroupings' })
+    static resolveExpression(entity: IKPIDocument) {
+        return KPIGroupingsHelper.GetAvailableGroupings(entity);
+    }
 }
 
 

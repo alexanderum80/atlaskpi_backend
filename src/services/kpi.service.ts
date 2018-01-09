@@ -6,6 +6,10 @@ import { Sales } from '../domain/app/sales/sale.model';
 import { IKPIDataSourceHelper, IKPIDocument } from '../domain/app/kpis/kpi';
 import * as Promise from 'bluebird';
 import { inject, injectable } from 'inversify';
+import {
+    sortBy,
+    isObject
+} from 'lodash';
 
 const codeMapper = {
     'Revenue': 'sales',
@@ -21,31 +25,34 @@ export class KpiService {
         @inject(KPIs.name) private _kpis: KPIs
     ) {}
 
-    listKpis(id: string) {
-        const that = this;
-        return new Promise<IKPIDocument[]>((resolve, reject) => {
-            if (id) {
-                that._kpis.model.find({ _id: id}).then(kpis => {
-                    kpis.forEach(kpi => that.formatAvailableGroupings(kpi));
-                    resolve(kpis);
-                }).catch(e => reject(e));
-            } else {
-                that._kpis.model.find().then(kpis => {
-                    kpis.forEach(kpi => that.formatAvailableGroupings(kpi));
-                    resolve(kpis);
-                }).catch(e => reject(e));
-            }
-        });
-    }
+    // listKpis(id: string) {
+    //     const that = this;
+    //     return new Promise<IKPIDocument[]>((resolve, reject) => {
+    //         if (id) {
+    //             that._kpis.model.find({ _id: id}).then(kpis => {
+    //                 kpis.forEach(kpi => that.formatAvailableGroupings(kpi));
+    //                 resolve(kpis);
+    //             }).catch(e => reject(e));
+    //         } else {
+    //             that._kpis.model.find().then(kpis => {
+    //                 kpis.forEach(kpi => that.formatAvailableGroupings(kpi));
+    //             }).catch(e => reject(e));
+    //         }
+    //     });
+    // }
 
-    formatAvailableGroupings(kpi: IKPIDocument): void {
-        const code = kpi.baseKpi || kpi.code;
-        if (!codeMapper[code]) { return; }
+    // formatAvailableGroupings(kpi: IKPIDocument): Promise<IKPIDocument> {
+    //     return new Promise<IKPIDocument>((resolve, reject) => {
+    //         const code = kpi.baseKpi || kpi.code;
+    //         if (!codeMapper[code]) { return; }
 
-        this.GetGroupingsExistInCollectionSchema(code).then(availableFields => {
-            kpi.availableGroupings = availableFields;
-        });
-    }
+    //         this.GetGroupingsExistInCollectionSchema(code).then(availableFields => {
+    //             kpi.availableGroupings = availableFields;
+    //             resolve(kpi);
+    //             return;
+    //         });
+    //     });
+    // }
 
     GetGroupingsExistInCollectionSchema(schemaName: string): string[] {
         const that = this;
@@ -107,5 +114,6 @@ export class KpiService {
                 });
             }
         });
+        return newObject;
     }
 }
