@@ -1,7 +1,7 @@
 import { KpiService } from '../../../services/kpi.service';
 import * as Promise from 'bluebird';
 import { inject, injectable } from 'inversify';
-
+import { extend } from 'lodash';
 import { IKPIDocument } from '../../../domain/app/kpis/kpi';
 import { KPIs } from '../../../domain/app/kpis/kpi.model';
 import { query } from '../../../framework/decorators/query.decorator';
@@ -27,6 +27,9 @@ export class KpisQuery implements IQuery<IKPIDocument[]> {
              return that._kpis.model
                    .find()
                    .then((kpis) => {
+                       kpis.forEach(kpi => {
+                           kpi.model.prototype.kpiService = that._kpiService;
+                       });
                        resolve(kpis);
                    })
                    .catch(e => reject(e));

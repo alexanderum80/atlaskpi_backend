@@ -19,42 +19,13 @@ const codeMapper = {
 @injectable()
 export class KpiService {
     constructor(
-        @inject(Sales.name) private _saleModel,
-        @inject(Expenses.name) private _expenseModel,
+        @inject(Sales.name) private _saleModel: Sales,
+        @inject(Expenses.name) private _expenseModel: Expenses,
         // @inject(Inventory.name) private _inventoryModel,
         @inject(KPIs.name) private _kpis: KPIs
     ) {}
 
-    // listKpis(id: string) {
-    //     const that = this;
-    //     return new Promise<IKPIDocument[]>((resolve, reject) => {
-    //         if (id) {
-    //             that._kpis.model.find({ _id: id}).then(kpis => {
-    //                 kpis.forEach(kpi => that.formatAvailableGroupings(kpi));
-    //                 resolve(kpis);
-    //             }).catch(e => reject(e));
-    //         } else {
-    //             that._kpis.model.find().then(kpis => {
-    //                 kpis.forEach(kpi => that.formatAvailableGroupings(kpi));
-    //             }).catch(e => reject(e));
-    //         }
-    //     });
-    // }
-
-    // formatAvailableGroupings(kpi: IKPIDocument): Promise<IKPIDocument> {
-    //     return new Promise<IKPIDocument>((resolve, reject) => {
-    //         const code = kpi.baseKpi || kpi.code;
-    //         if (!codeMapper[code]) { return; }
-
-    //         this.GetGroupingsExistInCollectionSchema(code).then(availableFields => {
-    //             kpi.availableGroupings = availableFields;
-    //             resolve(kpi);
-    //             return;
-    //         });
-    //     });
-    // }
-
-    GetGroupingsExistInCollectionSchema(schemaName: string): string[] {
+    GetGroupingsExistInCollectionSchema(schemaName: string): Promise<string[]> {
         const that = this;
         // get sales and expense mongoose models
         const model = {
