@@ -73,14 +73,15 @@ export class CompositeKpi implements IKpiBase {
         return new Promise<any>((resolve, reject) => {
             this._kpis.model.findOne({ _id: id }).then(kpiDocument => {
                 const kpi = that._kpiFactory.getInstance(kpiDocument);
-                const dateRange: IDateRange = this._processChartDateRange(kpiDocument.dateRange);
+                const getDateRange: IDateRange = this._processChartDateRange(kpiDocument.dateRange);
+                const dateRange = Array.isArray(getDateRange) ? getDateRange : [getDateRange];
                 const options: IGetDataOptions = {
                     filter: kpiDocument.filter,
                     frequency: FrequencyTable[kpiDocument.frequency],
                     groupings: getGroupingMetadata(null, kpiDocument.groupings)
                 };
 
-                kpi.getData(dateRange[0], options)
+                kpi.getData(dateRange, options)
                     .then(res => resolve(res))
                     .catch(e => reject(e));
             });

@@ -12,7 +12,7 @@ import {
     pick,
     sortBy
 } from 'lodash';
-
+import { camelCase } from 'change-case';
 import * as logger from 'winston';
 
 import { IKPI } from '../../../domain/app/kpis/kpi';
@@ -385,7 +385,7 @@ export class KpiBase {
             let index = Object.keys(group._id).findIndex(prop => prop === groupingTokens[0]);
 
             if (index === -1) {
-                group._id[groupingTokens[0]] = '$' + g;
+                group._id[camelCase(g)] = '$' + g;
             }
         });
     }

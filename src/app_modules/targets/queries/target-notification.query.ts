@@ -51,6 +51,7 @@ export class TargetNotificationQuery implements IQuery<boolean> {
                     const notifyData = {
                         targetName: input.targetName,
                         targetAmount: input.targetAmount,
+                        targetMet: input.targetMet,
                         targetDate: input.targetDate,
                         dashboardName: dashboard,
                         chartName: chart.title,

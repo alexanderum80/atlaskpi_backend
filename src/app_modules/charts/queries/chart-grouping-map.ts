@@ -11,7 +11,11 @@ export const GroupingMap = {
         category: 'category.name',
         product: 'product.itemDescription',
         serviceType: 'serviceType',
-        businessUnit: 'businessUnit.name'
+        businessUnit: 'businessUnit.name',
+        customerState: 'customer.state',
+        customerCity: 'customer.city',
+        customerZip: 'customer.zip',
+        customerGender: 'customer.gender'
     },
     expenses: {
         businessUnit: 'businessUnit.name',
