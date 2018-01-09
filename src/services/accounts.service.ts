@@ -293,7 +293,7 @@ function initializeRolesForAccount(roles: Roles, permissions: Permissions): Prom
 
 function createAdminUser(users: Users, databaseName: string, firstUser: ICreateUserDetails, enrollmentNotification: EnrollmentNotification): Promise < boolean > {
     return new Promise < boolean > ((resolve, reject) => {
-        users.model.createUser(firstUser, enrollmentNotification).then((response) => {
+        users.model.createUser(firstUser, enrollmentNotification, { host: databaseName }).then((response) => {
                 if (!response) {
                     return reject('Could not create the admin user');
                 }
