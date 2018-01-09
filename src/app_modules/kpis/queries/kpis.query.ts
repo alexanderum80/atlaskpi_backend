@@ -1,7 +1,6 @@
 import { KpiService } from '../../../services/kpi.service';
 import * as Promise from 'bluebird';
 import { inject, injectable } from 'inversify';
-import { extend } from 'lodash';
 import { IKPIDocument } from '../../../domain/app/kpis/kpi';
 import { KPIs } from '../../../domain/app/kpis/kpi.model';
 import { query } from '../../../framework/decorators/query.decorator';
