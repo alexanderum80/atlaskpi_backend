@@ -1,3 +1,4 @@
+import { KpiService } from '../../../services/kpi.service';
 import * as Promise from 'bluebird';
 import { inject, injectable } from 'inversify';
 
@@ -15,9 +16,17 @@ import { KPI } from '../kpis.types';
     output: { type: KPI, isArray: true }
 })
 export class KpisQuery implements IQuery<IKPIDocument[]> {
-    constructor() { }
+    constructor(@inject(KpiService.name) private _kpiService: KpiService) { }
 
     run(data: { id: string }): Promise<IKPIDocument[]> {
-
+        return new Promise<IKPIDocument[]>((resolve, reject) => {
+            this._kpiService.listKpis(data.id).then(kpis => {
+                resolve(kpis);
+                return;
+            }).catch(err => {
+                reject(err);
+            });
+        });
     }
 }
+

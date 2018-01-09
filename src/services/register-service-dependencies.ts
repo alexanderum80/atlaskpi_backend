@@ -1,3 +1,4 @@
+import { KpiService } from './kpi.service';
 import { PnsService } from './pns.service';
 import { EnrollmentNotification } from './notifications/users/enrollment.notification';
 import { UserForgotPasswordNotification } from './notifications/users/user-forgot-password.notification';
@@ -28,6 +29,7 @@ export function registerServices(container: IBridgeContainer) {
     container.registerPerWebRequest(TargetService);
     container.registerPerWebRequest(WidgetsService);
     container.registerPerWebRequest(ChartsService);
+    container.registerPerWebRequest(KpiService);
     container.registerPerWebRequest(SocialWidgetsService);
     container.registerPerWebRequest(ConnectorsService);
 }

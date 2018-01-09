@@ -1,8 +1,8 @@
+import { GroupingMap } from '../app_modules/charts/queries/chart-grouping-map';
 import { KPIs } from '../domain/app/kpis/kpi.model';
-import { Inventory } from '../domain/app/inventory/inventory.model';
+// import { Inventory } from '../domain/app/inventory/inventory.model';
 import { Expenses } from '../domain/app/expenses/expense.model';
 import { Sales } from '../domain/app/sales/sale.model';
-import { GroupingMap } from '../app_modules/charts/queries/chart-grouping-map';
 import { IKPIDataSourceHelper, IKPIDocument } from '../domain/app/kpis/kpi';
 import * as Promise from 'bluebird';
 import { inject, injectable } from 'inversify';
@@ -12,54 +12,63 @@ const codeMapper = {
     'Expenses': 'expenses'
 };
 
+@injectable()
 export class KpiService {
     constructor(
         @inject(Sales.name) private _saleModel,
         @inject(Expenses.name) private _expenseModel,
-        @inject(Inventory.name) private _inventoryModel,
+        // @inject(Inventory.name) private _inventoryModel,
         @inject(KPIs.name) private _kpis: KPIs
     ) {}
 
-    listKpis() {
+    listKpis(id: string) {
         const that = this;
         return new Promise<IKPIDocument[]>((resolve, reject) => {
-             return that._kpis.model
-                   .find()
-                   .then((kpis) => {
-                       kpis.forEach(kpi => that.formatAvailableGroupings(kpi));
-                       resolve(kpis);
-                   })
-                   .catch(e => reject(e));
+            if (id) {
+                that._kpis.model.find({ _id: id}).then(kpis => {
+                    kpis.forEach(kpi => that.formatAvailableGroupings(kpi));
+                    resolve(kpis);
+                }).catch(e => reject(e));
+            } else {
+                that._kpis.model.find().then(kpis => {
+                    kpis.forEach(kpi => that.formatAvailableGroupings(kpi));
+                    resolve(kpis);
+                }).catch(e => reject(e));
+            }
         });
     }
 
-    formatAvailableGroupings(kpi: IKPIDocument) {
+    formatAvailableGroupings(kpi: IKPIDocument): void {
         const code = kpi.baseKpi || kpi.code;
+        if (!codeMapper[code]) { return; }
+
         this.GetGroupingsExistInCollectionSchema(code).then(availableFields => {
             kpi.availableGroupings = availableFields;
         });
     }
 
-    GetGroupingsExistInCollectionSchema(schemaName: string): any {
+    GetGroupingsExistInCollectionSchema(schemaName: string): string[] {
         const that = this;
         // get sales and expense mongoose models
         const model = {
-            sales: this._saleModel,
-            expenses: this._expenseModel,
-            inventory: this._inventoryModel
+            sales: this._saleModel.model,
+            expenses: this._expenseModel.model,
+            // inventory: this._inventoryModel.model
         };
         // get sales or expense mongoose models
-        const collection = GroupingMap[schemaName];
+        const gMap = codeMapper[schemaName];
+        const collection = GroupingMap[gMap];
+        const modelKey = codeMapper[schemaName];
 
         let permittedFields = [];
         const collectionQuery = [];
 
-        return new Promise<any>((resolve, reject) => {
+        return new Promise<string[]>((resolve, reject) => {
             // prop: i.e. 'location', 'concept', 'customerName'
             Object.keys(collection).forEach(prop => {
                 const field = collection[prop];
 
-                collectionQuery.push(model[schemaName].aggregate([{
+                collectionQuery.push(model[modelKey].aggregate([{
                     $match: {
                         [field]: { $exists: true}
                     }
@@ -76,13 +85,27 @@ export class KpiService {
                     // array of arrays with objects
                     if (fieldExist) {
                         // convert to single object
-                        const formatToObject = getObjects(fieldExist);
+                        const formatToObject = this._getObjects(fieldExist);
                         // get the keys from the formatToObject
                         permittedFields = Object.keys(formatToObject);
                         return resolve(sortBy(permittedFields));
                     }
                 });
             });
+        });
+    }
+
+    private _getObjects(arr: any[]): any {
+        if (!arr) { return; }
+        const newObject = {};
+        arr.forEach(singleArray => {
+            if (singleArray && Array.isArray(singleArray)) {
+                singleArray.forEach(obj => {
+                    if (isObject) {
+                        Object.assign(newObject, obj);
+                    }
+                });
+            }
         });
     }
 }

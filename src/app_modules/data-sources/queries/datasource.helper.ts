@@ -35,20 +35,6 @@ interface ISchemaField {
     type: string;
 }
 
-function getObjects(arr: any[]): any {
-    if (!arr) { return; }
-    const newObject = {};
-    arr.forEach(singleArray => {
-        if (singleArray && Array.isArray(singleArray)) {
-            singleArray.forEach(obj => {
-                if (isObject) {
-                    Object.assign(newObject, obj);
-                }
-            });
-        }
-    });
-}
-
 @injectable()
 export class DataSourcesHelper {
     public static GetFieldsFromSchemaDefinition(schema: mongoose.Schema): ISchemaField[] {
