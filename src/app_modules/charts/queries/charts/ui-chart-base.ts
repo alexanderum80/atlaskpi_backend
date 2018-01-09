@@ -378,6 +378,9 @@ export class UIChartBase {
                     };
                 })
             }];
+        } else if (group) {
+            const groupedData: Dictionary<any> = groupBy(data, '_id.' + group);
+            return this._createSeriesFromgroupedData(groupedData, categories, group);
         } else {
             return [{
                 name: '',
