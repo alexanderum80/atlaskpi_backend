@@ -34,6 +34,9 @@ export class KPIGroupingsHelper {
             case 'Expenses':
                 return this.kpiService.GetGroupingsExistInCollectionSchema(code);
 
+            case 'Inventory':
+                return Object.keys(GroupingMap.inventory);
+
             default:
                 return null;
         }

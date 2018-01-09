@@ -1,7 +1,7 @@
-import { type } from '../../framework/decorators/type.decorator';
-import { input } from '../../framework/decorators/input.decorator';
 import { field } from '../../framework/decorators/field.decorator';
 import { GraphQLTypesMap } from '../../framework/decorators/graphql-types-map';
+import { input } from '../../framework/decorators/input.decorator';
+import { type } from '../../framework/decorators/type.decorator';
 import { ErrorDetails } from '../../framework/graphql/common.types';
 
 
@@ -24,6 +24,9 @@ export class ILocationInput  {
 
     @field({ type: GraphQLTypesMap.String })
     street: string;
+
+    @field({ type: GraphQLTypesMap.String })
+    country: string;
 
     @field({ type: GraphQLTypesMap.String })
     city: string;
@@ -61,13 +64,13 @@ export class Location  {
     street: string;
 
     @field({ type: GraphQLTypesMap.String })
+    country: string;
+
+    @field({ type: GraphQLTypesMap.String })
     city: string;
 
     @field({ type: GraphQLTypesMap.String })
     state: string;
-
-    @field({ type: GraphQLTypesMap.String })
-    country: string;
 
     @field({ type: GraphQLTypesMap.String })
     zip: string;

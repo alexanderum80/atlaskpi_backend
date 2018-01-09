@@ -1,3 +1,4 @@
+import { Inventory } from './../../../domain/app/inventory/inventory.model';
 import { Sales } from '../../../domain/app/sales/sale.model';
 import { Expenses } from '../../../domain/app/expenses/expense.model';
 import { IKPIDocument, KPITypeEnum } from '../../../domain/app/kpis/kpi';
@@ -16,9 +17,13 @@ export class KpiFactory {
         @inject('KPIs') private _kpis: KPIs,
         @inject(Sales.name) private _sales: Sales,
         @inject(Expenses.name) private _expenses: Expenses,
+        @inject(Inventory.name) private _inventory: Inventory,
     ) { }
 
     getInstance(kpiDocument: IKPIDocument): IKpiBase {
+
+        if (!kpiDocument) { return null; }
+
         if (kpiDocument.type && kpiDocument.type === KPITypeEnum.Compound) {
             // TODO: Refactor this
             return new CompositeKpi(kpiDocument, this, this._kpis);
@@ -26,7 +31,7 @@ export class KpiFactory {
 
         if (kpiDocument.type && kpiDocument.type === KPITypeEnum.Simple) {
             // TODO: Refactor this
-            return SimpleKPI.CreateFromExpression(kpiDocument, this._sales, this._expenses);
+            return SimpleKPI.CreateFromExpression(kpiDocument, this._sales, this._expenses, this._inventory);
         }
 
         const searchBy = kpiDocument.baseKpi || kpiDocument.code;

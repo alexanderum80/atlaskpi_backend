@@ -21,6 +21,10 @@ export const GroupingMap = {
         businessUnit: 'businessUnit.name',
         concept: 'expense.concept',
         location: 'location.name'
+    },
+    inventory: {
+        location: 'location.name',
+        product: 'product.itemDescription',
     }
 };
 

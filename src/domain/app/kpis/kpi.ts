@@ -1,3 +1,4 @@
+import { Inventory } from './../inventory/inventory.model';
 import { Expenses } from '../expenses/expense.model';
 import { Sales } from '../sales/sale.model';
 import * as Promise from 'bluebird';
@@ -41,6 +42,7 @@ export interface IDocumentExist {
 export interface IKPIDataSourceHelper {
     sales: Sales;
     expenses: Expenses;
+    inventory: Inventory;
 }
 
 export interface IKPIFilter {

@@ -28,7 +28,7 @@ export class Enforcer implements IEnforcer {
 
             logger.debug('Checking activity authorization');
 
-            checkAuthorization(activity, roles, permissions).then((authorized) => {
+            activity.check().then((authorized) => {
                 resolve(authorized);
             }).catch((err) => {
                 reject(err);
@@ -37,45 +37,11 @@ export class Enforcer implements IEnforcer {
     }
 }
 
-// TODO: FInish this
-function checkAuthorization(activity: IActivity, roles: string[], permissions: IPermission[]): Promise<boolean> {
-    return new Promise<boolean>((resolve, reject) => {
+// // TODO: FInish this
+// function checkAuthorization(activity: IActivity, roles: string[], permissions: IPermission[]): Promise<boolean> {
+//     if (!activity) {
+//         throw new Error('Cannot check authorization of an empty activity');
+//     }
 
-        if (!activity) {
-            throw new Error('Cannot check authorization of an empty activity');
-        }
-
-        return activity.check();
-
-        // the when callback has priority over the permissions list
-        // if (activity.hasPermissions && activity.hasPermissions.length > 0) {
-        //     // check only permissions
-
-        //     let hasPermission = true;
-
-        //     activity.hasPermissions.forEach((permission) => {
-        //         let permissionFound = find(permissions, {
-        //             subject: permission.subject,
-        //             action: permission.action,
-        //         });
-
-        //         if (!permissionFound) {
-        //             hasPermission = false;
-        //             return false;
-        //         }
-        //     });
-
-        //     if (!hasPermission) {
-        //         return resolve(hasPermission);
-        //     }
-        // }
-
-        // activity.when(roles, permissions, (err, authorized) => {
-        //     if (err) {
-        //         throw err;
-        //     }
-
-        //     resolve(authorized);
-        // });
-    });
-}
+//     return activity.check();
+// }

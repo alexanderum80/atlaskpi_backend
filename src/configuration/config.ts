@@ -58,6 +58,7 @@ export const config: IAppConfig = {
         expiresIn: process.env.AKPI_TOKEN_EXPIRATION || '90 d'
     },
     masterDb: process.env.AKPI_MASTER_DB_URI || 'mongodb://localhost/kpibi',
+    newAccountEmailNotification: process.env.NEW_ACCOUNT_EMAIL_NOTIFICATION || 'new-accounts@atlaskpi.com',
     newAccountDbUriFormat: process.env.AKPI_NEW_ACCOUNT_DB_URI_FORMAT || 'mongodb://localhost/{{database}}',
     mongoDBAtlasCredentials: {
         username: process.env.AKPI_MONGODB_API_USERNAME || '',

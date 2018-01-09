@@ -1,12 +1,14 @@
 import * as bodyParser from 'body-parser';
 import * as cors from 'cors';
 import * as express from 'Express';
+import { graphqlExpress } from 'graphql-server-express';
 import { IExecutableSchemaDefinition } from 'graphql-tools/dist/Interfaces';
 import { Server } from 'http';
 import { Container } from 'inversify';
 
 import { Enforcer } from '../app_modules/security/enforcer/enforcer';
 import { IExtendedRequest } from '../middlewares/extended-request';
+import { IBridgeRequest } from './bridge.request';
 import { IAppModule } from './decorators/app-module';
 import { BRIDGE } from './decorators/helpers';
 import { MetadataFieldsMap } from './decorators/metadata-fields.map';
@@ -15,10 +17,6 @@ import { makeGraphqlSchemaExecutable } from './graphql/graphql-schema-generator'
 import { MutationBus } from './mutations/mutation-bus';
 import { IQuery } from './queries/query';
 import { QueryBus } from './queries/query-bus';
-import { graphqlExpress } from 'graphql-server-express';
-import { IBridgeRequest } from './bridge.request';
-
-
 
 interface IQueryData {
     types: string[];

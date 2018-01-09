@@ -88,8 +88,7 @@ export class NumericWidget extends UIWidgetBase implements IUIWidget {
                     resolve(kpi);
                     return;
                 }
-                console.log('could not resolve a kpi from the factory');
-                return resolve(null);
+                return reject('could not resolve a kpi with id: ' + that.numericWidgetAttributes.kpi);
             })
             .catch(err => reject(err));
         });

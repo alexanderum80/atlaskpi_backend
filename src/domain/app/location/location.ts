@@ -8,6 +8,7 @@ export interface ILocation {
     businessunits: string;
     operhours: string;
     street: string;
+    country: string;
     city: string;
     state: string;
     zip: string;
