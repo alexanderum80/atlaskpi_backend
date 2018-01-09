@@ -39,20 +39,6 @@ interface ISchemaField {
     type: string;
 }
 
-function getObjects(arr: any[]): any {
-    if (!arr) { return; }
-    const newObject = {};
-    arr.forEach(singleArray => {
-        if (singleArray && Array.isArray(singleArray)) {
-            singleArray.forEach(obj => {
-                if (isObject) {
-                    Object.assign(newObject, obj);
-                }
-            });
-        }
-    });
-}
-
 @injectable()
 export class DataSourcesHelper {
     public static GetFieldsFromSchemaDefinition(schema: mongoose.Schema): ISchemaField[] {
@@ -77,52 +63,6 @@ export class DataSourcesHelper {
     public static GetGroupingsForSchema(schemaName: string): string[] {
         const collection = GroupingMap[schemaName];
         return Object.keys(collection);
-    }
-
-    public static GetGroupingsExistInCollectionSchema(schemaName: string, groupMappings: any, models: IKPIDataSourceHelper): any {
-        const that = this;
-        // get sales and expense mongoose models
-        const model = {
-            sales: models.sales,
-            expenses: models.expenses,
-            inventory: models.inventory
-        };
-        // get sales or expense mongoose models
-        const collection = GroupingMap[schemaName];
-
-        let permittedFields = [];
-        const collectionQuery = [];
-
-        return new Promise<any>((resolve, reject) => {
-            // prop: i.e. 'location', 'concept', 'customerName'
-            Object.keys(collection).forEach(prop => {
-                const field = collection[prop];
-
-                collectionQuery.push(model[schemaName].aggregate([{
-                    $match: {
-                        [field]: { $exists: true}
-                    }
-                }, {
-                    $project: {
-                        _id: 0,
-                        [prop]: field
-                    }
-                }, {
-                    $limit: 1
-                }]));
-
-                Promise.all(collectionQuery).then(fieldExist => {
-                    // array of arrays with objects
-                    if (fieldExist) {
-                        // convert to single object
-                        const formatToObject = getObjects(fieldExist);
-                        // get the keys from the formatToObject
-                        permittedFields = Object.keys(formatToObject);
-                        return resolve(sortBy(permittedFields));
-                    }
-                });
-            });
-        });
     }
 
 }
