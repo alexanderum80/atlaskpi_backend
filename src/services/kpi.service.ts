@@ -1,6 +1,6 @@
 import { GroupingMap } from '../app_modules/charts/queries/chart-grouping-map';
 import { KPIs } from '../domain/app/kpis/kpi.model';
-// import { Inventory } from '../domain/app/inventory/inventory.model';
+import { Inventory } from '../domain/app/inventory/inventory.model';
 import { Expenses } from '../domain/app/expenses/expense.model';
 import { Sales } from '../domain/app/sales/sale.model';
 import { IKPIDataSourceHelper, IKPIDocument } from '../domain/app/kpis/kpi';
@@ -22,7 +22,7 @@ export class KpiService {
     constructor(
         @inject(Sales.name) private _saleModel: Sales,
         @inject(Expenses.name) private _expenseModel: Expenses,
-        // @inject(Inventory.name) private _inventoryModel,
+        @inject(Inventory.name) private _inventoryModel,
         @inject(KPIs.name) private _kpis: KPIs
     ) {}
 
@@ -32,7 +32,7 @@ export class KpiService {
         const model = {
             sales: this._saleModel.model,
             expenses: this._expenseModel.model,
-            // inventory: this._inventoryModel.model
+            inventory: this._inventoryModel.model
         };
         // get sales or expense mongoose models
         const gMap = codeMapper[schemaName];
