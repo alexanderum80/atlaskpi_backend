@@ -6,10 +6,6 @@ import { field } from '../../../framework/decorators/field.decorator';
 import { readMongooseSchema } from '../../../helpers/mongodb.helpers';
 import { flatten } from '../../../helpers/object.helpers';
 import { GroupingMap } from '../../charts/queries/chart-grouping-map';
-import {
-    sortBy,
-    isObject
-} from 'lodash';
 import * as Promise from 'bluebird';
 
 export const DataSourceSchemasMapping = [
