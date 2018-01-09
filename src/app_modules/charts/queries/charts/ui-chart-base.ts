@@ -687,7 +687,7 @@ export class UIChartBase {
     }
 
     private _getComparisonCategoriesWithValues(definitions: any): any {
-        let defObject = {};
+        const defObject = {};
         defObject['uniqCategories'] = [];
         const keys = Object.keys(definitions);
         const that = this;
@@ -700,9 +700,10 @@ export class UIChartBase {
 
             const definition = definitions[keys[i]];
             const cats =  definition.xAxis.categories;
+            const series = definition.series || [];
 
-            for (let j = 0; j < definition.series.length; j++) {
-                const serie = definition.series[j];
+            for (let j = 0; j < series.length; j++) {
+                const serie = series[j];
 
                 for (let k = 0; k < cats.length; k++) {
                     const catExists = defObject['uniqCategories'].find(c => c === cats[k]);

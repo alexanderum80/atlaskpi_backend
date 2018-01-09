@@ -62,7 +62,7 @@ ExpenseSchema.statics.findCriteria = function(field: string): Promise<any[]> {
     const that = this;
 
     return new Promise<any[]>((resolve, reject) => {
-        that.distinct(field).then(expenses => {
+        that.distinct(field, { [field]: { $ne: '' } }).then(expenses => {
             resolve(expenses);
             return;
         }).catch(err => {

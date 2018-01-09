@@ -1,3 +1,4 @@
+import { GetKpisCriteriaQuery } from './queries/get-kpi-criteria.query';
 import { AppModule, ModuleBase } from '../../framework/decorators/app-module';
 import { CreateKpiMutation } from './mutations/create-kpi.mutation';
 import { RemoveKpiMutation } from './mutations/remove-kpi.mutation';
@@ -16,7 +17,8 @@ import { KpisQuery } from './queries/kpis.query';
     queries: [
         GetAllKpIsQuery,
         KpiQuery,
-        KpisQuery
+        KpisQuery,
+        GetKpisCriteriaQuery
     ]
 })
 export class KpisModule extends ModuleBase { }

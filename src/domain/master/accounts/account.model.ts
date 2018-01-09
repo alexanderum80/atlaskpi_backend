@@ -83,7 +83,11 @@ accountSchema.statics.accountNameAvailable = function(name: String): Promise<boo
 
     return new Promise<boolean>((resolve, reject) => {
 
-        that.findOne({ 'name': { $regex: name, $options: 'i' } }, (err, account) => {
+        if (!name) {
+            return resolve(false);
+        }
+
+        that.findOne({ 'name': name }, (err, account) => {
             if (err) {
                 reject(err);
                 return;

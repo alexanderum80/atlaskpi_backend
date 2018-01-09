@@ -1,3 +1,4 @@
+import { isArrayObject } from '../../../helpers/express.helpers';
 import { isArray, isObject } from 'lodash';
 
 import { readMongooseSchema } from '../../../helpers/mongodb.helpers';
@@ -5,10 +6,12 @@ import { flatten } from '../../../helpers/object.helpers';
 import { ExpenseSchema } from '../expenses/expense.model';
 import { SaleSchema } from '../sales/sale.model';
 import { IKPIFilter, KPITypeEnum } from './kpi';
+import { InventorySchema } from '../inventory/inventory.model';
 
 const Schemas = [
       SaleSchema,
-      ExpenseSchema
+      ExpenseSchema,
+      InventorySchema
 ];
 
 const replacementStrings = [
@@ -101,7 +104,7 @@ export class KPIFilterHelper {
 
             if (!isArray(value) && isObject(value)) {
                 value = KPIFilterHelper._serializer(value, operation);
-            } else if (isArray(value)) {
+            } else if (isArrayObject(value)) {
                 for (let i = 0; i < value.length; i++) {
                     value[i] = this._serializer(value[i], operation);
                 }
@@ -145,7 +148,7 @@ export class KPIFilterHelper {
     }
 
     private static _handleAsArrayOperatorValuePairIntent(f: IKPIFilter, fieldset: any[]): any {
-        return  f.criteria.split(',')
+        return f.criteria.split('|')
                           .map(value =>
                                KPIFilterHelper._handleAsElementOperatorValuePairIntent(value, f.field, fieldset)
         );

@@ -7,6 +7,7 @@ import * as nodemailer from 'nodemailer';
 import { IAppConfig } from '../../../configuration/config-models';
 import { IUserDocument, IUserForgotPasswordDataSource } from '../../../domain/app/security/users/user';
 import { IEmailNotifier } from '../email-notifier';
+import { CurrentAccount } from '../../../domain/master/current-account';
 
 
 export interface IForgotPasswordNotifier extends IEmailNotifier { }
@@ -15,9 +16,12 @@ export interface IForgotPasswordNotifier extends IEmailNotifier { }
 @injectable()
 export class UserForgotPasswordNotification implements IEmailNotifier {
 
-    constructor(@inject('Config') private _config: IAppConfig) { }
+    constructor(
+        @inject('Config') private _config: IAppConfig,
+        @inject(CurrentAccount.name) private _currentAccount: CurrentAccount
+    ) { }
 
-    notify(user: IUserDocument, hostname: string, email: string, data?: any): Promise<nodemailer.SentMessageInfo> {
+    notify(user: IUserDocument, email: string, data?: any): Promise<nodemailer.SentMessageInfo> {
         const forgotPasswordTemplate =
             Handlebars.compile(this._config.usersService.services.forgotPassword.emailTemplate);
 
@@ -29,7 +33,7 @@ export class UserForgotPasswordNotification implements IEmailNotifier {
             dataSource.fullName = `${user.profile.firstName} ${user.profile.lastName}`;
         }
 
-        dataSource.host = hostname;
+        dataSource.host = this._currentAccount.get.database.name; // hostname;
         dataSource.subdomain = this._config.subdomain;
 
         dataSource.resetToken = user.services.password.reset.token;

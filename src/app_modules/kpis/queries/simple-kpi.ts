@@ -1,4 +1,6 @@
+import { isArrayObject, isRegExp } from '../../../helpers/express.helpers';
 import { Expenses } from '../../../domain/app/expenses/expense.model';
+import { Inventory } from '../../../domain/app/inventory/inventory.model';
 import * as Promise from 'bluebird';
 import { IKPI, IKPIDocument, IKPISimpleDefinition, KPITypeEnum } from '../../../domain/app/kpis/kpi';
 import { KPIExpressionHelper } from '../../../domain/app/kpis/kpi-expression.helper';
@@ -31,12 +33,16 @@ const CollectionsMapping = {
     expenses: {
         modelName: 'Expense',
         timestampField: 'timestamp'
+    },
+    inventory: {
+        modelName: 'Inventory',
+        timestampField: 'updatedAt'
     }
 };
 
 export class SimpleKPI extends KpiBase implements IKpiBase {
 
-    public static CreateFromExpression(kpi: IKPIDocument, sales: Sales, expenses: Expenses): SimpleKPI {
+    public static CreateFromExpression(kpi: IKPIDocument, sales: Sales, expenses: Expenses, inventory: Inventory): SimpleKPI {
         const simpleKPIDefinition: IKPISimpleDefinition = KPIExpressionHelper.DecomposeExpression(KPITypeEnum.Simple, kpi.expression);
 
         const collection: ICollection = CollectionsMapping[simpleKPIDefinition.dataSource];
@@ -44,7 +50,8 @@ export class SimpleKPI extends KpiBase implements IKpiBase {
 
         const models = {
             Sale: sales.model,
-            Expense: expenses.model
+            Expense: expenses.model,
+            Inventory: inventory.model
         };
 
         const model = models[collection.modelName];
@@ -154,9 +161,9 @@ export class SimpleKPI extends KpiBase implements IKpiBase {
 
             let value = filter[filterKey];
 
-            if (!isArray(value) && isObject(value)) {
+            if (!isArray(value) && (!isRegExp(value)) && isObject(value)) {
                 value = this._filterWithNoAggField(value, fieldName);
-            } else if (isArray(value)) {
+            } else if (isArrayObject(value)) {
                 for (let i = 0; i < value.length; i++) {
                     value[i] = this._filterWithNoAggField(value[i], fieldName);
                 }
@@ -178,7 +185,7 @@ export class SimpleKPI extends KpiBase implements IKpiBase {
 
             let value = filter[filterKey];
 
-            if (!isArray(value) && isObject(value)) {
+            if (!isArray(value) && (!isRegExp(value)) && isObject(value)) {
                 const found = this.aggFieldFilterOnly(value, fieldName);
                 if (found) { filterObj = found; }
             } else if (isArray(value)) {

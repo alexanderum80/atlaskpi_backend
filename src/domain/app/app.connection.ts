@@ -9,7 +9,7 @@ import { DbConnection } from '../../type-mongo/connection';
 export class AppConnection extends DbConnection {
 
     static FromMongoDbConnection(connection: mongoose.Connection): AppConnection {
-        const appConnection = new AppConnection(null);
+        const appConnection = new AppConnection({ appConnection: connection } as any);
         appConnection._connection = connection;
 
         return appConnection;
