@@ -17,7 +17,7 @@ import { IQuery } from './query';
 
 
 export interface IQueryBus {
-    run<T>(activity: IActivity, req: IExtendedRequest, query: IQuery<T>, data: any): Promise<any>;
+    run<T>(activity: new () => IActivity, req: IExtendedRequest, query: IQuery<T>, data: any): Promise<any>;
 }
 
 @injectable()
