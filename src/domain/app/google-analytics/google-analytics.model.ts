@@ -4,8 +4,9 @@ import * as Promise from 'bluebird';
 import { injectable, inject } from 'inversify';
 import { uniq } from 'lodash';
 import * as mongoose from 'mongoose';
+import * as moment from 'moment';
 
-import { IGoogleAnalytics } from './google-analytics';
+import { IGoogleAnalytics, IGoogleAnalyticsModel } from './google-analytics';
 
 // define mongo schema
 export const GoogleAnalyticsSchema = new mongoose.Schema({
@@ -36,14 +37,20 @@ export const GoogleAnalyticsSchema = new mongoose.Schema({
     pageviews: Number,
     pageviewsPerSession: Number,
     avgSessionDuration: Number,
-    bounceRate: Number
+    bounceRate: Number,
+
+    // we use this to identify the request
+    _batchId: String,
+    _batchTimestamp: Date
 });
 
-GoogleAnalyticsSchema.statics.batchUpsert = function(data: IGoogleAnalytics[]): Promise<string[]> {
+GoogleAnalyticsSchema.statics.batchUpsert = function(data: IGoogleAnalytics[]): Promise<{ _batchId: string, _batchTimestamp: Date }> {
     const that = this;
-    return new Promise<string[]>((resolve, reject) => {
-        const dates = uniq(data.map(d => d.date));
-        that.remove({ date: { $in:  dates }}, (err) => {
+    const batchProps = { _batchId: data[0]._batchId, _batchTimestamp: data[0]._batchTimestamp };
+
+    return new Promise<{ _batchId: string, _batchTimestamp: Date }>((resolve, reject) => {
+        // clean old batches....
+        that.remove({ date: { $lt: moment().subtract(10, 'minutes') }}, (err) => {
             if (err) {
                 reject(err);
                 return;
@@ -52,9 +59,9 @@ GoogleAnalyticsSchema.statics.batchUpsert = function(data: IGoogleAnalytics[]): 
             that.insertMany(data, { continueOnError: true }, function(err, docs: any[]) {
                 if (err) {
                     console.log(err);
-                };
+                }
 
-                that.find({ date: { $in:  dates }}, (err, foundDocs) => {
+                that.find({ _batchId: { $in:  batchProps._batchId }}, (err, foundDocs) => {
                     if (err) {
                         reject(err);
                         return;
@@ -68,7 +75,7 @@ GoogleAnalyticsSchema.statics.batchUpsert = function(data: IGoogleAnalytics[]): 
                         inserted = foundDocs.map(d => String(d.id));
                     }
 
-                    resolve(inserted);
+                    resolve(batchProps);
                     return;
                 });
             });
@@ -77,9 +84,9 @@ GoogleAnalyticsSchema.statics.batchUpsert = function(data: IGoogleAnalytics[]): 
 };
 
 @injectable()
-export class GoogleAnalytics extends ModelBase<IGoogleAnalytics> {
+export class GoogleAnalytics extends ModelBase<IGoogleAnalyticsModel> {
     constructor(@inject(AppConnection.name) appConnection: AppConnection) {
         super();
-        this.initializeModel(appConnection.get, 'GoogleAnalytics', GoogleAnalyticsSchema, 'googleAnalytics');
+        this.initializeModel(appConnection.get, 'GoogleAnalytics', GoogleAnalyticsSchema, 'googleAnalytics__temp');
     }
 }

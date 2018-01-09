@@ -6,7 +6,6 @@ import { IPagedQueryResult, IPaginationDetails } from '../../../framework/querie
 import { IChartDateRange } from '../../common/date-range';
 import { IChartDocument } from '../charts/chart';
 import { Expenses } from '../expenses/expense.model';
-import { GoogleAnalytics } from '../google-analytics/google-analytics.model';
 import { Sales } from '../sales/sale.model';
 import { IWidgetDocument } from '../widgets/widget';
 import { Inventory } from './../inventory/inventory.model';
@@ -15,13 +14,15 @@ import { Inventory } from './../inventory/inventory.model';
 export enum KPITypeEnum {
     Simple = 'simple',
     Complex = 'complex',
-    Compound = 'compound'
+    Compound = 'compound',
+    GoogleAnalytics = 'googleanalytics'
 }
 
 export const KPITypeMap = {
     simple: KPITypeEnum.Simple,
     complex: KPITypeEnum.Complex,
     compound: KPITypeEnum.Compound,
+    googleanalytics: KPITypeEnum.GoogleAnalytics
 };
 
 export function getKPITypePropName(type: KPITypeEnum) {
@@ -32,6 +33,8 @@ export function getKPITypePropName(type: KPITypeEnum) {
             return 'complex';
         case KPITypeEnum.Compound:
             return 'compound';
+        case KPITypeEnum.GoogleAnalytics:
+            return 'googleanalytics';
     }
 }
 
@@ -44,7 +47,6 @@ export interface IKPIDataSourceHelper {
     sales: Sales;
     expenses: Expenses;
     inventory: Inventory;
-    googleanalytics: GoogleAnalytics;
 }
 
 export interface IKPIFilter {
@@ -55,7 +57,7 @@ export interface IKPIFilter {
 }
 
 export interface IKPISimpleDefinition {
-    dataSource: string;
+    dataSource: string; // collection (or connectorId in the case of google analytics)
     function: string;
     field: string;
     operator?: string;

@@ -26,10 +26,10 @@ export const DataSourceSchemasMapping = [
         name: 'inventory',
         definition: InventorySchema
     },
-    {
-        name: 'googleanalytics',
-        definition: GoogleAnalyticsSchema
-    }
+    // {
+    //     name: 'googleanalytics',
+    //     definition: GoogleAnalyticsSchema
+    // }
 ];
 
 const BlackListedFieldNames = [
@@ -91,7 +91,7 @@ export class DataSourcesHelper {
             sales: models.sales,
             expenses: models.expenses,
             inventory: models.inventory,
-            googleanalytics: models.googleanalytics
+            // googleanalytics: models.googleanalytics
         };
         // get sales or expense mongoose models
         const collection = GroupingMap[schemaName];

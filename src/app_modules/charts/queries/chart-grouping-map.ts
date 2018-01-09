@@ -22,16 +22,16 @@ export const GroupingMap = {
         location: 'location.name',
         product: 'product.itemDescription',
     },
-    googleanalytics: {
-        connector: 'connector.connectorId',
-        website: 'websiteUrl',
-        browser: 'browser',
-        city: 'city',
-        country: 'country',
-        deviceCategory: 'deviceCategory',
-        language: 'language',
-        operatingSystem: 'operatingSystem'
-    }
+    // googleanalytics: {
+    //     connector: 'connector.connectorId',
+    //     website: 'websiteUrl',
+    //     browser: 'browser',
+    //     city: 'city',
+    //     country: 'country',
+    //     deviceCategory: 'deviceCategory',
+    //     language: 'language',
+    //     operatingSystem: 'operatingSystem'
+    // }
 };
 
 export function getGroupingMetadata(chartDocument: IChart, groupings: string[]) {

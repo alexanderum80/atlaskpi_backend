@@ -15,11 +15,16 @@ import {
 
 import * as logger from 'winston';
 
-import { IKPI } from '../../../domain/app/kpis/kpi';
+import { IKPI, IKPISimpleDefinition } from '../../../domain/app/kpis/kpi';
 import { IChartDateRange, IDateRange } from '../../../domain/common/date-range';
 import { FrequencyEnum } from '../../../domain/common/frequency-enum';
 import { field } from '../../../framework/decorators/field.decorator';
 import { AggregateStage } from './aggregate';
+
+export interface ICollection {
+    modelName: string;
+    timestampField: string;
+}
 
 export interface IKPIMetadata {
     name?: string;
@@ -53,6 +58,7 @@ export interface IKpiBase {
 export class KpiBase {
     frequency: FrequencyEnum;
     protected kpi: IKPI;
+    protected collection: ICollection;
     protected pristineAggregate: AggregateStage[];
 
     constructor(public model: any, public aggregate: AggregateStage[]) {
@@ -448,5 +454,4 @@ export class KpiBase {
         }
         return new RegExp(expression.searchValue, 'i');
     }
-
 }

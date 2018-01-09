@@ -8,7 +8,6 @@ import * as Promise from 'bluebird';
 import { flatten } from 'lodash';
 import { query } from '../../../framework/decorators/query.decorator';
 import { IQuery } from '../../../framework/queries/query';
-import { GoogleAnalytics } from '../../../domain/app/google-analytics/google-analytics.model';
 
 @injectable()
 @query({
@@ -25,7 +24,7 @@ export class GetKpisCriteriaQuery implements IQuery<any> {
         @inject(Sales.name) private _sales: Sales,
         @inject(Expenses.name) private _expenses: Expenses,
         @inject(Inventory.name) private _inventory: Expenses,
-        @inject(GoogleAnalytics.name) private _googleanalytics: Expenses) {}
+    ) {}
 
     run(data: { kpi: string, field: string}): Promise<any> {
         const that = this;
@@ -33,7 +32,6 @@ export class GetKpisCriteriaQuery implements IQuery<any> {
             'Sales': this._sales,
             'Expenses': this._expenses,
             'Inventory': this._inventory,
-            'GoogleAnalytics': this._googleanalytics
         };
 
         return new Promise<any>((resolve, reject) => {

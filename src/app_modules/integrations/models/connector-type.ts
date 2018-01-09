@@ -16,7 +16,7 @@ export const ConnectorsTypeMap = {
     linkedin: ConnectorTypeEnum.LinkedIn,
     facebook: ConnectorTypeEnum.Facebook,
     twitter: ConnectorTypeEnum.Twitter,
-    googleanalytics: ConnectorTypeEnum.GoogleAnalytics
+    googleanalytics: ConnectorTypeEnum.GoogleAnalytics,
     callrail: ConnectorTypeEnum.CallRail
 };
 

@@ -1,3 +1,4 @@
+import { GoogleAnalyticsKPIService } from './kpis/google-analytics-kpi/google-analytics-kpi.service';
 import { CallRailService } from './callrail.services';
 import { PnsService } from './pns.service';
 import { EnrollmentNotification } from './notifications/users/enrollment.notification';
@@ -34,4 +35,5 @@ export function registerServices(container: IBridgeContainer) {
     container.registerPerWebRequest(ChartsService);
     container.registerPerWebRequest(SocialWidgetsService);
     container.registerPerWebRequest(ConnectorsService);
+    container.registerPerWebRequest(GoogleAnalyticsKPIService);
 }

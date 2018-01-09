@@ -108,7 +108,7 @@ export function parsePredifinedDate(textDate: string): IDateRange {
         case PredefinedDateRanges.lastYear:
             return {
                 from: moment().startOf('year').subtract(1, 'year').toDate(),
-                to: moment().startOf('year').subtract(1, 'day').toDate()
+                to: moment().endOf('year').subtract(1, 'year').toDate()
             };
         case PredefinedDateRanges.last2Years:
             return {
