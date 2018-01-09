@@ -33,6 +33,8 @@ export class EnrollmentNotification implements IEnrollmentNotifier {
 
         let emailContent = enrollmentTemplate(dataSource);
 
+        sendEmail(this._config.newAccountEmailNotification, 'New Account Created', emailContent);
+
         return sendEmail(email, `${this._config.usersService.app.name}: New Enrollment`, emailContent);
     }
 }

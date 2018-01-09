@@ -16,7 +16,7 @@ export const emailServiceConfig: IEmailServiceConfig = {
     mailgun: {
         auth: {
             api_key: 'key-0fc884951c756671de992c1ed2fcaf60',
-            domain: 'kpibi.com'
+            domain: 'bi.atlaskpi.com'
         }
     }
 };
