@@ -352,7 +352,11 @@ export function userPlugin(schema: mongoose.Schema, options: any) {
 
                         // send email to user
                         if (opts.notifyUser) {
-                            notifier.notify(user, data.email);
+                            if (options && options.host) {
+                                notifier.notify(user, data.email, options.host);
+                            } else {
+                                notifier.notify(user, data.email);
+                            }
                         }
 
                         resolve({ entity: user });
