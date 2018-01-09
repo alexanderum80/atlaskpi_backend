@@ -10,6 +10,7 @@ import {
     sortBy,
     isObject
 } from 'lodash';
+import * as mongoose from 'mongoose';
 
 const codeMapper = {
     'Revenue': 'sales',
@@ -45,7 +46,7 @@ export class KpiService {
             // prop: i.e. 'location', 'concept', 'customerName'
             Object.keys(collection).forEach(prop => {
                 const field = collection[prop];
-
+                mongoose.set('debug', true);
                 collectionQuery.push(model[modelKey].aggregate([{
                     $match: {
                         [field]: { $exists: true}
@@ -58,6 +59,7 @@ export class KpiService {
                 }, {
                     $limit: 1
                 }]));
+            });
 
                 Promise.all(collectionQuery).then(fieldExist => {
                     // array of arrays with objects
@@ -69,7 +71,6 @@ export class KpiService {
                         return resolve(sortBy(permittedFields));
                     }
                 });
-            });
         });
     }
 
