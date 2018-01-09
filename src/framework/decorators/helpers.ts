@@ -20,6 +20,7 @@ export interface IArtifactDetails {
     name?: string;
     text: string;
     constructor: any;
+    activity?: new () => IActivity;
     relatedTypes?: any[];
     resolvers?: {
         [name: string]: Function

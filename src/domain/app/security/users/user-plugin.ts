@@ -704,7 +704,7 @@ export function userPlugin(schema: mongoose.Schema, options: any) {
                 user.addResetPasswordToken(email);
 
                 user.save().then((user) => {
-                    notifier.notify(user, email, ).then((sentEmailInfo) => {
+                    notifier.notify(user, email).then((sentEmailInfo) => {
                         resolve(sentEmailInfo);
                     }, (err) => {
                         throw { name: 'email', message: err.message };

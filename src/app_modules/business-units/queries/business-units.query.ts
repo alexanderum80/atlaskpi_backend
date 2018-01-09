@@ -1,4 +1,3 @@
-import { BusinessUnit } from '../business-units.types';
 import * as Promise from 'bluebird';
 import { inject, injectable } from 'inversify';
 
@@ -6,13 +5,14 @@ import { IBusinessUnitDocument } from '../../../domain/app/business-unit/busines
 import { BusinessUnits } from '../../../domain/app/business-unit/business-unit-model';
 import { query } from '../../../framework/decorators/query.decorator';
 import { IQuery } from '../../../framework/queries/query';
-import { BusinessUnitByIdActivity } from '../activities/business-unit-by-id.activity';
+import { ListBusinessUnitsActivity } from '../activities/list-business-unit.activity';
+import { BusinessUnit } from '../business-units.types';
 
 
 @injectable()
 @query({
     name: 'businessUnits',
-    activity: BusinessUnitByIdActivity,
+    activity: ListBusinessUnitsActivity,
     output: { type: BusinessUnit, isArray: true }
 })
 export class BusinessUnitsQuery implements IQuery<IBusinessUnitDocument[]> {

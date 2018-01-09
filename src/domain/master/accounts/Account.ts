@@ -78,5 +78,5 @@ export interface IAccountModel extends mongoose.Model<IAccountDocument> {
      * @param {String} name - the account hostname
      * @returns {Promise<Boolean>}
      */
-     accountNameAvailable(name: string): Promise<Boolean>;
+     accountNameAvailable(name: string): Promise<boolean>;
 }

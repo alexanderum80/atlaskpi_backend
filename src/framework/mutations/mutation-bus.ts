@@ -34,13 +34,25 @@ export class MutationBus implements IMutationBus {
 
     constructor(@inject(Enforcer.name) private _enforcer: IEnforcer) {}
 
-    run < T > (activity: IActivity, request: IExtendedRequest, mutation: IMutation < T > , data: any): Promise < any > {
+    run < T > (activity: new () => IActivity, request: IExtendedRequest, mutation: IMutation < T > , data: any): Promise < any > {
         const that = this;
-        // chack activity authorization
+
+        let roles = [];
+        let permissions = [];
+
+        if (request.user) {
+            roles = request.user.roles.map(r => r.name);
+            permissions = flatMap(request.user.roles, (r) => r.permissions);
+        }
+
+        // get activity instance
+        const act: IActivity = request.Container.instance.get(activity.name);
+
+        // check activity authorization
         return this.enforcer.authorizationTo(
-                activity,
-                request.user.roles.map(r => r.name),
-                flatMap(request.user.roles, (r) => r.permissions))
+                act,
+                roles,
+                permissions)
             .then((authorized) => {
                 that.authorizedValue = authorized;
                 if (!authorized) {
