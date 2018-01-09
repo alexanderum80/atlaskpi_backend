@@ -11,6 +11,7 @@ import { MutationBase } from '../../../../framework/mutations/mutation-base';
 import { IMutationResponse } from '../../../../framework/mutations/mutation-response';
 import { Connectors } from '../../../../domain/master/connectors/connector.model';
 
+@injectable()
 @mutation({
     name: 'callRailConnect',
     activity: CreateCallRailConnectorActivity,
@@ -19,8 +20,6 @@ import { Connectors } from '../../../../domain/master/connectors/connector.model
     ],
     output: { type: CallRailResponse }
 })
-
-@injectable()
 export class CreateCallRailConnectorMutation extends MutationBase<IMutationResponse> {
     constructor(
                 @inject(Connectors.name) private _connectorModel: Connectors,
