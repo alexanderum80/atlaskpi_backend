@@ -1,11 +1,15 @@
+import { KpiService } from '../../../services/kpi.service';
 import { GroupingMap } from '../../../app_modules/charts/queries/chart-grouping-map';
 import { DataSourcesHelper } from '../../../app_modules/data-sources/queries/datasource.helper';
 import { IKPIDocument, IKPISimpleDefinition, KPITypeEnum, IKPI } from './kpi';
 import { KPIExpressionHelper } from './kpi-expression.helper';
 
 export class KPIGroupingsHelper {
+    kpiService: KpiService;
     public static GetAvailableGroupings(kpi: IKPIDocument | IKPI): string[] {
         const identifier = kpi.baseKpi || kpi.code;
+        this.kpiService = kpi.model.prototype.kpiService;
+
         const byIdentifierGroupings  = this._getGroupungsByIdentifier(identifier || null);
 
         let bySimpleKPIGroupings;
@@ -24,10 +28,10 @@ export class KPIGroupingsHelper {
 
         switch (code) {
             case 'Revenue':
-                return Object.keys(GroupingMap.sales);
+                return this.kpiService.GetGroupingsExistInCollectionSchema(code);
 
             case 'Expenses':
-                return Object.keys(GroupingMap.expenses);
+                return this.kpiService.GetGroupingsExistInCollectionSchema(code);
 
             default:
                 return null;
