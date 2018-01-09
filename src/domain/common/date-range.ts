@@ -60,7 +60,7 @@ export const quarterMonths = {
     '4': ['Oct', 'Nov', 'Dec']
 };
 
-const quarterKey = moment().quarter();
+let quarterKey = moment().quarter();
 
 export function parsePredifinedDate(textDate: string): IDateRange {
     let from: Date;
@@ -98,6 +98,7 @@ export function parsePredifinedDate(textDate: string): IDateRange {
                 to: moment().startOf('month').subtract(1, 'day').toDate()
             };
         case PredefinedDateRanges.lastQuarter:
+            quarterKey = (quarterKey === 1) ? 5 : quarterKey;
             let getStartQuarter = quarterKey - 1;
             let lStartQuarter = quarterMonths[getStartQuarter][0];
             let lEndQuarter = quarterMonths[getStartQuarter][2];
