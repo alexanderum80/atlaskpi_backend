@@ -3,12 +3,13 @@ import { GroupingMap } from '../../../app_modules/charts/queries/chart-grouping-
 import { DataSourcesHelper } from '../../../app_modules/data-sources/queries/datasource.helper';
 import { IKPIDocument, IKPISimpleDefinition, KPITypeEnum, IKPI } from './kpi';
 import { KPIExpressionHelper } from './kpi-expression.helper';
+import * as Promise from 'bluebird';
 
 export class KPIGroupingsHelper {
-    kpiService: KpiService;
+    static kpiService: KpiService;
     public static GetAvailableGroupings(kpi: IKPIDocument | IKPI): string[] {
         const identifier = kpi.baseKpi || kpi.code;
-        this.kpiService = kpi.model.prototype.kpiService;
+        this.kpiService = (<any>kpi).model.prototype.kpiService;
 
         const byIdentifierGroupings  = this._getGroupungsByIdentifier(identifier || null);
 
@@ -23,7 +24,7 @@ export class KPIGroupingsHelper {
 
     // This function it's no dynamic, is just mapping the predefined kpis
     // to the groping table on the chart-grouping-map file.
-    private static _getGroupungsByIdentifier(code: string): string[] {
+    private static _getGroupungsByIdentifier(code: string): string[]|Promise<string[]> {
         if (!code) return null;
 
         switch (code) {

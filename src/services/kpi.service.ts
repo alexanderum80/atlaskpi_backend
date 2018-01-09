@@ -26,7 +26,7 @@ export class KpiService {
         @inject(KPIs.name) private _kpis: KPIs
     ) {}
 
-    GetGroupingsExistInCollectionSchema(schemaName: string): Promise<string[]> {
+    GetGroupingsExistInCollectionSchema(schemaName: string): Promise<any> {
         const that = this;
         // get sales and expense mongoose models
         const model = {
@@ -61,16 +61,16 @@ export class KpiService {
                 }]));
             });
 
-                Promise.all(collectionQuery).then(fieldExist => {
-                    // array of arrays with objects
-                    if (fieldExist) {
-                        // convert to single object
-                        const formatToObject = this._getObjects(fieldExist);
-                        // get the keys from the formatToObject
-                        permittedFields = Object.keys(formatToObject);
-                        return resolve(sortBy(permittedFields));
-                    }
-                });
+            Promise.all(collectionQuery).then(fieldExist => {
+                // array of arrays with objects
+                if (fieldExist) {
+                    // convert to single object
+                    const formatToObject = this._getObjects(fieldExist);
+                    // get the keys from the formatToObject
+                    permittedFields = Object.keys(formatToObject);
+                    return resolve(sortBy(permittedFields));
+                }
+            });
         });
     }
 
