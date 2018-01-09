@@ -17,7 +17,7 @@ import { Enforcer } from '../../app_modules/security/enforcer/enforcer';
 
 
 export interface IMutationBus {
-    run < T > (activity: IActivity, req: IExtendedRequest, mutation: IMutation < T > , data: any): Promise < any > ;
+    run < T > (activity: new () => IActivity, req: IExtendedRequest, mutation: IMutation < T > , data: any): Promise < any > ;
 }
 
 @injectable()
