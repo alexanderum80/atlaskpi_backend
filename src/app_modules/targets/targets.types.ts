@@ -92,6 +92,9 @@ export class TargetAmountInput {
 
     @field({ type: GraphQLTypesMap.String, isArray: true})
     chart: string[];
+
+    @field({ type: GraphQLTypesMap.String })
+    notificationDate: string;
 }
 
 @input()
@@ -104,6 +107,9 @@ export class NotificationInput {
 
     @field({ type: GraphQLTypesMap.Float })
     targetAmount: number;
+
+    @field({ type: GraphQLTypesMap.Float })
+    targetMet: number;
 
     @field({ type: GraphQLTypesMap.String })
     targetDate: string;
@@ -237,4 +243,7 @@ export class TargetRemoveResult  {
 export class TargetAmountResponse {
     @field({ type: GraphQLTypesMap.Float })
     amount: number;
+
+    @field({ type: GraphQLTypesMap.Float })
+    met: number;
 }
