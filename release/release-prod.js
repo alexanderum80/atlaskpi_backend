@@ -38,11 +38,11 @@ exports.release = function(version) {
         const selectedVersion = parseSelectedVersion(answers.releaseType);
         const releaseType = answers.releaseType.split('(')[0].trim().toLowerCase();
 
-        // applyGitChanges(answers.git, selectedVersion);
-        // changePackageVersion(releaseType, selectedVersion);
-        // buildApp(selectedVersion);
-        // dockerizeApp(selectedVersion);
-        // uploadAppToEC2(selectedVersion);
+        applyGitChanges(answers.git, selectedVersion);
+        changePackageVersion(releaseType, selectedVersion);
+        buildApp(selectedVersion);
+        dockerizeApp(selectedVersion);
+        uploadAppToEC2(selectedVersion);
         const task = createTaskRevision(selectedVersion);
         updateClusterService(task);
       });
