@@ -342,7 +342,7 @@ export class UIChartBase {
             /**
              *  this is a one level grouping chart
              */
-            return this._getSeriesForFirstLevelGrouping(data, categories, meta.xAxisSource);
+            return this._getSeriesForFirstLevelGrouping(data, categories, meta);
 
 
         } else if (availableGroupingsForSeries.length === 1) {
@@ -364,14 +364,14 @@ export class UIChartBase {
     }
 
 
-    private _getSeriesForFirstLevelGrouping(data: any[], categories: IXAxisCategory[], group: string): IChartSerie[] {
+    private _getSeriesForFirstLevelGrouping(data: any[], categories: IXAxisCategory[], meta: IChartMetadata): IChartSerie[] {
 
         if (this.chart.chartDefinition.chart.type === ChartType.Pie) {
             return [{
                 name: '',
                 data:  categories.map(cat => {
                     let dataItem = data.find((item: any) => {
-                        return item._id[group] === cat.id;
+                        return item._id[meta.xAxisSource] === cat.id;
                     });
 
                     return {
@@ -380,6 +380,10 @@ export class UIChartBase {
                     };
                 })
             }];
+        } else if (meta.xAxisSource) {
+            const groupedData: Dictionary<any> = groupBy(data, '_id.' + meta.xAxisSource);
+            const matchField = getFrequencyPropName(meta.frequency);
+            return this._createSeriesFromgroupedData(groupedData, categories, matchField);
         } else {
             return [{
                 name: '',

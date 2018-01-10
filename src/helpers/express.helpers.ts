@@ -1,4 +1,4 @@
-import { Request } from 'Express';
+import { Request } from 'express';
 import * as logger from 'winston';
 import { isArray, isObject } from 'lodash';
 import { config } from '../configuration/config';

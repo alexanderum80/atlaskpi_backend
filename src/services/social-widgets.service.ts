@@ -32,6 +32,7 @@ export class SocialWidgetsService {
                 type: { $in: [ 'twitter', 'linkedin', 'facebook', 'instagram' ] }
             })
             .then(connectors => {
+                mongoose.set('debug', true);
                 if (!connectors || !connectors.length) {
                     resolve([]);
                     return;

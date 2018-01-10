@@ -1,12 +1,15 @@
+import { Inventory } from './../inventory/inventory.model';
+import { Expenses } from '../expenses/expense.model';
+import { Sales } from '../sales/sale.model';
 import * as Promise from 'bluebird';
 import * as mongoose from 'mongoose';
 
 import { IMutationResponse } from '../../../framework/mutations/mutation-response';
 import { IPagedQueryResult, IPaginationDetails } from '../../../framework/queries/pagination';
 import { IChartDateRange } from '../../common/date-range';
+import { IWidgetDocument } from '../widgets/widget';
 import { IChartDocument } from '../charts/chart';
-import { Expenses } from '../expenses/expense.model';
-import { Sales } from '../sales/sale.model';
+
 import { IWidgetDocument } from '../widgets/widget';
 import { Inventory } from './../inventory/inventory.model';
 
@@ -14,7 +17,7 @@ import { Inventory } from './../inventory/inventory.model';
 export enum KPITypeEnum {
     Simple = 'simple',
     Complex = 'complex',
-    Compound = 'compound',
+    Compound = 'compound'
     GoogleAnalytics = 'googleanalytics'
 }
 
@@ -36,6 +39,17 @@ export function getKPITypePropName(type: KPITypeEnum) {
         case KPITypeEnum.GoogleAnalytics:
             return 'googleanalytics';
     }
+}
+
+export interface IDocumentExist {
+    chart?: IChartDocument[];
+    widget?: IWidgetDocument[];
+}
+
+export interface IKPIDataSourceHelper {
+    sales: Sales;
+    expenses: Expenses;
+    inventory: Inventory;
 }
 
 export interface IDocumentExist {

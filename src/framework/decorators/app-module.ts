@@ -114,10 +114,11 @@ function _processDependencyInjection(moduleName: string,
     const diModule = container.getSubmodule();
 
     // auto register queries and mutations with the dependency injector container
-    [MetadataType.Queries, MetadataType.Mutations].forEach(t => {
-        if (moduleMetadata[t]) {
-            Object.keys(moduleMetadata[t]).forEach(m => {
-                const a: IArtifactDetails = moduleMetadata[t][m];
+    [MetadataType.Queries, MetadataType.Mutations].forEach(queryOrMutation => {
+        if (moduleMetadata[queryOrMutation]) {
+            Object.keys(moduleMetadata[queryOrMutation]).forEach(metadata => {
+                const a: IArtifactDetails = moduleMetadata[queryOrMutation][metadata];
+                diModule.registerPerWebRequest(a.activity);
                 diModule.registerPerWebRequest(a.constructor);
                 // bind(a.constructor.name).to(a.constructor);
             });

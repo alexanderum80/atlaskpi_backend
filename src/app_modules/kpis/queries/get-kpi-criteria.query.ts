@@ -23,15 +23,14 @@ export class GetKpisCriteriaQuery implements IQuery<any> {
     constructor(
         @inject(Sales.name) private _sales: Sales,
         @inject(Expenses.name) private _expenses: Expenses,
-        @inject(Inventory.name) private _inventory: Expenses,
-    ) {}
+        @inject(Inventory.name) private _inventory: Inventory) {}
 
     run(data: { kpi: string, field: string}): Promise<any> {
         const that = this;
         const kpiMapper = {
             'Sales': this._sales,
             'Expenses': this._expenses,
-            'Inventory': this._inventory,
+            'Inventory': this._inventory
         };
 
         return new Promise<any>((resolve, reject) => {

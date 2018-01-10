@@ -1,6 +1,6 @@
 {
     "name": "atlaskpi-backend",
-    "version": "0.5.13",
+    "version": "0.5.40",
     "description": "",
     "main": "index.ts",
     "scripts": {
@@ -8,6 +8,7 @@
         "start": "npm run build:live",
         "build:live": "nodemon --exec ./node_modules/.bin/ts-node -- ./index.ts",
         "copy-json-files": "cp package.json dist/ && cp src/app_modules/google-spreadsheet/*.json dist/src/app_modules/google-spreadsheet && cp -R src/configuration/users/templates dist/src/configuration/users && cp -R src/configuration/app/templates dist/src/configuration/app && cp -R src/resources dist/src && cp src/app_modules/seed/app/*.json dist/src/app_modules/seed/app",
+        "copy-json-files-to-build": "cp -R src/app_modules/google-spreadsheet build/debug/src/app_modules && cp -R src/configuration/users/templates build/debug/src/configuration/users && cp -R src/configuration/app/templates build/debug/src/configuration/app && cp -R src/resources build/debug/src && cp -R src/services/seed/data build/debug/src/services/seed",
         "build": "tsc -p . --outDir dist && npm run copy-json-files && cp Dockerfile dist",
         "build-and-upload": "tsc -p . --outDir dist && tar cvfz webapp-backend.tgz dist && scp -i ../scripts/kpibi-first-instance.pem webapp-backend.tgz ubuntu@app.kpibi.com:./releases"
     },
@@ -63,6 +64,7 @@
     },
     "dependencies": {
         "@types/axios": "^0.14.0",
+        "axios": "^0.14.0",
         "adaptjs": "^1.0.3",
         "apollo-link": "^1.0.0",
         "async": "^2.1.4",

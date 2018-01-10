@@ -3,7 +3,6 @@ import * as mongoose from 'mongoose';
 
 import { AppConnection } from '../app.connection';
 import { ModelBase } from './../../../type-mongo/model-base';
-import { IdName } from './../../common/id-name';
 import { IInventoryModel } from './inventory';
 
 let Schema = mongoose.Schema;
@@ -14,10 +13,15 @@ const inventoryProductSchema = {
     itemDescription: String
 };
 
+const locationSchema = {
+    externalId: String,
+    name: String
+};
+
 export const InventorySchema = new Schema({
     source: String,
     externalId: { type: String, unique: true },
-    location: IdName,
+    location: locationSchema,
     product: inventoryProductSchema,
     updatedAt: Date,
     onHand: Number,
