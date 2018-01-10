@@ -10,7 +10,7 @@
     "tasks": [{
             "taskName": "main",
             // "args": ["-p", "./server"],
-            "args": ["--outDir", "build/debug", "./index.ts"],
+            "args": ["--outDir", "build/debug", "./app.ts"],
             "problemMatcher": "$tsc",
             "suppressTaskName": true
         },

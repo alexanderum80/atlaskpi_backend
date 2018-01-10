@@ -1,0 +1,79 @@
+import { type } from '../../framework/decorators/type.decorator';
+import { input } from '../../framework/decorators/input.decorator';
+import { field } from '../../framework/decorators/field.decorator';
+import { GraphQLTypesMap } from '../../framework/decorators/graphql-types-map';
+
+@input()
+export class PaginationDetails  {
+    @field({ type: GraphQLTypesMap.Int, required: true })
+    page: number;
+
+    @field({ type: GraphQLTypesMap.Int, required: true })
+    itemsPerPage: number;
+
+    @field({ type: GraphQLTypesMap.String })
+    sortBy: string;
+
+    @field({ type: GraphQLTypesMap.String })
+    filter: string;
+
+}
+
+
+@input()
+export class DateRangeInput  {
+    @field({ type: GraphQLTypesMap.String })
+    from: string;
+
+    @field({ type: GraphQLTypesMap.String })
+    to: string;
+
+}
+
+
+@input()
+export class ChartDateRangeInput  {
+    @field({ type: GraphQLTypesMap.String })
+    predefined: string;
+
+    @field({ type: DateRangeInput })
+    custom: DateRangeInput;
+
+}
+
+
+@type()
+export class PaginationInfo  {
+    @field({ type: GraphQLTypesMap.Int })
+    itemsPerPage: number;
+
+    @field({ type: GraphQLTypesMap.Int })
+    currentPage: number;
+
+    @field({ type: GraphQLTypesMap.Int })
+    totalItems: number;
+
+}
+
+
+@type()
+export class DateRange  {
+    @field({ type: GraphQLTypesMap.String })
+    from: string;
+
+    @field({ type: GraphQLTypesMap.String })
+    to: string;
+
+}
+
+
+@type()
+export class ChartDateRange  {
+    @field({ type: GraphQLTypesMap.String })
+    predefined: string;
+
+    @field({ type: DateRange })
+    custom: DateRange;
+
+}
+
