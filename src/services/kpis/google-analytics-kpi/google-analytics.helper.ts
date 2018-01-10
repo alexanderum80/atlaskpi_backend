@@ -2,6 +2,8 @@ import { FrequencyEnum, getFrequencyPropName } from './../../../domain/common/fr
 import * as moment from 'moment-timezone';
 import { map } from 'lodash';
 
+const GOOGLE_ANALYTICS_LAUNCH_DATE = '2005-01-01';
+
 const DEFAULT_METRICS = [
     'ga:users',
     'ga:newUsers',
@@ -86,10 +88,16 @@ export function  getAnalyticsData(  analyticsObj: any,
                                     viewId: string,
                                     options: IGetAnalyticsOptions = {}
     ): Promise<any> {
-    const startDate = options.startDate || 'today';
+
+    let startDate = options.startDate || 'today';
     const endDate = options.endDate || 'today';
     const metrics = options.metrics || DEFAULT_METRICS;
     const dimensions = options.dimensions || [DEFAULT_DATE_DIMENSION];
+
+    // MINIMUN DATE CANNOT BE LESS THAN GOOGLE ANALYTICS LAUNCH DATE
+    if ( moment(startDate).isBefore(moment(GOOGLE_ANALYTICS_LAUNCH_DATE))) {
+        startDate = GOOGLE_ANALYTICS_LAUNCH_DATE;
+    }
 
     const queryObj = {
         auth: authClient,

@@ -77,7 +77,6 @@ export function parsePredifinedDate(textDate: string): IDateRange {
                 from: moment().subtract(1, 'week').startOf('week').toDate(),
                 to: moment().subtract(1, 'week').endOf('week').toDate()
             };
-        
         case PredefinedDateRanges.lastMonth:
             return {
                 from: moment().subtract(1, 'month').startOf('month').toDate(),
@@ -85,13 +84,13 @@ export function parsePredifinedDate(textDate: string): IDateRange {
             };
         case PredefinedDateRanges.last3Months:
             return {
-                from: moment().startOf('month').subtract(3, 'month').toDate(),
-                to: moment().startOf('month').subtract(1, 'day').toDate()
+                from: moment().subtract(3, 'month').startOf('month').toDate(),
+                to: moment().subtract(1, 'month').endOf('month').toDate()
             };
         case PredefinedDateRanges.last6Months:
             return {
-                from: moment().startOf('month').subtract(6, 'month').toDate(),
-                to: moment().startOf('month').subtract(1, 'day').toDate()
+                from: moment().subtract(6, 'month').startOf('month').toDate(),
+                to: moment().subtract(1, 'month').endOf('month').toDate()
             };
         case PredefinedDateRanges.lastQuarter:
             let getStartQuarter = quarterKey - 1;
@@ -103,28 +102,28 @@ export function parsePredifinedDate(textDate: string): IDateRange {
             };
         case PredefinedDateRanges.lastYear:
             return {
-                from: moment().startOf('year').subtract(1, 'year').toDate(),
-                to: moment().endOf('year').subtract(1, 'year').toDate()
+                from: moment().subtract(1, 'year').startOf('year').toDate(),
+                to: moment().subtract(1, 'year').endOf('year').toDate()
             };
         case PredefinedDateRanges.last2Years:
             return {
-                from: moment().startOf('year').subtract(2, 'year').toDate(),
-                to: moment().startOf('year').subtract(1, 'day').toDate()
+                from: moment().subtract(2, 'year').startOf('year').toDate(),
+                to: moment().subtract(1, 'year').endOf('year').toDate()
             };
         case PredefinedDateRanges.last3Years:
             return {
-                from: moment().startOf('year').subtract(3, 'year').toDate(),
-                to: moment().startOf('year').subtract(1, 'day').toDate()
+                from: moment().subtract(3, 'year').startOf('year').toDate(),
+                to: moment().subtract(1, 'year').endOf('year').toDate()
             };
         case PredefinedDateRanges.last4Years:
             return {
-                from: moment().startOf('year').subtract(4, 'year').toDate(),
-                to: moment().startOf('year').subtract(1, 'day').toDate()
+                from: moment().subtract(4, 'year').startOf('year').toDate(),
+                to: moment().subtract(1, 'year').endOf('year').toDate()
             };
         case PredefinedDateRanges.last5Years:
             return {
-                from: moment().startOf('year').subtract(5, 'year').toDate(),
-                to: moment().startOf('year').subtract(1, 'day').toDate()
+                from: moment().subtract(5, 'year').startOf('year').toDate(),
+                to: moment().subtract(1, 'year').endOf('year').toDate()
             };
         case PredefinedDateRanges.thisWeek:
             return {
