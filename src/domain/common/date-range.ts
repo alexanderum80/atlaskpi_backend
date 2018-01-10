@@ -74,18 +74,14 @@ export function parsePredifinedDate(textDate: string): IDateRange {
             };
         case PredefinedDateRanges.lastWeek:
             return {
-                from: moment().startOf('week').subtract(1, 'week').toDate(),
-                to: moment().startOf('week').subtract(1, 'day').toDate()
+                from: moment().subtract(1, 'week').startOf('week').toDate(),
+                to: moment().subtract(1, 'week').endOf('week').toDate()
             };
-        case PredefinedDateRanges.last30Days:
-            return {
-                from: moment().subtract(30, 'day').toDate(),
-                to: moment().toDate()
-            };
+        
         case PredefinedDateRanges.lastMonth:
             return {
-                from: moment().startOf('month').subtract(1, 'month').toDate(),
-                to: moment().startOf('month').subtract(1, 'day').toDate()
+                from: moment().subtract(1, 'month').startOf('month').toDate(),
+                to: moment().subtract(1, 'month').endOf('month').toDate()
             };
         case PredefinedDateRanges.last3Months:
             return {
@@ -156,7 +152,7 @@ export function parsePredifinedDate(textDate: string): IDateRange {
         case PredefinedDateRanges.yesterday:
             return {
                 from: moment().subtract(1, 'days').startOf('day').toDate(),
-                to: moment().endOf('day').toDate()
+                to: moment().subtract(1, 'days').endOf('day').toDate()
             };
         case PredefinedDateRanges.thisWeekToDate:
             return {
@@ -170,8 +166,8 @@ export function parsePredifinedDate(textDate: string): IDateRange {
             };
         case PredefinedDateRanges.thisMonthToDate:
             return {
-                from: moment().utc().startOf('month').toDate(),
-                to: moment().utc().endOf('day').toDate()
+                from: moment().startOf('month').toDate(),
+                to: moment().endOf('day').toDate()
             };
         case PredefinedDateRanges.thisQuarterToDate:
             let qStart = quarterMonths[quarterKey][0];
@@ -186,23 +182,28 @@ export function parsePredifinedDate(textDate: string): IDateRange {
             };
         case PredefinedDateRanges.last7Days:
             return {
-                from: moment().subtract(7, 'days').toDate(),
-                to: moment().endOf('day').toDate()
+                from: moment().subtract(7, 'days').startOf('day').toDate(),
+                to: moment().subtract(1, 'days').endOf('day').toDate()
             };
         case PredefinedDateRanges.last14Days:
             return {
-                from: moment().utc().subtract(14, 'days').toDate(),
-                to: moment().utc().endOf('day').toDate()
+                from: moment().subtract(14, 'days').startOf('day').toDate(),
+                to: moment().subtract(1, 'days').endOf('day').toDate()
+            };
+        case PredefinedDateRanges.last30Days:
+            return {
+                from: moment().subtract(30, 'days').startOf('day').toDate(),
+                to: moment().subtract(1, 'days').endOf('day').toDate()
             };
         case PredefinedDateRanges.last90Days:
             return {
-                from: moment().subtract(90, 'days').toDate(),
-                to: moment().endOf('day').toDate()
+                from: moment().subtract(90, 'days').startOf('day').toDate(),
+                to: moment().subtract(1, 'days').endOf('day').toDate()
             };
         case PredefinedDateRanges.last365Days:
             return {
-                from: moment().subtract(365, 'days').toDate(),
-                to: moment().endOf('day').toDate()
+                from: moment().subtract(365, 'days').startOf('day').toDate(),
+                to: moment().subtract(1, 'days').endOf('day').toDate()
             };
         case PredefinedDateRanges.custom:
             return {

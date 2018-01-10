@@ -151,10 +151,10 @@ export function parseGoogleAnalyticsDatesDimentions(id: string, value: any, tz: 
 
 export function constructDimensionsArray(groupings: string[], frequency?: FrequencyEnum): string[] {
     const groupingDimensions = groupingsToDimensions(groupings || []);
-    const frequencyPropName = frequency && getFrequencyPropName(frequency) || null;
+    const frequencyPropName = (frequency === FrequencyEnum.Daily || frequency) && getFrequencyPropName(frequency) || null;
     const frequencyDimension = frequencyPropName && frequencyDimensionsMap[frequencyPropName];
 
-    return  frequencyDimension
+    return  frequency === FrequencyEnum.Daily || frequency
             ? [frequencyDimension, ...groupingDimensions]
             : [...groupingDimensions];
 }
