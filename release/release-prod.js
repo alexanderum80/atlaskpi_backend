@@ -38,11 +38,11 @@ exports.release = function(version) {
         const selectedVersion = parseSelectedVersion(answers.releaseType);
         const releaseType = answers.releaseType.split('(')[0].trim().toLowerCase();
 
-        applyGitChanges(answers.git, selectedVersion);
-        changePackageVersion(releaseType, selectedVersion);
-        buildApp(selectedVersion);
-        dockerizeApp(selectedVersion);
-        uploadAppToEC2(selectedVersion);
+        // applyGitChanges(answers.git, selectedVersion);
+        // changePackageVersion(releaseType, selectedVersion);
+        // buildApp(selectedVersion);
+        // dockerizeApp(selectedVersion);
+        // uploadAppToEC2(selectedVersion);
         const task = createTaskRevision(selectedVersion);
         updateClusterService(task);
       });
@@ -119,7 +119,7 @@ function uploadAppToEC2(version) {
     }
 
     log('uploading app to ec2 ...');
-    const acrLogin = execSync('aws ecr get-login --no-include-email --region us-east-1');
+    const acrLogin = execSync('aws ecr get-login --no-include-email --region us-east-1').toString();
     run(acrLogin);
     run('docker push 288812438107.dkr.ecr.us-east-1.amazonaws.com/webapp-backend:' + version);
 }
@@ -127,7 +127,7 @@ function uploadAppToEC2(version) {
 function createTaskRevision(version) {
     log('Creating new task revision');
 
-    const taskTmpl = fs.readFileSync(__dirname + '/api.task.json.tmpl').toString();
+    const taskTmpl = fs.readFileSync(__dirname + '/../../release/api.task.json.tmpl').toString();
     const compiledTmpl = Handlebars.compile(taskTmpl);
     const task = compiledTmpl({ tag: version });
 
