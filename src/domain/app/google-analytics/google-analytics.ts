@@ -1,4 +1,5 @@
 import * as mongoose from 'mongoose';
+import * as Promise from 'bluebird';
 
 export interface IGoogleAnalytics {
     // id fields
@@ -41,5 +42,5 @@ export interface IGoogleAnalyticsDocument extends IGoogleAnalytics, mongoose.Doc
 }
 
 export interface IGoogleAnalyticsModel extends mongoose.Model<IGoogleAnalyticsDocument> {
-    batchUpsert(data: any[]): Promise<{ _batchId: string, _batchTimestamp: Date }>;
+    batchUpsert(data: any[], startDate: string): Promise<{ _batchId: string, _batchTimestamp: Date }>;
 }

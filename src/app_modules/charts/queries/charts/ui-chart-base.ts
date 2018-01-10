@@ -139,7 +139,9 @@ export class UIChartBase {
             console.log(JSON.stringify( that.series));
 
             return;
-        }).catch(e => e );
+        }).catch(e => {
+            logger.error(e);
+        } );
     }
 
     /**

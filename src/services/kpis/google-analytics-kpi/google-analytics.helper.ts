@@ -1,4 +1,6 @@
+import { FrequencyEnum, getFrequencyPropName } from './../../../domain/common/frequency-enum';
 import * as moment from 'moment-timezone';
+import { map } from 'lodash';
 
 const DEFAULT_METRICS = [
     'ga:users',
@@ -11,7 +13,7 @@ const DEFAULT_METRICS = [
     'ga:bounceRate'
 ];
 
-const DATE_DIMENSION = 'ga:date';
+const DEFAULT_DATE_DIMENSION = 'ga:year';
 
 const DEFAULT_DIMENSIONS = [
     'ga:browser',
@@ -21,6 +23,39 @@ const DEFAULT_DIMENSIONS = [
     'ga:language',
     'ga:operatingSystem'
 ];
+
+export const groupingDimensionsMap = {
+    browser: 'ga:browser',
+    country: 'ga:country',
+    city: 'ga:city',
+    deviceCategory: 'ga:deviceCategory',
+    language: 'ga:language',
+    operatingSystem: 'ga:operatingSystem'
+};
+
+export const fieldMetricsMap = {
+    users: 'ga:users',
+    newUsers: 'ga:newUsers',
+    sessions: 'ga:sessions',
+    sessionsPerUser: 'ga:sessionsPerUser',
+    pageviews: 'ga:pageviews',
+    pageviewsPerSession: 'ga:pageviewsPerSession',
+    avgSessionDuration: 'ga:avgSessionDuration',
+    bounceRate: 'ga:bounceRate'
+};
+
+export const frequencyDimensionsMap = {
+    day: 'ga:date',
+    week: 'ga:isoYearIsoWeek',
+    month: 'ga:yearMonth',
+    quarter: null,
+    year: 'ga:year'
+};
+
+const dateDimensions = ['date', 'isoYearIsoWeek', 'yearMonth', 'year'];
+
+export const cleanHeaders = (headers): string[] => headers.map(h => h.name.replace('ga:', ''));
+export const groupingsToDimensions = (groupings): string[] => groupings.map(g => groupingDimensionsMap[g]);
 
 export interface IGetAnalyticsOptions {
     startDate?: string;
@@ -47,22 +82,17 @@ export function generateBatchProperties(connectorId: string, viewId: string): IB
  * All google analytics query should go thru this function
  */
 export function  getAnalyticsData(  analyticsObj: any,
+                                    authClient: any,
                                     viewId: string,
                                     options: IGetAnalyticsOptions = {}
     ): Promise<any> {
     const startDate = options.startDate || 'today';
     const endDate = options.endDate || 'today';
     const metrics = options.metrics || DEFAULT_METRICS;
-    let dimensions = [DATE_DIMENSION];
-
-    if (options.dimensions) {
-        dimensions = [...dimensions, ...options.dimensions];
-    }
-
-    const that = this;
+    const dimensions = options.dimensions || [DEFAULT_DATE_DIMENSION];
 
     const queryObj = {
-        auth: that._authClient,
+        auth: authClient,
         'ids': `ga:${viewId}`,
         'start-date': startDate,
         'end-date': endDate,
@@ -87,11 +117,44 @@ export function mapMetricDimensionRow(row: any, headers: string[], tz: string = 
     const line = {};
         // loop thru headers and create an object with the  headers as key
     headers.forEach((h, index) => {
-        line[h] =   h === 'date'
+        const dateDimension = dateDimensions.find(id => id === h);
+        const key = dateDimension ? 'date' : h;
+        line[key] = dateDimension
                     // create the date object based on the timezone of the google analytic view
-                    ? moment.tz(row[index], tz).toDate()
+                    ? parseGoogleAnalyticsDatesDimentions(h, row[index], tz)
                     : row[index];
     });
 
     return line;
+}
+
+export function parseGoogleAnalyticsDatesDimentions(id: string, value: any, tz: string): any {
+    switch (id) {
+        case 'date':
+            return moment.tz(value, tz).toDate();
+
+        case 'isoYearIsoWeek':
+            const year = id.substr(0, 4);
+            const week = id.substr(4, 2);
+            return moment.tz(`${year}-W${week}`, tz).toDate();
+
+        case 'yearMonth':
+            return moment.tz(`${value}01`, tz).toDate();
+
+        case 'year':
+            return moment.tz(`${value}-01-01`, tz).toDate();
+
+        default:
+            return value;
+    }
+}
+
+export function constructDimensionsArray(groupings: string[], frequency?: FrequencyEnum): string[] {
+    const groupingDimensions = groupingsToDimensions(groupings || []);
+    const frequencyPropName = frequency && getFrequencyPropName(frequency) || null;
+    const frequencyDimension = frequencyPropName && frequencyDimensionsMap[frequencyPropName];
+
+    return  frequencyDimension
+            ? [frequencyDimension, ...groupingDimensions]
+            : [...groupingDimensions];
 }

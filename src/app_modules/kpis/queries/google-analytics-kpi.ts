@@ -1,3 +1,4 @@
+import { IBatchProperties } from './../../../services/kpis/google-analytics-kpi/google-analytics.helper';
 import { cloneDeep } from 'lodash';
 import * as Promise from 'bluebird';
 import * as moment from 'moment';
@@ -11,17 +12,6 @@ import { AggregateStage } from './aggregate';
 import { IGetDataOptions, IKpiBase, KpiBase, ICollection } from './kpi-base';
 import { GoogleAnalyticsKPIService } from '../../../services/kpis/google-analytics-kpi/google-analytics-kpi.service';
 import { SimpleKPIBase } from './simple-kpi-base';
-
-const fieldMetricsMap = {
-    users: 'ga:users',
-    newUsers: 'ga:newUsers',
-    sessions: 'ga:sessions',
-    sessionsPerUser: 'ga:sessionsPerUser',
-    pageviews: 'ga:pageviews',
-    pageviewsPerSession: 'ga:pageviewsPerSession',
-    avgSessionDuration: 'ga:avgSessionDuration',
-    bounceRate: 'ga:bounceRate'
-};
 
 export class GoogleAnalyticsKpi extends SimpleKPIBase implements IKpiBase {
 
@@ -66,11 +56,11 @@ export class GoogleAnalyticsKpi extends SimpleKPIBase implements IKpiBase {
 
 
     private constructor(model: any,
-                        baseAggregate: any,
+                        private _baseAggregate: any,
                         private _definition: IKPISimpleDefinition,
                         private _kpi: IKPI,
                         private _googleAnalyticsKpiService: GoogleAnalyticsKPIService) {
-        super(model, baseAggregate);
+        super(model, _baseAggregate);
 
         this.collection = { modelName: 'GoogleAnalytics', timestampField: 'date' };
 
@@ -87,36 +77,49 @@ export class GoogleAnalyticsKpi extends SimpleKPIBase implements IKpiBase {
 
         if (deserializedFilter)
             this._injectPostGroupStageFilters(deserializedFilter, _definition.field);
-
-        this.pristineAggregate = cloneDeep(baseAggregate);
     }
 
     getData(dateRange?: IDateRange[], options?: IGetDataOptions): Promise<any> {
+        mongoose.set('debug', true);
         const firstDateRange = dateRange && dateRange[0];
 
         const startDate = moment(firstDateRange.from).format('YYYY-MM-DD');
         const endDate = moment(firstDateRange.to).format('YYYY-MM-DD');
 
         const that = this;
-        return new Promise<any>((resolve, reject) => {
-            return this._googleAnalyticsKpiService
-                .initialize(this._definition.dataSource)
-                .then(() => {
-                   return that._googleAnalyticsKpiService
-                              .getData( startDate,
-                                        endDate,
-                                        [fieldMetricsMap[this._definition.field]],
-                                        []);
-                })
-                .then(batch => {
-                    mongoose.set('debug', true);
-                    that._injectPreGroupStageFilters({ _batchId: batch._batchId }, that._definition.field);
-                    this.executeQuery(this.collection.timestampField, dateRange, options).then(data => {
-                        resolve(data);
-                        return;
+        return this._cacheData(dateRange, options)
+                    .then(batch => {
+                        that._injectPreGroupStageFilters({ _batchId: batch._batchId }, that._definition.field);
+                        that.pristineAggregate = cloneDeep(that._baseAggregate);
+                        return that.executeQuery(this.collection.timestampField, dateRange, options);
                     });
-                })
-                .catch(err => reject(err));
-        });
+    }
+
+    private _cacheData(dateRange?: IDateRange[], options?: IGetDataOptions): Promise<IBatchProperties> {
+        mongoose.set('debug', true);
+        const firstDateRange = dateRange && dateRange[0];
+
+        const startDate = moment(firstDateRange.from).format('YYYY-MM-DD');
+        const endDate = moment(firstDateRange.to).format('YYYY-MM-DD');
+
+        // get the groupings
+        // options groupings have precedence over kpi groupings
+        const groupings = options.groupings  && options.groupings.length  && options.groupings  ||
+                          this._kpi.groupings && this._kpi.groupings.length && this._kpi.groupings ||
+                          [];
+
+        const that = this;
+        return this ._googleAnalyticsKpiService
+                    .initializeConnection(this._definition.dataSource)
+                    .then((res) => {
+                        return that._googleAnalyticsKpiService
+                                    .cacheData( res.analytics,
+                                                res.authClient,
+                                                startDate,
+                                                endDate,
+                                                this._definition.field,
+                                                options.frequency,
+                                                groupings);
+                    });
     }
 }

@@ -44,13 +44,24 @@ export const GoogleAnalyticsSchema = new mongoose.Schema({
     _batchTimestamp: Date
 });
 
-GoogleAnalyticsSchema.statics.batchUpsert = function(data: IGoogleAnalytics[]): Promise<{ _batchId: string, _batchTimestamp: Date }> {
+GoogleAnalyticsSchema.statics.batchUpsert = function(data: IGoogleAnalytics[], startDate: string): Promise<{ _batchId: string, _batchTimestamp: Date }> {
+    if (!data || !data.length) {
+        return Promise.resolve({ _batchId: '##empty.data###', _batchTimestamp: new Date() });
+    }
+
     const that = this;
     const batchProps = { _batchId: data[0]._batchId, _batchTimestamp: data[0]._batchTimestamp };
 
+    const hasDate = data[0] && data[0].date;
+
+    // if no date was requested to analytics lest use the start date
+    if (!hasDate) {
+        data.forEach(d => d.date = moment(startDate).toDate());
+    }
+
     return new Promise<{ _batchId: string, _batchTimestamp: Date }>((resolve, reject) => {
         // clean old batches....
-        that.remove({ date: { $lt: moment().subtract(10, 'minutes') }}, (err) => {
+        that.remove({ _batchTimestamp: { $lt: moment().subtract(10, 'minutes') }}, (err) => {
             if (err) {
                 reject(err);
                 return;

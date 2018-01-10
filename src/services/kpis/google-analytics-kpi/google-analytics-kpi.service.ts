@@ -1,22 +1,31 @@
+import * as Promise from 'bluebird';
 import { inject, injectable } from 'inversify';
 
 import { loadIntegrationConfig } from '../../../app_modules/integrations/models/load-integration-controller';
 import { GoogleAnalytics } from '../../../domain/app/google-analytics/google-analytics.model';
+import { FrequencyEnum } from '../../../domain/common/frequency-enum';
 import { IConnectorDocument } from '../../../domain/master/connectors/connector';
+import { CurrentAccount } from '../../../domain/master/current-account';
 import { IGoogleAnalytics } from './../../../domain/app/google-analytics/google-analytics';
 import { Logger } from './../../../domain/app/logger';
 import { Connectors } from './../../../domain/master/connectors/connector.model';
-import { IConnectionResponse, getGoogleAnalyticsConnection } from './google-analytics-connection-handler';
-import { generateBatchProperties, getAnalyticsData, mapMetricDimensionRow, IBatchProperties } from './google-analytics.helper';
-import { CurrentAccount } from '../../../domain/master/current-account';
+import { getGoogleAnalyticsConnection } from './google-analytics-connection-handler';
+import {
+    cleanHeaders,
+    constructDimensionsArray,
+    fieldMetricsMap,
+    generateBatchProperties,
+    getAnalyticsData,
+    IBatchProperties,
+    mapMetricDimensionRow,
+} from './google-analytics.helper';
 
-const cleanHeaders = (headers): string[] => headers.map(h => h.name.replace('ga:', ''));
 
 @injectable()
 export class GoogleAnalyticsKPIService {
 
-    private _analytics: any;
-    private _authClient: any;
+    // private _analytics: any;
+    // private _authClient: any;
     private _connector: IConnectorDocument;
     private _config: any;
 
@@ -27,7 +36,7 @@ export class GoogleAnalyticsKPIService {
         @inject(Logger.name) private _logger: Logger
     ) { }
 
-    public initialize(connectorId: string): Promise<any> {
+    public initializeConnection(connectorId: string): Promise<{ analytics: any, authClient: any }> {
         const that = this;
         let configDoc;
         let connector;
@@ -58,39 +67,43 @@ export class GoogleAnalyticsKPIService {
                 }
 
                 that._connector = connector;
-                that._analytics = connectionResponse.conn;
-                that._authClient = connectionResponse.client;
                 that._config = configDoc.config;
-                resolve();
+                resolve({
+                    analytics: connectionResponse.conn,
+                    authClient: connectionResponse.client
+                });
                 return;
             })
             .catch(err => reject(err));
         });
     }
 
-    public getData( startDate?: string,
-                    endDate?: string,
-                    metrics?: string[],
-                    dimensions?: string[]): Promise<IBatchProperties> {
+    public cacheData(   analytics: any,     // analytics instance object
+                        authClient: any,   // authClient instance object
+                        startDate: string,
+                        endDate: string,
+                        field: string,
+                        frequency?: FrequencyEnum,
+                        groupings?: string[]): Promise<IBatchProperties> {
 
-        if (!this.isInitialized) {
+        if (!Boolean(analytics)) {
             return Promise.reject('##GoogleAnalyticsKPI: you have to call initialize() before calling getData()');
         }
 
         const that = this;
 
-        return getAnalyticsData(this._analytics, this._connector.config.view.id, {
+        return <any> getAnalyticsData(analytics, authClient, this._connector.config.view.id, {
             startDate: startDate,
             endDate: endDate,
-            metrics: metrics,
-            dimensions: dimensions,
+            metrics: [fieldMetricsMap[field]],
+            dimensions: constructDimensionsArray(groupings, frequency),
             extraOpts: {
                 'include-empty-rows': false
             }
         })
         .then(rawData => {
             const analyticsData = that._mapToIGoogleAnalytics(rawData, that._connector.config.view.timezone);
-            return that._googleAnalyticsModel.model.batchUpsert(analyticsData);
+            return that._googleAnalyticsModel.model.batchUpsert(analyticsData, startDate);
         });
     }
 
@@ -128,11 +141,7 @@ export class GoogleAnalyticsKPIService {
     }
 
     private _resolveConnector(connectorId: string): Promise<IConnectorDocument> {
-        return this._connectors.model.findById(connectorId).exec();
+        return <any>this._connectors.model.findById(connectorId).exec();
     }
 
-    get isInitialized(): boolean {
-        return Boolean(this._analytics && this._authClient && this._config);
-    }
-
-}
+  }
