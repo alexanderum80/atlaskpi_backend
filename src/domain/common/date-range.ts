@@ -453,12 +453,3 @@ export function lastQuarter(quarterProperty: number) {
         };
     }
 }
-
-
-            // let getStartQuarter = quarterKey - 1;
-            // let lStartQuarter = quarterMonths[getStartQuarter][0];
-            // let lEndQuarter = quarterMonths[getStartQuarter][2];
-            // return {
-            //     from: moment().utc().month(lStartQuarter).startOf('month').toDate(),
-            //     to: moment().utc().month(lEndQuarter).endOf('month').toDate()
-            // };
