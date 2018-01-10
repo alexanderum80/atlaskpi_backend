@@ -14,6 +14,7 @@ import { SeedService } from './seed/seed.service';
 import { SocialWidgetsService } from './social-widgets.service';
 import { TargetService } from './target.service';
 import { WidgetsService } from './widgets.service';
+import { GoogleAnalyticsKPIService } from './kpis/google-analytics-kpi/google-analytics-kpi.service';
 
 export function registerServices(container: IBridgeContainer) {
     container.registerSingleton(AccountsService);
@@ -36,4 +37,5 @@ export function registerServices(container: IBridgeContainer) {
     container.registerPerWebRequest(KpiService);
     container.registerPerWebRequest(SocialWidgetsService);
     container.registerPerWebRequest(ConnectorsService);
+    container.registerPerWebRequest(GoogleAnalyticsKPIService);
 }
