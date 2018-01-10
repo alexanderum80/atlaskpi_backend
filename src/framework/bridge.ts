@@ -1,6 +1,6 @@
 import * as bodyParser from 'body-parser';
 import * as cors from 'cors';
-import * as express from 'Express';
+import * as express from 'express';
 import { graphqlExpress } from 'graphql-server-express';
 import { IExecutableSchemaDefinition } from 'graphql-tools/dist/Interfaces';
 import { Server } from 'http';
