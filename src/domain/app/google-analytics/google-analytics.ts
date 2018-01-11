@@ -1,3 +1,4 @@
+import { IBatchProperties } from './../../../services/kpis/google-analytics-kpi/google-analytics.helper';
 import * as mongoose from 'mongoose';
 import * as Promise from 'bluebird';
 
@@ -9,8 +10,6 @@ export interface IGoogleAnalytics {
         viewId: string;
     };
 
-    webPropertyId: string;
-    accountId: string;
     websiteUrl: string;
 
     // Type String fields
@@ -42,5 +41,5 @@ export interface IGoogleAnalyticsDocument extends IGoogleAnalytics, mongoose.Doc
 }
 
 export interface IGoogleAnalyticsModel extends mongoose.Model<IGoogleAnalyticsDocument> {
-    batchUpsert(data: any[], startDate: string): Promise<{ _batchId: string, _batchTimestamp: Date }>;
+    batchUpsert(data: any[], startDate: string, batchProps: IBatchProperties): Promise<IBatchProperties>;
 }

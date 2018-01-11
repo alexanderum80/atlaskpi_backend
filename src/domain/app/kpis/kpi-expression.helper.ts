@@ -37,6 +37,8 @@ export class KPIExpressionHelper {
                 return KPIExpressionHelper._decomposeSimpleExpression(expression);
 
             // right now we are decomposing the google analytics definition the same way than the simple definition
+            // DATASOURCE FORMULA IN EXPRESSION: FUNC (connectorTypeConnectorId.metric)
+            //                               ex: sum(googleanalytics5a551cec278c503642b3d096.users)
             case KPITypeEnum.GoogleAnalytics:
                 return KPIExpressionHelper._decomposeGoogleAnalyticsExpression(expression);
             default:
@@ -169,6 +171,8 @@ export class KPIExpressionHelper {
         }
     }
 
+    // DATASOURCE FORMULA IN EXPRESSION: FUNC (connectorTypeConnectorId.metric)
+    //                               ex: sum(googleanalytics5a551cec278c503642b3d096.users)
     private static _getGoogleAnalyticsKPIFromCallExp(callExp: ICallExpression): IKPISimpleDefinition {
         let dataSource;
         let func = callExp.callee.name;

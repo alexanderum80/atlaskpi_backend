@@ -26,8 +26,9 @@ export const GroupingMap = {
         location: 'location.name',
         product: 'product.itemDescription',
     },
+    // Groupings for google analytrics
     googleanalytics: {
-        connector: 'connector.connectorId',
+        connector: 'connector.connectorName',
         website: 'websiteUrl',
         browser: 'browser',
         city: 'city',

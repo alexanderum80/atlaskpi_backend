@@ -1,11 +1,11 @@
-import { AppConnection } from './../app.connection';
-import { ModelBase } from './../../../type-mongo/model-base';
 import * as Promise from 'bluebird';
-import { injectable, inject } from 'inversify';
-import { uniq } from 'lodash';
-import * as mongoose from 'mongoose';
+import { inject, injectable } from 'inversify';
 import * as moment from 'moment';
+import * as mongoose from 'mongoose';
 
+import { IBatchProperties } from './../../../services/kpis/google-analytics-kpi/google-analytics.helper';
+import { ModelBase } from './../../../type-mongo/model-base';
+import { AppConnection } from './../app.connection';
 import { IGoogleAnalytics, IGoogleAnalyticsModel } from './google-analytics';
 
 // define mongo schema
@@ -16,8 +16,6 @@ export const GoogleAnalyticsSchema = new mongoose.Schema({
         viewId: String!
     },
 
-    webPropertyId: String,
-    accountId: String,
     websiteUrl: String,
 
     // Type String fields
@@ -44,14 +42,12 @@ export const GoogleAnalyticsSchema = new mongoose.Schema({
     _batchTimestamp: Date
 });
 
-GoogleAnalyticsSchema.statics.batchUpsert = function(data: IGoogleAnalytics[], startDate: string): Promise<{ _batchId: string, _batchTimestamp: Date }> {
+GoogleAnalyticsSchema.statics.batchUpsert = function(data: IGoogleAnalytics[], startDate: string, batchProps: IBatchProperties): Promise<IBatchProperties> {
     if (!data || !data.length) {
-        return Promise.resolve({ _batchId: '##empty.data###', _batchTimestamp: new Date() });
+        return Promise.resolve(batchProps);
     }
 
     const that = this;
-    const batchProps = { _batchId: data[0]._batchId, _batchTimestamp: data[0]._batchTimestamp };
-
     const hasDate = data[0] && data[0].date;
 
     // if no date was requested to analytics lest use the start date
@@ -59,7 +55,7 @@ GoogleAnalyticsSchema.statics.batchUpsert = function(data: IGoogleAnalytics[], s
         data.forEach(d => d.date = moment(startDate).toDate());
     }
 
-    return new Promise<{ _batchId: string, _batchTimestamp: Date }>((resolve, reject) => {
+    return new Promise<IBatchProperties>((resolve, reject) => {
         // clean old batches....
         that.remove({ _batchTimestamp: { $lt: moment().subtract(10, 'minutes') }}, (err) => {
             if (err) {

@@ -27,3 +27,21 @@ export class DataSourceResponse  {
 
 }
 
+@type()
+export class ExternalDataSourceResponse {
+    @field({ type: GraphQLTypesMap.String })
+    name: string;
+
+    @field({ type: GraphQLTypesMap.String })
+    connectorId: string;
+
+    @field({ type: GraphQLTypesMap.String })
+    connectorType: string;
+
+    @field({ type: DataSourceField, isArray: true })
+    fields: DataSourceField[];
+
+    @field({ type: GraphQLTypesMap.String, isArray: true })
+    groupings: string[];
+}
+

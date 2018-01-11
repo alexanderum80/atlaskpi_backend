@@ -102,12 +102,14 @@ export class GoogleAnalyticsKPIService {
             }
         })
         .then(rawData => {
-            const analyticsData = that._mapToIGoogleAnalytics(rawData, that._connector.config.view.timezone);
-            return that._googleAnalyticsModel.model.batchUpsert(analyticsData, startDate);
+            // get batch properties
+            const batchProps = generateBatchProperties(that._connector.id, that._connector.config.view.id);
+            const analyticsData = that._mapToIGoogleAnalytics(rawData, batchProps, that._connector.config.view.timezone);
+            return that._googleAnalyticsModel.model.batchUpsert(analyticsData, startDate, batchProps);
         });
     }
 
-    private _mapToIGoogleAnalytics(data: any, tz: string = 'Etc/Universal'): IGoogleAnalytics[] {
+    private _mapToIGoogleAnalytics(data: any, batchProps: IBatchProperties, tz: string = 'Etc/Universal'): IGoogleAnalytics[] {
         // delete the 'ga:' substring
         const columnHeaders = cleanHeaders(data.columnHeaders || []);
 
@@ -116,9 +118,6 @@ export class GoogleAnalyticsKPIService {
 
         const that = this;
         const view = that._connector.config.view;
-
-        // get batch properties
-        const batchProps = generateBatchProperties(that._connector.id, view.id);
 
         const result = rows.map(row => {
             return {

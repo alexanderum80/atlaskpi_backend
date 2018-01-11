@@ -34,7 +34,7 @@ const BlackListedFieldNames = [
     'document.identifier'
 ];
 
-interface ISchemaField {
+export interface ISchemaField {
     path: string;
     type: string;
 }
