@@ -42,7 +42,7 @@ export class KpiFactory {
                                                     this._inventory);
         }
 
-        if (kpiDocument.type && kpiDocument.type === KPITypeEnum.GoogleAnalytics) {
+        if (kpiDocument.type && kpiDocument.type === KPITypeEnum.ExternalSource) {
             // TODO: Refactor this
             return GoogleAnalyticsKpi.CreateFromExpression(  kpiDocument,
                                                              this._googleAnalytics,

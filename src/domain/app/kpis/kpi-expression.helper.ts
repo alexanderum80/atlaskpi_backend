@@ -4,7 +4,6 @@ import { GroupingMap } from '../../../app_modules/charts/queries/chart-grouping-
 import { field } from '../../../framework/decorators/field.decorator';
 import { IKPISimpleDefinition, KPITypeEnum } from './kpi';
 
-
 interface ICallExpression extends jsep.IExpression {
     type: 'CallExpression';
     arguments: jsep.IExpression;
@@ -39,8 +38,8 @@ export class KPIExpressionHelper {
             // right now we are decomposing the google analytics definition the same way than the simple definition
             // DATASOURCE FORMULA IN EXPRESSION: FUNC (connectorTypeConnectorId.metric)
             //                               ex: sum(googleanalytics5a551cec278c503642b3d096.users)
-            case KPITypeEnum.GoogleAnalytics:
-                return KPIExpressionHelper._decomposeGoogleAnalyticsExpression(expression);
+            case KPITypeEnum.ExternalSource:
+                return KPIExpressionHelper._decomponseExternalSourceExpression(expression);
             default:
                 return null;
         }
@@ -49,6 +48,10 @@ export class KPIExpressionHelper {
     public static PrepareExpressionField(type: string, expression: string): string {
         switch (type) {
             case KPITypeEnum.Simple:
+                return JSON.stringify(KPIExpressionHelper.DecomposeExpression(type, expression));
+
+            //  lest decompose the expresion as simple expression, we have to change this
+            case KPITypeEnum.ExternalSource:
                 return JSON.stringify(KPIExpressionHelper.DecomposeExpression(type, expression));
 
             default:
@@ -81,7 +84,7 @@ export class KPIExpressionHelper {
     }
 
     private static _cleanExpression(expression: string) {
-        return expression.replace(/[,$]/g, '');
+        return expression.replace(/[,]/g, '');
     }
 
     private static _getSimpleKPIFromCallExp(callExp: ICallExpression): IKPISimpleDefinition {
@@ -147,21 +150,21 @@ export class KPIExpressionHelper {
         return this._processExpression(e.object) + '.' + this._processExpression(e.property);
     }
 
-    private static _decomposeGoogleAnalyticsExpression(expression: string): IKPISimpleDefinition {
+    private static _decomponseExternalSourceExpression(expression: string): IKPISimpleDefinition {
         expression =  KPIExpressionHelper._cleanExpression(expression);
         const tree: jsep.IExpression = jsep(expression);
 
-        return KPIExpressionHelper._processGoogleAnalyticsExpression(<jsep.IExpression>tree);
+        return KPIExpressionHelper._processExternalSourceExpression(<jsep.IExpression>tree);
     }
 
-    private static _processGoogleAnalyticsExpression(e: jsep.IExpression): any {
+    private static _processExternalSourceExpression(e: jsep.IExpression): any {
         switch (e.type) {
             case ExpressionTreeTypes.call:
                 const callExp = (<ICallExpression>e);
-                return KPIExpressionHelper._getGoogleAnalyticsKPIFromCallExp(callExp);
+                return KPIExpressionHelper._getExternalSourceKPIFromCallExp(callExp);
             case ExpressionTreeTypes.binary:
                 const binExp = (<jsep.IBinaryExpression>e);
-                return KPIExpressionHelper._getGoogleAnalyticsKPIFromBinExp(binExp);
+                return KPIExpressionHelper._getExternalSourceKPIFromBinExp(binExp);
             case ExpressionTreeTypes.member:
                 return this._processMemberExpression(<jsep.IMemberExpression>e);
             case ExpressionTreeTypes.identifier:
@@ -173,7 +176,7 @@ export class KPIExpressionHelper {
 
     // DATASOURCE FORMULA IN EXPRESSION: FUNC (connectorTypeConnectorId.metric)
     //                               ex: sum(googleanalytics5a551cec278c503642b3d096.users)
-    private static _getGoogleAnalyticsKPIFromCallExp(callExp: ICallExpression): IKPISimpleDefinition {
+    private static _getExternalSourceKPIFromCallExp(callExp: ICallExpression): IKPISimpleDefinition {
         let dataSource;
         let func = callExp.callee.name;
         let field;
@@ -182,22 +185,22 @@ export class KPIExpressionHelper {
 
         if (!fullField) return null;
 
-        // lets ensure
-        if (fullField.substr(0, 15) !== 'googleanalytics') return null;
+        // lets ensure is a external kpi, should have a pipe delimiter;
+        if (fullField.indexOf('$') === -1) return null;
 
         const fieldTokens = fullField.split('.');
 
         const simple: IKPISimpleDefinition = {
-                                               dataSource: fieldTokens[0].slice(15),
+                                               dataSource: fieldTokens[0],
                                                function: func,
                                                field: fieldTokens[1]
                                              };
         return simple;
     }
 
-    private static _getGoogleAnalyticsKPIFromBinExp(binExp: jsep.IBinaryExpression): IKPISimpleDefinition {
+    private static _getExternalSourceKPIFromBinExp(binExp: jsep.IBinaryExpression): IKPISimpleDefinition {
         let operator = binExp.operator;
-        let value = KPIExpressionHelper._processGoogleAnalyticsExpression(binExp.right);
+        let value = KPIExpressionHelper._processExternalSourceExpression(binExp.right);
         const partialSimple = KPIExpressionHelper._processExpression(binExp.left);
 
         const result: IKPISimpleDefinition = {

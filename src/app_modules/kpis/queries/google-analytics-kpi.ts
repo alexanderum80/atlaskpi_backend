@@ -19,7 +19,7 @@ export class GoogleAnalyticsKpi extends SimpleKPIBase implements IKpiBase {
                                         googleAnalytics: GoogleAnalytics,
                                         googleAnalyticsKpiService): GoogleAnalyticsKpi {
 
-        const kpiDefinition: IKPISimpleDefinition = KPIExpressionHelper.DecomposeExpression(KPITypeEnum.GoogleAnalytics, kpi.expression);
+        const kpiDefinition: IKPISimpleDefinition = KPIExpressionHelper.DecomposeExpression(KPITypeEnum.ExternalSource, kpi.expression);
 
         const coonectorId = kpiDefinition.dataSource;
 

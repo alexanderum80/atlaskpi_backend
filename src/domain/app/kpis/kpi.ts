@@ -1,31 +1,29 @@
-import { Inventory } from './../inventory/inventory.model';
-import { Expenses } from '../expenses/expense.model';
-import { Sales } from '../sales/sale.model';
 import * as Promise from 'bluebird';
 import * as mongoose from 'mongoose';
 
 import { IMutationResponse } from '../../../framework/mutations/mutation-response';
 import { IPagedQueryResult, IPaginationDetails } from '../../../framework/queries/pagination';
 import { IChartDateRange } from '../../common/date-range';
-import { IWidgetDocument } from '../widgets/widget';
 import { IChartDocument } from '../charts/chart';
-
+import { Expenses } from '../expenses/expense.model';
+import { Sales } from '../sales/sale.model';
 import { IWidgetDocument } from '../widgets/widget';
 import { Inventory } from './../inventory/inventory.model';
+
 
 
 export enum KPITypeEnum {
     Simple = 'simple',
     Complex = 'complex',
-    Compound = 'compound'
-    GoogleAnalytics = 'googleanalytics'
+    Compound = 'compound',
+    ExternalSource = 'externalsource'
 }
 
 export const KPITypeMap = {
     simple: KPITypeEnum.Simple,
     complex: KPITypeEnum.Complex,
     compound: KPITypeEnum.Compound,
-    googleanalytics: KPITypeEnum.GoogleAnalytics
+    externalsource: KPITypeEnum.ExternalSource
 };
 
 export function getKPITypePropName(type: KPITypeEnum) {
@@ -36,8 +34,8 @@ export function getKPITypePropName(type: KPITypeEnum) {
             return 'complex';
         case KPITypeEnum.Compound:
             return 'compound';
-        case KPITypeEnum.GoogleAnalytics:
-            return 'googleanalytics';
+        case KPITypeEnum.ExternalSource:
+            return 'externalsource';
     }
 }
 
