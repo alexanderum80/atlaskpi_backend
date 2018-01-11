@@ -1,6 +1,5 @@
-import * as util from 'util';
-import { DataContext, DataTable } from './google-sheet.processor';
-import * as async from 'async';
+import { DataContext } from './google-sheet.processor';
+import { parallel, apply } from 'async';
 import * as Promise from 'bluebird';
 import * as logger from 'winston';
 import { Error } from 'mongoose';
@@ -9,12 +8,12 @@ import { my_guid } from '../../helpers/string.helpers';
 export default function importSpreadSheetData(data: any, ctx: any): Promise<any> {
 
     return new Promise<any>((resolve, reject) => {
-        async.parallel([
-            async.apply(importSales, data, ctx),
-            async.apply(importWorklog, data, ctx),
-            async.apply(importExpenses, data, ctx),
-            async.apply(importAppointments, data, ctx),
-            async.apply(importInventory, data, ctx),
+        parallel([
+            apply(importSales, data, ctx),
+            apply(importWorklog, data, ctx),
+            apply(importExpenses, data, ctx),
+            apply(importAppointments, data, ctx),
+            apply(importInventory, data, ctx),
         ], function(err, results) {
             if (err) {
                 console.log('There was an error: ' + err.toString());
