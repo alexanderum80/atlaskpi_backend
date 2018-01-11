@@ -380,16 +380,45 @@ export class UIChartBase {
                     };
                 })
             }];
-        } else if (meta.xAxisSource) {
-            const groupedData: Dictionary<any> = groupBy(data, '_id.' + meta.xAxisSource);
-            const matchField = getFrequencyPropName(meta.frequency);
-            return this._createSeriesFromgroupedData(groupedData, categories, matchField);
-        } else {
-            return [{
+         } else {
+            const serieObject = {
                 name: '',
-                data: data.map(item => item.value)
-            }];
-        }
+                data: []
+            };
+
+            const matchField = getFrequencyPropName(meta.frequency);
+            categories.forEach(cat => {
+                let dataItem = data.find((item: any) => item._id[matchField] === cat.id);
+                serieObject.data.push(dataItem ? dataItem.value : 0);
+            });
+
+            return [serieObject];
+         }
+
+        // if (this.chart.chartDefinition.chart.type === ChartType.Pie) {
+        //     return [{
+        //         name: '',
+        //         data:  categories.map(cat => {
+        //             let dataItem = data.find((item: any) => {
+        //                 return item._id[meta.xAxisSource] === cat.id;
+        //             });
+
+        //             return {
+        //                 name: cat.name || 'Others',
+        //                 y: dataItem ? dataItem.value : null
+        //             };
+        //         })
+        //     }];
+        // } else if (meta.xAxisSource) {
+        //     const groupedData: Dictionary<any> = groupBy(data, '_id.' + meta.xAxisSource);
+        //     const matchField = getFrequencyPropName(meta.frequency);
+        //     return this._createSeriesFromgroupedData(groupedData, categories, matchField);
+        // } else {
+        //     return [{
+        //         name: '',
+        //         data: data.map(item => item.value)
+        //     }];
+        // }
     }
 
     private _getSeriesForSecondLevelGrouping(data: any[], meta: IChartMetadata, categories: IXAxisCategory[], groupByField: string): IChartSerie[] {
