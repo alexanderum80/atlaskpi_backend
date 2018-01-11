@@ -49,3 +49,4 @@ export class UpdateMilestoneMutation extends MutationBase<IMutationResponse> {
            });
         });
     }
+}
