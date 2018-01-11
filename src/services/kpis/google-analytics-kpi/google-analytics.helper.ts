@@ -1,3 +1,4 @@
+import { randomInteger } from './../../../helpers/numbers.helper';
 import { FrequencyEnum, getFrequencyPropName } from './../../../domain/common/frequency-enum';
 import * as moment from 'moment-timezone';
 import { map } from 'lodash';
@@ -75,7 +76,7 @@ export interface IBatchProperties {
 export function generateBatchProperties(connectorId: string, viewId: string): IBatchProperties {
     const timestamp = moment();
     return {
-        _batchId: `${timestamp.unix()}.${connectorId}.${viewId}`,
+        _batchId: `${timestamp.unix()}.${connectorId}.${viewId}.${randomInteger(10)}`,
         _batchTimestamp: timestamp.toDate()
     };
 }

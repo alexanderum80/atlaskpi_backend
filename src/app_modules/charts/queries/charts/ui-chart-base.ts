@@ -389,7 +389,8 @@ export class UIChartBase {
             const matchField = getFrequencyPropName(meta.frequency);
             categories.forEach(cat => {
                 let dataItem = data.find((item: any) => item._id[matchField] === cat.id);
-                serieObject.data.push(dataItem ? dataItem.value : 0);
+                // serieObject.data.push(dataItem ? dataItem.value : 0);
+                serieObject.data.push(dataItem ? dataItem.value : null);
             });
 
             return [serieObject];
