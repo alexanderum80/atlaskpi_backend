@@ -1,7 +1,7 @@
-import { randomInteger } from './../../../helpers/numbers.helper';
-import { FrequencyEnum, getFrequencyPropName } from './../../../domain/common/frequency-enum';
 import * as moment from 'moment-timezone';
-import { map } from 'lodash';
+
+import { FrequencyEnum, getFrequencyPropName } from './../../../domain/common/frequency-enum';
+import { randomInteger } from './../../../helpers/number.helpers';
 
 const GOOGLE_ANALYTICS_LAUNCH_DATE = '2005-01-01';
 
