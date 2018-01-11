@@ -31,7 +31,7 @@ function importSales(data: DataContext, ctx: any, cb) {
     // map the data
     const mappedSales = sales.map(s => {
         return {
-            source: 'demo - google spreassheet',
+            source: 'demo - google spreadsheet',
             concept: 'Test Revenue',
             externalId: my_guid(),
             location: getLocation(data.location, s.location),
@@ -75,7 +75,7 @@ function importWorklog(data: DataContext, ctx: any,  cb) {
                 console.error('Error inserting worklog', err);
                 cb(err, null);
             } else {
-                console.info(`${result.length} workklog inserted`);
+                console.info(`${result.length} worklog inserted`);
                 cb(null, { name: 'worklogs', total: result.length });
             }
         });
@@ -171,7 +171,7 @@ function importInventory(data: DataContext, ctx: any, cb) {
                 console.error('Error inserting inventory', err);
                 cb(err, null);
             } else {
-                console.info(`${result.length} inventory itmes inserted`);
+                console.info(`${result.length} inventory items inserted`);
                 cb(null, { name: 'inventory items', total: result.length });
             }
         });
