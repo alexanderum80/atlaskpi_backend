@@ -1,5 +1,5 @@
 import { IWebRequestContainerDetails } from './di/bridge-container';
-import { Request } from 'Express';
+import { Request } from 'express';
 
 export interface IBridgeRequest extends Request {
     /**

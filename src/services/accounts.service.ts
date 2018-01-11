@@ -158,8 +158,8 @@ function getFirstUserInfo(hash: string, email: string, fullName: IFullName): ICr
     };
 
     if (fullName) {
-        firstUser.firstName = fullName[0];
-        firstUser.lastName = fullName[1];
+        firstUser.firstName = fullName.first;
+        firstUser.lastName = fullName.last;
     }
 
     return firstUser;

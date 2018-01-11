@@ -1,5 +1,5 @@
 import * as console from 'console';
-import { Request } from 'Express';
+import { Request } from 'express';
 import * as Hbs from 'handlebars';
 import { set } from 'mongoose';
 import { Error } from 'tslint/lib/error';
