@@ -17,8 +17,8 @@ export function importSpreadSheet(ctx: any): Promise<any> {
     const that = this;
 
     return new Promise<any>((resolve, reject) => {
-        const test = __dirname;
         const filePath = __dirname + '/client_secret.json';
+
         fs.readFile(filePath, function processClientSecrets(err, content) {
             if (err) {
                 console.log('Error loading client secret file: ' + err);
