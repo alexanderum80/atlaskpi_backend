@@ -31,6 +31,10 @@ export interface IUsersServiceConfig {
         targetNotification: {
             emailTemplate: string;
             expiresIn: number | string;
+        },
+        userMilestone: {
+            emailTemplate: string;
+            expiresIn: number | string;
         }
     };
 }
@@ -66,6 +70,10 @@ export const usersServiceConfig = {
         },
         targetNotification: {
             emailTemplate: readTemplate('users', 'target-notification'),
+            expiresIn: '7 days'
+        },
+        userMilestone: {
+            emailTemplate: readTemplate('users', 'user-milestone'),
             expiresIn: '7 days'
         }
     }
