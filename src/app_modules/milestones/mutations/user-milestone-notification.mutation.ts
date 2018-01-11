@@ -1,3 +1,4 @@
+import { UserMilestoneNotification } from '../../../services/notifications/users/user-milestone.notification';
 import { MilestoneResponse } from '../milestone.types';
 import { UserMilestoneNotificationActivity } from '../activities/user-milestone-notification.activity';
 import { GraphQLTypesMap } from '../../../framework/decorators/graphql-types-map';
@@ -19,7 +20,8 @@ import { mutation } from '../../../framework/decorators/mutation.decorator';
 })
 export class UserMilestoneMutation extends MutationBase<IMutationResponse> {
     constructor(
-        @inject(Milestones.name) private _milestoneModel
+        @inject(Milestones.name) private _milestoneModel,
+        @inject(UserMilestoneNotification.name) private _userMilestoneNotifier
     ) {
         super();
     }
@@ -30,3 +32,4 @@ export class UserMilestoneMutation extends MutationBase<IMutationResponse> {
             return { success: false };
         });
     }
+}

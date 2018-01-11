@@ -1,9 +1,9 @@
+import { config } from '../../../configuration/config';
+import { IUserMilestoneNotifier } from '../../../services/notifications/users/user-milestone.notification';
 import { AppConnection } from '../app.connection';
 import { ModelBase } from '../../../type-mongo/model-base';
 import { IUserModel } from '../security/users/user';
-import { IUserMilestoneNotifier } from '../../../../services/notifications/users';
 import { IMilestoneDocument, IMilestoneModel } from './milestone';
-import { config } from '../../../../config';
 import * as mongoose from 'mongoose';
 import * as Promise from 'bluebird';
 import * as _ from 'lodash';
@@ -115,7 +115,7 @@ MilestoneSchema.statics.milestoneNotifier = function(email: string, notifier: IU
     const that = this;
     return new Promise<nodemailer.SentMessageInfo>((resolve, reject) => {
         let condition = {};
-        let usernameField = config.usersService.usernameField;
+        const usernameField = config.usersService.usernameField;
 
         if (usernameField === 'email') {
             condition['emails'] = { $elemMatch: { address: email  } };

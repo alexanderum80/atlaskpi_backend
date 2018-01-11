@@ -14,7 +14,7 @@ export interface UserMilestoneNotifyData {
 }
 
 export class UserMilestoneNotification implements IEmailNotifier {
-    constructor(private _config: IAppConfig,
+    constructor(@inject('Config') private _config: IAppConfig,
                 private _data: UserMilestoneNotifyData) { }
 
     notify(user: IUserDocument, email?: string, data?: any): Promise<nodemailer.SentMessageInfo> {

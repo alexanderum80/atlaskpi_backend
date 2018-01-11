@@ -1,3 +1,4 @@
+import { MilestonesModule } from './milestones/milestones.module';
 import { CallRailModule } from './integrations/callrail/callrail.module';
 import { AppModule, ModuleBase } from '../framework/decorators/app-module';
 import { AccessLogsModule } from './access-logs/access-logs.module';
@@ -43,6 +44,7 @@ import { CountriesModule } from './countries/countries.module';
         KpisModule,
         LocationsModule,
         MapsModule,
+        MilestonesModule,
         PermissionsModule,
         ReportsModule,
         RolesModule,
