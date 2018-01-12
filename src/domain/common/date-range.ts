@@ -60,7 +60,7 @@ export const quarterMonths = {
     '4': ['Oct', 'Nov', 'Dec']
 };
 
-let quarterKey = moment().quarter();
+const quarterKey = moment().quarter();
 
 export function parsePredifinedDate(textDate: string): IDateRange {
     let from: Date;
@@ -98,8 +98,13 @@ export function parsePredifinedDate(textDate: string): IDateRange {
                 to: moment().startOf('month').subtract(1, 'day').toDate()
             };
         case PredefinedDateRanges.lastQuarter:
-            const lastQtr = lastQuarter(quarterKey);
-            return lastQtr;
+            let getStartQuarter = quarterKey - 1;
+            let lStartQuarter = quarterMonths[getStartQuarter][0];
+            let lEndQuarter = quarterMonths[getStartQuarter][2];
+            return {
+                from: moment().utc().month(lStartQuarter).startOf('month').toDate(),
+                to: moment().utc().month(lEndQuarter).endOf('month').toDate()
+            };
         case PredefinedDateRanges.lastYear:
             return {
                 from: moment().startOf('year').subtract(1, 'year').toDate(),
@@ -436,20 +441,3 @@ export function processChartDateRange(chartDateRange: IChartDateRange): IDateRan
             : parsePredifinedDate(chartDateRange.predefined);
 }
 
-export function lastQuarter(quarterProperty: number) {
-    const getStartQuarter = (quarterProperty === 1) ? 4 : (quarterProperty - 1);
-    const lStartQuarter = quarterMonths[getStartQuarter][0];
-    const lEndQuarter = quarterMonths[getStartQuarter][2];
-
-    if (quarterProperty === 1) {
-        return {
-            from: moment().utc().month(lStartQuarter).subtract(1, 'year').startOf('month').toDate(),
-            to: moment().utc().month(lEndQuarter).subtract(1, 'year').endOf('month').toDate()
-        };
-    } else {
-        return {
-            from: moment().utc().month(lStartQuarter).startOf('month').toDate(),
-            to: moment().utc().month(lEndQuarter).endOf('month').toDate()
-        };
-    }
-}
