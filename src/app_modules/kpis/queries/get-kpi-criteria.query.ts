@@ -14,8 +14,8 @@ import { IQuery } from '../../../framework/queries/query';
     name: 'kpiCriteria',
     activity: GetKpiCriteriaActivity,
     parameters: [
-        { name: 'kpi', type: String },
-        { name: 'field', type: String }
+        { name: 'kpi', type: String, required: true },
+        { name: 'field', type: String, required: true }
     ],
     output: { type: KPICriteriaResult }
 })
@@ -28,9 +28,9 @@ export class GetKpisCriteriaQuery implements IQuery<any> {
     run(data: { kpi: string, field: string}): Promise<any> {
         const that = this;
         const kpiMapper = {
-            'Sales': this._sales,
-            'Expenses': this._expenses,
-            'Inventory': this._inventory
+            'sales': this._sales,
+            'expenses': this._expenses,
+            'inventory': this._inventory
         };
 
         return new Promise<any>((resolve, reject) => {
@@ -40,7 +40,7 @@ export class GetKpisCriteriaQuery implements IQuery<any> {
             }
 
             // sales, expenses, inventory
-            const kpi = kpiMapper[data.kpi].model;
+            const kpi = kpiMapper[data.kpi.toLocaleLowerCase()].model;
 
             if (kpi) {
                 kpi.findCriteria(data.field).then(response => {

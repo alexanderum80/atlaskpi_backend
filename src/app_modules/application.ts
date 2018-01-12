@@ -1,4 +1,5 @@
 import { MilestonesModule } from './milestones/milestones.module';
+import { GoogleSpreadSheetModule } from './google-spreadsheet/google-spreadsheet.module';
 import { CallRailModule } from './integrations/callrail/callrail.module';
 import { AppModule, ModuleBase } from '../framework/decorators/app-module';
 import { AccessLogsModule } from './access-logs/access-logs.module';
@@ -41,6 +42,7 @@ import { CountriesModule } from './countries/countries.module';
         DateRangesModule,
         DepartmentsModule,
         EmployeesModule,
+        GoogleSpreadSheetModule,
         KpisModule,
         LocationsModule,
         MapsModule,
