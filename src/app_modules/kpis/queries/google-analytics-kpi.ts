@@ -66,8 +66,8 @@ export class GoogleAnalyticsKpi extends SimpleKPIBase implements IKpiBase {
 
         let deserializedFilter;
 
-        if (this.kpi && this.kpi.filter)
-            deserializedFilter = this._cleanFilter(this.kpi.filter);
+        if (this._kpi && this._kpi.filter)
+            deserializedFilter = this._cleanFilter(this._kpi.filter);
 
         if (deserializedFilter)
             this._injectPreGroupStageFilters(deserializedFilter, _definition.field);

@@ -6,7 +6,7 @@ import { Sales } from '../../../domain/app/sales/sale.model';
 import { IMutationResponse } from '../../../framework/mutations/mutation-response';
 import { ReloadDataActivity } from '../activities/reload-data.activity';
 import { MutationBase } from '../../../framework/mutations/mutation-base';
-import { importSpreadSheet } from '../google-spreadsheet';
+import { importSpreadSheet } from '../../../app_modules/google-spreadsheet/google-sheet.processor';
 import { ImportResult } from '../google-spreedsheet.types';
 import { GraphQLTypesMap } from '../../../framework/decorators/graphql-types-map';
 import { mutation } from '../../../framework/decorators/mutation.decorator';

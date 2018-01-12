@@ -1,7 +1,10 @@
+import { DataSourcesHelper } from './../../../app_modules/data-sources/queries/datasource.helper';
 import { KpiService } from './../../../services/kpi.service';
 import { GroupingMap } from '../../../app_modules/charts/queries/chart-grouping-map';
 import { IKPIDocument, IKPISimpleDefinition, KPITypeEnum, IKPI } from './kpi';
 import { KPIExpressionHelper } from './kpi-expression.helper';
+
+export class KPIGroupingsHelper {
     public static GetAvailableGroupings(kpi: IKPIDocument | IKPI): string[] {
         const identifier = kpi.baseKpi || kpi.code;
         this.kpiService = (<any>kpi).model.prototype.kpiService;
