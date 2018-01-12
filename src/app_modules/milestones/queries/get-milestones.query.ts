@@ -1,3 +1,4 @@
+import { Employees } from '../../../domain/app/employees/employee.model';
 import { GetAllMileStonesActivity } from '../activities/get-all-milestones.activity';
 import { IMilestone, IMilestoneDocument } from '../../../domain/app/milestones/milestone';
 import { Users } from '../../../domain/app/security/users/user.model';
@@ -10,6 +11,7 @@ import { inject, injectable } from 'inversify';
 import { query } from '../../../framework/decorators/query.decorator';
 import { IQuery } from '../../../framework/queries/query';
 
+@injectable()
 @query({
     name: 'milestonesByTarget',
     activity: GetAllMileStonesActivity,
@@ -20,7 +22,8 @@ import { IQuery } from '../../../framework/queries/query';
 })
 export class GetMilestonesQuery implements IQuery<IMilestone[]> {
     constructor(
-        @inject(Milestones.name) private _milestoneModel
+        @inject(Milestones.name) private _milestoneModel,
+        @inject(Employees.name) private _employeeModel
     ) {}
 
     run(data: { target: string} ): Promise<IMilestone[]> {
@@ -35,7 +38,7 @@ export class GetMilestonesQuery implements IQuery<IMilestone[]> {
 
         return new Promise<IMilestone[]>((resolve, reject) => {
             that._milestoneModel.model
-                .find(query)
+                .find({ target: data.target })
                 .populate({
                     path: 'responsible'
                 })

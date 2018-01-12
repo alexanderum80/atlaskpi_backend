@@ -23,12 +23,16 @@ export class MilestoneInput {
     responsible: string[];
 }
 
+@type()
 export class Milestone {
     @field({ type: GraphQLTypesMap.String })
     _id: string;
 
     @field({ type: GraphQLTypesMap.String })
     target: string;
+
+    @field({ type: GraphQLTypesMap.String })
+    task: string;
 
     @field({ type: GraphQLTypesMap.String })
     dueDate: string;
@@ -49,5 +53,5 @@ export class MilestoneResponse {
     entity: Milestone;
 
     @field({type: ErrorDetails, isArray: true })
-    error: ErrorDetails[];
+    errors: ErrorDetails[];
 }

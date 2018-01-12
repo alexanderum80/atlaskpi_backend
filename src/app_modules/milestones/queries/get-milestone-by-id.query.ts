@@ -8,6 +8,7 @@ import { inject, injectable } from 'inversify';
 import { query } from '../../../framework/decorators/query.decorator';
 import { IQuery } from '../../../framework/queries/query';
 
+@injectable()
 @query({
     name: 'milestoneById',
     activity: GetMileStoneByIdActivity,
@@ -37,7 +38,7 @@ export class GetMilestoneByIdQuery implements IQuery<IMilestoneDocument> {
 
         return new Promise<IMilestoneDocument>((resolve, reject) => {
             that._milestoneModel.model
-                .findOne(query)
+                .findById(data.id)
                 .populate({
                     path: 'responsible',
                 })
