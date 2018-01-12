@@ -107,7 +107,7 @@ export class KPI  {
 
     @resolver({ forField: 'filter' })
     static resolveFilter(entity: IKPIDocument) {
-        return JSON.stringify(KPIFilterHelper.PrepareFilterField(entity.type, entity.filter));
+        return entity.filter && JSON.stringify(KPIFilterHelper.PrepareFilterField(entity.type, entity.filter));
     }
 
     @field({ type: GraphQLTypesMap.String })

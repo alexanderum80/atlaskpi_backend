@@ -1,3 +1,4 @@
+import { pascalCase } from 'change-case';
 import * as Promise from 'bluebird';
 import { inject, injectable } from 'inversify';
 
@@ -77,8 +78,8 @@ export class ExternalDataSourcesService {
     private _createExternalDataSource(connectors: IConnectorDocument[], fields: ISchemaField[], groupings: string[]): any[] {
         const res = connectors.map(c => {
             return {
-                id: c.type + c.id,
-                name: c.name,
+                id: `${c.type}$${c.id}`,
+                name: `${pascalCase(c.type)} - ${c.name}`,
                 connectorId: c.id,
                 connectorType: c.type,
                 fields: fields,

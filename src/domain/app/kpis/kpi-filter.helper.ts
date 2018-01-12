@@ -39,6 +39,9 @@ export class KPIFilterHelper {
             case KPITypeEnum.Simple:
                 if (!filter) { return null; }
                 return KPIFilterHelper._decomposeSimpleFilter(filter);
+            case KPITypeEnum.ExternalSource:
+                if (!filter) { return null; }
+                return KPIFilterHelper._decomposeSimpleFilter(filter);
             default:
                 return filter;
         }
@@ -47,6 +50,9 @@ export class KPIFilterHelper {
     public static PrepareFilterField(type: string, filter: string): string {
         switch (type) {
             case KPITypeEnum.Simple:
+                return KPIFilterHelper.DecomposeFilter(type, filter);
+
+            case KPITypeEnum.ExternalSource:
                 return KPIFilterHelper.DecomposeFilter(type, filter);
 
             default:

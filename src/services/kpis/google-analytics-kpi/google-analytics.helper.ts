@@ -58,7 +58,7 @@ export const frequencyDimensionsMap = {
 const dateDimensions = ['date', 'isoYearIsoWeek', 'yearMonth', 'year'];
 
 export const cleanHeaders = (headers): string[] => headers.map(h => h.name.replace('ga:', ''));
-export const groupingsToDimensions = (groupings): string[] => groupings.map(g => groupingDimensionsMap[g]);
+export const groupingsToDimensions = (groupings): string[] => groupings.map(g => groupingDimensionsMap[g]).filter(g => Boolean(g));
 
 export interface IGetAnalyticsOptions {
     startDate?: string;

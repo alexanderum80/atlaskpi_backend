@@ -21,8 +21,6 @@ export class GoogleAnalyticsKpi extends SimpleKPIBase implements IKpiBase {
 
         const kpiDefinition: IKPISimpleDefinition = KPIExpressionHelper.DecomposeExpression(KPITypeEnum.ExternalSource, kpi.expression);
 
-        const coonectorId = kpiDefinition.dataSource;
-
         const aggregateSkeleton: AggregateStage[] = [
             {
                 filter: true,
@@ -50,6 +48,8 @@ export class GoogleAnalyticsKpi extends SimpleKPIBase implements IKpiBase {
                 }
             }
         ];
+
+        kpiDefinition.dataSource = kpiDefinition.dataSource.replace('$', '');
 
         return new GoogleAnalyticsKpi(googleAnalytics.model, aggregateSkeleton, kpiDefinition, kpi, googleAnalyticsKpiService);
     }
