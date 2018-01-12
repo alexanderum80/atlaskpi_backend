@@ -11,6 +11,7 @@ import { makeDefaultConnection } from '../helpers/mongodb.helpers';
 import { AppConnectionPool } from './app-connection-pool';
 import { IExtendedRequest } from './extended-request';
 
+const connectionPool = new AppConnectionPool();
 
 const graphqlOperationExceptions = [
     'AccountNameAvailable',
@@ -75,9 +76,7 @@ function getAppConnection(accounts: IAccountModel, req: IExtendedRequest, res: R
 
             logger.debug(`${loggerSuffix} Account found`);
 
-            // TODO: I need to test this
-            req.Container.instance.get<AppConnectionPool>(AppConnectionPool.name).getConnection(account.getConnectionString()).then((appConn) => {
-                // req.appConnection = appConn;
+            connectionPool.getConnection(account.getConnectionString()).then((appConn) => {
                 logger.debug(`${loggerSuffix} App connection assigned to request`);
                 resolve(appConn);
             })

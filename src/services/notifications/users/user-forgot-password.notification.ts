@@ -21,7 +21,7 @@ export class UserForgotPasswordNotification implements IEmailNotifier {
         @inject(CurrentAccount.name) private _currentAccount: CurrentAccount
     ) { }
 
-    notify(user: IUserDocument, hostname: string, email: string, data?: any): Promise<nodemailer.SentMessageInfo> {
+    notify(user: IUserDocument, email: string, data?: any): Promise<nodemailer.SentMessageInfo> {
         const forgotPasswordTemplate =
             Handlebars.compile(this._config.usersService.services.forgotPassword.emailTemplate);
 

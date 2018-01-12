@@ -1,12 +1,7 @@
-import { DataSourcesHelper } from './../../../app_modules/data-sources/queries/datasource.helper';
-import { ExternalDataSourceResponse } from './../../../app_modules/data-sources/data-sources.types';
 import { KpiService } from './../../../services/kpi.service';
 import { GroupingMap } from '../../../app_modules/charts/queries/chart-grouping-map';
 import { IKPIDocument, IKPISimpleDefinition, KPITypeEnum, IKPI } from './kpi';
 import { KPIExpressionHelper } from './kpi-expression.helper';
-
-export class KPIGroupingsHelper {
-    // static kpiService: KpiService;
     public static GetAvailableGroupings(kpi: IKPIDocument | IKPI): string[] {
         const identifier = kpi.baseKpi || kpi.code;
         this.kpiService = (<any>kpi).model.prototype.kpiService;

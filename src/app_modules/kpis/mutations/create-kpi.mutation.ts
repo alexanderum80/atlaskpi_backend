@@ -27,7 +27,7 @@ export class CreateKpiMutation extends MutationBase<IMutationResponse> {
         super();
     }
 
-    run(data: { input: IKPI,  }): Promise<IMutationResponse> {
+    run(data: { input: IKPI }): Promise<IMutationResponse> {
         const that = this;
 
         return new Promise<IMutationResponse>((resolve, reject) => {

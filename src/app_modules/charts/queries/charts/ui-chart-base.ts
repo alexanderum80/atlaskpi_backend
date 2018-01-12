@@ -466,9 +466,14 @@ export class UIChartBase {
 
     private _formatTarget(target: any[], metadata: any, groupings: any) {
         if (groupings && groupings.length) {
-            this.commonField = groupings.filter((v, k) => {
-                return v !== 'frequency';
-            });
+            if (groupings.length > 1) {
+                this.commonField = groupings.filter((v, k) => {
+                    return v !== 'frequency';
+                });
+            } else {
+                // if chart has no groupings
+                this.commonField = ['noGroupingName'];
+            }
         }
 
         if (target.length) {
@@ -528,12 +533,17 @@ export class UIChartBase {
     }
 
     private _targetGrouping(data: any[], length: number, groupings: string, meta: IChartMetadata, categories: IXAxisCategory[]): any {
+        if (!data || !data.length) { return; }
         switch (length) {
             case 0:
-                return [{
-                    name: '',
-                    data: data.map(item => item.value)
-                }];
+                if (meta.xAxisSource) {
+                    return this._targetMetaData(meta, meta.xAxisSource, data, categories);
+                } else {
+                    return [{
+                        name: '',
+                        data: data.map(item => item.value)
+                    }];
+                }
             case 1:
                 return this._targetMetaData(meta, groupings, data, categories);
         }
@@ -562,11 +572,16 @@ export class UIChartBase {
             this.categories = this._createCategories(data, meta);
         }
 
+        // check if stack chart, or no groupings charts
+        // otherwise go to the else statement
         let groupedData: Dictionary<any> = groupBy(data, (val) => {
             if (val['_id'].hasOwnProperty('stackName')) {
                 return val._id[groupByField] + '_' + val._id['stackName'];
+            } else if (val['_id'].hasOwnProperty('noGroupingName')) {
+                return val._id[groupByField] + '_' + val._id['noGroupingName'];
+            } else {
+                return val._id[groupByField];
             }
-            return val._id[groupByField];
         });
 
         let series: IChartSerie[] = [];
@@ -603,12 +618,22 @@ export class UIChartBase {
         // adds spline and targetId to series
         // use targetId for edit/delete
         for (let serieName in groupedData) {
-            let serie: IChartSerie = {
-                name: (serieName.match(/_[a-z]+/i)) ?
-                        ( serieName.replace(serieName, serieName.match(/[^_a-z]+/i)[0]) ) :
-                        (serieName || 'Other'),
-                data: []
-            };
+            // check if no groupings for chart to fix the multiple targets in no groupings chart
+            const noGroupingName = groupedData[serieName].find(name => name._id.noGroupingName);
+            let serie: any = {};
+            if (!noGroupingName) {
+                serie = {
+                    name: ((serieName.match(/_[a-z]+/i)) ?
+                            ( serieName.replace(serieName, serieName.match(/[^_a-z]+/i)[0]) ) :
+                            (serieName || 'Other')),
+                    data: []
+                };
+            } else {
+                serie = {
+                    name: serieName.split('_')[1],
+                    data: []
+                };
+            }
 
             serie['type'] = 'spline';
             serie['targetId'] = groupedData[serieName][0].targetId;
