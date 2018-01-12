@@ -1,3 +1,4 @@
+import { KPIExpressionHelper } from './kpi-expression.helper';
 import * as jsep from 'jsep';
 
 import { GroupingMap } from '../../../app_modules/charts/queries/chart-grouping-map';
@@ -23,6 +24,9 @@ export class KPIExpressionHelper {
 
         switch (kpiType) {
             case KPITypeEnum.Simple:
+                return KPIExpressionHelper._composeSimpleExpression(expression);
+
+            case KPITypeEnum.ExternalSource:
                 return KPIExpressionHelper._composeSimpleExpression(expression);
 
             default:
@@ -74,6 +78,11 @@ export class KPIExpressionHelper {
         }
 
         return exp;
+    }
+
+    private static _composeExternalSourceExpression(rawExpression: string): string {
+        // right know the external source expression should be processed like the simple
+        return KPIExpressionHelper._composeSimpleExpression(rawExpression);
     }
 
     private static _decomposeSimpleExpression(expression: string): IKPISimpleDefinition {
