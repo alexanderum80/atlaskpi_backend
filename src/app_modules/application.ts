@@ -25,6 +25,7 @@ import { CountriesModule } from './countries/countries.module';
 import { ChartRunRateModule } from './run-rate/run-rate.module';
 import { SelfBoardingWinzardModule } from './self-boarding-winzard/self-boarding-winzard.module'
 import { SystemModule } from './sytems/system.module';
+import { ActivitiesModule } from './activities/activities.module';
 
 
 
@@ -55,7 +56,8 @@ import { SystemModule } from './sytems/system.module';
         SocialWidgetsModule,
         ChartRunRateModule,
         SelfBoardingWinzardModule,
-        SystemModule
+        SystemModule,
+        ActivitiesModule
     ]
 })
 export class AtlasApp extends ModuleBase { }
