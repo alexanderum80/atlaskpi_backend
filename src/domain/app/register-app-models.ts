@@ -26,6 +26,9 @@ import { Surveys } from './surveys/survey.model';
 import { Targets } from './targets/target.model';
 import { Widgets } from './widgets/widget.model';
 import { Worklogs } from './work-log/work-log.model';
+import { ChartRunRates } from './run-rate/run-rate.model';
+import { SelfBoardingWinzards } from './self-boarding-winzard/self-boarding-winzard.model'
+import { Systems } from './system/system.model';
 
 // import { ChartFormats } from './chart-formats/chart-format.model';
 interface IRegistrationInfo {
@@ -58,7 +61,10 @@ const registrations: any[] = [
     Permissions,
     Users,
     Widgets,
-    Worklogs
+    Worklogs,
+    ChartRunRates,
+    SelfBoardingWinzards,
+    Systems
 ];
 
 export function registerAppModels(container: IBridgeContainer) {
