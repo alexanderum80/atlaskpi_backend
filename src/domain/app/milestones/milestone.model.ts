@@ -3,10 +3,11 @@ import { IUserMilestoneNotifier } from '../../../services/notifications/users/us
 import { AppConnection } from '../app.connection';
 import { ModelBase } from '../../../type-mongo/model-base';
 import { IUserModel } from '../security/users/user';
-import { IMilestoneDocument, IMilestoneModel } from './milestone';
+import { IMilestoneDocument, IMilestoneModel, IMilestoneNotificationInput } from './milestone';
 import * as mongoose from 'mongoose';
 import * as Promise from 'bluebird';
 import * as _ from 'lodash';
+import * as moment from 'moment';
 import * as logger from 'winston';
 import * as nodemailer from 'nodemailer';
 import { inject, injectable } from 'inversify';
@@ -93,43 +94,54 @@ return new Promise<IMilestoneDocument>((resolve, reject) => {
 });
 };
 
-MilestoneSchema.statics.updateMilestoneStatus = function(_id: string):
-Promise<IMilestoneDocument> {
+MilestoneSchema.statics.updateMilestoneStatus = function(milestone: IMilestoneDocument): Promise<IMilestoneDocument> {
 
-const that = <IMilestoneModel> this;
+    const that = <IMilestoneModel> this;
 
-return new Promise<IMilestoneDocument>((resolve, reject) => {
-    if (!_id) {
-        return reject('Information not valid');
-    }
+    return new Promise<IMilestoneDocument>((resolve, reject) => {
+        if (!milestone._id) {
+            return reject('Information not valid');
+        }
+        const format = 'MM/DD/YYYY';
 
-    that.findByIdAndUpdate(_id, { status: 'Declined' }).then(milestone => resolve(milestone))
-    .catch(err => {
-        logger.error(err);
-        reject('There was an error update the milestone status');
+        const current = moment();
+        const currentDate = moment(current, format);
+
+        const forbiddenPastDate = moment(milestone.dueDate, format).isBefore(currentDate);
+
+        if (forbiddenPastDate && milestone.status === 'Due') {
+            that.findByIdAndUpdate(milestone._id, { status: 'Declined' }).then(milestone => resolve(milestone))
+            .catch(err => {
+                logger.error(err);
+                reject('There was an error update the milestone status');
+                return;
+            });
+        } else {
+            resolve(milestone);
+            return;
+        }
     });
-});
 };
 
-MilestoneSchema.statics.milestoneNotifier = function(email: string, notifier: IUserMilestoneNotifier): Promise<nodemailer.SentMessageInfo> {
+MilestoneSchema.statics.milestoneNotifier = function(input: IMilestoneNotificationInput, user: any, notifier: IUserMilestoneNotifier): Promise<nodemailer.SentMessageInfo> {
     const that = this;
     return new Promise<nodemailer.SentMessageInfo>((resolve, reject) => {
         let condition = {};
         const usernameField = config.usersService.usernameField;
 
         if (usernameField === 'email') {
-            condition['emails'] = { $elemMatch: { address: email  } };
+            condition['emails'] = { $elemMatch: { address: input.email  } };
         } else {
-            condition['username'] = email;
+            condition['username'] = input.email;
         }
 
-        (<IUserModel>that).findOne(condition).then((user) => {
+        user.findOne(condition).then((user) => {
             if (!user) {
                 reject({ name: 'notfound', message: 'Account not found' });
                 return;
             }
 
-            notifier.notify(user, email, ).then((sentEmailInfo) => {
+            notifier.notify(user, input.email, input).then((sentEmailInfo) => {
                 resolve(sentEmailInfo);
             }, (err) => {
                 throw { name: 'email', message: err.message };

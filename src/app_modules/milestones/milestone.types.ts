@@ -23,6 +23,21 @@ export class MilestoneInput {
     responsible: string[];
 }
 
+@input()
+export class MilestoneNotificationInput {
+    @field({ type: GraphQLTypesMap.String, required: true })
+    email: string;
+
+    @field({ type: GraphQLTypesMap.String, required: true })
+    task: string;
+
+    @field({ type: GraphQLTypesMap.String, required: true })
+    dueDate: string;
+
+    @field({ type: GraphQLTypesMap.String, required: true })
+    fullName: string;
+}
+
 @type()
 export class Milestone {
     @field({ type: GraphQLTypesMap.String })

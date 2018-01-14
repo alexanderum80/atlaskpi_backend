@@ -20,7 +20,7 @@ import { inject, injectable } from 'inversify';
 })
 export class UpdateMilestoneMutation extends MutationBase<IMutationResponse> {
     constructor(
-        @inject(Milestones.name) private _milestoneModel
+        @inject(Milestones.name) private _milestoneModel: Milestones
     ) {
         super();
     }
@@ -29,7 +29,7 @@ export class UpdateMilestoneMutation extends MutationBase<IMutationResponse> {
         const input = data.input;
 
         return new Promise<IMutationResponse>((resolve, reject) => {
-           that._milestoneModel.updateMilestone(data._id, input.target, input.task,
+           that._milestoneModel.model.updateMilestone(data._id, input.target, input.task,
                 input.dueDate, input.status, input.responsible)
             .then(milestone => {
                 resolve({

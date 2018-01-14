@@ -11,7 +11,7 @@ import { AppModule, ModuleBase } from '../../framework/decorators/app-module';
     mutations: [
         CreateMilestoneMutation,
         UpdateMilestoneMutation,
-        UpdateMilestoneStatusMutation,
+        // UpdateMilestoneStatusMutation,
         DeleteMilestoneMutation,
         UserMilestoneMutation
     ],

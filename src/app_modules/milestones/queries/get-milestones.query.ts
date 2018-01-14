@@ -1,3 +1,4 @@
+import { MilestoneService } from '../../../services/milestone.services';
 import { Employees } from '../../../domain/app/employees/employee.model';
 import { GetAllMileStonesActivity } from '../activities/get-all-milestones.activity';
 import { IMilestone, IMilestoneDocument } from '../../../domain/app/milestones/milestone';
@@ -23,7 +24,8 @@ import { IQuery } from '../../../framework/queries/query';
 export class GetMilestonesQuery implements IQuery<IMilestone[]> {
     constructor(
         @inject(Milestones.name) private _milestoneModel,
-        @inject(Employees.name) private _employeeModel
+        @inject(Employees.name) private _employeeModel,
+        @inject(MilestoneService.name) private _milestoneService: MilestoneService
     ) {}
 
     run(data: { target: string} ): Promise<IMilestone[]> {
@@ -42,8 +44,14 @@ export class GetMilestonesQuery implements IQuery<IMilestone[]> {
                 .populate({
                     path: 'responsible'
                 })
-                .then(milestone => {
-                    resolve(milestone);
+                .then(milestones => {
+                    that._milestoneService.checkPastDate(milestones).then(currentMilestones => {
+                        resolve(currentMilestones);
+                        return;
+                    }).catch(err => {
+                        reject(err);
+                        return;
+                    });
                 }).catch(e => {
                     reject(e);
                 });

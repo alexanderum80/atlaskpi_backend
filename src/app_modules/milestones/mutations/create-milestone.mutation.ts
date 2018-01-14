@@ -20,7 +20,7 @@ import { inject, injectable } from 'inversify';
 })
 export class CreateMilestoneMutation extends MutationBase<IMutationResponse> {
     constructor(
-        @inject(Milestones.name) private _milestoneModel
+        @inject(Milestones.name) private _milestoneModel: Milestones
     ) {
         super();
     }
