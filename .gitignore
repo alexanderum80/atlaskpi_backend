@@ -53,6 +53,3 @@ build
 .Trashes
 ehthumbs.db
 Thumbs.db
-
-# Old data folder causing issues
-data
