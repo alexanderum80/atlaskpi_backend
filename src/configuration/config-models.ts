@@ -32,15 +32,22 @@ export interface ITokenConfig {
     expiresIn: string;
 }
 
+export interface IPnsConfig {
+    pnsServer: string;
+    appIdentifier: string;
+}
+
 export interface IAppConfig {
     impersonateHost: string;
     subdomain: string;
     token: ITokenConfig;
     masterDb: string;
+    newAccountEmailNotification: string;
     newAccountDbUriFormat: string;
     mongoDBAtlasCredentials?: IMongoDBAtlasCredentials;
     emailService: IEmailServiceConfig;
     usersService: IUsersServiceConfig;
     appServices: IAppServicesConfig;
+    pns: IPnsConfig;
     integrationRedirectUrl: string;
 }

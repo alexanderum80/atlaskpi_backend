@@ -11,12 +11,31 @@ export const GroupingMap = {
         category: 'category.name',
         product: 'product.itemDescription',
         serviceType: 'serviceType',
-        businessUnit: 'businessUnit.name'
+        businessUnit: 'businessUnit.name',
+        customerState: 'customer.state',
+        customerCity: 'customer.city',
+        customerZip: 'customer.zip',
+        customerGender: 'customer.gender'
     },
     expenses: {
         businessUnit: 'businessUnit.name',
         concept: 'expense.concept',
         location: 'location.name'
+    },
+    inventory: {
+        location: 'location.name',
+        product: 'product.itemDescription',
+    },
+    // Groupings for google analytrics
+    googleanalytics: {
+        connector: 'connector.connectorName',
+        website: 'websiteUrl',
+        browser: 'browser',
+        city: 'city',
+        country: 'country',
+        deviceCategory: 'deviceCategory',
+        language: 'language',
+        operatingSystem: 'operatingSystem'
     }
 };
 

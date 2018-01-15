@@ -1,3 +1,4 @@
+import { UpdateBusinessUnitInput } from './../business-units.types';
 import * as Promise from 'bluebird';
 import { inject, injectable } from 'inversify';
 
@@ -14,10 +15,13 @@ import { UpdateBusinessUnitResponse } from '../business-units.types';
 @mutation({
     name: 'updateBusinessUnit',
     activity: UpdateBusinessUnitActivity,
+    // parameters: [
+    //     { name: '_id', type: String, required: true },
+    //     { name: 'name', type: String, required: true },
+    //     { name: 'serviceType', type: String },
+    // ],
     parameters: [
-        { name: '_id', type: String, required: true },
-        { name: 'name', type: String, required: true },
-        { name: 'serviceType', type: String },
+        { name: 'input', type: UpdateBusinessUnitInput, required: true }
     ],
     output: { type: UpdateBusinessUnitResponse }
 })
@@ -26,11 +30,12 @@ export class UpdateBusinessUnitMutation extends MutationBase<IMutationResponse> 
         super();
     }
 
-    run(data: { _id: string, name: string, serviceType: string }): Promise<IMutationResponse> {
+    // run(data: { _id: string, name: string, serviceType: string }): Promise<IMutationResponse> {
+    run(data: { input: UpdateBusinessUnitInput }): Promise<IMutationResponse> {
         const that = this;
 
         return new Promise < IMutationResponse > ((resolve, reject) => {
-            that._businessUnits.model.updateBusinessUnit(data._id, data.name, data.serviceType).then(businessunit => {
+            that._businessUnits.model.updateBusinessUnit(data.input._id, data.input.name, data.input.serviceType).then(businessunit => {
                 resolve({
                     success: true,
                     entity: businessunit

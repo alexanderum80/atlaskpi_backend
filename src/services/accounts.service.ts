@@ -2,6 +2,7 @@ import * as Promise from 'bluebird';
 import * as changeCase from 'change-case';
 import { inject, injectable } from 'inversify';
 import * as validate from 'validate.js';
+import * as Handlebars from 'handlebars';
 
 import { IAppConfig, IMongoDBAtlasCredentials } from '../configuration/config-models';
 import { AppConnection } from '../domain/app/app.connection';
@@ -24,7 +25,8 @@ import { IsNullOrWhiteSpace } from '../helpers/string.helpers';
 import { AppConnectionPool } from '../middlewares/app-connection-pool';
 import { AuthService, IUserAuthenticationData } from './auth.service';
 import { EnrollmentNotification } from './notifications/users/enrollment.notification';
-import { SeedService } from './seed.service';
+import { SeedService } from './seed/seed.service';
+import { IExtendedRequest } from '../middlewares/extended-request';
 
 export interface ICreateAccountInfo {
     ip: string;
@@ -69,12 +71,13 @@ const ACCOUNT_CREATION_CONSTRAINTS = {
 export class AccountsService {
 
     constructor(
+        @inject('Request') private _req: IExtendedRequest,
         @inject('Config') private _config: IAppConfig,
         @inject(AppConnectionPool.name) private _appConnectionPool: AppConnectionPool,
         @inject(Accounts.name) private _accounts: Accounts,
         @inject(EnrollmentNotification.name) private _enrollmentNotification: EnrollmentNotification,
-        @inject('AuthService') private _authService: AuthService,
-        @inject('Logger') private _logger: Logger) {}
+        // @inject(AuthService.name) private _authService: AuthService,
+        @inject(Logger.name) private _logger: Logger) {}
 
     createAccount(input: ICreateAccountInfo): Promise < IMutationResponse > {
         let that = this;
@@ -108,8 +111,12 @@ export class AccountsService {
                     return;
                 }
 
-                createClusterDbUserIfNeeded(that._config.mongoDBAtlasCredentials, newAccount, accountDbUser)
+                createClusterDbUserIfNeeded(that._logger, that._config.mongoDBAtlasCredentials, newAccount, accountDbUser)
                     .then(success => createUserDatabase(
+                        that._req,
+                        that._config,
+                        that._accounts,
+                        that._logger,
                         newAccount,
                         input,
                         firstUserInfo,
@@ -117,9 +124,11 @@ export class AccountsService {
                         that._config.newAccountDbUriFormat,
                         that._appConnectionPool,
                         that._enrollmentNotification,
-                        that._config.subdomain,
-                        that._authService)
-                        .then(result => resolve(result))
+                        that._config.subdomain)
+                        .then(result => {
+                            resolve(result);
+                        })
+                        .catch(err => reject(err))
                     )
                     .catch(err => reject(err));
             });
@@ -149,8 +158,8 @@ function getFirstUserInfo(hash: string, email: string, fullName: IFullName): ICr
     };
 
     if (fullName) {
-        firstUser.firstName = fullName[0];
-        firstUser.lastName = fullName[1];
+        firstUser.firstName = fullName.first;
+        firstUser.lastName = fullName.last;
     }
 
     return firstUser;
@@ -173,25 +182,29 @@ function getClusterDbUser(hash: string, databaseName: string): IClusterUser {
 }
 
 
-function createClusterDbUserIfNeeded(mongodbCredentials: IMongoDBAtlasCredentials, account: IAccountDocument, dbUser: IClusterUser): Promise < boolean > {
+function createClusterDbUserIfNeeded(logger: Logger, mongodbCredentials: IMongoDBAtlasCredentials, account: IAccountDocument, dbUser: IClusterUser): Promise < boolean > {
     const that = this;
 
     return new Promise < boolean > ((resolve, reject) => {
         // Create a db user if it's in production
         if (mongodbCredentials && !IsNullOrWhiteSpace(mongodbCredentials.api_key)) {
-            that._logger.info('MongoDBAtlas api_key found, creating MongoDBAtlas user...');
+            logger.info('MongoDBAtlas api_key found, creating MongoDBAtlas user...');
             account.createAccountDbUser(dbUser, mongodbCredentials)
                 .then((value) => resolve(value))
                 .catch((err) => reject(err));
         } else {
             // Local db... no need to create a db user;
-            that._logger.debug('MongoDBAtlas api_key not found, assuming backend is not in prod_mode...');
+            logger.debug('MongoDBAtlas api_key not found, assuming backend is not in prod_mode...');
             resolve(true);
         }
     });
 }
 
 function createUserDatabase(
+    req: IExtendedRequest,
+    config: IAppConfig,
+    accounts: Accounts,
+    logger: Logger,
     newAccount: IAccountDocument,
     createAccountInfo: ICreateAccountInfo,
     firstUser: ICreateUserDetails,
@@ -199,8 +212,7 @@ function createUserDatabase(
     newAccountDbUriFormat: string,
     connectionPool: AppConnectionPool,
     enrollmentNotification: EnrollmentNotification,
-    subdomain: string,
-    authService: AuthService): Promise<IMutationResponse> {
+    subdomain: string): Promise<IMutationResponse> {
 
     const databaseObject = generateDBObject(newAccountDbUriFormat, databaseName, 'atlas', 'yA22wflgDf9dZluW');
 
@@ -209,14 +221,20 @@ function createUserDatabase(
         let users: Users;
         let roles: Roles;
         let permissions: Permissions;
+        let authService: AuthService;
 
         // connect to users database
         connectionPool.getConnection(databaseObject.uri)
             .then((appConn) => {
                 appConnection = AppConnection.FromMongoDbConnection(appConn);
+                // When creating a new account only at this point I know how to create the app connection so I add it to the
+                // request objecgt in case other parts of the system need to use it (ex: accesslog in mutation bus)
+                req.appConnection = appConnection.get;
+
                 users = new Users(appConnection);
                 roles = new Roles(appConnection);
                 permissions = new Permissions(appConnection);
+                authService =  new AuthService(config, accounts, users, roles, logger);
 
                 return appConn;
             })
@@ -239,7 +257,9 @@ function createUserDatabase(
                     entity: newAccount
                 });
             })
-            .catch(err => reject(err));
+            .catch(err => {
+                reject(err);
+            });
     });
 }
 
@@ -273,9 +293,13 @@ function initializeRolesForAccount(roles: Roles, permissions: Permissions): Prom
 
 function createAdminUser(users: Users, databaseName: string, firstUser: ICreateUserDetails, enrollmentNotification: EnrollmentNotification): Promise < boolean > {
     return new Promise < boolean > ((resolve, reject) => {
-        users.model.createUser(firstUser, enrollmentNotification).then((response) => {
+        users.model.createUser(firstUser, enrollmentNotification, { host: databaseName }).then((response) => {
                 if (!response) {
                     return reject('Could not create the admin user');
+                }
+
+                if (response.errors) {
+                    return reject(new Error(response.errors[0].errors[0]));
                 }
 
                 ( < IUserDocument > response.entity).addRole('owner', (err, role) => {

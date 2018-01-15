@@ -3,7 +3,7 @@ import 'datejs';
 import { from } from 'apollo-link/lib';
 import * as Promise from 'bluebird';
 import * as console from 'console';
-import { cloneDeep, difference, flatten, groupBy, isEmpty, map, union, uniq, uniqBy } from 'lodash';
+import { cloneDeep, difference, flatten, groupBy, isEmpty, map, union, uniq, uniqBy, orderBy } from 'lodash';
 import * as moment from 'moment';
 import * as logger from 'winston';
 
@@ -139,7 +139,9 @@ export class UIChartBase {
             console.log(JSON.stringify( that.series));
 
             return;
-        }).catch(e => e );
+        }).catch(e => {
+            logger.error(e);
+        } );
     }
 
     /**
@@ -254,7 +256,7 @@ export class UIChartBase {
             return this.frequencyHelper.getCategories(metadata.frequency);
         }
 
-        const uniqueCategories = <string[]> uniq(data.map(item => item._id[metadata.xAxisSource]));
+        const uniqueCategories = <string[]> orderBy(uniq(data.map(item => item._id[metadata.xAxisSource])));
 
         return uniqueCategories.map(category => {
             return {
@@ -340,7 +342,7 @@ export class UIChartBase {
             /**
              *  this is a one level grouping chart
              */
-            return this._getSeriesForFirstLevelGrouping(data, categories, meta.xAxisSource);
+            return this._getSeriesForFirstLevelGrouping(data, categories, meta);
 
 
         } else if (availableGroupingsForSeries.length === 1) {
@@ -362,14 +364,14 @@ export class UIChartBase {
     }
 
 
-    private _getSeriesForFirstLevelGrouping(data: any[], categories: IXAxisCategory[], group: string): IChartSerie[] {
+    private _getSeriesForFirstLevelGrouping(data: any[], categories: IXAxisCategory[], meta: IChartMetadata): IChartSerie[] {
 
         if (this.chart.chartDefinition.chart.type === ChartType.Pie) {
             return [{
                 name: '',
                 data:  categories.map(cat => {
                     let dataItem = data.find((item: any) => {
-                        return item._id[group] === cat.id;
+                        return item._id[meta.xAxisSource] === cat.id;
                     });
 
                     return {
@@ -378,12 +380,46 @@ export class UIChartBase {
                     };
                 })
             }];
-        } else {
-            return [{
+         } else {
+            const serieObject = {
                 name: '',
-                data: data.map(item => item.value)
-            }];
-        }
+                data: []
+            };
+
+            const matchField = getFrequencyPropName(meta.frequency);
+            categories.forEach(cat => {
+                let dataItem = data.find((item: any) => item._id[matchField] === cat.id);
+                serieObject.data.push(dataItem ? dataItem.value : 0);
+                // serieObject.data.push(dataItem ? dataItem.value : null);
+            });
+
+            return [serieObject];
+         }
+
+        // if (this.chart.chartDefinition.chart.type === ChartType.Pie) {
+        //     return [{
+        //         name: '',
+        //         data:  categories.map(cat => {
+        //             let dataItem = data.find((item: any) => {
+        //                 return item._id[meta.xAxisSource] === cat.id;
+        //             });
+
+        //             return {
+        //                 name: cat.name || 'Others',
+        //                 y: dataItem ? dataItem.value : null
+        //             };
+        //         })
+        //     }];
+        // } else if (meta.xAxisSource) {
+        //     const groupedData: Dictionary<any> = groupBy(data, '_id.' + meta.xAxisSource);
+        //     const matchField = getFrequencyPropName(meta.frequency);
+        //     return this._createSeriesFromgroupedData(groupedData, categories, matchField);
+        // } else {
+        //     return [{
+        //         name: '',
+        //         data: data.map(item => item.value)
+        //     }];
+        // }
     }
 
     private _getSeriesForSecondLevelGrouping(data: any[], meta: IChartMetadata, categories: IXAxisCategory[], groupByField: string): IChartSerie[] {
@@ -430,9 +466,14 @@ export class UIChartBase {
 
     private _formatTarget(target: any[], metadata: any, groupings: any) {
         if (groupings && groupings.length) {
-            this.commonField = groupings.filter((v, k) => {
-                return v !== 'frequency';
-            });
+            if (groupings.length > 1) {
+                this.commonField = groupings.filter((v, k) => {
+                    return v !== 'frequency';
+                });
+            } else {
+                // if chart has no groupings
+                this.commonField = ['noGroupingName'];
+            }
         }
 
         if (target.length) {
@@ -492,12 +533,17 @@ export class UIChartBase {
     }
 
     private _targetGrouping(data: any[], length: number, groupings: string, meta: IChartMetadata, categories: IXAxisCategory[]): any {
+        if (!data || !data.length) { return; }
         switch (length) {
             case 0:
-                return [{
-                    name: '',
-                    data: data.map(item => item.value)
-                }];
+                if (meta.xAxisSource) {
+                    return this._targetMetaData(meta, meta.xAxisSource, data, categories);
+                } else {
+                    return [{
+                        name: '',
+                        data: data.map(item => item.value)
+                    }];
+                }
             case 1:
                 return this._targetMetaData(meta, groupings, data, categories);
         }
@@ -526,11 +572,16 @@ export class UIChartBase {
             this.categories = this._createCategories(data, meta);
         }
 
+        // check if stack chart, or no groupings charts
+        // otherwise go to the else statement
         let groupedData: Dictionary<any> = groupBy(data, (val) => {
             if (val['_id'].hasOwnProperty('stackName')) {
                 return val._id[groupByField] + '_' + val._id['stackName'];
+            } else if (val['_id'].hasOwnProperty('noGroupingName')) {
+                return val._id[groupByField] + '_' + val._id['noGroupingName'];
+            } else {
+                return val._id[groupByField];
             }
-            return val._id[groupByField];
         });
 
         let series: IChartSerie[] = [];
@@ -567,12 +618,22 @@ export class UIChartBase {
         // adds spline and targetId to series
         // use targetId for edit/delete
         for (let serieName in groupedData) {
-            let serie: IChartSerie = {
-                name: (serieName.match(/_[a-z]+/i)) ?
-                        ( serieName.replace(serieName, serieName.match(/[^_a-z]+/i)[0]) ) :
-                        (serieName || 'Other'),
-                data: []
-            };
+            // check if no groupings for chart to fix the multiple targets in no groupings chart
+            const noGroupingName = groupedData[serieName].find(name => name._id.noGroupingName);
+            let serie: any = {};
+            if (!noGroupingName) {
+                serie = {
+                    name: ((serieName.match(/_[a-z]+/i)) ?
+                            ( serieName.replace(serieName, serieName.match(/[^_a-z]+/i)[0]) ) :
+                            (serieName || 'Other')),
+                    data: []
+                };
+            } else {
+                serie = {
+                    name: serieName.split('_')[1],
+                    data: []
+                };
+            }
 
             serie['type'] = 'spline';
             serie['targetId'] = groupedData[serieName][0].targetId;
@@ -677,61 +738,102 @@ export class UIChartBase {
 
     private _mergeMultipleChartDefinitions(definitions: any, metadata: IChartMetadata): any {
         const mainDefinition = definitions['main'] || {};
+            let comparisonCategoriesWithValues = this._getComparisonCategoriesWithValues(definitions);
+            let definitionSeries = this._getComparisonSeries(comparisonCategoriesWithValues);
 
-        let mergedSeries = [];
+            mainDefinition.xAxis.categories = this._getComparisonCategories(definitions, metadata);
+            mainDefinition.series = definitionSeries;
 
-        mergedSeries = mergedSeries.concat(this._getComparisonSeries(definitions));
-        mergedSeries = mergedSeries.concat(this._getMainComparisonSeries(definitions));
-        mainDefinition.series = mergedSeries;
-
-        return mainDefinition;
+            return mainDefinition;
     }
 
-    private _getComparisonSeries(definitions: any): any {
+    private _getComparisonCategoriesWithValues(definitions: any): any {
+        const defObject = {};
+        defObject['uniqCategories'] = [];
+        const keys = Object.keys(definitions);
         const that = this;
 
-        const definitionsIds = Object.keys(definitions).filter(d => d !== 'main');
+        for (let i = 0; i < keys.length; i++) {
+            if (defObject['data'] === undefined) {
+                defObject['data'] = {};
+            }
+            defObject['data'][keys[i]] = [];
 
-        if (!definitionsIds || definitionsIds.length < 1) return [];
+            const definition = definitions[keys[i]];
+            const cats =  definition.xAxis.categories;
+            const series = definition.series || [];
 
-        const series = [];
+            for (let j = 0; j < series.length; j++) {
+                const serie = series[j];
 
-        for (let i = definitionsIds.length; i > 0; i--) {
-            if (definitions[definitionsIds[i - 1]].series && definitions[definitionsIds[i - 1]].series.length > 0) {
-                const definitionKey = definitionsIds[i - 1];
-                definitions[definitionKey].series.forEach(serie => {
-                    const dateRangeId = getDateRangeIdFromString(that.chart.dateRange[0].predefined);
-                    const comparisonString = PredefinedComparisonDateRanges[dateRangeId][definitionKey];
-                    const serieElement = {
-                        name: `${serie.name}(${comparisonString})`,
-                        data: serie.data,
-                        stack: definitionKey
-                    };
-                    series.push(serieElement);
-                });
+                for (let k = 0; k < cats.length; k++) {
+                    const catExists = defObject['uniqCategories'].find(c => c === cats[k]);
+                    if (!catExists) {
+                        defObject['uniqCategories'].push(cats[k]);
+                    }
+
+                    defObject['data'][keys[i]].push({
+                        category: cats[k],
+                        serieName: serie.name,
+                        serieValue: serie.data[k]
+                    });
+                }
             }
         }
 
+        return defObject;
+    }
+
+    private _getComparisonSeries(obj: any): any {
+        const allCategories = obj['uniqCategories'];
+        const data = obj['data'];
+        const keys = Object.keys(data);
+        let serieData = [];
+
+        const series = [];
+        let objData: any = {};
+        const that = this;
+
+        for (let i = 0; i < keys.length; i++) {
+            const stack = keys[i];
+            let bySerieName = groupBy(data[stack], 'serieName');
+            let serieNameKeys = Object.keys(bySerieName);
+
+
+            for (let k = 0; k < serieNameKeys.length; k++) {
+                for (let j = 0; j < allCategories.length; j++) {
+                    const groupKeys = serieNameKeys[k];
+                    const filteredByCategory = bySerieName[groupKeys].filter(obj => obj.category === allCategories[j]);
+                    serieData = serieData.concat(
+                        filteredByCategory.length ? filteredByCategory[0].serieValue : null
+                    );
+                    objData.serieName = groupKeys;
+                }
+                const dateRangeId = getDateRangeIdFromString(that.chart.dateRange[0].predefined);
+                const comparisonString = (stack === 'main') ?
+                            that.chart.dateRange[0].predefined : PredefinedComparisonDateRanges[dateRangeId][stack];
+                series.push({
+                    name: objData.serieName + `(${comparisonString})`,
+                    data: serieData,
+                    stack: stack
+                });
+                serieData = [];
+            }
+        }
         return series;
     }
 
-    private _getMainComparisonSeries(definitions: any): any {
-        const that = this;
-        const main = definitions['main'];
+    private _getComparisonCategories(definitions: any, metadata: IChartMetadata): string[] {
+        let listCategories = [];
 
-        const series = [];
-
-        main.series.forEach(serie => {
-            const comparisonString = that.chart.dateRange[0].predefined;
-            const serieElement = {
-                name: `${serie.name}(${comparisonString})`,
-                data: serie.data,
-                stack: 'main'
-            };
-            series.push(serieElement);
+        Object.keys(definitions).forEach(key => {
+            listCategories = listCategories.concat(
+                definitions[key].xAxis.categories
+            );
         });
 
-        return series;
+        listCategories = uniq(listCategories);
+        return listCategories;
     }
 
     private _noSerieName(serieName: any): boolean {

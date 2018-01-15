@@ -1,7 +1,7 @@
-import { LinkedInConnector } from './../linkedin/linkedin-connector';
 import * as Promise from 'bluebird';
 import { inject, injectable } from 'inversify';
 import { isObject } from 'util';
+import * as googleapis from 'googleapis';
 
 import { IAccountModel } from '../../../domain/master/accounts/Account';
 import { IConnector, IConnectorDocument } from '../../../domain/master/connectors/connector';
@@ -14,8 +14,11 @@ import { getConnectorTypeId } from '../models/connector-type';
 import { loadIntegrationConfig } from '../models/load-integration-controller';
 import { SocialNetwork } from './../../../domain/app/social-networks/social-network.model';
 import { Connectors } from './../../../domain/master/connectors/connector.model';
-import { IExecutionFlowResult } from './../models/execution-flow';
+import { GoogleAnalyticsConnector } from './../google-analytics/google-analytics-connector';
+import { LinkedInConnector } from './../linkedin/linkedin-connector';
+import { IExecutionFlowResult, errorExecutionFlow } from './../models/execution-flow';
 import { IntegrationConnectorFactory } from './../models/integration-connectors.factory';
+import { getGoogleAnalyticsConnectors } from '../google-analytics/google-analytics-integration-flow';
 
 @injectable()
 export class IntegrationController {
@@ -96,6 +99,21 @@ export class IntegrationController {
                 // Facebook doesnt let you chose wich page you are adding
                 if (that._connector instanceof FacebookConnector) {
                     that._handleFacebookConnectorFlow().then(flowResult => {
+                        resolve(flowResult);
+                        return;
+                    })
+                    .catch(err => {
+                        reject(err);
+                        return;
+                    });
+
+                    return;
+                }
+
+                 // Special case of Google Analitycs
+                // doesnt let you chose wich account you are adding
+                if (that._connector instanceof GoogleAnalyticsConnector) {
+                    that._handleGoogleAnalyticsConnectorFlow().then(flowResult => {
                         resolve(flowResult);
                         return;
                     })
@@ -282,6 +300,35 @@ export class IntegrationController {
                     console.log(err);
                     resolve(err);
                     return;
+            });
+        });
+    }
+
+    private _handleGoogleAnalyticsConnectorFlow(): Promise<IExecutionFlowResult> {
+        const token = this._connector.token();
+
+        if (!token) {
+            return Promise.resolve(errorExecutionFlow( 'google analytics integration couldn\'t obtain a token'));
+        }
+
+        const that = this;
+        return new Promise<IExecutionFlowResult>((resolve, reject) => {
+            getGoogleAnalyticsConnectors(that._connector, that._integrationConfig, that._companyName)
+            .then(connectors => {
+                Promise .map(connectors, c => that._connectorModel.model.addConnector(c))
+                        .then(() => {
+                            const flowResult: IExecutionFlowResult = {
+                                success: true,
+                                connector: connectors[0]
+                            };
+                            resolve(flowResult);
+                            return;
+                        })
+                        .catch(err => reject(err));
+            })
+            .catch(err => {
+                resolve(errorExecutionFlow(err));
+                return;
             });
         });
     }

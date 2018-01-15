@@ -1,6 +1,6 @@
-import { Request } from 'Express';
+import { Request } from 'express';
 import * as logger from 'winston';
-
+import { isArray, isObject } from 'lodash';
 import { config } from '../configuration/config';
 
 const loggerSuffix = '(FUNCTION getRequestHostname)';
@@ -58,4 +58,16 @@ export function getStateParamHostname(req: Request): string {
     }
 
     return `${host}.${config.subdomain}`;
+}
+
+export function isRegExp(value: any): boolean {
+    return value instanceof RegExp;
+}
+
+export function isArrayOnly(arr: any[]): boolean {
+    return (isArray(arr)) && ( arr.findIndex(val => isObject(val)) ) === -1;
+}
+
+export function isArrayObject(arr: any[]): boolean {
+    return ( isArray(arr)) && ( arr.findIndex(val => isObject(val)) ) !== -1;
 }

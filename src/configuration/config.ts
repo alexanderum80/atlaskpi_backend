@@ -58,6 +58,7 @@ export const config: IAppConfig = {
         expiresIn: process.env.AKPI_TOKEN_EXPIRATION || '90 d'
     },
     masterDb: process.env.AKPI_MASTER_DB_URI || 'mongodb://localhost/kpibi',
+    newAccountEmailNotification: process.env.NEW_ACCOUNT_EMAIL_NOTIFICATION || 'new-accounts@atlaskpi.com',
     newAccountDbUriFormat: process.env.AKPI_NEW_ACCOUNT_DB_URI_FORMAT || 'mongodb://localhost/{{database}}',
     mongoDBAtlasCredentials: {
         username: process.env.AKPI_MONGODB_API_USERNAME || '',
@@ -70,4 +71,9 @@ export const config: IAppConfig = {
     appServices: appServicesConfig,
     // integrationRedirectUrl: process.env.AKPI_INTEGRATION_REDIRECT_URL  || 'http://localhost:9091/integration',
     integrationRedirectUrl: process.env.AKPI_INTEGRATION_REDIRECT_URL  || 'https://5dffabdd.ngrok.io/integration'
+    pns: {
+        pnsServer: process.env.AKPI_PNS_SERVER || 'http://pns.test.atlaskpi.com:9093',
+        appIdentifier: process.env.AKPI_PNS_APP_IDENTIFIER || 'GpINyWutMVBCRRAgo7Cv0SZ9sQI34pgW'
+    },
+    integrationRedirectUrl: process.env.AKPI_INTEGRATION_REDIRECT_URL  || 'http://localhost:9091/integration',
 };

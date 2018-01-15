@@ -4,7 +4,9 @@ export enum ConnectorTypeEnum {
     Instagram = 11,
     LinkedIn = 12,
     Facebook = 13,
-    Twitter = 16
+    GoogleAnalytics = 14,
+    Twitter = 16,
+    CallRail = 17
 }
 
 export const ConnectorsTypeMap = {
@@ -13,7 +15,9 @@ export const ConnectorsTypeMap = {
     instagram: ConnectorTypeEnum.Instagram,
     linkedin: ConnectorTypeEnum.LinkedIn,
     facebook: ConnectorTypeEnum.Facebook,
-    twitter: ConnectorTypeEnum.Twitter
+    twitter: ConnectorTypeEnum.Twitter,
+    googleanalytics: ConnectorTypeEnum.GoogleAnalytics,
+    callrail: ConnectorTypeEnum.CallRail
 };
 
 export function getConnectorTypeId(type: ConnectorTypeEnum) {
@@ -30,6 +34,10 @@ export function getConnectorTypeId(type: ConnectorTypeEnum) {
             return 'facebook';
         case ConnectorTypeEnum.Twitter:
             return 'twitter';
+        case ConnectorTypeEnum.GoogleAnalytics:
+            return 'googleanalytics';
+        case ConnectorTypeEnum.CallRail:
+            return 'callrail';
         default: null;
     }
 }

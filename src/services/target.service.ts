@@ -12,8 +12,13 @@ import { IDateRange, parsePredifinedDate } from '../domain/common/date-range';
 import { FrequencyEnum } from '../domain/common/frequency-enum';
 import { field } from '../framework/decorators/field.decorator';
 
-
-
+const MomentFrequencyTable = {
+    daily: 'daily',
+    weekly: 'weekly',
+    monthly: 'month',
+    quartely: 'quarter',
+    yearly: 'year',
+};
 // TODO: REFACTOR, and prepare for dependency injection
 
 @injectable()
@@ -53,7 +58,19 @@ export class TargetService {
 
                     let kpi = that._kpiFactory.getInstance(chart.kpis[0]);
                     let groupings = getGroupingMetadata(chart, chart.groupings ? chart.groupings : []);
-                    if (that.isStacked) {
+
+                    // check if the chart has no groupings
+                    if (!groupings || !groupings.length || !groupings[0]) {
+                        kpi.getData([that.getDate(data.period)], { filter: chart.filter})
+                            .then(response => {
+                                resolve(response);
+                                return;
+                            }).catch(err => {
+                                reject(err);
+                                return;
+                            });
+                    } else if (that.isStacked) {
+                        // check if the chart is stacked
                         let optionsStack = {
                             filter: chart.filter,
                             groupings: groupings,
@@ -63,11 +80,14 @@ export class TargetService {
                         if (data.period) {
                             kpi.getTargetData([that.getDate(data.period)], optionsStack).then((response) => {
                                 resolve(response);
+                                return;
                             }).catch((err) => {
                                 reject(err);
+                                return;
                             });
                         } else {
                             resolve([{ value: 0}]);
+                            return;
                         }
                     } else {
 
@@ -80,11 +100,14 @@ export class TargetService {
                                 if (data.period) {
                                     kpi.getData([that.getDate(data.period)], optionsNonStack).then((response) => {
                                         resolve(response);
+                                        return;
                                     }).catch((err) => {
                                         reject(err);
+                                        return;
                                     });
                                 } else {
                                     resolve([{ value: 0}]);
+                                    return;
                                 }
                                 break;
                             default:
@@ -93,11 +116,14 @@ export class TargetService {
                                     optionsNonStack['groupings'] = groupings;
                                     kpi.getTargetData([that.getDate(data.period)], optionsNonStack).then((response) => {
                                         resolve(response);
+                                        return;
                                     }).catch((err) => {
                                         reject(err);
+                                        return;
                                     });
                                 } else {
                                     resolve([{ value: 0}]);
+                                    return;
                                 }
                                 break;
                         }
@@ -146,6 +172,60 @@ export class TargetService {
         });
     }
 
+
+    getTargetMet(input: any) {
+        const that = this;
+
+        return new Promise<any>((resolve, reject) => {
+
+            // get kpi from the chart with input.chart[0]
+            that._charts.model.findById(input.chart[0])
+                .populate({ path: 'kpis' })
+                .then((chart) => {
+                    const kpi = that._kpiFactory.getInstance(chart.kpis[0]);
+                    const getDateRange = that._getDateRange(
+                            input.notificationDate,
+                            MomentFrequencyTable[chart.frequency]);
+
+                    const dateRange: any = getDateRange;
+                    const groupings = getGroupingMetadata(chart, chart.groupings ? chart.groupings : []);
+
+                    const stackName = input.stackName ? input.stackName : input.nonStackName;
+                    const noStackName = stackName.toLowerCase() === 'all';
+
+                    const options = {
+                        filter: chart.filter
+                    };
+
+                    if (!groupings || !groupings.length || !groupings[0]) {
+                        kpi.getData([that.getDate(input.period)], { filter: chart.filter})
+                            .then(response => {
+                                resolve(response);
+                                return;
+                            }).catch(err => reject(err));
+                        return;
+                    } else {
+                        if (!noStackName) {
+                            Object.assign(options, {
+                                groupings: groupings,
+                                stackName: stackName
+                            });
+                        }
+
+                        kpi.getData([dateRange], options).then(data => {
+                            let findValue = data.find(r => r.value);
+                            let responseValue = findValue ? findValue.value : 0;
+                            resolve(responseValue);
+                            return;
+                        }).catch(err => {
+                            reject(err);
+                            return;
+                        });
+                    }
+                });
+        });
+    }
+
     getDate(period: string): IDateRange {
         return parsePredifinedDate(period);
     }
@@ -180,5 +260,12 @@ export class TargetService {
             });
             return futureDateRange;
         }
+    }
+
+    private _getDateRange(notify: any, frequency: any) {
+        return {
+            from: moment(notify, 'MM/DD/YYYY').startOf(frequency).toDate(),
+            to: moment(notify, 'MM/DD/YYYY').toDate()
+        };
     }
 }

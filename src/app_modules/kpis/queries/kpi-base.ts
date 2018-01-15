@@ -1,3 +1,4 @@
+import { isArrayObject, isRegExp } from '../../../helpers/express.helpers';
 import * as Promise from 'bluebird';
 import {
     cloneDeep,
@@ -11,7 +12,7 @@ import {
     pick,
     sortBy
 } from 'lodash';
-
+import { camelCase } from 'change-case';
 import * as logger from 'winston';
 
 import { IKPI } from '../../../domain/app/kpis/kpi';
@@ -19,6 +20,11 @@ import { IChartDateRange, IDateRange } from '../../../domain/common/date-range';
 import { FrequencyEnum } from '../../../domain/common/frequency-enum';
 import { field } from '../../../framework/decorators/field.decorator';
 import { AggregateStage } from './aggregate';
+
+export interface ICollection {
+    modelName: string;
+    timestampField: string;
+}
 
 export interface IKPIMetadata {
     name?: string;
@@ -52,6 +58,7 @@ export interface IKpiBase {
 export class KpiBase {
     frequency: FrequencyEnum;
     protected kpi: IKPI;
+    protected collection: ICollection;
     protected pristineAggregate: AggregateStage[];
 
     constructor(public model: any, public aggregate: AggregateStage[]) {
@@ -120,7 +127,7 @@ export class KpiBase {
             '$geoNear', '$lookup', '$out', '$sortByCount', '$addFields', '$count'];
 
         Object.keys(stage).forEach(k => {
-            if (operators.indexOf(k) !== -1) {
+            if ((operators.indexOf(k) !== -1)) {
                 operator = {};
                 operator[k] = stage[k];
             }
@@ -139,13 +146,13 @@ export class KpiBase {
         if (dateRange &&
             (<any>dateRange).length) {
             if ((<any>dateRange).length === 1) {
-                matchStage.$match[field] = { '$gte': dateRange[0].from, '$lte': dateRange[0].to };
+                matchStage.$match[field] = { '$gte': dateRange[0].from, '$lt': dateRange[0].to };
             } else {
                 (<any>dateRange).map((dateParams) => {
                     matchStage.$match = {
                         $or: [
                             {
-                                [field]: { '$gte': dateParams.from, '$lte': dateParams.to }
+                                [field]: { '$gte': dateParams.from, '$lt': dateParams.to }
                             }
                         ]
                     };
@@ -187,8 +194,17 @@ export class KpiBase {
             { key: '__dollar__', value: '$' }
         ];
 
+        const regexStrings = ['startWith', 'endWith', 'contains', 'regex'];
+        let regexExpression;
+
         Object.keys(filter).forEach(filterKey => {
             let newKey = filterKey;
+            let regexKey = newKey.split('__')[2];
+
+            if (regexStrings.indexOf(regexKey) !== -1) {
+                regexExpression = regexStrings[regexStrings.indexOf(regexKey)];
+                newKey = '__dollar__regex';
+            }
 
             replacementString.forEach(replacement => {
                 newKey = newKey.replace(replacement.key, replacement.value);
@@ -196,11 +212,15 @@ export class KpiBase {
 
             let value = filter[filterKey];
 
-            if (!isArray(value) && isObject(value)) {
+            if (!isArray(value) && (!isRegExp(value)) && isObject(value)) {
                 value = this._cleanFilter(value);
-            } else if (isArray(value)) {
+            } else if (isArrayObject(value)) {
                 for (let i = 0; i < value.length; i++) {
                     value[i] = this._cleanFilter(value[i]);
+                }
+            } else {
+                if (value && regexExpression) {
+                    value = this._regexPattern(regexExpression, value);
                 }
             }
 
@@ -371,7 +391,7 @@ export class KpiBase {
             let index = Object.keys(group._id).findIndex(prop => prop === groupingTokens[0]);
 
             if (index === -1) {
-                group._id[groupingTokens[0]] = '$' + g;
+                group._id[camelCase(g)] = '$' + g;
             }
         });
     }
@@ -409,6 +429,30 @@ export class KpiBase {
         }
 
         return newResult;
+    }
+
+    private _regexPattern(type: string, value: string) {
+        let expression = null;
+        const reg_expression = {
+            'startWith': {
+                searchValue: '^' + value,
+            },
+            'endWith': {
+                searchValue: value + '$',
+            },
+            'contains': {
+                searchValue: value,
+            },
+            'regex': {
+                searchValue: /\/(.*)\/(.*)/.exec(value)
+            }
+        };
+        expression = reg_expression[type];
+
+        if (type === 'regex') {
+            return new RegExp(expression.searchValue[1], expression.searchValue[2]);
+        }
+        return new RegExp(expression.searchValue, 'i');
     }
 
 }
