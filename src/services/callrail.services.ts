@@ -47,7 +47,7 @@ export class CallRailService {
     validateCredentials(input: ICallRailInput): Promise<boolean> {
         const that = this;
         return new Promise<boolean>((resolve, reject) => {
-            const url = `${that._config.callrailIntegration.endpoint}/${input.accountId}/${that._config.usersApiUrl}`;
+            const url = `${that._config.callrailIntegration.endpoint}/${input.accountId}${that._config.usersApiUrl}`;
             const headers = {
                 Authorization: 'Token token=' + input.apiKey
             };
