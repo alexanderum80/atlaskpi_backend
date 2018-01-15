@@ -155,3 +155,4 @@ function rowToObject(row, mapping: DataSchema) {
 
     return output;
 }
+
