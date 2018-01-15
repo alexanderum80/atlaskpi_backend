@@ -1,3 +1,5 @@
+import { MilestoneService } from './milestone.services';
+import { UserMilestoneNotification } from './notifications/users/user-milestone.notification';
 import { KpiService } from './kpi.service';
 import { IBridgeContainer } from '../framework/di/bridge-container';
 import { AccountsService } from './accounts.service';
@@ -22,6 +24,7 @@ export function registerServices(container: IBridgeContainer) {
 
     // notifications
     container.registerSingleton(TargetNotification);
+    container.registerSingleton(UserMilestoneNotification);
     container.registerSingleton(AccountCreatedNotification);
     container.registerSingleton(UserForgotPasswordNotification);
     container.registerSingleton(EnrollmentNotification);
@@ -34,6 +37,7 @@ export function registerServices(container: IBridgeContainer) {
     container.registerPerWebRequest(WidgetsService);
     container.registerPerWebRequest(ChartsService);
     container.registerPerWebRequest(KpiService);
+    container.registerPerWebRequest(MilestoneService);
     container.registerPerWebRequest(SocialWidgetsService);
     container.registerPerWebRequest(ConnectorsService);
 }

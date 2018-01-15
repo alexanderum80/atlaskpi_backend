@@ -25,6 +25,7 @@ import { Slideshows } from './slideshow/slideshow.model';
 import { SocialNetwork } from './social-networks/social-network.model';
 import { Surveys } from './surveys/survey.model';
 import { Targets } from './targets/target.model';
+import { Milestones } from './milestones/milestone.model';
 import { Widgets } from './widgets/widget.model';
 import { Worklogs } from './work-log/work-log.model';
 
@@ -50,6 +51,7 @@ const registrations: any[] = [
     KPIs,
     Locations,
     Logs,
+    Milestones,
     Sales,
     Slideshows,
     SocialNetwork,
