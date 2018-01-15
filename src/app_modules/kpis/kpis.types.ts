@@ -1,17 +1,16 @@
-import { resolver } from '../../framework/decorators/resolver.decorator';
-import { Widget } from '../widgets/widgets.types';
-import { KPIGroupingsHelper } from './../../domain/app/kpis/kpi-groupings.helper';
-import { KPIExpressionHelper } from './../../domain/app/kpis/kpi-expression.helper';
-import { type } from '../../framework/decorators/type.decorator';
+import { IKPIDocument } from '../../domain/app/kpis/kpi';
+import { KPIFilterHelper } from '../../domain/app/kpis/kpi-filter.helper';
 import { field } from '../../framework/decorators/field.decorator';
 import { GraphQLTypesMap } from '../../framework/decorators/graphql-types-map';
 import { input } from '../../framework/decorators/input.decorator';
+import { resolver } from '../../framework/decorators/resolver.decorator';
+import { type } from '../../framework/decorators/type.decorator';
 import { ErrorDetails } from '../../framework/graphql/common.types';
 import { ChartEntityResponse } from '../charts/charts.types';
-import { KPIFilterHelper } from '../../domain/app/kpis/kpi-filter.helper';
 import { ChartDateRange, ChartDateRangeInput, PaginationInfo } from '../shared/shared.types';
-import { IKPI } from '../../domain/app/kpis/kpi';
-import { IKPIDocument } from '../../domain/app/kpis/kpi';
+import { Widget } from '../widgets/widgets.types';
+import { KPIExpressionHelper } from './../../domain/app/kpis/kpi-expression.helper';
+import { KPIGroupingsHelper } from './../../domain/app/kpis/kpi-groupings.helper';
 
 @input()
 export class KPIAttributesInput  {
@@ -107,7 +106,7 @@ export class KPI  {
 
     @resolver({ forField: 'filter' })
     static resolveFilter(entity: IKPIDocument) {
-        return JSON.stringify(KPIFilterHelper.PrepareFilterField(entity.type, entity.filter));
+        return entity.filter && JSON.stringify(KPIFilterHelper.PrepareFilterField(entity.type, entity.filter));
     }
 
     @field({ type: GraphQLTypesMap.String })
@@ -133,8 +132,8 @@ export class KPI  {
     @field({ type: GraphQLTypesMap.String, isArray: true })
     availableGroupings: string[];
 
-    @resolver({ forField: 'availableGroupings' })
-    static resolveAvailableGroupings(entity: IKPIDocument) {
+    @resolver({ forField: 'availableGroupings'})
+    static resolveAvailableGroupigs(entity: IKPIDocument) {
         return KPIGroupingsHelper.GetAvailableGroupings(entity);
     }
 }

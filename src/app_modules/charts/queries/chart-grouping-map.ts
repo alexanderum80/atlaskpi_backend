@@ -25,6 +25,17 @@ export const GroupingMap = {
     inventory: {
         location: 'location.name',
         product: 'product.itemDescription',
+    },
+    // Groupings for google analytrics
+    googleanalytics: {
+        connector: 'connector.connectorName',
+        website: 'websiteUrl',
+        browser: 'browser',
+        city: 'city',
+        country: 'country',
+        deviceCategory: 'deviceCategory',
+        language: 'language',
+        operatingSystem: 'operatingSystem'
     }
 };
 

@@ -45,3 +45,11 @@ my_known_hosts
 # virtual env it is to setup the python env for the adapt engine
 myvirtualenv
 build
+
+# OS generated files #
+.DS_Store
+.DS_Store?
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db

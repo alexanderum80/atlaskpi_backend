@@ -16,6 +16,7 @@ export interface IConnectorConfig {
     companyId?: string;
     pageId?: string;
     scope?: IConnectorConfigScope[];
+    accountId?: string;
 }
 
 export interface IConnector extends IUserAudit {

@@ -43,5 +43,11 @@ export interface IOAuthConnector {
 
     // linkedin
     getLinkedInCompanies?(): IIdName[];
+
+    // facebook
     getFacebookPages?(): any[];
+
+    // google analytics
+    getGoogleAnalyticsAccounts?(): any[];
+    token?(): IOAuth2Token;
 }

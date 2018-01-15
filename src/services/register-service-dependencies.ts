@@ -1,12 +1,14 @@
 import { MilestoneService } from './milestone.services';
 import { UserMilestoneNotification } from './notifications/users/user-milestone.notification';
-import { KpiService } from './kpi.service';
 import { IBridgeContainer } from '../framework/di/bridge-container';
 import { AccountsService } from './accounts.service';
 import { AuthService } from './auth.service';
 import { CallRailService } from './callrail.services';
 import { ChartsService } from './charts.service';
 import { ConnectorsService } from './connectors.service';
+import { ExternalDataSourcesService } from './external-data-sources.service';
+import { KpiService } from './kpi.service';
+import { GoogleAnalyticsKPIService } from './kpis/google-analytics-kpi/google-analytics-kpi.service';
 import { AccountCreatedNotification } from './notifications/users/account-created.notification';
 import { EnrollmentNotification } from './notifications/users/enrollment.notification';
 import { TargetNotification } from './notifications/users/target.notification';
@@ -40,4 +42,6 @@ export function registerServices(container: IBridgeContainer) {
     container.registerPerWebRequest(MilestoneService);
     container.registerPerWebRequest(SocialWidgetsService);
     container.registerPerWebRequest(ConnectorsService);
+    container.registerPerWebRequest(GoogleAnalyticsKPIService);
+    container.registerPerWebRequest(ExternalDataSourcesService);
 }
