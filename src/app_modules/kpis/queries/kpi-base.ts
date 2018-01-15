@@ -152,7 +152,7 @@ export class KpiBase {
                     matchStage.$match = {
                         $or: [
                             {
-                                [field]: { '$gt': dateParams.from, '$lt': dateParams.to }
+                                [field]: { '$gte': dateParams.from, '$lt': dateParams.to }
                             }
                         ]
                     };
