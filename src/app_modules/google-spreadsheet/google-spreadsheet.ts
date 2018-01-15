@@ -114,3 +114,4 @@ function storeToken(token) {
     fs.writeFile(TOKEN_PATH, JSON.stringify(token));
     console.log('Token stored to ' + TOKEN_PATH);
 }
+
