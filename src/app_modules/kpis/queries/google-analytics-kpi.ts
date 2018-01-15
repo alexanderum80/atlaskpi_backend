@@ -1,5 +1,5 @@
 import { IBatchProperties } from './../../../services/kpis/google-analytics-kpi/google-analytics.helper';
-import { cloneDeep } from 'lodash';
+import { cloneDeep, uniq } from 'lodash';
 import * as Promise from 'bluebird';
 import * as moment from 'moment';
 import * as mongoose from 'mongoose';
@@ -14,6 +14,8 @@ import { GoogleAnalyticsKPIService } from '../../../services/kpis/google-analyti
 import { SimpleKPIBase } from './simple-kpi-base';
 
 export class GoogleAnalyticsKpi extends SimpleKPIBase implements IKpiBase {
+
+    private _deserializedFilter = {};
 
     public static CreateFromExpression( kpi: IKPIDocument,
                                         googleAnalytics: GoogleAnalytics,
@@ -64,19 +66,17 @@ export class GoogleAnalyticsKpi extends SimpleKPIBase implements IKpiBase {
 
         this.collection = { modelName: 'GoogleAnalytics', timestampField: 'date' };
 
-        let deserializedFilter;
-
         if (this._kpi && this._kpi.filter)
-            deserializedFilter = this._cleanFilter(this._kpi.filter);
+            this._deserializedFilter = this._cleanFilter(this._kpi.filter);
 
-        if (deserializedFilter)
-            this._injectPreGroupStageFilters(deserializedFilter, _definition.field);
+        if (this._deserializedFilter)
+            this._injectPreGroupStageFilters(this._deserializedFilter, _definition.field);
 
         this._injectFieldToProjection(_definition.field);
         this._injectAcumulatorFunctionAndArgs(_definition);
 
-        if (deserializedFilter)
-            this._injectPostGroupStageFilters(deserializedFilter, _definition.field);
+        if (this._deserializedFilter)
+            this._injectPostGroupStageFilters(this._deserializedFilter, _definition.field);
     }
 
     getData(dateRange?: IDateRange[], options?: IGetDataOptions): Promise<any> {
@@ -86,8 +86,11 @@ export class GoogleAnalyticsKpi extends SimpleKPIBase implements IKpiBase {
         const startDate = moment(firstDateRange.from).format('YYYY-MM-DD');
         const endDate = moment(firstDateRange.to).format('YYYY-MM-DD');
 
+        // we need to call the ga api including any dimension included in the filters
+        const filterGroupings = Object.keys(this._deserializedFilter).filter(k => k !== this._definition.field);
+
         const that = this;
-        return this._cacheData(dateRange, options)
+        return this._cacheData(dateRange, options, filterGroupings)
                     .then(batch => {
                         that._injectPreGroupStageFilters({ _batchId: batch._batchId }, that._definition.field);
                         that.pristineAggregate = cloneDeep(that._baseAggregate);
@@ -95,7 +98,7 @@ export class GoogleAnalyticsKpi extends SimpleKPIBase implements IKpiBase {
                     });
     }
 
-    private _cacheData(dateRange?: IDateRange[], options?: IGetDataOptions): Promise<IBatchProperties> {
+    private _cacheData(dateRange?: IDateRange[], options?: IGetDataOptions, filterGroupungs?: string[]): Promise<IBatchProperties> {
         mongoose.set('debug', true);
         const firstDateRange = dateRange && dateRange[0];
 
@@ -104,9 +107,11 @@ export class GoogleAnalyticsKpi extends SimpleKPIBase implements IKpiBase {
 
         // get the groupings
         // options groupings have precedence over kpi groupings
-        const groupings = options.groupings  && options.groupings.length  && options.groupings  ||
+        let groupings = options.groupings  && options.groupings.length  && options.groupings  ||
                           this._kpi.groupings && this._kpi.groupings.length && this._kpi.groupings ||
                           [];
+
+        groupings = [...groupings, ...filterGroupungs];
 
         const that = this;
         return this ._googleAnalyticsKpiService
