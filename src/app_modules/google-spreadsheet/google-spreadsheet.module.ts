@@ -1,9 +1,9 @@
 import { AppModule, ModuleBase } from '../../framework/decorators/app-module';
-// import { ReloadDataMutation } from './mutations/reload-data.mutation';
+import { ReloadDataMutation } from './mutations/reload-data.mutation';
 
 @AppModule({
     mutations: [
-        // ReloadDataMutation
+        ReloadDataMutation
     ],
     queries: []
 })
