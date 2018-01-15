@@ -99,7 +99,7 @@ function getProfiles(analytics: any, webProperties: any[], webPropertiesCollecti
 
 function getWebProperties(analytics: any, accounts: any): Promise<any> {
     return Promise .map(accounts.items,
-                        a => (<any>Promise.promisify<any>(analytics.management.webproperties.list))({ accountId: a.id }));
+                        a => (<any>Promise.promisify<any>(analytics.management.webproperties.list))({ accountId: (<any>a).id }));
 }
 
 function getAnalyticsAccountList(analytics: any): Promise<any> {

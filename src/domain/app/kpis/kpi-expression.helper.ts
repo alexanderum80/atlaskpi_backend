@@ -1,4 +1,3 @@
-import { KPIExpressionHelper } from './kpi-expression.helper';
 import * as jsep from 'jsep';
 
 import { GroupingMap } from '../../../app_modules/charts/queries/chart-grouping-map';

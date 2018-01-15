@@ -1,4 +1,3 @@
-import { LinkedInConnector } from './../linkedin/linkedin-connector';
 import * as Promise from 'bluebird';
 import { inject, injectable } from 'inversify';
 import { isObject } from 'util';
@@ -19,6 +18,7 @@ import { GoogleAnalyticsConnector } from './../google-analytics/google-analytics
 import { LinkedInConnector } from './../linkedin/linkedin-connector';
 import { IExecutionFlowResult, errorExecutionFlow } from './../models/execution-flow';
 import { IntegrationConnectorFactory } from './../models/integration-connectors.factory';
+import { getGoogleAnalyticsConnectors } from '../google-analytics/google-analytics-integration-flow';
 
 @injectable()
 export class IntegrationController {
