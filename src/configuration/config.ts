@@ -69,11 +69,11 @@ export const config: IAppConfig = {
     emailService: emailServiceConfig,
     usersService: usersServiceConfig,
     appServices: appServicesConfig,
-    // integrationRedirectUrl: process.env.AKPI_INTEGRATION_REDIRECT_URL  || 'http://localhost:9091/integration',
-    integrationRedirectUrl: process.env.AKPI_INTEGRATION_REDIRECT_URL  || 'https://5dffabdd.ngrok.io/integration'
+   
     pns: {
         pnsServer: process.env.AKPI_PNS_SERVER || 'http://pns.test.atlaskpi.com:9093',
         appIdentifier: process.env.AKPI_PNS_APP_IDENTIFIER || 'GpINyWutMVBCRRAgo7Cv0SZ9sQI34pgW'
     },
-    integrationRedirectUrl: process.env.AKPI_INTEGRATION_REDIRECT_URL  || 'http://localhost:9091/integration',
+    integrationRedirectUrl: process.env.AKPI_INTEGRATION_REDIRECT_URL  || 'https://af31c66b.ngrok.io/integration'
+    // integrationRedirectUrl: process.env.AKPI_INTEGRATION_REDIRECT_URL  || 'http://localhost:9091/integration',
 };
