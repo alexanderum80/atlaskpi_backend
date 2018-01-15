@@ -11,7 +11,6 @@ import { IKeyValuePair } from '../../../domain/common/key-value-pair';
 import { IOAuth2Token } from '../../../domain/common/oauth2-token';
 import * as path from 'path';
 import * as request from 'request';
-import { config } from '../../../../config';
 import { ConnectorTypeEnum } from '../models/connector-type';
 
 export class SquareConnector implements IOAuthConnector {
@@ -19,10 +18,7 @@ export class SquareConnector implements IOAuthConnector {
     private _token: IOAuth2Token;
 
     private _clientAuth: ClientOAuth2;
-    private _scope: IConnectorConfigScope[] = [
-        {name: 'MERCHANT_PROFILE_READ'},  {name: 'PAYMENTS_READ'}, {name: 'ORDERS_READ'}
-    ];
-
+    private _scope;
     private _companyInfo: any;
     private _name: string;
     private _merchantId: string;
