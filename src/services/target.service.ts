@@ -57,7 +57,19 @@ export class TargetService {
 
                     let kpi = that._kpiFactory.getInstance(chart.kpis[0]);
                     let groupings = getGroupingMetadata(chart, chart.groupings ? chart.groupings : []);
-                    if (that.isStacked) {
+
+                    // check if the chart has no groupings
+                    if (!groupings || !groupings.length || !groupings[0]) {
+                        kpi.getData([that.getDate(data.period)], { filter: chart.filter})
+                            .then(response => {
+                                resolve(response);
+                                return;
+                            }).catch(err => {
+                                reject(err);
+                                return;
+                            });
+                    } else if (that.isStacked) {
+                        // check if the chart is stacked
                         let optionsStack = {
                             filter: chart.filter,
                             groupings: groupings,
@@ -67,11 +79,14 @@ export class TargetService {
                         if (data.period) {
                             kpi.getTargetData([that.getDate(data.period)], optionsStack).then((response) => {
                                 resolve(response);
+                                return;
                             }).catch((err) => {
                                 reject(err);
+                                return;
                             });
                         } else {
                             resolve([{ value: 0}]);
+                            return;
                         }
                     } else {
 
@@ -84,11 +99,14 @@ export class TargetService {
                                 if (data.period) {
                                     kpi.getData([that.getDate(data.period)], optionsNonStack).then((response) => {
                                         resolve(response);
+                                        return;
                                     }).catch((err) => {
                                         reject(err);
+                                        return;
                                     });
                                 } else {
                                     resolve([{ value: 0}]);
+                                    return;
                                 }
                                 break;
                             default:
@@ -97,11 +115,14 @@ export class TargetService {
                                     optionsNonStack['groupings'] = groupings;
                                     kpi.getTargetData([that.getDate(data.period)], optionsNonStack).then((response) => {
                                         resolve(response);
+                                        return;
                                     }).catch((err) => {
                                         reject(err);
+                                        return;
                                     });
                                 } else {
                                     resolve([{ value: 0}]);
+                                    return;
                                 }
                                 break;
                         }
@@ -175,22 +196,31 @@ export class TargetService {
                         filter: chart.filter
                     };
 
-                    if (!noStackName) {
-                        Object.assign(options, {
-                            groupings: groupings,
-                            stackName: stackName
+                    if (!groupings || !groupings.length || !groupings[0]) {
+                        kpi.getData([that.getDate(input.period)], { filter: chart.filter})
+                            .then(response => {
+                                resolve(response);
+                                return;
+                            }).catch(err => reject(err));
+                        return;
+                    } else {
+                        if (!noStackName) {
+                            Object.assign(options, {
+                                groupings: groupings,
+                                stackName: stackName
+                            });
+                        }
+
+                        kpi.getData([dateRange], options).then(data => {
+                            let findValue = data.find(r => r.value);
+                            let responseValue = findValue ? findValue.value : 0;
+                            resolve(responseValue);
+                            return;
+                        }).catch(err => {
+                            reject(err);
+                            return;
                         });
                     }
-
-                    kpi.getData([dateRange], options).then(data => {
-                        let findValue = data.find(r => r.value);
-                        let responseValue = findValue ? findValue.value : 0;
-                        resolve(responseValue);
-                        return;
-                    }).catch(err => {
-                        reject(err);
-                        return;
-                    });
                 });
         });
     }
