@@ -38,10 +38,10 @@ export class KpiFactory {
                     return new CompositeKpi(kpiDocument, this, this._kpis);
                 case KPITypeEnum.Simple:
                     return SimpleKPI.CreateFromExpression(kpiDocument, this._sales, this._expenses, this._inventory);
-        case KPITypeEnum.ExternalSource:
-          return GoogleAnalyticsKpi.CreateFromExpression(kpiDocument,
-                                                         this._googleAnalytics,
-                                                         this._googleAnalyticsKpiService);
+                case KPITypeEnum.ExternalSource:
+                    return GoogleAnalyticsKpi.CreateFromExpression( kpiDocument,
+                                                                    this._googleAnalytics,
+                                                                    this._googleAnalyticsKpiService);
             }
 
         }

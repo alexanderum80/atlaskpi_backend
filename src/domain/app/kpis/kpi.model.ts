@@ -59,7 +59,7 @@ KPISchema.statics.createKPI = function(input: IKPI): Promise<IKPIDocument> {
 
         let kpiType = KPITypeMap[input.type];
 
-        if (kpiType === KPITypeEnum.Simple) {
+        if (kpiType === KPITypeEnum.Simple || KPITypeEnum.ExternalSource) {
             input.expression = KPIExpressionHelper.ComposeExpression(kpiType, input.expression);
         }
 
