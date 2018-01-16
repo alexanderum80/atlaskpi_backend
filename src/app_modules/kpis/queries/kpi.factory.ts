@@ -24,14 +24,17 @@ export class KpiFactory {
 
         if (!kpiDocument) { return null; }
 
-        if (kpiDocument.type && kpiDocument.type === KPITypeEnum.Compound) {
-            // TODO: Refactor this
-            return new CompositeKpi(kpiDocument, this, this._kpis);
-        }
+        if (kpiDocument.type) {
 
-        if (kpiDocument.type && kpiDocument.type === KPITypeEnum.Simple) {
-            // TODO: Refactor this
-            return SimpleKPI.CreateFromExpression(kpiDocument, this._sales, this._expenses, this._inventory);
+            switch (kpiDocument.type) {
+                case KPITypeEnum.Compound:
+                    return new CompositeKpi(kpiDocument, this, this._kpis);
+                case KPITypeEnum.Complex:
+                    return new CompositeKpi(kpiDocument, this, this._kpis);
+                case KPITypeEnum.Simple:
+                    return SimpleKPI.CreateFromExpression(kpiDocument, this._sales, this._expenses, this._inventory);
+            }
+
         }
 
         const searchBy = kpiDocument.baseKpi || kpiDocument.code;
