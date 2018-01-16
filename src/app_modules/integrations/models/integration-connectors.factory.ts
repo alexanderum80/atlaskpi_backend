@@ -1,3 +1,4 @@
+import { GoogleAnalyticsConnector } from './../google-analytics/google-analytics-connector';
 import { inject, injectable } from 'inversify';
 
 import { IAppConfig } from '../../../configuration/config-models';
@@ -30,6 +31,8 @@ export class IntegrationConnectorFactory {
                 return new LinkedInConnector(integrationConfig, this._config);
             case ConnectorTypeEnum.Facebook:
                 return new FacebookConnector(integrationConfig, this._config);
+            case ConnectorTypeEnum.GoogleAnalytics:
+                return new GoogleAnalyticsConnector(integrationConfig, this._config);
             default:
                 return null;
         }
@@ -46,6 +49,8 @@ export class IntegrationConnectorFactory {
             case ConnectorTypeEnum.LinkedIn:
                 return IntegrationConnectorFactory.getLinkedInConnector(integrationConfig, connector);
             case ConnectorTypeEnum.Facebook:
+                return IntegrationConnectorFactory.getFacebookConnector(integrationConfig, connector);
+            case ConnectorTypeEnum.GoogleAnalytics:
                 return IntegrationConnectorFactory.getFacebookConnector(integrationConfig, connector);
             default:
                 return null;
@@ -81,5 +86,10 @@ export class IntegrationConnectorFactory {
         const facebookConnector = new FacebookConnector(integrationConfig);
         facebookConnector.setToken(connector.config.token);
         return facebookConnector;
+    }
+    private static getGoogleAnalyticsConnector(integrationConfig, connector: IConnectorDocument): GoogleAnalyticsConnector {
+        const googleAnalyticsConnector = new GoogleAnalyticsConnector(integrationConfig);
+        googleAnalyticsConnector.setToken(connector.config.token);
+        return googleAnalyticsConnector;
     }
 }

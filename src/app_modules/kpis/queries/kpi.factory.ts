@@ -9,6 +9,9 @@ import { IKpiBase } from './kpi-base';
 import { Revenue } from './revenue.kpi';
 import { SimpleKPI } from './simple-kpi';
 import { injectable, inject } from 'inversify';
+import { GoogleAnalytics } from '../../../domain/app/google-analytics/google-analytics.model';
+import { GoogleAnalyticsKpi } from './google-analytics-kpi';
+import { GoogleAnalyticsKPIService } from '../../../services/kpis/google-analytics-kpi/google-analytics-kpi.service';
 
 @injectable()
 export class KpiFactory {
@@ -18,6 +21,8 @@ export class KpiFactory {
         @inject(Sales.name) private _sales: Sales,
         @inject(Expenses.name) private _expenses: Expenses,
         @inject(Inventory.name) private _inventory: Inventory,
+        @inject(GoogleAnalytics.name) private _googleAnalytics: GoogleAnalytics,
+        @inject(GoogleAnalyticsKPIService.name) private _googleAnalyticsKpiService: GoogleAnalyticsKPIService
     ) { }
 
     getInstance(kpiDocument: IKPIDocument): IKpiBase {
@@ -33,6 +38,10 @@ export class KpiFactory {
                     return new CompositeKpi(kpiDocument, this, this._kpis);
                 case KPITypeEnum.Simple:
                     return SimpleKPI.CreateFromExpression(kpiDocument, this._sales, this._expenses, this._inventory);
+        case KPITypeEnum.ExternalSource:
+          return GoogleAnalyticsKpi.CreateFromExpression(kpiDocument,
+                                                         this._googleAnalytics,
+                                                         this._googleAnalyticsKpiService);
             }
 
         }

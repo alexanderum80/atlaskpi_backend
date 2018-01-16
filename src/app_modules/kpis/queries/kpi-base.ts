@@ -10,6 +10,11 @@ import { field } from '../../../framework/decorators/field.decorator';
 import { isArrayObject, isRegExp } from '../../../helpers/express.helpers';
 import { AggregateStage } from './aggregate';
 
+export interface ICollection {
+    modelName: string;
+    timestampField: string;
+}
+
 export interface IKPIMetadata {
     name?: string;
     code?: string;
@@ -42,6 +47,7 @@ export interface IKpiBase {
 export class KpiBase {
     frequency: FrequencyEnum;
     protected kpi: IKPI;
+    protected collection: ICollection;
     protected pristineAggregate: AggregateStage[];
 
     constructor(public model: any, public aggregate: AggregateStage[]) {
@@ -129,13 +135,13 @@ export class KpiBase {
         if (dateRange &&
             (<any>dateRange).length) {
             if ((<any>dateRange).length === 1) {
-                matchStage.$match[field] = { '$gte': dateRange[0].from, '$lte': dateRange[0].to };
+                matchStage.$match[field] = { '$gte': dateRange[0].from, '$lt': dateRange[0].to };
             } else {
                 (<any>dateRange).map((dateParams) => {
                     matchStage.$match = {
                         $or: [
                             {
-                                [field]: { '$gte': dateParams.from, '$lte': dateParams.to }
+                                [field]: { '$gte': dateParams.from, '$lt': dateParams.to }
                             }
                         ]
                     };

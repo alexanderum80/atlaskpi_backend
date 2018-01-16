@@ -1,6 +1,6 @@
-import { KpiService } from '../../../services/kpi.service';
+import { DataSourcesHelper } from './../../../app_modules/data-sources/queries/datasource.helper';
+import { KpiService } from './../../../services/kpi.service';
 import { GroupingMap } from '../../../app_modules/charts/queries/chart-grouping-map';
-import { DataSourcesHelper } from '../../../app_modules/data-sources/queries/datasource.helper';
 import { IKPIDocument, IKPISimpleDefinition, KPITypeEnum, IKPI } from './kpi';
 import { KPIExpressionHelper } from './kpi-expression.helper';
 import * as Promise from 'bluebird';
@@ -13,13 +13,17 @@ export class KPIGroupingsHelper {
 
         const byIdentifierGroupings  = this._getGroupungsByIdentifier(identifier || null);
 
-        let bySimpleKPIGroupings;
+        let byKpiExpression;
 
         if (kpi.type && kpi.type === KPITypeEnum.Simple) {
-            bySimpleKPIGroupings = this._getGroupingsForSimpleKPI(kpi.expression);
+            byKpiExpression = this._getGroupingsForSimpleKPI(kpi.expression);
         }
 
-        return byIdentifierGroupings || bySimpleKPIGroupings || [];
+        if (kpi.type && kpi.type === KPITypeEnum.ExternalSource) {
+            byKpiExpression = this._getGroupingsForExternalSourceKPI(kpi);
+        }
+
+        return byIdentifierGroupings || byKpiExpression || [];
     }
 
     // This function it's no dynamic, is just mapping the predefined kpis
@@ -45,5 +49,10 @@ export class KPIGroupingsHelper {
     private static _getGroupingsForSimpleKPI(expression: string) {
         const definition: IKPISimpleDefinition = KPIExpressionHelper.DecomposeExpression(KPITypeEnum.Simple, expression);
         return DataSourcesHelper.GetGroupingsForSchema(definition.dataSource);
+    }
+
+    // TODO: make this generic for all posible external datasources
+    private static _getGroupingsForExternalSourceKPI(kpi: IKPIDocument | IKPI) {
+       return DataSourcesHelper.GetGroupingsForSchema('googleanalytics');
     }
 }

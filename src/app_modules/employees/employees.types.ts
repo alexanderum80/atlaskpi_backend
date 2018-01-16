@@ -89,7 +89,7 @@ export class EmployeeAttributesInput  {
     @field({ type: GraphQLTypesMap.String, required: true })
     firstName: string;
 
-    @field({ type: GraphQLTypesMap.String, required: true })
+    @field({ type: GraphQLTypesMap.String })
     middleName: string;
 
     @field({ type: GraphQLTypesMap.String, required: true })

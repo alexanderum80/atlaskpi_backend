@@ -19,6 +19,7 @@ const MomentFrequencyTable = {
     quartely: 'quarter',
     yearly: 'year',
 };
+// TODO: REFACTOR, and prepare for dependency injection
 
 @injectable()
 export class TargetService {
