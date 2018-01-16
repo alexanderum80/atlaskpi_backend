@@ -5,6 +5,7 @@ import { IAppConfig } from '../../../configuration/config-models';
 import { IConnectorDocument } from '../../../domain/master/connectors/connector';
 import { FacebookConnector } from '../facebook/facebook-connector';
 import { InstagramConnector } from './../instagram/instagram-connector';
+import { SquareConnector } from './../square/square-connector';
 import { LinkedInConnector } from './../linkedin/linkedin-connector';
 import { QuickBooksOnlineConnector } from './../quickbooks-online/quickbooks-online-connector';
 import { IOAuthConnector } from './connector-base';
@@ -23,8 +24,8 @@ export class IntegrationConnectorFactory {
         switch (getConnectorType(code)) {
             case ConnectorTypeEnum.QuickBooksOnline:
                 return new QuickBooksOnlineConnector(integrationConfig, this._config, options.query.realmId);
-            // case ConnectorTypeEnum.Square:
-            //     return new SquareConnector(integrationConfig);
+            case ConnectorTypeEnum.Square:
+                return new SquareConnector(integrationConfig, this._config);
             case ConnectorTypeEnum.Instagram:
                 return new InstagramConnector(integrationConfig, this._config);
             case ConnectorTypeEnum.LinkedIn:
@@ -42,8 +43,8 @@ export class IntegrationConnectorFactory {
         switch (getConnectorType(connector.type)) {
             case ConnectorTypeEnum.QuickBooksOnline:
                 return IntegrationConnectorFactory.getQuickBooksConnector(integrationConfig, connector);
-            // case ConnectorTypeEnum.Square:
-            //     return IntegrationConnectorFactory.getSquareConnector(integrationConfig, connector);
+            case ConnectorTypeEnum.Square:
+                return IntegrationConnectorFactory.getSquareConnector(integrationConfig, connector);
             case ConnectorTypeEnum.Instagram:
                 return IntegrationConnectorFactory.getInstagramConnector(integrationConfig, connector);
             case ConnectorTypeEnum.LinkedIn:
@@ -57,11 +58,11 @@ export class IntegrationConnectorFactory {
         }
     }
 
-    // private static getSquareConnector(integrationConfig, connector: IConnectorDocument): SquareConnector {
-    //     const squareConnector = new SquareConnector(integrationConfig);
-    //     squareConnector.setToken(connector.config.token);
-    //     return squareConnector;
-    // }
+    private static getSquareConnector(integrationConfig, connector: IConnectorDocument): SquareConnector {
+        const squareConnector = new SquareConnector(integrationConfig);
+        squareConnector.setToken(connector.config.token);
+        return squareConnector;
+    }
 
     private static getQuickBooksConnector(integrationConfig: any, connector: IConnectorDocument): QuickBooksOnlineConnector {
         const qbConnector = new QuickBooksOnlineConnector(integrationConfig);
