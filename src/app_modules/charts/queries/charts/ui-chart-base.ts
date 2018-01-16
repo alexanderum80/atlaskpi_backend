@@ -6,7 +6,7 @@ import * as console from 'console';
 import { cloneDeep, difference, flatten, groupBy, isEmpty, map, union, uniq, uniqBy, orderBy } from 'lodash';
 import * as moment from 'moment';
 import * as logger from 'winston';
-
+import { camelCase } from 'change-case';
 import { IChart } from '../../../../domain/app/charts/chart';
 import { ITargetDocument } from '../../../../domain/app/targets/target';
 import {
@@ -256,7 +256,8 @@ export class UIChartBase {
             return this.frequencyHelper.getCategories(metadata.frequency);
         }
 
-        const uniqueCategories = <string[]> orderBy(uniq(data.map(item => item._id[metadata.xAxisSource])));
+        const xAxisSource: any = this._getXaxisSource(data, metadata);
+        const uniqueCategories = <string[]> orderBy(uniq(data.map(item => item._id[xAxisSource])));
 
         return uniqueCategories.map(category => {
             return {
@@ -264,6 +265,44 @@ export class UIChartBase {
                 name: category
             };
         });
+    }
+
+    private _getXaxisSource(data: any[], metadata: IChartMetadata, groupings?: string[]) {
+        if (!metadata || !metadata.xAxisSource) { return ''; }
+        if (!data.length) { return metadata.xAxisSource; }
+        if (metadata.xAxisSource === 'frequency' && groupings && groupings.length) { return groupings; }
+
+        let findXaxisSource;
+        let xAxisSource = '';
+        findXaxisSource = data.filter(item => item._id[metadata.xAxisSource]);
+        let obj = {
+            index: -1,
+            field: null
+        };
+
+        if (!findXaxisSource.length) {
+            const dataKeys = Object.keys(data[0]._id);
+
+            for (let i = 0; i < dataKeys.length; i++) {
+                const findIndex = dataKeys[i].indexOf(metadata.xAxisSource);
+                if (findIndex !== -1) {
+                    obj = {
+                        index: findIndex,
+                        field: dataKeys[i]
+                    };
+                    break;
+                }
+            }
+        }
+
+        xAxisSource = (obj.index !== -1) ? obj.field : metadata.xAxisSource;
+
+        if (groupings && groupings.length) {
+            const frequency = groupings.filter(g => g === 'frequency');
+            frequency.push(metadata.xAxisSource);
+            return frequency;
+        }
+        return xAxisSource;
     }
 
     /**
@@ -333,8 +372,8 @@ export class UIChartBase {
          *  At this point I already know which field is going to be used for the xAxis
          *  so I need to get a list of the rest of the grouping fields so I can build the series
          */
-
-        const availableGroupingsForSeries = difference(groupings, [meta.xAxisSource]);
+        const chartGroupings = this._getXaxisSource(data, meta, groupings);
+        const availableGroupingsForSeries = difference(chartGroupings, [meta.xAxisSource]);
 
 
         if (availableGroupingsForSeries.length === 0) {
@@ -435,7 +474,7 @@ export class UIChartBase {
         if (meta.xAxisSource === FREQUENCY_GROUPING_NAME) {
             matchField = getFrequencyPropName(meta.frequency);
         } else {
-            matchField = meta.xAxisSource;
+            matchField = camelCase(meta.groupings[0]);
         }
 
         return this._createSeriesFromgroupedData(groupedData, categories, matchField);
