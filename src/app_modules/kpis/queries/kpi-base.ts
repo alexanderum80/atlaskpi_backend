@@ -1,24 +1,13 @@
-import { isArrayObject, isRegExp } from '../../../helpers/express.helpers';
 import * as Promise from 'bluebird';
-import {
-    cloneDeep,
-    isArray,
-    isObject,
-    remove,
-    negate,
-    isNull,
-    groupBy,
-    find,
-    pick,
-    sortBy
-} from 'lodash';
 import { camelCase } from 'change-case';
+import { cloneDeep, find, groupBy, isArray, isNull, isObject, negate, pick, remove, sortBy } from 'lodash';
 import * as logger from 'winston';
 
 import { IKPI } from '../../../domain/app/kpis/kpi';
 import { IChartDateRange, IDateRange } from '../../../domain/common/date-range';
 import { FrequencyEnum } from '../../../domain/common/frequency-enum';
 import { field } from '../../../framework/decorators/field.decorator';
+import { isArrayObject, isRegExp } from '../../../helpers/express.helpers';
 import { AggregateStage } from './aggregate';
 
 export interface ICollection {

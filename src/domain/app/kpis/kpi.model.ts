@@ -1,4 +1,4 @@
-import { IDocumentExist } from './kpi';
+import { IDocumentExist, KPITypeEnum } from './kpi';
 import * as Promise from 'bluebird';
 import { inject, injectable } from 'inversify';
 import mongoose = require('mongoose');
@@ -59,8 +59,13 @@ KPISchema.statics.createKPI = function(input: IKPI): Promise<IKPIDocument> {
 
         let kpiType = KPITypeMap[input.type];
 
-        input.expression = KPIExpressionHelper.ComposeExpression(kpiType, input.expression);
-        input.filter = KPIFilterHelper.ComposeFilter(kpiType, input.filter);
+        if (kpiType === KPITypeEnum.Simple) {
+            input.expression = KPIExpressionHelper.ComposeExpression(kpiType, input.expression);
+        }
+
+        if (input.filter) {
+            input.filter = KPIFilterHelper.ComposeFilter(kpiType, input.filter);
+        }
 
         that.create(input, (err, kpi: IKPIDocument) => {
             if (err) {
