@@ -22,7 +22,7 @@ export class QuickBooksOnlineConnector implements IOAuthConnector {
     private _client: ClientOAuth2;
     private _name: string;
     private _token: IOAuth2Token;
-    private _scope: IConnectorConfigScope[] = [{ name: 'bills'}, { name: 'invoices'}];
+    private _scope: IConnectorConfigScope[] = [{ name: 'bills'}, { name: 'invoices'}, { name: 'purchases'}];
     private _realmId?: string;
     private _companyInfo: any;
 

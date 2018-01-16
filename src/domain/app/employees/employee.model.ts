@@ -30,7 +30,7 @@ EmployeeSchema.statics.createNew = function(employeeInput: IEmployeeInput): Prom
     const that = this;
 
     return new Promise<IEmployeeDocument>((resolve, reject) => {
-        if (!employeeInput.firstName || !employeeInput.lastName || !employeeInput.middleName ) {
+        if (!employeeInput.firstName || !employeeInput.lastName) {
             return reject('Information not valid');
         }
 
@@ -58,7 +58,7 @@ EmployeeSchema.statics.updateEmployee = function(_id: string, employeeInput: IEm
     const that = <IEmployeeModel> this;
 
     return new Promise<IEmployeeDocument>((resolve, reject) => {
-        if (!employeeInput.firstName || !employeeInput.lastName || !employeeInput.middleName) {
+        if (!employeeInput.firstName || !employeeInput.lastName) {
             return reject('Information not valid');
         }
 
