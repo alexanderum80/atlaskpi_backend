@@ -1,8 +1,11 @@
+import { IEmploymentInfo } from '../../domain/common/employment-info.model';
+import { resolver } from '../../framework/decorators/resolver.decorator';
 import { type } from '../../framework/decorators/type.decorator';
 import { input } from '../../framework/decorators/input.decorator';
 import { field } from '../../framework/decorators/field.decorator';
 import { GraphQLTypesMap } from '../../framework/decorators/graphql-types-map';
 import { ErrorDetails } from '../../framework/graphql/common.types';
+import * as moment from 'moment';
 
 @input()
 export class EmploymentInfoInput  {
@@ -81,6 +84,9 @@ export class EmploymentInfo  {
 
     @field({ type: GraphQLTypesMap.String })
     rate: string;
+
+    @resolver({ forField: 'startDate' })
+    static resolveStartDate = (entity: IEmploymentInfo) => moment(entity.startDate, 'MM/DD/YYYY').format('MM/DD/YYYY')
 
 }
 
