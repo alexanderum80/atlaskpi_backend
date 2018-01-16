@@ -25,6 +25,8 @@ export const ExpressionTreeTypes = {
 
 export class CompositeKpi implements IKpiBase {
 
+    private _dateRange: IDateRange[];
+
     constructor(
         private _kpi: IKPIDocument,
         private _kpiFactory: KpiFactory,
@@ -32,10 +34,16 @@ export class CompositeKpi implements IKpiBase {
 
     // constructor(private _kpi: IKPIDocument, private ctx: IAppModels) { }
 
-    getData(): Promise<any> {
+    getData(dateRange: IDateRange[], options?: IGetDataOptions): Promise<any> {
+        this._dateRange = dateRange;
         const exp: jsep.IExpression = jsep(this._kpi.expression);
         return this._processExpression(exp);
     }
+
+    // getData(): Promise<any> {
+    //     const exp: jsep.IExpression = jsep(this._kpi.expression);
+    //     return this._processExpression(exp);
+    // }
 
     getTargetData(): Promise<any> {
         const exp: jsep.IExpression = jsep(this._kpi.expression);
@@ -73,7 +81,19 @@ export class CompositeKpi implements IKpiBase {
         return new Promise<any>((resolve, reject) => {
             this._kpis.model.findOne({ _id: id }).then(kpiDocument => {
                 const kpi = that._kpiFactory.getInstance(kpiDocument);
-                const getDateRange: IDateRange = this._processChartDateRange(kpiDocument.dateRange);
+                let getDateRange: IDateRange;
+
+                if (that._dateRange && that._dateRange.length > 0) {
+                    getDateRange = that._dateRange[0];
+                } else {
+                    getDateRange = this._processChartDateRange(kpiDocument.dateRange);
+                }
+
+                if (!getDateRange) {
+                    console.error('Compound kpi without a date range cannot be proccessed');
+                    return;
+                }
+
                 const dateRange = Array.isArray(getDateRange) ? getDateRange : [getDateRange];
                 const options: IGetDataOptions = {
                     filter: kpiDocument.filter,
