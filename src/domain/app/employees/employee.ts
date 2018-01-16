@@ -38,7 +38,7 @@ export interface IEmployeeInput {
 export interface IEmployeeDocument extends IEmployee, mongoose.Document {
 }
 
-export interface IEmployeeModel extends mongoose.Model<IEmployeeDocument> { 
+export interface IEmployeeModel extends mongoose.Model<IEmployeeDocument> {
     createNew(employeeInput: IEmployeeInput): Promise<IEmployeeDocument>;
     updateEmployee(id: string, employeeInput: IEmployeeInput): Promise<IEmployeeDocument>;
     employees(): Promise<IEmployeeDocument[]>;
