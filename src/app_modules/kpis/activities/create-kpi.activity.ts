@@ -7,7 +7,7 @@ import { injectable, inject } from 'inversify';
 @injectable()
 export class CreateKPIActivity implements IActivity {
 
-    constructor(@inject(CurrentUser.name) private _user) {}
+    constructor(@inject(CurrentUser.name) private _user: CurrentUser) {}
 
     check(): Promise<boolean> {
         return Promise.resolve(
