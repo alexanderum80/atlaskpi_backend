@@ -145,8 +145,8 @@ SalesSchema.statics.findByPredefinedDateRange = function(predefinedDateRange: st
 SalesSchema.statics.amountByDateRange = function(fromDate: Date, toDate: Date): Promise<Object> {
     const SalesModel = (<ISaleModel>this);
 
-    const from = moment(fromDate).utc().subtract(1, 'month').startOf('day').toDate();
-    const to = moment(fromDate).utc().startOf('day').toDate();
+    const from = moment(fromDate).utc().toDate();
+    const to = moment(toDate).utc().toDate();
 
     return new Promise<Object>((resolve, reject) => {
         SalesModel.aggregate({ '$match': { 'product.from': { '$gte': from, '$lt': to } } },
@@ -174,7 +174,7 @@ SalesSchema.statics.monthsAvgSales = function(date: string): Promise<Object> {
     return new Promise<Object>((resolve, reject) => {
         SalesModel.aggregate({ '$group': { '_id': { 'year': { '$year': '$product.from' }, 'month': { '$month': '$product.from' } }, 'amount': { '$sum': '$product.paid' } } },
                         { '$match': { '_id.year': { '$lt': _year } , '_id.month': _month } } ,
-                        { '$group': { '_id': null, 'amount': { '$avg': '$amount' } } })
+                        { '$group': { '_id': '$_id.month', 'amount': { '$avg': '$amount' } } })
         .then(sales => {
             resolve(sales);
         })
