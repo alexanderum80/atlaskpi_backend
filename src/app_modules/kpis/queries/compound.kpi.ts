@@ -20,12 +20,14 @@ type KpiOperators = {
 export const ExpressionTreeTypes = {
     binary: 'BinaryExpression',
     identifier: 'Identifier',
-    literal: 'Literal'
+    literal: 'Literal',
+    CallExpression: 'CallExpression'
 };
 
 export class CompositeKpi implements IKpiBase {
 
     private _dateRange: IDateRange[];
+    private _getDataOptions: IGetDataOptions;
 
     constructor(
         private _kpi: IKPIDocument,
@@ -36,6 +38,8 @@ export class CompositeKpi implements IKpiBase {
 
     getData(dateRange: IDateRange[], options?: IGetDataOptions): Promise<any> {
         this._dateRange = dateRange;
+        this._getDataOptions = options;
+
         const exp: jsep.IExpression = jsep(this._kpi.expression);
         return this._processExpression(exp);
     }
@@ -58,6 +62,8 @@ export class CompositeKpi implements IKpiBase {
                 return this._getKpiData((<jsep.IIdentifier>exp).name.replace('kpi', ''));
             case ExpressionTreeTypes.literal:
                 return Promise.resolve(+(<jsep.ILiteral>exp).value);
+            // case ExpressionTreeTypes.CallExpression:
+            //     return this._getCallExpressionData(exp);
         }
     }
 
@@ -95,17 +101,31 @@ export class CompositeKpi implements IKpiBase {
                 }
 
                 const dateRange = Array.isArray(getDateRange) ? getDateRange : [getDateRange];
-                const options: IGetDataOptions = {
-                    filter: kpiDocument.filter,
-                    frequency: FrequencyTable[kpiDocument.frequency],
-                    groupings: getGroupingMetadata(null, kpiDocument.groupings)
-                };
+
+                let options: IGetDataOptions;
+
+                if (this._getDataOptions) {
+                    options = this._getDataOptions;
+                } else {
+                    options = {
+                        filter: kpiDocument.filter,
+                        frequency: FrequencyTable[kpiDocument.frequency],
+                        groupings: getGroupingMetadata(null, kpiDocument.groupings)
+                    };
+                }
 
                 kpi.getData(dateRange, options)
                     .then(res => resolve(res))
                     .catch(e => reject(e));
             });
         });
+    }
+
+    private _getCallExpressionData(exp) {
+        // call expression should be one of the following aggregate functions
+        // SUM, MAX, MIN, AVG, COUNT
+
+        debugger;
     }
 
     private _processChartDateRange(chartDateRange: IChartDateRange): IDateRange {
