@@ -9,23 +9,28 @@ interface ICallRailInput {
     accountId: string;
     apiKey;
 }
-
 interface ICallRailHeader {
     Authorization: string;
-}
-interface ICallRailRequestData {
-    url: string;
-    headers: ICallRailHeader;
 }
 
 interface IGetUserNameResponse {
     name: string;
 }
+interface ICallrailIntegration {
+    endpoint: string;
+}
+interface IConfig {
+    callrailIntegration: ICallrailIntegration;
+    requiredAuthScope: string;
+    queryFields: string[];
+    callsApiUrl: string;
+    usersApiUrl: string;
+}
 
 @injectable()
 export class CallRailService {
 
-    private _config: any;
+    private _config: IConfig;
 
     constructor(@inject(Connectors.name) private _connectorModel: Connectors) {}
 
