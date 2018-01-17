@@ -47,7 +47,7 @@ export class CallRailService {
     validateCredentials(input: ICallRailInput): Promise<boolean> {
         const that = this;
         return new Promise<boolean>((resolve, reject) => {
-            const url = `${that._config.callrailIntegration.endpoint}/${input.accountId}${that._config.usersApiUrl}`;
+            const url = `${that._config.callrailIntegration.endpoint}/${input.accountId}.json`;
             const headers = {
                 Authorization: 'Token token=' + input.apiKey
             };
@@ -68,7 +68,7 @@ export class CallRailService {
         const that = this;
 
         return new Promise<IGetUserNameResponse>((resolve, reject) => {
-            const url = `${that._config.callrailIntegration.endpoint}/${input.accountId}/${that._config.usersApiUrl}`;
+            const url = `${that._config.callrailIntegration.endpoint}/${input.accountId}.json`;
             const headers = {
                 Authorization: 'Token token=' + input.apiKey
             };
@@ -79,13 +79,13 @@ export class CallRailService {
                 headers: headers
             }, (error, response, body) => {
                 const data = JSON.parse(body);
-                const findAdminUser = data.users.find(d => d.role === 'admin');
-                if (!findAdminUser) {
+                const user = data.name;
+                if (!user) {
                     resolve({ name: 'callrail' });
                     return;
                 }
 
-                resolve({ name: findAdminUser.name });
+                resolve({ name: user });
                 return;
             });
         });
