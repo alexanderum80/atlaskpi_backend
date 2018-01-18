@@ -28,6 +28,7 @@ export class CompositeKpi implements IKpiBase {
 
     private _dateRange: IDateRange[];
     private _getDataOptions: IGetDataOptions;
+    private _compositeMetaData: any[] = [];
 
     constructor(
         private _kpi: IKPIDocument,
@@ -83,13 +84,27 @@ export class CompositeKpi implements IKpiBase {
 
     private _getKpiData(id: string): Promise<any> {
         const that = this;
-
+        /**
+         * it would come here and inside the promise, but never reach the resolver
+         * i (chris) pushed the date ranges for each kpi
+         * filter each kpi after assign getDateRange, so i do not get same object
+         */
+        if ((this instanceof CompositeKpi) && this._kpi.type === 'complex') {
+            this._compositeMetaData.push({
+                id: id,
+                dateRange: this._dateRange
+            });
+        }
         return new Promise<any>((resolve, reject) => {
             this._kpis.model.findOne({ _id: id }).then(kpiDocument => {
                 const kpi = that._kpiFactory.getInstance(kpiDocument);
                 let getDateRange: IDateRange;
 
-                if (that._dateRange && that._dateRange.length > 0) {
+                if (that._compositeMetaData.length) {
+                    const findMetaData = that._compositeMetaData.find(composite => composite.id === id);
+                    getDateRange = findMetaData.dateRange;
+                    that._compositeMetaData = that._compositeMetaData.filter(composite => composite.id !== id);
+                } else if (that._dateRange && that._dateRange.length > 0) {
                     getDateRange = that._dateRange[0];
                 } else {
                     getDateRange = this._processChartDateRange(kpiDocument.dateRange);
