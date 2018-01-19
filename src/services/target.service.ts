@@ -200,7 +200,9 @@ export class TargetService {
                     if (!groupings || !groupings.length || !groupings[0]) {
                         kpi.getData([that.getDate(input.period)], { filter: chart.filter})
                             .then(response => {
-                                resolve(response);
+                                let findValue = response.find(r => r.value);
+                                let responseValue = findValue ? findValue.value : 0;
+                                resolve(responseValue);
                                 return;
                             }).catch(err => reject(err));
                         return;
