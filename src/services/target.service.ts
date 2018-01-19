@@ -53,8 +53,8 @@ export class TargetService {
                 .then((chart) => {
                     that.chartInfo = chart;
                     that.isStacked = ((chart.chartDefinition.chart.type === 'column') &&
-                        (chart.groupings[0] === chart.xAxisSource)) ?
-                        true : false;
+                        (chart.groupings[0] === chart.xAxisSource)) ||
+                        (chart.groupings.length && !chart.frequency && !chart.xAxisSource);
 
                     let kpi = that._kpiFactory.getInstance(chart.kpis[0]);
                     let groupings = getGroupingMetadata(chart, chart.groupings ? chart.groupings : []);
