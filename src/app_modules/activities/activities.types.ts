@@ -143,6 +143,29 @@ export class ExpensesAmount {
 }
 
 @type()
+export class UsersActivity {
+    @field({ type: GraphQLTypesMap.String })
+    _id: string;
+
+    @field({ type: GraphQLTypesMap.String })
+    timestamp: string;
+
+    @field({ type: GraphQLTypesMap.String })
+    accessBy: string;
+
+    @field({ type: GraphQLTypesMap.String })
+    event: string;
+
+    @field({ type: GraphQLTypesMap.String })
+    eventType: string;
+
+    @field({ type: GraphQLTypesMap.String })
+    payload: string;
+
+
+}
+
+@type()
 export class ActivitiesMutationResponse  {
     @field({ type: GraphQLTypesMap.Boolean })
     success: boolean;

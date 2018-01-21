@@ -160,6 +160,13 @@ export interface IUserModel extends mongoose.Model<IUserDocument> {
      * @return {Promise<IUserDocument>}
      */
     findByUsername(username: string): Promise<IUserDocument>;
+        /**
+     * Finds the user with the specified Full Name but if more than one user matches the case insensitive search, it returns null.
+     * @param {string} firstName - the firstName to look for
+     * @param {string} lastName - the firstName to look for
+     * @return {Promise<IUserDocument>}
+     */
+    findByFullName(firstName: string, lastName: string): Promise<IUserDocument>;
      /**
      * Finds the user with the specified username but if more than one user matches the case insensitive search, it returns null.
      * @param {string} username - the username to look for

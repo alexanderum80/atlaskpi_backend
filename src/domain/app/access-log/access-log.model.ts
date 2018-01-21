@@ -1,6 +1,8 @@
 import * as Promise from 'bluebird';
 import { inject, injectable } from 'inversify';
 import * as mongoose from 'mongoose';
+import * as moment from 'moment';
+
 import { field } from '../../../framework/decorators/field.decorator';
 import { IMutationResponse } from '../../../framework/mutations/mutation-response';
 import { ModelBase } from '../../../type-mongo/model-base';
@@ -48,6 +50,27 @@ AccessLogSchema.statics.createLog = function(details: IAccessLogEntry): Promise 
 AccessLogSchema.statics.getAllAccessLogs = function(filter: string): Promise < IAccessLogDocument[] > {
     return new Promise < IAccessLogDocument[] > ((resolve, reject) => {
         ( < IAccessLogModel > this).find({})
+            .then((accessLog) => {
+                return resolve(accessLog);
+            }).catch((err) => {
+                reject({
+                    errors: [{
+                        field: 'accessLog',
+                        errors: ['Not found']
+                    }],
+                    data: null
+                });
+            });
+    });
+};
+
+AccessLogSchema.statics.getAccessLogsByDate = function(fromDate: string, toDate: string): Promise < IAccessLogDocument[] > {
+
+    const from = moment(fromDate).utc().toDate();
+    const to = moment(toDate).utc().toDate();
+
+    return new Promise < IAccessLogDocument[] > ((resolve, reject) => {
+        ( < IAccessLogModel > this).find({ timestamp: { '$gte': from, '$lt': to }, eventType: { '$ne': 'query' } })
             .then((accessLog) => {
                 return resolve(accessLog);
             }).catch((err) => {

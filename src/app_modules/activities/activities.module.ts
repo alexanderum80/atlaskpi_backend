@@ -5,6 +5,7 @@ import { SalesAmountByDateRangeQuery } from './querys/sales-amount-by-date.query
 import { AppModule, ModuleBase } from '../../framework/decorators/app-module';
 import { TargetByDateQuery } from './querys/target-by-date.query';
 import { MonthAvgSalesQuery } from './querys/month-avg-sales.query';
+import { UsersActivityByDateRangeQuery } from './querys/users-activity-by-date.query';
 
 @AppModule({
     queries: [
@@ -13,7 +14,8 @@ import { MonthAvgSalesQuery } from './querys/month-avg-sales.query';
         ExpensesAmountByDateRangeQuery,
         TargetByDateQuery,
         MonthAvgSalesQuery,
-        MonthAvgExpensesQuery
+        MonthAvgExpensesQuery,
+        UsersActivityByDateRangeQuery
     ]
 })
 export class ActivitiesModule extends ModuleBase { }
