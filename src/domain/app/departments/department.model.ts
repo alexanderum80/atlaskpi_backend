@@ -5,13 +5,16 @@ import * as logger from 'winston';
 
 import { ModelBase } from '../../../type-mongo/model-base';
 import { AppConnection } from '../app.connection';
+import { tagsPlugin } from '../tags/tag.plugin';
 import { IDepartmentDocument, IDepartmentModel } from './department';
 
-
 const DepartmentSchema = new mongoose.Schema({
-    name: String,
+    name: { type: String, unique: true, required: true },
     manager: String
-   });
+});
+
+// add tags capabilities
+DepartmentSchema.plugin(tagsPlugin);
 
 DepartmentSchema.statics.createNew = function(name: string, manager: string): Promise<IDepartmentDocument> {
     const that = <IDepartmentModel> this;
