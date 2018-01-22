@@ -2,11 +2,11 @@ import * as Promise from 'bluebird';
 import { injectable } from 'inversify';
 import { isObject, sortBy } from 'lodash';
 import * as mongoose from 'mongoose';
-
+import { SaleSchema } from '../../../domain/app/sales/sale.model';
 import { ExpenseSchema } from '../../../domain/app/expenses/expense.model';
 import { InventorySchema } from '../../../domain/app/inventory/inventory.model';
+import { CallSchema } from '../../../domain/app/calls/call.model';
 import { IKPIDataSourceHelper } from '../../../domain/app/kpis/kpi';
-import { SaleSchema } from '../../../domain/app/sales/sale.model';
 import { field } from '../../../framework/decorators/field.decorator';
 import { readMongooseSchema } from '../../../helpers/mongodb.helpers';
 import { flatten } from '../../../helpers/object.helpers';
@@ -24,6 +24,10 @@ export const DataSourceSchemasMapping = [
     {
         name: 'inventory',
         definition: InventorySchema
+    },
+    {
+        name: 'calls',
+        definition: CallSchema
     }
 ];
 

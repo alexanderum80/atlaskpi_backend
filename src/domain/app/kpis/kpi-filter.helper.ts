@@ -1,3 +1,4 @@
+import { CallSchema } from '../calls/call.model';
 import { isArray, isObject } from 'lodash';
 
 import { isArrayObject } from '../../../helpers/express.helpers';
@@ -13,7 +14,8 @@ const Schemas = [
       SaleSchema,
       ExpenseSchema,
       InventorySchema,
-      GoogleAnalyticsSchema
+      GoogleAnalyticsSchema,
+      CallSchema
 ];
 
 const replacementStrings = [
