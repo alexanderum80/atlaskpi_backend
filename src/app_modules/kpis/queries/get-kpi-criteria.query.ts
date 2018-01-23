@@ -1,6 +1,7 @@
 import { Inventory } from './../../../domain/app/inventory/inventory.model';
 import { Expenses } from '../../../domain/app/expenses/expense.model';
 import { Sales } from '../../../domain/app/sales/sale.model';
+import { Calls } from '../../../domain/app/calls/call.model';
 import { KPICriteriaResult } from '../kpis.types';
 import { GetKpiCriteriaActivity } from '../activities/get-kpi-criteria.activity';
 import { inject, injectable } from 'inversify';
@@ -23,14 +24,16 @@ export class GetKpisCriteriaQuery implements IQuery<any> {
     constructor(
         @inject(Sales.name) private _sales: Sales,
         @inject(Expenses.name) private _expenses: Expenses,
-        @inject(Inventory.name) private _inventory: Inventory) {}
+        @inject(Inventory.name) private _inventory: Inventory,
+        @inject(Calls.name) private _calls: Calls) {}
 
     run(data: { kpi: string, field: string}): Promise<any> {
         const that = this;
         const kpiMapper = {
             'sales': this._sales,
             'expenses': this._expenses,
-            'inventory': this._inventory
+            'inventory': this._inventory,
+            'calls': this._calls
         };
 
         return new Promise<any>((resolve, reject) => {
