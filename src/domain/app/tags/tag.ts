@@ -6,4 +6,6 @@ export interface ITag {
 
 export interface ITagDocument extends ITag, mongoose.Document { }
 
-export interface ITagModel extends mongoose.Model<ITagDocument> { }
+export interface ITagModel extends mongoose.Model<ITagDocument> {
+    saveNewTags(tags: string[]);
+}

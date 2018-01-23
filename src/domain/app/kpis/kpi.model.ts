@@ -43,6 +43,16 @@ let KPISchema = new Schema({
 // add tags capabilities
 KPISchema.plugin(tagsPlugin);
 
+// KPISchema.pre('save', function(done) {
+//     console.log('******** pre save **********');
+//     done();
+// });
+
+// KPISchema.pre('save', function(done) {
+//     console.log('pre save kpi');
+//     done();
+// });
+
 KPISchema.statics.createKPI = function(input: IKPI): Promise<IKPIDocument> {
     const that = this;
 
@@ -86,17 +96,17 @@ KPISchema.statics.updateKPI = function(id: string, input: IKPI): Promise<IKPIDoc
     const that = this;
 
     return new Promise<IKPIDocument>((resolve, reject) => {
-        let constraints = {
-            name: { presence: { message: '^cannot be blank' }},
-            expression: { presence: { message: '^cannot be blank' } },
-            type: { presence: { message: '^cannot be blank' } }
-        };
+        // let constraints = {
+        //     name: { presence: { message: '^cannot be blank' }},
+        //     expression: { presence: { message: '^cannot be blank' } },
+        //     type: { presence: { message: '^cannot be blank' } }
+        // };
 
-        let errors = (<any>validate)((<any>input), constraints, {fullMessages: false});
-        if (errors) {
-            reject(errors);
-            return;
-        }
+        // let errors = (<any>validate)((<any>input), constraints, {fullMessages: false});
+        // if (errors) {
+        //     reject(errors);
+        //     return;
+        // }
 
         input.code = input.name;
         let kpiType = KPITypeMap[input.type];
