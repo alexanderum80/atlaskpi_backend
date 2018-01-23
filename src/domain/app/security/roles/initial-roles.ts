@@ -25,7 +25,7 @@ export const initialRoles  = {
             { action: 'Activity', subject: 'Feed' },
             { action: 'Import/Add', subject: 'Data' },
             { action: 'Add New', subject: 'DashboardTab' },
-            { action: 'Manage', subject: 'BusinessUnits' },
+            { action: 'Manage', subject: 'BusinessUnit' },
             { action: 'View', subject: 'SecurityLog' },
             { action: 'Manage Access Levels', subject: 'Users' },
             { action: 'Assign Smi-Admin', subject: 'Access' },
@@ -40,11 +40,11 @@ export const initialRoles  = {
             // appointments
             { action: 'View', subject: 'Appointment' },
             // datasource
-            { action: 'Create', subject: 'DataSource' },
-            { action: 'View', subject: 'DataSource' },
-            { action: 'Modify', subject: 'DataSource' },
-            { action: 'Delete', subject: 'DataSource' },
-            { action: 'Manage', subject: 'DataSource' },
+            { action: 'Create', subject: 'Connector' },
+            { action: 'View', subject: 'Connector' },
+            { action: 'Modify', subject: 'Connector' },
+            { action: 'Delete', subject: 'Connector' },
+            { action: 'Manage', subject: 'Connector' },
             // employee
             { action: 'Create', subject: 'Employee' },
             { action: 'View', subject: 'Employee' },
@@ -92,9 +92,9 @@ export const initialRoles  = {
             { action: 'Import/Add', subject: 'Data' },
             { action: 'View Library', subject: 'KPI' },
             { action: 'Add New', subject: 'DashboardTab' },
-            { action: 'Manage', subject: 'DataSource' },
+            { action: 'Manage', subject: 'Connector' },
             { action: 'Manage', subject: 'KPI' },
-            { action: 'Manage', subject: 'BusinessUnits' },
+            { action: 'Manage', subject: 'BusinessUnit' },
             { action: 'View', subject: 'SecurityLog' },
             { action: 'Manage Access Levels', subject: 'Users' },
             { action: 'Billing Information', subject: 'Billing' },
@@ -108,10 +108,10 @@ export const initialRoles  = {
             // appointments
             { action: 'View', subject: 'Appointment' },
             // datasource
-            { action: 'Create', subject: 'DataSource' },
-            { action: 'View', subject: 'DataSource' },
-            { action: 'Modify', subject: 'DataSource' },
-            { action: 'Delete', subject: 'DataSource' },
+            { action: 'Create', subject: 'Connector' },
+            { action: 'View', subject: 'Connector' },
+            { action: 'Modify', subject: 'Connector' },
+            { action: 'Delete', subject: 'Connector' },
             // employee
             { action: 'Create', subject: 'Employee' },
             { action: 'View', subject: 'Employee' },
@@ -166,9 +166,9 @@ export const initialRoles  = {
             // appointments
             { action: 'View', subject: 'Appointment' },
             // datasource
-            { action: 'Create', subject: 'DataSource' },
-            { action: 'View', subject: 'DataSource' },
-            { action: 'Modify', subject: 'DataSource' },
+            { action: 'Create', subject: 'Connector' },
+            { action: 'View', subject: 'Connector' },
+            { action: 'Modify', subject: 'Connector' },
             // employee
             { action: 'Create', subject: 'Employee' },
             { action: 'View', subject: 'Employee' },
@@ -207,12 +207,13 @@ export const initialRoles  = {
             // widgets
             { action: 'View', subject: 'Widget' },
             { action: 'Create', subject: 'Widget' },
+            { action: 'Modify', subject: 'Widget' },
             { action: 'Clone', subject: 'Widget' },
             // appointments
             { action: 'View', subject: 'Appointment' },
             // datasource
-            { action: 'Create', subject: 'DataSource' },
-            { action: 'View', subject: 'DataSource' },
+            { action: 'Create', subject: 'Connector' },
+            { action: 'View', subject: 'Connector' },
             // employee
             { action: 'Create', subject: 'Employee' },
             { action: 'View', subject: 'Employee' },
@@ -346,44 +347,44 @@ export const allPermissions = [
   // DATASOURCE
   {
     'action': 'Create',
-    'subject': 'DataSource'
+    'subject': 'Connector'
   },
   {
     'action': 'View',
-    'subject': 'DataSource'
+    'subject': 'Connector'
   },
   {
     'action': 'Modify',
-    'subject': 'DataSource'
+    'subject': 'Connector'
   },
   {
     'action': 'Delete',
-    'subject': 'DataSource'
+    'subject': 'Connector'
   },
   {
     'action': 'Manage',
-    'subject': 'DataSource'
+    'subject': 'Connector'
   },
   // BUSINESS UNITS
   {
     'action': 'Create',
-    'subject': 'BusinessUnits'
+    'subject': 'BusinessUnit'
   },
   {
     'action': 'View',
-    'subject': 'BusinessUnits'
+    'subject': 'BusinessUnit'
   },
   {
     'action': 'Modify',
-    'subject': 'BusinessUnits'
+    'subject': 'BusinessUnit'
   },
   {
     'action': 'Delete',
-    'subject': 'BusinessUnits'
+    'subject': 'BusinessUnit'
   },
   {
     'action': 'Manage',
-    'subject': 'BusinessUnits'
+    'subject': 'BusinessUnit'
   },
   {
     'action': 'View',
