@@ -7,7 +7,7 @@ import { AppConnection } from '../app.connection';
 import { ISocialNetworkModel } from './social-network';
 
 const SocialNetworkSchema = new mongoose.Schema({
-    refId: String!,
+    refId: { type: String, unique: true },
     name: String!,
     date: { type: Date, default: new Date(moment().utc().format('YYYY-MM-DD')) },
     source: String!,

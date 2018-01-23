@@ -7,15 +7,16 @@ import { input } from '../../../framework/decorators/input.decorator';
 import { ModelBase } from '../../../type-mongo/model-base';
 import { AppConnection } from '../app.connection';
 import { ISlideshowDocument, ISlideshowInput, ISlideshowModel } from './slideshow';
-
-
+import { tagsPlugin } from '../tags/tag.plugin';
 
 const SlideshowSchema = new mongoose.Schema({
-
-    name: String,
+    name: { type: String, required: true, unique: true },
     description: String,
     charts: [String]
 });
+
+// add tags capabilities
+SlideshowSchema.plugin(tagsPlugin);
 
 SlideshowSchema.statics.createSlideshow = function(input: ISlideshowInput): Promise<ISlideshowDocument> {
     const that = <ISlideshowModel> this;
