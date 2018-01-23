@@ -1,3 +1,4 @@
+import { Calls } from './calls/call.model';
 import { Inventory } from './inventory/inventory.model';
 import { CurrentAccount } from './../master/current-account';
 import { IBridgeContainer } from '../../framework/di/bridge-container';
@@ -42,6 +43,7 @@ const registrations: any[] = [
     AccessLogs,
     Appointments,
     BusinessUnits,
+    Calls,
     Charts,
     Customers,
     Dashboards,

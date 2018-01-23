@@ -1,3 +1,4 @@
+import { Calls } from '../../../domain/app/calls/call.model';
 import { SimpleKPIBase } from './simple-kpi-base';
 import { Expenses } from '../../../domain/app/expenses/expense.model';
 import { Inventory } from '../../../domain/app/inventory/inventory.model';
@@ -32,6 +33,10 @@ const CollectionsMapping = {
     inventory: {
         modelName: 'Inventory',
         timestampField: 'updatedAt'
+    },
+    calls: {
+        modelName: 'Call',
+        timestampField: 'created_at'
     }
 };
 
@@ -40,7 +45,8 @@ export class SimpleKPI extends SimpleKPIBase implements IKpiBase {
     public static CreateFromExpression( kpi: IKPIDocument,
                                         sales: Sales,
                                         expenses: Expenses,
-                                        inventory: Inventory
+                                        inventory: Inventory,
+                                        calls: Calls
                                     ): SimpleKPI {
         const simpleKPIDefinition: IKPISimpleDefinition = KPIExpressionHelper.DecomposeExpression(KPITypeEnum.Simple, kpi.expression);
 
@@ -51,6 +57,7 @@ export class SimpleKPI extends SimpleKPIBase implements IKpiBase {
             Sale: sales.model,
             Expense: expenses.model,
             Inventory: inventory.model,
+            Call: calls.model
         };
 
         const model = models[collection.modelName];
