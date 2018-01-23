@@ -34,7 +34,6 @@ export class IntegrationController {
                 @inject(IntegrationConnectorFactory.name) private _integrationConnectorFactory: IntegrationConnectorFactory,
                 @inject(SocialNetwork.name) private _socialNetworkModel: SocialNetwork,
                 @inject('Request') private req: IExtendedRequest,
-                @inject('Config') private _config: IAppConfig,
                 @inject(Logger.name) private _logger: Logger) {
 
         this._query = req.query;
