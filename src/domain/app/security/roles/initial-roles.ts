@@ -430,7 +430,7 @@ export const allPermissions = [
   // APPOINTMENT
   {
     'action': 'View',
-    'subject': 'Appointments'
+    'subject': 'Appointment'
   },
   // LOCATION
   {

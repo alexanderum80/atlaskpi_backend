@@ -1,7 +1,7 @@
 import * as Promise from 'bluebird';
 import { inject, injectable } from 'inversify';
 import { BasicRoleChecker } from '../../../services/security.service';
-import { CurrentUser } from '../../../domain/app/current-user'
+import { CurrentUser } from '../../../domain/app/current-user';
 import { IActivity } from '../../../framework/modules/security/activity';
 
 @injectable()
@@ -11,7 +11,7 @@ export class ListAppointmentsActivity implements IActivity {
 
     check(): Promise<boolean> {
         return Promise.resolve(
-            BasicRoleChecker.hasPermission(this._user, 'View', 'Appointments')
+            BasicRoleChecker.hasPermission(this._user, 'View', 'Appointment')
         );
     }
 }
