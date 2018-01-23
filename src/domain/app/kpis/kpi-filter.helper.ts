@@ -183,6 +183,8 @@ export class KPIFilterHelper {
                 return Number(value);
             case 'Date':
                 return new Date(value);
+            case 'Boolean':
+                return Boolean(value === 'true' || value === true);
             default:
                 return String(value);
         }
