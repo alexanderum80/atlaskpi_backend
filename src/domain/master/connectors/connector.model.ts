@@ -1,4 +1,3 @@
-import { IConnectorDocument } from './../../../../data/models/master/connectors/IConnector';
 import * as Promise from 'bluebird';
 import { inject, injectable } from 'inversify';
 import mongoose = require('mongoose');
