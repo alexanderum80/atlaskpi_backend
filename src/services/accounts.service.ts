@@ -111,25 +111,22 @@ export class AccountsService {
                     return;
                 }
 
-                createClusterDbUserIfNeeded(that._logger, that._config.mongoDBAtlasCredentials, newAccount, accountDbUser)
-                    .then(success => createUserDatabase(
-                        that._req,
-                        that._config,
-                        that._accounts,
-                        that._logger,
-                        newAccount,
-                        input,
-                        firstUserInfo,
-                        accountDatabaseName,
-                        that._config.newAccountDbUriFormat,
-                        that._appConnectionPool,
-                        that._enrollmentNotification,
-                        that._config.subdomain)
-                        .then(result => {
-                            resolve(result);
-                        })
-                        .catch(err => reject(err))
-                    )
+                createUserDatabase(
+                    that._req,
+                    that._config,
+                    that._accounts,
+                    that._logger,
+                    newAccount,
+                    input,
+                    firstUserInfo,
+                    accountDatabaseName,
+                    that._config.newAccountDbUriFormat,
+                    that._appConnectionPool,
+                    that._enrollmentNotification,
+                    that._config.subdomain)
+                    .then(result => {
+                        resolve(result);
+                    })
                     .catch(err => reject(err));
             });
         });
@@ -182,23 +179,23 @@ function getClusterDbUser(hash: string, databaseName: string): IClusterUser {
 }
 
 
-function createClusterDbUserIfNeeded(logger: Logger, mongodbCredentials: IMongoDBAtlasCredentials, account: IAccountDocument, dbUser: IClusterUser): Promise < boolean > {
-    const that = this;
+// function createClusterDbUserIfNeeded(logger: Logger, mongodbCredentials: IMongoDBAtlasCredentials, account: IAccountDocument, dbUser: IClusterUser): Promise < boolean > {
+//     const that = this;
 
-    return new Promise < boolean > ((resolve, reject) => {
-        // Create a db user if it's in production
-        if (mongodbCredentials && !IsNullOrWhiteSpace(mongodbCredentials.api_key)) {
-            logger.info('MongoDBAtlas api_key found, creating MongoDBAtlas user...');
-            account.createAccountDbUser(dbUser, mongodbCredentials)
-                .then((value) => resolve(value))
-                .catch((err) => reject(err));
-        } else {
-            // Local db... no need to create a db user;
-            logger.debug('MongoDBAtlas api_key not found, assuming backend is not in prod_mode...');
-            resolve(true);
-        }
-    });
-}
+//     return new Promise < boolean > ((resolve, reject) => {
+//         // Create a db user if it's in production
+//         if (mongodbCredentials && !IsNullOrWhiteSpace(mongodbCredentials.api_key)) {
+//             logger.info('MongoDBAtlas api_key found, creating MongoDBAtlas user...');
+//             account.createAccountDbUser(dbUser, mongodbCredentials)
+//                 .then((value) => resolve(value))
+//                 .catch((err) => reject(err));
+//         } else {
+//             // Local db... no need to create a db user;
+//             logger.debug('MongoDBAtlas api_key not found, assuming backend is not in prod_mode...');
+//             resolve(true);
+//         }
+//     });
+// }
 
 function createUserDatabase(
     req: IExtendedRequest,

@@ -28,7 +28,7 @@ export const DataSourceSchemasMapping = [
 ];
 
 const BlackListedFieldNames = [
-    'source',
+    // 'source',
     'externalId',
     'document.type',
     'document.identifier'
