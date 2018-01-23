@@ -80,7 +80,6 @@ export class GoogleAnalyticsKpi extends SimpleKPIBase implements IKpiBase {
     }
 
     getData(dateRange?: IDateRange[], options?: IGetDataOptions): Promise<any> {
-        mongoose.set('debug', true);
         const firstDateRange = dateRange && dateRange[0];
 
         const startDate = moment(firstDateRange.from).format('YYYY-MM-DD');
@@ -99,7 +98,6 @@ export class GoogleAnalyticsKpi extends SimpleKPIBase implements IKpiBase {
     }
 
     private _cacheData(dateRange?: IDateRange[], options?: IGetDataOptions, filterGroupungs?: string[]): Promise<IBatchProperties> {
-        mongoose.set('debug', true);
         const firstDateRange = dateRange && dateRange[0];
 
         const startDate = moment(firstDateRange.from).format('YYYY-MM-DD');
