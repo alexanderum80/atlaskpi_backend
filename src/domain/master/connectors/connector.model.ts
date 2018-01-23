@@ -1,3 +1,4 @@
+import { IConnectorDocument } from './../../../../data/models/master/connectors/IConnector';
 import * as Promise from 'bluebird';
 import { inject, injectable } from 'inversify';
 import mongoose = require('mongoose');
@@ -15,39 +16,36 @@ const ConnectorSchema = new Schema({
     type: String!,
     active: Boolean,
     config: mongoose.Schema.Types.Mixed,
+    task: mongoose.Schema.Types.Mixed,
     ... userAuditSchema
 });
 
 ConnectorSchema.statics.addConnector = function(data: IConnector): Promise<IConnectorDocument> {
+    if (!data) { return Promise.reject('cannot add a document with, empty payload'); }
     const that = this;
     return new Promise<IConnectorDocument>((resolve, reject) => {
-        if (!data) { reject({ message: 'no data provided'}); }
-        const findOneKey = data.uniqueKeyValue;
+        const query = {
+            'type': data.type,
+            [data.uniqueKeyValue.key]: data.uniqueKeyValue.value,
+            databaseName: data.databaseName
+        };
 
-        that.findOne({ 'type': data.type,
-                        [findOneKey.key]: findOneKey.value,
-                        databaseName: data.databaseName
-        }, (err, doc) => {
-            if (err) {
-                reject({ message: 'unknown error', error: err });
-                return;
+        that.findOne(query).then((connector: IConnectorDocument) => {
+            if (!connector) {
+                that.create(data)
+                    .then((newConnector: IConnectorDocument) => {
+                        resolve(newConnector);
+                        return;
+                    })
+                    .catch(err => {
+                        reject('cannot create connector: ' + err);
+                        return;
+                    });
             }
-            if (doc) {
-                that.update({
-                     'type': data.type,
-                     [findOneKey.key]: findOneKey.value,
-                     databaseName: data.databaseName
-                }, data)
-                .then(updateResp => {
-                    resolve(updateResp);
-                    return;
-                })
-                .catch(updateErr => reject(updateErr));
-                return;
-            }
-            that.create(data, (errCreate, connector: IConnectorDocument) => {
-                if (errCreate) {
-                    reject({ message: 'Not able to add connector', error: errCreate});
+
+            connector.update(data, (err, raw) => {
+                if (err) {
+                    reject('error updating connector: ' + err);
                     return;
                 }
                 resolve(connector);

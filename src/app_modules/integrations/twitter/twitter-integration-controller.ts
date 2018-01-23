@@ -2,6 +2,7 @@ import * as Promise from 'bluebird';
 import { inject, injectable } from 'inversify';
 import * as Twitter from 'node-twitter-api';
 
+import { IConnectorDocument } from '../../../domain/master/connectors/connector';
 import { loadIntegrationConfig } from '../models/load-integration-controller';
 import { Connectors } from './../../../domain/master/connectors/connector.model';
 
@@ -11,6 +12,7 @@ export class TwitterIntegrationController {
     private _twitter: Twitter;
     private _requestSecret: any;
     private _config: any;
+    private _integrationDocument: IConnectorDocument;
     private _companyName: string;
 
     constructor(@inject(Connectors.name) private _connectorModel: Connectors) {
@@ -30,9 +32,10 @@ export class TwitterIntegrationController {
                     return;
                 }
 
-                this._config = configDoc.config;
+                that._integrationDocument = configDoc;
+                that._config = configDoc.config;
 
-                this._twitter = new Twitter({
+                that._twitter = new Twitter({
                     consumerKey: this._config.consumerKey,
                     consumerSecret: this._config.consumerSecret,
                     callback: this._config.callbackUrl + this._companyName + '/access-token'
@@ -99,5 +102,9 @@ export class TwitterIntegrationController {
                 }
             });
         });
+    }
+
+    public get integrationDocument(): IConnectorDocument {
+        return this._integrationDocument;
     }
 }

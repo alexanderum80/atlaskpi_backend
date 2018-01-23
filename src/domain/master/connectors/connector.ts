@@ -4,6 +4,7 @@ import * as mongoose from 'mongoose';
 import { IOAuth2Token } from '../../common/oauth2-token';
 import { IUserAudit } from './../../common/audit.model';
 import { IKeyValuePair } from './../../common/key-value-pair';
+import { NameValuePair } from './../../common/name-value-pair';
 
 export interface IConnectorConfigScope {
     name: string;
@@ -19,6 +20,13 @@ export interface IConnectorConfig {
     accountId?: string;
 }
 
+export interface IConnectorTaskDefinition {
+    container: string;
+    schedule: string;
+    id: string;
+    environment?: NameValuePair[];
+}
+
 export interface IConnector extends IUserAudit {
     name: string;
     databaseName: string;
@@ -26,6 +34,7 @@ export interface IConnector extends IUserAudit {
     active: boolean;
     config: IConnectorConfig | any;
     uniqueKeyValue?: IKeyValuePair;
+    task?: IConnectorTaskDefinition;
 }
 
 export interface IConnectorDocument extends IConnector, mongoose.Document {}

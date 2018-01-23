@@ -1,24 +1,25 @@
 import * as Promise from 'bluebird';
 import { inject, injectable } from 'inversify';
 import { isObject } from 'util';
-import * as googleapis from 'googleapis';
 
-import { IAccountModel } from '../../../domain/master/accounts/Account';
+import { Logger } from '../../../domain/app/logger';
 import { IConnector, IConnectorDocument } from '../../../domain/master/connectors/connector';
 import { IExtendedRequest } from '../../../middlewares/extended-request';
 import { getFacebookConnection } from '../facebook/facebook-connection-handler';
 import { FacebookConnector } from '../facebook/facebook-connector';
 import { FacebookService } from '../facebook/facebook.service';
+import { getGoogleAnalyticsConnectors } from '../google-analytics/google-analytics-integration-flow';
 import { IOAuthConnector } from '../models/connector-base';
 import { getConnectorTypeId } from '../models/connector-type';
 import { loadIntegrationConfig } from '../models/load-integration-controller';
+import { IAppConfig } from './../../../configuration/config-models';
 import { SocialNetwork } from './../../../domain/app/social-networks/social-network.model';
 import { Connectors } from './../../../domain/master/connectors/connector.model';
 import { GoogleAnalyticsConnector } from './../google-analytics/google-analytics-connector';
 import { LinkedInConnector } from './../linkedin/linkedin-connector';
-import { IExecutionFlowResult, errorExecutionFlow } from './../models/execution-flow';
+import { errorExecutionFlow, IExecutionFlowResult } from './../models/execution-flow';
 import { IntegrationConnectorFactory } from './../models/integration-connectors.factory';
-import { getGoogleAnalyticsConnectors } from '../google-analytics/google-analytics-integration-flow';
+import { runTask } from '../helpers/run-task.helper';
 
 @injectable()
 export class IntegrationController {
@@ -32,7 +33,9 @@ export class IntegrationController {
     constructor(@inject(Connectors.name) private _connectorModel: Connectors,
                 @inject(IntegrationConnectorFactory.name) private _integrationConnectorFactory: IntegrationConnectorFactory,
                 @inject(SocialNetwork.name) private _socialNetworkModel: SocialNetwork,
-                @inject('Request') private req: IExtendedRequest) {
+                @inject('Request') private req: IExtendedRequest,
+                @inject('Config') private _config: IAppConfig,
+                @inject(Logger.name) private _logger: Logger) {
 
         this._query = req.query;
 
@@ -138,7 +141,13 @@ export class IntegrationController {
                     uniqueKeyValue: that._connector.getUniqueKeyValue()
                 };
 
-                that._connectorModel.model.addConnector(connObj).then(() => {
+                that._connectorModel.model.addConnector(connObj).then((newConnector) => {
+
+                    // request to the scheduler to run the task
+                    runTask (that._integrationConfig, newConnector.id)
+                            .then(res => that._logger.debug(res))
+                            .catch(e => that._logger.error(e));
+
                     const flowResult: IExecutionFlowResult = {
                         success: true,
                         connector: connObj
@@ -196,7 +205,13 @@ export class IntegrationController {
         });
 
         return new Promise<IExecutionFlowResult>((resolve, reject) => {
-            Promise.all(promises).then(() => {
+            Promise.all(promises).then((connectors) => {
+
+                // request to the scheduler to run the task
+                runTask (that._integrationConfig, connectors.map(c => c.id))
+                        .then(res => that._logger.debug(res))
+                        .catch(e => that._logger.error(e));
+
                 const flowResult: IExecutionFlowResult = {
                     success: true,
                     connector: lastConnector
@@ -332,4 +347,5 @@ export class IntegrationController {
             });
         });
     }
+
 }
