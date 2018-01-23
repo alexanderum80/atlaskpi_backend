@@ -176,47 +176,59 @@ export class KpiBase {
         }
     }
 
+    private replacementString = [
+        { key: '__dot__', value: '.' },
+        { key: '__dollar__', value: '$' }
+    ];
+
     protected _cleanFilter(filter: any): any {
         let newFilter = {};
-        let replacementString = [
-            { key: '__dot__', value: '.' },
-            { key: '__dollar__', value: '$' }
-        ];
-
-        const regexStrings = ['startWith', 'endWith', 'contains', 'regex'];
-        let regexExpression;
 
         Object.keys(filter).forEach(filterKey => {
-            let newKey = filterKey;
-            let regexKey = newKey.split('__')[2];
 
-            if (regexStrings.indexOf(regexKey) !== -1) {
-                regexExpression = regexStrings[regexStrings.indexOf(regexKey)];
-                newKey = '__dollar__regex';
-            }
-
-            replacementString.forEach(replacement => {
-                newKey = newKey.replace(replacement.key, replacement.value);
-            });
-
+            let key = filterKey;
+            this.replacementString.forEach(r => key = key.replace(r.key, r.value));
             let value = filter[filterKey];
 
-            if (!isArray(value) && (!isRegExp(value)) && isObject(value)) {
-                value = this._cleanFilter(value);
+            if (!isArray(value) && isObject(value)) {
+                newFilter[key] = this._cleanFilter(value);
             } else if (isArrayObject(value)) {
                 for (let i = 0; i < value.length; i++) {
                     value[i] = this._cleanFilter(value[i]);
                 }
+                newFilter[key] = value;
             } else {
-                if (value && regexExpression) {
-                    value = this._regexPattern(regexExpression, value);
-                }
-            }
+                // apply filter
+                let filterValue = filter[filterKey];
+                const operatorName = filterKey.replace(/__dot__|__dollar__/g, '');
 
-            newFilter[newKey] = value;
+                if (this._isRegExpOperator(operatorName)) {
+                    // process filter value
+                    if (operatorName.indexOf('start') !== -1) {
+                        filterValue = '^' + filterValue;
+                    }
+
+                    if (operatorName.indexOf('end') !== -1) {
+                        filterValue = filterValue + '$';
+                    }
+
+                    key = '$regex';
+                    value = new RegExp(filterValue);
+                } else {
+                    value = filterValue;
+                }
+
+                newFilter[key] = value;
+            }
         });
 
         return newFilter;
+    }
+
+    private _isRegExpOperator(operator: string): boolean {
+        const regexStrings = ['startWith', 'endWith', 'contains', 'regex'];
+
+        return regexStrings.indexOf(operator) !== -1;
     }
 
     private _injectFrequency(frequency: FrequencyEnum, field: string) {
