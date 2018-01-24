@@ -7,11 +7,24 @@ import { difference } from 'lodash';
 import { input } from '../../../framework/decorators/input.decorator';
 import { ModelBase } from '../../../type-mongo/model-base';
 import { AppConnection } from '../app.connection';
-import { ITagModel } from './tag';
+import { ITagModel, ITagDocument } from './tag';
 
 export const TagSchema = new mongoose.Schema({
     name: { type: String, unique: true }
 });
+
+TagSchema.statics.getAll = function(): Promise<ITagDocument[]> {
+    const Tag: ITagModel = this;
+
+    return new Promise<ITagDocument[]>((resolve, reject) => {
+        Tag.find().then(res => {
+            resolve(res);
+        })
+        .catch(err => {
+            reject(err);
+        });
+    });
+};
 
 TagSchema.statics.saveNewTags = function(tags: string[]) {
     if (!tags) {
