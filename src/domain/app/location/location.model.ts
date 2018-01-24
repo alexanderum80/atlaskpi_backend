@@ -18,6 +18,7 @@ const LocationSchema = new mongoose.Schema({
     state: String,
     country: String,
     zip: String,
+    timezone: String,
     operhours: [OperationHoursInfo],
 });
 

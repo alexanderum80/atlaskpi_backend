@@ -7,19 +7,39 @@ import { ErrorDetails } from '../../framework/graphql/common.types';
 @input()
 export class OperationHoursInput  {
     @field({ type: GraphQLTypesMap.String })
+    day: string;
+
+    @field({ type: GraphQLTypesMap.String })
     from: string;
 
     @field({ type: GraphQLTypesMap.String })
     to: string;
+
+    @field({ type: GraphQLTypesMap.String })
+    fromAMPM: string;
+
+    @field({ type: GraphQLTypesMap.String })
+    toAMPM: string;
 }
 
 @type()
 export class OperationHoursInfo  {
+
+    @field({ type: GraphQLTypesMap.String })
+    day: string;
+
     @field({ type: GraphQLTypesMap.String })
     from: string;
 
     @field({ type: GraphQLTypesMap.String })
     to: string;
+
+    @field({ type: GraphQLTypesMap.String })
+    fromAMPM: string;
+
+    @field({ type: GraphQLTypesMap.String })
+    toAMPM: string;
+
 }
 
 @input()
@@ -50,11 +70,13 @@ export class LocationInput  {
     
     @field({ type: GraphQLTypesMap.String })
     zip: string;
+
+    @field({ type: GraphQLTypesMap.String })
+    timezone: string;
     
     @field({ type: OperationHoursInput, isArray: true })
     operhours: OperationHoursInput[];
 }
-
 
 @type()
 export class Location  {
@@ -88,11 +110,13 @@ export class Location  {
     @field({ type: GraphQLTypesMap.String })
     zip: string;
 
+    @field({ type: GraphQLTypesMap.String })
+    timezone: string;
+
     @field({ type: OperationHoursInfo, isArray: true })
     operhours: OperationHoursInfo[];
 
 }
-
 
 @type()
 export class UpdateLocationResponse  {
@@ -106,7 +130,6 @@ export class UpdateLocationResponse  {
     errors: ErrorDetails[];
 
 }
-
 
 @type()
 export class CreateLocationResponse  {

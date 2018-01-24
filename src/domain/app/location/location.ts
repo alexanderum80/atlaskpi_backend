@@ -12,6 +12,7 @@ export interface ILocation {
     state: string;
     country: string;
     zip: string;
+    timezone: string;
     operhours: IOperationHoursInfo[];
 }
 
@@ -25,6 +26,7 @@ export interface ILocationInput {
     state: string;
     country: string;
     zip: string;
+    timezone: string;
     operhours: [IOperationHoursInfo];
 }
 
