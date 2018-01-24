@@ -1,5 +1,4 @@
-import * as _ from 'lodash';
-import { each } from 'lodash';
+import { each, uniq } from 'lodash';
 
 import { IChart } from '../../../domain/app/charts/chart';
 
@@ -79,7 +78,7 @@ export function getGroupingMetadata(chartDocument: IChart, groupings: string[]) 
     let result: string[] = [];
     let groups: string[] = [];
 
-    groups = groups.concat(chartDocument.groupings, groupings);
+    groups = uniq(groups.concat(chartDocument.groupings, groupings));
 
     let uniqGrouping = [];
     each(GroupingMap, collection => {
