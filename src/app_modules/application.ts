@@ -26,6 +26,7 @@ import { TargetsModule } from './targets/targets.module';
 import { UsersModule } from './users/users.module';
 import { WidgetsModule } from './widgets/widgets.module';
 import { CountriesModule } from './countries/countries.module';
+import { TagModule } from './tags/tags.module';
 
 
 @AppModule({
@@ -56,6 +57,7 @@ import { CountriesModule } from './countries/countries.module';
         UsersModule,
         WidgetsModule,
         SocialWidgetsModule,
+        TagModule,
         ConnectorsModule
     ]
 })
