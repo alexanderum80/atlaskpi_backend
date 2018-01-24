@@ -18,11 +18,11 @@ export class Enforcer implements IEnforcer {
         return new Promise<boolean>((resolve, reject) => {
             logger.debug('Checking allow authorization');
 
-            // const isOwner = roles.findIndex(r => r === OWNER) !== -1;
+            const isOwner = roles.findIndex(r => r === OWNER) !== -1;
 
-            // if (isOwner) {
-            //     return resolve(true);
-            // }
+            if (isOwner) {
+                return resolve(true);
+            }
 
             // TODO: Implement the allow and deny global
 
