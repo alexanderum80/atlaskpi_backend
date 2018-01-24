@@ -44,6 +44,9 @@ export class KPIAttributesInput  {
     @field({ type: GraphQLTypesMap.String })
     filter: string;
 
+    @field({ type: GraphQLTypesMap.String, isArray: true })
+    tags: string[];
+
 }
 
 @type()
@@ -136,6 +139,9 @@ export class KPI  {
     static resolveAvailableGroupigs(entity: IKPIDocument) {
         return KPIGroupingsHelper.GetAvailableGroupings(entity);
     }
+
+    @field({ type: GraphQLTypesMap.String, isArray: true })
+    tags: string[];
 }
 
 

@@ -1,3 +1,4 @@
+import { Calls } from './calls/call.model';
 import { Inventory } from './inventory/inventory.model';
 import { CurrentAccount } from './../master/current-account';
 import { IBridgeContainer } from '../../framework/di/bridge-container';
@@ -29,6 +30,7 @@ import { Milestones } from './milestones/milestone.model';
 import { Widgets } from './widgets/widget.model';
 import { Worklogs } from './work-log/work-log.model';
 import { GoogleAnalytics } from './google-analytics/google-analytics.model';
+import { Tags } from './tags/tag.model';
 
 // import { ChartFormats } from './chart-formats/chart-format.model';
 interface IRegistrationInfo {
@@ -42,6 +44,7 @@ const registrations: any[] = [
     AccessLogs,
     Appointments,
     BusinessUnits,
+    Calls,
     Charts,
     Customers,
     Dashboards,
@@ -57,6 +60,7 @@ const registrations: any[] = [
     Slideshows,
     SocialNetwork,
     Surveys,
+    Tags,
     Targets,
     Roles,
     Permissions,

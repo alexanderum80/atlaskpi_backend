@@ -16,11 +16,11 @@ import { inject, injectable } from 'inversify';
 let Schema = mongoose.Schema;
 
 let MilestoneSchema = new Schema({
-    target: String,
-    task: String,
-    dueDate: String,
+    target: { type: Schema.Types.ObjectId, ref: 'Target' },
+    task: { type: String, required: true },
+    dueDate: { type: Date, required: true },
     status: String,
-    responsible: [{ type: Schema.Types.String, ref: 'Employee' }]
+    responsible: [{ type: Schema.Types.ObjectId, ref: 'Employee' }]
 });
 
 MilestoneSchema.statics.createMilestone = function(target: string, task: string, dueDate: string, status: string, responsible: string[]):

@@ -36,6 +36,36 @@ export const GroupingMap = {
         deviceCategory: 'deviceCategory',
         language: 'language',
         operatingSystem: 'operatingSystem'
+    },
+    calls: {
+        answered: 'answered',
+        deviceType: 'device_type',
+        direction: 'direction',
+        duration: 'duration',
+        voicemail: 'voicemail',
+        firstCall: 'first_call',
+        priorCall: 'prior_calls',
+        keywords: 'keywords',
+        medium: 'medium',
+        sourceName: 'source_name',
+        referringUrl: 'referring_url',
+        landingPageUrl: 'landing_page_url',
+        lastRequestedUrl: 'last_requested_url',
+        leadStatus: 'lead_status',
+        totalCalls: 'total_calls',
+        trackingSource: 'formatted_tracking_source',
+        recordDuration: 'recording.duration',
+        referrerDomain: 'referrer_domain',
+        trackingPhone: 'tracking.phoneNumber',
+        companyName: 'company.name',
+        customerState: 'customer.state',
+        customerCity: 'customer.city',
+        customerZip: 'customer.zip',
+        customerCountry: 'customer.country',
+        businessPhone: 'business.phoneNumber',
+        tags: 'tags',
+        speakerPercentAgent: 'speaker_percent.agent',
+        speakerPercentCustomer: 'speaker_percent.customer'
     }
 };
 

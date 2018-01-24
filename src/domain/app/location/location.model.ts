@@ -6,11 +6,12 @@ import * as logger from 'winston';
 import { ModelBase } from '../../../type-mongo/model-base';
 import { AppConnection } from '../app.connection';
 import { ILocation, ILocationDocument, ILocationModel } from './location';
+import { tagsPlugin } from '../tags/tag.plugin';
 
 const LocationSchema = new mongoose.Schema({
-    name: String,
+    name: { type: String, unique: true, required: true },
     description: String,
-    alias: String,
+    alias: [String],
     businessunits: String,
     operhours: String,
     street: String,
@@ -19,6 +20,9 @@ const LocationSchema = new mongoose.Schema({
     state: String,
     zip: String
 });
+
+// add tags capabilities
+LocationSchema.plugin(tagsPlugin);
 
 LocationSchema.statics.createLocation = function(input: ILocation): Promise < ILocationDocument > {
 

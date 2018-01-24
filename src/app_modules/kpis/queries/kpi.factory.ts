@@ -1,6 +1,7 @@
 import { Inventory } from './../../../domain/app/inventory/inventory.model';
 import { Sales } from '../../../domain/app/sales/sale.model';
 import { Expenses } from '../../../domain/app/expenses/expense.model';
+import { Calls } from '../../../domain/app/calls/call.model';
 import { IKPIDocument, KPITypeEnum } from '../../../domain/app/kpis/kpi';
 import { KPIs } from '../../../domain/app/kpis/kpi.model';
 import { CompositeKpi } from './compound.kpi';
@@ -21,6 +22,7 @@ export class KpiFactory {
         @inject(Sales.name) private _sales: Sales,
         @inject(Expenses.name) private _expenses: Expenses,
         @inject(Inventory.name) private _inventory: Inventory,
+        @inject(Calls.name) private _calls: Calls,
         @inject(GoogleAnalytics.name) private _googleAnalytics: GoogleAnalytics,
         @inject(GoogleAnalyticsKPIService.name) private _googleAnalyticsKpiService: GoogleAnalyticsKPIService
     ) { }
@@ -37,7 +39,13 @@ export class KpiFactory {
                 case KPITypeEnum.Complex:
                     return new CompositeKpi(kpiDocument, this, this._kpis);
                 case KPITypeEnum.Simple:
-                    return SimpleKPI.CreateFromExpression(kpiDocument, this._sales, this._expenses, this._inventory);
+                    return SimpleKPI.CreateFromExpression(
+                                kpiDocument,
+                                this._sales,
+                                this._expenses,
+                                this._inventory,
+                                this._calls
+                          );
                 case KPITypeEnum.ExternalSource:
                     return GoogleAnalyticsKpi.CreateFromExpression( kpiDocument,
                                                                     this._googleAnalytics,

@@ -13,8 +13,12 @@ import { AtlasApp } from './src/app_modules/application';
 import { initializeConnections } from './src/middlewares/initialize-connections.middleware';
 import { integration } from './src/app_modules/integrations/routes';
 import { registerValidators } from './src/validators/validatos';
+import { runConfigOverrides } from './src/configuration/run-config-overrides';
 
 const app = Bridge.create(AtlasApp);
+
+// override some configurations
+runConfigOverrides();
 
 // bind dependencies
 registerDependencies(app.Container);
@@ -28,14 +32,6 @@ app.server.use(logger);
 app.server.use(tokenValidator);
 app.server.use(initializeConnections);
 app.server.use(loadUser);
-
-// i8n
-// i18n.configure({
-//     directory: __dirname + '/resources/i18n',
-//     defaultLocale: 'en',
-//     objectNotation: true
-// });
-// app.server.use(i18n.init);
 
 // routes
 app.server.use('/auth', auth);

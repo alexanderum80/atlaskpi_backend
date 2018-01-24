@@ -19,7 +19,8 @@ import { CAN_ALL, CAN_ANY, doCan } from './utils';
 export const RoleSchema = new mongoose.Schema({
     name: {
         type: String,
-        required: true
+        required: true,
+        unique: true
     },
     displayName: String,
     description: String,
