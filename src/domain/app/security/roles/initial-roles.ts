@@ -13,7 +13,7 @@ export const initialRoles  = {
             { action: 'Delete', subject: 'KPI' },
             { action: 'Share', subject: 'KPI' },
             { action: 'Create', subject: 'KPI' },
-            { action: 'Edit', subject: 'KPI' },
+            { action: 'Modify', subject: 'KPI' },
             { action: 'Clone', subject: 'KPI' },
             { action: 'View Library', subject: 'KPI' },
             { action: 'Manage', subject: 'KPI' },
@@ -80,7 +80,7 @@ export const initialRoles  = {
             { action: 'Create', subject: 'Chart' },
             { action: 'Clone', subject: 'Chart' },
             { action: 'Delete', subject: 'KPI' },
-            { action: 'Edit', subject: 'KPI' },
+            { action: 'Modify', subject: 'KPI' },
             { action: 'Share', subject: 'KPI' },
             { action: 'Create', subject: 'KPI' },
             { action: 'Clone', subject: 'KPI' },
@@ -147,7 +147,7 @@ export const initialRoles  = {
             { action: 'Clone', subject: 'Chart' },
             { action: 'Share', subject: 'KPI' },
             { action: 'Create', subject: 'KPI' },
-            { action: 'Edit', subject: 'KPI' },
+            { action: 'Modify', subject: 'KPI' },
             { action: 'Clone', subject: 'KPI' },
             { action: 'Set', subject: 'Targets' },
             { action: 'Set Alerts for others', subject: 'Users' },
@@ -292,7 +292,7 @@ export const allPermissions = [
     'subject': 'KPI'
   },
   {
-    'action': 'Edit',
+    'action': 'Modify',
     'subject': 'KPI'
   },
   {
