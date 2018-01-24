@@ -12,6 +12,7 @@ import { KPIExpressionHelper } from './kpi-expression.helper';
 import { KPIFilterHelper } from './kpi-filter.helper';
 import { IMutationResponse, MutationResponse } from '../../../framework/mutations/mutation-response';
 import { Paginator, IPaginationDetails, IPagedQueryResult } from '../../../framework/queries/pagination';
+import { tagsPlugin } from '../tags/tag.plugin';
 
 let Schema = mongoose.Schema;
 
@@ -25,7 +26,7 @@ let ChartDateRangeSchema = {
 
 let KPISchema = new Schema({
     code: String,
-    name: String!,
+    name: { type: String, unique: true, required: true },
     baseKpi: String,
     description: String,
     group: String,
@@ -36,8 +37,21 @@ let KPISchema = new Schema({
     axisSelection: String,
     emptyValueReplacement: String,
     expression: String,
-    type: String,
+    type: { type: String, required: true },
 });
+
+// add tags capabilities
+KPISchema.plugin(tagsPlugin);
+
+// KPISchema.pre('save', function(done) {
+//     console.log('******** pre save **********');
+//     done();
+// });
+
+// KPISchema.pre('save', function(done) {
+//     console.log('pre save kpi');
+//     done();
+// });
 
 KPISchema.statics.createKPI = function(input: IKPI): Promise<IKPIDocument> {
     const that = this;
@@ -82,17 +96,17 @@ KPISchema.statics.updateKPI = function(id: string, input: IKPI): Promise<IKPIDoc
     const that = this;
 
     return new Promise<IKPIDocument>((resolve, reject) => {
-        let constraints = {
-            name: { presence: { message: '^cannot be blank' }},
-            expression: { presence: { message: '^cannot be blank' } },
-            type: { presence: { message: '^cannot be blank' } }
-        };
+        // let constraints = {
+        //     name: { presence: { message: '^cannot be blank' }},
+        //     expression: { presence: { message: '^cannot be blank' } },
+        //     type: { presence: { message: '^cannot be blank' } }
+        // };
 
-        let errors = (<any>validate)((<any>input), constraints, {fullMessages: false});
-        if (errors) {
-            reject(errors);
-            return;
-        }
+        // let errors = (<any>validate)((<any>input), constraints, {fullMessages: false});
+        // if (errors) {
+        //     reject(errors);
+        //     return;
+        // }
 
         input.code = input.name;
         let kpiType = KPITypeMap[input.type];
