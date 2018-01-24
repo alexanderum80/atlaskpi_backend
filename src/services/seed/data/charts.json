@@ -19,8 +19,8 @@
     },
     {
         "_id": "597a2f663bf9d71c2e23feef",
-        "title": "Total Revenue by business unit",
-        "subtitle": "Show the grand total of sales by business unit",
+        "title": "Total Revenue by business units",
+        "subtitle": "Show the grand total of sales by business units",
         "group": "Finance",
         "kpis": ["59c3bd0c3da88e92a1703fd6"],
         "dateRange": [{
