@@ -37,6 +37,11 @@ export interface IPnsConfig {
     appIdentifier: string;
 }
 
+export interface ISchedulerConfig {
+    server: string;
+    secret: string;
+}
+
 export interface IAppConfig {
     impersonateHost: string;
     subdomain: string;
@@ -49,5 +54,6 @@ export interface IAppConfig {
     usersService: IUsersServiceConfig;
     appServices: IAppServicesConfig;
     pns: IPnsConfig;
+    scheduler: ISchedulerConfig;
     integrationRedirectUrl: string;
 }

@@ -6,6 +6,7 @@ import { IExtendedRequest } from '../../../middlewares/extended-request';
 import { ConnectorTypeEnum, getConnectorTypeId } from '../models/connector-type';
 import { IExecutionFlowResult } from '../models/execution-flow';
 import { TwitterIntegrationController } from './twitter-integration-controller';
+import { runTask } from '../helpers/run-task.helper';
 
 export function handleTwitterRequestToken(req: IExtendedRequest, res: Response) {
     const logger = req.logger;
@@ -43,7 +44,11 @@ export function handleTwitterAccessToekn(req: IExtendedRequest, res: Response) {
 
                 const connector = req.Container.instance.get<Connectors>(Connectors.name);
 
-                connector.model.addConnector(connObj).then(() => {
+                connector.model.addConnector(connObj).then((newConnector) => {
+                    runTask (twitterInt.integrationDocument, newConnector.id)
+                            .then(res => logger.debug(res))
+                            .catch(e => logger.error(e));
+
                     const flowResult: IExecutionFlowResult = {
                         success: true,
                         connector: connObj
