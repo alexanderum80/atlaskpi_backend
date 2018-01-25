@@ -8,7 +8,7 @@ export interface IUsersServiceConfig {
     from: string;
     usernameField: string; // this could be emil or username
     locking: {
-        tries: number;  // triess
+        tries: number;  // tries
         period: number; // minutes
     };
     services: {
