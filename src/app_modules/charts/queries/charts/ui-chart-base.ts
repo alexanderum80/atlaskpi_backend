@@ -491,7 +491,7 @@ export class UIChartBase {
 
         for (let serieName in groupedData) {
             let serie: IChartSerie = {
-                name: this._noSerieName(serieName) ? 'Other' : serieName,
+                name: this._noSerieName(serieName) ? NULL_CATEGORY_REPLACEMENT : serieName,
                 data: []
             };
 
