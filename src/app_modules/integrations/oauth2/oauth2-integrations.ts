@@ -2,6 +2,7 @@ import { Response } from 'express';
 
 import { IExtendedRequest } from '../../../middlewares/extended-request';
 import { IntegrationController } from './oauth2-integration-controller';
+import { JsSafeString } from '../../../helpers/string.helpers';
 
 export function handleOAuth2Itegration(req: IExtendedRequest, res: Response) {
     const logger = req.logger;
@@ -44,7 +45,7 @@ export function handleOAuth2Itegration(req: IExtendedRequest, res: Response) {
                         <html>
                         <head>
                             <script>
-                                window.opener.postMessage({messageSource: 'atlasKPIIntegrations', connectorName: '${result.connector.name}', success: true }, '*');
+                                window.opener.postMessage({messageSource: 'atlasKPIIntegrations', connectorName: '${JsSafeString(result.connector.name)}', success: true }, '*');
                                 window.close();
                             </script>
                         </head>
