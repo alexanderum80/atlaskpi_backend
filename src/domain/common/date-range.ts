@@ -60,7 +60,7 @@ export const quarterMonths = {
     '4': ['Oct', 'Nov', 'Dec']
 };
 
-const quarterKey = moment().quarter();
+const thisQuarter = moment().quarter();
 
 export function parsePredifinedDate(textDate: string): IDateRange {
     let from: Date;
@@ -93,13 +93,23 @@ export function parsePredifinedDate(textDate: string): IDateRange {
                 to: moment().subtract(1, 'month').endOf('month').toDate()
             };
         case PredefinedDateRanges.lastQuarter:
-            let getStartQuarter = quarterKey - 1;
-            let lStartQuarter = quarterMonths[getStartQuarter][0];
-            let lEndQuarter = quarterMonths[getStartQuarter][2];
+            const lastQuarter = thisQuarter - 1 || 4;
+            const year = (thisQuarter - 1)
+                         ? moment().year()
+                         : moment().subtract(1, 'year');
+
             return {
-                from: moment().utc().month(lStartQuarter).startOf('month').toDate(),
-                to: moment().utc().month(lEndQuarter).endOf('month').toDate()
+                from: moment(year).quarter(lastQuarter).startOf('quarter').toDate(),
+                to: moment(year).quarter(lastQuarter).endOf('quarter').toDate()
             };
+
+            // let getStartQuarter = quarterKey - 1;
+            // let lStartQuarter = quarterMonths[getStartQuarter][0];
+            // let lEndQuarter = quarterMonths[getStartQuarter][2];
+            // return {
+            //     from: moment().utc().month(lStartQuarter).startOf('month').toDate(),
+            //     to: moment().utc().month(lEndQuarter).endOf('month').toDate()
+            // };
         case PredefinedDateRanges.lastYear:
             return {
                 from: moment().subtract(1, 'year').startOf('year').toDate(),
@@ -136,12 +146,9 @@ export function parsePredifinedDate(textDate: string): IDateRange {
                 to: moment().endOf('month').toDate()
             };
         case PredefinedDateRanges.thisQuarter:
-            // TODO: Pending
-            let sQuater = quarterMonths[quarterKey][0];
-            let eQuarter = quarterMonths[quarterKey][2];
             return {
-                from: moment().utc().month(sQuater).startOf('month').toDate(),
-                to: moment().utc().month(eQuarter).endOf('month').toDate()
+                from: moment().quarter(thisQuarter).startOf('quarter').toDate(),
+                to: moment().quarter(thisQuarter).endOf('quarter').toDate()
             };
         case PredefinedDateRanges.thisYear:
             return {
@@ -169,11 +176,10 @@ export function parsePredifinedDate(textDate: string): IDateRange {
                 to: moment().endOf('day').toDate()
             };
         case PredefinedDateRanges.thisQuarterToDate:
-            let qStart = quarterMonths[quarterKey][0];
-            return {
-                from: moment().utc().month(qStart).startOf('month').toDate(),
-                to: moment().utc().endOf('day').toDate()
-            };
+        return {
+            from: moment().quarter(thisQuarter).startOf('quarter').toDate(),
+            to: moment().endOf('day').toDate()
+        };
         case PredefinedDateRanges.thisYearToDate:
             return {
                 from: moment().startOf('year').toDate(),
