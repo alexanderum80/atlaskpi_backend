@@ -32,7 +32,7 @@ import { IChartSerie } from './chart-serie';
 import { ChartType } from './chart-type';
 import { FrequencyHelper } from './frequency-values';
 
-const NULL_CATEGORY_REPLACEMENT = 'Unspecified*';
+const NULL_CATEGORY_REPLACEMENT = 'Uncategorized*';
 
 interface Dictionary<T> { [key: string]: T; }
 
@@ -260,6 +260,11 @@ export class UIChartBase {
         const xAxisSource: any = this._getXaxisSource(data, metadata);
         const uniqueCategories = <string[]> orderBy(uniq(data.map(item => item._id[xAxisSource] || NULL_CATEGORY_REPLACEMENT)));
 
+        // Chart with no categories
+        // if (uniqueCategories.length === 1 && uniqueCategories[0] === NULL_CATEGORY_REPLACEMENT) {
+        //     return [];
+        // }
+
         return uniqueCategories.map(category => {
             return {
                 id: category,
@@ -415,7 +420,7 @@ export class UIChartBase {
                     });
 
                     return {
-                        name: cat.name || 'Others',
+                        name: cat.name || NULL_CATEGORY_REPLACEMENT,
                         y: dataItem ? dataItem.value : null
                     };
                 })
@@ -428,12 +433,13 @@ export class UIChartBase {
 
             let matchField: any = getFrequencyPropName(meta.frequency);
             if (!matchField && data.length) {
-                matchField = Object.keys(data[0]._id)[0] || '';
+                matchField = Object.keys(data[0]._id)[0] || NULL_CATEGORY_REPLACEMENT;
             }
+
             categories.forEach(cat => {
                 let dataItem = cat.id !== NULL_CATEGORY_REPLACEMENT
                                ? data.find((item: any) => item._id[matchField] === cat.id)
-                               : data.find((item: any) => item._id[matchField] === null);
+                               : data.find((item: any) => (item._id[matchField] === null || !Object.keys(item._id).length );
 
                 serieObject.data.push(dataItem ? dataItem.value : null);
             });
