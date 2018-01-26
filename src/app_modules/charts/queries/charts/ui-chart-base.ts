@@ -260,11 +260,6 @@ export class UIChartBase {
         const xAxisSource: any = this._getXaxisSource(data, metadata);
         const uniqueCategories = <string[]> orderBy(uniq(data.map(item => item._id[xAxisSource] || NULL_CATEGORY_REPLACEMENT)));
 
-        // Chart with no categories
-        // if (uniqueCategories.length === 1 && uniqueCategories[0] === NULL_CATEGORY_REPLACEMENT) {
-        //     return [];
-        // }
-
         return uniqueCategories.map(category => {
             return {
                 id: category,
