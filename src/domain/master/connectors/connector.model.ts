@@ -31,26 +31,27 @@ ConnectorSchema.statics.addConnector = function(data: IConnector): Promise<IConn
 
         that.findOne(query).then((connector: IConnectorDocument) => {
             if (!connector) {
-                that.create(data)
-                    .then((newConnector: IConnectorDocument) => {
-                        resolve(newConnector);
+                return that.create(data)
+                            .then((newConnector: IConnectorDocument) => {
+                                resolve(newConnector);
+                                return;
+                            })
+                            .catch(err => {
+                                reject('cannot create connector: ' + err);
+                                return;
+                            });
+            } else {
+                connector.update(data, (err, raw) => {
+                    if (err) {
+                        reject('error updating connector: ' + err);
                         return;
-                    })
-                    .catch(err => {
-                        reject('cannot create connector: ' + err);
-                        return;
-                    });
-            }
-
-            connector.update(data, (err, raw) => {
-                if (err) {
-                    reject('error updating connector: ' + err);
+                    }
+                    resolve(connector);
                     return;
-                }
-                resolve(connector);
-                return;
-            });
-        });
+                });
+            }
+        })
+        .catch(err => reject(err));
     });
 };
 
