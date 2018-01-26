@@ -102,14 +102,6 @@ export function parsePredifinedDate(textDate: string): IDateRange {
                 from: moment(year).quarter(lastQuarter).startOf('quarter').toDate(),
                 to: moment(year).quarter(lastQuarter).endOf('quarter').toDate()
             };
-
-            // let getStartQuarter = quarterKey - 1;
-            // let lStartQuarter = quarterMonths[getStartQuarter][0];
-            // let lEndQuarter = quarterMonths[getStartQuarter][2];
-            // return {
-            //     from: moment().utc().month(lStartQuarter).startOf('month').toDate(),
-            //     to: moment().utc().month(lEndQuarter).endOf('month').toDate()
-            // };
         case PredefinedDateRanges.lastYear:
             return {
                 from: moment().subtract(1, 'year').startOf('year').toDate(),
