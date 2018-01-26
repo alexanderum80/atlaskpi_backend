@@ -1,9 +1,10 @@
-import { loadIntegrationConfig } from '../app_modules/integrations/models/load-integration-controller';
-import { Connectors } from '../domain/master/connectors/connector.model';
 import * as Promise from 'bluebird';
 import { inject, injectable } from 'inversify';
 import * as request from 'request';
-import { isNull } from 'lodash';
+
+import { loadIntegrationConfig } from '../app_modules/integrations/models/load-integration-controller';
+import { Connectors } from '../domain/master/connectors/connector.model';
+import { IConnectorDocument } from '../domain/master/connectors/connector';
 
 interface ICallRailInput {
     accountId: string;
@@ -31,6 +32,7 @@ interface IConfig {
 export class CallRailService {
 
     private _config: IConfig;
+    private _integrationDocument: IConnectorDocument;
 
     constructor(@inject(Connectors.name) private _connectorModel: Connectors) {}
 
@@ -44,6 +46,7 @@ export class CallRailService {
                 }
 
                 that._config = configDoc.config;
+                that._integrationDocument = configDoc;
                 resolve();
                 return;
             }).catch(err => reject(err));
@@ -95,5 +98,9 @@ export class CallRailService {
             });
         });
 
+    }
+
+    public get integrationDocument(): IConnectorDocument {
+        return this._integrationDocument;
     }
 }

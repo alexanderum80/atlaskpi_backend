@@ -10,6 +10,8 @@ import { mutation } from '../../../../framework/decorators/mutation.decorator';
 import { MutationBase } from '../../../../framework/mutations/mutation-base';
 import { IMutationResponse } from '../../../../framework/mutations/mutation-response';
 import { Connectors } from '../../../../domain/master/connectors/connector.model';
+import { runTask } from '../../helpers/run-task.helper';
+import { Logger } from '../../../../domain/app/logger';
 
 @injectable()
 @mutation({
@@ -24,7 +26,8 @@ export class CreateCallRailConnectorMutation extends MutationBase<IMutationRespo
     constructor(
                 @inject(Connectors.name) private _connectorModel: Connectors,
                 @inject(CallRailService.name) private _callrailService: CallRailService,
-                @inject(CurrentAccount.name) private _currentAccount: CurrentAccount) {
+                @inject(CurrentAccount.name) private _currentAccount: CurrentAccount,
+                @inject(Logger.name) private _logger: Logger) {
         super();
     }
 
@@ -65,7 +68,10 @@ export class CreateCallRailConnectorMutation extends MutationBase<IMutationRespo
                                 }
                             };
 
-                            that._connectorModel.model.addConnector(connObj).then(() => {
+                            that._connectorModel.model.addConnector(connObj).then((newConnector) => {
+                                runTask (that._callrailService.integrationDocument, newConnector.id)
+                                        .then(res => that._logger.debug(res))
+                                        .catch(e => that._logger.error(e));
                                 resolve({ success: true });
                                 return;
                             }).catch(err => {
