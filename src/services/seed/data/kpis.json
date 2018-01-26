@@ -5,7 +5,8 @@
         "name": "Revenue",
         "description": "Revenue",
         "groupings": [],
-        "filter": ""
+        "filter": "",
+        "type": "system"
     },
     {
         "_id": "59c3bdd43da88e92a1703fd7",
@@ -13,7 +14,8 @@
         "name": "Expenses",
         "description": "Expenses",
         "groupings": [],
-        "filter": ""
+        "filter": "",
+        "type": "system"
     },
     
     {
@@ -28,7 +30,8 @@
             "product__dot__itemCode": { "__dollar__ne": "TIP" }
         },
         "frequency": "monthly",
-        "groupings": ["businessUnit"]   
+        "groupings": ["businessUnit"],
+        "type": "base"
     },
     {
         "_id": "59c3d0b33da88e92a1703fdd",
@@ -39,7 +42,8 @@
             "predefined": "this year"
         },
         "frequency": "monthly",
-        "groupings": ["businessUnit"]   
+        "groupings": ["businessUnit"],
+        "type": "base"
     },
     {
         "_id": "59c3bded3da88e92a1703fd9",
@@ -53,7 +57,8 @@
             "predefined": "last 2 years"
         },
         "frequency": "monthly",
-        "groupings": ["businessUnit"] 
+        "groupings": ["businessUnit"],
+        "type": "base" 
     },
     
     {
@@ -62,7 +67,7 @@
         "name": "Ebitda by business unit ",
         "description": "Ebitda by business unit ",
         "expression": "kpi59c3bddd3da88e92a1703fd8 - kpi59c3d0b33da88e92a1703fdd",
-        "type": "compound"
+        "type": "complex"
     },
     {
         "_id": "59c3be043da88e92a1703fdb",
@@ -70,7 +75,7 @@
         "name": "Expense Ratio",
         "description": "Expense Ratio",
         "expression": "kpi59c3d0b33da88e92a1703fdd - kpi59c3bddd3da88e92a1703fd8 * 100",
-        "type": "compound" 
+        "type": "complex" 
     },
     {
         "_id": "59c3be0e3da88e92a1703fdc",
@@ -78,7 +83,7 @@
         "name": "Payroll Expense Ratio",
         "description": "Expense Ratio",
         "expression": "kpi59c3bded3da88e92a1703fd9 - kpi59c3bddd3da88e92a1703fd8 * 100",
-        "type": "compound"
+        "type": "complex"
     }
 
 ]
