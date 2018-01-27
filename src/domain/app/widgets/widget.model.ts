@@ -12,11 +12,12 @@ import {
     WidgetSizeMap,
     WidgetTypeMap,
 } from './widget';
+import { tagsPlugin } from '../tags/tag.plugin';
 
 const Schema = mongoose.Schema;
 
 const ChartWidgetSchema = {
-    chart: {type: String, ref: 'Chart'}
+    chart: { type: String, ref: 'Chart' }
 };
 
 const ChartDateRangeSchema = {
@@ -40,7 +41,8 @@ const WidgetSchema = new Schema({
     order: Number!,
     name: {
         type: String!,
-        unique: true
+        unique: true,
+        required: true
     },
     description: String,
     type: { type: String!, enum: Object.keys(WidgetTypeMap) },
@@ -49,6 +51,9 @@ const WidgetSchema = new Schema({
     numericWidgetAttributes: NumericWidgetSchema,
     chartWidgetAttributes: ChartWidgetSchema
 });
+
+// add tags capabilities
+WidgetSchema.plugin(tagsPlugin);
 
 WidgetSchema.statics.listWidgets = function(): Promise<IWidgetDocument[]> {
     const that = this;

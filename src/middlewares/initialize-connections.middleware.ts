@@ -6,11 +6,12 @@ import * as logger from 'winston';
 import { config } from '../configuration/config';
 import { IAccountDocument, IAccountModel } from '../domain/master/accounts/Account';
 import { Accounts } from '../domain/master/accounts/account.model';
-import { getRequestHostname } from '../helpers/express.helpers';
+import { getRequestHostname, getStateParamHostname } from '../helpers/express.helpers';
 import { makeDefaultConnection } from '../helpers/mongodb.helpers';
 import { AppConnectionPool } from './app-connection-pool';
 import { IExtendedRequest } from './extended-request';
 
+const connectionPool = new AppConnectionPool();
 
 const graphqlOperationExceptions = [
     'AccountNameAvailable',
@@ -45,7 +46,8 @@ export function initializeConnections(req: IExtendedRequest, res: Response, next
 function getAppConnection(accounts: IAccountModel, req: IExtendedRequest, res: Response, next): Promise<mongoose.Connection> {
 
     return new Promise<mongoose.Connection>((resolve, reject) => {
-        let hostname = getRequestHostname(req);
+
+        let hostname =  getRequestHostname(req) || getStateParamHostname(req);
         logger.debug(`${loggerSuffix} Hostname: ${hostname}`);
 
         if ((!req.identity && !hostname) || graphqlOperationExceptions.indexOf(req.body.operationName) !== -1) {
@@ -74,9 +76,7 @@ function getAppConnection(accounts: IAccountModel, req: IExtendedRequest, res: R
 
             logger.debug(`${loggerSuffix} Account found`);
 
-            // TODO: I need to test this
-            req.Container.instance.get<AppConnectionPool>(AppConnectionPool.name).getConnection(account.getConnectionString()).then((appConn) => {
-                // req.appConnection = appConn;
+            connectionPool.getConnection(account.getConnectionString()).then((appConn) => {
                 logger.debug(`${loggerSuffix} App connection assigned to request`);
                 resolve(appConn);
             })

@@ -7,22 +7,25 @@ import { ModelBase } from '../../../type-mongo/model-base';
 import { AppConnection } from '../app.connection';
 import { ILocation, ILocationDocument, ILocationModel, ILocationInput } from './location';
 import { OperationHoursInfo } from '../../common/location-info.model';
+import { tagsPlugin } from '../tags/tag.plugin';
 
 const LocationSchema = new mongoose.Schema({
-    name: String,
+    name: { type: String, unique: true, required: true },
     description: String,
-    alias: String,
+    alias: [String],
     businessunits: String,
     street: String,
+    country: String,
     city: String,
     state: String,
-    country: String,
     zip: String,
     timezone: String,
     operhours: [OperationHoursInfo],
 });
 
 LocationSchema.statics.createLocation = function(input: ILocationInput): Promise < ILocationDocument > {
+// add tags capabilities
+LocationSchema.plugin(tagsPlugin);
 
     const that = this;
 
@@ -73,8 +76,8 @@ LocationSchema.statics.locations = function(): Promise < ILocationDocument[] > {
     const that = < ILocationModel > this;
 
     return new Promise < ILocationDocument[] > ((resolve, reject) => {
-        that.find({}).then(location => {
-            resolve(location);
+        that.find({}).then(locations => {
+            resolve(locations);
         }).catch(err => {
             logger.error(err);
             reject('There was an error retrieving locations');

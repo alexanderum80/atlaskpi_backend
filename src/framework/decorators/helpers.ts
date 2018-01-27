@@ -1,5 +1,5 @@
 import * as console from 'console';
-import { Request } from 'Express';
+import { Request } from 'express';
 import * as Hbs from 'handlebars';
 import { set } from 'mongoose';
 import { Error } from 'tslint/lib/error';
@@ -20,6 +20,7 @@ export interface IArtifactDetails {
     name?: string;
     text: string;
     constructor: any;
+    activity?: new () => IActivity;
     relatedTypes?: any[];
     resolvers?: {
         [name: string]: Function

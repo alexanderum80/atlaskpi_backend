@@ -7,12 +7,13 @@ import { input } from '../../../framework/decorators/input.decorator';
 import { ModelBase } from '../../../type-mongo/model-base';
 import { AppConnection } from '../app.connection';
 import { IDashboardDocument, IDashboardInput, IDashboardModel } from './dashboard';
+import { tagsPlugin } from '../tags/tag.plugin';
 
 
 let Schema = mongoose.Schema;
 
 let DashboardSchema = new Schema({
-    name: String,
+    name: { type: String, unique: true, required: true },
     description: String,
     group: String,
     charts: [{
@@ -23,7 +24,7 @@ let DashboardSchema = new Schema({
         type: Schema.Types.String,
         ref: 'Widget'
     }],
-    owner: {
+    owne: {
         type: Schema.Types.String,
         ref: 'User'
     },
@@ -33,9 +34,8 @@ let DashboardSchema = new Schema({
     }]
 });
 
-// DashboardSchema.methods.
-
-// DashboardSchema.statics.
+// add tags capabilities
+DashboardSchema.plugin(tagsPlugin);
 
 DashboardSchema.statics.createDashboard = function(input: IDashboardInput):
     Promise < IDashboardDocument > {
@@ -95,6 +95,20 @@ DashboardSchema.statics.deleteDashboard = function(id: string):
             });
         });
     };
+
+DashboardSchema.statics.findDashboardByChartId = function(id): Promise<any> {
+    const DashboardModel = (<IDashboardModel>this);
+    return new Promise<any>((resolve, reject) => {
+        DashboardModel.findOne({ charts: { $in: [id] } }).distinct('name').then(dashboard => {
+            resolve(dashboard[0]);
+            return;
+        }).catch(err => {
+            logger.error(err);
+            reject('there was an error getting a dashboard');
+            return;
+        });
+    });
+};
 
 @injectable()
 export class Dashboards extends ModelBase < IDashboardModel > {

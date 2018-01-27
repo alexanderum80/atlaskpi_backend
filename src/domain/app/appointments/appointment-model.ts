@@ -1,6 +1,7 @@
 import { inject, injectable } from 'inversify';
 import * as mongoose from 'mongoose';
 import * as logger from 'winston';
+import * as moment from 'moment';
 
 import { ModelBase } from '../../../type-mongo/model-base';
 import { AppConnection } from '../app.connection';
@@ -125,6 +126,32 @@ AppointmentSchema.statics.appointmentByDescription = function(from: Date, to: Da
         }).catch(err => {
             logger.error(err);
             return reject('There was an error retrieving appointment');
+        });
+    });
+};
+
+AppointmentSchema.statics.appointmentsByDate = function(date: Date): Promise<IAppointmentDocument[]> {
+    const that = < IAppointmentModel > this;
+
+    if (!date) {
+        throw new Error('Appointments by date required a valid date');
+    }
+
+    const startOfDay = moment(date).startOf('day');
+    const endOfDay = moment(date).add(1, 'day').startOf('day');
+
+    return new Promise < IAppointmentDocument[] > ((resolve, reject) => {
+        that.find({
+            from: {
+                $gte: startOfDay,
+                $lt: endOfDay
+            }
+        }).sort({ from: 1 }).then(appointments => {
+            resolve(appointments);
+            return;
+        }).catch(err => {
+            logger.error(err);
+            return reject('There was an error retrieving appointments by date');
         });
     });
 };

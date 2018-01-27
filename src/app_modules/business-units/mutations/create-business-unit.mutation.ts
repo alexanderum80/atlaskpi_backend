@@ -8,14 +8,14 @@ import { MutationBase } from '../../../framework/mutations/mutation-base';
 import { IMutationResponse } from '../../../framework/mutations/mutation-response';
 import { CreateBusinessUnitActivity } from '../activities/create-business-unit.activity';
 import { CreateBusinessUnitResponse } from '../business-units.types';
+import { CreateBusinessUnitInput } from './../business-units.types';
 
 @injectable()
 @mutation({
     name: 'createBusinessUnit',
     activity: CreateBusinessUnitActivity,
     parameters: [
-        { name: 'name', type: String, required: true },
-        { name: 'serviceType', type: String },
+        { name: 'input', type: CreateBusinessUnitInput },
     ],
     output: { type: CreateBusinessUnitResponse }
 })
@@ -24,11 +24,11 @@ export class CreateBusinessUnitMutation extends MutationBase<IMutationResponse> 
         super();
     }
 
-    run(data: { name: string, serviceType: string }): Promise<IMutationResponse> {
+    run(data: { input: CreateBusinessUnitInput }): Promise<IMutationResponse> {
         const that = this;
 
         return new Promise < IMutationResponse > ((resolve, reject) => {
-            that._businessUnits.model.createNew(data.name, data.serviceType).then(businessunit => {
+            that._businessUnits.model.createNew(data.input.name, data.input.serviceType).then(businessunit => {
                 resolve({
                     success: true,
                     entity: businessunit

@@ -8,9 +8,9 @@ export interface ILocation {
     alias: string;
     businessunits: string;
     street: string;
+    country: string;
     city: string;
     state: string;
-    country: string;
     zip: string;
     timezone: string;
     operhours: IOperationHoursInfo[];

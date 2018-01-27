@@ -8,6 +8,7 @@ import { input } from '../../../framework/decorators/input.decorator';
 import { ModelBase } from '../../../type-mongo/model-base';
 import { AppConnection } from '../app.connection';
 import { IChartDocument, IChartInput, IChartModel } from './chart';
+import { tagsPlugin } from '../tags/tag.plugin';
 
 let Schema = mongoose.Schema;
 
@@ -22,12 +23,13 @@ let ChartDateRangeSchema = {
 };
 
 let ChartSchema = new Schema({
-    title: String,
+    title: { type: String, unique: true, required: true },
     subtitle: String,
     group: String,
     kpis: [{
         type: mongoose.Schema.Types.String,
-        ref: 'KPI'
+        ref: 'KPI',
+        required: true
     }],
     dateRange: [ChartDateRangeSchema],
     filter: Schema.Types.Mixed,
@@ -41,10 +43,13 @@ let ChartSchema = new Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: 'ChartFormat'
     },
-    chartDefinition: Schema.Types.Mixed,
+    chartDefinition: { type: Schema.Types.Mixed, required: true },
     xAxisSource: String,
     comparison: [String]
 });
+
+// add tags capabilities
+ChartSchema.plugin(tagsPlugin);
 
 // ChartSchema.methods.
 

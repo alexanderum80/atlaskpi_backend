@@ -1,14 +1,21 @@
+import { CallSchema } from '../calls/call.model';
 import { isArray, isObject } from 'lodash';
 
+import { isArrayObject } from '../../../helpers/express.helpers';
 import { readMongooseSchema } from '../../../helpers/mongodb.helpers';
 import { flatten } from '../../../helpers/object.helpers';
 import { ExpenseSchema } from '../expenses/expense.model';
+import { InventorySchema } from '../inventory/inventory.model';
 import { SaleSchema } from '../sales/sale.model';
+import { GoogleAnalyticsSchema } from './../google-analytics/google-analytics.model';
 import { IKPIFilter, KPITypeEnum } from './kpi';
 
 const Schemas = [
       SaleSchema,
-      ExpenseSchema
+      ExpenseSchema,
+      InventorySchema,
+      GoogleAnalyticsSchema,
+      CallSchema
 ];
 
 const replacementStrings = [
@@ -22,8 +29,13 @@ export class KPIFilterHelper {
         switch (kpiType) {
             case KPITypeEnum.Simple:
                 if (!filter) { return null; }
-                const filters: IKPIFilter[] = JSON.parse(filter);
-                return KPIFilterHelper._composeSimpleFilter(filters);
+                const simpleFilters: IKPIFilter[] = JSON.parse(filter);
+                return KPIFilterHelper._composeSimpleFilter(simpleFilters);
+
+            case KPITypeEnum.ExternalSource:
+                if (!filter) { return null; }
+                const externalsourceFilters: IKPIFilter[] = JSON.parse(filter);
+                return KPIFilterHelper._composeSimpleFilter(externalsourceFilters);
 
             default:
                 return filter;
@@ -36,6 +48,9 @@ export class KPIFilterHelper {
             case KPITypeEnum.Simple:
                 if (!filter) { return null; }
                 return KPIFilterHelper._decomposeSimpleFilter(filter);
+            case KPITypeEnum.ExternalSource:
+                if (!filter) { return null; }
+                return KPIFilterHelper._decomposeSimpleFilter(filter);
             default:
                 return filter;
         }
@@ -44,6 +59,9 @@ export class KPIFilterHelper {
     public static PrepareFilterField(type: string, filter: string): string {
         switch (type) {
             case KPITypeEnum.Simple:
+                return KPIFilterHelper.DecomposeFilter(type, filter);
+
+            case KPITypeEnum.ExternalSource:
                 return KPIFilterHelper.DecomposeFilter(type, filter);
 
             default:
@@ -55,6 +73,8 @@ export class KPIFilterHelper {
     private static _composeSimpleFilter(filterArray: IKPIFilter[]): string {
         if (filterArray.length < 1) { return null; }
 
+
+        // TODO: this should be refactor to get only get the fields of the source model
         const fieldset = this._allSchemasFieldSet();
 
         const mongoDbFilterArray = filterArray.map(f => KPIFilterHelper._transform2MongoFilter(f, fieldset));
@@ -101,7 +121,7 @@ export class KPIFilterHelper {
 
             if (!isArray(value) && isObject(value)) {
                 value = KPIFilterHelper._serializer(value, operation);
-            } else if (isArray(value)) {
+            } else if (isArrayObject(value)) {
                 for (let i = 0; i < value.length; i++) {
                     value[i] = this._serializer(value[i], operation);
                 }
@@ -145,7 +165,7 @@ export class KPIFilterHelper {
     }
 
     private static _handleAsArrayOperatorValuePairIntent(f: IKPIFilter, fieldset: any[]): any {
-        return  f.criteria.split(',')
+        return f.criteria.split('|')
                           .map(value =>
                                KPIFilterHelper._handleAsElementOperatorValuePairIntent(value, f.field, fieldset)
         );
@@ -163,6 +183,8 @@ export class KPIFilterHelper {
                 return Number(value);
             case 'Date':
                 return new Date(value);
+            case 'Boolean':
+                return Boolean(value === 'true' || value === true);
             default:
                 return String(value);
         }
