@@ -17,3 +17,11 @@ export function my_guid() {
             return false;
     }
   }
+
+  export function JsSafeString(str: string): string {
+    let a = str .replace(/\\/g, '\\\\')
+        .replace(/\$/g, '\\$')
+        .replace(/'/g, '\\\'')
+        .replace(/"/g, '\\"');
+        return a;
+  }

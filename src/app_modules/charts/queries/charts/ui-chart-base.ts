@@ -32,6 +32,7 @@ import { IChartSerie } from './chart-serie';
 import { ChartType } from './chart-type';
 import { FrequencyHelper } from './frequency-values';
 
+const NULL_CATEGORY_REPLACEMENT = 'Uncategorized*';
 
 interface Dictionary<T> { [key: string]: T; }
 
@@ -257,7 +258,7 @@ export class UIChartBase {
         }
 
         const xAxisSource: any = this._getXaxisSource(data, metadata);
-        const uniqueCategories = <string[]> orderBy(uniq(data.map(item => item._id[xAxisSource])));
+        const uniqueCategories = <string[]> orderBy(uniq(data.map(item => item._id[xAxisSource] || NULL_CATEGORY_REPLACEMENT)));
 
         return uniqueCategories.map(category => {
             return {
@@ -404,39 +405,52 @@ export class UIChartBase {
 
 
     private _getSeriesForFirstLevelGrouping(data: any[], categories: IXAxisCategory[], meta: IChartMetadata): IChartSerie[] {
-
+        let serieObject;
         if (this.chart.chartDefinition.chart.type === ChartType.Pie) {
-            return [{
-                name: '',
+            serieObject = {
+                name: this.chart.kpis[0].name,
                 data:  categories.map(cat => {
-                    let dataItem = data.find((item: any) => {
-                        return item._id[meta.xAxisSource] === cat.id;
-                    });
+                    let dataItem = cat.id !== NULL_CATEGORY_REPLACEMENT
+                               ? data.find((item: any) => item._id[meta.xAxisSource] === cat.id)
+                               : data.find((item: any) => (item._id[meta.xAxisSource] === null || !Object.keys(item._id).length ));
 
                     return {
-                        name: cat.name || 'Others',
+                        name: cat.name || NULL_CATEGORY_REPLACEMENT,
                         y: dataItem ? dataItem.value : null
                     };
                 })
-            }];
+            };
+
          } else {
-            const serieObject = {
-                name: '',
+            serieObject = {
+                name: this.chart.kpis[0].name,
                 data: []
             };
 
             let matchField: any = getFrequencyPropName(meta.frequency);
             if (!matchField && data.length) {
-                matchField = Object.keys(data[0]._id)[0] || '';
+                matchField = Object.keys(data[0]._id)[0] || NULL_CATEGORY_REPLACEMENT;
             }
-            categories.forEach(cat => {
-                let dataItem = data.find((item: any) => item._id[matchField] === cat.id);
-                serieObject.data.push(dataItem ? dataItem.value : 0);
-                // serieObject.data.push(dataItem ? dataItem.value : null);
-            });
 
-            return [serieObject];
+            categories.forEach(cat => {
+                let dataItem = cat.id !== NULL_CATEGORY_REPLACEMENT
+                               ? data.find((item: any) => item._id[matchField] === cat.id)
+                               : data.find((item: any) => (item._id[matchField] === null || !Object.keys(item._id).length ));
+
+                serieObject.data.push(dataItem ? dataItem.value : null);
+            });
          }
+
+        // When no groupings or frequency we have a single value
+        // Highcharts need a category for displaying a value so we are going to use the kpi name
+        if (serieObject.data.length === 1 && categories.length === 1 && categories[0].id === NULL_CATEGORY_REPLACEMENT) {
+            this.categories[0].name = this.chart.kpis[0].name;
+            if (this.chart.chartDefinition.chart.type === ChartType.Pie) {
+                serieObject.data[0].name = this.chart.kpis[0].name;
+            }
+        }
+
+        return [serieObject];
 
         // if (this.chart.chartDefinition.chart.type === ChartType.Pie) {
         //     return [{
@@ -488,7 +502,7 @@ export class UIChartBase {
 
         for (let serieName in groupedData) {
             let serie: IChartSerie = {
-                name: this._noSerieName(serieName) ? 'Other' : serieName,
+                name: this._noSerieName(serieName) ? NULL_CATEGORY_REPLACEMENT : serieName,
                 data: []
             };
 
