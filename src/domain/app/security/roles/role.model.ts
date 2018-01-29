@@ -1,3 +1,4 @@
+import { IUser } from '../users/user';
 import * as Promise from 'bluebird';
 import { inject, injectable } from 'inversify';
 import * as mongoose from 'mongoose';
@@ -194,7 +195,7 @@ RoleSchema.statics.updateRole = function(id: string, data: IRoleResponse): Promi
     });
 };
 
-RoleSchema.statics.removeRole = function(id: string, roleExist: any[]): Promise < IRoleDocument > {
+RoleSchema.statics.removeRole = function(id: string, roleExist: IUser[]): Promise < IRoleDocument > {
     const that = this;
 
     let document: IRoleDocument;
@@ -210,7 +211,7 @@ RoleSchema.statics.removeRole = function(id: string, roleExist: any[]): Promise 
         if (roleExist && roleExist.length) {
             reject({
                 success: false,
-                entity: roleExist,
+                entity: roleExist.map(role => ({name: role.username})),
                 errors: ['Role is being used by']
             });
             return;

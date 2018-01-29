@@ -1,3 +1,4 @@
+import { Users } from '../../../domain/app/security/users/user.model';
 import * as Promise from 'bluebird';
 import { inject, injectable } from 'inversify';
 
@@ -20,14 +21,16 @@ import { RoleResult } from '../roles.types';
     output: { type: RoleResult }
 })
 export class RemoveRoleMutation extends MutationBase<IMutationResponse> {
-    constructor(@inject(Roles.name) private _roles: Roles) {
+    constructor(
+        @inject(Roles.name) private _roles: Roles,
+        @inject(Users.name) private _users: Users) {
         super();
     }
 
     run(data: { id: string }): Promise<RoleResult> {
         return new Promise<RoleResult>((resolve, reject) => {
             let promises = [];
-            let d = this._roles.model.find({ roles: { $in: [data.id] } })
+            let d = this._users.model.find({ roles: { $in: [data.id] } })
                 .populate('roles', '-_id, name')
                 .then((role) => {
                     return role;
