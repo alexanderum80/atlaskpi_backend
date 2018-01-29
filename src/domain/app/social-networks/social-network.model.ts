@@ -7,7 +7,8 @@ import { AppConnection } from '../app.connection';
 import { ISocialNetworkModel } from './social-network';
 
 const SocialNetworkSchema = new mongoose.Schema({
-    refId: { type: String, unique: true },
+    // refId: { type: String, unique: true },
+    refId: String!, // refId is not uniq, we will have many records (a record per day)
     name: String!,
     date: { type: Date, default: new Date(moment().utc().format('YYYY-MM-DD')) },
     source: String!,

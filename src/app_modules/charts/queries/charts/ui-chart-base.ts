@@ -247,7 +247,7 @@ export class UIChartBase {
         if (metadata.xAxisSource === 'frequency') {
             let categoryHelper;
             let noGrouping = !metadata.groupings || !metadata.groupings.length || !metadata.groupings[0];
-            if (noGrouping && this.chart.chartDefinition.chart.type !== ChartType.Pie) {
+            if (noGrouping && this.chart.chartDefinition.chart.type !== ChartType.Pie && metadata.frequency !== FrequencyEnum.Yearly) {
                 let dateRange = metadata.dateRange || this.dateRange;
                 categoryHelper = this._noGroupingsCategoryHelper(dateRange, metadata.frequency);
                 if (categoryHelper && categoryHelper.length) {
