@@ -38,6 +38,9 @@ export class RemoveRoleMutation extends MutationBase<IMutationResponse> {
             promises.push(d);
 
             return Promise.all(promises).then((roleExist) => {
+                /**
+                 * roleExist: check if user is using a role
+                 */
                 return this._roles.model.removeRole(data.id, roleExist[0]).then((r) => {
                     return resolve({ success: true } as RoleResult);
                 }).catch((err) => {
