@@ -30,12 +30,12 @@ export class RemoveRoleMutation extends MutationBase<IMutationResponse> {
     run(data: { id: string }): Promise<RoleResult> {
         return new Promise<RoleResult>((resolve, reject) => {
             let promises = [];
-            let d = this._users.model.find({ roles: { $in: [data.id] } })
+            let userExistRole = this._users.model.find({ roles: { $in: [data.id] } })
                 .populate('roles', '-_id, name')
                 .then((role) => {
                     return role;
                 });
-            promises.push(d);
+            promises.push(userExistRole);
 
             return Promise.all(promises).then((roleExist) => {
                 /**
