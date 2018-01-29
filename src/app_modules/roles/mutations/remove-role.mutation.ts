@@ -41,7 +41,7 @@ export class RemoveRoleMutation extends MutationBase<IMutationResponse> {
                 return this._roles.model.removeRole(data.id, roleExist[0]).then((r) => {
                     return resolve({ success: true } as RoleResult);
                 }).catch((err) => {
-                    return resolve({ success: false, errors: [ { field: 'role', errors: [err.errors[0]] } ]} as RoleResult);
+                    return resolve({ success: false, entity: err.entity, errors: [ { field: 'role', errors: [err.errors[0]] } ]} as RoleResult);
                 });
             });
         });
