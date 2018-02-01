@@ -135,7 +135,9 @@ KPISchema.statics.removeKPI = function(id: string, documentExists?: IDocumentExi
             resolve(MutationResponse.fromValidationErrors(idError));
         }
 
-        if (documentExists.chart.length || documentExists.widget.length) {
+        if (documentExists.chart.length ||
+            documentExists.widget.length ||
+            documentExists.complexKPI.length) {
             reject({ message: 'KPIs is being used by ', entity: documentExists, error: 'KPIs is being used by '});
             return;
         }

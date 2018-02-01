@@ -1,3 +1,4 @@
+import { IKPIDocument } from '../../../domain/app/kpis/kpi';
 import { IWidgetDocument } from '../../../domain/app/widgets/widget';
 import { IChartDocument } from '../../../domain/app/charts/chart';
 import { Widgets } from '../../../domain/app/widgets/widget.model';
@@ -12,7 +13,7 @@ import { MutationBase } from '../../../framework/mutations/mutation-base';
 import { IMutationResponse } from '../../../framework/mutations/mutation-response';
 import { RemoveKPIActivity } from '../activities/remove-kpi.activity';
 import { KPIRemoveResponse } from '../kpis.types';
-
+import * as mongoose from 'mongoose';
 
 @injectable()
 @mutation({
@@ -40,29 +41,30 @@ export class RemoveKpiMutation extends MutationBase<IMutationResponse> {
                 return reject({ success: false,
                                 errors: [ { field: 'id', errors: ['Chart not found']} ] });
             }
-            let findCharts = this._charts.model.find({ kpis: { $in: [data.id] } })
-                .populate('kpis', '-_id, name')
-                .then(kpis => {
-                    if (kpis) {
-                        return kpis;
-                    }
-                });
+            mongoose.set('debug', true);
+            const findCharts = this._charts.model.find({ kpis: { $in: [data.id] } })
+                .populate('kpis', '-_id, name');
 
-            let findWidgets = this._widgets.model.find({
+            const findWidgets = this._widgets.model.find({
                 'numericWidgetAttributes.kpi': data.id
             })
-            .populate('kpis', '-_id, name')
-            .then(kpis => {
-                if (kpis) {
-                    return kpis;
+            .populate('kpis', '-_id, name');
+
+            const expression = new RegExp(data.id);
+
+            const findComplexKpi = this._kpis.model.find({
+                expression: {
+                    $regex: expression
                 }
             });
 
             let documentExists: any = {};
-            return Promise.all([findCharts, findWidgets])
-                .spread((chart: IChartDocument[], widget: IWidgetDocument[]) => {
-                    documentExists.chart = chart;
-                    documentExists.widget = widget;
+            return Promise.all([findCharts, findWidgets, findComplexKpi])
+                .spread((charts: IChartDocument[], widgets: IWidgetDocument[], complexKpis: IKPIDocument[]) => {
+                    documentExists.chart = charts;
+                    documentExists.widget = widgets;
+                    documentExists.complexKPI = complexKpis;
+
                     return that._kpis.model.removeKPI(data.id, documentExists).then(foundDocument => {
                         resolve({ success: true, entity: foundDocument });
                         return;

@@ -50,30 +50,6 @@ export class KPIAttributesInput  {
 }
 
 @type()
-export class KPIEntityResponse {
-    @field({ type: ChartEntityResponse, isArray: true})
-    chart: ChartEntityResponse[];
-
-    @field({ type: Widget, isArray: true})
-    widget: Widget[];
-}
-
-
-
-@type()
-export class KPIRemoveResponse  {
-    @field({ type: KPIEntityResponse })
-    entity: KPIEntityResponse;
-
-    @field({ type: ErrorDetails, isArray: true })
-    errors: ErrorDetails[];
-
-    @field({ type: GraphQLTypesMap.Boolean })
-    success: boolean;
-}
-
-
-@type()
 export class KPI  {
     @field({ type: GraphQLTypesMap.String })
     _id: string;
@@ -142,6 +118,33 @@ export class KPI  {
 
     @field({ type: GraphQLTypesMap.String, isArray: true })
     tags: string[];
+}
+
+
+@type()
+export class KPIEntityResponse {
+    @field({ type: ChartEntityResponse, isArray: true})
+    chart: ChartEntityResponse[];
+
+    @field({ type: Widget, isArray: true})
+    widget: Widget[];
+
+    @field({ type: KPI, isArray: true })
+    complexKPI: KPI[];
+}
+
+
+
+@type()
+export class KPIRemoveResponse  {
+    @field({ type: KPIEntityResponse })
+    entity: KPIEntityResponse;
+
+    @field({ type: ErrorDetails, isArray: true })
+    errors: ErrorDetails[];
+
+    @field({ type: GraphQLTypesMap.Boolean })
+    success: boolean;
 }
 
 
