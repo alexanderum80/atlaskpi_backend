@@ -119,11 +119,18 @@ export class UIChartBase {
             logger.debug('data received, for chart: ' + this.constructor.name + ' - kpi: ' + kpi.constructor.name);
             that.data = data;
 
-            that._dummyData(data, metadata, target);
+            if (!data || !data.length) {
+                return;
+            }
 
             that.groupings = that._getGroupingFields(data);
 
-            this._formatTarget(target, metadata, that.groupings);
+            const isTargetPresent = target && target.length;
+
+            if (isTargetPresent) {
+                that._dummyData(data, metadata, target);
+                this._formatTarget(target, metadata, that.groupings);
+            }
 
             that.frequencyHelper.decomposeFrequencyInfo(data, metadata.frequency);
 
@@ -231,7 +238,7 @@ export class UIChartBase {
      * @param data raw data
      */
     private _getGroupingFields(data): string[] {
-        if (!data) {
+        if (!data || !data.length) {
             return [];
         }
 
@@ -711,7 +718,7 @@ export class UIChartBase {
     }
 
     private _dummyData(data: any[], metadata: any, target: any[]) {
-        if (!data.length) {
+        if (!data || !data.length) {
             let tempData = getFrequencySequence(metadata.frequency);
             if (!this.commonField || !this.commonField.length) {
                 this.commonField = this.chart.groupings;

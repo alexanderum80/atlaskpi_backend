@@ -154,6 +154,11 @@ export class CompositeKpi implements IKpiBase {
     private _mergeList(leftList, operator, rightList) {
         const that = this;
         let result = [];
+
+        if (!leftList || !leftList.length) {
+            return;
+        }
+
         // get the keys for the first element
         const keysToTest = Object.keys(leftList[0]._id);
         // start on the left collection
