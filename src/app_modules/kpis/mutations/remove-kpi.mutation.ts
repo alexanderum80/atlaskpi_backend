@@ -41,13 +41,11 @@ export class RemoveKpiMutation extends MutationBase<IMutationResponse> {
                                 errors: [ { field: 'id', errors: ['Chart not found']} ] });
             }
 
-            const findCharts = this._charts.model.find({ kpis: { $in: [data.id] } })
-                .populate('kpis', '-_id, name');
+            const findCharts = this._charts.model.find({ kpis: { $in: [data.id] } });
 
             const findWidgets = this._widgets.model.find({
                 'numericWidgetAttributes.kpi': data.id
-            })
-            .populate('kpis', '-_id, name');
+            });
 
             const expression = new RegExp(data.id);
             const findComplexKpi = this._kpis.model.find({
