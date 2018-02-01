@@ -3,7 +3,7 @@ import 'datejs';
 import { from } from 'apollo-link/lib';
 import * as Promise from 'bluebird';
 import * as console from 'console';
-import { cloneDeep, difference, flatten, groupBy, isEmpty, map, union, uniq, uniqBy, orderBy } from 'lodash';
+import { cloneDeep, difference, flatten, groupBy, isEmpty, map, pick, union, uniq, uniqBy, orderBy } from 'lodash';
 import * as moment from 'moment';
 import * as logger from 'winston';
 import { camelCase } from 'change-case';
@@ -242,7 +242,10 @@ export class UIChartBase {
             return [];
         }
 
-        return Object.keys(data[0]._id);
+        let values = data.slice(0, 20).map(d => uniq(Object.keys(d._id)));
+        values = uniq(flatten(values));
+
+        return values;
     }
 
     /**
