@@ -13,7 +13,6 @@ import { MutationBase } from '../../../framework/mutations/mutation-base';
 import { IMutationResponse } from '../../../framework/mutations/mutation-response';
 import { RemoveKPIActivity } from '../activities/remove-kpi.activity';
 import { KPIRemoveResponse } from '../kpis.types';
-import * as mongoose from 'mongoose';
 
 @injectable()
 @mutation({
@@ -41,7 +40,7 @@ export class RemoveKpiMutation extends MutationBase<IMutationResponse> {
                 return reject({ success: false,
                                 errors: [ { field: 'id', errors: ['Chart not found']} ] });
             }
-            mongoose.set('debug', true);
+
             const findCharts = this._charts.model.find({ kpis: { $in: [data.id] } })
                 .populate('kpis', '-_id, name');
 
@@ -51,7 +50,6 @@ export class RemoveKpiMutation extends MutationBase<IMutationResponse> {
             .populate('kpis', '-_id, name');
 
             const expression = new RegExp(data.id);
-
             const findComplexKpi = this._kpis.model.find({
                 expression: {
                     $regex: expression
