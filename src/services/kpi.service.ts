@@ -114,16 +114,19 @@ export class KpiService {
         const that = this;
 
         return new Promise<IDocumentExist>((resolve, reject) => {
+            // reject if no id is provided
             if (!id) {
                 return reject({ success: false,
                                 errors: [ { field: 'id', errors: ['Chart not found']} ] });
             }
 
+            // query to find if kpi is in use by chart, widget, or complexkpi
             const findCharts = this._chart.model.find({ kpis: { $in: [id] } });
             const findWidgets = this._widget.model.find({
                 'numericWidgetAttributes.kpi': id
             });
 
+            // contain regex expression to use for complex kpi
             const expression = new RegExp(id);
             const findComplexKpi = this._kpis.model.find({
                 expression: {
