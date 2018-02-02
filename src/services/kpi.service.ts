@@ -84,7 +84,7 @@ export class KpiService {
         const that = this;
 
         return new Promise<any>((resolve, reject) => {
-            // do something
+
             that._kpiInUseByModel(id).then(res => {
                 // check if kpi is in use by another model
                 const { chart, widget, complexKPI } = res;
