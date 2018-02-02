@@ -1,3 +1,6 @@
+import { IInventoryModel } from '../domain/app/inventory/inventory';
+import { IExpenseModel } from '../domain/app/expenses/expense';
+import { ISaleModel } from '../domain/app/sales/sale';
 import { IMutationResponse } from '../framework/mutations/mutation-response';
 import { IWidgetDocument } from '../domain/app/widgets/widget';
 import { IChartDocument } from '../domain/app/charts/chart';
@@ -22,6 +25,12 @@ const codeMapper = {
     'Expenses': 'expenses'
 };
 
+export interface IGroupingsModel {
+    sales: ISaleModel;
+    expenses: IExpenseModel;
+    inventory: IInventoryModel;
+}
+
 @injectable()
 export class KpiService {
     constructor(
@@ -36,15 +45,15 @@ export class KpiService {
     GetGroupingsExistInCollectionSchema(schemaName: string): Promise<string[]> {
         const that = this;
         // get sales and expense mongoose models
-        const model = {
+        const model: IGroupingsModel = {
             sales: this._saleModel.model,
             expenses: this._expenseModel.model,
             inventory: this._inventoryModel.model
         };
         // get sales or expense mongoose models
-        const gMap = codeMapper[schemaName];
+        const gMap: string = codeMapper[schemaName];
         const collection = GroupingMap[gMap];
-        const modelKey = codeMapper[schemaName];
+        const modelKey: string = codeMapper[schemaName];
 
         let permittedFields: string[] = [];
         const collectionQuery = [];
