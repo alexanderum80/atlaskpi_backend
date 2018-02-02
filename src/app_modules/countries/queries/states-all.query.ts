@@ -5,7 +5,7 @@ import { IIdentity } from '../../../domain/app/security/users/identity';
 import { IState, IStateModel } from '../../../domain/master/countries/State';
 import { query } from '../../../framework/decorators/query.decorator';
 import { IQuery } from '../../../framework/queries/query';
-import { GetCountriesActivity } from '../activities/get-countries.activity';
+import { GetStatesActivity } from '../activities/get-states.activity';
 import { Country, State } from '../countries.types';
 import { inject } from 'inversify';
 import { States } from '../../../domain/master/countries/state.model';
@@ -14,7 +14,7 @@ import { States } from '../../../domain/master/countries/state.model';
 @injectable()
 @query({
     name: 'statesAll',
-    activity: GetCountriesActivity,
+    activity: GetStatesActivity,
     output: { type: State, isArray: true }
 })
 export class StatesAllQuery implements IQuery<IState[]> {
