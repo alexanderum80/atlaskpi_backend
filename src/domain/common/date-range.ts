@@ -439,3 +439,9 @@ export function processChartDateRange(chartDateRange: IChartDateRange): IDateRan
             : parsePredifinedDate(chartDateRange.predefined);
 }
 
+export function getYesterdayDate(): IDateRange {
+    return {
+        from: moment().utc().startOf('day').subtract(1, 'day').toDate(),
+        to: moment().utc().startOf('day').toDate()
+    };
+}

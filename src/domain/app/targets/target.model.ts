@@ -1,7 +1,9 @@
+import { getYesterdayDate } from '../../common/date-range';
 import * as Promise from 'bluebird';
 import { inject, injectable } from 'inversify';
 import * as mongoose from 'mongoose';
 import * as validate from 'validate.js';
+import * as moment from 'moment';
 
 import { field } from '../../../framework/decorators/field.decorator';
 import { ModelBase } from '../../../type-mongo/model-base';
@@ -164,6 +166,26 @@ TargetSchema.statics.findTarget = function(id: string): Promise<ITargetDocument[
     const that = this;
     return new Promise<ITargetDocument[]>((resolve, reject) => {
       (<ITargetModel>this).find({_id: id, delete: 0})
+            .then((target) => {
+                if (target) {
+                    resolve(target);
+                    return;
+                }
+                resolve(<any>{ errors: [ { field: 'target', errors: ['Not found'] } ], data: null });
+            }).catch((err) => {
+                resolve(<any>{ errors: [ { field: 'target', errors: ['Not found'] } ], data: null });
+            });
+    });
+};
+
+TargetSchema.statics.findTargetByDate = function(date: string): Promise<ITargetDocument[]> {
+    const that = this;
+
+    const from = moment(date).utc().subtract(1, 'day').startOf('date').toDate();
+    const to = moment(date).utc().startOf('day').toDate();
+
+    return new Promise<ITargetDocument[]>((resolve, reject) => {
+      (<ITargetModel>this).find({datepicker: { $gte: from, $lt: to }, delete: 0})
             .then((target) => {
                 if (target) {
                     resolve(target);

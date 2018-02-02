@@ -1,5 +1,6 @@
 import * as Promise from 'bluebird';
 import * as mongoose from 'mongoose';
+import { IDateRange } from '../../common/date-range';
 
 export interface IEntity {
     externalId: string | number;
@@ -87,6 +88,10 @@ export interface ISaleDocument extends ISales, mongoose.Document { }
 
 export interface ISaleModel extends mongoose.Model<ISaleDocument> {
     findByPredefinedDateRange(predefinedDateRange: string): Promise<ISaleDocument[]>;
-    findCriteria(field: string): Promise<string[]>;
+    amountByDateRange(from: string, to: string): Promise<Object>;
+    totalSalesByDateRange(from: string, to: string): Promise<Object>;
+    salesEmployeeByDateRange(predefinedDateRange: string): Promise<Object>;
+    monthsAvgSales(date: string): Promise<Object>;
+    findCriteria(field: string): Promise<any[]>;
     salesBy(type: TypeMap): Promise<ISaleByZip[]>;
 }

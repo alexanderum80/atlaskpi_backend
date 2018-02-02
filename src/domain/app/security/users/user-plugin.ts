@@ -496,11 +496,25 @@ export function userPlugin(schema: mongoose.Schema, options: any) {
             });
         });
 
-};
+    };
 
     schema.statics.findByUsername = function(username: string): Promise<IUserDocument> {
         return new Promise<IUserDocument>((resolve, reject) => {
             (<IUserModel>this).findOne({ username: username }).then((user) => {
+                if (user) {
+                    resolve(user);
+                } else {
+                    reject(null);
+                }
+            }).catch(() => {
+                reject(null);
+            });
+        });
+    };
+
+    schema.statics.findByFullName = function(firstName: string, lastName: string): Promise<IUserDocument> {
+        return new Promise<IUserDocument>((resolve, reject) => {
+            (<IUserModel>this).findOne({ 'profile.firstName': firstName, 'profile.lastName': lastName }).then((user) => {
                 if (user) {
                     resolve(user);
                 } else {
