@@ -33,7 +33,7 @@ export class RemoveKpiMutation extends MutationBase<IMutationResponse> {
 
         return new Promise<IMutationResponse>((resolve, reject) => {
             that._kpiService.removeKpi(data.id).then(result => {
-                resolve(result);
+                resolve({ success: true, entity: result.entity });
                 return;
             }).catch(err => {
                 resolve({ success: false, entity: err.entity, errors: [ { field: 'kpi', errors: [ err.error ] }]});
