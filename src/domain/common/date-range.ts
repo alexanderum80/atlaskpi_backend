@@ -41,6 +41,8 @@ export const PredefinedDateRanges = {
     last6Months: 'last 6 months',
     lastQuarter: 'last quarter',
     lastYear: 'last year',
+    lastYearToDate: 'last year to date',
+    last2YearsToDate: 'last 2 years to date',
     last2Years: 'last 2 years',
     last3Years: 'last 3 years',
     last4Years: 'last 4 years',
@@ -126,6 +128,16 @@ export function parsePredifinedDate(textDate: string): IDateRange {
             return {
                 from: moment().subtract(5, 'year').startOf('year').toDate(),
                 to: moment().subtract(1, 'year').endOf('year').toDate()
+            };
+        case PredefinedDateRanges.lastYearToDate:
+            return {
+                from: moment().subtract(1, 'year').startOf('year').toDate(),
+                to: moment().endOf('day').toDate()
+            };
+        case PredefinedDateRanges.last2YearsToDate:
+            return {
+                from: moment().subtract(2, 'year').startOf('year').toDate(),
+                to: moment().endOf('day').toDate()
             };
         case PredefinedDateRanges.thisWeek:
             return {
@@ -293,6 +305,12 @@ export const PredefinedComparisonDateRanges = {
          previousPeriod: 'previous period',
          twoYearsAgo: '2 years ago',
          threeYearsAgo: '3 years ago',
+    },
+    lastYearToDate: {
+        previousPeriod: 'previous period'
+    },
+    last2YearsToDate: {
+        previousPeriod: 'previous period'
     },
     last2Years: {
         previousPeriod: 'previous period'
