@@ -11,7 +11,8 @@ export class CreateRoleActivity implements IActivity {
     constructor(@inject(CurrentUser.name) private _currentUser: CurrentUser) {}
 
     check(): Promise<boolean> {
-        BasicRoleChecker.hasPermission(this._currentUser, 'Manage Access Levels', 'Users');
-        return Promise.resolve(true);
+        return Promise.resolve(
+            BasicRoleChecker.hasPermission(this._currentUser, 'Manage Access Levels', 'Users')
+        );
     }
 }

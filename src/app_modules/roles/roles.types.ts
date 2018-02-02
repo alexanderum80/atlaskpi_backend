@@ -53,5 +53,8 @@ export class RoleResult  {
 
     @field({ type: ErrorDetails, isArray: true })
     errors: ErrorDetails[];
+
+    @field({ type: Role, isArray: true })
+    entity: Role[];
 }
 

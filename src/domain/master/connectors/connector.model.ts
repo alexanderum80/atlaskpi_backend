@@ -15,45 +15,43 @@ const ConnectorSchema = new Schema({
     type: String!,
     active: Boolean,
     config: mongoose.Schema.Types.Mixed,
+    task: mongoose.Schema.Types.Mixed,
     ... userAuditSchema
 });
 
 ConnectorSchema.statics.addConnector = function(data: IConnector): Promise<IConnectorDocument> {
+    if (!data) { return Promise.reject('cannot add a document with, empty payload'); }
     const that = this;
     return new Promise<IConnectorDocument>((resolve, reject) => {
-        if (!data) { reject({ message: 'no data provided'}); }
-        const findOneKey = data.uniqueKeyValue;
+        const query = {
+            'type': data.type,
+            [data.uniqueKeyValue.key]: data.uniqueKeyValue.value,
+            databaseName: data.databaseName
+        };
 
-        that.findOne({ 'type': data.type,
-                        [findOneKey.key]: findOneKey.value,
-                        databaseName: data.databaseName
-        }, (err, doc) => {
-            if (err) {
-                reject({ message: 'unknown error', error: err });
-                return;
-            }
-            if (doc) {
-                that.update({
-                     'type': data.type,
-                     [findOneKey.key]: findOneKey.value,
-                     databaseName: data.databaseName
-                }, data)
-                .then(updateResp => {
-                    resolve(updateResp);
+        that.findOne(query).then((connector: IConnectorDocument) => {
+            if (!connector) {
+                return that.create(data)
+                            .then((newConnector: IConnectorDocument) => {
+                                resolve(newConnector);
+                                return;
+                            })
+                            .catch(err => {
+                                reject('cannot create connector: ' + err);
+                                return;
+                            });
+            } else {
+                connector.update(data, (err, raw) => {
+                    if (err) {
+                        reject('error updating connector: ' + err);
+                        return;
+                    }
+                    resolve(connector);
                     return;
-                })
-                .catch(updateErr => reject(updateErr));
-                return;
+                });
             }
-            that.create(data, (errCreate, connector: IConnectorDocument) => {
-                if (errCreate) {
-                    reject({ message: 'Not able to add connector', error: errCreate});
-                    return;
-                }
-                resolve(connector);
-                return;
-            });
-        });
+        })
+        .catch(err => reject(err));
     });
 };
 
@@ -97,7 +95,7 @@ ConnectorSchema.statics.removeConnector = function(id: string): Promise<IConnect
 };
 
 @injectable()
-export class Connector extends ModelBase<IConnectorModel> {
+export class Connectors extends ModelBase<IConnectorModel> {
     constructor(@inject(MasterConnection.name) masterConnection: MasterConnection) {
         super();
         this.initializeModel(masterConnection.get, 'Connector', ConnectorSchema, 'connectors');

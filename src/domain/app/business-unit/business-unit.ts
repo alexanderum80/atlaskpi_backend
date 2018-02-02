@@ -4,7 +4,12 @@ import * as Promise from 'bluebird';
 export interface IBusinessUnit {
    name: string;
    serviceType: string;
-  }
+}
+
+// export interface IBusinessUnitInput {
+//     name: string;
+//     serviceType: string;
+// }
 
 export interface IBusinessUnitDocument extends IBusinessUnit, mongoose.Document {
 

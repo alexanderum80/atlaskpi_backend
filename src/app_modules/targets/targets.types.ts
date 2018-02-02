@@ -70,6 +70,56 @@ export class TargetOwner  {
 
 }
 
+@input()
+export class TargetAmountInput {
+    @field({ type: GraphQLTypesMap.String })
+    amount: string;
+
+    @field({ type: GraphQLTypesMap.String })
+    amountBy: string;
+
+    @field({ type: GraphQLTypesMap.String })
+    period: string;
+
+    @field({ type: GraphQLTypesMap.String })
+    vary: string;
+
+    @field({ type: GraphQLTypesMap.String })
+    nonStackName: string;
+
+    @field({ type: GraphQLTypesMap.String })
+    stackName: string;
+
+    @field({ type: GraphQLTypesMap.String, isArray: true})
+    chart: string[];
+
+    @field({ type: GraphQLTypesMap.String })
+    notificationDate: string;
+}
+
+@input()
+export class NotificationInput {
+    @field({ type: GraphQLTypesMap.String, isArray: true })
+    usersId: string[];
+
+    @field({ type: GraphQLTypesMap.String })
+    targetName: string;
+
+    @field({ type: GraphQLTypesMap.Float })
+    targetAmount: number;
+
+    @field({ type: GraphQLTypesMap.Float })
+    targetMet: number;
+
+    @field({ type: GraphQLTypesMap.String })
+    targetDate: string;
+
+    @field({ type: GraphQLTypesMap.String })
+    chartId: string;
+
+    @field({ type: GraphQLTypesMap.String })
+    businessUnit: string;
+}
 
 @type()
 export class NotifyResponse  {
@@ -81,6 +131,14 @@ export class NotifyResponse  {
 
 }
 
+@type()
+export class NotificationResponse {
+    @field({ type: GraphQLTypesMap.Boolean })
+    success: Boolean;
+
+    @field({ type: ErrorDetails, isArray: true })
+    errors: ErrorDetails[];
+}
 
 @type()
 export class TargetResponse  {
@@ -181,3 +239,11 @@ export class TargetRemoveResult  {
 
 }
 
+@type()
+export class TargetAmountResponse {
+    @field({ type: GraphQLTypesMap.Float })
+    amount: number;
+
+    @field({ type: GraphQLTypesMap.Float })
+    met: number;
+}

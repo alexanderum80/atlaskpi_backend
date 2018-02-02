@@ -15,7 +15,7 @@ import { GetAllAccessLogsActivity } from '../activities/get-all-access-logs.acti
     parameters: [
         { name: 'filter', type: String }
     ],
-    output: { type: AccessLogResponse }
+    output: { type: AccessLogResponse, isArray: true }
 })
 export class GetAllAccessLogsQuery extends MutationBase<IAccessLogDocument[]> {
     constructor(@inject(AccessLogs.name) private _accessLogs: AccessLogs) {

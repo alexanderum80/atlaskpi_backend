@@ -5,11 +5,15 @@ import * as logger from 'winston';
 import { ModelBase } from '../../../type-mongo/model-base';
 import { AppConnection } from '../app.connection';
 import { IBusinessUnitDocument, IBusinessUnitModel } from './business-unit';
+import { tagsPlugin } from '../tags/tag.plugin';
 
 const BusinessUnitSchema = new mongoose.Schema({
-    name: String,
+    name: { type: String, unique: true, required: true },
     serviceType: String
-   });
+});
+
+// add tags capabilities
+BusinessUnitSchema.plugin(tagsPlugin);
 
 BusinessUnitSchema.statics.createNew = function(name: string, serviceType: string): Promise<IBusinessUnitDocument> {
     const that = <IBusinessUnitModel> this;

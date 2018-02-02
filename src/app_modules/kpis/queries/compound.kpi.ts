@@ -20,10 +20,14 @@ type KpiOperators = {
 export const ExpressionTreeTypes = {
     binary: 'BinaryExpression',
     identifier: 'Identifier',
-    literal: 'Literal'
+    literal: 'Literal',
+    CallExpression: 'CallExpression'
 };
 
 export class CompositeKpi implements IKpiBase {
+
+    private _dateRange: IDateRange[];
+    private _getDataOptions: IGetDataOptions;
 
     constructor(
         private _kpi: IKPIDocument,
@@ -32,10 +36,18 @@ export class CompositeKpi implements IKpiBase {
 
     // constructor(private _kpi: IKPIDocument, private ctx: IAppModels) { }
 
-    getData(): Promise<any> {
+    getData(dateRange: IDateRange[], options?: IGetDataOptions): Promise<any> {
+        this._dateRange = dateRange;
+        this._getDataOptions = options;
+
         const exp: jsep.IExpression = jsep(this._kpi.expression);
         return this._processExpression(exp);
     }
+
+    // getData(): Promise<any> {
+    //     const exp: jsep.IExpression = jsep(this._kpi.expression);
+    //     return this._processExpression(exp);
+    // }
 
     getTargetData(): Promise<any> {
         const exp: jsep.IExpression = jsep(this._kpi.expression);
@@ -50,6 +62,8 @@ export class CompositeKpi implements IKpiBase {
                 return this._getKpiData((<jsep.IIdentifier>exp).name.replace('kpi', ''));
             case ExpressionTreeTypes.literal:
                 return Promise.resolve(+(<jsep.ILiteral>exp).value);
+            // case ExpressionTreeTypes.CallExpression:
+            //     return this._getCallExpressionData(exp);
         }
     }
 
@@ -69,22 +83,48 @@ export class CompositeKpi implements IKpiBase {
 
     private _getKpiData(id: string): Promise<any> {
         const that = this;
-
         return new Promise<any>((resolve, reject) => {
             this._kpis.model.findOne({ _id: id }).then(kpiDocument => {
                 const kpi = that._kpiFactory.getInstance(kpiDocument);
-                const dateRange: IDateRange = this._processChartDateRange(kpiDocument.dateRange);
-                const options: IGetDataOptions = {
-                    filter: kpiDocument.filter,
-                    frequency: FrequencyTable[kpiDocument.frequency],
-                    groupings: getGroupingMetadata(null, kpiDocument.groupings)
-                };
+                let getDateRange: IDateRange;
 
-                kpi.getData(dateRange[0], options)
+                if (that._dateRange && that._dateRange.length > 0) {
+                    getDateRange = that._dateRange[0];
+                } else {
+                    getDateRange = this._processChartDateRange(kpiDocument.dateRange);
+                }
+
+                if (!getDateRange) {
+                    console.error('Compound kpi without a date range cannot be proccessed');
+                    return;
+                }
+
+                const dateRange = Array.isArray(getDateRange) ? getDateRange : [getDateRange];
+
+                let options: IGetDataOptions;
+
+                if (this._getDataOptions) {
+                    options = this._getDataOptions;
+                } else {
+                    options = {
+                        filter: kpiDocument.filter,
+                        frequency: FrequencyTable[kpiDocument.frequency],
+                        groupings: getGroupingMetadata(null, kpiDocument.groupings)
+                    };
+                }
+
+                kpi.getData(dateRange, options)
                     .then(res => resolve(res))
                     .catch(e => reject(e));
             });
         });
+    }
+
+    private _getCallExpressionData(exp) {
+        // call expression should be one of the following aggregate functions
+        // SUM, MAX, MIN, AVG, COUNT
+
+        debugger;
     }
 
     private _processChartDateRange(chartDateRange: IChartDateRange): IDateRange {
@@ -114,6 +154,11 @@ export class CompositeKpi implements IKpiBase {
     private _mergeList(leftList, operator, rightList) {
         const that = this;
         let result = [];
+
+        if (!leftList || !leftList.length) {
+            return;
+        }
+
         // get the keys for the first element
         const keysToTest = Object.keys(leftList[0]._id);
         // start on the left collection

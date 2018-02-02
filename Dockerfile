@@ -18,4 +18,4 @@ RUN npm install
 
 EXPOSE 9091
 
-CMD [ "node", "index.js" ]
+CMD [ "node", "app.js" ]

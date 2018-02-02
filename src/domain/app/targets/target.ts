@@ -19,6 +19,7 @@ export interface ITarget {
     owner: string;
     delete?: boolean;
     target?: number;
+    targetMet?: number;
 }
 
 export interface ITargetDocument extends ITarget, mongoose.Document {}

@@ -8,15 +8,16 @@ import * as logger from 'winston';
 import { ModelBase } from '../../../type-mongo/model-base';
 import { AppConnection } from '../app.connection';
 import { IEmployeeDocument, IEmployeeInput, IEmployeeModel } from './employee';
+import { tagsPlugin } from '../tags/tag.plugin';
 
 
 let Schema = mongoose.Schema;
 
 const EmployeeSchema = new mongoose.Schema({
-    firstName: String,
+    firstName: { type: String, unique: true, required: true },
     middleName: String,
     lastName: String,
-    email: String,
+    email: { type: String, unique: true, required: true },
     primaryNumber: String,
     dob: Date,
     nationality: String,
@@ -25,12 +26,15 @@ const EmployeeSchema = new mongoose.Schema({
     employmentInfo: [EmploymentInfo],
 });
 
+// add tags capabilities
+EmployeeSchema.plugin(tagsPlugin);
+
 EmployeeSchema.statics.createNew = function(employeeInput: IEmployeeInput): Promise<IEmployeeDocument> {
 
     const that = this;
 
     return new Promise<IEmployeeDocument>((resolve, reject) => {
-        if (!employeeInput.firstName || !employeeInput.lastName || !employeeInput.middleName ) {
+        if (!employeeInput.firstName || !employeeInput.lastName) {
             return reject('Information not valid');
         }
 
@@ -58,7 +62,7 @@ EmployeeSchema.statics.updateEmployee = function(_id: string, employeeInput: IEm
     const that = <IEmployeeModel> this;
 
     return new Promise<IEmployeeDocument>((resolve, reject) => {
-        if (!employeeInput.firstName || !employeeInput.lastName || !employeeInput.middleName) {
+        if (!employeeInput.firstName || !employeeInput.lastName) {
             return reject('Information not valid');
         }
 

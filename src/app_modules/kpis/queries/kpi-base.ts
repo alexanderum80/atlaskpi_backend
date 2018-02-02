@@ -1,24 +1,19 @@
 import * as Promise from 'bluebird';
-import {
-    cloneDeep,
-    isArray,
-    isObject,
-    remove,
-    negate,
-    isNull,
-    groupBy,
-    find,
-    pick,
-    sortBy
-} from 'lodash';
-
+import { camelCase } from 'change-case';
+import { cloneDeep, find, groupBy, isArray, isNull, isObject, negate, pick, remove, sortBy } from 'lodash';
 import * as logger from 'winston';
 
 import { IKPI } from '../../../domain/app/kpis/kpi';
 import { IChartDateRange, IDateRange } from '../../../domain/common/date-range';
 import { FrequencyEnum } from '../../../domain/common/frequency-enum';
 import { field } from '../../../framework/decorators/field.decorator';
+import { isArrayObject, isRegExp } from '../../../helpers/express.helpers';
 import { AggregateStage } from './aggregate';
+
+export interface ICollection {
+    modelName: string;
+    timestampField: string;
+}
 
 export interface IKPIMetadata {
     name?: string;
@@ -52,6 +47,7 @@ export interface IKpiBase {
 export class KpiBase {
     frequency: FrequencyEnum;
     protected kpi: IKPI;
+    protected collection: ICollection;
     protected pristineAggregate: AggregateStage[];
 
     constructor(public model: any, public aggregate: AggregateStage[]) {
@@ -120,7 +116,7 @@ export class KpiBase {
             '$geoNear', '$lookup', '$out', '$sortByCount', '$addFields', '$count'];
 
         Object.keys(stage).forEach(k => {
-            if (operators.indexOf(k) !== -1) {
+            if ((operators.indexOf(k) !== -1)) {
                 operator = {};
                 operator[k] = stage[k];
             }
@@ -139,13 +135,13 @@ export class KpiBase {
         if (dateRange &&
             (<any>dateRange).length) {
             if ((<any>dateRange).length === 1) {
-                matchStage.$match[field] = { '$gte': dateRange[0].from, '$lte': dateRange[0].to };
+                matchStage.$match[field] = { '$gte': dateRange[0].from, '$lt': dateRange[0].to };
             } else {
                 (<any>dateRange).map((dateParams) => {
                     matchStage.$match = {
                         $or: [
                             {
-                                [field]: { '$gte': dateParams.from, '$lte': dateParams.to }
+                                [field]: { '$gte': dateParams.from, '$lt': dateParams.to }
                             }
                         ]
                     };
@@ -180,34 +176,59 @@ export class KpiBase {
         }
     }
 
+    private replacementString = [
+        { key: '__dot__', value: '.' },
+        { key: '__dollar__', value: '$' }
+    ];
+
     protected _cleanFilter(filter: any): any {
         let newFilter = {};
-        let replacementString = [
-            { key: '__dot__', value: '.' },
-            { key: '__dollar__', value: '$' }
-        ];
 
         Object.keys(filter).forEach(filterKey => {
-            let newKey = filterKey;
 
-            replacementString.forEach(replacement => {
-                newKey = newKey.replace(replacement.key, replacement.value);
-            });
-
+            let key = filterKey;
+            this.replacementString.forEach(r => key = key.replace(r.key, r.value));
             let value = filter[filterKey];
 
             if (!isArray(value) && isObject(value)) {
-                value = this._cleanFilter(value);
-            } else if (isArray(value)) {
+                newFilter[key] = this._cleanFilter(value);
+            } else if (isArrayObject(value)) {
                 for (let i = 0; i < value.length; i++) {
                     value[i] = this._cleanFilter(value[i]);
                 }
-            }
+                newFilter[key] = value;
+            } else {
+                // apply filter
+                let filterValue = filter[filterKey];
+                const operatorName = filterKey.replace(/__dot__|__dollar__/g, '');
 
-            newFilter[newKey] = value;
+                if (this._isRegExpOperator(operatorName)) {
+                    // process filter value
+                    if (operatorName.indexOf('start') !== -1) {
+                        filterValue = '^' + filterValue;
+                    }
+
+                    if (operatorName.indexOf('end') !== -1) {
+                        filterValue = filterValue + '$';
+                    }
+
+                    key = '$regex';
+                    value = new RegExp(filterValue);
+                } else {
+                    value = filterValue;
+                }
+
+                newFilter[key] = value;
+            }
         });
 
         return newFilter;
+    }
+
+    private _isRegExpOperator(operator: string): boolean {
+        const regexStrings = ['startWith', 'endWith', 'contains', 'regex'];
+
+        return regexStrings.indexOf(operator) !== -1;
     }
 
     private _injectFrequency(frequency: FrequencyEnum, field: string) {
@@ -371,7 +392,7 @@ export class KpiBase {
             let index = Object.keys(group._id).findIndex(prop => prop === groupingTokens[0]);
 
             if (index === -1) {
-                group._id[groupingTokens[0]] = '$' + g;
+                group._id[camelCase(g)] = '$' + g;
             }
         });
     }
@@ -409,6 +430,30 @@ export class KpiBase {
         }
 
         return newResult;
+    }
+
+    private _regexPattern(type: string, value: string) {
+        let expression = null;
+        const reg_expression = {
+            'startWith': {
+                searchValue: '^' + value,
+            },
+            'endWith': {
+                searchValue: value + '$',
+            },
+            'contains': {
+                searchValue: value,
+            },
+            'regex': {
+                searchValue: /\/(.*)\/(.*)/.exec(value)
+            }
+        };
+        expression = reg_expression[type];
+
+        if (type === 'regex') {
+            return new RegExp(expression.searchValue[1], expression.searchValue[2]);
+        }
+        return new RegExp(expression.searchValue, 'i');
     }
 
 }

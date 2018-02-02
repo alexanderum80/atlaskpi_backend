@@ -15,6 +15,7 @@ import { IUsersServiceConfig } from './users/users-service-config';
         AKPI_MONGODB_ADMIN_USERNAME      -- MongoDB username with access to create new users
         AKPI_MONGODB_API_KEY             -- API Key to authenticate agains MongoDB Atlas and create new users
         AKPI_MONGODB_API_URI             -- MongoDB Atlas API URI
+        AKPI_INTEGRATION_REDIRECT_URL    -- The enpoint to recieve oauth2 calls
 
 */
 
@@ -31,14 +32,28 @@ export interface ITokenConfig {
     expiresIn: string;
 }
 
+export interface IPnsConfig {
+    pnsServer: string;
+    appIdentifier: string;
+}
+
+export interface ISchedulerConfig {
+    server: string;
+    secret: string;
+}
+
 export interface IAppConfig {
     impersonateHost: string;
     subdomain: string;
     token: ITokenConfig;
     masterDb: string;
+    newAccountEmailNotification: string;
     newAccountDbUriFormat: string;
     mongoDBAtlasCredentials?: IMongoDBAtlasCredentials;
     emailService: IEmailServiceConfig;
     usersService: IUsersServiceConfig;
     appServices: IAppServicesConfig;
+    pns: IPnsConfig;
+    scheduler: ISchedulerConfig;
+    integrationRedirectUrl: string;
 }

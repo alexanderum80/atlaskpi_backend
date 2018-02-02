@@ -1,3 +1,5 @@
+import { Logger } from './../../../domain/app/logger';
+import { WidgetsService } from './../../../services/widgets.service';
 import * as Promise from 'bluebird';
 import { inject, injectable } from 'inversify';
 
@@ -18,7 +20,10 @@ import { WidgetMutationResponse } from '../widgets.types';
     output: { type: WidgetMutationResponse }
 })
 export class RemoveWidgetMutation extends MutationBase<IMutationResponse> {
-    constructor(@inject(Widgets.name) private _widgets: Widgets) {
+    constructor(
+        @inject(WidgetsService.name) private _widgetsService: WidgetsService,
+        @inject(Logger.name) private _logger: Logger
+    ) {
         super();
     }
 
@@ -26,13 +31,14 @@ export class RemoveWidgetMutation extends MutationBase<IMutationResponse> {
         const that = this;
 
         return new Promise<IMutationResponse>((resolve, reject) => {
-            that._widgets.model.removeWidget(data.id)
+            that._widgetsService.removeWidgetById(data.id)
                 .then(widget =>  {
                     resolve({ entity: widget, success: true });
                     return;
                 })
                 .catch(err => {
-                    resolve({success: false, errors: [{ field: 'widget', errors: [err]} ]});
+                    that._logger.error(err);
+                    resolve({success: false, errors: [err]});
                     return;
                 });
         });

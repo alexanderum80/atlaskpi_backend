@@ -1,3 +1,5 @@
+import { Calls } from './calls/call.model';
+import { Inventory } from './inventory/inventory.model';
 import { CurrentAccount } from './../master/current-account';
 import { IBridgeContainer } from '../../framework/di/bridge-container';
 import { AccessLogs } from './access-log/access-log.model';
@@ -24,11 +26,11 @@ import { Slideshows } from './slideshow/slideshow.model';
 import { SocialNetwork } from './social-networks/social-network.model';
 import { Surveys } from './surveys/survey.model';
 import { Targets } from './targets/target.model';
+import { Milestones } from './milestones/milestone.model';
 import { Widgets } from './widgets/widget.model';
 import { Worklogs } from './work-log/work-log.model';
-import { ChartRunRates } from './run-rate/run-rate.model';
-import { SelfBoardingWinzards } from './self-boarding-winzard/self-boarding-winzard.model'
-import { Systems } from './system/system.model';
+import { GoogleAnalytics } from './google-analytics/google-analytics.model';
+import { Tags } from './tags/tag.model';
 
 // import { ChartFormats } from './chart-formats/chart-format.model';
 interface IRegistrationInfo {
@@ -42,6 +44,7 @@ const registrations: any[] = [
     AccessLogs,
     Appointments,
     BusinessUnits,
+    Calls,
     Charts,
     Customers,
     Dashboards,
@@ -52,19 +55,20 @@ const registrations: any[] = [
     KPIs,
     Locations,
     Logs,
+    Milestones,
     Sales,
     Slideshows,
     SocialNetwork,
     Surveys,
+    Tags,
     Targets,
     Roles,
     Permissions,
     Users,
     Widgets,
     Worklogs,
-    ChartRunRates,
-    SelfBoardingWinzards,
-    Systems
+    Inventory,
+    GoogleAnalytics
 ];
 
 export function registerAppModels(container: IBridgeContainer) {
