@@ -8,7 +8,7 @@ import { KPIs } from '../domain/app/kpis/kpi.model';
 import { Inventory } from '../domain/app/inventory/inventory.model';
 import { Expenses } from '../domain/app/expenses/expense.model';
 import { Sales } from '../domain/app/sales/sale.model';
-import { IDocumentExist, IKPIDataSourceHelper, IKPIDocument } from '../domain/app/kpis/kpi';
+import { IDocumentExist, IKPIDocument } from '../domain/app/kpis/kpi';
 import * as Promise from 'bluebird';
 import { inject, injectable } from 'inversify';
 import {

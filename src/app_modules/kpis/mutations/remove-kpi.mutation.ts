@@ -1,10 +1,8 @@
 import { KpiService } from '../../../services/kpi.service';
-import { IKPIDocument } from '../../../domain/app/kpis/kpi';
 import * as Promise from 'bluebird';
 import { inject, injectable } from 'inversify';
 
 import { KPIs } from '../../../domain/app/kpis/kpi.model';
-import { field } from '../../../framework/decorators/field.decorator';
 import { mutation } from '../../../framework/decorators/mutation.decorator';
 import { MutationBase } from '../../../framework/mutations/mutation-base';
 import { IMutationResponse } from '../../../framework/mutations/mutation-response';
