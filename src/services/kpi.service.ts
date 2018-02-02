@@ -1,3 +1,4 @@
+import { IMutationResponse } from '../framework/mutations/mutation-response';
 import { IWidgetDocument } from '../domain/app/widgets/widget';
 import { IChartDocument } from '../domain/app/charts/chart';
 import { Widgets } from '../domain/app/widgets/widget.model';
@@ -14,7 +15,7 @@ import {
     sortBy,
     isObject
 } from 'lodash';
-import * as mongoose from 'mongoose';
+import { DocumentQuery } from 'mongoose';
 
 const codeMapper = {
     'Revenue': 'sales',
@@ -32,7 +33,7 @@ export class KpiService {
         @inject(Widgets.name) private _widget: Widgets
     ) {}
 
-    GetGroupingsExistInCollectionSchema(schemaName: string): Promise<any> {
+    GetGroupingsExistInCollectionSchema(schemaName: string): Promise<string[]> {
         const that = this;
         // get sales and expense mongoose models
         const model = {
@@ -45,7 +46,7 @@ export class KpiService {
         const collection = GroupingMap[gMap];
         const modelKey = codeMapper[schemaName];
 
-        let permittedFields = [];
+        let permittedFields: string[] = [];
         const collectionQuery = [];
 
         return new Promise<string[]>((resolve, reject) => {
@@ -80,18 +81,18 @@ export class KpiService {
         });
     }
 
-    removeKpi(id: string): Promise<any> {
+    removeKpi(id: string): Promise<IMutationResponse> {
         const that = this;
 
-        return new Promise<any>((resolve, reject) => {
+        return new Promise<IMutationResponse>((resolve, reject) => {
 
-            that._kpiInUseByModel(id).then(res => {
+            that._kpiInUseByModel(id).then((documents: IDocumentExist) => {
                 // check if kpi is in use by another model
-                const { chart, widget, complexKPI } = res;
+                const { chart, widget, complexKPI } = documents;
                 const modelExists: number = chart.length || widget.length || complexKPI.length;
 
                 if (modelExists) {
-                    reject({ message: 'KPIs is being used by ', entity: res, error: 'KPIs is being used by '});
+                    reject({ message: 'KPIs is being used by ', entity: documents, error: 'KPIs is being used by '});
                     return;
                 }
 
@@ -121,20 +122,22 @@ export class KpiService {
             }
 
             // query to find if kpi is in use by chart, widget, or complexkpi
-            const findCharts = this._chart.model.find({ kpis: { $in: [id] } });
-            const findWidgets = this._widget.model.find({
+            const findCharts: DocumentQuery<IChartDocument[], IChartDocument> = this._chart.model.find({
+                kpis: { $in: [id] }
+            });
+            const findWidgets: DocumentQuery<IWidgetDocument[], IWidgetDocument> = this._widget.model.find({
                 'numericWidgetAttributes.kpi': id
             });
 
             // contain regex expression to use for complex kpi
-            const expression = new RegExp(id);
-            const findComplexKpi = this._kpis.model.find({
+            const expression: RegExp = new RegExp(id);
+            const findComplexKpi: DocumentQuery<IKPIDocument[], IKPIDocument> = this._kpis.model.find({
                 expression: {
                     $regex: expression
                 }
             });
 
-            let documentExists: any = {};
+            let documentExists: IDocumentExist = {};
 
             Promise.all([findCharts, findWidgets, findComplexKpi])
                 .spread((charts: IChartDocument[], widgets: IWidgetDocument[], complexKPI: IKPIDocument[]) => {
