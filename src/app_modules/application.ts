@@ -27,6 +27,8 @@ import { UsersModule } from './users/users.module';
 import { WidgetsModule } from './widgets/widgets.module';
 import { CountriesModule } from './countries/countries.module';
 import { TagModule } from './tags/tags.module';
+import { ActivitiesModule } from './activities/activities.module';
+
 
 
 @AppModule({
@@ -58,7 +60,8 @@ import { TagModule } from './tags/tags.module';
         WidgetsModule,
         SocialWidgetsModule,
         TagModule,
-        ConnectorsModule
+        ConnectorsModule,
+    ActivitiesModule
     ]
 })
 export class AtlasApp extends ModuleBase { }
