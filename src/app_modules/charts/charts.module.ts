@@ -7,6 +7,7 @@ import { ChartQuery } from './queries/chart.query';
 import { ChartsListQuery } from './queries/charts-list.query';
 import { ListChartsQuery } from './queries/list-charts.query';
 import { PreviewChartQuery } from './queries/preview-chart.query';
+import { GetChartByTitleQuery } from './queries/get-chart-by-title.query';
 
 
 @AppModule({
@@ -22,6 +23,7 @@ import { PreviewChartQuery } from './queries/preview-chart.query';
         // GetChartsByGroupQuery,
         // GetChartsGroupQuery,
         ListChartsQuery,
+        GetChartByTitleQuery,
         PreviewChartQuery
     ],
 })
