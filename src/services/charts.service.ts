@@ -180,11 +180,11 @@ export class ChartsService {
         });
     }
 
-    public getChartByName(_id: string, title: string): Promise<IChart> {
+    public getChartByTitle(title: string): Promise<IChart> {
         const that = this;
         return new Promise<IChart>((resolve, reject) => {
             that._charts.model
-            .findOne({ title: title, _id: { '$ne': _id } })
+            .findOne({ title: title })
             .then(chart => {
                 return resolve(chart);
             })

@@ -16,7 +16,6 @@ import { Logger } from '../../../domain/app/logger';
     name: 'getChartByTitle',
     activity: GetChartByTitleActivity,
     parameters: [
-        { name: '_id', type: String, required: true },
         { name: 'title', type: String, required: true },
     ],
     output: { type: ChartEntityResponse }
@@ -27,11 +26,11 @@ export class GetChartByTitleQuery implements IQuery<IChart> {
         @inject(Logger.name) private _logger: Logger
     ) { }
 
-    run(data: { _id: string, title: string }): Promise<IChart> {
+    run(data: { title: string }): Promise<IChart> {
         const that = this;
         return new Promise<IChart>((resolve, reject) => {
             that._chartsService
-                .getChartByName(data._id, data.title)
+                .getChartByTitle(data.title)
                 .then(chart => {
                     resolve(chart);
                     return;
