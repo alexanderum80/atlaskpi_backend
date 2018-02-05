@@ -12,7 +12,7 @@ import { tagsPlugin } from '../tags/tag.plugin';
 const LocationSchema = new mongoose.Schema({
     name: { type: String, unique: true, required: true },
     description: String,
-    alias: [String],
+    // alias: [String],
     businessunits: String,
     street: String,
     country: String,
@@ -23,9 +23,10 @@ const LocationSchema = new mongoose.Schema({
     operhours: [OperationHoursInfo],
 });
 
-LocationSchema.statics.createLocation = function(input: ILocationInput): Promise < ILocationDocument > {
 // add tags capabilities
 LocationSchema.plugin(tagsPlugin);
+
+LocationSchema.statics.createLocation = function(input: ILocationInput): Promise < ILocationDocument > {
 
     const that = this;
 
@@ -42,7 +43,7 @@ LocationSchema.plugin(tagsPlugin);
     });
 };
 
-LocationSchema.statics.updateLocation = function(id: string, input: ILocation): Promise < ILocationDocument > {
+LocationSchema.statics.updateLocation = function(id: string, input: ILocationInput): Promise < ILocationDocument > {
 
     const that = < ILocationModel > this;
 

@@ -1,4 +1,4 @@
-import * as bcrypt from 'bcrypt';
+import * as bcrypt from 'bcryptjs';
 import * as Promise from 'bluebird';
 import * as jwt from 'jsonwebtoken';
 import * as moment from 'moment';
@@ -118,11 +118,11 @@ export function userPlugin(schema: mongoose.Schema, options: any) {
         if (!user.isModified('password')) return next();
 
         // generate a salt
-        bcrypt.genSalt(SALT_WORK_FACTOR, function(err, salt) {
+        bcryptjs.genSalt(SALT_WORK_FACTOR, function(err, salt) {
             if (err) return next(err);
 
             // hash the password using our new salt
-            bcrypt.hash(user.password, salt, function(err, hash) {
+            bcryptjs.hash(user.password, salt, function(err, hash) {
                 if (err) return next(err);
 
                 // override the cleartext password with the hashed one

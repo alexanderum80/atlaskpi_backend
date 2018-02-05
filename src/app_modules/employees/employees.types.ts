@@ -122,6 +122,8 @@ export class EmployeeAttributesInput  {
     @field({ type: EmploymentInfoInput, isArray: true })
     employmentInfo: EmploymentInfoInput[];
 
+    @field({ type: GraphQLTypesMap.String, isArray: true })
+    tags: string[];
 }
 
 
@@ -182,6 +184,9 @@ export class Employee  {
 
     @field({ type: EmploymentInfo, isArray: true })
     employmentInfo: EmploymentInfo[];
+
+    @field({ type: GraphQLTypesMap.String, isArray: true })
+    tags: string[];
 
 }
 

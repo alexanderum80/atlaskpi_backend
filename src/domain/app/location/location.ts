@@ -5,7 +5,6 @@ import { IOperationHoursInfo } from '../../common/location-info.model';
 export interface ILocation {
     name: string;
     description: string;
-    alias: string;
     businessunits: string;
     street: string;
     country: string;
@@ -19,7 +18,6 @@ export interface ILocation {
 export interface ILocationInput {
     name: string;
     description: string;
-    alias: string;
     businessunits: string;
     street: string;
     city: string;

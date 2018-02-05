@@ -51,9 +51,6 @@ export class LocationInput  {
     description: string;
 
     @field({ type: GraphQLTypesMap.String })
-    alias: string;
-
-    @field({ type: GraphQLTypesMap.String })
     businessunits: string;
     
     @field({ type: GraphQLTypesMap.String })
@@ -69,9 +66,6 @@ export class LocationInput  {
     state: string;
 
     @field({ type: GraphQLTypesMap.String })
-    country: string;
-    
-    @field({ type: GraphQLTypesMap.String })
     zip: string;
 
     @field({ type: GraphQLTypesMap.String })
@@ -79,6 +73,10 @@ export class LocationInput  {
     
     @field({ type: OperationHoursInput, isArray: true })
     operhours: OperationHoursInput[];
+
+    @field({ type: GraphQLTypesMap.String, isArray: true })
+    tags: string[];
+
 }
 
 @type()
@@ -91,9 +89,6 @@ export class Location  {
 
     @field({ type: GraphQLTypesMap.String })
     description: string;
-
-    @field({ type: GraphQLTypesMap.String })
-    alias: string;
 
     @field({ type: GraphQLTypesMap.String })
     businessunits: string;
@@ -118,6 +113,9 @@ export class Location  {
 
     @field({ type: OperationHoursInfo, isArray: true })
     operhours: OperationHoursInfo[];
+
+    @field({ type: GraphQLTypesMap.String, isArray: true })
+    tags: string[];
 
 }
 
