@@ -26,6 +26,7 @@ export interface ITargetDocument extends ITarget, mongoose.Document {}
 
 export interface ITargetModel extends mongoose.Model<ITargetDocument> {
     findTarget(id: string): Promise<ITargetDocument>;
+    findTargetByDate(date: string): Promise<ITargetDocument[]>;
     findAllTargets(): Promise<ITargetDocument[]>;
     findUserVisibleTargets(chartId: string, userId: string): Promise<ITargetDocument[]>;
     createTarget(data: ITarget): Promise<ITargetDocument>;
