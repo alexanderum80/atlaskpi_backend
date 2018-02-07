@@ -157,8 +157,7 @@ export class ChartsService {
                     that._resolveDashboards(chartDocument).then((dashboards) => {
                         const chart: any = chartDocument.toObject();
                         chart.dashboards = dashboards;
-                        chart.availableComparison = DateRangeHelper.getComparisonItemsForDateRangeString(chart.dateRange[0].predefined || 'custom')
-                                                                    .map(item => item.key);
+
                         resolve(chart);
                         return;
                     });

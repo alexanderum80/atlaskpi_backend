@@ -3,7 +3,7 @@ import 'datejs';
 import { from } from 'apollo-link/lib';
 import * as Promise from 'bluebird';
 import * as console from 'console';
-import { cloneDeep, difference, flatten, groupBy, isEmpty, map, union, uniq, uniqBy, orderBy } from 'lodash';
+import { cloneDeep, difference, flatten, groupBy, isEmpty, map, pick, union, uniq, uniqBy, orderBy } from 'lodash';
 import * as moment from 'moment';
 import * as logger from 'winston';
 import { camelCase } from 'change-case';
@@ -32,6 +32,7 @@ import { IChartSerie } from './chart-serie';
 import { ChartType } from './chart-type';
 import { FrequencyHelper } from './frequency-values';
 
+const NULL_CATEGORY_REPLACEMENT = 'Uncategorized*';
 
 interface Dictionary<T> { [key: string]: T; }
 
@@ -118,11 +119,18 @@ export class UIChartBase {
             logger.debug('data received, for chart: ' + this.constructor.name + ' - kpi: ' + kpi.constructor.name);
             that.data = data;
 
-            that._dummyData(data, metadata, target);
+            if (!data || !data.length) {
+                return;
+            }
 
             that.groupings = that._getGroupingFields(data);
 
-            this._formatTarget(target, metadata, that.groupings);
+            const isTargetPresent = target && target.length;
+
+            if (isTargetPresent) {
+                that._dummyData(data, metadata, target);
+                this._formatTarget(target, metadata, that.groupings);
+            }
 
             that.frequencyHelper.decomposeFrequencyInfo(data, metadata.frequency);
 
@@ -230,11 +238,14 @@ export class UIChartBase {
      * @param data raw data
      */
     private _getGroupingFields(data): string[] {
-        if (!data) {
+        if (!data || !data.length) {
             return [];
         }
 
-        return Object.keys(data[0]._id);
+        let values = data.slice(0, 20).map(d => uniq(Object.keys(d._id)));
+        values = uniq(flatten(values));
+
+        return values;
     }
 
     /**
@@ -246,7 +257,7 @@ export class UIChartBase {
         if (metadata.xAxisSource === 'frequency') {
             let categoryHelper;
             let noGrouping = !metadata.groupings || !metadata.groupings.length || !metadata.groupings[0];
-            if (noGrouping && this.chart.chartDefinition.chart.type !== ChartType.Pie) {
+            if (noGrouping && this.chart.chartDefinition.chart.type !== ChartType.Pie && metadata.frequency !== FrequencyEnum.Yearly) {
                 let dateRange = metadata.dateRange || this.dateRange;
                 categoryHelper = this._noGroupingsCategoryHelper(dateRange, metadata.frequency);
                 if (categoryHelper && categoryHelper.length) {
@@ -257,7 +268,7 @@ export class UIChartBase {
         }
 
         const xAxisSource: any = this._getXaxisSource(data, metadata);
-        const uniqueCategories = <string[]> orderBy(uniq(data.map(item => item._id[xAxisSource])));
+        const uniqueCategories = <string[]> orderBy(uniq(data.map(item => item._id[xAxisSource] || NULL_CATEGORY_REPLACEMENT)));
 
         return uniqueCategories.map(category => {
             return {
@@ -404,39 +415,52 @@ export class UIChartBase {
 
 
     private _getSeriesForFirstLevelGrouping(data: any[], categories: IXAxisCategory[], meta: IChartMetadata): IChartSerie[] {
-
+        let serieObject;
         if (this.chart.chartDefinition.chart.type === ChartType.Pie) {
-            return [{
-                name: '',
+            serieObject = {
+                name: this.chart.kpis[0].name,
                 data:  categories.map(cat => {
-                    let dataItem = data.find((item: any) => {
-                        return item._id[meta.xAxisSource] === cat.id;
-                    });
+                    let dataItem = cat.id !== NULL_CATEGORY_REPLACEMENT
+                               ? data.find((item: any) => item._id[meta.xAxisSource] === cat.id)
+                               : data.find((item: any) => (item._id[meta.xAxisSource] === null || !Object.keys(item._id).length ));
 
                     return {
-                        name: cat.name || 'Others',
+                        name: cat.name || NULL_CATEGORY_REPLACEMENT,
                         y: dataItem ? dataItem.value : null
                     };
                 })
-            }];
+            };
+
          } else {
-            const serieObject = {
-                name: '',
+            serieObject = {
+                name: this.chart.kpis[0].name,
                 data: []
             };
 
             let matchField: any = getFrequencyPropName(meta.frequency);
             if (!matchField && data.length) {
-                matchField = Object.keys(data[0]._id)[0] || '';
+                matchField = Object.keys(data[0]._id)[0] || NULL_CATEGORY_REPLACEMENT;
             }
-            categories.forEach(cat => {
-                let dataItem = data.find((item: any) => item._id[matchField] === cat.id);
-                serieObject.data.push(dataItem ? dataItem.value : 0);
-                // serieObject.data.push(dataItem ? dataItem.value : null);
-            });
 
-            return [serieObject];
+            categories.forEach(cat => {
+                let dataItem = cat.id !== NULL_CATEGORY_REPLACEMENT
+                               ? data.find((item: any) => item._id[matchField] === cat.id)
+                               : data.find((item: any) => (item._id[matchField] === null || !Object.keys(item._id).length ));
+
+                serieObject.data.push(dataItem ? dataItem.value : null);
+            });
          }
+
+        // When no groupings or frequency we have a single value
+        // Highcharts need a category for displaying a value so we are going to use the kpi name
+        if (serieObject.data.length === 1 && categories.length === 1 && categories[0].id === NULL_CATEGORY_REPLACEMENT) {
+            this.categories[0].name = this.chart.kpis[0].name;
+            if (this.chart.chartDefinition.chart.type === ChartType.Pie) {
+                serieObject.data[0].name = this.chart.kpis[0].name;
+            }
+        }
+
+        return [serieObject];
 
         // if (this.chart.chartDefinition.chart.type === ChartType.Pie) {
         //     return [{
@@ -488,7 +512,7 @@ export class UIChartBase {
 
         for (let serieName in groupedData) {
             let serie: IChartSerie = {
-                name: this._noSerieName(serieName) ? 'Other' : serieName,
+                name: this._noSerieName(serieName) ? NULL_CATEGORY_REPLACEMENT : serieName,
                 data: []
             };
 
@@ -697,7 +721,7 @@ export class UIChartBase {
     }
 
     private _dummyData(data: any[], metadata: any, target: any[]) {
-        if (!data.length) {
+        if (!data || !data.length) {
             let tempData = getFrequencySequence(metadata.frequency);
             if (!this.commonField || !this.commonField.length) {
                 this.commonField = this.chart.groupings;
@@ -763,14 +787,14 @@ export class UIChartBase {
 
     protected getDefinitionOfComparisonChart(kpi, metadata: IChartMetadata): Promise<any> {
         const chartPromises = {
-            main: this.getDefinitionForDateRange(kpi, metadata, [])
+            main: this.getDefinitionForDateRange(cloneDeep(kpi), metadata, [])
         };
 
         this.comparison.forEach((comparisonDateRange, index) => {
             const newChart = cloneDeep(this);
             const newMetadata = cloneDeep(metadata);
             newMetadata.dateRange = [ { custom: comparisonDateRange } ];
-            chartPromises[metadata.comparison[index]] = newChart.getDefinitionForDateRange(kpi, newMetadata, []);
+            chartPromises[metadata.comparison[index]] = newChart.getDefinitionForDateRange(cloneDeep(kpi), newMetadata, []);
         });
 
         return Promise.props(chartPromises).then(output => {

@@ -11,6 +11,7 @@ import { IsEnrollmentTokenValidQuery } from './queries/is-enrollment-token-valid
 import { IsResetPasswordTokenValidQuery } from './queries/is-reset-password-token-valid.query';
 import { UserQuery } from './queries/user.query';
 import { UsersQuery } from './queries/users.query';
+import { FindByFullNameQuery } from './queries/user-by-fullName.query';
 
 
 @AppModule({
@@ -28,7 +29,8 @@ import { UsersQuery } from './queries/users.query';
         IsEnrollmentTokenValidQuery,
         IsResetPasswordTokenValidQuery,
         UserQuery,
-        UsersQuery
+        UsersQuery,
+        FindByFullNameQuery
     ]
 })
 export class UsersModule extends ModuleBase { }

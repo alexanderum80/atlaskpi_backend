@@ -6,14 +6,14 @@ import { IState } from '../../../domain/master/countries/State';
 import { States } from '../../../domain/master/countries/state.model';
 import { query } from '../../../framework/decorators/query.decorator';
 import { IQuery } from '../../../framework/queries/query';
-import { GetStatesActivity } from '../activities/get-states.activity';
+import { GetStatesForCountryActivity } from '../activities/get-states-for-country.activity';
 import { State } from '../countries.types';
 
 
 @injectable()
 @query({
     name: 'statesFor',
-    activity: GetStatesActivity,
+    activity: GetStatesForCountryActivity,
     parameters: [
         { name: 'country', type: String, required: true }
     ],
