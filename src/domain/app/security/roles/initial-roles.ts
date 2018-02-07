@@ -21,21 +21,26 @@ export const initialRoles  = {
             { action: 'View', subject: 'Target' },
             { action: 'Modify', subject: 'Target' },
             { action: 'Delete', subject: 'Target' },
-            { action: 'Set Alerts for others', subject: 'Users' },
+            { action: 'Set Alerts for others', subject: 'User' },
+            // milestone
+            { action: 'Create', subject: 'Milestone' },
+            { action: 'View', subject: 'Milestone' },
+            { action: 'Modify', subject: 'Milestone' },
+            { action: 'Delete', subject: 'Milestone' },
             // data
             { action: 'Modify Stored', subject: 'Data' },
             { action: 'Assign User to', subject: 'DataEntry' },
             { action: 'Activity', subject: 'Feed' },
             { action: 'Import/Add', subject: 'Data' },
             // dashboard
-            { action: 'Add New', subject: 'DashboardTab' },
+            { action: 'Create', subject: 'Dashboard' },
             { action: 'View', subject: 'Dashboard' },
             { action: 'Modify', subject: 'Dashboard' },
             { action: 'Delete', subject: 'Dashboard' },
 
             { action: 'View', subject: 'SecurityLog' },
             // screen access and visibility
-            { action: 'Manage Access Levels', subject: 'Users' },
+            { action: 'Manage Access Levels', subject: 'User' },
             { action: 'Billing Information', subject: 'Billing' },
             // data field access
             { action: 'All Fields', subject: 'Data' },
@@ -111,14 +116,19 @@ export const initialRoles  = {
             { action: 'View', subject: 'Target' },
             { action: 'Modify', subject: 'Target' },
             { action: 'Delete', subject: 'Target' },
-            { action: 'Set Alerts for others', subject: 'Users' },
+            { action: 'Set Alerts for others', subject: 'User' },
+            // milestone
+            { action: 'Create', subject: 'Milestone' },
+            { action: 'View', subject: 'Milestone' },
+            { action: 'Modify', subject: 'Milestone' },
+            { action: 'Delete', subject: 'Milestone' },
             // data
             { action: 'Modify Stored', subject: 'Data' },
             { action: 'Assign User to', subject: 'DataEntry' },
             { action: 'Activity', subject: 'Feed' },
             { action: 'Import/Add', subject: 'Data' },
             // dashboard
-            { action: 'Add New', subject: 'DashboardTab' },
+            { action: 'Create', subject: 'Dashboard' },
             { action: 'View', subject: 'Dashboard' },
             { action: 'Modify', subject: 'Dashboard' },
             { action: 'Delete', subject: 'Dashboard' },
@@ -126,7 +136,7 @@ export const initialRoles  = {
             // access levels
             { action: 'View', subject: 'SecurityLog' },
             // screen access and visibilty
-            { action: 'Manage Access Levels', subject: 'Users' },
+            { action: 'Manage Access Levels', subject: 'User' },
             { action: 'Billing Information', subject: 'Billing' },
             // data fields access
             { action: 'All Fields', subject: 'Data' },
@@ -192,13 +202,17 @@ export const initialRoles  = {
             { action: 'Create', subject: 'Target' },
             { action: 'View', subject: 'Target' },
             { action: 'Modify', subject: 'Target' },
-            { action: 'Set Alerts for others', subject: 'Users' },
+            { action: 'Set Alerts for others', subject: 'User' },
+            // milestone
+            { action: 'Create', subject: 'Milestone' },
+            { action: 'View', subject: 'Milestone' },
+            { action: 'Modify', subject: 'Milestone' },
             // data
             { action: 'Assign User to', subject: 'DataEntry' },
             { action: 'Activity', subject: 'Feed' },
             { action: 'Import/Add', subject: 'Data' },
             // dashboard
-            { action: 'Add New', subject: 'DashboardTab' },
+            { action: 'Create', subject: 'Dashboard' },
             { action: 'View', subject: 'Dashboard' },
             { action: 'Modify', subject: 'Dashboard' },
             // access levels
@@ -253,11 +267,14 @@ export const initialRoles  = {
             // target
             { action: 'Create', subject: 'Target' },
             { action: 'View', subject: 'Target' },
+            // milestone
+            { action: 'Create', subject: 'Milestone' },
+            { action: 'View', subject: 'Milestone' },
             // data
             { action: 'Assign User to', subject: 'DataEntry' },
             { action: 'Import/Add', subject: 'Data' },
             // dashboard
-            { action: 'Add New', subject: 'DashboardTab' },
+            { action: 'Create', subject: 'Dashboard' },
             { action: 'View', subject: 'Dashboard' },
             // widgets
             { action: 'View', subject: 'Widget' },
@@ -313,6 +330,8 @@ export const initialRoles  = {
             { action: 'Import/Add', subject: 'Data' },
             // target
             { action: 'View', subject: 'Target' },
+            // milestone
+            { action: 'View', subject: 'Milestone' },
             // dashboard
             { action: 'View', subject: 'Dashboard' },
             // widgets
@@ -401,7 +420,24 @@ export const allPermissions = [
   },
   {
     'action': 'Set Alerts for others',
-    'subject': 'Users'
+    'subject': 'User'
+  },
+  // MILESTONE
+  {
+    'action': 'Create',
+    'subject': 'Milestone'
+  },
+  {
+    'action': 'View',
+    'subject': 'Milestone'
+  },
+  {
+    'action': 'Modify',
+    'subject': 'Milestone'
+  },
+  {
+    'action': 'Delete',
+    'subject': 'Milestone'
   },
   // DATA
   {
@@ -422,8 +458,8 @@ export const allPermissions = [
   },
   // dashboard
   {
-    'action': 'Add New',
-    'subject': 'DashboardTab'
+    'action': 'Create',
+    'subject': 'Dashboard'
   },
   {
     'action': 'View',
@@ -477,7 +513,7 @@ export const allPermissions = [
   },
   {
     'action': 'Manage Access Levels',
-    'subject': 'Users'
+    'subject': 'User'
   },
   {
     'action': 'Assign Smi-Admin',
