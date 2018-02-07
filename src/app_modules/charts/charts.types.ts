@@ -30,6 +30,7 @@ export class GetChartInput  {
 
     @field({ type: GraphQLTypesMap.Boolean })
     isFutureTarget: boolean;
+    
 
 }
 
@@ -74,6 +75,10 @@ export class ChartAttributesInput  {
 
     @field({ type: GraphQLTypesMap.Boolean })
     isDrillDown?: boolean;
+
+    @field({ type: GraphQLTypesMap.String, isArray: true })
+    tags: string[];
+
 }
 
 
@@ -126,6 +131,9 @@ export class ChartEntityResponse  {
 
     @field({ type: Dashboard, isArray: true })
     dashboards: Dashboard[];
+
+    @field({ type: GraphQLTypesMap.String, isArray: true })
+    tags: string[];
 
     @resolver({ forField: 'dateRange' })
     static resolveDateRange = (entity: IChart) => entity.dateRange[0]
