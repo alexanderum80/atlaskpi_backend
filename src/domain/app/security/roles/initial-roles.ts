@@ -29,6 +29,7 @@ export const initialRoles  = {
             { action: 'View', subject: 'SecurityLog' },
             { action: 'Manage Access Levels', subject: 'Users' },
             { action: 'Assign Smi-Admin', subject: 'Access' },
+            { action: 'Assign Admin', subject: 'Access' },
             { action: 'Billing Information', subject: 'Billing' },
             { action: 'All Fields', subject: 'Data' },
             // widgets
@@ -396,6 +397,10 @@ export const allPermissions = [
   },
   {
     'action': 'Assign Smi-Admin',
+    'subject': 'Access'
+  },
+  {
+    'action': 'Assign Admin',
     'subject': 'Access'
   },
   {

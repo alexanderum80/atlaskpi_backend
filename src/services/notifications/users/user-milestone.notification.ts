@@ -33,6 +33,6 @@ export class UserMilestoneNotification implements IEmailNotifier {
         };
 
         const emailContent = userMilestoneTemplate(dataSource);
-        return sendEmail(email, `${this._config.usersService.app.name}: Milestone Notification`, emailContent);
+        return sendEmail(email, 'Milestone Notification', emailContent);
     }
 }

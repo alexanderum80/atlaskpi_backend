@@ -1,9 +1,12 @@
+import { IMilestone } from '../../domain/app/milestones/milestone';
 import { ErrorDetails } from '../../framework/graphql/common.types';
 import { Employee } from '../employees/employees.types';
 import { GraphQLTypesMap } from '../../framework/decorators/graphql-types-map';
 import { field } from '../../framework/decorators/field.decorator';
 import { type } from '../../framework/decorators/type.decorator';
 import { input } from '../../framework/decorators/input.decorator';
+import { resolver } from '../../framework/decorators/resolver.decorator';
+import * as moment from 'moment';
 
 @input()
 export class MilestoneInput {
@@ -57,6 +60,9 @@ export class Milestone {
 
     @field({ type: Employee, isArray: true })
     responsible: Employee[];
+
+    @resolver({ forField: 'dueDate'})
+    static formatDueDate = (entity: IMilestone) => moment(entity.dueDate).format('MM/DD/YYYY')
 }
 
 @type()

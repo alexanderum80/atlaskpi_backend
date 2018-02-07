@@ -53,6 +53,7 @@ export interface IKPIDataSourceHelper {
 export interface IDocumentExist {
     chart?: IChartDocument[];
     widget?: IWidgetDocument[];
+    complexKPI?: IKPIDocument[];
 }
 
 export interface IKPIDataSourceHelper {
