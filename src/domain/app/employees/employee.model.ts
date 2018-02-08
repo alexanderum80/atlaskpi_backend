@@ -38,19 +38,19 @@ EmployeeSchema.statics.createNew = function(employeeInput: IEmployeeInput): Prom
             return reject('Information not valid');
         }
 
-        that.create(employeeInput
-        //     {
-        //     firstName: employeeInput.firstName,
-        //     middleName: employeeInput.middleName,
-        //     lastName: employeeInput.lastName,
-        //     email: employeeInput.email,
-        //     primaryNumber: employeeInput.primaryNumber,
-        //     dob: employeeInput.dob,
-        //     nationality: employeeInput.nationality,
-        //     maritalStatus: employeeInput.maritalStatus,
-        //     address: employeeInput.address,
-        //     employmentInfo: employeeInput.employmentInfo
-        // }
+        that.create(
+            {
+            firstName: employeeInput.firstName,
+            middleName: employeeInput.middleName,
+            lastName: employeeInput.lastName,
+            email: employeeInput.email,
+            primaryNumber: employeeInput.primaryNumber,
+            dob: employeeInput.dob,
+            nationality: employeeInput.nationality,
+            maritalStatus: employeeInput.maritalStatus,
+            address: employeeInput.address,
+            employmentInfo: employeeInput.employmentInfo
+        }
     ).then(employee => {
             resolve(employee);
         }).catch(err => {
@@ -68,19 +68,19 @@ EmployeeSchema.statics.updateEmployee = function(_id: string, employeeInput: IEm
             return reject('Information not valid');
         }
 
-        that.findByIdAndUpdate(_id, employeeInput
-        //     {
-        //     firstName: employeeInput.firstName,
-        //     middleName: employeeInput.middleName,
-        //     lastName: employeeInput.lastName,
-        //     email: employeeInput.email,
-        //     primaryNumber: employeeInput.primaryNumber,
-        //     dob: employeeInput.dob,
-        //     nationality: employeeInput.nationality,
-        //     maritalStatus: employeeInput.maritalStatus,
-        //     address: employeeInput.address,
-        //     employmentInfo: employeeInput.employmentInfo
-        // }
+        that.findByIdAndUpdate(_id,
+            {
+            firstName: employeeInput.firstName,
+            middleName: employeeInput.middleName,
+            lastName: employeeInput.lastName,
+            email: employeeInput.email,
+            primaryNumber: employeeInput.primaryNumber,
+            dob: employeeInput.dob,
+            nationality: employeeInput.nationality,
+            maritalStatus: employeeInput.maritalStatus,
+            address: employeeInput.address,
+            employmentInfo: employeeInput.employmentInfo
+        }
     
     ).then(employee => {
             resolve(employee);
