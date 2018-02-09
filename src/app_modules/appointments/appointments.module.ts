@@ -4,9 +4,9 @@ import { DeleteAppointmentMutation } from './mutations/delete-appointment.mutati
 import { UpdateAppointmentMutation } from './mutations/update-appointment.mutation';
 import { AppointmentByDescriptionQuery } from './queries/appointment-by-description.query';
 import { AppointmentByIdQuery } from './queries/appointment-by-id.query';
-import { AppointmentsQuery } from './queries/appointments.query';
 import { AppointmentsByDateQuery } from './queries/appointments-by-date.query';
-
+import { AppointmentsQuery } from './queries/appointments.query';
+import { SearchAppointmentsQuery } from './queries/search-appointments.query';
 
 @AppModule({
     mutations: [
@@ -18,7 +18,8 @@ import { AppointmentsByDateQuery } from './queries/appointments-by-date.query';
         AppointmentByDescriptionQuery,
         AppointmentsByDateQuery,
         AppointmentByIdQuery,
-        AppointmentsQuery
+        AppointmentsQuery,
+        SearchAppointmentsQuery
     ]
 })
 export class AppointmentsModule extends ModuleBase { }

@@ -7,18 +7,46 @@ import { ModelBase } from '../../../type-mongo/model-base';
 import { AppConnection } from '../app.connection';
 import { IAppointment, IAppointmentDocument, IAppointmentModel } from './appointment';
 
+const EntitySchema = {
+    externalId: String,
+    name: String
+};
+
+const EventSchema = {
+    ...EntitySchema,
+    code: String,
+    color: String,
+    conflictColor: String,
+    cancelledColor: String
+};
+
 const AppointmentSchema = new mongoose.Schema({
+    // appointment
     source: String,
-    externalId: {
-        type: String,
-        unique: true
-    },
-    fullName: String,
     reason: String,
+    comments: String,
     from: Date,
     to: Date,
-    provider: String
+    duration: Number,
+    approved: Boolean,
+    checkedIn: Boolean,
+    checkedOut: Boolean,
+    cancelled: Boolean,
+    checkedInOn: Date,
+    checkedOutOn: Date,
+    cancelledOn: Date,
+    confirmedOn: Date,
+    createdOn: Date,
+    customer: { ...EntitySchema },
+    provider: [ EntitySchema ],
+    location: { ...EntitySchema },
+    event: { ...EventSchema },
+    document: {
+        type: String, // invoice, bill, charge, etc
+        identifier: String
+    }
 });
+
 
 AppointmentSchema.statics.createNew = function(input: IAppointment): Promise < IAppointmentDocument > {
     const that = < IAppointmentModel > this;

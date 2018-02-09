@@ -52,6 +52,7 @@ export interface ICategory extends IEntity {
 }
 
 export interface ISales {
+    source: string;
     externalId: string;
     location: ISaleLocation;
     customer: ISaleCustomer;
