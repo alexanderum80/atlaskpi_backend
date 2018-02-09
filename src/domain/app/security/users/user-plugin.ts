@@ -1058,10 +1058,16 @@ export function userPlugin(schema: mongoose.Schema, options: any) {
 
         return new Promise<IUserDocument>((resolve, reject) => {
             userModel
-                .findOneAndUpdate({_id: id}, input, {new: true })
+                .findOneAndUpdate({_id: id}, { preferences: input }, {new: true })
                 .exec()
-                .then(document => resolve(document))
-                .catch(err => reject(err));
+                .then(document => {
+                    resolve(document);
+                    return;
+                })
+                .catch(err => {
+                    reject(err);
+                    return;
+                });
         });
     };
 
