@@ -6,6 +6,7 @@ import { RemoveUserMutation } from './mutations/remove-user.mutation';
 import { ResetPasswordMutation } from './mutations/reset-password.mutation';
 import { UpdateUserMutation } from './mutations/update-user.mutation';
 import { UserForgotPasswordMutation } from './mutations/user-forgot-password.mutation';
+import { UpdateUserPreferenceMutation } from './mutations/update-user-preference.mutation';
 import { AllUsersQuery } from './queries/all-users.query';
 import { IsEnrollmentTokenValidQuery } from './queries/is-enrollment-token-valid.query';
 import { IsResetPasswordTokenValidQuery } from './queries/is-reset-password-token-valid.query';
@@ -22,7 +23,8 @@ import { FindByFullNameQuery } from './queries/user-by-fullName.query';
         RemoveUserMutation,
         ResetPasswordMutation,
         UpdateUserMutation,
-        UserForgotPasswordMutation
+        UserForgotPasswordMutation,
+        UpdateUserPreferenceMutation
     ],
     queries: [
         AllUsersQuery,

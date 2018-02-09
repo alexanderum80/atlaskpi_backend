@@ -9,13 +9,13 @@ import * as Promise from 'bluebird';
 
 @injectable()
 @mutation({
-    name: 'tourMutation',
+    name: 'updateUserPreference',
     activity: UpdateUserPreferenceActivity,
     parameters: [
-        { name: 'id', type: String },
+        { name: 'id', type: String, required: true },
         { name: 'input', type: ITourInput }
     ],
-    output: { type: ErrorSuccessResult}
+    output: { type: ErrorSuccessResult }
 })
 export class UpdateUserPreferenceMutation extends MutationBase<IMutationResponse> {
     constructor(@inject(Users.name) private _user: Users) {
