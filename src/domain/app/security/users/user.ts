@@ -55,6 +55,14 @@ export interface IUserProfile {
     dob?: Date;
 }
 
+export interface IShowTour {
+    showTour: boolean;
+}
+
+export interface IUserPreference {
+    chart?: IShowTour;
+}
+
 export interface ITokenInfo {
     ip: string;
     token: string;
@@ -87,6 +95,7 @@ export interface IUser {
     emails: IUserEmail[];
     services?: IUserServices;
     profile: IUserProfile;
+    preferences?: IUserPreference;
     roles?: IRole[];
     tokens?: ITokenInfo[];
     mobileDevices?: IMobileDevice[];
@@ -285,4 +294,8 @@ export interface IUserModel extends mongoose.Model<IUserDocument> {
      * find users with array of user ids
      */
     findUsersById(id: string[]): Promise<IUserDocument[]>;
+    /**
+     * update the user's preferences
+     */
+    updateUserPreference(id: string, input: IUserPreference): Promise<IUserDocument>;
 }

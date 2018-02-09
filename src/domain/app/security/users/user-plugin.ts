@@ -30,6 +30,7 @@ import {
     IUser,
     IUserDocument,
     IUserModel,
+    IUserPreference,
     IUserProfile,
 } from './user';
 import { IUserToken } from './user-token';
@@ -1049,6 +1050,18 @@ export function userPlugin(schema: mongoose.Schema, options: any) {
                 resolve(null);
                 return;
             }).catch(err => reject(err));
+        });
+    };
+
+    schema.statics.updateUserPreference = function(id: string, input: IUserPreference): Promise<IUserDocument> {
+        const userModel = (<IUserModel>this);
+
+        return new Promise<IUserDocument>((resolve, reject) => {
+            userModel
+                .findOneAndUpdate({_id: id}, input, {new: true })
+                .exec()
+                .then(document => resolve(document))
+                .catch(err => reject(err));
         });
     };
 

@@ -60,6 +60,19 @@ export class InputUserProfile  {
 
 }
 
+@input()
+export class ITourChart {
+    @field({ type: GraphQLTypesMap.Boolean })
+    showTour: boolean;
+}
+
+
+@input()
+export class ITourInput {
+    @field({ type: ITourChart })
+    chart: ITourChart;
+}
+
 
 @type()
 export class UserEmail  {
@@ -171,6 +184,18 @@ export class UserProfile  {
 }
 
 @type()
+export class ChartPreference {
+    @field({ type: GraphQLTypesMap.Boolean })
+    showTour: boolean;
+}
+
+@type()
+export class UserPreference {
+    @field({ type: ChartPreference })
+    chart: ChartPreference;
+}
+
+@type()
 export class User  {
     @field({ type: GraphQLTypesMap.String })
     _id: string;
@@ -183,6 +208,9 @@ export class User  {
 
     @field({ type: UserProfile })
     profile: UserProfile;
+
+    @field({ type: UserPreference })
+    preferences: UserPreference;
 
     // TODO: Come back here because bridge was complaining here processing this field (something related to permission I think)
     @field({ type: Role, isArray: true })
@@ -243,6 +271,15 @@ export class ResetPasswordResult  {
     @field({ type: ErrorDetails, isArray: true })
     errors: ErrorDetails[];
 
+}
+
+@type()
+export class ErrorSuccessResult {
+    @field({ type: GraphQLTypesMap.Boolean })
+    success: boolean;
+
+    @field({ type: ErrorDetails, isArray: true })
+    errors: ErrorDetails[];
 }
 
 
