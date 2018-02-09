@@ -12,7 +12,6 @@ import { tagsPlugin } from '../tags/tag.plugin';
 const LocationSchema = new mongoose.Schema({
     name: { type: String, unique: true, required: true },
     description: String,
-    // alias: [String],
     businessunits: String,
     street: String,
     country: String,
