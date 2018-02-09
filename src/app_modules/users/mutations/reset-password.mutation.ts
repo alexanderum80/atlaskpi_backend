@@ -6,7 +6,7 @@ import { Users } from '../../../domain/app/security/users/user.model';
 import { mutation } from '../../../framework/decorators/mutation.decorator';
 import { MutationBase } from '../../../framework/mutations/mutation-base';
 import { ResetPasswordActivity } from '../activities/reset-password.activity';
-import { InputUserProfile, ResetPasswordResult } from '../users.types';
+import { InputUserProfile, ErrorSuccessResult } from '../users.types';
 import { IMutationResponse } from '../../../framework/mutations/mutation-response';
 
 @injectable()
@@ -19,7 +19,7 @@ import { IMutationResponse } from '../../../framework/mutations/mutation-respons
         { name: 'profile', type: InputUserProfile },
         { name: 'enrollment', type: Boolean },
     ],
-    output: { type: ResetPasswordResult }
+    output: { type: ErrorSuccessResult }
 })
 export class ResetPasswordMutation extends MutationBase<IMutationResponse> {
     constructor(@inject(Users.name) private _users: Users) {

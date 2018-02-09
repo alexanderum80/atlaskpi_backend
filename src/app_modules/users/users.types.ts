@@ -251,35 +251,13 @@ export class CreateUserResult  {
 
 }
 
-
-@type()
-export class ForgotPasswordResult  {
-    @field({ type: GraphQLTypesMap.Boolean })
-    success: boolean;
-
-    @field({ type: ErrorDetails, isArray: true })
-    errors?: ErrorDetails[];
-
-}
-
-
-@type()
-export class ResetPasswordResult  {
-    @field({ type: GraphQLTypesMap.Boolean })
-    success: boolean;
-
-    @field({ type: ErrorDetails, isArray: true })
-    errors: ErrorDetails[];
-
-}
-
 @type()
 export class ErrorSuccessResult {
     @field({ type: GraphQLTypesMap.Boolean })
     success: boolean;
 
     @field({ type: ErrorDetails, isArray: true })
-    errors: ErrorDetails[];
+    errors?: ErrorDetails[];
 }
 
 
