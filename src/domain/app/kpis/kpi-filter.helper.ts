@@ -1,5 +1,5 @@
 import { CallSchema } from '../calls/call.model';
-import { isArray, isObject } from 'lodash';
+import { isArray, isObject, isDate } from 'lodash';
 
 import { isArrayObject } from '../../../helpers/express.helpers';
 import { readMongooseSchema } from '../../../helpers/mongodb.helpers';
@@ -119,9 +119,9 @@ export class KPIFilterHelper {
 
             let value = filter[filterKey];
 
-            if (!isArray(value) && isObject(value)) {
+            if (!isArray(value) && !isDate(value) && isObject(value)) {
                 value = KPIFilterHelper._serializer(value, operation);
-            } else if (isArrayObject(value)) {
+            } else if (!isDate(value) && isArrayObject(value)) {
                 for (let i = 0; i < value.length; i++) {
                     value[i] = this._serializer(value[i], operation);
                 }
