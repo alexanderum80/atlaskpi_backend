@@ -4,6 +4,7 @@ import * as fs from 'fs';
 import { inject, injectable } from 'inversify';
 import * as mongoose from 'mongoose';
 import * as path from 'path';
+import * as moment from 'moment';
 
 import { Dashboard } from '../../app_modules/dashboards/dashboards.types';
 import { KPI } from '../../app_modules/kpis/kpis.types';
@@ -107,6 +108,8 @@ function seedDataFile(data, model): Promise < boolean > {
                     }
 
                     let dataArray = JSON.parse(data);
+                    // change the dates for sales, inventory, expenses, and worklogs date to have current date
+                    dataArray = modifySeedDatesData(dataArray, model);
 
                     ( < mongoose.Model < any >> model.model).insertMany(dataArray, (err, doc) => {
                         if (err) {
@@ -120,4 +123,128 @@ function seedDataFile(data, model): Promise < boolean > {
             }
         });
     });
+}
+
+/**
+ * @param data
+ * @param model
+ * modify the data only for expenses, sales, inventory, and worklogs
+ */
+function modifySeedDatesData(data: any[], model: any): any[] {
+    if (!data || !data.length) { return []; }
+
+    const blacklist = ['Expenses', 'Sales', 'Inventory', 'Worklogs'];
+    if (blacklist.indexOf(model.constructor.name) !== -1) {
+        data = modifyDate(data, model.constructor.name);
+    }
+    return data;
+}
+
+/**
+ * @param data
+ * @param model
+ * modify the sales for each model
+ */
+function modifyDate(data: any[], model: string): any[] {
+    if (!data || !data.length) { return []; }
+    if (!model) { return; }
+
+    // return the dates in an array
+    const moments: any = dataMapDates(data, model);
+    // get the latest date
+    const latestDate = moment.max(moments);
+
+    // get current date
+    const now = moment().format();
+    // subtract the current date from the latest date
+    const diffYears = parseInt(moment(now).format('YYYY')) - parseInt(moment(latestDate).format('YYYY'));
+
+    for (let i = 0; i < data.length; i++) {
+        // get the updated date
+        const newDate = updatedDate(data[i], diffYears, model);
+        // assign the objec key and values based on the model
+        data[i] = modelObject(data[i], newDate, model);
+        let v = 1;
+    }
+    data = filterFutureDates(data, moment(), model);
+    return data;
+}
+
+function updatedDate(obj: any, diffYears: number, model: string): moment.Moment {
+    let collection;
+    if (!collection) {
+        collection = {
+            'Expenses': obj.timestamp,
+            'Sales': obj.timestamp,
+            'Inventory': obj.updatedAt,
+            'Worklogs': obj.date
+        };
+    }
+    return moment(collection[model]).add(diffYears, 'year');
+}
+
+function modelObject(obj: any, newDate: moment.Moment, model: string): any {
+    if (!model) { return; }
+    switch (model) {
+        case 'Expenses':
+            return Object.assign(obj, {
+                timestamp: newDate
+            });
+        case 'Sales':
+            Object.assign(obj.product, {
+                from: newDate,
+                to: newDate
+            });
+            obj.timestamp = newDate;
+            return obj;
+        case 'Inventory':
+            return Object.assign(obj, {
+                updatedAt: newDate
+            });
+        case 'Worklogs':
+            return Object.assign(obj, {
+                date: newDate
+            });
+    }
+}
+
+
+/**
+ * @param data
+ * @param currentDate
+ * @param model
+ * remove any dates that are greater than current date
+ */
+function filterFutureDates(data: any[], currentDate: moment.Moment, model: string): moment.Moment[] {
+    if (!data || !data.length) { return []; }
+
+    switch (model) {
+        case 'Expenses':
+            return data.filter(d => currentDate.diff(d.timestamp) >= 0);
+        case 'Sales':
+            return data.filter(d => currentDate.diff(d.timestamp) >= 0);
+        case 'Inventory':
+            return data.filter(d => currentDate.diff(d.updatedAt) >= 0);
+        case 'Worklogs':
+            return data.filter(d => currentDate.diff(d.date) >= 0);
+    }
+}
+
+/**
+ * @param data
+ * @param model
+ * return the array of dates based on field that is of type date
+ */
+function dataMapDates(data: any[], model: string): moment.Moment[] {
+    if (!data || !data.length) { return; }
+    switch (model) {
+        case 'Expenses':
+            return data.map(d => moment(d.timestamp));
+        case 'Sales':
+            return data.map(d => moment(d.timestamp));
+        case 'Inventory':
+            return data.map(d => moment(d.updatedAt));
+        case 'Worklogs':
+            return data.map(d => moment(d.date));
+    }
 }
