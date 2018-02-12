@@ -1,3 +1,4 @@
+import { AppointmentProvidersListQuery } from './queries/appointment-provider-list.query';
 import { AppModule, ModuleBase } from '../../framework/decorators/app-module';
 import { CreateAppointmentMutation } from './mutations/create-appointment.mutation';
 import { DeleteAppointmentMutation } from './mutations/delete-appointment.mutation';
@@ -19,6 +20,7 @@ import { SearchAppointmentsQuery } from './queries/search-appointments.query';
         AppointmentsByDateQuery,
         AppointmentByIdQuery,
         AppointmentsQuery,
+        AppointmentProvidersListQuery,
         SearchAppointmentsQuery
     ]
 })

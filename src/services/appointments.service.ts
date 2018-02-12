@@ -1,3 +1,4 @@
+import { isEmpty } from 'lodash';
 import * as Promise from 'bluebird';
 import { inject, injectable } from 'inversify';
 import * as moment from 'moment';
@@ -6,6 +7,14 @@ import { SearchAppointmentCriteriaInput } from '../app_modules/appointments/appo
 import { Appointments } from '../domain/app/appointments/appointment-model';
 import { Logger } from '../domain/app/logger';
 import { IAppointment } from './../domain/app/appointments/appointment';
+import { IIdName } from './../domain/common/id-name';
+
+const distinctProvidersPipeline = [
+    { '$unwind': '$provider' },
+    { '$match' : { 'provider.externalId' : { '$ne' : null }}},
+    { '$group': { '_id': { externalId: '$provider.externalId', name: '$provider.name' } } },
+    { '$project': { _id: 0, externalId: '$_id.externalId', name: '$_id.name' } }
+];
 
 @injectable()
 export class AppointmentsService {
@@ -41,7 +50,7 @@ export class AppointmentsService {
             }
 
             // provider criteria
-            if (criteria.provider && criteria.provider.length) {
+            if (criteria.provider && criteria.provider.length && !isEmpty(criteria.provider[0])) {
                 query['provider.externalId'] = {
                     '$in': criteria.provider,
                 };
@@ -57,8 +66,21 @@ export class AppointmentsService {
 
         const that = this;
         return new Promise <IAppointment[]>((resolve, reject) => {
-            that._appointments.model.find(query).then(appointments => {
+            that._appointments.model.find(query).sort({ from: 1 }).then(appointments => {
                 resolve(appointments);
+                return;
+            }).catch(err => {
+                that._logger.error(err);
+                return reject('There was an error retrieving appointments');
+            });
+        });
+    }
+
+    providersList(): Promise<IIdName[]> {
+        const that = this;
+        return new Promise <IIdName[]>((resolve, reject) => {
+            that._appointments.model.aggregate(distinctProvidersPipeline).then(providers => {
+                resolve(<any>providers);
                 return;
             }).catch(err => {
                 that._logger.error(err);

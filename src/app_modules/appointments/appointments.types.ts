@@ -158,3 +158,11 @@ export class AppointmentMutationResponse  {
     errors?: ErrorDetails[];
 }
 
+@type()
+export class AppointmentProvider  {
+    @field({ type: GraphQLTypesMap.String })
+    externalId: string;
+
+    @field({ type: GraphQLTypesMap.String })
+    name: string ;
+}

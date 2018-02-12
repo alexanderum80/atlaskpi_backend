@@ -20,8 +20,9 @@ import { AppointmentsService } from '../../../services/appointments.service';
     output: { type: Appointment, isArray: true }
 })
 export class SearchAppointmentsQuery implements IQuery<IAppointment[]> {
-    constructor(@inject(AppointmentsService.name) private _appointmentsService: AppointmentsService) {
-    }
+    constructor(
+        @inject(AppointmentsService.name) private _appointmentsService: AppointmentsService
+    ) { }
 
     run(data: { criteria: SearchAppointmentCriteriaInput }): Promise<IAppointment[]> {
         return this._appointmentsService.search(data.criteria);
