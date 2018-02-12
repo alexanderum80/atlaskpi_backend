@@ -14,6 +14,7 @@ import { Dashboards } from '../../domain/app/dashboards/dashboard.model';
 import { Expenses } from '../../domain/app/expenses/expense.model';
 import { KPIs } from '../../domain/app/kpis/kpi.model';
 import { Sales } from '../../domain/app/sales/sale.model';
+import { Inventory } from '../../domain/app/inventory/inventory.model';
 import { WorkLog } from '../../domain/app/work-log/work-log';
 import { Worklogs } from '../../domain/app/work-log/work-log.model';
 
@@ -23,6 +24,7 @@ import { Worklogs } from '../../domain/app/work-log/work-log.model';
 interface ISeedModels {
     Expense: Expenses;
     Sale: Sales;
+    Inventory: Inventory;
     WorkLog: Worklogs;
     KPI: KPIs;
     Chart: Charts;
@@ -38,6 +40,7 @@ export class SeedService {
             Expense: new Expenses(appConnection),
             Sale: new Sales(appConnection),
             WorkLog: new Worklogs(appConnection),
+            Inventory: new Inventory(appConnection),
             KPI: new KPIs(appConnection),
             Chart: new Charts(appConnection),
             Dashboard: new Dashboards(appConnection)
@@ -56,6 +59,10 @@ export class SeedService {
             {
                 model: 'WorkLog',
                 filename: 'workLogs.json'
+            },
+            {
+                model: 'Inventory',
+                filename: 'inventory.json'
             },
             {
                 model: 'KPI',
@@ -133,7 +140,7 @@ function seedDataFile(data, model): Promise < boolean > {
 function modifySeedDatesData(data: any[], model: any): any[] {
     if (!data || !data.length) { return []; }
 
-    const blacklist = ['Expenses', 'Sales', 'Inventory', 'Worklogs'];
+    const blacklist: string[] = ['Expenses', 'Sales', 'Inventory', 'Worklogs'];
     if (blacklist.indexOf(model.constructor.name) !== -1) {
         data = modifyDate(data, model.constructor.name);
     }
@@ -150,21 +157,23 @@ function modifyDate(data: any[], model: string): any[] {
     if (!model) { return; }
 
     // return the dates in an array
+    // i.e. [Moment, Moment, Moment, ...]
     const moments: any = dataMapDates(data, model);
     // get the latest date
+    // i.e. Moment => 2017-11-03
     const latestDate = moment.max(moments);
 
     // get current date
-    const now = moment().format();
+    const now: string = moment().format();
     // subtract the current date from the latest date
-    const diffYears = parseInt(moment(now).format('YYYY')) - parseInt(moment(latestDate).format('YYYY'));
+    // i.e. output => 2
+    const diffYears: number = parseInt(moment(now).format('YYYY')) - parseInt(moment(latestDate).format('YYYY'));
 
     for (let i = 0; i < data.length; i++) {
         // get the updated date
-        const newDate = updatedDate(data[i], diffYears, model);
-        // assign the objec key and values based on the model
-        data[i] = modelObject(data[i], newDate, model);
-        let v = 1;
+        const newDate: moment.Moment = updatedDate(data[i], diffYears, model);
+        // assign the object key and values based on the model
+        data[i] = updateModelObject(data[i], newDate, model);
     }
     data = filterFutureDates(data, moment(), model);
     return data;
@@ -183,7 +192,7 @@ function updatedDate(obj: any, diffYears: number, model: string): moment.Moment 
     return moment(collection[model]).add(diffYears, 'year');
 }
 
-function modelObject(obj: any, newDate: moment.Moment, model: string): any {
+function updateModelObject(obj: any, newDate: moment.Moment, model: string): any {
     if (!model) { return; }
     switch (model) {
         case 'Expenses':
@@ -234,6 +243,7 @@ function filterFutureDates(data: any[], currentDate: moment.Moment, model: strin
  * @param data
  * @param model
  * return the array of dates based on field that is of type date
+ * i.e. [Moment, Moment, Moment, ...]
  */
 function dataMapDates(data: any[], model: string): moment.Moment[] {
     if (!data || !data.length) { return; }
