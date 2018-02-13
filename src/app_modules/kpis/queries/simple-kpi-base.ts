@@ -1,5 +1,5 @@
 import { isArray } from 'util';
-import { cloneDeep, isObject } from 'lodash';
+import { cloneDeep, isObject, isDate } from 'lodash';
 import { KpiBase, IKpiBase } from './kpi-base';
 import { isRegExp, isArrayObject } from '../../../helpers/express.helpers';
 import { IKPISimpleDefinition } from '../../../domain/app/kpis/kpi';
@@ -30,9 +30,9 @@ export class SimpleKPIBase extends KpiBase {
 
             let value = filter[filterKey];
 
-            if (!isArray(value) && (!isRegExp(value)) && isObject(value)) {
+            if (!isArray(value) && (!isDate(value)) && (!isRegExp(value)) && isObject(value)) {
                 value = this._filterWithNoAggField(value, fieldName);
-            } else if (isArrayObject(value)) {
+            } else if ((!isDate(value)) && isArrayObject(value)) {
                 for (let i = 0; i < value.length; i++) {
                     value[i] = this._filterWithNoAggField(value[i], fieldName);
                 }
@@ -114,10 +114,10 @@ export class SimpleKPIBase extends KpiBase {
 
             let value = filter[filterKey];
 
-            if (!isArray(value) && (!isRegExp(value)) && isObject(value)) {
+            if (!isArray(value) && (!isDate(value)) && (!isRegExp(value)) && isObject(value)) {
                 const found = this.aggFieldFilterOnly(value, fieldName);
                 if (found) { filterObj = found; }
-            } else if (isArray(value)) {
+            } else if ((!isDate(value)) && isArray(value)) {
                 for (let i = 0; i < value.length; i++) {
                     const found = this.aggFieldFilterOnly(value[i], fieldName);
                     if (found) { filterObj = found; }

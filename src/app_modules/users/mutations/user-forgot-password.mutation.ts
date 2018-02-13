@@ -7,7 +7,7 @@ import { mutation } from '../../../framework/decorators/mutation.decorator';
 import { MutationBase } from '../../../framework/mutations/mutation-base';
 import { UserForgotPasswordNotification } from '../../../services/notifications/users/user-forgot-password.notification';
 import { UserForgotPasswordActivity } from '../activities/user-forgot-password.activity';
-import { ForgotPasswordResult } from '../users.types';
+import { ErrorSuccessResult } from '../users.types';
 
 @injectable()
 @mutation({
@@ -16,9 +16,9 @@ import { ForgotPasswordResult } from '../users.types';
     parameters: [
         { name: 'email', type: String, required: true },
     ],
-    output: { type: ForgotPasswordResult }
+    output: { type: ErrorSuccessResult }
 })
-export class UserForgotPasswordMutation extends MutationBase<ForgotPasswordResult> {
+export class UserForgotPasswordMutation extends MutationBase<ErrorSuccessResult> {
     constructor(
         @inject('Config') private _config: IAppConfig,
         @inject(Users.name) private _users: Users,
@@ -27,7 +27,7 @@ export class UserForgotPasswordMutation extends MutationBase<ForgotPasswordResul
         super();
     }
 
-    run(data: { email: string,  }): Promise<ForgotPasswordResult> {
+    run(data: { email: string,  }): Promise<ErrorSuccessResult> {
         return this._users.model.forgotPassword(data.email, this._config.usersService.usernameField, this._userForgotPasswordNotification)
         .then((sentInfo) => {
             return { success: true };
