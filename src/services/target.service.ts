@@ -52,15 +52,13 @@ export class TargetService {
                 .populate({ path: 'kpis' })
                 .then((chart) => {
                     that.chartInfo = chart;
-                    that.isStacked = ((chart.chartDefinition.chart.type === 'column') &&
-                        (chart.groupings[0] === chart.xAxisSource)) ||
-                        (chart.groupings.length && !chart.frequency && !chart.xAxisSource);
+                    that.isStacked = that._stacked(chart);
 
                     let kpi = that._kpiFactory.getInstance(chart.kpis[0]);
                     let groupings = getGroupingMetadata(chart, chart.groupings ? chart.groupings : []);
 
                     // check if the chart has no groupings
-                    if (!groupings || !groupings.length || !groupings[0]) {
+                    if (!that.isStacked && (!groupings || !groupings.length || !groupings[0])) {
                         kpi.getData([that.getDate(data.period)], { filter: chart.filter})
                             .then(response => {
                                 resolve(response);
@@ -269,5 +267,14 @@ export class TargetService {
             from: moment(notify, 'MM/DD/YYYY').startOf(frequency).toDate(),
             to: moment(notify, 'MM/DD/YYYY').toDate()
         };
+    }
+
+    private _stacked(chart: any): boolean {
+        return ((chart.chartDefinition.chart.type === 'column') &&
+                Array.isArray(chart.groupings) &&
+                chart.groupings && chart.xAxisSource &&
+                (chart.groupings[0] === chart.xAxisSource)) ||
+                (Array.isArray(chart.groupings) &&
+                 chart.groupings.length && !chart.frequency && !chart.xAxisSource);
     }
 }
