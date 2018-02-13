@@ -1,6 +1,5 @@
 import { IBridgeContainer } from '../framework/di/bridge-container';
 import { AccountsService } from './accounts.service';
-import { AppointmentsService } from './appointments.service';
 import { AuthService } from './auth.service';
 import { CallRailService } from './callrail.services';
 import { ChartsService } from './charts.service';
@@ -45,5 +44,4 @@ export function registerServices(container: IBridgeContainer) {
     container.registerPerWebRequest(ConnectorsService);
     container.registerPerWebRequest(GoogleAnalyticsKPIService);
     container.registerPerWebRequest(ExternalDataSourcesService);
-    container.registerPerWebRequest(AppointmentsService);
 }

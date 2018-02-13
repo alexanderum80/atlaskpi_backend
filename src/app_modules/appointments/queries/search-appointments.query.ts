@@ -8,7 +8,6 @@ import { Appointment } from '../appointments.types';
 import { IQuery } from './../../../framework/queries/query';
 import { SearchAppointmentsActivity } from './../activities/search-appointments.activity';
 import { SearchAppointmentCriteriaInput } from './../appointments.types';
-import { AppointmentsService } from '../../../services/appointments.service';
 
 @injectable()
 @query({
@@ -21,10 +20,10 @@ import { AppointmentsService } from '../../../services/appointments.service';
 })
 export class SearchAppointmentsQuery implements IQuery<IAppointment[]> {
     constructor(
-        @inject(AppointmentsService.name) private _appointmentsService: AppointmentsService
+        @inject(Appointments.name) private _appointments: Appointments
     ) { }
 
     run(data: { criteria: SearchAppointmentCriteriaInput }): Promise<IAppointment[]> {
-        return this._appointmentsService.search(data.criteria);
+        return this._appointments.model.search(data.criteria);
     }
 }

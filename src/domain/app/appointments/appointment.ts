@@ -1,7 +1,10 @@
-import { BaseModel } from './../../common/base.model';
-import { IEntity } from './../sales/sale';
-import * as mongoose from 'mongoose';
 import * as Promise from 'bluebird';
+import * as mongoose from 'mongoose';
+
+import { SearchAppointmentCriteriaInput } from './../../../app_modules/appointments/appointments.types';
+import { BaseModel } from './../../common/base.model';
+import { IIdName } from './../../common/id-name';
+import { IEntity } from './../sales/sale';
 
 export interface IAppointmentEvent extends IEntity {
     code: string;
@@ -49,4 +52,7 @@ export interface IAppointmentModel extends mongoose.Model<IAppointmentDocument> 
     appointmentByDescription(from: Date, to: Date, name: string): Promise<IAppointmentDocument>;
     appointmentsByDate(date: Date): Promise<IAppointmentDocument[]>;
     deleteAppointment(id: string): Promise<IAppointmentDocument>;
+
+    search(criteria: SearchAppointmentCriteriaInput): Promise<IAppointment[]>;
+    providersList(): Promise<IIdName[]>;
 }

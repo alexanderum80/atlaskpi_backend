@@ -2,9 +2,9 @@ import * as Promise from 'bluebird';
 import { inject, injectable } from 'inversify';
 
 import { query } from '../../../framework/decorators/query.decorator';
+import { Appointments } from './../../../domain/app/appointments/appointment-model';
 import { IIdName } from './../../../domain/common/id-name';
 import { IQuery } from './../../../framework/queries/query';
-import { AppointmentsService } from './../../../services/appointments.service';
 import { ListAppointmentProvidersActivity } from './../activities/list-appointment-providers.activity';
 import { AppointmentProvider } from './../appointments.types';
 
@@ -16,10 +16,10 @@ import { AppointmentProvider } from './../appointments.types';
 })
 export class AppointmentProvidersListQuery implements IQuery<IIdName[]> {
     constructor(
-        @inject(AppointmentsService.name) private _appointmentsService: AppointmentsService
+        @inject(Appointments.name) private _appointments: Appointments
     ) { }
 
     run(): Promise<IIdName[]> {
-        return this._appointmentsService.providersList();
+        return this._appointments.model.providersList();
     }
 }
