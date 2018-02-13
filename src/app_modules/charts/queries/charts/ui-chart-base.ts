@@ -540,6 +540,8 @@ export class UIChartBase {
                 // if chart has no groupings
                 this.commonField = ['noGroupingName'];
             }
+        } else {
+            this.commonField = [NULL_CATEGORY_REPLACEMENT];
         }
 
         if (target.length) {
