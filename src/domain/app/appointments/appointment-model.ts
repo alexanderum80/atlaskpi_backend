@@ -204,6 +204,10 @@ AppointmentSchema.statics.search = function(criteria: SearchAppointmentCriteriaI
     if (criteria && criteria.date) {
         from = moment(criteria.date).startOf('day');
         to = moment(criteria.date).add(1, 'day').startOf('day');
+
+        // const day = moment(criteria.date);
+        // from = day.startOf('day');
+        // to = day.add(1, 'day').startOf('day');
     }  else if (criteria && criteria.startDate && criteria.endDate) {
         from = moment(criteria.startDate);
         to = moment(criteria.endDate);
