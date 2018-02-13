@@ -223,7 +223,7 @@ AppointmentSchema.statics.search = function(criteria: SearchAppointmentCriteriaI
     };
 
     // provider
-    if (criteria.provider &&
+    if (criteria && criteria.provider &&
         criteria.provider.length &&
         !isEmpty(criteria.provider[0])) {
         query['provider.externalId'] = {
