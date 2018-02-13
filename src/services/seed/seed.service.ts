@@ -147,10 +147,11 @@ function modifySeedDatesData(data: any[], model: any): any[] {
     return data;
 }
 
+
 /**
  * @param data
  * @param model
- * modify the sales for each model
+ * modify the dates for each model
  */
 function modifyDate(data: any[], model: string): any[] {
     if (!data || !data.length) { return []; }
@@ -159,27 +160,30 @@ function modifyDate(data: any[], model: string): any[] {
     // return the dates in an array
     // i.e. [Moment, Moment, Moment, ...]
     const moments: any = dataMapDates(data, model);
-    // get the latest date
-    // i.e. Moment => 2017-11-03
-    const latestDate = moment.max(moments);
+    // oldest date in seed file
+    const oldestDate: moment.Moment = moment.min(moments);
 
-    // get current date
-    const now: string = moment().format();
-    // subtract the current date from the latest date
-    // i.e. output => 2
-    const diffYears: number = parseInt(moment(now).format('YYYY')) - parseInt(moment(latestDate).format('YYYY'));
+    // oldest date want in the system
+    const oldestSystemDate: moment.Moment = moment(oldestDate).add('year', 3);
+    // difference in days between oldest date want in system to the oldest date in the seed file
+    const diffDays: number = oldestSystemDate.diff(oldestDate, 'days');
 
     for (let i = 0; i < data.length; i++) {
-        // get the updated date
-        const newDate: moment.Moment = updatedDate(data[i], diffYears, model);
+        // add the diff in days to all the dates
+        const newDate: moment.Moment = updatedDate(data[i], diffDays, model);
         // assign the object key and values based on the model
         data[i] = updateModelObject(data[i], newDate, model);
     }
-    data = filterFutureDates(data, moment(), model);
     return data;
 }
 
-function updatedDate(obj: any, diffYears: number, model: string): moment.Moment {
+/**
+ * increase the dates in each model by days
+ * @param obj
+ * @param diff
+ * @param model
+ */
+function updatedDate(obj: any, diff: number, model: string): moment.Moment {
     let collection;
     if (!collection) {
         collection = {
@@ -189,7 +193,7 @@ function updatedDate(obj: any, diffYears: number, model: string): moment.Moment 
             'Worklogs': obj.date
         };
     }
-    return moment(collection[model]).add(diffYears, 'year');
+    return moment(collection[model]).add('day', diff);
 }
 
 function updateModelObject(obj: any, newDate: moment.Moment, model: string): any {
@@ -214,28 +218,6 @@ function updateModelObject(obj: any, newDate: moment.Moment, model: string): any
             return Object.assign(obj, {
                 date: newDate
             });
-    }
-}
-
-
-/**
- * @param data
- * @param currentDate
- * @param model
- * remove any dates that are greater than current date
- */
-function filterFutureDates(data: any[], currentDate: moment.Moment, model: string): moment.Moment[] {
-    if (!data || !data.length) { return []; }
-
-    switch (model) {
-        case 'Expenses':
-            return data.filter(d => currentDate.diff(d.timestamp) >= 0);
-        case 'Sales':
-            return data.filter(d => currentDate.diff(d.timestamp) >= 0);
-        case 'Inventory':
-            return data.filter(d => currentDate.diff(d.updatedAt) >= 0);
-        case 'Worklogs':
-            return data.filter(d => currentDate.diff(d.date) >= 0);
     }
 }
 
