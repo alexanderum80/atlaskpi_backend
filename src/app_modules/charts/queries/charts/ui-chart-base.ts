@@ -540,8 +540,6 @@ export class UIChartBase {
                 // if chart has no groupings
                 this.commonField = ['noGroupingName'];
             }
-        } else {
-            this.commonField = [NULL_CATEGORY_REPLACEMENT];
         }
 
         if (target.length) {
@@ -608,7 +606,10 @@ export class UIChartBase {
                 if (meta.xAxisSource) {
                     return this._targetMetaData(meta, meta.xAxisSource, data, categories);
                 } else {
-                    return this._targetMetaData(meta, NULL_CATEGORY_REPLACEMENT, data, categories);
+                    return [{
+                        name: '',
+                        data: data.map(item => item.value)
+                    }];
                 }
             case 1:
                 return this._targetMetaData(meta, groupings, data, categories);
@@ -645,8 +646,6 @@ export class UIChartBase {
                 return val._id[groupByField] + '_' + val._id['stackName'];
             } else if (val['_id'].hasOwnProperty('noGroupingName')) {
                 return val._id[groupByField] + '_' + val._id['noGroupingName'];
-            } else if (val['_id'].hasOwnProperty(NULL_CATEGORY_REPLACEMENT)) {
-                return val._id[NULL_CATEGORY_REPLACEMENT];
             } else {
                 return val._id[groupByField];
             }
@@ -657,10 +656,8 @@ export class UIChartBase {
 
         if (meta.xAxisSource === FREQUENCY_GROUPING_NAME) {
             matchField = getFrequencyPropName(meta.frequency);
-        } else if (meta.xAxisSource) {
-            matchField = meta.xAxisSource;
         } else {
-            matchField = NULL_CATEGORY_REPLACEMENT;
+            matchField = meta.xAxisSource;
         }
 
         return this._targetFormatData(groupedData, categories, matchField);
