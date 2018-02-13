@@ -163,8 +163,13 @@ function modifyDate(data: any[], model: string): any[] {
     // oldest date in seed file
     const oldestDate: moment.Moment = moment.min(moments);
 
-    // oldest date want in the system
-    const oldestSystemDate: moment.Moment = moment(oldestDate).add('year', 3);
+    // oldest date in the system
+    let oldestSystemDate = moment().subtract(3, 'year');
+    // check if the difference is negative value, i.e. inventory
+    if (oldestSystemDate.diff(oldestDate, 'days') <= 0) {
+        oldestSystemDate = moment().subtract(1, 'year');
+    }
+
     // difference in days between oldest date want in system to the oldest date in the seed file
     const diffDays: number = oldestSystemDate.diff(oldestDate, 'days');
 
