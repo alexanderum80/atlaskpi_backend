@@ -129,7 +129,7 @@ export class UIChartBase {
 
             if (isTargetPresent) {
                 that._dummyData(data, metadata, target);
-                this._formatTarget(target, metadata, that.groupings);
+                that._formatTarget(target, metadata, that.groupings);
             }
 
             that.frequencyHelper.decomposeFrequencyInfo(data, metadata.frequency);
