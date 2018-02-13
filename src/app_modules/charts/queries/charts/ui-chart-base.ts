@@ -129,7 +129,7 @@ export class UIChartBase {
 
             if (isTargetPresent) {
                 that._dummyData(data, metadata, target);
-                this._formatTarget(target, metadata, that.groupings);
+                that._formatTarget(target, metadata, that.groupings);
             }
 
             that.frequencyHelper.decomposeFrequencyInfo(data, metadata.frequency);
@@ -588,7 +588,8 @@ export class UIChartBase {
     }
 
     private _injectTargets(data: any[], meta: IChartMetadata, categories: IXAxisCategory[], groupings: string[], series: any[]) {
-        let groupDifference = difference(groupings, [meta.xAxisSource]);
+        const chartGroupings = this._getXaxisSource(data, meta, groupings);
+        const groupDifference = difference(chartGroupings, [meta.xAxisSource]);
         this.targets = this._targetGrouping(data, groupDifference.length, groupDifference[0], meta, categories);
 
         if (this.targets && this.targets.length) {
