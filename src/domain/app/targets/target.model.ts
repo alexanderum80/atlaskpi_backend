@@ -9,6 +9,7 @@ import { field } from '../../../framework/decorators/field.decorator';
 import { ModelBase } from '../../../type-mongo/model-base';
 import { AppConnection } from '../app.connection';
 import { ITarget, ITargetDocument, ITargetModel } from './target';
+import { tagsPlugin } from '../tags/tag.plugin';
 
 
 let Schema = mongoose.Schema;
@@ -19,24 +20,27 @@ let NotifySchema = new Schema({
 });
 
 let TargetSchema = new Schema({
-    name: String,
-    datepicker: Date,
-    vary: String,
-    amount: Number,
-    amountBy: String,
-    type: String,
+    name: { type: String, required: true, unique: true },
+    datepicker: { type: Date, required: true },
+    vary: { type: String, required: true },
+    amount: { type: Number, required: true },
+    amountBy: { type: String, required: true },
+    type: { type: String, required: true },
     period: String,
-    active: Boolean,
+    active: { type: Boolean, required: true },
     notify: NotifySchema,
     visible: [String],
     delete: Boolean,
-    owner: String,
-    target: Number,
+    owner: { type: String, required: true },
+    target: { type: Number, required: true },
     stackName: String,
     nonStackName: String,
     chart: [{ type: mongoose.Schema.Types.String, ref: 'Chart'}],
     timestamp: { type: Date, default: Date.now }
 });
+
+// add tags capabilities
+TargetSchema.plugin(tagsPlugin);
 
 TargetSchema.statics.createTarget = function(data: ITarget): Promise<ITargetDocument> {
     const that = this;

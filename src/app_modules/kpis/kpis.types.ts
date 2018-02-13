@@ -1,17 +1,16 @@
-import { resolver } from '../../framework/decorators/resolver.decorator';
-import { Widget } from '../widgets/widgets.types';
-import { KPIGroupingsHelper } from './../../domain/app/kpis/kpi-groupings.helper';
-import { KPIExpressionHelper } from './../../domain/app/kpis/kpi-expression.helper';
-import { type } from '../../framework/decorators/type.decorator';
+import { IKPIDocument } from '../../domain/app/kpis/kpi';
+import { KPIFilterHelper } from '../../domain/app/kpis/kpi-filter.helper';
 import { field } from '../../framework/decorators/field.decorator';
 import { GraphQLTypesMap } from '../../framework/decorators/graphql-types-map';
 import { input } from '../../framework/decorators/input.decorator';
+import { resolver } from '../../framework/decorators/resolver.decorator';
+import { type } from '../../framework/decorators/type.decorator';
 import { ErrorDetails } from '../../framework/graphql/common.types';
 import { ChartEntityResponse } from '../charts/charts.types';
-import { KPIFilterHelper } from '../../domain/app/kpis/kpi-filter.helper';
 import { ChartDateRange, ChartDateRangeInput, PaginationInfo } from '../shared/shared.types';
-import { IKPI } from '../../domain/app/kpis/kpi';
-import { IKPIDocument } from '../../domain/app/kpis/kpi';
+import { Widget } from '../widgets/widgets.types';
+import { KPIExpressionHelper } from './../../domain/app/kpis/kpi-expression.helper';
+import { KPIGroupingsHelper } from './../../domain/app/kpis/kpi-groupings.helper';
 
 @input()
 export class KPIAttributesInput  {
@@ -45,31 +44,10 @@ export class KPIAttributesInput  {
     @field({ type: GraphQLTypesMap.String })
     filter: string;
 
+    @field({ type: GraphQLTypesMap.String, isArray: true })
+    tags: string[];
+
 }
-
-@type()
-export class KPIEntityResponse {
-    @field({ type: ChartEntityResponse, isArray: true})
-    chart: ChartEntityResponse[];
-
-    @field({ type: Widget, isArray: true})
-    widget: Widget[];
-}
-
-
-
-@type()
-export class KPIRemoveResponse  {
-    @field({ type: KPIEntityResponse })
-    entity: KPIEntityResponse;
-
-    @field({ type: ErrorDetails, isArray: true })
-    errors: ErrorDetails[];
-
-    @field({ type: GraphQLTypesMap.Boolean })
-    success: boolean;
-}
-
 
 @type()
 export class KPI  {
@@ -107,7 +85,7 @@ export class KPI  {
 
     @resolver({ forField: 'filter' })
     static resolveFilter(entity: IKPIDocument) {
-        return JSON.stringify(KPIFilterHelper.PrepareFilterField(entity.type, entity.filter));
+        return entity.filter && JSON.stringify(KPIFilterHelper.PrepareFilterField(entity.type, entity.filter));
     }
 
     @field({ type: GraphQLTypesMap.String })
@@ -134,9 +112,39 @@ export class KPI  {
     availableGroupings: string[];
 
     @resolver({ forField: 'availableGroupings'})
-    static resolveavailableGroupings(entity: IKPIDocument) {
+    static resolveAvailableGroupigs(entity: IKPIDocument) {
         return KPIGroupingsHelper.GetAvailableGroupings(entity);
     }
+
+    @field({ type: GraphQLTypesMap.String, isArray: true })
+    tags: string[];
+}
+
+
+@type()
+export class KPIEntityResponse {
+    @field({ type: ChartEntityResponse, isArray: true})
+    chart: ChartEntityResponse[];
+
+    @field({ type: Widget, isArray: true})
+    widget: Widget[];
+
+    @field({ type: KPI, isArray: true })
+    complexKPI: KPI[];
+}
+
+
+
+@type()
+export class KPIRemoveResponse  {
+    @field({ type: KPIEntityResponse })
+    entity: KPIEntityResponse;
+
+    @field({ type: ErrorDetails, isArray: true })
+    errors: ErrorDetails[];
+
+    @field({ type: GraphQLTypesMap.Boolean })
+    success: boolean;
 }
 
 
@@ -165,3 +173,12 @@ export class KPIPagedQueryResult  {
 
 }
 
+
+@type()
+export class KPICriteriaResult {
+    @field({ type: GraphQLTypesMap.String, isArray: true })
+    criteriaValue: string[];
+
+    @field({ type: ErrorDetails, isArray: true })
+    errors: ErrorDetails[];
+}

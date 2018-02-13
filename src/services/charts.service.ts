@@ -80,10 +80,10 @@ export class ChartsService {
         const meta: IChartMetadata = {
             filter: options && options.filter || chart.filter,
             frequency: FrequencyTable[options && options.frequency || chart.frequency],
-            groupings: getGroupingMetadata(chart, options && options.groupings || []),
+            groupings: getGroupingMetadata(chart, options && options.groupings || chart.groupings || []),
             comparison: options && options.comparison || chart.comparison,
-            xAxisSource: options && options.xAxisSource,
-            dateRange: (options && !options.isFutureTarget && options.dateRange) || null,
+            xAxisSource: options && options.xAxisSource || chart.xAxisSource,
+            dateRange: (options && !options.isFutureTarget && options.dateRange) || chart.dateRange || null,
             isDrillDown: options && options.isDrillDown || false,
             isFutureTarget: options && options.isFutureTarget || false,
         };
@@ -157,8 +157,7 @@ export class ChartsService {
                     that._resolveDashboards(chartDocument).then((dashboards) => {
                         const chart: any = chartDocument.toObject();
                         chart.dashboards = dashboards;
-                        chart.availableComparison = DateRangeHelper.getComparisonItemsForDateRangeString(chart.dateRange[0].predefined || 'custom')
-                                                                    .map(item => item.key);
+
                         resolve(chart);
                         return;
                     });

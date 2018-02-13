@@ -1,20 +1,19 @@
 import * as Promise from 'bluebird';
 import { injectable } from 'inversify';
+import { inject } from 'inversify';
 
-import { IIdentity } from '../../../domain/app/security/users/identity';
-import { IState, IStateModel } from '../../../domain/master/countries/State';
+import { IState } from '../../../domain/master/countries/State';
+import { States } from '../../../domain/master/countries/state.model';
 import { query } from '../../../framework/decorators/query.decorator';
 import { IQuery } from '../../../framework/queries/query';
-import { GetCountriesActivity } from '../activities/get-countries.activity';
-import { Country, State } from '../countries.types';
-import { inject } from 'inversify';
-import { States } from '../../../domain/master/countries/state.model';
+import { GetStatesActivity } from '../activities/get-states.activity';
+import { State } from '../countries.types';
 
 
 @injectable()
 @query({
     name: 'statesFor',
-    activity: GetCountriesActivity,
+    activity: GetStatesActivity,
     parameters: [
         { name: 'country', type: String, required: true }
     ],

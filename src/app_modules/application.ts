@@ -1,14 +1,21 @@
-import { DataSourcesModule } from './data-sources/data-sources.module';
+import { MilestonesModule } from './milestones/milestones.module';
+import { GoogleSpreadSheetModule } from './google-spreadsheet/google-spreadsheet.module';
+import { CallRailModule } from './integrations/callrail/callrail.module';
 import { AppModule, ModuleBase } from '../framework/decorators/app-module';
 import { AccessLogsModule } from './access-logs/access-logs.module';
+import { AccountsModule } from './accounts/accounts.module';
 import { AppointmentsModule } from './appointments/appointments.module';
 import { BusinessUnitModule } from './business-units/business-units.module';
 import { ChartsModule } from './charts/charts.module';
+import { ConnectorsModule } from './connectors/connectors.module';
 import { DashboardsModule } from './dashboards/dashboards.module';
+import { DataSourcesModule } from './data-sources/data-sources.module';
 import { DateRangesModule } from './date-ranges/date-ranges.module';
+import { DepartmentsModule } from './departments/departments.module';
 import { EmployeesModule } from './employees/employees.module';
 import { KpisModule } from './kpis/kpis.module';
 import { LocationsModule } from './locations/locations.module';
+import { MapsModule } from './maps/maps.module';
 import { PermissionsModule } from './permissions/permissions.module';
 import { ReportsModule } from './reports/reports.module';
 import { RolesModule } from './roles/roles.module';
@@ -18,13 +25,8 @@ import { SocialWidgetsModule } from './social-widgets/social-widgets.module';
 import { TargetsModule } from './targets/targets.module';
 import { UsersModule } from './users/users.module';
 import { WidgetsModule } from './widgets/widgets.module';
-import { AccountsModule } from './accounts/accounts.module';
-import { MapsModule } from './maps/maps.module';
-import { DepartmentsModule } from './departments/departments.module';
 import { CountriesModule } from './countries/countries.module';
-import { ChartRunRateModule } from './run-rate/run-rate.module';
-import { SelfBoardingWinzardModule } from './self-boarding-winzard/self-boarding-winzard.module'
-import { SystemModule } from './sytems/system.module';
+import { TagModule } from './tags/tags.module';
 import { ActivitiesModule } from './activities/activities.module';
 
 
@@ -35,6 +37,7 @@ import { ActivitiesModule } from './activities/activities.module';
         AccessLogsModule,
         AppointmentsModule,
         BusinessUnitModule,
+        CallRailModule,
         ChartsModule,
         CountriesModule,
         DashboardsModule,
@@ -42,9 +45,11 @@ import { ActivitiesModule } from './activities/activities.module';
         DateRangesModule,
         DepartmentsModule,
         EmployeesModule,
+        GoogleSpreadSheetModule,
         KpisModule,
         LocationsModule,
         MapsModule,
+        MilestonesModule,
         PermissionsModule,
         ReportsModule,
         RolesModule,
@@ -54,10 +59,9 @@ import { ActivitiesModule } from './activities/activities.module';
         UsersModule,
         WidgetsModule,
         SocialWidgetsModule,
-        ChartRunRateModule,
-        SelfBoardingWinzardModule,
-        SystemModule,
-        ActivitiesModule
+        TagModule,
+        ConnectorsModule,
+    ActivitiesModule
     ]
 })
 export class AtlasApp extends ModuleBase { }

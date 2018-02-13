@@ -7,7 +7,7 @@ export function my_guid() {
     return s4() + s4() + '-' + s4() + '-' + s4() + '-' +
       s4() + '-' + s4() + s4() + s4();
   }
-  
+
   export function IsNullOrWhiteSpace(value: string): boolean {
     try {
             if (value === null || value === 'undefined') { return true; }
@@ -16,4 +16,12 @@ export function my_guid() {
             console.log(e);
             return false;
     }
+  }
+
+  export function JsSafeString(str: string): string {
+    let a = str .replace(/\\/g, '\\\\')
+        .replace(/\$/g, '\\$')
+        .replace(/'/g, '\\\'')
+        .replace(/"/g, '\\"');
+        return a;
   }

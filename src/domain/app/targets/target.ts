@@ -19,7 +19,11 @@ export interface ITarget {
     owner: string;
     delete?: boolean;
     target?: number;
+<<<<<<< HEAD
     nonStackName: string;
+=======
+    targetMet?: number;
+>>>>>>> 0fbebd8d34ef2dc77490d6e99433387f902bce0e
 }
 
 export interface ITargetDocument extends ITarget, mongoose.Document {}

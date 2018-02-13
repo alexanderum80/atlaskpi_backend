@@ -43,6 +43,10 @@ import { usersServiceConfig } from './users/users-service-config';
 
             Ex: "872623874hdfh734646d222"
 
+        AKPI_INTEGRATION_REDIRECT_URL    -- The enpoint to recieve oauth2 calls
+
+            Ex: "https://api.atlaskpi.com:9091/integration"
+
 */
 
 export const config: IAppConfig = {
@@ -54,6 +58,7 @@ export const config: IAppConfig = {
         expiresIn: process.env.AKPI_TOKEN_EXPIRATION || '90 d'
     },
     masterDb: process.env.AKPI_MASTER_DB_URI || 'mongodb://localhost/kpibi',
+    newAccountEmailNotification: process.env.NEW_ACCOUNT_EMAIL_NOTIFICATION || 'new-accounts@atlaskpi.com',
     newAccountDbUriFormat: process.env.AKPI_NEW_ACCOUNT_DB_URI_FORMAT || 'mongodb://localhost/{{database}}',
     mongoDBAtlasCredentials: {
         username: process.env.AKPI_MONGODB_API_USERNAME || '',
@@ -63,5 +68,15 @@ export const config: IAppConfig = {
     },
     emailService: emailServiceConfig,
     usersService: usersServiceConfig,
-    appServices: appServicesConfig
+    appServices: appServicesConfig,
+    pns: {
+        pnsServer: process.env.AKPI_PNS_SERVER || 'http://pns.test.atlaskpi.com:9093',
+        appIdentifier: process.env.AKPI_PNS_APP_IDENTIFIER || 'GpINyWutMVBCRRAgo7Cv0SZ9sQI34pgW'
+    },
+    scheduler: {
+        server: process.env.AKPI_SCHEDULER_SERVER || 'http://scheduler.atlaskpi.com:9100',
+        secret: process.env.AKPI_APP_SECRET || 'aZ6ELVzTxAXNFrq7yWahQXPya3Kng2zW'
+    },
+    // integrationRedirectUrl: process.env.AKPI_INTEGRATION_REDIRECT_URL  || 'https://af31c66b.ngrok.io/integration'
+    integrationRedirectUrl: process.env.AKPI_INTEGRATION_REDIRECT_URL  || 'http://localhost:9091/integration',
 };

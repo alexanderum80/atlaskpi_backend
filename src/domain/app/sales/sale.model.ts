@@ -217,7 +217,7 @@ SalesSchema.statics.findCriteria = function(field: string): Promise<any[]> {
     const that = this;
 
     return new Promise<any[]>((resolve, reject) => {
-        that.distinct(field).then(sales => {
+        that.distinct(field, { [field]: { $ne: '' } }).then(sales => {
             resolve(sales);
             return;
         }).catch(err => {

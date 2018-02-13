@@ -4,7 +4,6 @@ import { GroupingMap } from '../../../app_modules/charts/queries/chart-grouping-
 import { field } from '../../../framework/decorators/field.decorator';
 import { IKPISimpleDefinition, KPITypeEnum } from './kpi';
 
-
 interface ICallExpression extends jsep.IExpression {
     type: 'CallExpression';
     arguments: jsep.IExpression;
@@ -26,6 +25,9 @@ export class KPIExpressionHelper {
             case KPITypeEnum.Simple:
                 return KPIExpressionHelper._composeSimpleExpression(expression);
 
+            case KPITypeEnum.ExternalSource:
+                return KPIExpressionHelper._composeSimpleExpression(expression);
+
             default:
                 return expression;
         }
@@ -35,6 +37,12 @@ export class KPIExpressionHelper {
         switch (kpiType) {
             case KPITypeEnum.Simple:
                 return KPIExpressionHelper._decomposeSimpleExpression(expression);
+
+            // right now we are decomposing the google analytics definition the same way than the simple definition
+            // DATASOURCE FORMULA IN EXPRESSION: FUNC (connectorTypeConnectorId.metric)
+            //                               ex: sum(googleanalytics5a551cec278c503642b3d096.users)
+            case KPITypeEnum.ExternalSource:
+                return KPIExpressionHelper._decomponseExternalSourceExpression(expression);
             default:
                 return null;
         }
@@ -43,6 +51,10 @@ export class KPIExpressionHelper {
     public static PrepareExpressionField(type: string, expression: string): string {
         switch (type) {
             case KPITypeEnum.Simple:
+                return JSON.stringify(KPIExpressionHelper.DecomposeExpression(type, expression));
+
+            //  lest decompose the expresion as simple expression, we have to change this
+            case KPITypeEnum.ExternalSource:
                 return JSON.stringify(KPIExpressionHelper.DecomposeExpression(type, expression));
 
             default:
@@ -67,6 +79,11 @@ export class KPIExpressionHelper {
         return exp;
     }
 
+    private static _composeExternalSourceExpression(rawExpression: string): string {
+        // right know the external source expression should be processed like the simple
+        return KPIExpressionHelper._composeSimpleExpression(rawExpression);
+    }
+
     private static _decomposeSimpleExpression(expression: string): IKPISimpleDefinition {
         expression =  KPIExpressionHelper._cleanExpression(expression);
         const tree: jsep.IExpression = jsep(expression);
@@ -75,7 +92,7 @@ export class KPIExpressionHelper {
     }
 
     private static _cleanExpression(expression: string) {
-        return expression.replace(/[,$]/g, '');
+        return expression.replace(/[,]/g, '');
     }
 
     private static _getSimpleKPIFromCallExp(callExp: ICallExpression): IKPISimpleDefinition {
@@ -139,6 +156,69 @@ export class KPIExpressionHelper {
 
     private static _processMemberExpression(e: jsep.IMemberExpression): any {
         return this._processExpression(e.object) + '.' + this._processExpression(e.property);
+    }
+
+    private static _decomponseExternalSourceExpression(expression: string): IKPISimpleDefinition {
+        expression =  KPIExpressionHelper._cleanExpression(expression);
+        const tree: jsep.IExpression = jsep(expression);
+
+        return KPIExpressionHelper._processExternalSourceExpression(<jsep.IExpression>tree);
+    }
+
+    private static _processExternalSourceExpression(e: jsep.IExpression): any {
+        switch (e.type) {
+            case ExpressionTreeTypes.call:
+                const callExp = (<ICallExpression>e);
+                return KPIExpressionHelper._getExternalSourceKPIFromCallExp(callExp);
+            case ExpressionTreeTypes.binary:
+                const binExp = (<jsep.IBinaryExpression>e);
+                return KPIExpressionHelper._getExternalSourceKPIFromBinExp(binExp);
+            case ExpressionTreeTypes.member:
+                return this._processMemberExpression(<jsep.IMemberExpression>e);
+            case ExpressionTreeTypes.identifier:
+                return (<jsep.IIdentifier>e).name;
+            case ExpressionTreeTypes.literal:
+                return +(<jsep.ILiteral>e).value;
+        }
+    }
+
+    // DATASOURCE FORMULA IN EXPRESSION: FUNC (connectorTypeConnectorId.metric)
+    //                               ex: sum(googleanalytics5a551cec278c503642b3d096.users)
+    private static _getExternalSourceKPIFromCallExp(callExp: ICallExpression): IKPISimpleDefinition {
+        let dataSource;
+        let func = callExp.callee.name;
+        let field;
+
+        const fullField = String(KPIExpressionHelper._processExpression(callExp.arguments[0]));
+
+        if (!fullField) return null;
+
+        // lets ensure is a external kpi, should have a pipe delimiter;
+        if (fullField.indexOf('$') === -1) return null;
+
+        const fieldTokens = fullField.split('.');
+
+        const simple: IKPISimpleDefinition = {
+                                               dataSource: fieldTokens[0],
+                                               function: func,
+                                               field: fieldTokens[1]
+                                             };
+        return simple;
+    }
+
+    private static _getExternalSourceKPIFromBinExp(binExp: jsep.IBinaryExpression): IKPISimpleDefinition {
+        let operator = binExp.operator;
+        let value = KPIExpressionHelper._processExternalSourceExpression(binExp.right);
+        const partialSimple = KPIExpressionHelper._processExpression(binExp.left);
+
+        const result: IKPISimpleDefinition = {
+                                               dataSource: partialSimple.dataSource,
+                                               function: partialSimple.function,
+                                               field: partialSimple.field,
+                                               operator: operator,
+                                               value: value
+                                             };
+        return result;
     }
 
 }

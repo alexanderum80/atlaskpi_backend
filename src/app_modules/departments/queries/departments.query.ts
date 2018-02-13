@@ -5,14 +5,14 @@ import { IDepartmentDocument } from '../../../domain/app/departments/department'
 import { Departments } from '../../../domain/app/departments/department.model';
 import { query } from '../../../framework/decorators/query.decorator';
 import { IQuery } from '../../../framework/queries/query';
-import { DepartmentByIdActivity } from '../activities/department-by-id.activity';
+import { ListDepartmentsActivity } from '../activities/list-departments.activity';
 import { Department } from '../departments.types';
 
 
 @injectable()
 @query({
     name: 'departments',
-    activity: DepartmentByIdActivity,
+    activity: ListDepartmentsActivity,
     output: { type: Department, isArray: true }
 })
 export class DepartmentsQuery implements IQuery<IDepartmentDocument[]> {

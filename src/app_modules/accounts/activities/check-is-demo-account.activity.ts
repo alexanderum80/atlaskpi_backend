@@ -7,7 +7,7 @@ import { IActivity } from '../../../framework/modules/security/activity';
 @injectable()
 export class CheckIsDemoAccountActivity implements IActivity {
 
-    constructor(@inject(Users.name) private _users: Users) {}
+    constructor() {}
 
     check(): Promise<boolean> {
         return Promise.resolve(true);
