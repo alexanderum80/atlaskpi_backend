@@ -120,7 +120,7 @@ KPISchema.statics.updateKPI = function(id: string, input: IKPI): Promise<IKPIDoc
     });
 };
 
-KPISchema.statics.removeKPI = function(id: string, documentExists?: IDocumentExist): Promise<IMutationResponse> {
+KPISchema.statics.removeKPI = function(id: string): Promise<IMutationResponse> {
     let that = this;
 
     let document: IKPIDocument;
@@ -133,13 +133,6 @@ KPISchema.statics.removeKPI = function(id: string, documentExists?: IDocumentExi
 
         if (idError) {
             resolve(MutationResponse.fromValidationErrors(idError));
-        }
-
-        if (documentExists.chart.length ||
-            documentExists.widget.length ||
-            documentExists.complexKPI.length) {
-            reject({ message: 'KPIs is being used by ', entity: documentExists, error: 'KPIs is being used by '});
-            return;
         }
 
         (<IKPIModel>this).findById(id).then((kpi) => {
