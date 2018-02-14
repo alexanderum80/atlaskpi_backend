@@ -113,7 +113,8 @@ export function readMongooseSchema(schema: mongoose.Schema) {
     if (objConstructor === 'Schema') {
         schemaObj = schema.obj;
     } else if (objConstructor === 'Array') {
-        schemaObj = schema[0].obj;
+        // schemaObj = schema[0].obj;
+        schemaObj = schema[0];
     } else {
         schemaObj = schema;
     }
@@ -128,8 +129,9 @@ export function readMongooseSchema(schema: mongoose.Schema) {
         const constructorName = schemaObj[k].constructor.name;
         const functionName = schemaObj[k].name;
 
-        result[k] = ['Object', 'Array', 'Schema'].indexOf(constructorName) !== -1 ?
-            readMongooseSchema(schemaObj[k]) : functionName;
+        result[k] = ['Object', 'Array', 'Schema'].indexOf(constructorName) !== -1
+            ? readMongooseSchema(schemaObj[k])
+            : functionName;
     });
 
     return result;

@@ -37,6 +37,10 @@ const CollectionsMapping = {
     calls: {
         modelName: 'Call',
         timestampField: 'created_at'
+    },
+    appointments: {
+        modelName: 'Appointment',
+        timestampField: 'from'
     }
 };
 

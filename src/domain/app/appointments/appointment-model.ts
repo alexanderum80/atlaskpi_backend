@@ -30,7 +30,7 @@ const EventSchema = {
     cancelledColor: String
 };
 
-const AppointmentSchema = new mongoose.Schema({
+export const AppointmentSchema = new mongoose.Schema({
     // appointment
     source: String,
     reason: String,
