@@ -160,18 +160,15 @@ function modifyDate(data: any[], model: string): any[] {
     // return the dates in an array
     // i.e. [Moment, Moment, Moment, ...]
     const moments: any = dataMapDates(data, model);
+    // current date
+    const now = moment();
     // oldest date in seed file
-    const oldestDate: moment.Moment = moment.min(moments);
+    const recentDate: moment.Moment = moment.max(moments);
+    // middle point: recent date minus 3 months
+    const middlePointDate = recentDate.subtract(3, 'month');
 
-    // oldest date in the system
-    let oldestSystemDate = moment().subtract(3, 'year');
-    // check if the difference is negative value, i.e. inventory
-    if (oldestSystemDate.diff(oldestDate, 'days') <= 0) {
-        oldestSystemDate = moment().subtract(1, 'year');
-    }
-
-    // difference in days between oldest date want in system to the oldest date in the seed file
-    const diffDays: number = oldestSystemDate.diff(oldestDate, 'days');
+    // difference between current date and middle point date based on collection
+    const diffDays: number = now.diff(middlePointDate);
 
     for (let i = 0; i < data.length; i++) {
         // add the diff in days to all the dates
