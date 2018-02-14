@@ -254,6 +254,20 @@ AppointmentSchema.statics.providersList = function(): Promise<IIdName[]> {
     });
 };
 
+AppointmentSchema.statics.findCriteria = function(field: string): Promise<any[]> {
+    const that = this;
+
+    return new Promise<any[]>((resolve, reject) => {
+        that.distinct(field, { [field]: { $ne: '' } }).then(res => {
+            resolve(res);
+            return;
+        }).catch(err => {
+            reject(err);
+            return;
+        });
+    });
+};
+
 @injectable()
 export class Appointments extends ModelBase < IAppointmentModel > {
     constructor(@inject(AppConnection.name) appConnection: AppConnection) {

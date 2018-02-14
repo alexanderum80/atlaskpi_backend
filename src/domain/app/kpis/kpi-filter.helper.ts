@@ -9,13 +9,15 @@ import { InventorySchema } from '../inventory/inventory.model';
 import { SaleSchema } from '../sales/sale.model';
 import { GoogleAnalyticsSchema } from './../google-analytics/google-analytics.model';
 import { IKPIFilter, KPITypeEnum } from './kpi';
+import { AppointmentSchema } from '../appointments/appointment-model';
 
 const Schemas = [
       SaleSchema,
       ExpenseSchema,
       InventorySchema,
       GoogleAnalyticsSchema,
-      CallSchema
+      CallSchema,
+      AppointmentSchema
 ];
 
 const replacementStrings = [
@@ -72,7 +74,6 @@ export class KPIFilterHelper {
 
     private static _composeSimpleFilter(filterArray: IKPIFilter[]): string {
         if (filterArray.length < 1) { return null; }
-
 
         // TODO: this should be refactor to get only get the fields of the source model
         const fieldset = this._allSchemasFieldSet();

@@ -1,25 +1,19 @@
+import * as Promise from 'bluebird';
+import { cloneDeep } from 'lodash';
+
 import { Calls } from '../../../domain/app/calls/call.model';
-import { SimpleKPIBase } from './simple-kpi-base';
 import { Expenses } from '../../../domain/app/expenses/expense.model';
 import { Inventory } from '../../../domain/app/inventory/inventory.model';
-import * as Promise from 'bluebird';
 import { IKPI, IKPIDocument, IKPISimpleDefinition, KPITypeEnum } from '../../../domain/app/kpis/kpi';
 import { KPIExpressionHelper } from '../../../domain/app/kpis/kpi-expression.helper';
 import { Sales } from '../../../domain/app/sales/sale.model';
 import { IDateRange } from '../../../domain/common/date-range';
 import { FrequencyEnum } from '../../../domain/common/frequency-enum';
-import { field } from '../../../framework/decorators/field.decorator';
+import { Appointments } from './../../../domain/app/appointments/appointment-model';
+import { Appointment } from './../../appointments/appointments.types';
 import { AggregateStage } from './aggregate';
-import { IGetDataOptions, IKpiBase, KpiBase, ICollection } from './kpi-base';
-import { isArrayObject, isRegExp } from '../../../helpers/express.helpers';
-
-import * as changeCase from 'change-case';
-
-import {
-    cloneDeep,
-    isArray,
-    isObject
-} from 'lodash';
+import { ICollection, IGetDataOptions, IKpiBase } from './kpi-base';
+import { SimpleKPIBase } from './simple-kpi-base';
 
 const CollectionsMapping = {
     sales: {
@@ -50,7 +44,8 @@ export class SimpleKPI extends SimpleKPIBase implements IKpiBase {
                                         sales: Sales,
                                         expenses: Expenses,
                                         inventory: Inventory,
-                                        calls: Calls
+                                        calls: Calls,
+                                        appointments: Appointments
                                     ): SimpleKPI {
         const simpleKPIDefinition: IKPISimpleDefinition = KPIExpressionHelper.DecomposeExpression(KPITypeEnum.Simple, kpi.expression);
 
@@ -61,7 +56,8 @@ export class SimpleKPI extends SimpleKPIBase implements IKpiBase {
             Sale: sales.model,
             Expense: expenses.model,
             Inventory: inventory.model,
-            Call: calls.model
+            Call: calls.model,
+            Appointment: appointments.model
         };
 
         const model = models[collection.modelName];

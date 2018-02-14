@@ -70,6 +70,19 @@ export const GroupingMap = {
         speakerPercentAgent: 'speaker_percent.agent',
         speakerPercentCustomer: 'speaker_percent.customer',
         source: 'source'
+    },
+    appointments: {
+        duration: 'duration',
+        approved: 'approved',
+        checkedIn: 'checkedIn',
+        checkedOut: 'checkoedOut',
+        cancelled: 'cancelled',
+        noShow: 'noShow',
+        customer: 'customer.name',
+        provider: 'provider.name',
+        location: 'location.name',
+        category: 'event.code',
+        source: 'source'
     }
 };
 

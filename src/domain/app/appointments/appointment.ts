@@ -57,4 +57,5 @@ export interface IAppointmentModel extends mongoose.Model<IAppointmentDocument> 
 
     search(criteria: SearchAppointmentCriteriaInput): Promise<IAppointment[]>;
     providersList(): Promise<IIdName[]>;
+    findCriteria(field: string): Promise<any[]>;
 }
