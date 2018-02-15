@@ -58,9 +58,7 @@ export class DataSourcesHelper {
 
         const filteredFields = fields.filter(field => {
             const blackListed = BlackListedFieldNames.find(name => name === field.path);
-            if (blackListed
-                // lets blacklist arrays fields just until we support it
-                || field.type === 'Array') {
+            if (blackListed) {
                 return null;
             }
             return field;
