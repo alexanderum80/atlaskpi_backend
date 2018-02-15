@@ -24,11 +24,13 @@ export interface IAppointment extends BaseModel {
     checkedIn: boolean;
     checkedOut: boolean;
     cancelled: boolean;
+    noShow: boolean;
     checkedInOn: Date;
     checkedOutOn: Date;
     cancelledOn: Date;
     confirmedOn: Date;
     createdOn: Date;
+    noShowOn: Date;
     customer: IEntity;
     provider: IEntity[];
     location: IEntity;
@@ -55,4 +57,5 @@ export interface IAppointmentModel extends mongoose.Model<IAppointmentDocument> 
 
     search(criteria: SearchAppointmentCriteriaInput): Promise<IAppointment[]>;
     providersList(): Promise<IIdName[]>;
+    findCriteria(field: string): Promise<any[]>;
 }
