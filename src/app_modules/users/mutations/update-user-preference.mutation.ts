@@ -38,8 +38,8 @@ export class UpdateUserPreferenceMutation extends MutationBase<IMutationResponse
                 return;
             }
             // update the user preference
-            that._user.model.updateUserPreference(data.id, data.input).then(response => {
-                resolve({ success: true });
+            that._user.model.updateUserPreference(data.id, data.input).then(user => {
+                resolve({ success: true, entity: user });
                 return;
             }).catch(err => {
                 reject({ success: false, errors: [ { field: 'user', errors: err } ] });

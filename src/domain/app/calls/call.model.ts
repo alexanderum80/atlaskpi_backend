@@ -40,7 +40,7 @@ const SpeakerAgentSchema = {
 
 export const CallSchema = new Schema({
     externalId: String,
-    answered: Boolean,
+    answered: String,
     business: BusinessSchema,
     customer: CustomerSchema,
     company: CompanySchema,
@@ -49,11 +49,11 @@ export const CallSchema = new Schema({
     startTime: Date,
     source: String,
     tracking: TrackingSchema,
-    voicemail: Boolean,
+    voicemail: String,
     recording: RecordingSchema,
     created_at: Date,
     device_type: String,
-    first_call: Boolean,
+    first_call: String,
     prior_calls: Number,
     lead_status: String,
     source_name: String,
