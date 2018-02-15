@@ -63,7 +63,6 @@ export const AppointmentSchema = new mongoose.Schema({
 AppointmentSchema.index({ 'from': 1 });
 AppointmentSchema.index({ 'from': 1, 'provider.name': 1 });
 AppointmentSchema.index({ 'from': 1, 'location.name': 1 });
-AppointmentSchema.index({ 'from': 1, 'reason': 1 });
 AppointmentSchema.index({ 'from': 1, 'event.code': 1 });
 AppointmentSchema.index({ 'from': 1, 'event.name': 1 });
 AppointmentSchema.index({ 'from': 1, 'source': 1 });
