@@ -185,6 +185,7 @@ export class UIChartBase {
         }
 
         definition.xAxis.categories = this.categories ? this.categories.map(c => c.name) : [];
+        // this._showDateRangeWithData(dateRange, definition.xAxis.categories, definition.series);
 
         return definition;
     }
@@ -907,5 +908,37 @@ export class UIChartBase {
         return isEmpty(serieName) ||
                serieName === 'undefined' ||
                serieName === 'null';
+    }
+
+    /**
+     * remove xAxis labels to the right side of the chart if data/value exists
+     * remove empty space to the right if no data/value exists
+     * @param categories
+     * @param series
+     */
+    private _showDateRangeWithData(dateRange: IChartDateRange[], categories: string[]|number[], series: any[]): void {
+        if (!dateRange || !Object.keys(dateRange).length) { return; }
+        if (!categories || !series) { return; }
+        if (!categories.length || !series.length) { return; }
+
+        const customDateRange = dateRange[0].custom;
+        const isCustomDateRange = customDateRange && customDateRange.from && customDateRange.to;
+        if (!isCustomDateRange) {
+            return;
+        }
+
+        for (let i = 0; i < series.length; i++) {
+            const seriesData = series[i].data;
+            // remove element from array starting from the end of array if series data value is null
+            for (let j = seriesData.length - 1; j >= 0; j--) {
+                if (seriesData[j] === null) {
+                    seriesData.splice(j, 1);
+                    categories.splice(j, 1);
+                } else {
+                    // step out of loop once i hit a element that has a value
+                    break;
+                }
+            }
+        }
     }
 }
