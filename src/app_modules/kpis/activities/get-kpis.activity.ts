@@ -11,7 +11,7 @@ export class GetKpisActivity implements IActivity {
 
     check(): Promise<boolean> {
         return Promise.resolve(
-            BasicRoleChecker.hasPermission(this._user, 'Manage', 'KPI')
+            BasicRoleChecker.hasPermission(this._user, 'View', 'KPI')
         );
     }
 }

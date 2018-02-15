@@ -1,3 +1,4 @@
+import { Appointments } from './../../../domain/app/appointments/appointment-model';
 import { Inventory } from './../../../domain/app/inventory/inventory.model';
 import { Expenses } from '../../../domain/app/expenses/expense.model';
 import { Sales } from '../../../domain/app/sales/sale.model';
@@ -25,7 +26,9 @@ export class GetKpisCriteriaQuery implements IQuery<any> {
         @inject(Sales.name) private _sales: Sales,
         @inject(Expenses.name) private _expenses: Expenses,
         @inject(Inventory.name) private _inventory: Inventory,
-        @inject(Calls.name) private _calls: Calls) {}
+        @inject(Calls.name) private _calls: Calls,
+        @inject(Appointments.name) private _appointments: Appointments
+    ) {}
 
     run(data: { kpi: string, field: string}): Promise<any> {
         const that = this;
@@ -33,7 +36,8 @@ export class GetKpisCriteriaQuery implements IQuery<any> {
             'sales': this._sales,
             'expenses': this._expenses,
             'inventory': this._inventory,
-            'calls': this._calls
+            'calls': this._calls,
+            'appointments': this._appointments
         };
 
         return new Promise<any>((resolve, reject) => {
