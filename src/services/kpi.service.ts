@@ -1,20 +1,35 @@
+import { IInventoryModel } from '../domain/app/inventory/inventory';
+import { IExpenseModel } from '../domain/app/expenses/expense';
+import { ISaleModel } from '../domain/app/sales/sale';
+import { IMutationResponse } from '../framework/mutations/mutation-response';
+import { IWidgetDocument } from '../domain/app/widgets/widget';
+import { IChartDocument } from '../domain/app/charts/chart';
+import { Widgets } from '../domain/app/widgets/widget.model';
+import { Charts } from '../domain/app/charts/chart.model';
 import { GroupingMap } from '../app_modules/charts/queries/chart-grouping-map';
 import { KPIs } from '../domain/app/kpis/kpi.model';
 import { Inventory } from '../domain/app/inventory/inventory.model';
 import { Expenses } from '../domain/app/expenses/expense.model';
 import { Sales } from '../domain/app/sales/sale.model';
-import { IKPIDataSourceHelper, IKPIDocument } from '../domain/app/kpis/kpi';
+import { IDocumentExist, IKPIDocument } from '../domain/app/kpis/kpi';
 import * as Promise from 'bluebird';
 import { inject, injectable } from 'inversify';
 import {
     sortBy,
     isObject
 } from 'lodash';
+import { DocumentQuery } from 'mongoose';
 
 const codeMapper = {
     'Revenue': 'sales',
     'Expenses': 'expenses'
 };
+
+export interface IGroupingsModel {
+    sales: ISaleModel;
+    expenses: IExpenseModel;
+    inventory: IInventoryModel;
+}
 
 @injectable()
 export class KpiService {
@@ -22,23 +37,25 @@ export class KpiService {
         @inject(Sales.name) private _saleModel: Sales,
         @inject(Expenses.name) private _expenseModel: Expenses,
         @inject(Inventory.name) private _inventoryModel,
-        @inject(KPIs.name) private _kpis: KPIs
+        @inject(KPIs.name) private _kpis: KPIs,
+        @inject(Charts.name) private _chart: Charts,
+        @inject(Widgets.name) private _widget: Widgets
     ) {}
 
-    GetGroupingsExistInCollectionSchema(schemaName: string): Promise<any> {
+    GetGroupingsExistInCollectionSchema(schemaName: string): Promise<string[]> {
         const that = this;
         // get sales and expense mongoose models
-        const model = {
+        const model: IGroupingsModel = {
             sales: this._saleModel.model,
             expenses: this._expenseModel.model,
             inventory: this._inventoryModel.model
         };
         // get sales or expense mongoose models
-        const gMap = codeMapper[schemaName];
+        const gMap: string = codeMapper[schemaName];
         const collection = GroupingMap[gMap];
-        const modelKey = codeMapper[schemaName];
+        const modelKey: string = codeMapper[schemaName];
 
-        let permittedFields = [];
+        let permittedFields: string[] = [];
         const collectionQuery = [];
 
         return new Promise<string[]>((resolve, reject) => {
@@ -70,6 +87,81 @@ export class KpiService {
                     return resolve(sortBy(permittedFields));
                 }
             });
+        });
+    }
+
+    removeKpi(id: string): Promise<IMutationResponse> {
+        const that = this;
+
+        return new Promise<IMutationResponse>((resolve, reject) => {
+
+            that._kpiInUseByModel(id).then((documents: IDocumentExist) => {
+                // check if kpi is in use by another model
+                const { chart, widget, complexKPI } = documents;
+                const modelExists: number = chart.length || widget.length || complexKPI.length;
+
+                if (modelExists) {
+                    reject({ message: 'KPIs is being used by ', entity: documents, error: 'KPIs is being used by '});
+                    return;
+                }
+
+                // remove kpi when not in use
+                that._kpis.model.removeKPI(id).then(document => {
+                    resolve(document);
+                    return;
+                }).catch(err => {
+                    reject(err);
+                    return;
+                });
+            }).catch(err => {
+                reject(err);
+                return;
+            });
+        });
+    }
+
+    private _kpiInUseByModel(id: string): Promise<IDocumentExist> {
+        const that = this;
+
+        return new Promise<IDocumentExist>((resolve, reject) => {
+            // reject if no id is provided
+            if (!id) {
+                return reject({ success: false,
+                                errors: [ { field: 'id', errors: ['Chart not found']} ] });
+            }
+
+            // query to find if kpi is in use by chart, widget, or complexkpi
+            const findCharts: DocumentQuery<IChartDocument[], IChartDocument> = this._chart.model.find({
+                kpis: { $in: [id] }
+            });
+            const findWidgets: DocumentQuery<IWidgetDocument[], IWidgetDocument> = this._widget.model.find({
+                'numericWidgetAttributes.kpi': id
+            });
+
+            // contain regex expression to use for complex kpi
+            const expression: RegExp = new RegExp(id);
+            const findComplexKpi: DocumentQuery<IKPIDocument[], IKPIDocument> = this._kpis.model.find({
+                expression: {
+                    $regex: expression
+                }
+            });
+
+            let documentExists: IDocumentExist = {};
+
+            Promise.all([findCharts, findWidgets, findComplexKpi])
+                .spread((charts: IChartDocument[], widgets: IWidgetDocument[], complexKPI: IKPIDocument[]) => {
+                    documentExists = {
+                        chart: charts,
+                        widget: widgets,
+                        complexKPI
+                    };
+
+                    resolve(documentExists);
+                    return;
+                }).catch(err => {
+                    reject(err);
+                    return;
+                });
         });
     }
 

@@ -30,6 +30,7 @@ import {
     IUser,
     IUserDocument,
     IUserModel,
+    IUserPreference,
     IUserProfile,
 } from './user';
 import { IUserToken } from './user-token';
@@ -38,20 +39,20 @@ import { IUserToken } from './user-token';
 export function userPlugin(schema: mongoose.Schema, options: any) {
     options || (options = {});
 
-    let Schema = mongoose.Schema;
+    const Schema = mongoose.Schema;
 
-    let EmailSchema = {
+    const EmailSchema = {
         address: { type: String, required: true },
         verified: Boolean
     };
 
-    let EmailedTokenSchema = {
+    const EmailedTokenSchema = {
         token: { type: String },
         email: { type: String },
         when: { type: Date }
     };
 
-    let ServicesSchema = {
+    const ServicesSchema = {
         loginTokens: [{
             when: Date,
             hashedToken: String,
@@ -66,7 +67,7 @@ export function userPlugin(schema: mongoose.Schema, options: any) {
         }
     };
 
-    let UserProfileSchema = {
+    const UserProfileSchema = {
         firstName: String,
         middleName: String,
         lastName: String,
@@ -74,7 +75,7 @@ export function userPlugin(schema: mongoose.Schema, options: any) {
         dob: Date
     };
 
-    let UserTokenInfo = {
+    const UserTokenInfo = {
         ip: String,
         token: String,
         issued: Date,
@@ -83,10 +84,21 @@ export function userPlugin(schema: mongoose.Schema, options: any) {
         clientDetails: String
     };
 
-    let AddMobileDeviceInfo = {
+    const AddMobileDeviceInfo = {
         token: String,
         network: String,
         name: String
+    };
+
+    const ShowTourSchema = {
+        showTour: {
+            type: Boolean,
+            default: true
+        }
+    };
+
+    const UserPreferenceSchema = {
+        chart: ShowTourSchema
     };
 
     schema.add({
@@ -103,6 +115,7 @@ export function userPlugin(schema: mongoose.Schema, options: any) {
         password: String,
         services: ServicesSchema,
         profile: UserProfileSchema,
+        preferences: UserPreferenceSchema,
         tokens: [UserTokenInfo],
         mobileDevices: [AddMobileDeviceInfo],
         timestamps: { type: Date, default: Date.now }
@@ -1037,6 +1050,24 @@ export function userPlugin(schema: mongoose.Schema, options: any) {
                 resolve(null);
                 return;
             }).catch(err => reject(err));
+        });
+    };
+
+    schema.statics.updateUserPreference = function(id: string, input: IUserPreference): Promise<IUserDocument> {
+        const userModel = (<IUserModel>this);
+
+        return new Promise<IUserDocument>((resolve, reject) => {
+            userModel
+                .findOneAndUpdate({_id: id}, { preferences: input }, {new: true })
+                .exec()
+                .then(document => {
+                    resolve(document);
+                    return;
+                })
+                .catch(err => {
+                    reject(err);
+                    return;
+                });
         });
     };
 

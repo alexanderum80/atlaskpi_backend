@@ -33,7 +33,6 @@ export class GetChartInput  {
 
 }
 
-
 @input()
 export class ChartAttributesInput  {
     @field({ type: GraphQLTypesMap.String, required: true })
