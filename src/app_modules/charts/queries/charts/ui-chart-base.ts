@@ -197,8 +197,8 @@ export class UIChartBase {
             definition.xAxis = {};
         }
 
+        this._formatCustomDateRangeWithData(this.categories, metadata, definition.series);
         definition.xAxis.categories = this.categories ? this.categories.map(c => c.name) : [];
-        this._formatCustomDateRangeWithData(definition.xAxis.categories, metadata, definition.series);
 
         return definition;
     }
@@ -948,16 +948,15 @@ export class UIChartBase {
 
         for (let i = 0; i < mapSeries.length; i++) {
             const data = mapSeries[i];
-
             /**
              * push categories if element is null
              * step out loop when element is not null
              */
             for (let j = data.length - 1; j >= 0; j--) {
                 if (data[j] === null) {
-                    if (categories[j]) {
+                    if (categories[j].name) {
                         // i.e. 'Jan', '1', '2012'
-                        newFormat.push({ id: categories[j] });
+                        newFormat.push({ id: categories[j].name, index: j });
                     }
                 } else {
                     break;
@@ -967,24 +966,33 @@ export class UIChartBase {
 
         // i.e. id: 'Jan', '1', '2012'
         const groupData = groupBy(newFormat, 'id');
-        this._showCustomDateRangeWithData(categories, groupData, series, mapSeries.length);
+        let cloneCategories;
+        if (!cloneCategories) {
+            cloneCategories = categories.slice();
+        }
+
+        this._showCustomDateRangeWithData(cloneCategories, groupData, series, mapSeries.length);
     }
 
     private _showCustomDateRangeWithData(categories: any[], groupedData: any, series: any[], mapSeriesLength: number):  void {
+        const that = this;
         for (let i = 0; i < series.length; i++) {
             const data = series[i].data;
-
             for (let categoryName in groupedData) {
                 // if the same position is all null values
                 // remove null value from data: []
                 if (groupedData[categoryName].length === mapSeriesLength) {
-                    const index = categories.findIndex(cat => cat === categoryName);
+                    that.categories = that.categories.filter(cat => cat.name !== categoryName);
+                }
+            }
 
-                    // check if index is valid before remove an element from data array and categories array
-                    if (!isNull(index) && !isUndefined(index) && (index !== -1)) {
-                        data.splice(index, 1);
-                        categories.splice(index, 1);
-                    }
+            // remove elements whose value is null
+            for (let j = data.length - 1; j >= 0; j--) {
+                if (data[j] === null) {
+                    data.splice(j, 1);
+                } else {
+                    // break out of loop when element reaches value not null
+                    break;
                 }
             }
         }
