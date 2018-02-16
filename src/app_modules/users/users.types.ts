@@ -258,6 +258,9 @@ export class ErrorSuccessResult {
 
     @field({ type: ErrorDetails, isArray: true })
     errors?: ErrorDetails[];
+
+    @field({ type: User })
+    entity?: User;
 }
 
 

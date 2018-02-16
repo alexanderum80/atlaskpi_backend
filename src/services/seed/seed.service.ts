@@ -160,13 +160,15 @@ function modifyDate(data: any[], model: string): any[] {
     // return the dates in an array
     // i.e. [Moment, Moment, Moment, ...]
     const moments: any = dataMapDates(data, model);
-    // oldest date in seed file
-    const oldestDate: moment.Moment = moment.min(moments);
+    // current date
+    const now = moment();
+    // recent date in seed file
+    const recentDate: moment.Moment = moment.max(moments);
+    // middle point: recent date minus 3 months
+    const middlePointDate = recentDate.subtract(3, 'month');
 
-    // oldest date want in the system
-    const oldestSystemDate: moment.Moment = moment(oldestDate).add('year', 3);
-    // difference in days between oldest date want in system to the oldest date in the seed file
-    const diffDays: number = oldestSystemDate.diff(oldestDate, 'days');
+    // difference between current date and middle point date based on collection
+    const diffDays: number = now.diff(middlePointDate, 'days');
 
     for (let i = 0; i < data.length; i++) {
         // add the diff in days to all the dates
@@ -193,7 +195,7 @@ function updatedDate(obj: any, diff: number, model: string): moment.Moment {
             'Worklogs': obj.date
         };
     }
-    return moment(collection[model]).add('day', diff);
+    return moment(collection[model]).add(diff, 'day');
 }
 
 function updateModelObject(obj: any, newDate: moment.Moment, model: string): any {
@@ -201,22 +203,22 @@ function updateModelObject(obj: any, newDate: moment.Moment, model: string): any
     switch (model) {
         case 'Expenses':
             return Object.assign(obj, {
-                timestamp: newDate
+                timestamp: newDate.toDate()
             });
         case 'Sales':
             Object.assign(obj.product, {
-                from: newDate,
-                to: newDate
+                from: newDate.toDate(),
+                to: newDate.toDate()
             });
-            obj.timestamp = newDate;
+            obj.timestamp = newDate.toDate();
             return obj;
         case 'Inventory':
             return Object.assign(obj, {
-                updatedAt: newDate
+                updatedAt: newDate.toDate()
             });
         case 'Worklogs':
             return Object.assign(obj, {
-                date: newDate
+                date: newDate.toDate()
             });
     }
 }

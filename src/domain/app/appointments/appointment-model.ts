@@ -30,7 +30,7 @@ const EventSchema = {
     cancelledColor: String
 };
 
-const AppointmentSchema = new mongoose.Schema({
+export const AppointmentSchema = new mongoose.Schema({
     // appointment
     source: String,
     reason: String,
@@ -42,11 +42,13 @@ const AppointmentSchema = new mongoose.Schema({
     checkedIn: Boolean,
     checkedOut: Boolean,
     cancelled: Boolean,
+    noShow: Boolean,
     checkedInOn: Date,
     checkedOutOn: Date,
     cancelledOn: Date,
     confirmedOn: Date,
     createdOn: Date,
+    noShowOn: Date,
     customer: { ...EntitySchema },
     provider: [ EntitySchema ],
     location: { ...EntitySchema },
@@ -57,6 +59,13 @@ const AppointmentSchema = new mongoose.Schema({
     }
 });
 
+// INDEXES
+AppointmentSchema.index({ 'from': 1 });
+AppointmentSchema.index({ 'from': 1, 'provider.name': 1 });
+AppointmentSchema.index({ 'from': 1, 'location.name': 1 });
+AppointmentSchema.index({ 'from': 1, 'event.code': 1 });
+AppointmentSchema.index({ 'from': 1, 'event.name': 1 });
+AppointmentSchema.index({ 'from': 1, 'source': 1 });
 
 AppointmentSchema.statics.createNew = function(input: IAppointment): Promise < IAppointmentDocument > {
     const that = < IAppointmentModel > this;
@@ -248,6 +257,20 @@ AppointmentSchema.statics.providersList = function(): Promise<IIdName[]> {
         }).catch(err => {
             that._logger.error(err);
             return reject('There was an error retrieving appointments');
+        });
+    });
+};
+
+AppointmentSchema.statics.findCriteria = function(field: string): Promise<any[]> {
+    const that = this;
+
+    return new Promise<any[]>((resolve, reject) => {
+        that.distinct(field, { [field]: { $ne: '' } }).then(res => {
+            resolve(res);
+            return;
+        }).catch(err => {
+            reject(err);
+            return;
         });
     });
 };
