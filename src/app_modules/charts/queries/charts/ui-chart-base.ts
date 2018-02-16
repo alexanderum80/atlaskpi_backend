@@ -932,7 +932,7 @@ export class UIChartBase {
      * @param categories
      * @param series
      */
-    private _formatCustomDateRangeWithData(categories: any[], metadata: IChartMetadata, series: any[]): void {
+    private _formatCustomDateRangeWithData(categories: IXAxisCategory[], metadata: IChartMetadata, series: any[]): void {
         if (!categories || !series) { return; }
         if (!categories.length || !series.length) { return; }
         if (isNull(metadata.frequency) || isUndefined(metadata.frequency)) { return; }
@@ -956,7 +956,7 @@ export class UIChartBase {
                 if (data[j] === null) {
                     if (categories[j].name) {
                         // i.e. 'Jan', '1', '2012'
-                        newFormat.push({ id: categories[j].name, index: j });
+                        newFormat.push({ id: categories[j].name });
                     }
                 } else {
                     break;
@@ -974,13 +974,12 @@ export class UIChartBase {
         this._showCustomDateRangeWithData(cloneCategories, groupData, series, mapSeries.length);
     }
 
-    private _showCustomDateRangeWithData(categories: any[], groupedData: any, series: any[], mapSeriesLength: number):  void {
+    private _showCustomDateRangeWithData(categories: IXAxisCategory[], groupedData: any, series: any[], mapSeriesLength: number):  void {
         const that = this;
         for (let i = 0; i < series.length; i++) {
             const data = series[i].data;
             for (let categoryName in groupedData) {
-                // if the same position is all null values
-                // remove null value from data: []
+                // check if same position in every data array has null value
                 if (groupedData[categoryName].length === mapSeriesLength) {
                     that.categories = that.categories.filter(cat => cat.name !== categoryName);
                 }
