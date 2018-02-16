@@ -16,14 +16,14 @@ import { Employees } from '../../../domain/app/employees/employee.model';
     name: 'helpCenterUserById',
     activity: FindHelpCenterUserByIdActivity,
     parameters: [
-        { name: 'id', type: String, required: true },
+        { name: '_id', type: String, required: true },
     ],
     output: { type: HelpCenterUser }
 })
 export class HelpCenterUserByIdQuery implements IQuery<IHelpCenterUserDocument> {
     constructor(@inject(HelpCenterUsers.name) private _helpCenterUser: HelpCenterUsers) { }
 
-    run(data: { id: string }): Promise<IHelpCenterUserDocument> {
-        return this._helpCenterUser.model.helpCenterUserById(data.id);
+    run(data: { _id: string }): Promise<IHelpCenterUserDocument> {
+        return this._helpCenterUser.model.helpCenterUserById(data._id);
     }
 }
