@@ -3,7 +3,7 @@ import 'datejs';
 import { from } from 'apollo-link/lib';
 import * as Promise from 'bluebird';
 import * as console from 'console';
-import { cloneDeep, difference, flatten, groupBy, isEmpty, map, pick, union, uniq, uniqBy, orderBy } from 'lodash';
+import { cloneDeep, difference, flatten, groupBy, isEmpty, isNull, isUndefined, map, pick, union, uniq, uniqBy, orderBy } from 'lodash';
 import * as moment from 'moment';
 import * as logger from 'winston';
 import { camelCase } from 'change-case';
@@ -41,6 +41,11 @@ export interface IXAxisCategory {
     name: string;
 }
 
+export interface IShowCustomDateRange {
+    regular: boolean;
+    comparison: boolean;
+}
+
 // export interface IXAxisConfig {
 //     fieldName: string;
 //     categories: IXAxisCategory[];
@@ -64,6 +69,10 @@ export class UIChartBase {
 
     targetData: any[];
     commonField: any[];
+    isCustomDateRange: IShowCustomDateRange = {
+        regular: false,
+        comparison: false
+    };
 
     chartPreProcessor: ChartPreProcessorExtention;
 
@@ -111,6 +120,10 @@ export class UIChartBase {
         logger.debug('processChartData for: ' + this.constructor.name + ' - kpi: ' + kpi.constructor.name);
         const that = this;
 
+        if (metadata.dateRange[0].predefined === 'custom') {
+            this.isCustomDateRange.regular = true;
+        }
+
         this.dateRange = this._getDateRange(metadata.dateRange);
         this.drilldown = metadata.isDrillDown;
         this.futureTarget = metadata.isFutureTarget;
@@ -156,7 +169,7 @@ export class UIChartBase {
      * Put together all pieces of information to generate the chart definition
      * @param customOptions extra chart definition options
      */
-    protected buildDefinition(customOptions: any, targetList: any): string {
+    protected buildDefinition(customOptions: any, metadata: IChartMetadata, targetList: any): string {
         let definition = Object.assign({}, customOptions, this.chart.chartDefinition);
         let chartInfo = this.chart;
         let shortDateFormat = 'MM/DD/YY';
@@ -185,7 +198,7 @@ export class UIChartBase {
         }
 
         definition.xAxis.categories = this.categories ? this.categories.map(c => c.name) : [];
-        // this._showDateRangeWithData(dateRange, definition.xAxis.categories, definition.series);
+        this._formatCustomDateRangeWithData(definition.xAxis.categories, metadata, definition.series);
 
         return definition;
     }
@@ -588,7 +601,7 @@ export class UIChartBase {
         }
     }
 
-    private _injectTargets(data: any[], meta: IChartMetadata, categories: IXAxisCategory[], groupings: string[], series: any[]) {
+    private _injectTargets(data: any[], meta: IChartMetadata, categories: IXAxisCategory[], groupings: string[], series: any[]): void {
         const chartGroupings = this._getXaxisSource(data, meta, groupings);
         const groupDifference = difference(chartGroupings, [meta.xAxisSource]);
         this.targets = this._targetGrouping(data, groupDifference.length, groupDifference[0], meta, categories);
@@ -783,11 +796,14 @@ export class UIChartBase {
     protected getDefinitionForDateRange(kpi, metadata, target): Promise<any> {
         const that = this;
         return this.processChartData(kpi, metadata, target).then(() => {
-            return that.buildDefinition(that.basicDefinition, target);
+            return that.buildDefinition(that.basicDefinition, metadata, target);
         });
     }
 
     protected getDefinitionOfComparisonChart(kpi, metadata: IChartMetadata): Promise<any> {
+        if (metadata.dateRange[0].predefined === 'custom') {
+            this.isCustomDateRange.comparison = true;
+        }
         const chartPromises = {
             main: this.getDefinitionForDateRange(cloneDeep(kpi), metadata, [])
         };
@@ -916,27 +932,59 @@ export class UIChartBase {
      * @param categories
      * @param series
      */
-    private _showDateRangeWithData(dateRange: IChartDateRange[], categories: string[]|number[], series: any[]): void {
-        if (!dateRange || !Object.keys(dateRange).length) { return; }
+    private _formatCustomDateRangeWithData(categories: any[], metadata: IChartMetadata, series: any[]): void {
         if (!categories || !series) { return; }
         if (!categories.length || !series.length) { return; }
-
-        const customDateRange = dateRange[0].custom;
-        const isCustomDateRange = customDateRange && customDateRange.from && customDateRange.to;
-        if (!isCustomDateRange) {
+        if (isNull(metadata.frequency) || isUndefined(metadata.frequency)) { return; }
+        // check if the original chart is custom daterange
+        // in comparison, check if original chart is custom
+        if (!this.isCustomDateRange.regular && !this.isCustomDateRange.comparison) {
             return;
         }
 
-        for (let i = 0; i < series.length; i++) {
-            const seriesData = series[i].data;
-            // remove element from array starting from the end of array if series data value is null
-            for (let j = seriesData.length - 1; j >= 0; j--) {
-                if (seriesData[j] === null) {
-                    seriesData.splice(j, 1);
-                    categories.splice(j, 1);
+        const newFormat = [];
+        // mapping all data properties
+        const mapSeries = series.map(s => s.data);
+
+        for (let i = 0; i < mapSeries.length; i++) {
+            const data = mapSeries[i];
+
+            /**
+             * push categories if element is null
+             * step out loop when element is not null
+             */
+            for (let j = data.length - 1; j >= 0; j--) {
+                if (data[j] === null) {
+                    if (categories[j]) {
+                        // i.e. 'Jan', '1', '2012'
+                        newFormat.push({ id: categories[j] });
+                    }
                 } else {
-                    // step out of loop once i hit a element that has a value
                     break;
+                }
+            }
+        }
+
+        // i.e. id: 'Jan', '1', '2012'
+        const groupData = groupBy(newFormat, 'id');
+        this._showCustomDateRangeWithData(categories, groupData, series, mapSeries.length);
+    }
+
+    private _showCustomDateRangeWithData(categories: any[], groupedData: any, series: any[], mapSeriesLength: number):  void {
+        for (let i = 0; i < series.length; i++) {
+            const data = series[i].data;
+
+            for (let categoryName in groupedData) {
+                // if the same position is all null values
+                // remove null value from data: []
+                if (groupedData[categoryName].length === mapSeriesLength) {
+                    const index = categories.findIndex(cat => cat === categoryName);
+
+                    // check if index is valid before remove an element from data array and categories array
+                    if (!isNull(index) && !isUndefined(index) && (index !== -1)) {
+                        data.splice(index, 1);
+                        categories.splice(index, 1);
+                    }
                 }
             }
         }
