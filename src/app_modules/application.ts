@@ -28,6 +28,7 @@ import { WidgetsModule } from './widgets/widgets.module';
 import { CountriesModule } from './countries/countries.module';
 import { TagModule } from './tags/tags.module';
 import { ActivitiesModule } from './activities/activities.module';
+import { HelpCenterUsersModule } from './help-center/help-center.module';
 
 
 
@@ -61,7 +62,8 @@ import { ActivitiesModule } from './activities/activities.module';
         SocialWidgetsModule,
         TagModule,
         ConnectorsModule,
-    ActivitiesModule
+        ActivitiesModule,
+        HelpCenterUsersModule
     ]
 })
 export class AtlasApp extends ModuleBase { }
