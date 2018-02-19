@@ -69,7 +69,7 @@ function criteriaAggregation(input: {field: string, filter: string}): ICriteriaA
     }
 
     // contain regular expression that is case insensitive
-    const reg: RegExp = new RegExp('^' + input.filter, 'i');
+    const reg: RegExp = new RegExp(input.filter, 'i');
     // i.e. match: { [field]: { $regex: reg } }
 
     if (!matchStage.$match) {
