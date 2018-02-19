@@ -37,7 +37,7 @@ function findCriteria(field: string, filter: string): Promise<string[]> {
 
 function criteriaAggregation(input: {field: string, filter: string}): ICriteriaAggregate[] {
     let aggregate: ICriteriaAggregate[] = [
-        { '$match': { [input.field]: { '$ne': '' } } },
+        { '$match': { [input.field]: { '$nin': ['', null] } } },
         { '$group': {
             _id: {
                 'field': `$${input.field}`
