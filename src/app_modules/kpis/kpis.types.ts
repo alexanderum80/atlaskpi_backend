@@ -57,6 +57,9 @@ export class KPIFilterCriteria {
     @field({ type: GraphQLTypesMap.String, required: true })
     field: string;
 
+    @field({ type: GraphQLTypesMap.Float })
+    limit: number;
+
     @field({ type: GraphQLTypesMap.String })
     filter: string;
 }

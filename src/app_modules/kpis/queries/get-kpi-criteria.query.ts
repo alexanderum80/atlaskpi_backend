@@ -60,7 +60,7 @@ export class GetKpisCriteriaQuery implements IQuery<KPICriteriaResult> {
             const kpi: any = kpiMapper[input.kpi.toLocaleLowerCase()].model;
 
             if (kpi) {
-                kpi.findCriteria(input.field, input.filter).then((response: string[]) => {
+                kpi.findCriteria(input.field, input.limit, input.filter).then((response: string[]) => {
                     resolve({
                         criteriaValue: response
                     });

@@ -1,7 +1,7 @@
 import * as mongoose from 'mongoose';
 import * as Promise from 'bluebird';
 import * as logger from 'winston';
-import { uniqBy } from 'lodash';
+import { uniqBy, isNumber } from 'lodash';
 
 export interface IObject {
     [key: string]: any;
@@ -18,7 +18,7 @@ export function criteriaPlugin(schema: mongoose.Schema): void {
     schema.statics.findCriteria = findCriteria;
 }
 
-function findCriteria(field: string, filter: string): Promise<string[]> {
+function findCriteria(field: string, limit?: number, filter?: string): Promise<string[]> {
     const that = this;
     const aggregateOptions = criteriaAggregation({ field, filter });
 
@@ -35,7 +35,7 @@ function findCriteria(field: string, filter: string): Promise<string[]> {
     });
 }
 
-function criteriaAggregation(input: {field: string, filter: string}): ICriteriaAggregate[] {
+function criteriaAggregation(input: {field: string, limit?: number, filter?: string}): ICriteriaAggregate[] {
     let aggregate: ICriteriaAggregate[] = [
         { '$match': { [input.field]: { '$nin': ['', null] } } },
         { '$group': {
@@ -46,27 +46,17 @@ function criteriaAggregation(input: {field: string, filter: string}): ICriteriaA
         { '$limit': 100 }
     ];
 
+    let limitStage: ICriteriaAggregate = findStage(aggregate, '$limit');
+    if (isNumber(input.limit)) {
+        limitStage.$limit = input.limit;
+    }
+
     if (!input.filter) {
         return aggregate;
     }
 
-    // remove $limit from aggregate array when you have filter value
-    aggregate = aggregate.filter(agg => !agg['$limit']);
-
     // get the $match object
     let matchStage: ICriteriaAggregate = findStage(aggregate, '$match');
-
-    // return the original aggregate if cannot find match object
-    if (!matchStage) {
-        logger.error('match is undefined');
-
-        // add limit if it was removed when have filter value
-        const limit = findStage(aggregate, '$limit');
-        if (!limit) {
-            aggregate = aggregate.concat({ '$limit': 100 });
-        }
-        return aggregate;
-    }
 
     // contain regular expression that is case insensitive
     const reg: RegExp = new RegExp(input.filter, 'i');
