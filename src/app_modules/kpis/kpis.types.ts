@@ -49,6 +49,18 @@ export class KPIAttributesInput  {
 
 }
 
+@input()
+export class KPIFilterCriteria {
+    @field({ type: GraphQLTypesMap.String, required: true })
+    kpi: string;
+
+    @field({ type: GraphQLTypesMap.String, required: true })
+    field: string;
+
+    @field({ type: GraphQLTypesMap.String })
+    filter: string;
+}
+
 @type()
 export class KPI  {
     @field({ type: GraphQLTypesMap.String })
@@ -180,5 +192,5 @@ export class KPICriteriaResult {
     criteriaValue: string[];
 
     @field({ type: ErrorDetails, isArray: true })
-    errors: ErrorDetails[];
+    errors?: ErrorDetails[];
 }

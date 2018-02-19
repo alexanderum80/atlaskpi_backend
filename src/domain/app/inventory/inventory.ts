@@ -20,6 +20,6 @@ export interface IInventory {
 
 export interface IInventoryDocument extends mongoose.Document { }
 
-export interface IInventoryModel extends mongoose.Model<IInventoryDocument> { 
-    findCriteria(field: string): Promise<string[]>;
+export interface IInventoryModel extends mongoose.Model<IInventoryDocument> {
+    findCriteria(field: string, filter?: string): Promise<string[]>;
 }
