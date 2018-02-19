@@ -76,10 +76,8 @@ function criteriaAggregation(input: {field: string, filter: string}): ICriteriaA
         matchStage.$match = {};
     }
 
-    Object.assign(matchStage.$match, {
-        [input.field]: {
-            $regex: reg
-        }
+    Object.assign(matchStage.$match[input.field], {
+        $regex: reg
     });
 
     return aggregate;
