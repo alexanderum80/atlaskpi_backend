@@ -213,7 +213,11 @@ export class KpiBase {
                     }
 
                     key = '$regex';
-                    value = new RegExp(filterValue);
+                    if (operatorName === 'regex') {
+                        value = new RegExp(filterValue);
+                    } else {
+                        value = new RegExp(filterValue, 'i');
+                    }
                 } else {
                     value = filterValue;
                 }
