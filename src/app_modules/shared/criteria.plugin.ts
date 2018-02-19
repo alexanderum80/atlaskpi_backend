@@ -20,7 +20,7 @@ export function criteriaPlugin(schema: mongoose.Schema): void {
 
 function findCriteria(field: string, limit?: number, filter?: string): Promise<string[]> {
     const that = this;
-    const aggregateOptions = criteriaAggregation({ field, filter });
+    const aggregateOptions = criteriaAggregation({ field, limit, filter });
 
     return new Promise<string[]>((resolve, reject) => {
         that.aggregate(aggregateOptions).then(res => {
