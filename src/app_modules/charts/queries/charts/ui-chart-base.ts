@@ -3,7 +3,7 @@ import 'datejs';
 import { from } from 'apollo-link/lib';
 import * as Promise from 'bluebird';
 import * as console from 'console';
-import { cloneDeep, difference, flatten, groupBy, isEmpty, map, union, uniq, uniqBy, orderBy } from 'lodash';
+import { cloneDeep, difference, flatten, groupBy, isEmpty, map, pick, union, uniq, uniqBy, orderBy } from 'lodash';
 import * as moment from 'moment';
 import * as logger from 'winston';
 import { camelCase } from 'change-case';
@@ -119,11 +119,18 @@ export class UIChartBase {
             logger.debug('data received, for chart: ' + this.constructor.name + ' - kpi: ' + kpi.constructor.name);
             that.data = data;
 
-            that._dummyData(data, metadata, target);
+            if (!data || !data.length) {
+                return;
+            }
 
             that.groupings = that._getGroupingFields(data);
 
-            this._formatTarget(target, metadata, that.groupings);
+            const isTargetPresent = target && target.length;
+
+            if (isTargetPresent) {
+                that._dummyData(data, metadata, target);
+                this._formatTarget(target, metadata, that.groupings);
+            }
 
             that.frequencyHelper.decomposeFrequencyInfo(data, metadata.frequency);
 
@@ -231,11 +238,14 @@ export class UIChartBase {
      * @param data raw data
      */
     private _getGroupingFields(data): string[] {
-        if (!data) {
+        if (!data || !data.length) {
             return [];
         }
 
-        return Object.keys(data[0]._id);
+        let values = data.slice(0, 20).map(d => uniq(Object.keys(d._id)));
+        values = uniq(flatten(values));
+
+        return values;
     }
 
     /**
@@ -711,7 +721,7 @@ export class UIChartBase {
     }
 
     private _dummyData(data: any[], metadata: any, target: any[]) {
-        if (!data.length) {
+        if (!data || !data.length) {
             let tempData = getFrequencySequence(metadata.frequency);
             if (!this.commonField || !this.commonField.length) {
                 this.commonField = this.chart.groupings;

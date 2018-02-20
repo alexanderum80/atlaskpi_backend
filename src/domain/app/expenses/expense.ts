@@ -31,5 +31,7 @@ export interface IExpenseDocument extends IExpense, mongoose.Document { }
 
 export interface IExpenseModel extends mongoose.Model<IExpenseDocument> {
     findByPredefinedDateRange(predefinedDateRange: string): Promise<IExpenseDocument[]>;
-    findCriteria(field: string): Promise<string[]>;
+    amountByDateRange(fromDate: string, toDate: string): Promise<Object>;
+    monthsAvgExpense(date: string): Promise<Object>;
+    findCriteria(field: string): Promise<any[]>;
 }
