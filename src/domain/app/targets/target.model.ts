@@ -176,6 +176,22 @@ TargetSchema.statics.findTarget = function(id: string): Promise<ITargetDocument[
     });
 };
 
+TargetSchema.statics.findTargetByName = function(name: string): Promise<ITargetDocument> {
+    const that = this;
+    return new Promise<ITargetDocument>((resolve, reject) => {
+      (<ITargetModel>this).findOne({name: name, delete: 0})
+            .then((target) => {
+                if (target) {
+                    resolve(target);
+                    return;
+                }
+                resolve(<any>{ errors: [ { field: 'target', errors: ['Not found'] } ], data: null });
+            }).catch((err) => {
+                resolve(<any>{ errors: [ { field: 'target', errors: ['Not found'] } ], data: null });
+            });
+    });
+};
+
 TargetSchema.statics.findAllTargets = function(): Promise<ITargetDocument[]> {
     const that = this;
     return new Promise<ITargetDocument[]>((resolve, reject) => {
