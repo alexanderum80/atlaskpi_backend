@@ -178,12 +178,10 @@ TargetSchema.statics.findTarget = function(id: string): Promise<ITargetDocument[
     });
 };
 
-<<<<<<< HEAD
 TargetSchema.statics.findTargetByName = function(name: string): Promise<ITargetDocument> {
     const that = this;
     return new Promise<ITargetDocument>((resolve, reject) => {
       (<ITargetModel>this).findOne({name: name, delete: 0})
-=======
 TargetSchema.statics.findTargetByDate = function(date: string): Promise<ITargetDocument[]> {
     const that = this;
 
@@ -192,7 +190,6 @@ TargetSchema.statics.findTargetByDate = function(date: string): Promise<ITargetD
 
     return new Promise<ITargetDocument[]>((resolve, reject) => {
       (<ITargetModel>this).find({datepicker: { $gte: from, $lt: to }, delete: 0})
->>>>>>> 993b68c6953df7990c648f2444167d60926da7d3
             .then((target) => {
                 if (target) {
                     resolve(target);
