@@ -219,6 +219,9 @@ export class User  {
     @field({ type: GraphQLTypesMap.String })
     timestamps: string;
 
+    @field({ type: GraphQLTypesMap.String })
+    firstLogin: string;
+
 }
 
 

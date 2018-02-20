@@ -170,16 +170,18 @@ export interface IUserModel extends mongoose.Model<IUserDocument> {
      * @return {Promise<IUserDocument>}
      */
     findByUsername(username: string): Promise<IUserDocument>;
-        /**
+   
+    /**
      * Finds the user with the specified Full Name but if more than one user matches the case insensitive search, it returns null.
      * @param {string} firstName - the firstName to look for
      * @param {string} lastName - the firstName to look for
      * @return {Promise<IUserDocument>}
      */
-    findByFullName(firstName: string, lastName: string): Promise<IUserDocument>;
+     findByFullName(firstName: string, lastName: string): Promise<IUserDocument>;
+
      /**
      * Finds the user with the specified username but if more than one user matches the case insensitive search, it returns null.
-     * @param {string} username - the username to look for
+     * @param {string} id - the username to look for
      * @return {Promise<IUserDocument>}
      */
     findUserById(id: string): Promise<IUserDocument>;
@@ -188,11 +190,7 @@ export interface IUserModel extends mongoose.Model<IUserDocument> {
      * @param {string} email - the email address to look for
      * @returns {Promise<IUserDocument>}
      */
-    /**
-     * Finds the user with the specified username but if more than one user matches the case insensitive search, it returns null.
-     * @param {string} username - the username to look for
-     * @return {Promise<IUserDocument>}
-     */
+    
     findByEmail(email: string): Promise<IUserDocument>;
     /**
      * Add an email address for a user. Use this instead of directly updating the database.
@@ -294,8 +292,16 @@ export interface IUserModel extends mongoose.Model<IUserDocument> {
      * find users with array of user ids
      */
     findUsersById(id: string[]): Promise<IUserDocument[]>;
+
+    /**
+     * Finds the user with the specified username but if more than one user matches the case insensitive search, it returns null.
+     * @param {string} username - the username to look for
+     * @return {Promise<IUserDocument>}
+     */
+    findByUserHelpCenter(username: string[]): Promise<IUserDocument[]>;
     /**
      * update the user's preferences
      */
     updateUserPreference(id: string, input: IUserPreference): Promise<IUserDocument>;
+
 }

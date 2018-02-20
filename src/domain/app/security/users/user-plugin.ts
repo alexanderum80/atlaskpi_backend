@@ -1071,4 +1071,19 @@ export function userPlugin(schema: mongoose.Schema, options: any) {
         });
     };
 
+    schema.statics.findByUserHelpCenter = function(username: string): Promise<IUserDocument[]> {
+        const UserModel = (<IUserModel>this);
+        return new Promise<IUserDocument[]>((resolve, reject) => {
+            UserModel.find({ username: { $in: username } }).then(users => {
+                if (users) {
+                    resolve(users);
+                    return;
+                }
+                resolve(null);
+                return;
+            }).catch(err => reject(err));
+        });
+    };
+
+
 }
