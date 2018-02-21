@@ -1,4 +1,4 @@
-import * as Promise from 'bluebird';
+import * as [Promise from 'bluebird';
 import { inject, injectable } from 'inversify';
 
 import { CurrentUser } from '../../../domain/app/current-user';
