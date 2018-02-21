@@ -298,7 +298,7 @@ export interface IUserModel extends mongoose.Model<IUserDocument> {
      * @param {string} username - the username to look for
      * @return {Promise<IUserDocument>}
      */
-    findByUserHelpCenter(username: string[]): Promise<IUserDocument[]>;
+    findByUserHelpCenter(username: string): Promise<IUserDocument>;
     /**
      * update the user's preferences
      */
