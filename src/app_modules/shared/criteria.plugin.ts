@@ -1,7 +1,6 @@
 import * as mongoose from 'mongoose';
 import * as Promise from 'bluebird';
-import * as logger from 'winston';
-import { uniqBy, isNumber } from 'lodash';
+
 
 export interface IObject {
     [key: string]: any;
@@ -42,14 +41,13 @@ function criteriaAggregation(input: {field: string, limit?: number, filter?: str
             _id: {
                 'field': `$${input.field}`
             }
-        }},
-        { '$limit': 100 }
+        }}
     ];
 
-    let limitStage: ICriteriaAggregate = findStage(aggregate, '$limit');
-    if (isNumber(input.limit)) {
-        limitStage.$limit = input.limit;
-    }
+    aggregate = aggregate.concat({
+        $limit: input.limit
+    });
+
 
     if (!input.filter) {
         return aggregate;
