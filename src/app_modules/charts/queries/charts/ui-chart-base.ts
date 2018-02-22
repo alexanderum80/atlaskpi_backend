@@ -299,7 +299,7 @@ export class UIChartBase {
 
     private _getXaxisSource(data: any[], metadata: IChartMetadata, groupings?: string[]) {
         if (!metadata || !metadata.xAxisSource) { return ''; }
-        if (!data.length) { return metadata.xAxisSource; }
+        if (!data || !data.length) { return metadata.xAxisSource; }
         if (metadata.xAxisSource === 'frequency' && groupings && groupings.length) { return groupings; }
 
         let findXaxisSource;
@@ -310,8 +310,11 @@ export class UIChartBase {
             field: null
         };
 
-        if (!findXaxisSource.length) {
-            const dataKeys = Object.keys(data[0]._id);
+        if (!findXaxisSource || !findXaxisSource.length) {
+            let dataKeys = Object.keys(data[0]._id);
+            if (!Array.isArray(dataKeys)) {
+                dataKeys = [];
+            }
 
             for (let i = 0; i < dataKeys.length; i++) {
                 const findIndex = dataKeys[i].indexOf(metadata.xAxisSource);
