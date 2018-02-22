@@ -120,7 +120,9 @@ export class UIChartBase {
         logger.debug('processChartData for: ' + this.constructor.name + ' - kpi: ' + kpi.constructor.name);
         const that = this;
 
-        if (metadata.dateRange[0].predefined === 'custom') {
+        if (metadata.dateRange &&
+            Array.isArray(metadata.dateRange) &&
+            metadata.dateRange[0].predefined === 'custom') {
             this.isCustomDateRange.regular = true;
         }
 
@@ -244,8 +246,8 @@ export class UIChartBase {
     private _processChartDateRange(chartDateRange: IChartDateRange): IDateRange {
         return chartDateRange.custom && chartDateRange.custom.from ?
                 {
-                    from: moment(chartDateRange.custom.from, 'MM/DD/YYYY').startOf('day').toDate(),
-                    to: moment(chartDateRange.custom.to, 'MM/DD/YYYY').endOf('day').toDate()
+                    from: moment(chartDateRange.custom.from).startOf('day').toDate(),
+                    to: moment(chartDateRange.custom.to).endOf('day').toDate()
                 }
                 : parsePredifinedDate(chartDateRange.predefined);
     }
@@ -297,7 +299,7 @@ export class UIChartBase {
 
     private _getXaxisSource(data: any[], metadata: IChartMetadata, groupings?: string[]) {
         if (!metadata || !metadata.xAxisSource) { return ''; }
-        if (!data.length) { return metadata.xAxisSource; }
+        if (!data || !data.length) { return metadata.xAxisSource; }
         if (metadata.xAxisSource === 'frequency' && groupings && groupings.length) { return groupings; }
 
         let findXaxisSource;
@@ -308,8 +310,11 @@ export class UIChartBase {
             field: null
         };
 
-        if (!findXaxisSource.length) {
-            const dataKeys = Object.keys(data[0]._id);
+        if (!findXaxisSource || !findXaxisSource.length) {
+            let dataKeys = Object.keys(data[0]._id);
+            if (!Array.isArray(dataKeys)) {
+                dataKeys = [];
+            }
 
             for (let i = 0; i < dataKeys.length; i++) {
                 const findIndex = dataKeys[i].indexOf(metadata.xAxisSource);
@@ -804,7 +809,9 @@ export class UIChartBase {
     }
 
     protected getDefinitionOfComparisonChart(kpi, metadata: IChartMetadata): Promise<any> {
-        if (metadata.dateRange[0].predefined === 'custom') {
+        if (metadata.dateRange &&
+            Array.isArray(metadata.dateRange) &&
+            metadata.dateRange[0].predefined === 'custom') {
             this.isCustomDateRange.comparison = true;
         }
         const chartPromises = {
