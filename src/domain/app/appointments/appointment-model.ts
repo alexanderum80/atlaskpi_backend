@@ -1,3 +1,4 @@
+import { criteriaPlugin } from '../../../app_modules/shared/criteria.plugin';
 import { inject, injectable } from 'inversify';
 import { isEmpty } from 'lodash';
 import * as moment from 'moment';
@@ -66,6 +67,8 @@ AppointmentSchema.index({ 'from': 1, 'location.name': 1 });
 AppointmentSchema.index({ 'from': 1, 'event.code': 1 });
 AppointmentSchema.index({ 'from': 1, 'event.name': 1 });
 AppointmentSchema.index({ 'from': 1, 'source': 1 });
+
+AppointmentSchema.plugin(criteriaPlugin);
 
 AppointmentSchema.statics.createNew = function(input: IAppointment): Promise < IAppointmentDocument > {
     const that = < IAppointmentModel > this;
@@ -257,20 +260,6 @@ AppointmentSchema.statics.providersList = function(): Promise<IIdName[]> {
         }).catch(err => {
             that._logger.error(err);
             return reject('There was an error retrieving appointments');
-        });
-    });
-};
-
-AppointmentSchema.statics.findCriteria = function(field: string): Promise<any[]> {
-    const that = this;
-
-    return new Promise<any[]>((resolve, reject) => {
-        that.distinct(field, { [field]: { $ne: '' } }).then(res => {
-            resolve(res);
-            return;
-        }).catch(err => {
-            reject(err);
-            return;
         });
     });
 };

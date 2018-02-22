@@ -1,3 +1,4 @@
+import { criteriaPlugin } from '../../../app_modules/shared/criteria.plugin';
 import { ICallModel } from './call';
 import { ModelBase } from '../../../type-mongo/model-base';
 import * as mongoose from 'mongoose';
@@ -69,19 +70,7 @@ export const CallSchema = new Schema({
     referrer_domain: String
 });
 
-CallSchema.statics.findCriteria = function(field: string): Promise<string[]> {
-    const that = this;
-
-    return new Promise<string[]>((resolve, reject) => {
-        that.distinct(field).then(values => {
-            resolve(values);
-            return;
-        }).catch(err => {
-            reject(err);
-            return;
-        });
-    });
-};
+CallSchema.plugin(criteriaPlugin);
 
 @injectable()
 export class Calls extends ModelBase<ICallModel> {
