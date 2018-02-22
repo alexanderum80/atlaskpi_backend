@@ -120,7 +120,9 @@ export class UIChartBase {
         logger.debug('processChartData for: ' + this.constructor.name + ' - kpi: ' + kpi.constructor.name);
         const that = this;
 
-        if (metadata.dateRange[0].predefined === 'custom') {
+        if (metadata.dateRange &&
+            Array.isArray(metadata.dateRange) &&
+            metadata.dateRange[0].predefined === 'custom') {
             this.isCustomDateRange.regular = true;
         }
 
@@ -804,7 +806,9 @@ export class UIChartBase {
     }
 
     protected getDefinitionOfComparisonChart(kpi, metadata: IChartMetadata): Promise<any> {
-        if (metadata.dateRange[0].predefined === 'custom') {
+        if (metadata.dateRange &&
+            Array.isArray(metadata.dateRange) &&
+            metadata.dateRange[0].predefined === 'custom') {
             this.isCustomDateRange.comparison = true;
         }
         const chartPromises = {
