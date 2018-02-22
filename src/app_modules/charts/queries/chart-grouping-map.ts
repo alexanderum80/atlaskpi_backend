@@ -81,7 +81,7 @@ export const GroupingMap = {
         customer: 'customer.name',
         provider: 'provider.name',
         location: 'location.name',
-        type: 'event.code',
+        type: 'event.name',
         source: 'source'
     }
 };
