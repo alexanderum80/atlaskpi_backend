@@ -1,24 +1,71 @@
 import { inject, injectable } from 'inversify';
+import { isEmpty } from 'lodash';
+import * as moment from 'moment';
 import * as mongoose from 'mongoose';
 import * as logger from 'winston';
-import * as moment from 'moment';
 
 import { ModelBase } from '../../../type-mongo/model-base';
 import { AppConnection } from '../app.connection';
+import { SearchAppointmentCriteriaInput } from './../../../app_modules/appointments/appointments.types';
+import { IIdName } from './../../common/id-name';
 import { IAppointment, IAppointmentDocument, IAppointmentModel } from './appointment';
 
-const AppointmentSchema = new mongoose.Schema({
+const distinctProvidersPipeline = [
+    { '$unwind': '$provider' },
+    { '$match' : { 'provider.externalId' : { '$ne' : null }}},
+    { '$group': { '_id': { externalId: '$provider.externalId', name: '$provider.name' } } },
+    { '$project': { _id: 0, externalId: '$_id.externalId', name: '$_id.name' } }
+];
+
+const EntitySchema = {
+    externalId: String,
+    name: String
+};
+
+const EventSchema = {
+    ...EntitySchema,
+    code: String,
+    color: String,
+    conflictColor: String,
+    cancelledColor: String
+};
+
+export const AppointmentSchema = new mongoose.Schema({
+    // appointment
     source: String,
-    externalId: {
-        type: String,
-        unique: true
-    },
-    fullName: String,
     reason: String,
+    comments: String,
     from: Date,
     to: Date,
-    provider: String
+    duration: Number,
+    approved: Boolean,
+    checkedIn: Boolean,
+    checkedOut: Boolean,
+    cancelled: Boolean,
+    noShow: Boolean,
+    checkedInOn: Date,
+    checkedOutOn: Date,
+    cancelledOn: Date,
+    confirmedOn: Date,
+    createdOn: Date,
+    noShowOn: Date,
+    customer: { ...EntitySchema },
+    provider: [ EntitySchema ],
+    location: { ...EntitySchema },
+    event: { ...EventSchema },
+    document: {
+        type: String, // invoice, bill, charge, etc
+        identifier: String
+    }
 });
+
+// INDEXES
+AppointmentSchema.index({ 'from': 1 });
+AppointmentSchema.index({ 'from': 1, 'provider.name': 1 });
+AppointmentSchema.index({ 'from': 1, 'location.name': 1 });
+AppointmentSchema.index({ 'from': 1, 'event.code': 1 });
+AppointmentSchema.index({ 'from': 1, 'event.name': 1 });
+AppointmentSchema.index({ 'from': 1, 'source': 1 });
 
 AppointmentSchema.statics.createNew = function(input: IAppointment): Promise < IAppointmentDocument > {
     const that = < IAppointmentModel > this;
@@ -152,6 +199,78 @@ AppointmentSchema.statics.appointmentsByDate = function(date: Date): Promise<IAp
         }).catch(err => {
             logger.error(err);
             return reject('There was an error retrieving appointments by date');
+        });
+    });
+};
+
+AppointmentSchema.statics.search = function(criteria: SearchAppointmentCriteriaInput): Promise<IAppointment[]> {
+    const query = {};
+
+    let from: moment.Moment;
+    let to: moment.Moment;
+
+    // date
+    if (criteria && criteria.date) {
+        from = moment(criteria.date).startOf('day');
+        to = moment(criteria.date).add(1, 'day').startOf('day');
+    }  else if (criteria && criteria.startDate && criteria.endDate) {
+        from = moment(criteria.startDate);
+        to = moment(criteria.endDate);
+    } else {
+        const rightNow = moment();
+        from = rightNow.startOf('month');
+        to = rightNow.endOf('month');
+    }
+
+    query['from'] = {
+        '$gte': from,
+        '$lt': to
+    };
+
+    // provider
+    if (criteria && criteria.provider &&
+        criteria.provider.length &&
+        !isEmpty(criteria.provider[0])) {
+        query['provider.externalId'] = {
+            '$in': criteria.provider,
+        };
+    }
+
+    const that = this;
+    return new Promise <IAppointment[]>((resolve, reject) => {
+        that.find(query).sort({ from: 1 }).then(appointments => {
+            resolve(appointments);
+            return;
+        }).catch(err => {
+            that._logger.error(err);
+            return reject('There was an error retrieving appointments');
+        });
+    });
+};
+
+AppointmentSchema.statics.providersList = function(): Promise<IIdName[]> {
+    const that = this;
+    return new Promise <IIdName[]>((resolve, reject) => {
+        that.aggregate(distinctProvidersPipeline).then(providers => {
+            resolve(<any>providers);
+            return;
+        }).catch(err => {
+            that._logger.error(err);
+            return reject('There was an error retrieving appointments');
+        });
+    });
+};
+
+AppointmentSchema.statics.findCriteria = function(field: string): Promise<any[]> {
+    const that = this;
+
+    return new Promise<any[]>((resolve, reject) => {
+        that.distinct(field, { [field]: { $ne: '' } }).then(res => {
+            resolve(res);
+            return;
+        }).catch(err => {
+            reject(err);
+            return;
         });
     });
 };

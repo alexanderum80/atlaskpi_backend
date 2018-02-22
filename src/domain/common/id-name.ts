@@ -1,5 +1,5 @@
 export interface IIdName {
-    id: string;
+    id?: string;
     externalId: string;
     name: string;
 }

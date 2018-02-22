@@ -1,5 +1,3 @@
-import * as moment from 'moment';
-
 export const FREQUENCY_GROUPING_NAME = 'frequency';
 
 export enum FrequencyEnum {

@@ -73,12 +73,12 @@ KPISchema.statics.createKPI = function(input: IKPI): Promise<IKPIDocument> {
 
         let kpiType = KPITypeMap[input.type];
 
-        if (kpiType === KPITypeEnum.Simple || KPITypeEnum.ExternalSource) {
-            input.expression = KPIExpressionHelper.ComposeExpression(kpiType, input.expression);
+        if (input.filter) {
+            input.filter = KPIFilterHelper.ComposeFilter(kpiType, input.expression, input.filter);
         }
 
-        if (input.filter) {
-            input.filter = KPIFilterHelper.ComposeFilter(kpiType, input.filter);
+        if (kpiType === KPITypeEnum.Simple || KPITypeEnum.ExternalSource) {
+            input.expression = KPIExpressionHelper.ComposeExpression(kpiType, input.expression);
         }
 
         that.create(input, (err, kpi: IKPIDocument) => {
@@ -110,8 +110,8 @@ KPISchema.statics.updateKPI = function(id: string, input: IKPI): Promise<IKPIDoc
 
         input.code = input.name;
         let kpiType = KPITypeMap[input.type];
+        input.filter = KPIFilterHelper.ComposeFilter(kpiType, input.expression, input.filter);
         input.expression = KPIExpressionHelper.ComposeExpression(kpiType, input.expression);
-        input.filter = KPIFilterHelper.ComposeFilter(kpiType, input.filter);
 
         that.findOneAndUpdate({_id: id}, input, {new: true })
         .exec()
@@ -120,7 +120,7 @@ KPISchema.statics.updateKPI = function(id: string, input: IKPI): Promise<IKPIDoc
     });
 };
 
-KPISchema.statics.removeKPI = function(id: string, documentExists?: IDocumentExist): Promise<IMutationResponse> {
+KPISchema.statics.removeKPI = function(id: string): Promise<IMutationResponse> {
     let that = this;
 
     let document: IKPIDocument;
@@ -133,13 +133,6 @@ KPISchema.statics.removeKPI = function(id: string, documentExists?: IDocumentExi
 
         if (idError) {
             resolve(MutationResponse.fromValidationErrors(idError));
-        }
-
-        if (documentExists.chart.length ||
-            documentExists.widget.length ||
-            documentExists.complexKPI.length) {
-            reject({ message: 'KPIs is being used by ', entity: documentExists, error: 'KPIs is being used by '});
-            return;
         }
 
         (<IKPIModel>this).findById(id).then((kpi) => {

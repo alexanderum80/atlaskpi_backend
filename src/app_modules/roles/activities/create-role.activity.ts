@@ -12,7 +12,7 @@ export class CreateRoleActivity implements IActivity {
 
     check(): Promise<boolean> {
         return Promise.resolve(
-            BasicRoleChecker.hasPermission(this._currentUser, 'Manage Access Levels', 'Users')
+            BasicRoleChecker.hasPermission(this._currentUser, 'Manage Access Levels', 'User')
         );
     }
 }

@@ -77,3 +77,13 @@ export class ChartDateRange  {
 
 }
 
+@type()
+export class Entity {
+    @field({ type: GraphQLTypesMap.String })
+    externalId: string;
+
+    @field({ type: GraphQLTypesMap.String })
+    name: string;
+}
+
+

@@ -12,7 +12,7 @@ export class DeleteChartActivity implements IActivity {
 
     check(): Promise<boolean> {
         return Promise.resolve(
-            BasicRoleChecker.hasPermission(this._user, 'Delete Company Wide', 'Chart')
+            BasicRoleChecker.hasPermission(this._user, 'Delete', 'Chart')
         );
     }
 }

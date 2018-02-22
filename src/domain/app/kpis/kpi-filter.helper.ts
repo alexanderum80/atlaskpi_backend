@@ -1,5 +1,5 @@
 import { CallSchema } from '../calls/call.model';
-import { isArray, isObject } from 'lodash';
+import { isArray, isObject, isDate } from 'lodash';
 
 import { isArrayObject } from '../../../helpers/express.helpers';
 import { readMongooseSchema } from '../../../helpers/mongodb.helpers';
@@ -8,15 +8,27 @@ import { ExpenseSchema } from '../expenses/expense.model';
 import { InventorySchema } from '../inventory/inventory.model';
 import { SaleSchema } from '../sales/sale.model';
 import { GoogleAnalyticsSchema } from './../google-analytics/google-analytics.model';
-import { IKPIFilter, KPITypeEnum } from './kpi';
+import { IKPIFilter, KPITypeEnum, IKPISimpleDefinition } from './kpi';
+import { AppointmentSchema } from '../appointments/appointment-model';
+
 
 const Schemas = [
       SaleSchema,
       ExpenseSchema,
       InventorySchema,
       GoogleAnalyticsSchema,
-      CallSchema
+      CallSchema,
+      AppointmentSchema
 ];
+
+const datasourceSchemaMap = {
+    'sales': SaleSchema,
+    'expenses': ExpenseSchema,
+    'inventory': InventorySchema,
+    'googleanalytics': GoogleAnalyticsSchema,
+    'calls': CallSchema,
+    'appointments': AppointmentSchema
+};
 
 const replacementStrings = [
     { key: '__dot__', value: '.' },
@@ -24,18 +36,22 @@ const replacementStrings = [
 ];
 
 export class KPIFilterHelper {
-    public static ComposeFilter(kpiType: KPITypeEnum, filter: string): any {
+    public static ComposeFilter(kpiType: KPITypeEnum, rawExpression: string, filter: string): any {
+
+        let simpleDefinition: IKPISimpleDefinition;
 
         switch (kpiType) {
             case KPITypeEnum.Simple:
                 if (!filter) { return null; }
                 const simpleFilters: IKPIFilter[] = JSON.parse(filter);
-                return KPIFilterHelper._composeSimpleFilter(simpleFilters);
+                simpleDefinition = JSON.parse(rawExpression);
+                return KPIFilterHelper._composeSimpleFilter(simpleDefinition.dataSource, simpleFilters);
 
             case KPITypeEnum.ExternalSource:
                 if (!filter) { return null; }
                 const externalsourceFilters: IKPIFilter[] = JSON.parse(filter);
-                return KPIFilterHelper._composeSimpleFilter(externalsourceFilters);
+                simpleDefinition = JSON.parse(rawExpression);
+                return KPIFilterHelper._composeSimpleFilter(simpleDefinition.dataSource, externalsourceFilters);
 
             default:
                 return filter;
@@ -70,12 +86,15 @@ export class KPIFilterHelper {
         }
     }
 
-    private static _composeSimpleFilter(filterArray: IKPIFilter[]): string {
+    private static _composeSimpleFilter(datasource: string, filterArray: IKPIFilter[]): string {
         if (filterArray.length < 1) { return null; }
 
-
         // TODO: this should be refactor to get only get the fields of the source model
-        const fieldset = this._allSchemasFieldSet();
+        // const fieldset = this._allSchemasFieldSet();
+
+        const cleanDatasource = datasource.split('$');
+
+        const fieldset = this._getFieldsetForDatasource(cleanDatasource[0]);
 
         const mongoDbFilterArray = filterArray.map(f => KPIFilterHelper._transform2MongoFilter(f, fieldset));
 
@@ -119,9 +138,9 @@ export class KPIFilterHelper {
 
             let value = filter[filterKey];
 
-            if (!isArray(value) && isObject(value)) {
+            if (!isArray(value) && !isDate(value) && isObject(value)) {
                 value = KPIFilterHelper._serializer(value, operation);
-            } else if (isArrayObject(value)) {
+            } else if (!isDate(value) && isArrayObject(value)) {
                 for (let i = 0; i < value.length; i++) {
                     value[i] = this._serializer(value[i], operation);
                 }
@@ -141,6 +160,18 @@ export class KPIFilterHelper {
             Object.keys(flattenedSchema).forEach(k => {
                 fieldset[k] = flattenedSchema[k];
             });
+        });
+
+        return fieldset;
+    }
+
+    private static _getFieldsetForDatasource(datasource: string) {
+        let fieldset = [];
+        let schema = datasourceSchemaMap[datasource];
+        const objectifiedSchema = readMongooseSchema(schema);
+        const flattenedSchema = flatten(objectifiedSchema);
+        Object.keys(flattenedSchema).forEach(k => {
+            fieldset[k] = flattenedSchema[k];
         });
 
         return fieldset;
