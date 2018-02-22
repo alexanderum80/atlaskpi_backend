@@ -244,8 +244,8 @@ export class UIChartBase {
     private _processChartDateRange(chartDateRange: IChartDateRange): IDateRange {
         return chartDateRange.custom && chartDateRange.custom.from ?
                 {
-                    from: moment(chartDateRange.custom.from, 'MM/DD/YYYY').startOf('day').toDate(),
-                    to: moment(chartDateRange.custom.to, 'MM/DD/YYYY').endOf('day').toDate()
+                    from: moment(chartDateRange.custom.from).startOf('day').toDate(),
+                    to: moment(chartDateRange.custom.to).endOf('day').toDate()
                 }
                 : parsePredifinedDate(chartDateRange.predefined);
     }
