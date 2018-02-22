@@ -120,7 +120,9 @@ export class UIChartBase {
         logger.debug('processChartData for: ' + this.constructor.name + ' - kpi: ' + kpi.constructor.name);
         const that = this;
 
-        if (metadata.dateRange[0].predefined === 'custom') {
+        if (metadata.dateRange &&
+            Array.isArray(metadata.dateRange) &&
+            metadata.dateRange[0].predefined === 'custom') {
             this.isCustomDateRange.regular = true;
         }
 
@@ -244,8 +246,8 @@ export class UIChartBase {
     private _processChartDateRange(chartDateRange: IChartDateRange): IDateRange {
         return chartDateRange.custom && chartDateRange.custom.from ?
                 {
-                    from: moment(chartDateRange.custom.from, 'MM/DD/YYYY').startOf('day').toDate(),
-                    to: moment(chartDateRange.custom.to, 'MM/DD/YYYY').endOf('day').toDate()
+                    from: moment(chartDateRange.custom.from).startOf('day').toDate(),
+                    to: moment(chartDateRange.custom.to).endOf('day').toDate()
                 }
                 : parsePredifinedDate(chartDateRange.predefined);
     }
@@ -804,7 +806,9 @@ export class UIChartBase {
     }
 
     protected getDefinitionOfComparisonChart(kpi, metadata: IChartMetadata): Promise<any> {
-        if (metadata.dateRange[0].predefined === 'custom') {
+        if (metadata.dateRange &&
+            Array.isArray(metadata.dateRange) &&
+            metadata.dateRange[0].predefined === 'custom') {
             this.isCustomDateRange.comparison = true;
         }
         const chartPromises = {
