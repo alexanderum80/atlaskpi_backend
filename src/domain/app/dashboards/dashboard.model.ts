@@ -12,10 +12,14 @@ import { tagsPlugin } from '../tags/tag.plugin';
 
 let Schema = mongoose.Schema;
 
+let AccessLevels = {
+    users: String,
+    permitTypes: String
+};
+
 let DashboardSchema = new Schema({
     name: { type: String, unique: true, required: true },
     description: String,
-    group: String,
     charts: [{
         type: Schema.Types.String,
         ref: 'Chart'
@@ -28,10 +32,7 @@ let DashboardSchema = new Schema({
         type: Schema.Types.String,
         ref: 'User'
     },
-    users: [{
-        type: Schema.Types.String,
-        ref: 'User'
-    }]
+    accessLevels: [AccessLevels]
 });
 
 // add tags capabilities
@@ -43,7 +44,7 @@ DashboardSchema.statics.createDashboard = function(input: IDashboardInput):
         const that = < IDashboardModel > this;
 
         return new Promise < IDashboardDocument > ((resolve, reject) => {
-            if (!input.name || !input.group) {
+            if (!input.name) {
                 return reject('Information not valid');
             }
 
@@ -62,7 +63,7 @@ DashboardSchema.statics.updateDashboard = function(id: string, input: IDashboard
         const that = < IDashboardModel > this;
 
         return new Promise < IDashboardDocument > ((resolve, reject) => {
-            if (!id || !input.name || !input.group) {
+            if (!id || !input.name) {
                 return reject('Information not valid');
             }
 

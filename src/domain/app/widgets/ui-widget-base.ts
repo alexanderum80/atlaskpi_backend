@@ -20,6 +20,7 @@ export class UIWidgetBase {
 
     // virtual properties ( result of calcs, chart definitions, trending)
     materialized?: IWidgetMaterializedFields;
+    protected tags: string[];
 
     constructor(protected widget: IWidget) {
         Object.assign(this, widget);
