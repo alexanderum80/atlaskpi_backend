@@ -98,7 +98,8 @@ export function userPlugin(schema: mongoose.Schema, options: any) {
     };
 
     const UserPreferenceSchema = {
-        chart: ShowTourSchema
+        chart: ShowTourSchema,
+        helpCenter: { type: Boolean, default: false }
     };
 
     schema.add({

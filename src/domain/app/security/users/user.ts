@@ -61,6 +61,7 @@ export interface IShowTour {
 
 export interface IUserPreference {
     chart?: IShowTour;
+    helpCenter?: boolean;
 }
 
 export interface ITokenInfo {
