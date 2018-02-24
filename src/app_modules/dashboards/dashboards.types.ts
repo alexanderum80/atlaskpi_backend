@@ -11,7 +11,7 @@ export class AccessLevelsInput {
     users: string;
 
     @field({ type: GraphQLTypesMap.String, required: true })
-    permitTypes: string;
+    accessTypes: string;
 
 }
 
@@ -40,7 +40,7 @@ export class AccessLevels {
     users: string;
 
     @field({ type: GraphQLTypesMap.String, required: true })
-    permitTypes: string;
+    accessTypes: string;
 
 }
 

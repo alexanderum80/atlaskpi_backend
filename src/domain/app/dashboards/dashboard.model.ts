@@ -14,7 +14,7 @@ let Schema = mongoose.Schema;
 
 let AccessLevels = {
     users: String,
-    permitTypes: String
+    accessTypes: String
 };
 
 let DashboardSchema = new Schema({

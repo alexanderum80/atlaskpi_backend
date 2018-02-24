@@ -9,7 +9,7 @@ import { IWidget } from '../widgets/widget';
 // import { IWidget } from '../widgets';
 export interface AccessLevels {
     users: string;
-    permitTypes: string;
+    accessTypes: string;
 }
 
 export interface IDashboard {
