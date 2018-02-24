@@ -18,6 +18,7 @@ import { SeedService } from './seed/seed.service';
 import { SocialWidgetsService } from './social-widgets.service';
 import { TargetService } from './target.service';
 import { WidgetsService } from './widgets.service';
+import { LeadReceivedNotification } from './notifications/users/lead-received.notification';
 
 export function registerServices(container: IBridgeContainer) {
     container.registerSingleton(AccountsService);
@@ -30,6 +31,7 @@ export function registerServices(container: IBridgeContainer) {
     container.registerSingleton(AccountCreatedNotification);
     container.registerSingleton(UserForgotPasswordNotification);
     container.registerSingleton(EnrollmentNotification);
+    container.registerSingleton(LeadReceivedNotification);
 
     // integration callrail service
     container.registerPerWebRequest(CallRailService);
