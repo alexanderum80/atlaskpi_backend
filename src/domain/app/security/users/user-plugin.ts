@@ -545,10 +545,10 @@ export function userPlugin(schema: mongoose.Schema, options: any) {
                 if (user) {
                     resolve(user);
                 } else {
-                    reject(null);
+                    resolve(null);
                 }
             }).catch(() => {
-                reject(null);
+                reject('uknown error');
             });
         });
     };
