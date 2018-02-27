@@ -1,3 +1,4 @@
+import { IRoleDocument } from '../domain/app/security/roles/role';
 import { Roles } from '../domain/app/security/roles/role.model';
 import { UserDetails } from '../app_modules/users/users.types';
 import { AccountCreatedNotification } from './notifications/users/account-created.notification';
@@ -59,13 +60,14 @@ export class UserService {
                 if (userEmail.indexOf(inputEmail) !== -1) {
                     // update user if user is saving the same email
                     that._roles.model.findAllRoles('').then(roles => {
-                        that._users.model.updateUser(input.id, input.data, roles).then(updatedUser => {
-                            resolve(updatedUser);
-                            return;
-                        }).catch(err => reject(err));
+                        that._users.model.updateUser(input.id, input.data, roles)
+                            .then((updatedUser: IMutationResponse) => {
+                                resolve(updatedUser);
+                                return;
+                            }).catch(err => reject(err));
                     });
                 } else {
-                    that.userEmailExists(input.data).then(user => {
+                    that.userEmailExists(input.data).then((user: IUserDocument) => {
                         if (user) {
                             resolve({
                                 success: false,
@@ -80,12 +82,14 @@ export class UserService {
                             return;
                         }
 
-                        that._roles.model.findAllRoles('').then(roles => {
-                            that._users.model.updateUser(input.id, input.data, roles).then(updatedUser => {
-                                resolve(updatedUser);
-                                return;
-                            }).catch(err => reject(err));
-                        });
+                        that._roles.model.findAllRoles('')
+                            .then((roles: IRoleDocument[]) => {
+                                that._users.model.updateUser(input.id, input.data, roles)
+                                    .then((updatedUser: IMutationResponse) => {
+                                        resolve(updatedUser);
+                                        return;
+                                    }).catch(err => reject(err));
+                            });
                     }).catch(err => reject(err));
                 }
             });
@@ -101,8 +105,8 @@ export class UserService {
                 return;
             }
 
-            that._users.model.findByEmail(data.email).then(res => {
-                return resolve(res);
+            that._users.model.findByEmail(data.email).then((user: IUserDocument) => {
+                return resolve(user);
             }).catch(err => reject(err));
         });
     }
