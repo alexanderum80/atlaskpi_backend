@@ -27,7 +27,7 @@ export class CreateUserMutation extends MutationBase<IMutationResponse> {
         const that = this;
 
         return new Promise<IMutationResponse>((resolve, reject) => {
-            that._userService.createUser(input.data).then(result => {
+            that._userService.createUser(input.data).then((result: IMutationResponse) => {
                 resolve(result);
                 return;
             }).catch(err => {

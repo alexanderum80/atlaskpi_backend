@@ -29,8 +29,8 @@ export class UpdateUserMutation extends MutationBase<IMutationResponse> {
         const that = this;
 
         return new Promise<IMutationResponse>((resolve, reject) => {
-            that._userService.updateUser(data).then(res => {
-                resolve(res);
+            that._userService.updateUser(data).then((result: IMutationResponse) => {
+                resolve(result);
             }).catch(err => reject(err));
         });
     }

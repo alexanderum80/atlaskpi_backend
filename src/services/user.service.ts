@@ -5,7 +5,7 @@ import { AccountCreatedNotification } from './notifications/users/account-create
 import { IMutationResponse } from '../framework/mutations/mutation-response';
 import { ICreateUserDetails } from '../domain/common/create-user';
 import { Users } from '../domain/app/security/users/user.model';
-import { IUserDocument } from '../domain/app/security/users/user';
+import { IUserDocument, IUserEmail } from '../domain/app/security/users/user';
 import * as Promise from 'bluebird';
 import { inject, injectable } from 'inversify';
 
@@ -51,15 +51,15 @@ export class UserService {
 
         return new Promise<IMutationResponse>((resolve, reject) => {
             // get email address by id
-            that._users.model.findById(input.id).then(userDocument => {
-                const userEmail: string[] = userDocument.emails.map(e => e.address);
+            that._users.model.findById(input.id).then((userDocument: IUserDocument) => {
+                const userEmail: string[] = userDocument.emails.map((e: IUserEmail) => e.address);
                 const inputEmail: string = input.data.email;
 
                 // check if user did not modify email address
                 // to allow user to save same email address
                 if (userEmail.indexOf(inputEmail) !== -1) {
                     // update user if user is saving the same email
-                    that._roles.model.findAllRoles('').then(roles => {
+                    that._roles.model.findAllRoles('').then((roles: IRoleDocument[]) => {
                         that._users.model.updateUser(input.id, input.data, roles)
                             .then((updatedUser: IMutationResponse) => {
                                 resolve(updatedUser);
