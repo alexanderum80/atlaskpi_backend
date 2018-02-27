@@ -1,3 +1,4 @@
+import { UserService } from '../../../services/user.service';
 import { CurrentAccount } from './../../../domain/master/current-account';
 import * as Promise from 'bluebird';
 import { inject, injectable } from 'inversify';
@@ -21,14 +22,11 @@ import { IMutationResponse } from '../../../framework/mutations/mutation-respons
     output: { type: CreateUserResult }
 })
 export class CreateUserMutation extends MutationBase<IMutationResponse> {
-    constructor(
-        @inject(Users.name) private _users: Users,
-        @inject(AccountCreatedNotification.name) private _accountCreatedNotification: AccountCreatedNotification,
-    ) {
+    constructor(@inject(UserService.name) private _userService: UserService) {
         super();
     }
 
-    run(data: ICreateUserDetails): Promise<IMutationResponse> {
-        return this._users.model.createUser(data, this._accountCreatedNotification, { notifyUser: true });
+    run(input: { data: ICreateUserDetails}): Promise<IMutationResponse> {
+        return this._userService.createUser(input.data);
     }
 }
