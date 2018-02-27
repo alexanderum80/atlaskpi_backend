@@ -1,8 +1,7 @@
+import { UserService } from '../../../services/user.service';
 import * as Promise from 'bluebird';
 import { inject, injectable } from 'inversify';
 
-import { Roles } from '../../../domain/app/security/roles/role.model';
-import { Users } from '../../../domain/app/security/users/user.model';
 import { mutation } from '../../../framework/decorators/mutation.decorator';
 import { MutationBase } from '../../../framework/mutations/mutation-base';
 import { UpdateUserActivity } from '../activities/update-user.activity';
@@ -21,8 +20,7 @@ import { IMutationResponse } from '../../../framework/mutations/mutation-respons
 })
 export class UpdateUserMutation extends MutationBase<IMutationResponse> {
     constructor(
-        @inject(Users.name) private _users: Users,
-        @inject(Roles.name) private _roles: Roles
+        @inject(UserService.name) private _userService: UserService
     ) {
         super();
     }
@@ -30,9 +28,10 @@ export class UpdateUserMutation extends MutationBase<IMutationResponse> {
     run(data: { id: string, data: UserDetails }): Promise<IMutationResponse> {
         const that = this;
 
-        return this._roles.model.findAllRoles('')
-        .then((res) => {
-            return this._users.model.updateUser(data.id, data.data, res);
+        return new Promise<IMutationResponse>((resolve, reject) => {
+            that._userService.updateUser(data).then(res => {
+                resolve(res);
+            }).catch(err => reject(err));
         });
     }
 }
