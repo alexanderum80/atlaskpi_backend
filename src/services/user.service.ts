@@ -20,7 +20,7 @@ export class UserService {
         const that = this;
 
         return new Promise<IMutationResponse>((resolve, reject) => {
-            that.userEmailExists(data).then(user => {
+            that.userEmailExists(data).then((user: IUserDocument) => {
                 if (user) {
                     resolve({
                         success: false,
@@ -35,11 +35,12 @@ export class UserService {
                     return;
                 }
 
-                that._users.model.createUser(data, that._accountCreatedNotification).then(newUser => {
-                    resolve(newUser);
-                }).catch(err => {
-                    reject(err);
-                });
+                that._users.model.createUser(data, that._accountCreatedNotification)
+                    .then((newUser: IMutationResponse) => {
+                        resolve(newUser);
+                    }).catch(err => {
+                        reject(err);
+                    });
             }).catch(err => reject(err));
         });
     }
@@ -50,8 +51,8 @@ export class UserService {
         return new Promise<IMutationResponse>((resolve, reject) => {
             // get email address by id
             that._users.model.findById(input.id).then(userDocument => {
-                const userEmail = userDocument.emails.map(e => e.address);
-                const inputEmail = input.data.email;
+                const userEmail: string[] = userDocument.emails.map(e => e.address);
+                const inputEmail: string = input.data.email;
 
                 // check if user did not modify email address
                 // to allow user to save same email address
