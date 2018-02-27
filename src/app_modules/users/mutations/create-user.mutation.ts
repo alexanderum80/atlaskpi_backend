@@ -1,13 +1,10 @@
 import { UserService } from '../../../services/user.service';
-import { CurrentAccount } from './../../../domain/master/current-account';
 import * as Promise from 'bluebird';
 import { inject, injectable } from 'inversify';
 
-import { Users } from '../../../domain/app/security/users/user.model';
 import { ICreateUserDetails } from '../../../domain/common/create-user';
 import { mutation } from '../../../framework/decorators/mutation.decorator';
 import { MutationBase } from '../../../framework/mutations/mutation-base';
-import { AccountCreatedNotification } from '../../../services/notifications/users/account-created.notification';
 import { CreateUserActivity } from '../activities/create-user.activity';
 import { CreateUserResult, UserDetails } from '../users.types';
 import { IMutationResponse } from '../../../framework/mutations/mutation-response';
