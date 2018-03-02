@@ -3,7 +3,7 @@ import 'datejs';
 import { from } from 'apollo-link/lib';
 import * as Promise from 'bluebird';
 import * as console from 'console';
-import { cloneDeep, difference, flatten, groupBy, isEmpty, map, pick, union, uniq, uniqBy, orderBy } from 'lodash';
+import { cloneDeep, difference, flatten, groupBy, isEmpty, isNull, isUndefined, map, pick, union, uniq, uniqBy, orderBy } from 'lodash';
 import * as moment from 'moment';
 import * as logger from 'winston';
 import { camelCase } from 'change-case';
@@ -41,6 +41,11 @@ export interface IXAxisCategory {
     name: string;
 }
 
+export interface IShowCustomDateRange {
+    regular: boolean;
+    comparison: boolean;
+}
+
 // export interface IXAxisConfig {
 //     fieldName: string;
 //     categories: IXAxisCategory[];
@@ -64,6 +69,10 @@ export class UIChartBase {
 
     targetData: any[];
     commonField: any[];
+    isCustomDateRange: IShowCustomDateRange = {
+        regular: false,
+        comparison: false
+    };
 
     chartPreProcessor: ChartPreProcessorExtention;
 
@@ -111,6 +120,12 @@ export class UIChartBase {
         logger.debug('processChartData for: ' + this.constructor.name + ' - kpi: ' + kpi.constructor.name);
         const that = this;
 
+        if (metadata.dateRange &&
+            Array.isArray(metadata.dateRange) &&
+            metadata.dateRange[0].predefined === 'custom') {
+            this.isCustomDateRange.regular = true;
+        }
+
         this.dateRange = this._getDateRange(metadata.dateRange);
         this.drilldown = metadata.isDrillDown;
         this.futureTarget = metadata.isFutureTarget;
@@ -129,7 +144,7 @@ export class UIChartBase {
 
             if (isTargetPresent) {
                 that._dummyData(data, metadata, target);
-                this._formatTarget(target, metadata, that.groupings);
+                that._formatTarget(target, metadata, that.groupings);
             }
 
             that.frequencyHelper.decomposeFrequencyInfo(data, metadata.frequency);
@@ -156,7 +171,7 @@ export class UIChartBase {
      * Put together all pieces of information to generate the chart definition
      * @param customOptions extra chart definition options
      */
-    protected buildDefinition(customOptions: any, targetList: any): string {
+    protected buildDefinition(customOptions: any, metadata: IChartMetadata, targetList: any): string {
         let definition = Object.assign({}, customOptions, this.chart.chartDefinition);
         let chartInfo = this.chart;
         let shortDateFormat = 'MM/DD/YY';
@@ -184,6 +199,7 @@ export class UIChartBase {
             definition.xAxis = {};
         }
 
+        this._formatCustomDateRangeWithData(this.categories, metadata, definition.series);
         definition.xAxis.categories = this.categories ? this.categories.map(c => c.name) : [];
 
         return definition;
@@ -229,7 +245,10 @@ export class UIChartBase {
      */
     private _processChartDateRange(chartDateRange: IChartDateRange): IDateRange {
         return chartDateRange.custom && chartDateRange.custom.from ?
-                { from: new Date(chartDateRange.custom.from), to: new Date(chartDateRange.custom.to) }
+                {
+                    from: moment(chartDateRange.custom.from).startOf('day').toDate(),
+                    to: moment(chartDateRange.custom.to).endOf('day').toDate()
+                }
                 : parsePredifinedDate(chartDateRange.predefined);
     }
 
@@ -280,7 +299,7 @@ export class UIChartBase {
 
     private _getXaxisSource(data: any[], metadata: IChartMetadata, groupings?: string[]) {
         if (!metadata || !metadata.xAxisSource) { return ''; }
-        if (!data.length) { return metadata.xAxisSource; }
+        if (!data || !data.length) { return metadata.xAxisSource; }
         if (metadata.xAxisSource === 'frequency' && groupings && groupings.length) { return groupings; }
 
         let findXaxisSource;
@@ -291,8 +310,11 @@ export class UIChartBase {
             field: null
         };
 
-        if (!findXaxisSource.length) {
-            const dataKeys = Object.keys(data[0]._id);
+        if (!findXaxisSource || !findXaxisSource.length) {
+            let dataKeys = Object.keys(data[0]._id);
+            if (!Array.isArray(dataKeys)) {
+                dataKeys = [];
+            }
 
             for (let i = 0; i < dataKeys.length; i++) {
                 const findIndex = dataKeys[i].indexOf(metadata.xAxisSource);
@@ -587,8 +609,9 @@ export class UIChartBase {
         }
     }
 
-    private _injectTargets(data: any[], meta: IChartMetadata, categories: IXAxisCategory[], groupings: string[], series: any[]) {
-        let groupDifference = difference(groupings, [meta.xAxisSource]);
+    private _injectTargets(data: any[], meta: IChartMetadata, categories: IXAxisCategory[], groupings: string[], series: any[]): void {
+        const chartGroupings = this._getXaxisSource(data, meta, groupings);
+        const groupDifference = difference(chartGroupings, [meta.xAxisSource]);
         this.targets = this._targetGrouping(data, groupDifference.length, groupDifference[0], meta, categories);
 
         if (this.targets && this.targets.length) {
@@ -781,11 +804,16 @@ export class UIChartBase {
     protected getDefinitionForDateRange(kpi, metadata, target): Promise<any> {
         const that = this;
         return this.processChartData(kpi, metadata, target).then(() => {
-            return that.buildDefinition(that.basicDefinition, target);
+            return that.buildDefinition(that.basicDefinition, metadata, target);
         });
     }
 
     protected getDefinitionOfComparisonChart(kpi, metadata: IChartMetadata): Promise<any> {
+        if (metadata.dateRange &&
+            Array.isArray(metadata.dateRange) &&
+            metadata.dateRange[0].predefined === 'custom') {
+            this.isCustomDateRange.comparison = true;
+        }
         const chartPromises = {
             main: this.getDefinitionForDateRange(cloneDeep(kpi), metadata, [])
         };
@@ -906,5 +934,76 @@ export class UIChartBase {
         return isEmpty(serieName) ||
                serieName === 'undefined' ||
                serieName === 'null';
+    }
+
+    /**
+     * remove xAxis labels to the right side of the chart if data/value exists
+     * remove empty space to the right if no data/value exists
+     * @param categories
+     * @param series
+     */
+    private _formatCustomDateRangeWithData(categories: IXAxisCategory[], metadata: IChartMetadata, series: any[]): void {
+        if (!categories || !series) { return; }
+        if (!categories.length || !series.length) { return; }
+        if (isNull(metadata.frequency) || isUndefined(metadata.frequency)) { return; }
+        // check if the original chart is custom daterange
+        // in comparison, check if original chart is custom
+        if (!this.isCustomDateRange.regular && !this.isCustomDateRange.comparison) {
+            return;
+        }
+
+        const newFormat = [];
+        // mapping all data properties
+        const mapSeries = series.map(s => s.data);
+
+        for (let i = 0; i < mapSeries.length; i++) {
+            const data = mapSeries[i];
+            /**
+             * push categories if element is null
+             * step out loop when element is not null
+             */
+            for (let j = data.length - 1; j >= 0; j--) {
+                if (data[j] === null) {
+                    if (categories[j].name) {
+                        // i.e. 'Jan', '1', '2012'
+                        newFormat.push({ id: categories[j].name });
+                    }
+                } else {
+                    break;
+                }
+            }
+        }
+
+        // i.e. id: 'Jan', '1', '2012'
+        const groupData = groupBy(newFormat, 'id');
+        let cloneCategories;
+        if (!cloneCategories) {
+            cloneCategories = categories.slice();
+        }
+
+        this._showCustomDateRangeWithData(cloneCategories, groupData, series, mapSeries.length);
+    }
+
+    private _showCustomDateRangeWithData(categories: IXAxisCategory[], groupedData: any, series: any[], mapSeriesLength: number):  void {
+        const that = this;
+        for (let i = 0; i < series.length; i++) {
+            const data = series[i].data;
+            for (let categoryName in groupedData) {
+                // check if same position in every data array has null value
+                if (groupedData[categoryName].length === mapSeriesLength) {
+                    that.categories = that.categories.filter(cat => cat.name !== categoryName);
+                }
+            }
+
+            // remove elements whose value is null
+            for (let j = data.length - 1; j >= 0; j--) {
+                if (data[j] === null) {
+                    data.splice(j, 1);
+                } else {
+                    // break out of loop when element reaches value not null
+                    break;
+                }
+            }
+        }
     }
 }

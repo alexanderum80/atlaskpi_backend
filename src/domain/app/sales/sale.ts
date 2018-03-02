@@ -52,6 +52,7 @@ export interface ICategory extends IEntity {
 }
 
 export interface ISales {
+    source: string;
     externalId: string;
     location: ISaleLocation;
     customer: ISaleCustomer;
@@ -92,6 +93,6 @@ export interface ISaleModel extends mongoose.Model<ISaleDocument> {
     totalSalesByDateRange(from: string, to: string): Promise<Object>;
     salesEmployeeByDateRange(predefinedDateRange: string): Promise<Object>;
     monthsAvgSales(date: string): Promise<Object>;
-    findCriteria(field: string): Promise<any[]>;
+    findCriteria(field: string, limit?: number, filter?: string): Promise<string[]>;
     salesBy(type: TypeMap): Promise<ISaleByZip[]>;
 }

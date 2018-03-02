@@ -1,32 +1,91 @@
 import * as Promise from 'bluebird';
 import * as changeCase from 'change-case';
-import { inject, injectable } from 'inversify';
-import * as validate from 'validate.js';
 import * as Handlebars from 'handlebars';
+import {
+    inject,
+    injectable
+} from 'inversify';
+import * as validate from 'validate.js';
 
-import { IAppConfig, IMongoDBAtlasCredentials } from '../configuration/config-models';
-import { AppConnection } from '../domain/app/app.connection';
-import { Logger } from '../domain/app/logger';
-import { Permissions } from '../domain/app/security/permissions/permission.model';
-import { initRoles } from '../domain/app/security/roles/init-roles';
-import { initialRoles } from '../domain/app/security/roles/initial-roles';
-import { Roles } from '../domain/app/security/roles/role.model';
-import { IUserDocument } from '../domain/app/security/users/user';
-import { IUserToken } from '../domain/app/security/users/user-token';
-import { Users } from '../domain/app/security/users/user.model';
-import { ICreateUserDetails } from '../domain/common/create-user';
-import { IAccount, IAccountDocument, IDatabaseInfo } from '../domain/master/accounts/Account';
-import { Accounts } from '../domain/master/accounts/account.model';
-import { field } from '../framework/decorators/field.decorator';
-import { input } from '../framework/decorators/input.decorator';
-import { IMutationResponse, MutationResponse } from '../framework/mutations/mutation-response';
-import { generateUniqueHash } from '../helpers/security.helpers';
-import { IsNullOrWhiteSpace } from '../helpers/string.helpers';
-import { AppConnectionPool } from '../middlewares/app-connection-pool';
-import { AuthService, IUserAuthenticationData } from './auth.service';
-import { EnrollmentNotification } from './notifications/users/enrollment.notification';
-import { SeedService } from './seed/seed.service';
-import { IExtendedRequest } from '../middlewares/extended-request';
+import {
+    IAppConfig
+} from '../configuration/config-models';
+import {
+    AppConnection
+} from '../domain/app/app.connection';
+import {
+    Logger
+} from '../domain/app/logger';
+import {
+    Permissions
+} from '../domain/app/security/permissions/permission.model';
+import {
+    initRoles
+} from '../domain/app/security/roles/init-roles';
+import {
+    initialRoles
+} from '../domain/app/security/roles/initial-roles';
+import {
+    Roles
+} from '../domain/app/security/roles/role.model';
+import {
+    IUserDocument
+} from '../domain/app/security/users/user';
+import {
+    IUserToken
+} from '../domain/app/security/users/user-token';
+import {
+    Users
+} from '../domain/app/security/users/user.model';
+import {
+    ICreateUserDetails
+} from '../domain/common/create-user';
+import {
+    IAccount,
+    IAccountDocument,
+    IDatabaseInfo
+} from '../domain/master/accounts/Account';
+import {
+    Accounts
+} from '../domain/master/accounts/account.model';
+import {
+    ILeadDocument
+} from '../domain/master/leads/lead';
+import {
+    Leads
+} from '../domain/master/leads/lead.model';
+import {
+    field
+} from '../framework/decorators/field.decorator';
+import {
+    input
+} from '../framework/decorators/input.decorator';
+import {
+    IMutationResponse,
+    MutationResponse
+} from '../framework/mutations/mutation-response';
+import {
+    generateUniqueHash
+} from '../helpers/security.helpers';
+import {
+    AppConnectionPool
+} from '../middlewares/app-connection-pool';
+import {
+    IExtendedRequest
+} from '../middlewares/extended-request';
+import {
+    AuthService,
+    IUserAuthenticationData
+} from './auth.service';
+import {
+    EnrollmentNotification
+} from './notifications/users/enrollment.notification';
+import {
+    LeadReceivedNotification
+} from './notifications/users/lead-received.notification';
+import {
+    SeedService
+} from './seed/seed.service';
 
 export interface ICreateAccountInfo {
     ip: string;
@@ -75,7 +134,9 @@ export class AccountsService {
         @inject('Config') private _config: IAppConfig,
         @inject(AppConnectionPool.name) private _appConnectionPool: AppConnectionPool,
         @inject(Accounts.name) private _accounts: Accounts,
+        @inject(Leads.name) private _leads: Leads,
         @inject(EnrollmentNotification.name) private _enrollmentNotification: EnrollmentNotification,
+        @inject(LeadReceivedNotification.name) private _leadReceivedNotification: LeadReceivedNotification,
         // @inject(AuthService.name) private _authService: AuthService,
         @inject(Logger.name) private _logger: Logger) {}
 
@@ -83,53 +144,97 @@ export class AccountsService {
         let that = this;
 
         return new Promise < IMutationResponse > ((resolve, reject) => {
-            const accountDatabaseName = changeCase.paramCase(input.account.name);
-            const validationErrors = ( < any > validate)(input.account, ACCOUNT_CREATION_CONSTRAINTS, {
-                fullMessages: false
-            });
 
-            if (validationErrors) {
-                resolve(MutationResponse.fromValidationErrors(validationErrors));
-                return;
-            }
-
-            const hash = generateUniqueHash();
-            const accountDbUser: IClusterUser = getClusterDbUser(hash, accountDatabaseName);
-            const fullName: IFullName = getFullName(input.account.personalInfo.fullname);
-            const firstUserInfo = getFirstUserInfo(hash, input.account.personalInfo.email, fullName);
-            input.account.database = generateDBObject(that._config.newAccountDbUriFormat, accountDatabaseName, accountDbUser.user, accountDbUser.pwd);
-
-            that._accounts.model.create(input.account, (err, newAccount: IAccountDocument) => {
-                if (err) {
-                    resolve({
-                        errors: [{
-                            field: 'account',
-                            errors: [err.message]
-                        }],
-                        entity: null
-                    });
-                    return;
-                }
-
-                createUserDatabase(
-                    that._req,
-                    that._config,
-                    that._accounts,
-                    that._logger,
-                    newAccount,
-                    input,
-                    firstUserInfo,
-                    accountDatabaseName,
-                    that._config.newAccountDbUriFormat,
-                    that._appConnectionPool,
-                    that._enrollmentNotification,
-                    that._config.subdomain)
-                    .then(result => {
-                        resolve(result);
+            // if no authorization code has been provide do not create account just email details
+            if (!input.account.authorizationCode) {
+                // just send email
+                this._saveLead(input.account)
+                    .then(lead => {
+                        this._leadReceivedNotification.notify(lead);
+                        resolve({
+                            success: true
+                        });
                     })
                     .catch(err => reject(err));
-            });
+
+            } else {
+
+                that._leads.model.findById(input.account.authorizationCode).then(lead => {
+                    if (!lead) {
+                        throw new Error('Authorization code not found');
+                    }
+
+                    input.account.name = lead.company;
+                    input.account.personalInfo.email = lead.email;
+                    input.account.personalInfo.fullname = lead.fullName;
+
+                    const accountDatabaseName = changeCase.paramCase(input.account.name);
+                    const validationErrors = ( < any > validate)(input.account, ACCOUNT_CREATION_CONSTRAINTS, {
+                        fullMessages: false
+                    });
+
+                    if (validationErrors) {
+                        resolve(MutationResponse.fromValidationErrors(validationErrors));
+                        return;
+                    }
+
+                    const hash = generateUniqueHash();
+                    const accountDbUser: IClusterUser = getClusterDbUser(hash, accountDatabaseName);
+                    const fullName: IFullName = getFullName(input.account.personalInfo.fullname);
+                    const firstUserInfo = getFirstUserInfo(hash, input.account.personalInfo.email, fullName);
+                    input.account.database = generateDBObject(that._config.newAccountDbUriFormat, accountDatabaseName, accountDbUser.user, accountDbUser.pwd);
+
+                    that._accounts.model.create(input.account, (err, newAccount: IAccountDocument) => {
+                        if (err) {
+                            resolve({
+                                errors: [{
+                                    field: 'account',
+                                    errors: [err.message]
+                                }],
+                                entity: null
+                            });
+                            return;
+                        }
+
+                        createUserDatabase(
+                                that._req,
+                                that._config,
+                                that._accounts,
+                                that._logger,
+                                newAccount,
+                                input,
+                                firstUserInfo,
+                                accountDatabaseName,
+                                that._config.newAccountDbUriFormat,
+                                that._appConnectionPool,
+                                that._enrollmentNotification,
+                                that._config.subdomain)
+                            .then(result => {
+                                resolve(result);
+
+                                that._leads.model.remove({ _id: input.account.authorizationCode });
+                            })
+                            .catch(err => reject(err));
+                    });
+                });
+            }
         });
+
+    }
+
+    private _saveLead(account: IAccount): Promise < ILeadDocument > {
+        const that = this;
+
+        return new Promise < ILeadDocument > ((resolve, reject) => {
+            that._leads.model.create({
+                    company: account.name,
+                    email: account.personalInfo.email,
+                    fullName: account.personalInfo.fullname
+                })
+                .then(res => resolve(res))
+                .catch(err => reject(err));
+        });
+
 
     }
 }
@@ -209,11 +314,11 @@ function createUserDatabase(
     newAccountDbUriFormat: string,
     connectionPool: AppConnectionPool,
     enrollmentNotification: EnrollmentNotification,
-    subdomain: string): Promise<IMutationResponse> {
+    subdomain: string): Promise < IMutationResponse > {
 
     const databaseObject = generateDBObject(newAccountDbUriFormat, databaseName, 'atlas', 'yA22wflgDf9dZluW');
 
-    return new Promise<IMutationResponse> ((resolve, reject) => {
+    return new Promise < IMutationResponse > ((resolve, reject) => {
         let appConnection;
         let users: Users;
         let roles: Roles;
@@ -231,7 +336,7 @@ function createUserDatabase(
                 users = new Users(appConnection);
                 roles = new Roles(appConnection);
                 permissions = new Permissions(appConnection);
-                authService =  new AuthService(config, accounts, users, roles, logger);
+                authService = new AuthService(config, accounts, users, roles, logger);
 
                 return appConn;
             })
@@ -290,7 +395,9 @@ function initializeRolesForAccount(roles: Roles, permissions: Permissions): Prom
 
 function createAdminUser(users: Users, databaseName: string, firstUser: ICreateUserDetails, enrollmentNotification: EnrollmentNotification): Promise < boolean > {
     return new Promise < boolean > ((resolve, reject) => {
-        users.model.createUser(firstUser, enrollmentNotification, { host: databaseName }).then((response) => {
+        users.model.createUser(firstUser, enrollmentNotification, {
+                host: databaseName
+            }).then((response) => {
                 if (!response) {
                     return reject('Could not create the admin user');
                 }
@@ -315,13 +422,13 @@ function generateFirstAccountToken(authService: AuthService, authData: IUserAuth
     return new Promise < IFirstTokenInfo > ((resolve, reject) => {
         // TODO: I need to make sure username and password values are getting in here correctly
         authService.authenticateUser({
-            hostname: authData.hostname,
-            username: authData.username,
-            password: authData.password,
-            ip: authData.ip,
-            clientId: authData.clientId,
-            clientDetails: authData.clientDetails
-        }).then((tokenInfo) => {
+                hostname: authData.hostname,
+                username: authData.username,
+                password: authData.password,
+                ip: authData.ip,
+                clientId: authData.clientId,
+                clientDetails: authData.clientDetails
+            }).then((tokenInfo) => {
                 resolve({
                     subdomain: authData.hostname,
                     tokenInfo: tokenInfo
