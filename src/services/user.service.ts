@@ -21,7 +21,7 @@ export class UserService {
         const that = this;
 
         return new Promise<IMutationResponse>((resolve, reject) => {
-            that.userEmailExists(data).then((user: IUserDocument) => {
+            that._users.model.findByEmail(data.email).then((user: IUserDocument) => {
                 if (user) {
                     resolve({
                         success: false,
@@ -58,16 +58,9 @@ export class UserService {
                 // check if user did not modify email address
                 // to allow user to save same email address
                 if (userEmail.indexOf(inputEmail) !== -1) {
-                    // update user if user is saving the same email
-                    that._roles.model.findAllRoles('').then((roles: IRoleDocument[]) => {
-                        that._users.model.updateUser(input.id, input.data, roles)
-                            .then((updatedUser: IMutationResponse) => {
-                                resolve(updatedUser);
-                                return;
-                            }).catch(err => reject(err));
-                    });
+                    return that._updateUser(input);
                 } else {
-                    that.userEmailExists(input.data).then((user: IUserDocument) => {
+                    that._users.model.findByEmail(input.data.email).then((user: IUserDocument) => {
                         if (user) {
                             resolve({
                                 success: false,
@@ -82,32 +75,27 @@ export class UserService {
                             return;
                         }
 
-                        that._roles.model.findAllRoles('')
-                            .then((roles: IRoleDocument[]) => {
-                                that._users.model.updateUser(input.id, input.data, roles)
-                                    .then((updatedUser: IMutationResponse) => {
-                                        resolve(updatedUser);
-                                        return;
-                                    }).catch(err => reject(err));
-                            });
+                        return that._updateUser(input);
+
                     }).catch(err => reject(err));
                 }
             });
         });
     }
 
-    userEmailExists(data: ICreateUserDetails|UserDetails): Promise<IUserDocument> {
+    private _updateUser(input: { id: string, data: UserDetails }): Promise<IMutationResponse> {
         const that = this;
 
-        return new Promise<IUserDocument>((resolve, reject) => {
-            if (!data || !data.email) {
-                reject('No email provided');
-                return;
-            }
+        return new Promise<IMutationResponse>((resolve, reject) => {
+            // update user if user is saving the same email
+            that._roles.model.findAllRoles('').then((roles: IRoleDocument[]) => {
+                that._users.model.updateUser(input.id, input.data, roles)
+                    .then((updatedUser: IMutationResponse) => {
+                        resolve(updatedUser);
+                        return;
+                    }).catch(err => reject(err));
+            });
 
-            that._users.model.findByEmail(data.email).then((user: IUserDocument) => {
-                return resolve(user);
-            }).catch(err => reject(err));
         });
     }
 }
