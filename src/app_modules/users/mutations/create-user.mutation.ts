@@ -1,6 +1,5 @@
 import { AccountCreatedNotification } from '../../../services/notifications/users/account-created.notification';
 import { Users } from '../../../domain/app/security/users/user.model';
-import { UserService } from '../../../services/user.service';
 import * as Promise from 'bluebird';
 import { inject, injectable } from 'inversify';
 
