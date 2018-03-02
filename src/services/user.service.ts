@@ -17,35 +17,6 @@ export class UserService {
         @inject(AccountCreatedNotification.name) private _accountCreatedNotification: AccountCreatedNotification
     ) {}
 
-    createUser(data: ICreateUserDetails): Promise<IMutationResponse> {
-        const that = this;
-
-        return new Promise<IMutationResponse>((resolve, reject) => {
-            that._users.model.findByEmail(data.email).then((user: IUserDocument) => {
-                if (user) {
-                    resolve({
-                        success: false,
-                        entity: null,
-                        errors: [
-                            {
-                                field: 'user',
-                                errors: ['Email already exists']
-                            }
-                        ]
-                    });
-                    return;
-                }
-
-                that._users.model.createUser(data, that._accountCreatedNotification)
-                    .then((newUser: IMutationResponse) => {
-                        resolve(newUser);
-                    }).catch(err => {
-                        reject(err);
-                    });
-            }).catch(err => reject(err));
-        });
-    }
-
     updateUser(input: { id: string, data: UserDetails }): Promise<IMutationResponse> {
         const that = this;
 
