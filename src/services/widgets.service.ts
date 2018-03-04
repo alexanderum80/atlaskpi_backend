@@ -80,6 +80,26 @@ export class WidgetsService {
         });
     }
 
+    getWidgetByName(name: string): Promise<IUIWidget> {
+        const that = this;
+        return new Promise<IUIWidget>((resolve, reject) => {
+            that._widgets.model.findOne({ name: name })
+                            .then(widgetDocument => {
+                const widgetAsObject = <IWidget>widgetDocument.toObject();
+                const uiWidget = that._widgetFactory.getInstance(widgetAsObject);
+                uiWidget.materialize().then(materializedWidget => {
+                    resolve(materializedWidget);
+                    return;
+                })
+                .catch(err => {
+                    console.log(`error when getting the widget(${name}):  ${err}`);
+                    return reject(err);
+                });
+            })
+            .catch(err => reject(err));
+        });
+    }
+
     materializeWidgetDocuments(docs: IWidgetDocument[]): Promise<IUIWidget[]> {
         if (!docs || !docs.length) return Promise.resolve([]);
 

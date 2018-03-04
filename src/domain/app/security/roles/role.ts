@@ -37,6 +37,7 @@ export interface IRoleDocument extends IRole, mongoose.Document {
 export interface IRoleModel extends mongoose.Model < IRoleDocument > {
     seedRoles(): Promise<boolean>;
     findAllRoles(filter: string): Promise<IRoleDocument[]>;
+    roleByName(name: string): Promise<IRoleDocument>;
     createRole(data: IRoleCustom): Promise<IRoleDocument>;
     updateRole(id: string, data: IRoleResponse): Promise<IRoleDocument>;
     removeRole(id: string, roleExist: any[]): Promise<IRoleDocument>;

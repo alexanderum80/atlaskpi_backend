@@ -180,6 +180,20 @@ export class ChartsService {
         });
     }
 
+    public getChartByTitle(title: string): Promise<IChart> {
+        const that = this;
+        return new Promise<IChart>((resolve, reject) => {
+            that._charts.model
+            .findOne({ title: title })
+            .then(chart => {
+                return resolve(chart);
+            })
+            .catch(err => {
+                return reject(err);
+            });
+        });
+    }
+
     public previewChart(input: ChartAttributesInput): Promise<IChart> {
         const that = this;
         return new Promise<IChart>((resolve, reject) => {
