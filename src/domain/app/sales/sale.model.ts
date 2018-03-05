@@ -1,3 +1,4 @@
+import { GroupingMap } from '../../../app_modules/charts/queries/chart-grouping-map';
 import { criteriaPlugin } from '../../../app_modules/shared/criteria.plugin';
 import * as Promise from 'bluebird';
 import { inject, injectable } from 'inversify';
@@ -18,7 +19,7 @@ import { getEmployeeSchema } from '../../common/employee.schema';
 import { getLocationSchema } from '../../common/location.schema';
 import { getProductSchema } from '../../common/product.schema';
 import { AppConnection } from '../app.connection';
-import { ISaleDocument, ISaleModel, TypeMap, ISaleByZip } from './sale';
+import {ISaleDocument, ISaleModel, TypeMap, ISaleByZip, IMapMarkerInput} from './sale';
 
 
 let Schema = mongoose.Schema;
@@ -228,16 +229,62 @@ SalesSchema.statics.salesEmployeeByDateRange = function(predefinedDateRange: str
     });
 };
 
-SalesSchema.statics.salesBy = function(type: TypeMap): Promise<ISaleByZip[]> {
+SalesSchema.statics.salesBy = function(type: TypeMap, input?: IMapMarkerInput): Promise<ISaleByZip[]> {
     const SalesModel = (<ISaleModel>this);
     let aggregate = [];
 
     return new Promise<ISaleByZip[]>((resolve, reject) => {
         switch (type) {
             case TypeMap.customerAndZip:
-                aggregate.push([
-                    { $group: { _id: '$customer.zip', sales: { $sum: '$product.amount' } } }
-                ]);
+                aggregate.push(
+                    { $match: {
+                        'product.amount': {
+                            $gte: 0
+                        }
+                    } },
+                    { $project: {
+                        product: 1,
+                        _id: 0,
+                        customer: 1
+                    }},
+                    {
+                        $group: {
+                            _id: {
+                                customerZip: '$customer.zip'
+                            },
+                            sales: {
+                                $sum: '$product.amount'
+                            }
+                        }
+                    }
+                );
+                if (input) {
+                    if (input.dateRange) {
+                        let aggregateMatch = aggregate.find(agg => agg.$match !== undefined);
+                        const dateRange = parsePredifinedDate(input.dateRange);
+
+                        if (aggregateMatch && moment(dateRange.from).isValid()) {
+                            aggregateMatch.$match = {
+                                'product.from': {
+                                    $gte: dateRange.from,
+                                    $lt: dateRange.to
+                                }
+                            };
+                        }
+                    }
+
+                    if (input.grouping) {
+                        let aggregateGrouping = aggregate.find(agg => agg.$group !== undefined);
+                        const salesGroupByField = GroupingMap.sales[input.grouping];
+
+                        if (aggregateGrouping && salesGroupByField) {
+                            if (!aggregateGrouping.$group._id) {
+                                aggregateGrouping.$group._id = {};
+                            }
+                            aggregateGrouping.$group._id[input.grouping] = '$' + salesGroupByField;
+                        }
+                    }
+                }
                 break;
             case TypeMap.productAndZip:
                 break;
