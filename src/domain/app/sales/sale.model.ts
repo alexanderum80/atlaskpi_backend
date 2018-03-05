@@ -5,6 +5,7 @@ import { inject, injectable } from 'inversify';
 import * as mongoose from 'mongoose';
 import * as logger from 'winston';
 import * as moment from 'moment';
+import { isObject } from 'lodash';
 
 import { ModelBase } from '../../../type-mongo/model-base';
 import { getCustomerSchema } from '../../common/customer.schema';
@@ -258,29 +259,33 @@ SalesSchema.statics.salesBy = function(type: TypeMap, input?: IMapMarkerInput): 
                         }
                     }
                 );
-                if (input) {
+                // check if input have value and is an object
+                if (input && isObject(input)) {
+                    // check if daterange has value
                     if (input.dateRange) {
                         let aggregateMatch = aggregate.find(agg => agg.$match !== undefined);
                         const dateRange = parsePredifinedDate(input.dateRange);
 
+                        // check if i get object that has $match key and daterange is valid
                         if (aggregateMatch && moment(dateRange.from).isValid()) {
-                            aggregateMatch.$match = {
-                                'product.from': {
-                                    $gte: dateRange.from,
-                                    $lt: dateRange.to
-                                }
+                            aggregateMatch.$match['product.from'] = {
+                                $gte: dateRange.from,
+                                $lt: dateRange.to
                             };
                         }
                     }
 
                     if (input.grouping) {
                         let aggregateGrouping = aggregate.find(agg => agg.$group !== undefined);
+                        // get the field name for the sales document
                         const salesGroupByField = GroupingMap.sales[input.grouping];
 
                         if (aggregateGrouping && salesGroupByField) {
+                            // assign empty object if $group._id is undefined
                             if (!aggregateGrouping.$group._id) {
                                 aggregateGrouping.$group._id = {};
                             }
+                            // i.e. $location.name, $product.itemDescription
                             aggregateGrouping.$group._id[input.grouping] = '$' + salesGroupByField;
                         }
                     }
