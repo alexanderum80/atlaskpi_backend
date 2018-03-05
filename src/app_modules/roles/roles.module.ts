@@ -3,6 +3,7 @@ import { CreateRoleMutation } from './mutations/create-role.mutation';
 import { RemoveRoleMutation } from './mutations/remove-role.mutation';
 import { UpdateRoleMutation } from './mutations/update-role.mutation';
 import { FindAllRolesQuery } from './queries/find-all-roles.query';
+import { RoleByNameQuery } from './queries/role-by-name.query';
 
 
 @AppModule({
@@ -12,7 +13,8 @@ import { FindAllRolesQuery } from './queries/find-all-roles.query';
         UpdateRoleMutation
     ],
     queries: [
-        FindAllRolesQuery
+        FindAllRolesQuery,
+        RoleByNameQuery
     ]
 })
 export class RolesModule extends ModuleBase { }
