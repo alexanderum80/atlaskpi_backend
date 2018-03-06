@@ -22,7 +22,7 @@ const MomentFrequencyTable = {
 };
 
 export interface IPeriodAmount {
-    value: number|string;
+    value: number;
 }
 
 
@@ -48,10 +48,10 @@ export class TargetService {
         });
     }
 
-    periodData(data: ITarget): Promise<any> {
+    periodData(data: ITarget): Promise<IPeriodAmount[]> {
         const that = this;
 
-        return new Promise<any>((resolve, reject) => {
+        return new Promise<IPeriodAmount[]>((resolve, reject) => {
             that._charts.model.findById(data.chart[0])
                 .populate({ path: 'kpis' })
                 .then((chart) => {
@@ -120,7 +120,6 @@ export class TargetService {
                                     resolve([{ value: 0}]);
                                     return;
                                 }
-                                break;
                             default:
                                 if (data.period) {
                                     optionsNonStack['stackName'] = data.nonStackName;
@@ -143,13 +142,13 @@ export class TargetService {
         });
     }
 
-    caculateFormat(data: ITarget): Promise<any> {
+    caculateFormat(data: ITarget): Promise<number> {
 
-        return new Promise((resolve, reject) => {
+        return new Promise<number>((resolve, reject) => {
             this.periodData(data)
-                .then((response) => {
-                    const dataAmount = parseFloat(data.amount.toString());
-                    const findValue = response ? response.find(r => r.value) : 0;
+                .then((response: any) => {
+                    const dataAmount: number = parseFloat(data.amount.toString());
+                    const findValue = response ? response.find(r => r.value) : { value: data.amount };
 
                     const responseValue: number = findValue ? findValue.value : 0;
 
@@ -161,22 +160,22 @@ export class TargetService {
                         case 'increase':
                             switch (data.amountBy) {
                                 case 'percent':
-                                    const increasePercentResult = responseValue + (responseValue * (dataAmount / 100) );
+                                    const increasePercentResult: number = responseValue + (responseValue * (dataAmount / 100) );
                                     return resolve(increasePercentResult);
 
                                 case 'dollar':
-                                    const increaseDollarResult = responseValue + dataAmount;
+                                    const increaseDollarResult: number = responseValue + dataAmount;
                                     return resolve(increaseDollarResult);
 
                             }
                         case 'decrease':
                             switch (data.amountBy) {
                                 case 'percent':
-                                    const decreasePercentResult = responseValue - (responseValue * (dataAmount / 100) );
+                                    const decreasePercentResult: number = responseValue - (responseValue * (dataAmount / 100) );
                                     return resolve(decreasePercentResult);
 
                                 case 'dollar':
-                                    const descreaseDollarResult = responseValue - dataAmount;
+                                    const descreaseDollarResult: number = responseValue - dataAmount;
                                     return resolve(descreaseDollarResult);
 
                             }
@@ -219,7 +218,7 @@ export class TargetService {
                         if (input.period) {
                             kpi.getData([targetDateRange], { filter: chart.filter})
                                 .then(response => {
-                                    const findValue = response.find(r => r.value);
+                                    const findValue = response ? response.find(r => r.value) : { value: input.amount };
                                     const responseValue = findValue ? findValue.value : 0;
 
                                     resolve(responseValue);
@@ -238,7 +237,7 @@ export class TargetService {
                         }
 
                         kpi.getData([dateRange], options).then(data => {
-                            const findValue = data.find(r => r.value);
+                            const findValue = data ? data.find(r => r.value) : { value: input.amount };
                             const responseValue = findValue ? findValue.value : 0;
 
                             resolve(responseValue);
