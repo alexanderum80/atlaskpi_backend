@@ -1,4 +1,3 @@
-import { TargetAmountInput } from '../app_modules/targets/targets.types';
 import { IGetDataOptions, IKpiBase } from '../app_modules/kpis/queries/kpi-base';
 import * as Promise from 'bluebird';
 import { inject, injectable } from 'inversify';
@@ -49,7 +48,7 @@ export class TargetService {
         });
     }
 
-    periodData(data: TargetAmountInput): Promise<IPeriodAmount[]> {
+    periodData(data: any): Promise<IPeriodAmount[]> {
         const that = this;
 
         return new Promise<IPeriodAmount[]>((resolve, reject) => {
@@ -143,7 +142,7 @@ export class TargetService {
         });
     }
 
-    caculateFormat(data: TargetAmountInput): Promise<number> {
+    caculateFormat(data: any): Promise<number> {
 
         return new Promise<number>((resolve, reject) => {
             this.periodData(data)
