@@ -23,13 +23,15 @@ export class UserService {
         return new Promise<IMutationResponse>((resolve, reject) => {
             // get email address by id
             that._users.model.findById(input.id).then((userDocument: IUserDocument) => {
-                const userEmail: string[] = userDocument.emails.map((e: IUserEmail) => e.address);
-                const inputEmail: string = input.data.email;
+                const userEmail: string[] = userDocument.emails.map((e: IUserEmail) => e.address.toLowerCase());
+                const inputEmail: string = input.data.email.toLowerCase();
 
                 // check if user did not modify email address
                 // to allow user to save same email address
                 if (userEmail.indexOf(inputEmail) !== -1) {
-                    return that._updateUser(input);
+                    that._updateUser(input).then(user => {
+                        resolve(user);
+                    }).catch(err => reject(err));
                 } else {
                     that._users.model.findByEmail(input.data.email).then((user: IUserDocument) => {
                         if (user) {
@@ -46,7 +48,9 @@ export class UserService {
                             return;
                         }
 
-                        return that._updateUser(input);
+                        that._updateUser(input).then(user => {
+                            resolve(user);
+                        }).catch(err => reject(err));
 
                     }).catch(err => reject(err));
                 }
