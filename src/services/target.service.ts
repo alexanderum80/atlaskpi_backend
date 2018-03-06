@@ -252,7 +252,6 @@ export class TargetService {
     }
 
     // return object with 'from' and 'to' property
-    // use chart date range if period is undefined, empty, or has no value
     getDate(period: string, alternateDatePeriod: string): IDateRange {
         return parsePredifinedDate(period) || parsePredifinedDate(alternateDatePeriod);
     }
