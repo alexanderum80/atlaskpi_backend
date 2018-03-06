@@ -150,7 +150,6 @@ export class TargetService {
                 .then((response) => {
                     const dataAmount = parseFloat(data.amount.toString());
                     const findValue = response ? response.find(r => r.value) : 0;
-                    console.log('response: ' + response);
 
                     const responseValue: number = findValue ? findValue.value : 0;
 
@@ -205,7 +204,7 @@ export class TargetService {
                     const groupings: string[] = getGroupingMetadata(chart, chart.groupings ? chart.groupings : []);
 
                     const stackName: string = input.stackName ? input.stackName : input.nonStackName;
-                    const isStackNameAll: boolean = stackName.toLowerCase() === 'all';
+                    const isStackNameEqualToAll: boolean = stackName.toLowerCase() === 'all';
 
                     const chartDateRange = chart.dateRange ? chart.dateRange[0].predefined : '';
                     const targetDateRange = that.getDate(input.period, chartDateRange);
@@ -221,7 +220,6 @@ export class TargetService {
                             kpi.getData([targetDateRange], { filter: chart.filter})
                                 .then(response => {
                                     const findValue = response.find(r => r.value);
-                                    console.log('response: ' + response);
                                     const responseValue = findValue ? findValue.value : 0;
 
                                     resolve(responseValue);
@@ -232,7 +230,7 @@ export class TargetService {
                             return;
                         }
                     } else {
-                        if (!isStackNameAll) {
+                        if (!isStackNameEqualToAll) {
                             Object.assign(options, {
                                 groupings: groupings,
                                 stackName: stackName
@@ -241,7 +239,6 @@ export class TargetService {
 
                         kpi.getData([dateRange], options).then(data => {
                             const findValue = data.find(r => r.value);
-                            console.log('response: ' + data);
                             const responseValue = findValue ? findValue.value : 0;
 
                             resolve(responseValue);
@@ -278,6 +275,7 @@ export class TargetService {
 
     static futureTargets(targets: ITargetDocument[]): IDateRange {
         let futureDateRange: IDateRange;
+
         if (targets && targets.length) {
             targets.forEach((target) => {
                 const datepicker = moment(target.datepicker).format('YYYY-MM-DD');
