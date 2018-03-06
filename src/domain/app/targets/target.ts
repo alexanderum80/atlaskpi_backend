@@ -17,7 +17,10 @@ export interface ITarget {
     notify: INotify;
     visible: string[];
     owner: string;
+    chart?: string[];
     delete?: boolean;
+    stackName?: string;
+    nonStackName?: string;
     target?: number;
     targetMet?: number;
 }
