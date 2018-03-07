@@ -14,6 +14,15 @@ export class MapMarkerGroupingInput {
 }
 
 @type()
+export class MapMarkerItemList {
+    @field({ type: GraphQLTypesMap.Float })
+    amount: number;
+
+    @field({ type: GraphQLTypesMap.String })
+    groupName: string;
+}
+
+@type()
 export class MapMarker  {
     @field({ type: GraphQLTypesMap.String })
     name: string;
@@ -31,8 +40,8 @@ export class MapMarker  {
     value: number;
 
     @field({ type: GraphQLTypesMap.String })
-    grouping: string;
-
-    @field({ type: GraphQLTypesMap.String })
     groupingName: string;
+
+    @field({ type: MapMarkerItemList, isArray: true })
+    itemList: MapMarkerItemList[];
 }
