@@ -40,8 +40,8 @@ export class MapMarker  {
     value: number;
 
     @field({ type: GraphQLTypesMap.String })
-    groupingName: string;
+    groupingName?: string;
 
     @field({ type: MapMarkerItemList, isArray: true })
-    itemList: MapMarkerItemList[];
+    itemList?: MapMarkerItemList[];
 }

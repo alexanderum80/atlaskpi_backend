@@ -9,8 +9,8 @@ import { IQuery } from '../../../framework/queries/query';
 import { Sales } from '../../../domain/app/sales/sale.model';
 import { ZipsToMap } from '../../../domain/master/zip-to-map/zip-to-map.model';
 import { ISaleByZip, TypeMap } from '../../../domain/app/sales/sale';
-import { keyBy, find, startCase, toLower, groupBy, map, chain, reduce, isEmpty } from 'lodash';
-import {MapMarker, MapMarkerGroupingInput} from '../map.types';
+import { keyBy, find, startCase, toLower, groupBy, map, chain, reduce, isEmpty, Dictionary } from 'lodash';
+import {MapMarker, MapMarkerGroupingInput, MapMarkerItemList} from '../map.types';
 import {NULL_CATEGORY_REPLACEMENT} from '../../charts/queries/charts/ui-chart-base';
 
 export interface IMapMarker {
@@ -71,7 +71,7 @@ export class MapMarkersQuery implements IQuery < IMapMarker[] > {
         });
     }
 
-    private _noGroupingsMarkersFormatted(salesByZip: ISaleByZip[], zipList: IZipToMapDocument[]) {
+    private _noGroupingsMarkersFormatted(salesByZip: ISaleByZip[], zipList: IZipToMapDocument[]): MapMarker[] {
         const salesObject = keyBy(salesByZip, '_id.customerZip');
         return zipList.map(zip => {
             return {
@@ -85,25 +85,27 @@ export class MapMarkersQuery implements IQuery < IMapMarker[] > {
         });
     }
 
-    private _groupingMarkersFormatted(salesByZip: ISaleByZip[], zipList: IZipToMapDocument[]): any {
-        const zipCodes = keyBy(zipList, 'zipCode');
+    private _groupingMarkersFormatted(salesByZip: ISaleByZip[], zipList: IZipToMapDocument[]): MapMarker[] {
+        const zipCodes: Dictionary<IZipToMapDocument> = keyBy(zipList, 'zipCode');
 
         return chain(salesByZip)
                     .groupBy('_id.customerZip')
-                    .map((value, key) => {
-                        let itemList = [];
-                        let total = 0;
+                    // key = zipCode => i.e. 37703
+                    .map((value: ISaleByZip[], key: string) => {
+                        let itemList: MapMarkerItemList[] = [];
+                        let total: number = 0;
 
                         for (let i = 0; i < value.length; i++) {
                             if (value[i]) {
-                                const groupName = (value[i]._id as any).grouping || NULL_CATEGORY_REPLACEMENT;
-                                const amount = value[i].sales;
+                                const groupName: string = (value[i]._id as any).grouping ||
+                                                          NULL_CATEGORY_REPLACEMENT;
+                                const amount: number = value[i].sales;
 
                                 total += amount;
 
                                 itemList.push({
-                                    amount: amount,
-                                    groupName: groupName
+                                    amount: amount, // 50000
+                                    groupName: groupName // i.e. Knoxville
                                 });
                             }
                         }
