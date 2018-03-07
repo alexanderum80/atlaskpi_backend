@@ -56,7 +56,7 @@ export class MapMarkersQuery implements IQuery < IMapMarker[] > {
 
                             if (data.input) {
                                 if (data.input['grouping']) {
-                                    groupingName = find(groupingMapKeys, (key) => GroupingMap.sales[data.input.grouping]);
+                                    groupingName = data.input['grouping'];
                                 }
                             }
 
