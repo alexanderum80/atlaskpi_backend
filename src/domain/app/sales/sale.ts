@@ -79,9 +79,18 @@ export enum TypeMap {
     productAndZip = 'productAndZip'
 }
 
+export interface ISaleByZipGrouping {
+    customerZip: string;
+}
+
 export interface ISaleByZip {
-    _id: string;
+    _id: ISaleByZipGrouping;
     sales: number;
+}
+
+export interface IMapMarkerInput {
+    dateRange: string;
+    grouping: string;
 }
 
 
@@ -94,5 +103,5 @@ export interface ISaleModel extends mongoose.Model<ISaleDocument> {
     salesEmployeeByDateRange(predefinedDateRange: string): Promise<Object>;
     monthsAvgSales(date: string): Promise<Object>;
     findCriteria(field: string, limit?: number, filter?: string): Promise<string[]>;
-    salesBy(type: TypeMap): Promise<ISaleByZip[]>;
+    salesBy(type: TypeMap, input?: IMapMarkerInput): Promise<ISaleByZip[]>;
 }

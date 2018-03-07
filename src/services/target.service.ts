@@ -1,3 +1,4 @@
+import { IGetDataOptions, IKpiBase } from '../app_modules/kpis/queries/kpi-base';
 import * as Promise from 'bluebird';
 import { inject, injectable } from 'inversify';
 import * as moment from 'moment';
@@ -6,7 +7,7 @@ import { getGroupingMetadata } from '../app_modules/charts/queries/chart-groupin
 import { KpiFactory } from '../app_modules/kpis/queries/kpi.factory';
 import { Charts } from '../domain/app/charts/chart.model';
 import { Users } from '../domain/app/security/users/user.model';
-import { ITargetDocument } from '../domain/app/targets/target';
+import { ITarget, ITargetDocument } from '../domain/app/targets/target';
 import { Targets } from '../domain/app/targets/target.model';
 import { IDateRange, parsePredifinedDate } from '../domain/common/date-range';
 import { FrequencyEnum } from '../domain/common/frequency-enum';
@@ -19,23 +20,25 @@ const MomentFrequencyTable = {
     quartely: 'quarter',
     yearly: 'year',
 };
-// TODO: REFACTOR, and prepare for dependency injection
+
+export interface IPeriodAmount {
+    value: number;
+}
+
 
 @injectable()
 export class TargetService {
-
-    chartInfo: any;
-    isStacked: any;
+    isStacked: boolean;
 
     constructor(@inject(Users.name) private _users: Users,
                 @inject(KpiFactory.name) private _kpiFactory: KpiFactory,
                 @inject(Targets.name) private _targets: Targets,
                 @inject(Charts.name) private _charts: Charts) { }
 
-    getTargets(chartId: string, userId: string): Promise<any> {
-        return new Promise((resolve, reject) => {
+    getTargets(chartId: string, userId: string): Promise<ITargetDocument[]> {
+        return new Promise<ITargetDocument[]>((resolve, reject) => {
             this._targets.model.findUserVisibleTargets(chartId, userId)
-                .then((targets) => {
+                .then((targets: ITargetDocument[]) => {
                     resolve(targets);
                     return;
                 }).catch((err) => {
@@ -45,38 +48,48 @@ export class TargetService {
         });
     }
 
-    periodData(data: any): Promise<any> {
+    periodData(data: any): Promise<IPeriodAmount[]> {
         const that = this;
-        return new Promise<any>((resolve, reject) => {
+
+        return new Promise<IPeriodAmount[]>((resolve, reject) => {
             that._charts.model.findById(data.chart[0])
                 .populate({ path: 'kpis' })
                 .then((chart) => {
-                    that.chartInfo = chart;
+                    // check if is a stacked chart
                     that.isStacked = that._stacked(chart);
 
-                    let kpi = that._kpiFactory.getInstance(chart.kpis[0]);
-                    let groupings = getGroupingMetadata(chart, chart.groupings ? chart.groupings : []);
+                    const kpi: IKpiBase = that._kpiFactory.getInstance(chart.kpis[0]);
+                    const groupings: string[] = getGroupingMetadata(chart, chart.groupings ? chart.groupings : []);
+
+                    // get the predefined date range from chart
+                    const chartDateRange: string = chart.dateRange ? chart.dateRange[0].predefined : '';
+                    const targetDateRange: IDateRange = that.getDate(data.period, chartDateRange);
 
                     // check if the chart has no groupings
                     if (!that.isStacked && (!groupings || !groupings.length || !groupings[0])) {
-                        kpi.getData([that.getDate(data.period)], { filter: chart.filter})
-                            .then(response => {
-                                resolve(response);
-                                return;
-                            }).catch(err => {
-                                reject(err);
-                                return;
-                            });
+                        if (data.period) {
+                            kpi.getData([targetDateRange], { filter: chart.filter})
+                                .then(response => {
+                                    resolve(response);
+                                    return;
+                                }).catch(err => {
+                                    reject(err);
+                                    return;
+                                });
+                        } else {
+                            resolve([{ value: 0}]);
+                            return;
+                        }
                     } else if (that.isStacked) {
                         // check if the chart is stacked
-                        let optionsStack = {
+                        const optionsStack: IGetDataOptions = {
                             filter: chart.filter,
                             groupings: groupings,
                             stackName: data.stackName || null
                         };
 
                         if (data.period) {
-                            kpi.getTargetData([that.getDate(data.period)], optionsStack).then((response) => {
+                            kpi.getData([targetDateRange], optionsStack).then((response) => {
                                 resolve(response);
                                 return;
                             }).catch((err) => {
@@ -89,14 +102,14 @@ export class TargetService {
                         }
                     } else {
 
-                        let optionsNonStack = {
+                        let optionsNonStack: IGetDataOptions = {
                             filter: chart.filter
                         };
                         switch (data.nonStackName) {
                             case 'all':
                             case 'All':
                                 if (data.period) {
-                                    kpi.getData([that.getDate(data.period)], optionsNonStack).then((response) => {
+                                    kpi.getData([targetDateRange], optionsNonStack).then((response) => {
                                         resolve(response);
                                         return;
                                     }).catch((err) => {
@@ -107,12 +120,12 @@ export class TargetService {
                                     resolve([{ value: 0}]);
                                     return;
                                 }
-                                break;
                             default:
                                 if (data.period) {
                                     optionsNonStack['stackName'] = data.nonStackName;
                                     optionsNonStack['groupings'] = groupings;
-                                    kpi.getTargetData([that.getDate(data.period)], optionsNonStack).then((response) => {
+
+                                    kpi.getData([targetDateRange], optionsNonStack).then((response) => {
                                         resolve(response);
                                         return;
                                     }).catch((err) => {
@@ -123,21 +136,22 @@ export class TargetService {
                                     resolve([{ value: 0}]);
                                     return;
                                 }
-                                break;
                         }
                     }
                 });
         });
     }
 
-    caculateFormat(data: any): Promise<any> {
+    caculateFormat(data: any): Promise<number> {
 
-        return new Promise((resolve, reject) => {
+        return new Promise<number>((resolve, reject) => {
             this.periodData(data)
-                .then((response) => {
-                    let dataAmount = parseFloat(data.amount);
-                    let findValue = response.find(r => r.value);
-                    let responseValue = findValue ? findValue.value : 0;
+                .then((response: any) => {
+                    const dataAmount: number = parseFloat(data.amount.toString());
+                    const findValue = response ? response.find(r => r.value) : { value: data.amount };
+
+                    const responseValue: number = findValue ? findValue.value : 0;
+
                     switch (data.vary) {
 
                         case 'fixed':
@@ -146,22 +160,22 @@ export class TargetService {
                         case 'increase':
                             switch (data.amountBy) {
                                 case 'percent':
-                                    let increasePercentResult = responseValue + (responseValue * (dataAmount / 100) );
+                                    const increasePercentResult: number = responseValue + (responseValue * (dataAmount / 100) );
                                     return resolve(increasePercentResult);
 
                                 case 'dollar':
-                                    let increaseDollarResult = responseValue + dataAmount;
+                                    const increaseDollarResult: number = responseValue + dataAmount;
                                     return resolve(increaseDollarResult);
 
                             }
                         case 'decrease':
                             switch (data.amountBy) {
                                 case 'percent':
-                                    let decreasePercentResult = responseValue - (responseValue * (dataAmount / 100) );
+                                    const decreasePercentResult: number = responseValue - (responseValue * (dataAmount / 100) );
                                     return resolve(decreasePercentResult);
 
                                 case 'dollar':
-                                    let descreaseDollarResult = responseValue - dataAmount;
+                                    const descreaseDollarResult: number = responseValue - dataAmount;
                                     return resolve(descreaseDollarResult);
 
                             }
@@ -183,29 +197,39 @@ export class TargetService {
                     const kpi = that._kpiFactory.getInstance(chart.kpis[0]);
                     const getDateRange = that._getDateRange(
                             input.notificationDate,
-                            MomentFrequencyTable[chart.frequency]);
+                            MomentFrequencyTable[chart.frequency]
+                    );
 
-                    const dateRange: any = getDateRange;
-                    const groupings = getGroupingMetadata(chart, chart.groupings ? chart.groupings : []);
+                    const groupings: string[] = getGroupingMetadata(chart, chart.groupings ? chart.groupings : []);
 
-                    const stackName = input.stackName ? input.stackName : input.nonStackName;
-                    const noStackName = stackName.toLowerCase() === 'all';
+                    const stackName: string = input.stackName ? input.stackName : input.nonStackName;
+                    const isStackNameEqualToAll: boolean = stackName.toLowerCase() === 'all';
 
-                    const options = {
+                    const chartDateRange = chart.dateRange ? chart.dateRange[0].predefined : '';
+                    const targetDateRange = that.getDate(input.period, chartDateRange);
+
+                    const dateRange: any = getDateRange || chartDateRange;
+
+                    const options: IGetDataOptions = {
                         filter: chart.filter
                     };
 
                     if (!groupings || !groupings.length || !groupings[0]) {
-                        kpi.getData([that.getDate(input.period)], { filter: chart.filter})
-                            .then(response => {
-                                let findValue = response.find(r => r.value);
-                                let responseValue = findValue ? findValue.value : 0;
-                                resolve(responseValue);
-                                return;
-                            }).catch(err => reject(err));
-                        return;
+                        if (input.period) {
+                            kpi.getData([targetDateRange], { filter: chart.filter})
+                                .then(response => {
+                                    const findValue = response ? response.find(r => r.value) : { value: input.amount };
+                                    const responseValue = findValue ? findValue.value : 0;
+
+                                    resolve(responseValue);
+                                    return;
+                                }).catch(err => reject(err));
+                        } else {
+                            resolve([{ value: 0}]);
+                            return;
+                        }
                     } else {
-                        if (!noStackName) {
+                        if (!isStackNameEqualToAll) {
                             Object.assign(options, {
                                 groupings: groupings,
                                 stackName: stackName
@@ -213,8 +237,9 @@ export class TargetService {
                         }
 
                         kpi.getData([dateRange], options).then(data => {
-                            let findValue = data.find(r => r.value);
-                            let responseValue = findValue ? findValue.value : 0;
+                            const findValue = data ? data.find(r => r.value) : { value: input.amount };
+                            const responseValue = findValue ? findValue.value : 0;
+
                             resolve(responseValue);
                             return;
                         }).catch(err => {
@@ -226,8 +251,9 @@ export class TargetService {
         });
     }
 
-    getDate(period: string): IDateRange {
-        return parsePredifinedDate(period);
+    // return object with 'from' and 'to' property
+    getDate(period: string, alternateDatePeriod: string): IDateRange {
+        return parsePredifinedDate(period) || parsePredifinedDate(alternateDatePeriod);
     }
 
     static formatFrequency(frequency: number, targetDate: string) {
@@ -245,8 +271,9 @@ export class TargetService {
         }
     }
 
-    static futureTargets(targets: ITargetDocument[]) {
-        let futureDateRange;
+    static futureTargets(targets: ITargetDocument[]): IDateRange {
+        let futureDateRange: IDateRange;
+
         if (targets && targets.length) {
             targets.forEach((target) => {
                 const datepicker = moment(target.datepicker).format('YYYY-MM-DD');
