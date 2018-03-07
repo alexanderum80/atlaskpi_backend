@@ -8,7 +8,7 @@ import { IQuery } from '../../../framework/queries/query';
 import { Sales } from '../../../domain/app/sales/sale.model';
 import { ZipsToMap } from '../../../domain/master/zip-to-map/zip-to-map.model';
 import { TypeMap } from '../../../domain/app/sales/sale';
-import { keyBy, find } from 'lodash';
+import { keyBy, find, startCase, toLower } from 'lodash';
 import {MapMarker, MapMarkerGroupingInput} from '../map.types';
 
 export interface IMapMarker {
@@ -56,7 +56,7 @@ export class MapMarkersQuery implements IQuery < IMapMarker[] > {
 
                             if (data.input) {
                                 if (data.input['grouping']) {
-                                    groupingName = data.input['grouping'];
+                                    groupingName = startCase(toLower(data.input['grouping']));
                                 }
                             }
 
