@@ -52,8 +52,13 @@ export class MapMarkersQuery implements IQuery < IMapMarker[] > {
                             // convert array to object
                             const salesObject = keyBy(salesByZip, '_id.customerZip');
                             const groupingMapKeys = Object.keys(GroupingMap.sales);
-                            const groupingName = (data.input && data.input.grouping) ? '' :
-                                                find(groupingMapKeys, (key) => GroupingMap.sales[data.input.grouping]);
+                            let groupingName: any = '';
+
+                            if (data.input) {
+                                if (data.input['grouping']) {
+                                    groupingName = find(groupingMapKeys, (key) => GroupingMap.sales[data.input.grouping]);
+                                }
+                            }
 
                             const markers = zipList.map(zip => {
                                 return {
