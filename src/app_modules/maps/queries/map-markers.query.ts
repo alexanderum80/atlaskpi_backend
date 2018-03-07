@@ -72,7 +72,8 @@ export class MapMarkersQuery implements IQuery < IMapMarker[] > {
     }
 
     private _noGroupingsMarkersFormatted(salesByZip: ISaleByZip[], zipList: IZipToMapDocument[]): MapMarker[] {
-        const salesObject = keyBy(salesByZip, '_id.customerZip');
+        const salesObject: Dictionary<ISaleByZip> = keyBy(salesByZip, '_id.customerZip');
+
         return zipList.map(zip => {
             return {
                 name: zip.zipCode,
