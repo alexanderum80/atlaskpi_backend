@@ -29,4 +29,10 @@ export class MapMarker  {
 
     @field({ type: GraphQLTypesMap.Float })
     value: number;
+
+    @field({ type: GraphQLTypesMap.String })
+    grouping: string;
+
+    @field({ type: GraphQLTypesMap.String })
+    groupingName: string;
 }

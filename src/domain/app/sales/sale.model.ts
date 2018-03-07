@@ -286,7 +286,16 @@ SalesSchema.statics.salesBy = function(type: TypeMap, input?: IMapMarkerInput): 
                                 aggregateGrouping.$group._id = {};
                             }
                             // i.e. $location.name, $product.itemDescription
-                            aggregateGrouping.$group._id[input.grouping] = '$' + salesGroupByField;
+                            aggregateGrouping.$group._id['grouping'] = '$' + salesGroupByField;
+                        }
+
+                        // project the group field
+                        let aggregateProject = aggregate.find(agg => agg.$project !== undefined);
+                        if (aggregateProject) {
+                            let projectFieldByGroup = salesGroupByField.replace('$', '');
+                            projectFieldByGroup = projectFieldByGroup.split('.')[0];
+
+                            aggregateProject.$project[projectFieldByGroup] = 1;
                         }
                     }
                 }
