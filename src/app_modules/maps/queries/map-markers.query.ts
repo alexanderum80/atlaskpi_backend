@@ -1,3 +1,4 @@
+import { GroupingMap } from '../../charts/queries/chart-grouping-map';
 import * as Promise from 'bluebird';
 import { inject, injectable } from 'inversify';
 import { GetMapDetailsActivity } from '../activities/get-map-details.activity';
@@ -7,7 +8,7 @@ import { IQuery } from '../../../framework/queries/query';
 import { Sales } from '../../../domain/app/sales/sale.model';
 import { ZipsToMap } from '../../../domain/master/zip-to-map/zip-to-map.model';
 import { TypeMap } from '../../../domain/app/sales/sale';
-import { keyBy } from 'lodash';
+import { keyBy, find } from 'lodash';
 import {MapMarker, MapMarkerGroupingInput} from '../map.types';
 
 export interface IMapMarker {
@@ -50,6 +51,9 @@ export class MapMarkersQuery implements IQuery < IMapMarker[] > {
                         .then(zipList => {
                             // convert array to object
                             const salesObject = keyBy(salesByZip, '_id.customerZip');
+                            const groupingMapKeys = Object.keys(GroupingMap.sales);
+                            const groupingName = (data.input && data.input.grouping) ? '' :
+                                                find(groupingMapKeys, (key) => GroupingMap.sales[key]);
 
                             const markers = zipList.map(zip => {
                                 return {
@@ -57,7 +61,9 @@ export class MapMarkersQuery implements IQuery < IMapMarker[] > {
                                     lat: zip.lat,
                                     lng: zip.lng,
                                     color: getMarkerColor(salesObject[zip.zipCode].sales),
-                                    value: salesObject[zip.zipCode].sales
+                                    value: salesObject[zip.zipCode].sales,
+                                    grouping: salesObject[zip.zipCode]._id['grouping'],
+                                    groupingName: groupingName
                                 };
                             });
 
