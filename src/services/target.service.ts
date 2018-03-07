@@ -120,6 +120,7 @@ export class TargetService {
                                     resolve([{ value: 0}]);
                                     return;
                                 }
+                                break;
                             default:
                                 if (data.period) {
                                     optionsNonStack['stackName'] = data.nonStackName;
@@ -136,6 +137,7 @@ export class TargetService {
                                     resolve([{ value: 0}]);
                                     return;
                                 }
+                                break;
                         }
                     }
                 });
