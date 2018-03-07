@@ -32,7 +32,7 @@ import { IChartSerie } from './chart-serie';
 import { ChartType } from './chart-type';
 import { FrequencyHelper } from './frequency-values';
 
-const NULL_CATEGORY_REPLACEMENT = 'Uncategorized*';
+export const NULL_CATEGORY_REPLACEMENT = 'Uncategorized*';
 
 interface Dictionary<T> { [key: string]: T; }
 
