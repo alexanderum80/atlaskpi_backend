@@ -1059,7 +1059,7 @@ export function userPlugin(schema: mongoose.Schema, options: any) {
 
         return new Promise<IUserDocument>((resolve, reject) => {
             userModel
-                .findOneAndUpdate({_id: id}, { preferences: input }, {new: true })
+                .findOneAndUpdate({_id: id}, { 'preferences.helpCenter':  input.helpCenter }, {new: true })
                 .exec()
                 .then(document => {
                     resolve(document);
