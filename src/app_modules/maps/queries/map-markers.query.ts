@@ -1,3 +1,4 @@
+import { IZipToMapDocument } from '../../../domain/master/zip-to-map/zip-to-map';
 import { GroupingMap } from '../../charts/queries/chart-grouping-map';
 import * as Promise from 'bluebird';
 import { inject, injectable } from 'inversify';
@@ -7,9 +8,10 @@ import { query } from '../../../framework/decorators/query.decorator';
 import { IQuery } from '../../../framework/queries/query';
 import { Sales } from '../../../domain/app/sales/sale.model';
 import { ZipsToMap } from '../../../domain/master/zip-to-map/zip-to-map.model';
-import { TypeMap } from '../../../domain/app/sales/sale';
-import { keyBy, find, startCase, toLower } from 'lodash';
-import {MapMarker, MapMarkerGroupingInput} from '../map.types';
+import { ISaleByZip, TypeMap } from '../../../domain/app/sales/sale';
+import { keyBy, find, startCase, toLower, groupBy, map, chain, reduce, isEmpty, Dictionary } from 'lodash';
+import {MapMarker, MapMarkerGroupingInput, MapMarkerItemList} from '../map.types';
+import {NULL_CATEGORY_REPLACEMENT} from '../../charts/queries/charts/ui-chart-base';
 
 export interface IMapMarker {
     name: string;
@@ -50,26 +52,17 @@ export class MapMarkersQuery implements IQuery < IMapMarker[] > {
                         })
                         .then(zipList => {
                             // convert array to object
-                            const salesObject = keyBy(salesByZip, '_id.customerZip');
-                            let groupingName: any = '';
+                            let markers;
 
                             if (data.input) {
                                 if (data.input['grouping']) {
-                                    groupingName = startCase(toLower(data.input['grouping']));
+                                    markers = this._groupingMarkersFormatted(salesByZip, zipList);
+                                } else {
+                                    markers = this._noGroupingsMarkersFormatted(salesByZip, zipList);
                                 }
+                            } else {
+                                markers = this._noGroupingsMarkersFormatted(salesByZip, zipList);
                             }
-
-                            const markers = zipList.map(zip => {
-                                return {
-                                    name: zip.zipCode,
-                                    lat: zip.lat,
-                                    lng: zip.lng,
-                                    color: getMarkerColor(salesObject[zip.zipCode].sales),
-                                    value: salesObject[zip.zipCode].sales,
-                                    grouping: salesObject[zip.zipCode]._id['grouping'],
-                                    groupingName: groupingName
-                                };
-                            });
 
                              resolve(markers);
                         });
@@ -77,6 +70,65 @@ export class MapMarkersQuery implements IQuery < IMapMarker[] > {
                 .catch(err => reject(err));
         });
     }
+
+    private _noGroupingsMarkersFormatted(salesByZip: ISaleByZip[], zipList: IZipToMapDocument[]): MapMarker[] {
+        const salesObject: Dictionary<ISaleByZip> = keyBy(salesByZip, '_id.customerZip');
+
+        return zipList.map(zip => {
+            return {
+                name: zip.zipCode,
+                lat: zip.lat,
+                lng: zip.lng,
+                color: getMarkerColor(salesObject[zip.zipCode].sales),
+                value: salesObject[zip.zipCode].sales,
+                groupingName: salesObject[zip.zipCode]._id['grouping']
+            };
+        });
+    }
+
+    private _groupingMarkersFormatted(salesByZip: ISaleByZip[], zipList: IZipToMapDocument[]): MapMarker[] {
+        const zipCodes: Dictionary<IZipToMapDocument> = keyBy(zipList, 'zipCode');
+
+        return chain(salesByZip)
+                    .groupBy('_id.customerZip')
+                    // key = zipCode => i.e. 37703
+                    .map((value: ISaleByZip[], key: string) => {
+                        let itemList: MapMarkerItemList[] = [];
+                        let total: number = 0;
+
+                        for (let i = 0; i < value.length; i++) {
+                            if (value[i]) {
+                                const groupName: string = (value[i]._id as any).grouping ||
+                                                          NULL_CATEGORY_REPLACEMENT;
+                                const amount: number = value[i].sales;
+
+                                total += amount;
+
+                                itemList.push({
+                                    amount: amount, // 50000
+                                    groupName: groupName // i.e. Knoxville
+                                });
+                            }
+                        }
+
+                        if (key && zipCodes[key]) {
+                            return {
+                                name: key,
+                                lat: zipCodes[key].lat,
+                                lng: zipCodes[key].lng,
+                                color: getMarkerColor(total),
+                                value: total,
+                                itemList: itemList
+                            };
+                        }
+                    })
+                    .filter(items => {
+                        return !isEmpty(items);
+                    })
+                    .value();
+    }
+
+
 }
 
 export enum MarkerColorEnum {
