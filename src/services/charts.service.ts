@@ -11,7 +11,7 @@ import {
 } from '../app_modules/dashboards/mutations/common';
 import { CurrentUser } from '../domain/app/current-user';
 import { Logger } from '../domain/app/logger';
-import { ChartAttributesInput } from './../app_modules/charts/charts.types';
+import { ChartAttributesInput, ChartTopNRecord } from './../app_modules/charts/charts.types';
 import { ChartFactory } from './../app_modules/charts/queries/charts/chart-factory';
 import { IUIChart } from './../app_modules/charts/queries/charts/ui-chart-base';
 import { DateRangeHelper } from './../app_modules/date-ranges/queries/date-range.helper';
@@ -30,6 +30,7 @@ import { TargetService } from './target.service';
 export interface IRenderChartOptions {
     chartId?: string;
     dateRange?: [IChartDateRange];
+    topNRecord?: ChartTopNRecord;
     filter?: string;
     frequency?: string;
     groupings?: string[];
@@ -84,6 +85,7 @@ export class ChartsService {
             comparison: options && options.comparison || chart.comparison,
             xAxisSource: options && options.xAxisSource || chart.xAxisSource,
             dateRange: (options && !options.isFutureTarget && options.dateRange) || chart.dateRange || null,
+            topNRecord: (options && options.topNRecord) || chart.topNRecord,
             isDrillDown: options && options.isDrillDown || false,
             isFutureTarget: options && options.isFutureTarget || false,
         };

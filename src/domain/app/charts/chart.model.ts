@@ -22,6 +22,11 @@ let ChartDateRangeSchema = {
     custom: customDateRangeSchema
 };
 
+const TopNRecordSchema = {
+    predefinedNRecord: String,
+    customNRecord: Number
+};
+
 let ChartSchema = new Schema({
     title: { type: String, unique: true, required: true },
     subtitle: String,
@@ -45,7 +50,8 @@ let ChartSchema = new Schema({
     },
     chartDefinition: { type: Schema.Types.Mixed, required: true },
     xAxisSource: String,
-    comparison: [String]
+    comparison: [String],
+    topNRecord: TopNRecordSchema
 });
 
 // add tags capabilities

@@ -1,3 +1,4 @@
+import { IChartTopNRecord } from '../../../domain/common/top-n-record';
 import * as Promise from 'bluebird';
 import { camelCase } from 'change-case';
 import { cloneDeep, find, groupBy, isArray, isDate, isNull, isObject, negate, pick, remove, sortBy } from 'lodash';
@@ -29,6 +30,7 @@ export interface IKPIResult {
 
 export interface IGetDataOptions {
     dateRange?: [IChartDateRange];
+    topNRecord?: IChartTopNRecord;
     filter?: any;
     frequency?: FrequencyEnum;
     groupings?: string[];
