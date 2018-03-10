@@ -5,6 +5,7 @@ import { UpdateSlideshowMutation } from './mutations/update-slideshow.mutation';
 import { SlideshowByIdQuery } from './queries/slideshow-by-id.query';
 import { SlideShowsByGroupChartQuery } from './queries/slideshows-by-group-chart.query';
 import { SlideshowsQuery } from './queries/slideshows.query';
+import { SlideshowByNameQuery } from './queries/slideshow-by-name.query';
 
 
 @AppModule({
@@ -16,7 +17,8 @@ import { SlideshowsQuery } from './queries/slideshows.query';
     queries: [
         SlideshowsQuery,
         SlideshowByIdQuery,
-        SlideShowsByGroupChartQuery
+        SlideShowsByGroupChartQuery,
+        SlideshowByNameQuery
     ]
 })
 export class SlideshowsModule extends ModuleBase { }

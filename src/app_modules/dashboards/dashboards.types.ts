@@ -26,6 +26,8 @@ export class DashboardInput  {
     @field({ type: GraphQLTypesMap.String, isArray: true })
     users: string[];
 
+    @field({ type: GraphQLTypesMap.String })
+    owner: string;
 }
 
 
@@ -51,6 +53,9 @@ export class Dashboard  {
 
     @field({ type: GraphQLTypesMap.String, isArray: true })
     users: string[];
+
+    @field({ type: GraphQLTypesMap.String })
+    owner: string;
 
 }
 

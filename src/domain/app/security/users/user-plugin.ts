@@ -573,7 +573,9 @@ export function userPlugin(schema: mongoose.Schema, options: any) {
 
     schema.statics.findByEmail = function(email: string): Promise<IUserDocument> {
         return new Promise<IUserDocument>((resolve, reject) => {
-            (<IUserModel>this).findOne({ 'emails.address': email }).then((user) => {
+            const regularExpEmail = new RegExp(email, 'i');
+
+            (<IUserModel>this).findOne({ 'emails.address': regularExpEmail }).then((user) => {
                 if (user) {
                     resolve(user);
                 } else {
