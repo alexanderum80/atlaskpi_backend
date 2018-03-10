@@ -73,6 +73,7 @@ export interface IUserPreference {
 
     // yojanier
     notification?: IUserNotifications;
+    avatarAddress?: string;
 }
 
 export interface ITokenInfo {
@@ -342,4 +343,14 @@ export interface IUserModel extends mongoose.Model<IUserDocument> {
      * Find user profile by Id made by yojanier
      */
     userProfileById(id: string): Promise<IUserProfileResolve>;
+
+    /**
+     * add/update avatar address
+     */
+    updateUserAvatarAddress(id: string, avatarAddress: string): Promise<IMutationResponse>;
+
+    /**
+     * get Avatar address
+     */
+    getUserAvatarAddress(id: string): Promise<string>;
 }

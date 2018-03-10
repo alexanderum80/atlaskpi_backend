@@ -112,7 +112,8 @@ export function userPlugin(schema: mongoose.Schema, options: any) {
     const UserPreferenceSchema = {
         chart: ShowTourSchema,
         /// yojanier
-        notification: UserNotificationsSchema
+        notification: UserNotificationsSchema,
+        avatarAddress: String
     };
 
     schema.add({
@@ -1150,6 +1151,38 @@ export function userPlugin(schema: mongoose.Schema, options: any) {
             logger.error(err);
             reject('There was an error retrieving user');
            });
+        });
+    };
+    schema.statics.updateUserAvatarAddress = function(id: string, avatarAddress: string): Promise<IMutationResponse> {
+        const that = (<IUserModel>this);
+        return new Promise<IMutationResponse>((resolve, reject) => {
+             that.findById(id).then(user => {
+                  user.preferences.avatarAddress = avatarAddress;
+
+                  user.save((err, users: IUser) => {
+                    if (err) {
+                        reject({ message: 'There was an error updating the user', error: err });
+                        return;
+                    }
+                    resolve({entity: users});
+                });
+             }).catch((err) => {
+                resolve(MutationResponse.fromValidationErrors({ success: false, reason: err }));
+               });
+        });
+    };
+
+    schema.statics.getUserAvatarAddress = function(id: string): Promise<string> {
+        const that = (<IUserModel>this);
+        return new Promise<string>((resolve, reject) => {
+            that.findById(id).then(user => {
+                let avatarAddress: string = '';
+                avatarAddress = user.preferences.avatarAddress;
+                resolve(avatarAddress);
+            }).catch(err => {
+                logger.error(err);
+                reject('There was an error retrieving user');
+               });
         });
     };
 

@@ -247,6 +247,8 @@ export class UserPreference {
     // yojanier
     @field({type: UserNotifications })
     notifitation: UserNotifications;
+    @field({ type: GraphQLTypesMap.String })
+    avatarAddress: string;
 }
 
 @type()
