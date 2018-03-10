@@ -1,3 +1,4 @@
+import { InputUserProfile } from '../../../../app_modules/users/users.types';
 import * as Promise from 'bluebird';
 import mongoose = require('mongoose');
 import * as nodemailer from 'nodemailer';
@@ -53,14 +54,25 @@ export interface IUserProfile {
     lastName?: string;
     sex?: string;
     dob?: Date;
+    // yojanier
+    telephoneNumber: string;
 }
 
 export interface IShowTour {
     showTour: boolean;
 }
-
+// yojanier
+export interface IUserNotifications {
+    general?: boolean;
+    chat?: boolean;
+    emailNotification?: boolean;
+    dnd?: boolean;
+}
 export interface IUserPreference {
     chart?: IShowTour;
+
+    // yojanier
+    notification?: IUserNotifications;
 }
 
 export interface ITokenInfo {
@@ -87,6 +99,28 @@ export interface IAccountCreatedDataSource {
 
 export interface IUserForgotPasswordDataSource extends IAccountCreatedDataSource {
 
+}
+export interface IUserProfileInput {
+    firstName?: string;
+    middleName?: string;
+    lastName?: string;
+    telephoneNumber?: string;
+    email?: string;
+    general?: boolean;
+    chat?: boolean;
+    emailNotification?: boolean;
+    dnd?: boolean;
+}
+export interface IUserProfileResolve {
+    firstName?: string;
+    middleName?: string;
+    lastName?: string;
+    telephoneNumber?: string;
+    email?: string;
+    general?: boolean;
+    chat?: boolean;
+    emailNotification?: boolean;
+    dnd?: boolean;
 }
 
 export interface IUser {
@@ -298,4 +332,14 @@ export interface IUserModel extends mongoose.Model<IUserDocument> {
      * update the user's preferences
      */
     updateUserPreference(id: string, input: IUserPreference): Promise<IUserDocument>;
+
+    /**
+     * Edit user profile by Yojanier
+     */
+    editUserProfile(id: string, input: IUserProfileInput): Promise<IMutationResponse>;
+
+    /**
+     * Find user profile by Id made by yojanier
+     */
+    userProfileById(id: string): Promise<IUserProfileResolve>;
 }

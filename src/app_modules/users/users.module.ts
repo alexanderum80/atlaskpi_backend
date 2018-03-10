@@ -13,6 +13,8 @@ import { IsResetPasswordTokenValidQuery } from './queries/is-reset-password-toke
 import { UserQuery } from './queries/user.query';
 import { UsersQuery } from './queries/users.query';
 import { FindByFullNameQuery } from './queries/user-by-fullName.query';
+import { EditUserProfileMutation} from './mutations/edit-user-profile.mutation';
+import { UserProfileByIdQuery } from './queries/user-profile-by-id.query';
 
 
 @AppModule({
@@ -24,7 +26,8 @@ import { FindByFullNameQuery } from './queries/user-by-fullName.query';
         ResetPasswordMutation,
         UpdateUserMutation,
         UserForgotPasswordMutation,
-        UpdateUserPreferenceMutation
+        UpdateUserPreferenceMutation,
+        EditUserProfileMutation
     ],
     queries: [
         AllUsersQuery,
@@ -32,7 +35,8 @@ import { FindByFullNameQuery } from './queries/user-by-fullName.query';
         IsResetPasswordTokenValidQuery,
         UserQuery,
         UsersQuery,
-        FindByFullNameQuery
+        FindByFullNameQuery,
+        UserProfileByIdQuery
     ]
 })
 export class UsersModule extends ModuleBase { }

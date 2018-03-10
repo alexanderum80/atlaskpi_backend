@@ -26,6 +26,36 @@ export class UserDetails  {
 
 }
 
+// yojanier
+@input()
+export class UserProfileInput {
+    @field({ type: GraphQLTypesMap.String })
+    firstName: string;
+
+    @field({ type: GraphQLTypesMap.String })
+    middleName: string;
+
+    @field({ type: GraphQLTypesMap.String })
+    lastName: string;
+
+    @field({ type: GraphQLTypesMap.String, required: true })
+    email: string;
+
+    @field({ type: GraphQLTypesMap.String })
+    telephoneNumber: string;
+
+    @field({ type: GraphQLTypesMap.Boolean })
+    general: boolean;
+
+    @field({ type: GraphQLTypesMap.Boolean })
+    chat: boolean;
+
+    @field({ type: GraphQLTypesMap.Boolean })
+    emailNotification: boolean;
+
+    @field({ type: GraphQLTypesMap.Boolean })
+    dnd: boolean;
+}
 
 @input()
 export class AddMobileDeviceDetails  {
@@ -57,6 +87,10 @@ export class InputUserProfile  {
 
     @field({ type: GraphQLTypesMap.String })
     dob: string;
+
+    // yojanier
+    @field({ type: GraphQLTypesMap.String })
+    telephoneNumber: string;
 
 }
 
@@ -181,6 +215,10 @@ export class UserProfile  {
     @field({ type: GraphQLTypesMap.String })
     dob: string;
 
+    // yojanier
+    @field({ type: GraphQLTypesMap.String })
+    telephoneNumber: string;
+
 }
 
 @type()
@@ -188,11 +226,27 @@ export class ChartPreference {
     @field({ type: GraphQLTypesMap.Boolean })
     showTour: boolean;
 }
+// Yojanier
+@type()
+export class UserNotifications {
+    @field({ type: GraphQLTypesMap.Boolean })
+    general: boolean;
+    @field({ type: GraphQLTypesMap.Boolean })
+    chat: boolean;
+    @field({ type: GraphQLTypesMap.Boolean })
+    emailNotification: boolean;
+    @field({ type: GraphQLTypesMap.Boolean })
+    dnd: boolean;
+}
 
 @type()
 export class UserPreference {
     @field({ type: ChartPreference })
     chart: ChartPreference;
+
+    // yojanier
+    @field({type: UserNotifications })
+    notifitation: UserNotifications;
 }
 
 @type()
@@ -273,6 +327,17 @@ export class UserPagedQueryResult  {
     data: User[];
 
 }
+@type()
+export class EditUserProfileResponse {
+    @field({ type: GraphQLTypesMap.Boolean })
+    success: boolean;
+
+    @field({ type: User })
+    entity: User;
+
+    @field({ type: ErrorDetails, isArray: true })
+    errors: ErrorDetails[];
+}
 
 
 @type()
@@ -285,3 +350,32 @@ export class UserResult  {
 
 }
 
+@type()
+export class UserProfileResolve {
+    @field({ type: GraphQLTypesMap.String })
+    firstName: string;
+
+    @field({ type: GraphQLTypesMap.String })
+    middleName: string;
+
+    @field({ type: GraphQLTypesMap.String })
+    lastName: string;
+
+    @field({ type: GraphQLTypesMap.String, required: true })
+    email: string;
+
+    @field({ type: GraphQLTypesMap.String })
+    telephoneNumber: string;
+
+    @field({ type: GraphQLTypesMap.Boolean })
+    general: boolean;
+
+    @field({ type: GraphQLTypesMap.Boolean })
+    chat: boolean;
+
+    @field({ type: GraphQLTypesMap.Boolean })
+    emailNotification: boolean;
+
+    @field({ type: GraphQLTypesMap.Boolean })
+    dnd: boolean;
+}

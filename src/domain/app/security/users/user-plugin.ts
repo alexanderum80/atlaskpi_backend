@@ -8,7 +8,7 @@ import * as nodemailer from 'nodemailer';
 import * as validate from 'validate.js';
 import * as logger from 'winston';
 
-import { User } from '../../../../app_modules/users/users.types';
+import { InputUserProfile, User } from '../../../../app_modules/users/users.types';
 import { field } from '../../../../framework/decorators/field.decorator';
 import { query } from '../../../../framework/decorators/query.decorator';
 import { IMutationResponse, MutationResponse } from '../../../../framework/mutations/mutation-response';
@@ -32,8 +32,11 @@ import {
     IUserModel,
     IUserPreference,
     IUserProfile,
+    IUserProfileInput,
+    IUserProfileResolve
 } from './user';
 import { IUserToken } from './user-token';
+import { userAuditSchema } from '../../../common/audit.schema';
 
 
 export function userPlugin(schema: mongoose.Schema, options: any) {
@@ -72,7 +75,9 @@ export function userPlugin(schema: mongoose.Schema, options: any) {
         middleName: String,
         lastName: String,
         sex: String,
-        dob: Date
+        dob: Date,
+        /// yojanier
+        telephoneNumber: String
     };
 
     const UserTokenInfo = {
@@ -96,9 +101,18 @@ export function userPlugin(schema: mongoose.Schema, options: any) {
             default: true
         }
     };
+    ///  Yojanier
+    const UserNotificationsSchema = {
+        general: Boolean,
+        chat: Boolean,
+        emailNotification: Boolean,
+        dnd: Boolean
+    };
 
     const UserPreferenceSchema = {
-        chart: ShowTourSchema
+        chart: ShowTourSchema,
+        /// yojanier
+        notification: UserNotificationsSchema
     };
 
     schema.add({
@@ -331,7 +345,8 @@ export function userPlugin(schema: mongoose.Schema, options: any) {
                             profile: {
                                 firstName: data.firstName,
                                 middleName: data.middleName,
-                                lastName: data.lastName
+                                lastName: data.lastName,
+                                telephoneNumber: null
                             },
                             username: data.username || data.email,
                             emails: [{
@@ -1084,6 +1099,57 @@ export function userPlugin(schema: mongoose.Schema, options: any) {
                     reject(err);
                     return;
                 });
+        });
+    };
+
+    ///  Yojanier
+    schema.statics.editUserProfile = function(id: string, input: IUserProfileInput): Promise<IMutationResponse> {
+           const that = (<IUserModel>this);
+
+           return new Promise<IMutationResponse>((resolve, reject) => {
+               that.findById(id).then((user) => {
+                   user.profile.firstName = input.firstName;
+                   user.profile.middleName = input.middleName;
+                   user.profile.lastName = input.lastName;
+                   user.profile.telephoneNumber = input.telephoneNumber;
+                   user.emails[0].address = input.email;
+                   user.preferences.notification.general = input.general;
+                   user.preferences.notification.chat = input.chat;
+                   user.preferences.notification.emailNotification = input.emailNotification;
+                   user.preferences.notification.dnd = input.dnd;
+
+                   user.save((err, users: IUser) => {
+                        if (err) {
+                            reject({ message: 'There was an error updating the user', error: err });
+                            return;
+                        }
+                        resolve({entity: users});
+                    });
+               }).catch((err) => {
+               resolve(MutationResponse.fromValidationErrors({ success: false, reason: err }));
+              });
+           });
+    };
+    schema.statics.userProfileById = function(id: string): Promise<IUserProfileResolve> {
+        const that = <IUserModel>this;
+
+        return new Promise<IUserProfileResolve>((resolve, reject) => {
+            that.findById(id).then(users => {
+                let userProfile: IUserProfileResolve = {};
+                userProfile.firstName = users.profile.firstName;
+                userProfile.middleName = users.profile.middleName;
+                userProfile.lastName = users.profile.lastName;
+                userProfile.email = users.emails[0].address;
+                userProfile.telephoneNumber = users.profile.telephoneNumber;
+                userProfile.general = users.preferences.notification.general;
+                userProfile.chat = users.preferences.notification.chat;
+                userProfile.emailNotification = users.preferences.notification.emailNotification;
+                userProfile.dnd = users.preferences.notification.dnd;
+                resolve(userProfile);
+            }).catch(err => {
+            logger.error(err);
+            reject('There was an error retrieving user');
+           });
         });
     };
 
