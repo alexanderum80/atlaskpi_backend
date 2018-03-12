@@ -1,7 +1,7 @@
 import { IChartTopNRecord } from '../../../domain/common/top-n-record';
 import * as Promise from 'bluebird';
 import { camelCase } from 'change-case';
-import { cloneDeep, find, groupBy, isArray, isDate, isNull, isObject, negate, pick, remove, sortBy } from 'lodash';
+import { cloneDeep, find, groupBy, isArray, isDate, isNull, isObject, isNumber, negate, pick, remove, sortBy } from 'lodash';
 import * as logger from 'winston';
 
 import { IKPI } from '../../../domain/app/kpis/kpi';
@@ -31,6 +31,8 @@ export interface IKPIResult {
 export interface IGetDataOptions {
     dateRange?: [IChartDateRange];
     topNRecord?: IChartTopNRecord;
+    includeTopGroupingValues?: string[];
+    limit?: number;
     filter?: any;
     frequency?: FrequencyEnum;
     groupings?: string[];
@@ -79,6 +81,12 @@ export class KpiBase {
                 that._injectFrequency(options.frequency, dateField);
             if (options.groupings)
                 that._injectGroupings(options.groupings);
+            // if (options.groupings && options.includeTopGroupingValues)
+            //     that._injectFilterGroupings(options.groupings, options.includeTopGroupingValues);
+            if (options.groupings && options.limit)
+                that._injectSort();
+            if (options.limit)
+                that._injectLimit(options.limit);
 
             // decompose aggregate object into array
             let aggregateParameters = [];
@@ -386,6 +394,61 @@ export class KpiBase {
                 projection[groupingTokens[0]] = 1;
             }
         });
+    }
+
+    /**
+     * only aggregate collection that includes those fields by grouping
+     * @param groupings
+     * @param includeTopGroupingValues
+     */
+    private _injectFilterGroupings(groupings: string[], includeTopGroupingValues: string[]): void {
+        // i.e. includeTopGroupingValues = ["Botox", "Injectables"]
+        if (!groupings || !groupings.length) {
+            return;
+        }
+
+        if (!includeTopGroupingValues || !includeTopGroupingValues.length) {
+            return;
+        }
+
+        let matchStage = this.findStage('filter', '$match');
+        if (matchStage && matchStage.$match) {
+            Object.assign(
+                matchStage.$match,
+                // i.e. ['category.name'] = { $in: ["Botox", "Injectables"] }
+                {
+                    [groupings[0]]: {
+                        $in: includeTopGroupingValues
+                    }
+                }
+            );
+        }
+    }
+
+    /**
+     * add $limit to aggregate for: i.e. top 5, top 10
+     * @param limit
+     */
+    private _injectLimit(limit: number): void {
+        if (!isNumber(limit) || (limit === 0)) {
+            return;
+        }
+
+        const aggregateLimit = {
+            $limit: limit
+        };
+
+        this.aggregate.push(aggregateLimit);
+    }
+
+    private _injectSort(): void {
+        let limitStage = this.findStage('topN', '$sort');
+
+        if (limitStage && limitStage.$sort) {
+            limitStage.$sort = {
+                value: -1
+            };
+        }
     }
 
     private _applyGroupings(group: any, groupings: string[]) {

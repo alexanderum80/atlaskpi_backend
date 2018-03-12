@@ -139,12 +139,6 @@ export class UIChartBase {
                 return;
             }
 
-            // modify the data here before anyone touches it
-            // check if metadata && metadata.topNRecord exists
-            if (metadata && metadata.frequency && metadata.topNRecord) {
-                data = that._filterByTopNRecords(metadata, data);
-            }
-
             that.groupings = that._getGroupingFields(data);
 
             const isTargetPresent = target && target.length;
@@ -1011,31 +1005,6 @@ export class UIChartBase {
                     break;
                 }
             }
-        }
-    }
-
-    private _filterByTopNRecords(metadata: IChartMetadata, data: any[]): any[] {
-        // check conditions
-        if (!data || !data.length) { return []; }
-        if (!metadata.topNRecord.predefinedNRecord &&
-            !metadata.topNRecord.customNRecord) { return data; }
-
-        // i.e. 'top 5' = 5
-        const topRecordNumber: number = this._getTopNRecordNumber(metadata.topNRecord);
-    }
-
-    private _getTopNRecordNumber(topNRecord: IChartTopNRecord): number {
-        if (topNRecord.predefinedNRecord) {
-            switch (topNRecord.predefinedNRecord) {
-                case EnumTopNRecord.TOP5:
-                    return 5;
-                case EnumTopNRecord.TOP10:
-                    return 10;
-                case EnumTopNRecord.TOP15:
-                    return 15;
-            }
-        } else {
-            return topNRecord.customNRecord;
         }
     }
 }

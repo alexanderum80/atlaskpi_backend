@@ -1,6 +1,9 @@
+import {IChartTopNRecord, EnumTopNRecord} from '../domain/common/top-n-record';
 import * as Promise from 'bluebird';
 import { inject, injectable } from 'inversify';
-import { difference, isString } from 'lodash';
+import { difference, isString, pick } from 'lodash';
+import { camelCase } from 'change-case';
+import * as moment from 'moment';
 
 import { getGroupingMetadata } from '../app_modules/charts/queries/chart-grouping-map';
 import { IChartMetadata } from '../app_modules/charts/queries/charts/chart-metadata';
@@ -23,8 +26,8 @@ import { IDashboardDocument } from './../domain/app/dashboards/dashboard';
 import { Dashboards } from './../domain/app/dashboards/dashboard.model';
 import { KPIs } from './../domain/app/kpis/kpi.model';
 import { Targets } from './../domain/app/targets/target.model';
-import { IChartDateRange } from './../domain/common/date-range';
-import { FrequencyTable } from './../domain/common/frequency-enum';
+import {IChartDateRange, IDateRange, parsePredifinedDate} from './../domain/common/date-range';
+import {FrequencyTable} from './../domain/common/frequency-enum';
 import { TargetService } from './target.service';
 
 export interface IRenderChartOptions {
@@ -39,6 +42,11 @@ export interface IRenderChartOptions {
     isFutureTarget?: boolean;
     isDrillDown?: boolean;
 }
+
+const modelDateField = {
+    'Sale': 'product.from',
+    'Expense': 'timestamp'
+};
 
 @injectable()
 export class ChartsService {
@@ -97,11 +105,31 @@ export class ChartsService {
                                                         .map(item => item.key);
         }
 
-        if (!meta.isDrillDown && options && options.chartId) {
-            return this._renderRegularDefinition(options.chartId, kpi, uiChart, meta);
-        }
+        // get the top by groupings here
+        // pass to both definitions
+        // in the kpi base class, use $match for these names
+        if (meta.groupings &&
+            meta.groupings.length &&
+            meta.topNRecord &&
+            (meta.topNRecord.predefinedNRecord || meta.topNRecord.customNRecord)) {
+            // want groupings, dateRange
+            return this._getTopNRecordByGrouping(meta, kpi).then((data: any[]) => {
+                const groupField = camelCase(meta.groupings[0]);
+                meta.includeTopGroupingValues = data.map(d => d._id[groupField]);
 
-        return this._renderPreviewDefinition(kpi, uiChart, meta);
+                if (!meta.isDrillDown && options && options.chartId) {
+                    return this._renderRegularDefinition(options.chartId, kpi, uiChart, meta);
+                }
+
+                return this._renderPreviewDefinition(kpi, uiChart, meta);
+            });
+        } else {
+            if (!meta.isDrillDown && options && options.chartId) {
+                return this._renderRegularDefinition(options.chartId, kpi, uiChart, meta);
+            }
+
+            return this._renderPreviewDefinition(kpi, uiChart, meta);
+        }
     }
 
     public getChart(chart: any): Promise<IChart>;
@@ -382,5 +410,45 @@ export class ChartsService {
                 return;
             });
         });
+    }
+
+    // want groupings, dateRange
+    // modify sort here
+    // add limit to kpi base
+    private _getTopNRecordByGrouping(meta: IChartMetadata, kpi: IKpiBase): Promise<any[]> {
+        const topNRecord: IChartTopNRecord = meta.topNRecord;
+        const topValue: number = (topNRecord.predefinedNRecord && topNRecord.predefinedNRecord !== 'other') ?
+                                 this._getPredefinedTopNRecordAmount(topNRecord.predefinedNRecord) :
+                                    topNRecord.customNRecord;
+        const dateRange: IDateRange[] = [this._getTopNDateRange(meta.dateRange)];
+
+        let options = pick(meta, ['groupings', 'dateRange']);
+        Object.assign(options, {
+            limit: topValue
+        });
+
+        return kpi.getData(dateRange, options);
+    }
+
+    private _getPredefinedTopNRecordAmount(predefinedNRecord: string): number {
+        switch (predefinedNRecord) {
+            case EnumTopNRecord.TOP5:
+                return 5;
+            case EnumTopNRecord.TOP10:
+                return 10;
+            case EnumTopNRecord.TOP15:
+                return 15;
+            default:
+                return 20;
+        }
+    }
+
+    private _getTopNDateRange(dateRange: IChartDateRange[]): IDateRange {
+        return dateRange[0].custom && dateRange[0].custom.from ?
+                {
+                    from: moment(dateRange[0].custom.from).startOf('day').toDate(),
+                    to: moment(dateRange[0].custom.to).endOf('day').toDate()
+                }
+                : parsePredifinedDate(dateRange[0].predefined);
     }
 }
