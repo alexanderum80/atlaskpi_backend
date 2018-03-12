@@ -16,7 +16,7 @@ import { CurrentUser } from '../domain/app/current-user';
 import { Logger } from '../domain/app/logger';
 import { ChartAttributesInput, ChartTopNRecord } from './../app_modules/charts/charts.types';
 import { ChartFactory } from './../app_modules/charts/queries/charts/chart-factory';
-import { IUIChart } from './../app_modules/charts/queries/charts/ui-chart-base';
+import { IUIChart, NULL_CATEGORY_REPLACEMENT } from './../app_modules/charts/queries/charts/ui-chart-base';
 import { DateRangeHelper } from './../app_modules/date-ranges/queries/date-range.helper';
 import { IKpiBase } from './../app_modules/kpis/queries/kpi-base';
 import { KpiFactory } from './../app_modules/kpis/queries/kpi.factory';
@@ -115,7 +115,7 @@ export class ChartsService {
             // want groupings, dateRange
             return this._getTopNRecordByGrouping(meta, kpi).then((data: any[]) => {
                 const groupField = camelCase(meta.groupings[0]);
-                meta.includeTopGroupingValues = data.map(d => d._id[groupField]);
+                meta.includeTopGroupingValues = data.map(d => d._id[groupField] || NULL_CATEGORY_REPLACEMENT);
 
                 if (!meta.isDrillDown && options && options.chartId) {
                     return this._renderRegularDefinition(options.chartId, kpi, uiChart, meta);

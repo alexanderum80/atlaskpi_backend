@@ -1,8 +1,13 @@
-import { IChartTopNRecord } from '../../../domain/common/top-n-record';
+import { NULL_CATEGORY_REPLACEMENT } from '../../charts/queries/charts/ui-chart-base';
+import { EnumTopNRecord, IChartTopNRecord } from '../../../domain/common/top-n-record';
 import * as Promise from 'bluebird';
 import { camelCase } from 'change-case';
-import { cloneDeep, find, groupBy, isArray, isDate, isNull, isObject, isNumber, negate, pick, remove, sortBy } from 'lodash';
+import {
+    cloneDeep, find, groupBy, reduce, isArray, isDate, isNull,
+    isObject, isNumber, negate, pick, remove, sortBy, flatten
+} from 'lodash';
 import * as logger from 'winston';
+import * as moment from 'moment';
 
 import { IKPI } from '../../../domain/app/kpis/kpi';
 import { IChartDateRange, IDateRange } from '../../../domain/common/date-range';
@@ -100,9 +105,20 @@ export class KpiBase {
             this.model.aggregate(...aggregateParameters).then(data => {
                 logger.debug('MongoDB data received: ' + that.model.modelName);
                 // before returning I need to check if a "top" filter was added
-                if (options.filter && options.filter.top) {
-                    data = that._applyTop(data, options.filter.top);
+                // if (options.filter && options.filter.top) {
+                //     data = that._applyTopWithOutGroupings(data, options.filter.top);
+                // }
+
+                if (options.topNRecord && (options.topNRecord.predefinedNRecord || options.topNRecord.customNRecord)) {
+                    if (options.groupings && options.includeTopGroupingValues) {
+                        data = that._applyTopWithGroupings(data, options.groupings, options.includeTopGroupingValues);
+                    } else {
+                        if ((!options.groupings || !options.groupings.length) && options.frequency) {
+                            data = that._applyTopWithOutGroupings(data, options.frequency, {value: options.topNRecord});
+                        }
+                    }
                 }
+
 
                 resolve(data);
             }, (e) => {
@@ -439,6 +455,9 @@ export class KpiBase {
             return;
         }
 
+        // i.e. top 5 = top 4 and others
+        limit = limit - 1;
+
         const aggregateLimit = {
             $limit: limit
         };
@@ -471,39 +490,125 @@ export class KpiBase {
         });
     }
 
-    private _applyTop(data: any[], top: { field: string, value: number }): any[] {
+    private _applyTopWithGroupings(data: any[], groupings: string[], includeTopGroupingValues: string[]): any[] {
+        if (!data || !data.length) { return data; }
+        if (!groupings || !groupings.length) { return data; }
+        if (!includeTopGroupingValues || !includeTopGroupingValues.length) { return data; }
+
+        /**
+         * if not in top n, group by 'Others'
+         * else return same object
+         */
+        const groupedData = groupBy(data, (item) => {
+            const groupField = camelCase(groupings[0]);
+            if (!item._id[groupField]) {
+                item._id[groupField] = NULL_CATEGORY_REPLACEMENT;
+            }
+
+            // check if the grouping value exist in the top n
+            const topNotExist = item._id ?
+                              includeTopGroupingValues.indexOf(item._id[groupField]) === -1 :
+                              false;
+
+            if (topNotExist) {
+                item._id[groupField] = 'Others';
+                // i.e. Others-2018-01
+                return `${item._id[groupField]}-${item._id.frequency}`;
+            }
+
+            return `${item._id[groupField]}`;
+        });
+
+        data = this._reduceOthersAndTop(groupedData, includeTopGroupingValues);
+
+        return data;
+    }
+
+    private _reduceOthersAndTop(groupedData: any, includeTopGroupingValues: string[]): any[] {
+        for (let i in groupedData) {
+            if (includeTopGroupingValues.indexOf(i) === -1) {
+                // get the total of 'Other' grouping
+                const othersTotal = reduce(groupedData[i], (result: any, item: any) => {
+                    return {
+                        value: result.value + item.value
+                    };
+                });
+
+                // get _id object
+                const { _id } = pick(groupedData[i][0], '_id');
+                // show the _id object with the total by frequency of 'Others'
+                groupedData[i] = [{
+                    _id,
+                    value: othersTotal.value
+                }];
+            }
+        }
+
+        return this._reformatTopAndOthers(groupedData);
+    }
+
+    private _reformatTopAndOthers(groupedData: any): any[] {
+        const structuredData = [];
+        // restructure the data back to its original format
+        for (let k in groupedData) {
+            structuredData.push(groupedData[k]);
+        }
+        // convert to single arrary of objects
+        return flatten(structuredData);
+    }
+
+    private _applyTopWithOutGroupings(data: any[], frequency: number, top: IChartTopNRecord): any[] {
         // validate if data array has elements
         if (!data || data.length === 0) {
             return data;
         }
-        // get first record to extract the groupings
-        let groupings = Object.keys(data[0]._id);
-        // remove out of that group the filed use for the top
-        remove(groupings, g => g === top.field);
-
-        if (groupings.length === 0) {
-            groupings = ['frequency'];
+        if (!top || (!top.predefinedNRecord && !top.customNRecord)) {
+            return data;
         }
 
-        // now group the results and remove all values that exceed the group size
-        // https://stackoverflow.com/questions/29587488/grouping-objects-by-multiple-columns-with-lodash-or-underscore
-        const notNull = negate(isNull);
-        const dataGroups = groupBy(data, (item) => {
-            return find(pick(item._id, groupings), notNull);
+        const topValue: number = this._getTopValue(top);
+        const sortByValue: any[] = sortBy(data, 'value');
+
+        const topNData: any[] = sortByValue.slice(0, topValue);
+        const that = this;
+
+        data = data.sort((a: any, b: any) => {
+            const momentFormat = that._applyTopMomentFormat(frequency);
+            return moment(a, momentFormat).diff(moment(b, momentFormat));
         });
 
-        let newResult: any[] = [];
+        return data;
+    }
 
-        // sort / slice results
-        for (let k in dataGroups) {
-            let groupData = dataGroups[k];
-            const sortedResult = sortBy(groupData, (item: any) => -item.value );
-            const slicedList = sortedResult.slice(0, top.value);
-
-            newResult = newResult.concat(slicedList);
+    private _getTopValue(top: IChartTopNRecord): number {
+        if (top.predefinedNRecord) {
+            switch (top.predefinedNRecord) {
+                case EnumTopNRecord.TOP5:
+                    return 5;
+                case EnumTopNRecord.TOP10:
+                    return 10;
+                case EnumTopNRecord.TOP15:
+                    return 15;
+                default:
+                    return 20;
+            }
+        } else {
+            return top.customNRecord;
         }
+    }
 
-        return newResult;
+    private _applyTopMomentFormat(frequency?: number): string {
+        switch (frequency) {
+            case FrequencyEnum.Daily:
+            case FrequencyEnum.Weekly:
+                return 'D';
+            case FrequencyEnum.Monthly:
+                return 'YYYY-DD';
+            case FrequencyEnum.Quartely:
+                return 'Q';
+            case FrequencyEnum.Yearly:
+                return 'YYYY';
+        }
     }
 
     private _regexPattern(type: string, value: string) {
