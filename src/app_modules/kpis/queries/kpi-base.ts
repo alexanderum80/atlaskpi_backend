@@ -114,7 +114,7 @@ export class KpiBase {
                         data = that._applyTopWithGroupings(data, options.groupings, options.includeTopGroupingValues);
                     } else {
                         if ((!options.groupings || !options.groupings.length) && options.frequency) {
-                            data = that._applyTopWithOutGroupings(data, options.frequency, {value: options.topNRecord});
+                            data = that._applyTopWithOutGroupings(data, options.frequency, options.topNRecord);
                         }
                     }
                 }

@@ -14,7 +14,7 @@ export interface IChart {
     group?: string;
     kpis: [IKPIDocument];
     dateRange: [IChartDateRange];
-    topNRecord: IChartTopNRecord;
+    topNRecord?: IChartTopNRecord;
     filter?: any;
     frequency?: string;
     groupings?: string[];
