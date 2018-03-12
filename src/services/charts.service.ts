@@ -1,4 +1,4 @@
-import {IChartTopNRecord, EnumTopNRecord} from '../domain/common/top-n-record';
+import {IChartTopNRecord, EnumTopNRecord, chartTopValue} from '../domain/common/top-n-record';
 import * as Promise from 'bluebird';
 import { inject, injectable } from 'inversify';
 import { difference, isString, pick } from 'lodash';
@@ -417,9 +417,7 @@ export class ChartsService {
     // add limit to kpi base
     private _getTopNRecordByGrouping(meta: IChartMetadata, kpi: IKpiBase): Promise<any[]> {
         const topNRecord: IChartTopNRecord = meta.topNRecord;
-        const topValue: number = (topNRecord.predefinedNRecord && topNRecord.predefinedNRecord !== 'other') ?
-                                 this._getPredefinedTopNRecordAmount(topNRecord.predefinedNRecord) :
-                                    topNRecord.customNRecord;
+        const topValue: number = chartTopValue(topNRecord);
         const dateRange: IDateRange[] = [this._getTopNDateRange(meta.dateRange)];
 
         let options = pick(meta, ['groupings', 'dateRange']);
@@ -428,19 +426,6 @@ export class ChartsService {
         });
 
         return kpi.getData(dateRange, options);
-    }
-
-    private _getPredefinedTopNRecordAmount(predefinedNRecord: string): number {
-        switch (predefinedNRecord) {
-            case EnumTopNRecord.TOP5:
-                return 5;
-            case EnumTopNRecord.TOP10:
-                return 10;
-            case EnumTopNRecord.TOP15:
-                return 15;
-            default:
-                return 20;
-        }
     }
 
     private _getTopNDateRange(dateRange: IChartDateRange[]): IDateRange {

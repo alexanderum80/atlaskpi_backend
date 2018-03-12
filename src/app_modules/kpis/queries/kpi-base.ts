@@ -1,5 +1,5 @@
 import { NULL_CATEGORY_REPLACEMENT } from '../../charts/queries/charts/ui-chart-base';
-import { EnumTopNRecord, IChartTopNRecord } from '../../../domain/common/top-n-record';
+import {EnumTopNRecord, IChartTopNRecord, chartTopValue, chartTopMomentFormat} from '../../../domain/common/top-n-record';
 import * as Promise from 'bluebird';
 import { camelCase } from 'change-case';
 import {
@@ -566,49 +566,18 @@ export class KpiBase {
             return data;
         }
 
-        const topValue: number = this._getTopValue(top);
+        const topValue: number = chartTopValue(top);
         const sortByValue: any[] = sortBy(data, 'value');
 
         const topNData: any[] = sortByValue.slice(0, topValue);
         const that = this;
 
         data = data.sort((a: any, b: any) => {
-            const momentFormat = that._applyTopMomentFormat(frequency);
+            const momentFormat = chartTopMomentFormat(frequency);
             return moment(a, momentFormat).diff(moment(b, momentFormat));
         });
 
         return data;
-    }
-
-    private _getTopValue(top: IChartTopNRecord): number {
-        if (top.predefinedNRecord) {
-            switch (top.predefinedNRecord) {
-                case EnumTopNRecord.TOP5:
-                    return 5;
-                case EnumTopNRecord.TOP10:
-                    return 10;
-                case EnumTopNRecord.TOP15:
-                    return 15;
-                default:
-                    return 20;
-            }
-        } else {
-            return top.customNRecord;
-        }
-    }
-
-    private _applyTopMomentFormat(frequency?: number): string {
-        switch (frequency) {
-            case FrequencyEnum.Daily:
-            case FrequencyEnum.Weekly:
-                return 'D';
-            case FrequencyEnum.Monthly:
-                return 'YYYY-DD';
-            case FrequencyEnum.Quartely:
-                return 'Q';
-            case FrequencyEnum.Yearly:
-                return 'YYYY';
-        }
     }
 
     private _regexPattern(type: string, value: string) {
