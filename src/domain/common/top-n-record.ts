@@ -21,9 +21,9 @@ export interface IChartTopNRecord {
 
 
 export function chartTopValue(topNRecord: IChartTopNRecord): number {
-    const topCustom = (topNRecord.predefinedNRecord === 'other' || topNRecord.predefinedNRecord === 'Other') &&
+    const isTopCustom = (topNRecord.predefinedNRecord === 'other' || topNRecord.predefinedNRecord === 'Other') &&
                       isNumber(topNRecord.customNRecord);
-    if (topCustom) {
+    if (isTopCustom) {
         return topNRecord.customNRecord;
     }
 
