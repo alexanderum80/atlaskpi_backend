@@ -132,20 +132,25 @@ export class KpiBase {
             throw 'KpiBase#_injectDataRange: Cannot inject date range because a dateRange/$match stage could not be found';
         }
 
-        if (dateRange &&
-            (<any>dateRange).length) {
-            if ((<any>dateRange).length === 1) {
+        if (dateRange && dateRange.length) {
+            if (dateRange.length === 1) {
                 matchStage.$match[field] = { '$gte': dateRange[0].from, '$lt': dateRange[0].to };
             } else {
-                (<any>dateRange).map((dateParams) => {
-                    matchStage.$match = {
-                        $or: [
-                            {
-                                [field]: { '$gte': dateParams.from, '$lt': dateParams.to }
-                            }
-                        ]
-                    };
-                });
+                if (!matchStage['$match']) {
+                    matchStage.$match = {};
+                }
+
+                if (!matchStage.$match['$or']) {
+                    matchStage.$match.$or = {};
+                }
+
+                matchStage.$match.$or = dateRange.map((dateParams: IDateRange) => ({
+                    // field => i.e. 'product.from', timestamp
+                    [field]: {
+                        $gte: dateParams.from,
+                        $lt: dateParams.to
+                    }
+                }));
             }
         }
     }
