@@ -23,8 +23,9 @@ let ChartDateRangeSchema = {
 };
 
 const TopSchema = {
-    predefinedTop: String,
-    customTop: Number
+    predefined: String,
+    custom: Number,
+    enabled: Boolean
 };
 
 let ChartSchema = new Schema({

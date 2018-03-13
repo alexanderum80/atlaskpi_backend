@@ -111,7 +111,7 @@ export class ChartsService {
         if (meta.groupings &&
             meta.groupings.length &&
             meta.top &&
-            (meta.top.predefinedTop || meta.top.customTop)) {
+            (meta.top.predefined || meta.top.custom)) {
             // want groupings, dateRange
             return this._getTopByGrouping(meta, kpi).then((data: any[]) => {
                 const groupField = camelCase(meta.groupings[0]);

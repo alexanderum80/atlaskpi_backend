@@ -109,7 +109,7 @@ export class KpiBase {
                 //     data = that._applyTopWithOutGroupings(data, options.filter.top);
                 // }
 
-                if (options.top && (options.top.predefinedTop || options.top.customTop)) {
+                if (options.top && (options.top.predefined || options.top.custom)) {
                     if (options.groupings && options.includeTopGroupingValues) {
                         data = that._applyTopWithGroupings(data, options.groupings, options.includeTopGroupingValues);
                     } else {
@@ -562,7 +562,7 @@ export class KpiBase {
         if (!data || data.length === 0) {
             return data;
         }
-        if (!top || (!top.predefinedTop && !top.customTop)) {
+        if (!top || (!top.predefined && !top.custom)) {
             return data;
         }
 

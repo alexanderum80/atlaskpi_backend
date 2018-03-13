@@ -15,19 +15,20 @@ export const PredefinedTops = {
 
 
 export interface IChartTop {
-    predefinedTop: string;
-    customTop: number;
+    predefined: string;
+    custom: number;
+    enabled: boolean;
 }
 
 
 export function chartTopValue(top: IChartTop): number {
-    const isTopCustom = (top.predefinedTop === 'other' || top.predefinedTop === 'Other') &&
-                      isNumber(top.customTop);
+    const isTopCustom = (top.predefined === 'other' || top.predefined === 'Other') &&
+                      isNumber(top.custom);
     if (isTopCustom) {
-        return top.customTop;
+        return top.custom;
     }
 
-    switch (top.predefinedTop) {
+    switch (top.predefined) {
         case EnumChartTop.TOP5:
             return 5;
         case EnumChartTop.TOP10:

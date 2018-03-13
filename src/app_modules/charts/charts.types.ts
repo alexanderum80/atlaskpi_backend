@@ -36,10 +36,13 @@ export class GetChartInput  {
 @input()
 export class ChartTopInput {
     @field({ type: GraphQLTypesMap.String })
-    predefinedTop: string;
+    predefined: string;
 
     @field({ type: GraphQLTypesMap.Int })
-    customTop: number;
+    custom: number;
+
+    @field({ type: GraphQLTypesMap.Boolean })
+    enabled: boolean;
 }
 
 @input()
@@ -90,10 +93,10 @@ export class ChartAttributesInput  {
 @type()
 export class ChartTopResponse {
     @field({ type: GraphQLTypesMap.String })
-    predefinedTop: string;
+    predefined: string;
 
     @field({ type: GraphQLTypesMap.Int })
-    customTop: number;
+    custom: number;
 }
 
 
