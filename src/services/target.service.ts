@@ -228,8 +228,8 @@ export class TargetService {
             that._charts.model.findById(input.chart[0])
                 .populate({ path: 'kpis' })
                 .then((chart) => {
-                    const kpi = that._kpiFactory.getInstance(chart.kpis[0]);
-                    const getDateRange = that._getDateRange(
+                    const kpi: IKpiBase = that._kpiFactory.getInstance(chart.kpis[0]);
+                    const getDateRange: IDateRange = that._getDateRange(
                             input.notificationDate,
                             MomentFrequencyTable[chart.frequency]
                     );
@@ -239,8 +239,8 @@ export class TargetService {
                     const stackName: string = input.stackName ? input.stackName : input.nonStackName;
                     const isStackNameEqualToAll: boolean = stackName.toLowerCase() === 'all';
 
-                    const chartDateRange = chart.dateRange ? chart.dateRange[0].predefined : '';
-                    const targetDateRange = that.getDate(input.period, chartDateRange);
+                    const chartDateRange: string = chart.dateRange ? chart.dateRange[0].predefined : '';
+                    const targetDateRange: IDateRange = that.getDate(input.period, chartDateRange);
 
                     const dateRange: any = getDateRange || chartDateRange;
 
@@ -253,7 +253,7 @@ export class TargetService {
                             kpi.getData([targetDateRange], { filter: chart.filter})
                                 .then(response => {
                                     const findValue = response ? response.find(r => r.value) : { value: input.amount };
-                                    const responseValue = findValue ? findValue.value : 0;
+                                    const responseValue: number = findValue ? findValue.value : 0;
 
                                     resolve(responseValue);
                                     return;
@@ -272,7 +272,7 @@ export class TargetService {
 
                         kpi.getData([dateRange], options).then(data => {
                             const findValue = data ? data.find(r => r.value) : { value: input.amount };
-                            const responseValue = findValue ? findValue.value : 0;
+                            const responseValue: number = findValue ? findValue.value : 0;
 
                             resolve(responseValue);
                             return;
