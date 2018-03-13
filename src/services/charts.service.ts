@@ -43,10 +43,6 @@ export interface IRenderChartOptions {
     isDrillDown?: boolean;
 }
 
-const modelDateField = {
-    'Sale': 'product.from',
-    'Expense': 'timestamp'
-};
 
 @injectable()
 export class ChartsService {

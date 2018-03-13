@@ -86,8 +86,6 @@ export class KpiBase {
                 that._injectFrequency(options.frequency, dateField);
             if (options.groupings)
                 that._injectGroupings(options.groupings);
-            // if (options.groupings && options.includeTopGroupingValues)
-            //     that._injectFilterGroupings(options.groupings, options.includeTopGroupingValues);
             if (options.groupings && options.limit)
                 that._injectSort();
             if (options.limit)
@@ -415,35 +413,6 @@ export class KpiBase {
                 projection[groupingTokens[0]] = 1;
             }
         });
-    }
-
-    /**
-     * only aggregate collection that includes those fields by grouping
-     * @param groupings
-     * @param includeTopGroupingValues
-     */
-    private _injectFilterGroupings(groupings: string[], includeTopGroupingValues: string[]): void {
-        // i.e. includeTopGroupingValues = ["Botox", "Injectables"]
-        if (!groupings || !groupings.length) {
-            return;
-        }
-
-        if (!includeTopGroupingValues || !includeTopGroupingValues.length) {
-            return;
-        }
-
-        let matchStage = this.findStage('filter', '$match');
-        if (matchStage && matchStage.$match) {
-            Object.assign(
-                matchStage.$match,
-                // i.e. ['category.name'] = { $in: ["Botox", "Injectables"] }
-                {
-                    [groupings[0]]: {
-                        $in: includeTopGroupingValues
-                    }
-                }
-            );
-        }
     }
 
     /**
