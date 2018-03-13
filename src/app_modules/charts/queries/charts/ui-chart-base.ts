@@ -62,6 +62,8 @@ export interface ICategoriesWithValues {
 }
 
 export interface IComparsionDefObjectData {
+    // i.e main: ICategoriesWithValues
+    // i.e lastYear: ICategoriesWithValues
     [key: string]: ICategoriesWithValues[];
 }
 
