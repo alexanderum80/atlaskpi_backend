@@ -38,15 +38,6 @@ export interface IGetComparisonStackName {
     comparisonString?: string;
 }
 
-export interface ITargetCalculateDate {
-    amount?: number|string;
-    stackName?: string;
-    nonStackName?: string;
-    amountBy?: string;
-    chart?: string[];
-    period?: string;
-    vary?: string;
-}
 
 export interface ITargetMet {
     amount?: number|string;
@@ -80,7 +71,7 @@ export class TargetService {
         });
     }
 
-    periodData(data: ITargetCalculateDate): Promise<IPeriodAmount[]> {
+    periodData(data: ITarget): Promise<IPeriodAmount[]> {
         const that = this;
 
         return new Promise<IPeriodAmount[]>((resolve, reject) => {
@@ -176,7 +167,7 @@ export class TargetService {
         });
     }
 
-    caculateFormat(data: ITargetCalculateDate): Promise<number> {
+    caculateFormat(data: ITarget): Promise<number> {
 
         return new Promise<number>((resolve, reject) => {
             this.periodData(data)
