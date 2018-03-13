@@ -882,20 +882,20 @@ export class UIChartBase {
             defObject['data'][keys[i]] = [];
 
             const definition = definitions[keys[i]];
-            const cats: string[] =  definition.xAxis.categories;
+            const definitionCategories: string[] =  definition.xAxis.categories;
             const series = definition.series || [];
 
             for (let j = 0; j < series.length; j++) {
                 const serie = series[j];
 
-                for (let k = 0; k < cats.length; k++) {
-                    const catExists = defObject['uniqCategories'].find(c => c === cats[k]);
-                    if (!catExists) {
-                        defObject['uniqCategories'].push(cats[k]);
+                for (let k = 0; k < definitionCategories.length; k++) {
+                    const categoryExist = defObject['uniqCategories'].find(c => c === definitionCategories[k]);
+                    if (!categoryExist) {
+                        defObject['uniqCategories'].push(definitionCategories[k]);
                     }
 
                     const categoriesWithValues: ICategoriesWithValues = {
-                        category: cats[k],
+                        category: definitionCategories[k],
                         serieName: serie.name,
                         serieValue: serie.data[k]
                     };
