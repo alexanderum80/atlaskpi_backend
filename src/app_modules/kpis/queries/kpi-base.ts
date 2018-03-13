@@ -440,6 +440,10 @@ export class KpiBase {
         this.aggregate.push(aggregateLimit);
     }
 
+    /**
+     * use for top n
+     * sort highest to lowest values
+     */
     private _injectSort(): void {
         let limitStage = this.findStage('topN', '$sort');
 
@@ -476,6 +480,8 @@ export class KpiBase {
          */
         const groupedData = groupBy(data, (item) => {
             const groupField = camelCase(groupings[0]);
+
+            // assign NULL_CATEGORY_REPLACEMENT if object does not contain grouping field
             if (!item._id[groupField]) {
                 item._id[groupField] = NULL_CATEGORY_REPLACEMENT;
             }
