@@ -8,7 +8,7 @@ import * as moment from 'moment';
 import * as logger from 'winston';
 import { camelCase } from 'change-case';
 import { IChart } from '../../../../domain/app/charts/chart';
-import { ITargetDocument } from '../../../../domain/app/targets/target';
+import { ITarget, ITargetDocument } from '../../../../domain/app/targets/target';
 import {
     getDateRangeIdFromString,
     IChartDateRange,
@@ -808,21 +808,21 @@ export class UIChartBase {
         });
     }
 
-    protected getDefinitionOfComparisonChart(kpi, metadata: IChartMetadata): Promise<any> {
+    protected getDefinitionOfComparisonChart(kpi, metadata: IChartMetadata, target?: ITargetDocument[]): Promise<any> {
         if (metadata.dateRange &&
             Array.isArray(metadata.dateRange) &&
             metadata.dateRange[0].predefined === 'custom') {
             this.isCustomDateRange.comparison = true;
         }
         const chartPromises = {
-            main: this.getDefinitionForDateRange(cloneDeep(kpi), metadata, [])
+            main: this.getDefinitionForDateRange(cloneDeep(kpi), metadata, target)
         };
 
         this.comparison.forEach((comparisonDateRange, index) => {
             const newChart = cloneDeep(this);
             const newMetadata = cloneDeep(metadata);
             newMetadata.dateRange = [ { custom: comparisonDateRange } ];
-            chartPromises[metadata.comparison[index]] = newChart.getDefinitionForDateRange(cloneDeep(kpi), newMetadata, []);
+            chartPromises[metadata.comparison[index]] = newChart.getDefinitionForDateRange(cloneDeep(kpi), newMetadata, target);
         });
 
         return Promise.props(chartPromises).then(output => {
@@ -866,11 +866,18 @@ export class UIChartBase {
                         defObject['uniqCategories'].push(cats[k]);
                     }
 
-                    defObject['data'][keys[i]].push({
+                    const categoriesWithValues: any = {
                         category: cats[k],
                         serieName: serie.name,
                         serieValue: serie.data[k]
-                    });
+                    };
+
+                    // when have targets
+                    if (serie.type && serie.targetId) {
+                        categoriesWithValues.type = serie.type;
+                    }
+
+                    defObject['data'][keys[i]].push(categoriesWithValues);
                 }
             }
         }
@@ -883,6 +890,7 @@ export class UIChartBase {
         const data = obj['data'];
         const keys = Object.keys(data);
         let serieData = [];
+        let hasTarget;
 
         const series = [];
         let objData: any = {};
@@ -901,16 +909,31 @@ export class UIChartBase {
                     serieData = serieData.concat(
                         filteredByCategory.length ? filteredByCategory[0].serieValue : null
                     );
+                    hasTarget = filteredByCategory.find(f => f.type);
                     objData.serieName = groupKeys;
                 }
                 const dateRangeId = getDateRangeIdFromString(that.chart.dateRange[0].predefined);
                 const comparisonString = (stack === 'main') ?
                             that.chart.dateRange[0].predefined : PredefinedComparisonDateRanges[dateRangeId][stack];
-                series.push({
-                    name: objData.serieName + `(${comparisonString})`,
-                    data: serieData,
-                    stack: stack
-                });
+
+                let serieObject;
+
+                if (hasTarget) {
+                    serieObject = {
+                        name: objData.serieName,
+                        data: serieData,
+                        stack: stack,
+                        type: 'spline'
+                    };
+                } else {
+                    serieObject = {
+                        name: objData.serieName + `(${comparisonString})`,
+                        data: serieData,
+                        stack: stack
+                    };
+                }
+
+                series.push(serieObject);
                 serieData = [];
             }
         }
