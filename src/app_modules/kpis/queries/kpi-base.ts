@@ -547,7 +547,7 @@ export class KpiBase {
         const topNData: any[] = sortByValue.slice(0, topValue);
         const that = this;
 
-        data = data.sort((a: any, b: any) => {
+        data = topNData.sort((a: any, b: any) => {
             const momentFormat = chartTopMomentFormat(frequency);
             return moment(a, momentFormat).diff(moment(b, momentFormat));
         });
