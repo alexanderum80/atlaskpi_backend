@@ -1,4 +1,4 @@
-import { EnumTopNRecord, IChartTopNRecord } from '../../../../domain/common/top-n-record';
+import { EnumChartTop, IChartTop } from '../../../../domain/common/top-n-record';
 import 'datejs';
 
 import { from } from 'apollo-link/lib';

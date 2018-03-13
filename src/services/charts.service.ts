@@ -1,4 +1,4 @@
-import {IChartTopNRecord, EnumTopNRecord, chartTopValue} from '../domain/common/top-n-record';
+import {IChartTop, EnumChartTop, chartTopValue} from '../domain/common/top-n-record';
 import * as Promise from 'bluebird';
 import { inject, injectable } from 'inversify';
 import { difference, isString, pick } from 'lodash';
@@ -14,7 +14,7 @@ import {
 } from '../app_modules/dashboards/mutations/common';
 import { CurrentUser } from '../domain/app/current-user';
 import { Logger } from '../domain/app/logger';
-import { ChartAttributesInput, ChartTopNRecord } from './../app_modules/charts/charts.types';
+import { ChartAttributesInput } from './../app_modules/charts/charts.types';
 import { ChartFactory } from './../app_modules/charts/queries/charts/chart-factory';
 import { IUIChart, NULL_CATEGORY_REPLACEMENT } from './../app_modules/charts/queries/charts/ui-chart-base';
 import { DateRangeHelper } from './../app_modules/date-ranges/queries/date-range.helper';
@@ -33,7 +33,7 @@ import { TargetService } from './target.service';
 export interface IRenderChartOptions {
     chartId?: string;
     dateRange?: [IChartDateRange];
-    topNRecord?: ChartTopNRecord;
+    top?: IChartTop;
     filter?: string;
     frequency?: string;
     groupings?: string[];
@@ -93,7 +93,7 @@ export class ChartsService {
             comparison: options && options.comparison || chart.comparison,
             xAxisSource: options && options.xAxisSource || chart.xAxisSource,
             dateRange: (options && !options.isFutureTarget && options.dateRange) || chart.dateRange || null,
-            topNRecord: (options && options.topNRecord) || chart.topNRecord,
+            top: (options && options.top) || chart.top,
             isDrillDown: options && options.isDrillDown || false,
             isFutureTarget: options && options.isFutureTarget || false,
         };
@@ -110,10 +110,10 @@ export class ChartsService {
         // in the kpi base class, use $match for these names
         if (meta.groupings &&
             meta.groupings.length &&
-            meta.topNRecord &&
-            (meta.topNRecord.predefinedNRecord || meta.topNRecord.customNRecord)) {
+            meta.top &&
+            (meta.top.predefinedTop || meta.top.customTop)) {
             // want groupings, dateRange
-            return this._getTopNRecordByGrouping(meta, kpi).then((data: any[]) => {
+            return this._getTopByGrouping(meta, kpi).then((data: any[]) => {
                 const groupField = camelCase(meta.groupings[0]);
                 meta.includeTopGroupingValues = data.map(d => d._id[groupField] || NULL_CATEGORY_REPLACEMENT);
 
@@ -415,10 +415,10 @@ export class ChartsService {
     // want groupings, dateRange
     // modify sort here
     // add limit to kpi base
-    private _getTopNRecordByGrouping(meta: IChartMetadata, kpi: IKpiBase): Promise<any[]> {
-        const topNRecord: IChartTopNRecord = meta.topNRecord;
-        const topValue: number = chartTopValue(topNRecord);
-        const dateRange: IDateRange[] = [this._getTopNDateRange(meta.dateRange)];
+    private _getTopByGrouping(meta: IChartMetadata, kpi: IKpiBase): Promise<any[]> {
+        const top: IChartTop = meta.top;
+        const topValue: number = chartTopValue(top);
+        const dateRange: IDateRange[] = [this._getTopDateRange(meta.dateRange)];
 
         let options = pick(meta, ['groupings', 'dateRange']);
         Object.assign(options, {
@@ -428,7 +428,7 @@ export class ChartsService {
         return kpi.getData(dateRange, options);
     }
 
-    private _getTopNDateRange(dateRange: IChartDateRange[]): IDateRange {
+    private _getTopDateRange(dateRange: IChartDateRange[]): IDateRange {
         return dateRange[0].custom && dateRange[0].custom.from ?
                 {
                     from: moment(dateRange[0].custom.from).startOf('day').toDate(),

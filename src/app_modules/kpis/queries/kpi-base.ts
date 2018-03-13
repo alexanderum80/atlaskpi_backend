@@ -1,5 +1,5 @@
 import { NULL_CATEGORY_REPLACEMENT } from '../../charts/queries/charts/ui-chart-base';
-import {EnumTopNRecord, IChartTopNRecord, chartTopValue, chartTopMomentFormat} from '../../../domain/common/top-n-record';
+import {EnumChartTop, IChartTop, chartTopValue, chartTopMomentFormat} from '../../../domain/common/top-n-record';
 import * as Promise from 'bluebird';
 import { camelCase } from 'change-case';
 import {
@@ -35,7 +35,7 @@ export interface IKPIResult {
 
 export interface IGetDataOptions {
     dateRange?: [IChartDateRange];
-    topNRecord?: IChartTopNRecord;
+    top?: IChartTop;
     includeTopGroupingValues?: string[];
     limit?: number;
     filter?: any;
@@ -109,12 +109,12 @@ export class KpiBase {
                 //     data = that._applyTopWithOutGroupings(data, options.filter.top);
                 // }
 
-                if (options.topNRecord && (options.topNRecord.predefinedNRecord || options.topNRecord.customNRecord)) {
+                if (options.top && (options.top.predefinedTop || options.top.customTop)) {
                     if (options.groupings && options.includeTopGroupingValues) {
                         data = that._applyTopWithGroupings(data, options.groupings, options.includeTopGroupingValues);
                     } else {
                         if ((!options.groupings || !options.groupings.length) && options.frequency) {
-                            data = that._applyTopWithOutGroupings(data, options.frequency, options.topNRecord);
+                            data = that._applyTopWithOutGroupings(data, options.frequency, options.top);
                         }
                     }
                 }
@@ -557,12 +557,12 @@ export class KpiBase {
         return flatten(structuredData);
     }
 
-    private _applyTopWithOutGroupings(data: any[], frequency: number, top: IChartTopNRecord): any[] {
+    private _applyTopWithOutGroupings(data: any[], frequency: number, top: IChartTop): any[] {
         // validate if data array has elements
         if (!data || data.length === 0) {
             return data;
         }
-        if (!top || (!top.predefinedNRecord && !top.customNRecord)) {
+        if (!top || (!top.predefinedTop && !top.customTop)) {
             return data;
         }
 

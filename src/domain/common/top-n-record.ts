@@ -1,38 +1,38 @@
 import { isNumber } from 'lodash';
 import {FrequencyEnum} from './frequency-enum';
 
-export enum EnumTopNRecord {
+export enum EnumChartTop {
     TOP5 = 'top 5',
     TOP10 = 'top 10',
     TOP15 = 'top 15'
 }
 
-export const PredefinedTopNRecords = {
-    top5: EnumTopNRecord.TOP5,
-    top10: EnumTopNRecord.TOP10,
-    top15: EnumTopNRecord.TOP15
+export const PredefinedTops = {
+    top5: EnumChartTop.TOP5,
+    top10: EnumChartTop.TOP10,
+    top15: EnumChartTop.TOP15
 };
 
 
-export interface IChartTopNRecord {
-    predefinedNRecord: string;
-    customNRecord: number;
+export interface IChartTop {
+    predefinedTop: string;
+    customTop: number;
 }
 
 
-export function chartTopValue(topNRecord: IChartTopNRecord): number {
-    const isTopCustom = (topNRecord.predefinedNRecord === 'other' || topNRecord.predefinedNRecord === 'Other') &&
-                      isNumber(topNRecord.customNRecord);
+export function chartTopValue(top: IChartTop): number {
+    const isTopCustom = (top.predefinedTop === 'other' || top.predefinedTop === 'Other') &&
+                      isNumber(top.customTop);
     if (isTopCustom) {
-        return topNRecord.customNRecord;
+        return top.customTop;
     }
 
-    switch (topNRecord.predefinedNRecord) {
-        case EnumTopNRecord.TOP5:
+    switch (top.predefinedTop) {
+        case EnumChartTop.TOP5:
             return 5;
-        case EnumTopNRecord.TOP10:
+        case EnumChartTop.TOP10:
             return 10;
-        case EnumTopNRecord.TOP15:
+        case EnumChartTop.TOP15:
             return 15;
         default:
             return 20;

@@ -34,12 +34,12 @@ export class GetChartInput  {
 }
 
 @input()
-export class ChartTopNRecordInput {
+export class ChartTopInput {
     @field({ type: GraphQLTypesMap.String })
-    predefinedNRecord: string;
+    predefinedTop: string;
 
     @field({ type: GraphQLTypesMap.Int })
-    customNRecord: number;
+    customTop: number;
 }
 
 @input()
@@ -59,8 +59,8 @@ export class ChartAttributesInput  {
     @field({ type: ChartDateRangeInput, isArray: true })
     dateRange: ChartDateRangeInput[];
 
-    @field({ type: ChartTopNRecordInput})
-    topNRecord: ChartTopNRecordInput;
+    @field({ type: ChartTopInput})
+    top: ChartTopInput;
 
     @field({ type: GraphQLTypesMap.String })
     frequency: string;
@@ -88,12 +88,12 @@ export class ChartAttributesInput  {
 }
 
 @type()
-export class ChartTopNRecord {
+export class ChartTopResponse {
     @field({ type: GraphQLTypesMap.String })
-    predefinedNRecord: string;
+    predefinedTop: string;
 
     @field({ type: GraphQLTypesMap.Int })
-    customNRecord: number;
+    customTop: number;
 }
 
 
@@ -117,8 +117,8 @@ export class ChartEntityResponse  {
     @field({ type: ChartDateRange })
     dateRange: ChartDateRange;
 
-    @field({ type: ChartTopNRecord })
-    topNRecord: ChartTopNRecord;
+    @field({ type: ChartTopResponse })
+    top: ChartTopResponse;
 
     @field({ type: GraphQLTypesMap.String })
     filter: string;

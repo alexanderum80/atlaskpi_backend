@@ -5,7 +5,7 @@ import { input } from '../../../framework/decorators/input.decorator';
 import { IChartDateRange } from '../../common/date-range';
 import { IDashboardDocument } from '../dashboards/dashboard';
 import { IKPIDocument } from '../kpis/kpi';
-import {IChartTopNRecord} from '../../common/top-n-record';
+import {IChartTop} from '../../common/top-n-record';
 
 export interface IChart {
     // _id?: string;
@@ -14,7 +14,7 @@ export interface IChart {
     group?: string;
     kpis: [IKPIDocument];
     dateRange: [IChartDateRange];
-    topNRecord?: IChartTopNRecord;
+    top?: IChartTop;
     filter?: any;
     frequency?: string;
     groupings?: string[];
@@ -35,7 +35,7 @@ export interface IChartInput {
     group?: string;
     kpis: [string];
     dateRange: [IChartDateRange];
-    topNRecord?: IChartTopNRecord;
+    top?: IChartTop;
     filter?: any;
     frequency?: string;
     groupings?: string[];
