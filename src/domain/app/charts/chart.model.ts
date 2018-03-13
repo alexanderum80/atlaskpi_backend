@@ -98,7 +98,8 @@ ChartSchema.statics.createChart = function(input: IChartInput): Promise < IChart
             yFormat: input.yFormat,
             chartDefinition: JSON.parse(input.chartDefinition),
             xAxisSource: input.xAxisSource,
-            comparison: input.comparison
+            comparison: input.comparison,
+            top: input.top
         };
 
         that.create(newChart)
@@ -151,7 +152,8 @@ ChartSchema.statics.updateChart = function(id: string, input: IChartInput): Prom
             yFormat: input.yFormat,
             chartDefinition: JSON.parse(input.chartDefinition),
             xAxisSource: input.xAxisSource,
-            comparison: input.comparison
+            comparison: input.comparison,
+            top: input.top
         };
 
         that.findOneAndUpdate({
