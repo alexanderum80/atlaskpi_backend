@@ -201,7 +201,11 @@ export class KpiBase {
         }
 
         if (field && stackName) {
-            matchStage.$match[field[0]] = stackName;
+            if (stackName === NULL_CATEGORY_REPLACEMENT) {
+                matchStage.$match[field[0]] = null;
+            } else {
+                matchStage.$match[field[0]] = stackName;
+            }
         }
     }
 
