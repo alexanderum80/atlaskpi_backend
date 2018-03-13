@@ -61,6 +61,15 @@ export interface ICategoriesWithValues {
     targetId?: any;
 }
 
+export interface IComparsionDefObjectData {
+    [key: string]: ICategoriesWithValues[];
+}
+
+export interface IComparsionDefObject {
+    data?: IComparsionDefObjectData;
+    uniqCategories?: string[];
+}
+
 // export interface IXAxisConfig {
 //     fieldName: string;
 //     categories: IXAxisCategory[];
@@ -847,8 +856,8 @@ export class UIChartBase {
 
     private _mergeMultipleChartDefinitions(definitions: any, metadata: IChartMetadata): any {
         const mainDefinition = definitions['main'] || {};
-            let comparisonCategoriesWithValues = this._getComparisonCategoriesWithValues(definitions);
-            let definitionSeries = this._getComparisonSeries(comparisonCategoriesWithValues);
+            const comparisonCategoriesWithValues: IComparsionDefObject = this._getComparisonCategoriesWithValues(definitions);
+            const definitionSeries = this._getComparisonSeries(comparisonCategoriesWithValues);
 
             mainDefinition.xAxis.categories = this._getComparisonCategories(definitions, metadata);
             mainDefinition.series = definitionSeries;
@@ -857,9 +866,9 @@ export class UIChartBase {
     }
 
     private _getComparisonCategoriesWithValues(definitions: any): any {
-        const defObject = {};
+        const defObject: IComparsionDefObject = {};
         defObject['uniqCategories'] = [];
-        const keys = Object.keys(definitions);
+        const keys: string[] = Object.keys(definitions);
         const that = this;
 
         for (let i = 0; i < keys.length; i++) {
@@ -901,7 +910,7 @@ export class UIChartBase {
         return defObject;
     }
 
-    private _getComparisonSeries(obj: any): any {
+    private _getComparisonSeries(obj: IComparsionDefObject): any {
         const allCategories = obj['uniqCategories'];
         const data = obj['data'];
         const keys: string[] = Object.keys(data);
@@ -920,16 +929,16 @@ export class UIChartBase {
 
             for (let k = 0; k < serieNameKeys.length; k++) {
                 for (let j = 0; j < allCategories.length; j++) {
-                    const groupKeys = serieNameKeys[k];
-                    const filteredByCategory = bySerieName[groupKeys].filter(obj => obj.category === allCategories[j]);
+                    const groupKey: string = serieNameKeys[k];
+                    const filteredByCategory = bySerieName[groupKey].filter(obj => obj.category === allCategories[j]);
                     serieData = serieData.concat(
                         filteredByCategory.length ? filteredByCategory[0].serieValue : null
                     );
                     hasTarget = filteredByCategory.find(f => f.type);
-                    objData.serieName = groupKeys;
+                    objData.serieName = groupKey;
                 }
-                const dateRangeId = getDateRangeIdFromString(that.chart.dateRange[0].predefined);
-                const comparisonString = (stack === 'main') ?
+                const dateRangeId: string = getDateRangeIdFromString(that.chart.dateRange[0].predefined);
+                const comparisonString: string = (stack === 'main') ?
                             that.chart.dateRange[0].predefined : PredefinedComparisonDateRanges[dateRangeId][stack];
 
                 let serieObject: IComparisonSerieObject;
