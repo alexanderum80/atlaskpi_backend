@@ -914,12 +914,12 @@ export class UIChartBase {
     }
 
     private _getComparisonSeries(obj: IComparsionDefObject): any[] {
-        const allCategories = obj['uniqCategories'];
-        const data = obj['data'];
+        const allCategories: string[] = obj['uniqCategories'];
+        const data: IComparsionDefObjectData = obj['data'];
         const keys: string[] = Object.keys(data);
 
         let serieData = [];
-        let hasTarget;
+        let hasTarget: ICategoriesWithValues;
 
         const series = [];
         let objData: any = {};
