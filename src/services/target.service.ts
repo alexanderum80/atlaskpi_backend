@@ -12,6 +12,7 @@ import { Targets } from '../domain/app/targets/target.model';
 import { IDateRange, parsePredifinedDate } from '../domain/common/date-range';
 import { FrequencyEnum } from '../domain/common/frequency-enum';
 import { field } from '../framework/decorators/field.decorator';
+import {IChartDocument} from '../domain/app/charts/chart';
 
 const MomentFrequencyTable = {
     daily: 'daily',
@@ -23,6 +24,11 @@ const MomentFrequencyTable = {
 
 export interface IPeriodAmount {
     value: number;
+}
+
+export interface IGetComparisonStackName {
+    name?: string;
+    comparisonString?: string;
 }
 
 
@@ -54,7 +60,7 @@ export class TargetService {
         return new Promise<IPeriodAmount[]>((resolve, reject) => {
             that._charts.model.findById(data.chart[0])
                 .populate({ path: 'kpis' })
-                .then((chart) => {
+                .then((chart: IChartDocument) => {
                     // check if is a stacked chart
                     that.isStacked = that._stacked(chart);
 
@@ -85,7 +91,7 @@ export class TargetService {
                         const optionsStack: IGetDataOptions = {
                             filter: chart.filter,
                             groupings: groupings,
-                            stackName: data.stackName || null
+                            stackName: this.getComparisonStackName(chart, data.stackName).name || null
                         };
 
                         if (data.period) {
@@ -123,7 +129,7 @@ export class TargetService {
                                 break;
                             default:
                                 if (data.period) {
-                                    optionsNonStack['stackName'] = data.nonStackName;
+                                    optionsNonStack['stackName'] = this.getComparisonStackName(chart, data.nonStackName).name;
                                     optionsNonStack['groupings'] = groupings;
 
                                     kpi.getData([targetDateRange], optionsNonStack).then((response) => {
@@ -256,6 +262,34 @@ export class TargetService {
     // return object with 'from' and 'to' property
     getDate(period: string, alternateDatePeriod: string): IDateRange {
         return parsePredifinedDate(period) || parsePredifinedDate(alternateDatePeriod);
+    }
+
+    isComparison(chart: IChartDocument): boolean {
+        if (!chart) { return false; }
+        return (chart.comparison && chart.comparison.length) ? true : false;
+    }
+
+    getComparisonStackName(chart: IChartDocument, data: any): IGetComparisonStackName {
+        const targetName: string = data.stackName || data.nonStackName;
+
+        if (!targetName || !this.isComparison(chart)) {
+            return {
+                name: targetName
+            };
+        }
+
+        let isComparisonGrouping;
+        const comparisonString = chart.comparison.find(c => c !== undefined);
+        // i.e. (this year)
+
+        const comparisonPeriod: string = `(${comparisonString})`;
+        // i.e Product, Botox
+        const groupingName: string = targetName.replace(comparisonPeriod, '');
+
+        return {
+            name: groupingName,
+            comparisonString: comparisonString
+        };
     }
 
     static formatFrequency(frequency: number, targetDate: string) {

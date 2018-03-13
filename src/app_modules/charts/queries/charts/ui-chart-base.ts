@@ -3,7 +3,7 @@ import 'datejs';
 import { from } from 'apollo-link/lib';
 import * as Promise from 'bluebird';
 import * as console from 'console';
-import { cloneDeep, difference, flatten, groupBy, isEmpty, isNull, isUndefined, map, pick, union, uniq, uniqBy, orderBy } from 'lodash';
+import { cloneDeep, difference, flatten, groupBy, isEmpty, isNull, isUndefined, map, pick, some, union, uniq, uniqBy, orderBy } from 'lodash';
 import * as moment from 'moment';
 import * as logger from 'winston';
 import { camelCase } from 'change-case';
@@ -875,6 +875,7 @@ export class UIChartBase {
                     // when have targets
                     if (serie.type && serie.targetId) {
                         categoriesWithValues.type = serie.type;
+                        categoriesWithValues.targetId = serie.targetId;
                     }
 
                     defObject['data'][keys[i]].push(categoriesWithValues);
@@ -919,12 +920,16 @@ export class UIChartBase {
                 let serieObject;
 
                 if (hasTarget) {
-                    serieObject = {
-                        name: objData.serieName,
-                        data: serieData,
-                        stack: stack,
-                        type: 'spline'
-                    };
+                    const targetSerieObjectExist = series.find(s => s.name === hasTarget.serieName);
+
+                    if (!targetSerieObjectExist) {
+                        serieObject = {
+                            name: objData.serieName,
+                            data: serieData,
+                            stack: stack,
+                            type: 'spline'
+                        };
+                    }
                 } else {
                     serieObject = {
                         name: objData.serieName + `(${comparisonString})`,
@@ -933,7 +938,9 @@ export class UIChartBase {
                     };
                 }
 
-                series.push(serieObject);
+                if (serieObject) {
+                    series.push(serieObject);
+                }
                 serieData = [];
             }
         }
