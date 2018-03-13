@@ -20,7 +20,6 @@ export class LeadReceivedNotification {
 
         let emailContent = leadReceivedTemplate(info);
 
-        // this._config.newAccountEmailNotification
-        return sendEmail('orlando@atlaskpi.com', `${this._config.usersService.app.name}: Lead Received`, emailContent);
+        return sendEmail(this._config.newAccountEmailNotification, `${this._config.usersService.app.name}: Lead Received`, emailContent);
     }
 }

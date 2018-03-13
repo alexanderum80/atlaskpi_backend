@@ -32,6 +32,8 @@ export class DashboardInput  {
     @field({ type: AccessLevelsInput, isArray: true })
     accessLevels: AccessLevelsInput[];
 
+    @field({ type: GraphQLTypesMap.String })
+    owner: string;
 }
 
 @type()
@@ -63,6 +65,9 @@ export class Dashboard  {
 
     @field({ type: AccessLevels, isArray: true })
     accessLevels: AccessLevels[];
+
+    @field({ type: GraphQLTypesMap.String })
+    owner: string;
 
 }
 

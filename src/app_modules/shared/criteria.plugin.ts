@@ -8,6 +8,7 @@ export interface IObject {
 
 
 export interface ICriteriaAggregate {
+    $unwind?: string;
     $match?: IObject;
     $limit?: number;
     $group?: IObject;
@@ -35,14 +36,19 @@ function findCriteria(field: string, limit?: number, filter?: string): Promise<s
 }
 
 function criteriaAggregation(input: {field: string, limit?: number, filter?: string}): ICriteriaAggregate[] {
-    let aggregate: ICriteriaAggregate[] = [
-        { '$match': { [input.field]: { '$nin': ['', null] } } },
-        { '$group': {
+    const unwindField = input.field.split('.')[0];
+
+    let aggregate: ICriteriaAggregate[] = [{
+        '$unwind': `$${unwindField}`
+    }, {
+        '$match': { [input.field]: { '$nin': ['', null] } }
+    }, {
+        '$group': {
             _id: {
                 'field': `$${input.field}`
             }
-        }}
-    ];
+        }
+    }];
 
     aggregate = aggregate.concat({
         $limit: input.limit

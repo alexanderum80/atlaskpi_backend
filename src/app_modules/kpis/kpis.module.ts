@@ -1,3 +1,4 @@
+import { KpiByNameQuery } from './queries/kpi-by-name.query';
 import { GetKpisCriteriaQuery } from './queries/get-kpi-criteria.query';
 import { AppModule, ModuleBase } from '../../framework/decorators/app-module';
 import { CreateKpiMutation } from './mutations/create-kpi.mutation';
@@ -19,6 +20,7 @@ import { ExecuteKpiQuery } from './queries/execute.kpi';
         GetAllKpIsQuery,
         KpiQuery,
         KpisQuery,
+        KpiByNameQuery,
         GetKpisCriteriaQuery,
         ExecuteKpiQuery
     ]

@@ -5,6 +5,7 @@ import { UpdateWidgetMutation } from './mutations/update-widget.mutation';
 import { PreviewWidgetQuery } from './queries/preview-widget.query';
 import { WidgetQuery } from './queries/widget.query';
 import { ListWidgetsQuery } from './queries/list-widgets.query';
+import { WidgetByNameQuery } from './queries/widget-by-name.query';
 
 
 @AppModule({
@@ -16,7 +17,8 @@ import { ListWidgetsQuery } from './queries/list-widgets.query';
     queries: [
         WidgetQuery,
         ListWidgetsQuery,
-        PreviewWidgetQuery
+        PreviewWidgetQuery,
+        WidgetByNameQuery
     ]
 })
 export class WidgetsModule extends ModuleBase { }

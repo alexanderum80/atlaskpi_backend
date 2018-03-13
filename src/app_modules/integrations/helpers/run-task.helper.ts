@@ -37,8 +37,8 @@ function runTask(integration: IConnectorDocument, connectorsIds: string | string
     ];
 
     const payload: ISchedulerRequest = {
-        // identifier: pjson.name,
-        identifier: '',
+        identifier: pjson.name,
+        // identifier: '',
         secret: config.scheduler.secret,
         task: taskPayload
     };

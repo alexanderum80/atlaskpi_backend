@@ -1,3 +1,4 @@
+import { UserService } from './user.service';
 import { IBridgeContainer } from '../framework/di/bridge-container';
 import { AccountsService } from './accounts.service';
 import { AuthService } from './auth.service';
@@ -41,6 +42,7 @@ export function registerServices(container: IBridgeContainer) {
     container.registerPerWebRequest(WidgetsService);
     container.registerPerWebRequest(ChartsService);
     container.registerPerWebRequest(KpiService);
+    container.registerPerWebRequest(UserService);
     container.registerPerWebRequest(MilestoneService);
     container.registerPerWebRequest(SocialWidgetsService);
     container.registerPerWebRequest(ConnectorsService);
