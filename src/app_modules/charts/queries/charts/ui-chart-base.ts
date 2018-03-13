@@ -871,6 +871,7 @@ export class UIChartBase {
         const defObject: IComparsionDefObject = {};
         defObject['uniqCategories'] = [];
 
+        // i.e. ['main', 'lastYear']
         const keys: string[] = Object.keys(definitions);
         const that = this;
 
@@ -978,14 +979,16 @@ export class UIChartBase {
     }
 
     private _getComparisonCategories(definitions: any, metadata: IChartMetadata): string[] {
-        let listCategories = [];
+        let listCategories: string[] = [];
 
-        Object.keys(definitions).forEach(key => {
+        // i.e. key = 'main', key = 'lastYear'
+        Object.keys(definitions).forEach((key: string) => {
             listCategories = listCategories.concat(
                 definitions[key].xAxis.categories
             );
         });
 
+        // i.e. ['Jan', 'Feb', ....]
         listCategories = uniq(listCategories);
         return listCategories;
     }
