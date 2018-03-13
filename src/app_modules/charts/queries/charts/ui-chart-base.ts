@@ -46,6 +46,21 @@ export interface IShowCustomDateRange {
     comparison: boolean;
 }
 
+export interface IComparisonSerieObject {
+    name?: string;
+    data?: string[];
+    type?: string;
+    stack?: string;
+}
+
+export interface ICategoriesWithValues {
+    category?: string;
+    serieName?: string;
+    serieValue?: number|object;
+    type?: string;
+    targetId?: any;
+}
+
 // export interface IXAxisConfig {
 //     fieldName: string;
 //     categories: IXAxisCategory[];
@@ -854,7 +869,7 @@ export class UIChartBase {
             defObject['data'][keys[i]] = [];
 
             const definition = definitions[keys[i]];
-            const cats =  definition.xAxis.categories;
+            const cats: string[] =  definition.xAxis.categories;
             const series = definition.series || [];
 
             for (let j = 0; j < series.length; j++) {
@@ -866,7 +881,7 @@ export class UIChartBase {
                         defObject['uniqCategories'].push(cats[k]);
                     }
 
-                    const categoriesWithValues: any = {
+                    const categoriesWithValues: ICategoriesWithValues = {
                         category: cats[k],
                         serieName: serie.name,
                         serieValue: serie.data[k]
@@ -889,7 +904,7 @@ export class UIChartBase {
     private _getComparisonSeries(obj: any): any {
         const allCategories = obj['uniqCategories'];
         const data = obj['data'];
-        const keys = Object.keys(data);
+        const keys: string[] = Object.keys(data);
         let serieData = [];
         let hasTarget;
 
@@ -898,9 +913,9 @@ export class UIChartBase {
         const that = this;
 
         for (let i = 0; i < keys.length; i++) {
-            const stack = keys[i];
-            let bySerieName = groupBy(data[stack], 'serieName');
-            let serieNameKeys = Object.keys(bySerieName);
+            const stack: string = keys[i];
+            let bySerieName: Dictionary<any[]> = groupBy(data[stack], 'serieName');
+            let serieNameKeys: string[] = Object.keys(bySerieName);
 
 
             for (let k = 0; k < serieNameKeys.length; k++) {
@@ -917,7 +932,7 @@ export class UIChartBase {
                 const comparisonString = (stack === 'main') ?
                             that.chart.dateRange[0].predefined : PredefinedComparisonDateRanges[dateRangeId][stack];
 
-                let serieObject;
+                let serieObject: IComparisonSerieObject;
 
                 if (hasTarget) {
                     const targetSerieObjectExist = series.find(s => s.name === hasTarget.serieName);
