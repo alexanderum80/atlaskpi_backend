@@ -278,7 +278,6 @@ export class TargetService {
             };
         }
 
-        let isComparisonGrouping;
         const comparisonString = chart.comparison.find(c => c !== undefined);
         // i.e. (this year)
 
