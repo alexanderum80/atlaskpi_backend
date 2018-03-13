@@ -101,14 +101,11 @@ export class ChartsService {
                                                         .map(item => item.key);
         }
 
-        // get the top by groupings here
-        // pass to both definitions
-        // in the kpi base class, use $match for these names
+        // get top n if have necessary data
         if (meta.groupings &&
             meta.groupings.length &&
             meta.top &&
             (meta.top.predefined || meta.top.custom)) {
-            // want groupings, dateRange
             return this._getTopByGrouping(meta, kpi).then((data: any[]) => {
                 const groupField = camelCase(meta.groupings[0]);
                 meta.includeTopGroupingValues = data.map(d => d._id[groupField] || NULL_CATEGORY_REPLACEMENT);
@@ -408,11 +405,15 @@ export class ChartsService {
         });
     }
 
-    // want groupings, dateRange
-    // modify sort here
-    // add limit to kpi base
+    /**
+     * when have groupings and daterange
+     * get top n with the limit
+     * @param meta
+     * @param kpi
+     */
     private _getTopByGrouping(meta: IChartMetadata, kpi: IKpiBase): Promise<any[]> {
         const top: IChartTop = meta.top;
+        // i.e. 5, 10, 8, 2
         const topValue: number = chartTopValue(top);
         const dateRange: IDateRange[] = [this._getTopDateRange(meta.dateRange)];
 
