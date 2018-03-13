@@ -429,7 +429,9 @@ export class KpiBase {
         }
 
         // i.e. top 5 = top 4 and others
-        limit = limit - 1;
+        if (limit !== 1) {
+            limit = limit - 1;
+        }
 
         const aggregateLimit = {
             $limit: limit
