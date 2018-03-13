@@ -40,9 +40,6 @@ export class ChartTopInput {
 
     @field({ type: GraphQLTypesMap.Int })
     custom: number;
-
-    @field({ type: GraphQLTypesMap.Boolean })
-    enabled: boolean;
 }
 
 @input()

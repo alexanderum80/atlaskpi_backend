@@ -17,7 +17,6 @@ export const PredefinedTops = {
 export interface IChartTop {
     predefined: string;
     custom: number;
-    enabled: boolean;
 }
 
 
