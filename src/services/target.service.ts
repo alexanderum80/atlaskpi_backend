@@ -14,7 +14,14 @@ import { FrequencyEnum } from '../domain/common/frequency-enum';
 import { field } from '../framework/decorators/field.decorator';
 import {IChartDocument} from '../domain/app/charts/chart';
 
-const MomentFrequencyTable = {
+export interface IMomentFrequencyTable {
+    daily: string;
+    weekly: string;
+    monthly: string;
+    quartely: string;
+    yearly: string;
+}
+const MomentFrequencyTable: IMomentFrequencyTable = {
     daily: 'daily',
     weekly: 'weekly',
     monthly: 'month',
@@ -29,6 +36,25 @@ export interface IPeriodAmount {
 export interface IGetComparisonStackName {
     name?: string;
     comparisonString?: string;
+}
+
+export interface ITargetCalculateDate {
+    amount?: number|string;
+    stackName?: string;
+    nonStackName?: string;
+    amountBy?: string;
+    chart?: string[];
+    period?: string;
+    vary?: string;
+}
+
+export interface ITargetMet {
+    amount?: number|string;
+    period?: string;
+    notificationDate?: string;
+    stackName?: string;
+    nonStackName?: string;
+    chart?: string[];
 }
 
 
@@ -54,7 +80,7 @@ export class TargetService {
         });
     }
 
-    periodData(data: any): Promise<IPeriodAmount[]> {
+    periodData(data: ITargetCalculateDate): Promise<IPeriodAmount[]> {
         const that = this;
 
         return new Promise<IPeriodAmount[]>((resolve, reject) => {
@@ -150,7 +176,7 @@ export class TargetService {
         });
     }
 
-    caculateFormat(data: any): Promise<number> {
+    caculateFormat(data: ITargetCalculateDate): Promise<number> {
 
         return new Promise<number>((resolve, reject) => {
             this.periodData(data)
@@ -193,7 +219,7 @@ export class TargetService {
     }
 
 
-    getTargetMet(input: any) {
+    getTargetMet(input: ITargetMet) {
         const that = this;
 
         return new Promise<any>((resolve, reject) => {
@@ -280,8 +306,8 @@ export class TargetService {
 
         const comparisonString = chart.comparison.find(c => c !== undefined);
         // i.e. (this year)
-
         const comparisonPeriod: string = `(${comparisonString})`;
+
         // i.e Product, Botox
         let groupingName: string = targetName.replace(comparisonPeriod, '');
         groupingName = chart.dateRange[0].predefined === comparisonString ? groupingName : targetName;
@@ -292,7 +318,7 @@ export class TargetService {
         };
     }
 
-    static formatFrequency(frequency: number, targetDate: string) {
+    static formatFrequency(frequency: number, targetDate: string): string|number {
         switch (frequency) {
             case FrequencyEnum.Monthly:
                 return moment(targetDate).format('YYYY-MM');
@@ -325,7 +351,7 @@ export class TargetService {
         }
     }
 
-    private _getDateRange(notify: any, frequency: any) {
+    private _getDateRange(notify: string, frequency: any): IDateRange {
         return {
             from: moment(notify, 'MM/DD/YYYY').startOf(frequency).toDate(),
             to: moment(notify, 'MM/DD/YYYY').toDate()
