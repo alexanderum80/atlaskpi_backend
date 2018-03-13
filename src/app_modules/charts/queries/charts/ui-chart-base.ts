@@ -857,7 +857,7 @@ export class UIChartBase {
     private _mergeMultipleChartDefinitions(definitions: any, metadata: IChartMetadata): any {
         const mainDefinition = definitions['main'] || {};
             const comparisonCategoriesWithValues: IComparsionDefObject = this._getComparisonCategoriesWithValues(definitions);
-            const definitionSeries = this._getComparisonSeries(comparisonCategoriesWithValues);
+            const definitionSeries: any[] = this._getComparisonSeries(comparisonCategoriesWithValues);
 
             mainDefinition.xAxis.categories = this._getComparisonCategories(definitions, metadata);
             mainDefinition.series = definitionSeries;
@@ -868,6 +868,7 @@ export class UIChartBase {
     private _getComparisonCategoriesWithValues(definitions: any): any {
         const defObject: IComparsionDefObject = {};
         defObject['uniqCategories'] = [];
+
         const keys: string[] = Object.keys(definitions);
         const that = this;
 
@@ -910,10 +911,11 @@ export class UIChartBase {
         return defObject;
     }
 
-    private _getComparisonSeries(obj: IComparsionDefObject): any {
+    private _getComparisonSeries(obj: IComparsionDefObject): any[] {
         const allCategories = obj['uniqCategories'];
         const data = obj['data'];
         const keys: string[] = Object.keys(data);
+
         let serieData = [];
         let hasTarget;
 
@@ -931,12 +933,14 @@ export class UIChartBase {
                 for (let j = 0; j < allCategories.length; j++) {
                     const groupKey: string = serieNameKeys[k];
                     const filteredByCategory = bySerieName[groupKey].filter(obj => obj.category === allCategories[j]);
+
                     serieData = serieData.concat(
                         filteredByCategory.length ? filteredByCategory[0].serieValue : null
                     );
                     hasTarget = filteredByCategory.find(f => f.type);
                     objData.serieName = groupKey;
                 }
+
                 const dateRangeId: string = getDateRangeIdFromString(that.chart.dateRange[0].predefined);
                 const comparisonString: string = (stack === 'main') ?
                             that.chart.dateRange[0].predefined : PredefinedComparisonDateRanges[dateRangeId][stack];
