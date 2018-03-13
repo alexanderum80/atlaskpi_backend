@@ -284,7 +284,8 @@ export class TargetService {
 
         const comparisonPeriod: string = `(${comparisonString})`;
         // i.e Product, Botox
-        const groupingName: string = targetName.replace(comparisonPeriod, '');
+        let groupingName: string = targetName.replace(comparisonPeriod, '');
+        groupingName = chart.dateRange[0].predefined === comparisonString ? groupingName : targetName;
 
         return {
             name: groupingName,
