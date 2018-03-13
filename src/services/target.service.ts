@@ -91,7 +91,7 @@ export class TargetService {
                         const optionsStack: IGetDataOptions = {
                             filter: chart.filter,
                             groupings: groupings,
-                            stackName: this.getComparisonStackName(chart, data.stackName).name || null
+                            stackName: this.getComparisonStackName(chart, data).name || null
                         };
 
                         if (data.period) {
@@ -129,7 +129,7 @@ export class TargetService {
                                 break;
                             default:
                                 if (data.period) {
-                                    optionsNonStack['stackName'] = this.getComparisonStackName(chart, data.nonStackName).name;
+                                    optionsNonStack['stackName'] = this.getComparisonStackName(chart, data).name;
                                     optionsNonStack['groupings'] = groupings;
 
                                     kpi.getData([targetDateRange], optionsNonStack).then((response) => {
