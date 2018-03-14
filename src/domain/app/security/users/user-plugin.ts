@@ -48,7 +48,7 @@ export function userPlugin(schema: mongoose.Schema, options: any) {
     };
 
     const AgreementSchema = {
-        accept: String,
+        accept: Boolean,
         timestamp: {
             type: Date,
             default: Date.now
