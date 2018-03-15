@@ -9,8 +9,8 @@ import { Charts } from '../domain/app/charts/chart.model';
 import { Users } from '../domain/app/security/users/user.model';
 import { ITarget, ITargetDocument } from '../domain/app/targets/target';
 import { Targets } from '../domain/app/targets/target.model';
-import { IDateRange, parsePredifinedDate } from '../domain/common/date-range';
-import { FrequencyEnum } from '../domain/common/frequency-enum';
+import {IDateRange, parsePredifinedDate, PredefinedDateRanges} from '../domain/common/date-range';
+import {FrequencyEnum} from '../domain/common/frequency-enum';
 import { field } from '../framework/decorators/field.decorator';
 import {IChartDocument} from '../domain/app/charts/chart';
 
@@ -310,6 +310,10 @@ export class TargetService {
 
         // i.e Product, Botox
         let groupingName: string = targetName.replace(comparisonPeriod, '');
+        const definedDateRanges = PredefinedDateRanges;
+        for (let i in definedDateRanges) {
+            groupingName = groupingName.replace(`(${PredefinedDateRanges[i]})`, '');
+        }
         groupingName = chart.dateRange[0].predefined === comparisonString ? groupingName : targetName;
 
         return {
