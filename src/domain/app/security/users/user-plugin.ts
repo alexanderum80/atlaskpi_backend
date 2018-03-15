@@ -28,6 +28,7 @@ import {
     ITokenInfo,
     ITokenVerification,
     IUser,
+    IUserAgreementInput,
     IUserDocument,
     IUserModel,
     IUserPreference,
@@ -44,6 +45,15 @@ export function userPlugin(schema: mongoose.Schema, options: any) {
     const EmailSchema = {
         address: { type: String, required: true },
         verified: Boolean
+    };
+
+    const AgreementSchema = {
+        accept: Boolean,
+        timestamp: {
+            type: Date,
+            default: Date.now
+        },
+        ipAddress: String
     };
 
     const EmailedTokenSchema = {
@@ -113,6 +123,7 @@ export function userPlugin(schema: mongoose.Schema, options: any) {
         },
         owner: Boolean,
         password: String,
+        agreement: AgreementSchema,
         services: ServicesSchema,
         profile: UserProfileSchema,
         preferences: UserPreferenceSchema,
@@ -528,16 +539,24 @@ export function userPlugin(schema: mongoose.Schema, options: any) {
     };
 
     schema.statics.findByUsername = function(username: string): Promise<IUserDocument> {
+        const userModel = (<IUserModel>this);
+
         return new Promise<IUserDocument>((resolve, reject) => {
-            (<IUserModel>this).findOne({ username: username }).then((user) => {
-                if (user) {
-                    resolve(user);
-                } else {
+            userModel.findOne({ username: username })
+                .populate({
+                    path: 'roles',
+                    model: 'Role'
+                })
+                .then((user) => {
+                    if (user) {
+                        resolve(user);
+                    } else {
+                        reject(null);
+                    }
+                })
+                .catch((err) => {
                     reject(null);
-                }
-            }).catch(() => {
-                reject(null);
-            });
+                });
         });
     };
 
@@ -1085,6 +1104,32 @@ export function userPlugin(schema: mongoose.Schema, options: any) {
                 .catch(err => {
                     reject(err);
                     return;
+                });
+        });
+    };
+
+    schema.statics.updateUserAgreement = function(input: IUserAgreementInput): Promise<IUserDocument> {
+        const userModel = (<IUserModel>this);
+
+        return new Promise<IUserDocument>((resolve, reject) => {
+            userModel.findOne({ username: input.email })
+                .then((user: IUserDocument) => {
+                    user.agreement = {
+                        accept: input.accept,
+                        ipAddress: input.ipAddress,
+                        timestamp: input.timestamp
+                    };
+
+                    user.save((err, user: IUserDocument) => {
+                        if (err) {
+                            reject({
+                                message: 'There was an error updating user agreement',
+                                error: err
+                            });
+                            return;
+                        }
+                        resolve(user);
+                    });
                 });
         });
     };
