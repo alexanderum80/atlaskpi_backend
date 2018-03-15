@@ -41,7 +41,7 @@ export interface IGetDataOptions {
     filter?: any;
     frequency?: FrequencyEnum;
     groupings?: string[];
-    stackName?: any;
+    stackName?: string;
     isDrillDown?: boolean;
     isFutureTarget?: boolean;
     comparison?: string[];
