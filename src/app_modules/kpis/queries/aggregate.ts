@@ -2,6 +2,7 @@ export interface AggregateStage {
     filter?: boolean;
     postGroupFilter?: boolean;
     frequency?: boolean;
+    topN?: boolean;
 
     $match?: any;
     $project?: any;

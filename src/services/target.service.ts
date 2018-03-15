@@ -9,11 +9,19 @@ import { Charts } from '../domain/app/charts/chart.model';
 import { Users } from '../domain/app/security/users/user.model';
 import { ITarget, ITargetDocument } from '../domain/app/targets/target';
 import { Targets } from '../domain/app/targets/target.model';
-import { IDateRange, parsePredifinedDate } from '../domain/common/date-range';
-import { FrequencyEnum } from '../domain/common/frequency-enum';
+import {IDateRange, parsePredifinedDate, PredefinedDateRanges} from '../domain/common/date-range';
+import {FrequencyEnum} from '../domain/common/frequency-enum';
 import { field } from '../framework/decorators/field.decorator';
+import {IChartDocument} from '../domain/app/charts/chart';
 
-const MomentFrequencyTable = {
+export interface IMomentFrequencyTable {
+    daily: string;
+    weekly: string;
+    monthly: string;
+    quartely: string;
+    yearly: string;
+}
+const MomentFrequencyTable: IMomentFrequencyTable = {
     daily: 'daily',
     weekly: 'weekly',
     monthly: 'month',
@@ -23,6 +31,30 @@ const MomentFrequencyTable = {
 
 export interface IPeriodAmount {
     value: number;
+}
+
+export interface IGetComparisonStackName {
+    name?: string;
+    comparisonString?: string;
+}
+
+export interface ITargetCalculateData {
+    amount?: number|string;
+    stackName?: string;
+    nonStackName?: string;
+    amountBy?: string;
+    chart?: string[];
+    period?: string;
+    vary?: string;
+}
+
+export interface ITargetMet {
+    amount?: number|string;
+    period?: string;
+    notificationDate?: string;
+    stackName?: string;
+    nonStackName?: string;
+    chart?: string[];
 }
 
 
@@ -48,13 +80,13 @@ export class TargetService {
         });
     }
 
-    periodData(data: any): Promise<IPeriodAmount[]> {
+    periodData(data: ITargetCalculateData): Promise<IPeriodAmount[]> {
         const that = this;
 
         return new Promise<IPeriodAmount[]>((resolve, reject) => {
             that._charts.model.findById(data.chart[0])
                 .populate({ path: 'kpis' })
-                .then((chart) => {
+                .then((chart: IChartDocument) => {
                     // check if is a stacked chart
                     that.isStacked = that._stacked(chart);
 
@@ -85,7 +117,7 @@ export class TargetService {
                         const optionsStack: IGetDataOptions = {
                             filter: chart.filter,
                             groupings: groupings,
-                            stackName: data.stackName || null
+                            stackName: this.getComparisonStackName(chart, data).name || null
                         };
 
                         if (data.period) {
@@ -123,7 +155,7 @@ export class TargetService {
                                 break;
                             default:
                                 if (data.period) {
-                                    optionsNonStack['stackName'] = data.nonStackName;
+                                    optionsNonStack['stackName'] = this.getComparisonStackName(chart, data).name;
                                     optionsNonStack['groupings'] = groupings;
 
                                     kpi.getData([targetDateRange], optionsNonStack).then((response) => {
@@ -144,7 +176,7 @@ export class TargetService {
         });
     }
 
-    caculateFormat(data: any): Promise<number> {
+    caculateFormat(data: ITargetCalculateData): Promise<number> {
 
         return new Promise<number>((resolve, reject) => {
             this.periodData(data)
@@ -187,7 +219,7 @@ export class TargetService {
     }
 
 
-    getTargetMet(input: any) {
+    getTargetMet(input: ITargetMet) {
         const that = this;
 
         return new Promise<any>((resolve, reject) => {
@@ -196,8 +228,8 @@ export class TargetService {
             that._charts.model.findById(input.chart[0])
                 .populate({ path: 'kpis' })
                 .then((chart) => {
-                    const kpi = that._kpiFactory.getInstance(chart.kpis[0]);
-                    const getDateRange = that._getDateRange(
+                    const kpi: IKpiBase = that._kpiFactory.getInstance(chart.kpis[0]);
+                    const getDateRange: IDateRange = that._getDateRange(
                             input.notificationDate,
                             MomentFrequencyTable[chart.frequency]
                     );
@@ -207,8 +239,8 @@ export class TargetService {
                     const stackName: string = input.stackName ? input.stackName : input.nonStackName;
                     const isStackNameEqualToAll: boolean = stackName.toLowerCase() === 'all';
 
-                    const chartDateRange = chart.dateRange ? chart.dateRange[0].predefined : '';
-                    const targetDateRange = that.getDate(input.period, chartDateRange);
+                    const chartDateRange: string = chart.dateRange ? chart.dateRange[0].predefined : '';
+                    const targetDateRange: IDateRange = that.getDate(input.period, chartDateRange);
 
                     const dateRange: any = getDateRange || chartDateRange;
 
@@ -221,7 +253,7 @@ export class TargetService {
                             kpi.getData([targetDateRange], { filter: chart.filter})
                                 .then(response => {
                                     const findValue = response ? response.find(r => r.value) : { value: input.amount };
-                                    const responseValue = findValue ? findValue.value : 0;
+                                    const responseValue: number = findValue ? findValue.value : 0;
 
                                     resolve(responseValue);
                                     return;
@@ -240,7 +272,7 @@ export class TargetService {
 
                         kpi.getData([dateRange], options).then(data => {
                             const findValue = data ? data.find(r => r.value) : { value: input.amount };
-                            const responseValue = findValue ? findValue.value : 0;
+                            const responseValue: number = findValue ? findValue.value : 0;
 
                             resolve(responseValue);
                             return;
@@ -258,7 +290,41 @@ export class TargetService {
         return parsePredifinedDate(period) || parsePredifinedDate(alternateDatePeriod);
     }
 
-    static formatFrequency(frequency: number, targetDate: string) {
+    isComparison(chart: IChartDocument): boolean {
+        if (!chart) { return false; }
+        return (chart.comparison && chart.comparison.length) ? true : false;
+    }
+
+    getComparisonStackName(chart: IChartDocument, data: any): IGetComparisonStackName {
+        const targetName: string = data.stackName || data.nonStackName;
+
+        if (!targetName || !this.isComparison(chart)) {
+            return {
+                name: targetName
+            };
+        }
+
+        const comparisonString = chart.comparison.find(c => c !== undefined);
+        // i.e. (this year)
+        const comparisonPeriod: string = `(${comparisonString})`;
+        const definedDateRanges = PredefinedDateRanges;
+
+        // i.e Product, Botox
+        let groupingName: string = targetName.replace(comparisonPeriod, '');
+        groupingName = chart.dateRange[0].predefined === comparisonString ? groupingName : targetName;
+
+
+        for (let i in definedDateRanges) {
+            groupingName = groupingName.replace(`(${PredefinedDateRanges[i]})`, '');
+        }
+
+        return {
+            name: groupingName,
+            comparisonString: comparisonString
+        };
+    }
+
+    static formatFrequency(frequency: number, targetDate: string): string|number {
         switch (frequency) {
             case FrequencyEnum.Monthly:
                 return moment(targetDate).format('YYYY-MM');
@@ -291,7 +357,7 @@ export class TargetService {
         }
     }
 
-    private _getDateRange(notify: any, frequency: any) {
+    private _getDateRange(notify: string, frequency: any): IDateRange {
         return {
             from: moment(notify, 'MM/DD/YYYY').startOf(frequency).toDate(),
             to: moment(notify, 'MM/DD/YYYY').toDate()
