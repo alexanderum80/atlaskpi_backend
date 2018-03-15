@@ -307,14 +307,16 @@ export class TargetService {
         const comparisonString = chart.comparison.find(c => c !== undefined);
         // i.e. (this year)
         const comparisonPeriod: string = `(${comparisonString})`;
+        const definedDateRanges = PredefinedDateRanges;
 
         // i.e Product, Botox
         let groupingName: string = targetName.replace(comparisonPeriod, '');
-        const definedDateRanges = PredefinedDateRanges;
+        groupingName = chart.dateRange[0].predefined === comparisonString ? groupingName : targetName;
+
+
         for (let i in definedDateRanges) {
             groupingName = groupingName.replace(`(${PredefinedDateRanges[i]})`, '');
         }
-        groupingName = chart.dateRange[0].predefined === comparisonString ? groupingName : targetName;
 
         return {
             name: groupingName,
