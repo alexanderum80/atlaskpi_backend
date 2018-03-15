@@ -1,3 +1,5 @@
+export const VALUE_SEPARATOR = '|';
+
 export function my_guid() {
     function s4() {
       return Math.floor((1 + Math.random()) * 0x10000)
