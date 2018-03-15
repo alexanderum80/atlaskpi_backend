@@ -22,6 +22,11 @@ let ChartDateRangeSchema = {
     custom: customDateRangeSchema
 };
 
+const TopSchema = {
+    predefined: String,
+    custom: Number
+};
+
 let ChartSchema = new Schema({
     title: { type: String, unique: true, required: true },
     subtitle: String,
@@ -45,7 +50,8 @@ let ChartSchema = new Schema({
     },
     chartDefinition: { type: Schema.Types.Mixed, required: true },
     xAxisSource: String,
-    comparison: [String]
+    comparison: [String],
+    top: TopSchema
 });
 
 // add tags capabilities
@@ -92,7 +98,8 @@ ChartSchema.statics.createChart = function(input: IChartInput): Promise < IChart
             yFormat: input.yFormat,
             chartDefinition: JSON.parse(input.chartDefinition),
             xAxisSource: input.xAxisSource,
-            comparison: input.comparison
+            comparison: input.comparison,
+            top: input.top
         };
 
         that.create(newChart)
@@ -145,7 +152,8 @@ ChartSchema.statics.updateChart = function(id: string, input: IChartInput): Prom
             yFormat: input.yFormat,
             chartDefinition: JSON.parse(input.chartDefinition),
             xAxisSource: input.xAxisSource,
-            comparison: input.comparison
+            comparison: input.comparison,
+            top: input.top
         };
 
         that.findOneAndUpdate({
