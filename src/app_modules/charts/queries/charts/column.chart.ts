@@ -14,7 +14,6 @@ export class ColumnChart extends UIChartBase implements IUIChart {
     protected basicDefinition = {
         chart: { type: 'column' },
         yAxis: {
-            min: 0,
             title: { text: '' }
         }
     };
