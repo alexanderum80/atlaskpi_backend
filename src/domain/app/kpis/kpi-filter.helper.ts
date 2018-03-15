@@ -233,7 +233,7 @@ export class KPIFilterHelper {
         let criteria;
 
         if (isArray(value)) {
-            criteria = value.map(v => String(v)).join(',');
+            criteria = value.map(v => String(v)).join('|');
         } else {
             criteria = String(value);
         }
