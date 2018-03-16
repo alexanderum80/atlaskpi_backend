@@ -1,3 +1,4 @@
+import { VALUE_SEPARATOR } from '../../../helpers/string.helpers';
 import { CallSchema } from '../calls/call.model';
 import { isArray, isObject, isDate } from 'lodash';
 
@@ -233,7 +234,7 @@ export class KPIFilterHelper {
         let criteria;
 
         if (isArray(value)) {
-            criteria = value.map(v => String(v)).join(',');
+            criteria = value.map(v => String(v)).join(VALUE_SEPARATOR);
         } else {
             criteria = String(value);
         }
