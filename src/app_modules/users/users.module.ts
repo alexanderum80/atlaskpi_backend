@@ -15,6 +15,7 @@ import { IsResetPasswordTokenValidQuery } from './queries/is-reset-password-toke
 import { UserQuery } from './queries/user.query';
 import { UsersQuery } from './queries/users.query';
 import { FindByFullNameQuery } from './queries/user-by-fullName.query';
+import { UserHelpCenterQuery } from './queries/user-help-center.query';
 
 
 @AppModule({
@@ -37,6 +38,7 @@ import { FindByFullNameQuery } from './queries/user-by-fullName.query';
         UsersQuery,
         FindByFullNameQuery,
         FindUserByUsername
+        UserHelpCenterQuery
     ]
 })
 export class UsersModule extends ModuleBase { }

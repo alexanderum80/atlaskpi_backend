@@ -108,7 +108,8 @@ export function userPlugin(schema: mongoose.Schema, options: any) {
     };
 
     const UserPreferenceSchema = {
-        chart: ShowTourSchema
+        chart: ShowTourSchema,
+        helpCenter: { type: Boolean, default: false }
     };
 
     schema.add({
@@ -1095,7 +1096,7 @@ export function userPlugin(schema: mongoose.Schema, options: any) {
 
         return new Promise<IUserDocument>((resolve, reject) => {
             userModel
-                .findOneAndUpdate({_id: id}, { preferences: input }, {new: true })
+                .findOneAndUpdate({_id: id}, { 'preferences.helpCenter':  input.helpCenter }, {new: true })
                 .exec()
                 .then(document => {
                     resolve(document);
@@ -1133,5 +1134,20 @@ export function userPlugin(schema: mongoose.Schema, options: any) {
                 });
         });
     };
+
+    schema.statics.findByUserHelpCenter = function(username: string): Promise<IUserDocument> {
+        const UserModel = (<IUserModel>this);
+        return new Promise<IUserDocument>((resolve, reject) => {
+            UserModel.findOne({ username: { $in: username } }).then(users => {
+                if (users) {
+                    resolve(users);
+                    return;
+                }
+                resolve(null);
+                return;
+            }).catch(err => reject(err));
+        });
+    };
+
 
 }

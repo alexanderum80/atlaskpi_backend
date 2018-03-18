@@ -61,7 +61,7 @@ import { ActivitiesModule } from './activities/activities.module';
         SocialWidgetsModule,
         TagModule,
         ConnectorsModule,
-    ActivitiesModule
+        ActivitiesModule
     ]
 })
 export class AtlasApp extends ModuleBase { }
