@@ -37,7 +37,7 @@ import { UserHelpCenterQuery } from './queries/user-help-center.query';
         UserQuery,
         UsersQuery,
         FindByFullNameQuery,
-        FindUserByUsername
+        FindUserByUsername,
         UserHelpCenterQuery
     ]
 })

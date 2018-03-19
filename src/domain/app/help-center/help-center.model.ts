@@ -4,12 +4,12 @@ import { IHelpCenterDocument, IHelpCenterModel } from './help-center';
 import * as mongoose from 'mongoose';
 import * as Promise from 'bluebird';
 import { inject, injectable } from 'inversify';
-import {AppConnection} from '../app.connection';
 
 const Schema = mongoose.Schema;
 
 const HelpCenterSchema = new Schema({
     name: String,
+    // in seconds
     duration: {
         type: Number,
         get: d => Math.round(d),

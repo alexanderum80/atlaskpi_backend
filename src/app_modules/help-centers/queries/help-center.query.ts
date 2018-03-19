@@ -11,7 +11,7 @@ import { query } from '../../../framework/decorators/query.decorator';
 @query({
     name: 'helpCenter',
     activity: HelpCenterQueryActivity,
-    output: { type: HelpCenterResponse }
+    output: { type: HelpCenterResponse, isArray: true }
 })
 export class HelpCenterQuery implements IQuery<IHelpCenterDocument[]> {
     constructor(@inject(HelpCenter.name) private _helpCtrModel: HelpCenter) {}

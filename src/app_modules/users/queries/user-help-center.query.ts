@@ -1,4 +1,4 @@
-import * as [Promise from 'bluebird';
+import * as Promise from 'bluebird';
 import { inject, injectable } from 'inversify';
 
 import { CurrentUser } from '../../../domain/app/current-user';
@@ -6,15 +6,15 @@ import { IUserDocument } from '../../../domain/app/security/users/user';
 import { Users } from '../../../domain/app/security/users/user.model';
 import { query } from '../../../framework/decorators/query.decorator';
 import { IQuery } from '../../../framework/queries/query';
-import { FindUserByUserNameActivity } from '../activities/find-user-by-username.activity';
+import { UserHelpCenterQueryActivity } from '../activities/user-help-center-query.activity';
 import { User } from '../users.types';
 
 @injectable()
 @query({
     name: 'UserHelpCenter',
-    activity: FindUserByUserNameActivity,
+    activity: UserHelpCenterQueryActivity,
     parameters: [
-        { name: 'username', type: String },
+        { name: 'username', type: String }
     ],
     output: { type: User }
 })

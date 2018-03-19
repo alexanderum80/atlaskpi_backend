@@ -28,7 +28,7 @@ import { WidgetsModule } from './widgets/widgets.module';
 import { CountriesModule } from './countries/countries.module';
 import { TagModule } from './tags/tags.module';
 import { ActivitiesModule } from './activities/activities.module';
-
+import {HelpCenterModule} from './help-centers/help-center.module';
 
 
 @AppModule({
@@ -46,6 +46,7 @@ import { ActivitiesModule } from './activities/activities.module';
         DepartmentsModule,
         EmployeesModule,
         GoogleSpreadSheetModule,
+        HelpCenterModule,
         KpisModule,
         LocationsModule,
         MapsModule,

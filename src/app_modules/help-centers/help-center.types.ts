@@ -17,5 +17,11 @@ export class HelpCenterResponse {
     url: string;
 
     @resolver({ forField: 'duration' })
-    static resolveDuration = (entity: IHelpCenter) => moment(entity.duration).format('HH:mm:ss')
+    static resolveDuration = (entity: IHelpCenter) => {
+        // i.e. (0:43:16)
+        return '(' + moment('2015-01--01')
+                .startOf('day')
+                .seconds(entity.duration)
+                .format('H:mm:ss') + ')';
+    }
 }
