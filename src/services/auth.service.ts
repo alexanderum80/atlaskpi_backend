@@ -23,7 +23,7 @@ export interface IUserAuthenticationData {
 
 export interface IAuthErrorResponseObject {
     name: string;
-    messsage: string;
+    message: string;
 }
 export interface IAuthErrorResponse {
     NO_AGREEMENT: IAuthErrorResponseObject;
@@ -31,7 +31,7 @@ export interface IAuthErrorResponse {
     NO_ROLE: IAuthErrorResponseObject;
 }
 
-const errorResponse = {
+const errorResponse: IAuthErrorResponse = {
     NO_AGREEMENT: { name: 'no agreement', message: 'user has not agreed to the terms' },
     NO_OWNER: { name: 'no owner', message: 'no owner exists' },
     NO_ROLE: { name: 'no role provided', message: 'no role provided for this user' }
