@@ -21,6 +21,22 @@ export interface IUserAuthenticationData {
     clientDetails: string;
 }
 
+export interface IAuthErrorResponseObject {
+    name: string;
+    messsage: string;
+}
+export interface IAuthErrorResponse {
+    NO_AGREEMENT: IAuthErrorResponseObject;
+    NO_OWNER: IAuthErrorResponseObject;
+    NO_ROLE: IAuthErrorResponseObject;
+}
+
+const errorResponse = {
+    NO_AGREEMENT: { name: 'no agreement', message: 'user has not agreed to the terms' },
+    NO_OWNER: { name: 'no owner', message: 'no owner exists' },
+    NO_ROLE: { name: 'no role provided', message: 'no role provided for this user' }
+};
+
 @injectable()
 export class AuthService {
 
@@ -73,7 +89,7 @@ export class AuthService {
 
                     // if owner, check if has agreed
                     if (!accountUser.agreement || !accountUser.agreement.accept) {
-                        return Promise.reject({ name: 'no agreement', message: 'user has not agreed to the terms'});
+                        return Promise.reject(errorResponse.NO_AGREEMENT);
                     }
 
                     // return user if agreement has been accepted
@@ -121,7 +137,7 @@ export class AuthService {
         // roles has not been assigned
         // reject if that is the case
         if (!user.roles) {
-            reject({ name: 'no role provided', message: 'no role provided for this user' });
+            reject(errorResponse.NO_ROLE);
             return;
         }
 
@@ -129,7 +145,7 @@ export class AuthService {
             .then((role: IRoleDocument) => {
                 // reject when no roles has been assigned to the user
                 if (!role) {
-                    reject({ name: 'no role provided', message: 'no role provided for this user' });
+                    reject(errorResponse.NO_ROLE);
                     return;
                 }
 
@@ -142,7 +158,7 @@ export class AuthService {
                     })
                     .then((owner: IUserDocument) => {
                         if (!owner) {
-                            reject({ name: 'no owner', message: 'no owner exists'});
+                            reject(errorResponse.NO_OWNER);
                             return;
                         }
 
@@ -153,7 +169,7 @@ export class AuthService {
                             return;
                         }
 
-                        reject({ name: 'no agreement', message: 'user has not agreed to the terms'});
+                        reject(errorResponse.NO_AGREEMENT);
                         return;
                     });
             });
