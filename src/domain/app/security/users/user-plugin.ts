@@ -267,11 +267,22 @@ export function userPlugin(schema: mongoose.Schema, options: any) {
 
         return new Promise<IUserDocument>((resolve, reject) => {
             let condition = {};
+            // i.e. /^john@gmail.com$/i
+            // case insensitive
+            const regexUsername: RegExp = new RegExp('^' + username + '$', 'i');
 
             if (usernameField === 'email') {
-                condition['emails'] = { $elemMatch: { address: username  } };
+                condition['emails'] = {
+                    $elemMatch: {
+                        address: {
+                            $regex: regexUsername
+                        }
+                    }
+                };
             } else {
-                condition['username'] = username;
+                condition['username'] = {
+                    $regex: regexUsername
+                };
             }
 
             User.findOne(condition)
