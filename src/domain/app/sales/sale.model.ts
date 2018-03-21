@@ -67,6 +67,7 @@ let ProductSchema = {
     tax: Number,
     tax2: Number,
     amount: Number,
+    preTaxTotal: Number,
     paid: Number,
     discount: Number,
     from: Date,

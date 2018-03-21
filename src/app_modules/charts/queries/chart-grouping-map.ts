@@ -78,7 +78,7 @@ export const GroupingMap = {
         checkedOut: 'checkoedOut',
         cancelled: 'cancelled',
         noShow: 'noShow',
-        customer: 'customer.name',
+        customer: 'customer.fullname',
         provider: 'provider.name',
         location: 'location.name',
         type: 'event.name',

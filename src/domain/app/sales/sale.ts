@@ -41,6 +41,7 @@ export interface ISaleProduct extends IEntity {
     tax: number;
     tax2: number;
     amount: number;
+    preTaxTotal: number;
     paid: number;
     discount: number;
     from: Date;
