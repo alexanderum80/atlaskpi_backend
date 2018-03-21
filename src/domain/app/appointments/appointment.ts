@@ -13,6 +13,16 @@ export interface IAppointmentEvent extends IEntity {
     cancelledColor: string;
 }
 
+export interface IAppointmentCustomer extends IEntity {
+    city: string;
+    state: string;
+    zip: string;
+    gender: string;
+    dob: Date;
+    address: string;
+    fullname: string;
+}
+
 export interface IAppointment extends BaseModel {
     // Appointment
     reason: string;
@@ -31,7 +41,7 @@ export interface IAppointment extends BaseModel {
     confirmedOn: Date;
     createdOn: Date;
     noShowOn: Date;
-    customer: IEntity;
+    customer: IAppointmentCustomer;
     provider: IEntity[];
     location: IEntity;
 

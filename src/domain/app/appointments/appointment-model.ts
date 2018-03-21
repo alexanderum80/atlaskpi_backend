@@ -23,6 +23,17 @@ const EntitySchema = {
     name: String
 };
 
+const AppointmentCustomerSchema = {
+    ...EntitySchema,
+    city: String,
+    state: String,
+    zip: String,
+    gender: String,
+    dob: Date,
+    address: String,
+    fullname: String
+};
+
 const EventSchema = {
     ...EntitySchema,
     code: String,
@@ -50,7 +61,7 @@ export const AppointmentSchema = new mongoose.Schema({
     confirmedOn: Date,
     createdOn: Date,
     noShowOn: Date,
-    customer: { ...EntitySchema },
+    customer: { ...AppointmentCustomerSchema },
     provider: [ EntitySchema ],
     location: { ...EntitySchema },
     event: { ...EventSchema },
