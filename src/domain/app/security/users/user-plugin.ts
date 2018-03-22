@@ -49,10 +49,7 @@ export function userPlugin(schema: mongoose.Schema, options: any) {
 
     const AgreementSchema = {
         accept: Boolean,
-        timestamp: {
-            type: Date,
-            default: Date.now
-        },
+        timestamp: Date,
         ipAddress: String
     };
 
