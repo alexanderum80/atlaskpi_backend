@@ -49,10 +49,7 @@ export function userPlugin(schema: mongoose.Schema, options: any) {
 
     const AgreementSchema = {
         accept: Boolean,
-        timestamp: {
-            type: Date,
-            default: Date.now
-        },
+        timestamp: Date,
         ipAddress: String
     };
 
@@ -809,9 +806,14 @@ export function userPlugin(schema: mongoose.Schema, options: any) {
                         user.services.email.enrollment = [];
                     }
 
-                    if (profile) {
-                        user.profile.firstName = profile.firstName;
-                        user.profile.lastName = profile.lastName;
+                    if (profile && (Object.keys(profile).length > 0)) {
+                        if (profile.firstName) {
+                            user.profile.firstName = profile.firstName;
+                        }
+
+                        if (profile.lastName) {
+                            user.profile.lastName = profile.lastName;
+                        }
                     }
 
                     user.save().then((user) => {
