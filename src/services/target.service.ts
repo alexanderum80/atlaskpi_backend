@@ -342,7 +342,7 @@ export class TargetService {
 
     // return object with 'from' and 'to' property
     getDate(period: string, dueDate: string, chartFrequency: string, alternateDatePeriod: string): IDateRange {
-        return parsePredefinedTargetDateRanges(period, dueDate, chartFrequency);
+        return parsePredefinedTargetDateRanges(period, dueDate, chartFrequency) || parsePredifinedDate(alternateDatePeriod);
     }
 
     isComparison(chart: IChartDocument): boolean {
