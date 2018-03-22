@@ -464,6 +464,11 @@ export class ChartsService {
         if (findDateRange.predefined.match(/last/i)) {
             return false;
         }
+
+        if (findDateRange.predefined === 'custom') {
+            const isDateInFuture = moment(findDateRange.custom.to).isAfter(moment());
+            return isDateInFuture;
+        }
         return true;
     }
 }
