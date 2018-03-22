@@ -9,9 +9,9 @@ import { Charts } from '../domain/app/charts/chart.model';
 import { Users } from '../domain/app/security/users/user.model';
 import { ITarget, ITargetDocument } from '../domain/app/targets/target';
 import { Targets } from '../domain/app/targets/target.model';
-import {IDateRange, parsePredifinedDate, PredefinedDateRanges} from '../domain/common/date-range';
-import {FrequencyEnum} from '../domain/common/frequency-enum';
-import { field } from '../framework/decorators/field.decorator';
+import {IDateRange, parsePredifinedDate, PredefinedDateRanges, parsePredefinedTargetDateRanges} from '../domain/common/date-range';
+import {FrequencyEnum, FrequencyTable} from '../domain/common/frequency-enum';
+import {field} from '../framework/decorators/field.decorator';
 import {IChartDocument} from '../domain/app/charts/chart';
 
 export interface IMomentFrequencyTable {
@@ -46,6 +46,7 @@ export interface ITargetCalculateData {
     chart?: string[];
     period?: string;
     vary?: string;
+    datepicker?: string;
 }
 
 export interface ITargetMet {
@@ -68,15 +69,65 @@ export class TargetService {
                 @inject(Charts.name) private _charts: Charts) { }
 
     getTargets(chartId: string, userId: string): Promise<ITargetDocument[]> {
+        const that = this;
+
         return new Promise<ITargetDocument[]>((resolve, reject) => {
             this._targets.model.findUserVisibleTargets(chartId, userId)
                 .then((targets: ITargetDocument[]) => {
-                    resolve(targets);
-                    return;
+                    that.dailyUpdateTargets(targets).then((updatedTargets: ITargetDocument[]) => {
+                        resolve(updatedTargets);
+                        return;
+                    }).catch(err => {
+                        reject(err);
+                        return;
+                    });
                 }).catch((err) => {
                     reject({ success: false, errors: [ {field: 'target', errors: [err] } ] });
                     return;
                 });
+        });
+    }
+
+    dailyUpdateTargets(targets: ITargetDocument[]): Promise<ITargetDocument[]> {
+        // check if a day has past to update targets
+        // if day past, update targets
+        // return targets
+        const that = this;
+
+        return new Promise<ITargetDocument[]>((resolve, reject) => {
+            if (!targets || !targets.length) {
+                resolve(targets);
+                return;
+            }
+
+            Promise.map(targets, (target: ITargetDocument) => that.updateTarget(target))
+                .then((updatedTargets: ITargetDocument[]) => {
+                    resolve(updatedTargets);
+                    return;
+                })
+                .catch((err) => {
+                    reject(err);
+                });
+        });
+    }
+
+    updateTarget(target: ITargetDocument): Promise<ITargetDocument> {
+        const that = this;
+
+        return new Promise<ITargetDocument>((resolve, reject) => {
+            const id: string = target.id;
+            const inputData: ITarget = Object.assign({}, target.toObject() as ITarget);
+
+            that.caculateFormat(inputData).then((targetAmount: number) => {
+                inputData.target = targetAmount;
+                inputData.timestamp = new Date();
+
+                that._targets.model.updateTarget(id, inputData).then((updatedTarget: ITargetDocument) => {
+                    resolve(updatedTarget);
+                }).catch(err => {
+                    reject(err);
+                });
+            });
         });
     }
 
@@ -95,7 +146,7 @@ export class TargetService {
 
                     // get the predefined date range from chart
                     const chartDateRange: string = chart.dateRange ? chart.dateRange[0].predefined : '';
-                    const targetDateRange: IDateRange = that.getDate(data.period, chartDateRange);
+                    const targetDateRange: IDateRange = that.getDate(data.period, data.datepicker, chart.frequency, chartDateRange);
 
                     // check if the chart has no groupings
                     if (!that.isStacked && (!groupings || !groupings.length || !groupings[0])) {
@@ -230,9 +281,15 @@ export class TargetService {
                 .then((chart) => {
                     const kpi: IKpiBase = that._kpiFactory.getInstance(chart.kpis[0]);
                     const getDateRange: IDateRange = that._getDateRange(
+                            input.period,
                             input.notificationDate,
-                            MomentFrequencyTable[chart.frequency]
+                            chart.frequency
                     );
+
+                    // change 'to' property to now timestamp
+                    if (getDateRange && getDateRange.to) {
+                        getDateRange.to = moment().toDate();
+                    }
 
                     const groupings: string[] = getGroupingMetadata(chart, chart.groupings ? chart.groupings : []);
 
@@ -240,9 +297,7 @@ export class TargetService {
                     const isStackNameEqualToAll: boolean = stackName.toLowerCase() === 'all';
 
                     const chartDateRange: string = chart.dateRange ? chart.dateRange[0].predefined : '';
-                    const targetDateRange: IDateRange = that.getDate(input.period, chartDateRange);
-
-                    const dateRange: any = getDateRange || chartDateRange;
+                    const dateRange: any = getDateRange || parsePredifinedDate(chartDateRange);
 
                     const options: IGetDataOptions = {
                         filter: chart.filter
@@ -250,7 +305,7 @@ export class TargetService {
 
                     if (!groupings || !groupings.length || !groupings[0]) {
                         if (input.period) {
-                            kpi.getData([targetDateRange], { filter: chart.filter})
+                            kpi.getData([dateRange], { filter: chart.filter})
                                 .then(response => {
                                     const findValue = response ? response.find(r => r.value) : { value: input.amount };
                                     const responseValue: number = findValue ? findValue.value : 0;
@@ -286,8 +341,8 @@ export class TargetService {
     }
 
     // return object with 'from' and 'to' property
-    getDate(period: string, alternateDatePeriod: string): IDateRange {
-        return parsePredifinedDate(period) || parsePredifinedDate(alternateDatePeriod);
+    getDate(period: string, dueDate: string, chartFrequency: string, alternateDatePeriod: string): IDateRange {
+        return parsePredefinedTargetDateRanges(period, dueDate, chartFrequency);
     }
 
     isComparison(chart: IChartDocument): boolean {
@@ -335,7 +390,7 @@ export class TargetService {
             case FrequencyEnum.Daily:
                 return moment(targetDate).format('YYYY-MM-DD');
             case FrequencyEnum.Weekly:
-                return moment(targetDate).isoWeek();
+                return moment(targetDate).week() - 1;
         }
     }
 
@@ -343,9 +398,9 @@ export class TargetService {
         let futureDateRange: IDateRange;
 
         if (targets && targets.length) {
-            targets.forEach((target) => {
-                const datepicker = moment(target.datepicker).format('YYYY-MM-DD');
-                const currentYear = moment().endOf('year').format('YYYY-MM-DD');
+            targets.forEach((target: ITargetDocument) => {
+                const datepicker: string = moment(target.datepicker).format('YYYY-MM-DD');
+                const currentYear: string = moment().endOf('year').format('YYYY-MM-DD');
                 if (moment(datepicker).isAfter(currentYear)) {
                     futureDateRange = {
                         from: moment().add(1, 'year').startOf('year').toDate(),
@@ -357,11 +412,27 @@ export class TargetService {
         }
     }
 
-    private _getDateRange(notify: string, frequency: any): IDateRange {
-        return {
-            from: moment(notify, 'MM/DD/YYYY').startOf(frequency).toDate(),
-            to: moment(notify, 'MM/DD/YYYY').toDate()
-        };
+    private _getDateRange(period: string, notify: any, frequency: string): IDateRange {
+        const dateFrequency: number = FrequencyTable[frequency];
+
+        switch (dateFrequency) {
+            case FrequencyTable.daily:
+                return parsePredifinedDate(PredefinedDateRanges.today);
+            case FrequencyTable.weekly:
+                return parsePredifinedDate(PredefinedDateRanges.thisWeekToDate);
+            case FrequencyTable.monthly:
+                return parsePredifinedDate(PredefinedDateRanges.thisMonthToDate);
+            case FrequencyTable.quartely:
+                return parsePredifinedDate(PredefinedDateRanges.thisQuarterToDate);
+            case FrequencyTable.yearly:
+                return parsePredifinedDate(PredefinedDateRanges.thisYearToDate);
+            default:
+                return {
+                    from: moment(notify, 'MM/DD/YYYY').startOf(MomentFrequencyTable[frequency]).toDate(),
+                    to: moment().toDate()
+                };
+        }
+
     }
 
     private _stacked(chart: any): boolean {

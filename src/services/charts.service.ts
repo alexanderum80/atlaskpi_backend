@@ -1,7 +1,8 @@
+import { IObject } from '../app_modules/shared/criteria.plugin';
 import {IChartTop, EnumChartTop, chartTopValue} from '../domain/common/top-n-record';
 import * as Promise from 'bluebird';
 import { inject, injectable } from 'inversify';
-import { difference, isString, pick } from 'lodash';
+import { difference, isString, pick, isNumber } from 'lodash';
 import { camelCase } from 'change-case';
 import * as moment from 'moment';
 
@@ -26,8 +27,8 @@ import { IDashboardDocument } from './../domain/app/dashboards/dashboard';
 import { Dashboards } from './../domain/app/dashboards/dashboard.model';
 import { KPIs } from './../domain/app/kpis/kpi.model';
 import { Targets } from './../domain/app/targets/target.model';
-import {IChartDateRange, IDateRange, parsePredifinedDate} from './../domain/common/date-range';
-import {FrequencyTable} from './../domain/common/frequency-enum';
+import {IChartDateRange, IDateRange, parsePredifinedDate, PredefinedTargetPeriod} from './../domain/common/date-range';
+import {FrequencyEnum, FrequencyTable} from './../domain/common/frequency-enum';
 import { TargetService } from './target.service';
 
 export interface IRenderChartOptions {
@@ -93,6 +94,9 @@ export class ChartsService {
             isDrillDown: options && options.isDrillDown || false,
             isFutureTarget: options && options.isFutureTarget || false,
         };
+
+        chart.targetExtraPeriodOptions = this._getTargetExtraPeriodOptions(meta.frequency);
+        chart.canAddTarget = this._canAddTarget(meta.dateRange);
 
         // lets fill the comparison options for this chart if only if its not a comparison chart already
         const isComparisonChart = !chart.comparison || !chart.comparison.length;
@@ -432,5 +436,34 @@ export class ChartsService {
                     to: moment(dateRange[0].custom.to).endOf('day').toDate()
                 }
                 : parsePredifinedDate(dateRange[0].predefined);
+    }
+
+    private _getTargetExtraPeriodOptions(frequency: number): IObject {
+        if (!isNumber(frequency)) { return {}; }
+
+        switch (frequency) {
+            case FrequencyEnum.Daily:
+                return PredefinedTargetPeriod.daily;
+            case FrequencyEnum.Weekly:
+                return PredefinedTargetPeriod.weekly;
+            case FrequencyEnum.Monthly:
+                return PredefinedTargetPeriod.monthly;
+            case FrequencyEnum.Quartely:
+                return PredefinedTargetPeriod.quarterly;
+            case FrequencyEnum.Yearly:
+                return PredefinedTargetPeriod.yearly;
+        }
+    }
+
+    private _canAddTarget(dateRange: IChartDateRange[]): boolean {
+        const findDateRange: IChartDateRange = dateRange.find((d: any) => d.predefined);
+        if (!findDateRange) {
+            return true;
+        }
+
+        if (findDateRange.predefined.match(/last/i)) {
+            return false;
+        }
+        return true;
     }
 }

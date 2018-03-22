@@ -23,6 +23,7 @@ export interface ITarget {
     nonStackName?: string;
     target?: number;
     targetMet?: number;
+    timestamp?: Date;
 }
 
 export interface ITargetDocument extends ITarget, mongoose.Document {}
