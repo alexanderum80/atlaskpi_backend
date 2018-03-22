@@ -74,7 +74,7 @@ export class TargetService {
         return new Promise<ITargetDocument[]>((resolve, reject) => {
             this._targets.model.findUserVisibleTargets(chartId, userId)
                 .then((targets: ITargetDocument[]) => {
-                    that.dailyUpdateTargets(targets).then((updatedTargets: ITargetDocument[]) => {
+                    that.frequentlyUpdateTargets(targets).then((updatedTargets: ITargetDocument[]) => {
                         resolve(updatedTargets);
                         return;
                     }).catch(err => {
@@ -88,10 +88,7 @@ export class TargetService {
         });
     }
 
-    dailyUpdateTargets(targets: ITargetDocument[]): Promise<ITargetDocument[]> {
-        // check if a day has past to update targets
-        // if day past, update targets
-        // return targets
+    frequentlyUpdateTargets(targets: ITargetDocument[]): Promise<ITargetDocument[]> {
         const that = this;
 
         return new Promise<ITargetDocument[]>((resolve, reject) => {
