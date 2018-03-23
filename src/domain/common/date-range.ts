@@ -495,22 +495,22 @@ export function parsePredefinedTargetDateRanges (predefinedDate: string, dueDate
                 case FrequencyEnum.Weekly:
                     return {
                         from: moment(dueDate, momentFormat).subtract(1, 'year').startOf('week').toDate(),
-                        to: moment(dueDate, momentFormat).subtract(1, 'year').toDate()
+                        to: moment(dueDate, momentFormat).subtract(1, 'year').endOf('day').toDate()
                     };
                 case FrequencyEnum.Monthly:
                     return {
                         from: moment(dueDate, momentFormat).subtract(1, 'year').startOf('month').toDate(),
-                        to: moment(dueDate, momentFormat).subtract(1, 'year').toDate()
+                        to: moment(dueDate, momentFormat).subtract(1, 'year').endOf('day').toDate()
                     };
                 case FrequencyEnum.Quartely:
                     return {
                         from: moment(dueDate, momentFormat).subtract(1, 'year').startOf('quarter').toDate(),
-                        to: moment(dueDate, momentFormat).subtract(1, 'year').toDate()
+                        to: moment(dueDate, momentFormat).subtract(1, 'year').endOf('day').toDate()
                     };
                 case FrequencyEnum.Yearly:
                     return {
                         from: moment(dueDate, momentFormat).subtract(1, 'year').startOf('year').toDate(),
-                        to: moment(dueDate, momentFormat).subtract(1, 'year').toDate()
+                        to: moment(dueDate, momentFormat).subtract(1, 'year').endOf('day').toDate()
                     };
             }
         case PredefinedTargetDateRanges.samePeriod2YearsAgo:
@@ -518,22 +518,22 @@ export function parsePredefinedTargetDateRanges (predefinedDate: string, dueDate
                 case FrequencyEnum.Weekly:
                     return {
                         from: moment(dueDate, momentFormat).subtract(2, 'year').startOf('week').toDate(),
-                        to: moment(dueDate, momentFormat).subtract(2, 'year').toDate()
+                        to: moment(dueDate, momentFormat).subtract(2, 'year').endOf('day').toDate()
                     };
                 case FrequencyEnum.Monthly:
                     return {
                         from: moment(dueDate, momentFormat).subtract(2, 'year').startOf('month').toDate(),
-                        to: moment(dueDate, momentFormat).subtract(2, 'year').toDate()
+                        to: moment(dueDate, momentFormat).subtract(2, 'year').endOf('day').toDate()
                     };
                 case FrequencyEnum.Quartely:
                     return {
                         from: moment(dueDate, momentFormat).subtract(2, 'year').startOf('quarter').toDate(),
-                        to: moment(dueDate, momentFormat).subtract(2, 'year').toDate()
+                        to: moment(dueDate, momentFormat).subtract(2, 'year').endOf('day').toDate()
                     };
                 case FrequencyEnum.Yearly:
                     return {
                         from: moment(dueDate, momentFormat).subtract(2, 'year').startOf('year').toDate(),
-                        to: moment(dueDate, momentFormat).subtract(2, 'year').toDate()
+                        to: moment(dueDate, momentFormat).subtract(2, 'year').endOf('day').toDate()
                     };
             }
     }
