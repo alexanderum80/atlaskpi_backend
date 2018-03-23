@@ -22,8 +22,8 @@ export interface IMomentFrequencyTable {
     yearly: string;
 }
 const MomentFrequencyTable: IMomentFrequencyTable = {
-    daily: 'daily',
-    weekly: 'weekly',
+    daily: 'day',
+    weekly: 'week',
     monthly: 'month',
     quartely: 'quarter',
     yearly: 'year',
@@ -52,6 +52,7 @@ export interface ITargetCalculateData {
 export interface ITargetMet {
     amount?: number|string;
     period?: string;
+    datepicker?: string;
     notificationDate?: string;
     stackName?: string;
     nonStackName?: string;
@@ -276,6 +277,12 @@ export class TargetService {
             that._charts.model.findById(input.chart[0])
                 .populate({ path: 'kpis' })
                 .then((chart) => {
+                    if (this.isTargetReachZero(chart.frequency, input.datepicker, input.notificationDate)) {
+                        resolve(0);
+                        return;
+                    }
+
+
                     const kpi: IKpiBase = that._kpiFactory.getInstance(chart.kpis[0]);
                     const getDateRange: IDateRange = that._getDateRange(
                             input.period,
@@ -345,6 +352,43 @@ export class TargetService {
     isComparison(chart: IChartDocument): boolean {
         if (!chart) { return false; }
         return (chart.comparison && chart.comparison.length) ? true : false;
+    }
+
+    isTargetReachZero(chartFrequency: string, datepicker: string, notificationDate: string): any {
+        const now = moment();
+        const dueDate = moment(datepicker, 'MM/DD/YYYY');
+        let diff;
+
+        switch (chartFrequency) {
+            case 'daily':
+                diff = moment().diff(dueDate);
+                break;
+            case 'weekly':
+                const weekly = moment().week();
+                const weeklyDate = moment(dueDate).week();
+                diff = weeklyDate - weekly;
+                break;
+            case 'monthly':
+                const monthly = moment().month();
+                const monthlyDate = moment(dueDate).month();
+                diff = monthlyDate - monthly;
+                break;
+            case 'quartely':
+                const quarter = moment().quarter();
+                const quarterDate = moment(dueDate).quarter();
+                diff = quarterDate - quarter;
+                break;
+            case 'yearly':
+                const year = moment().year();
+                const yearlyDate = moment(dueDate).year();
+                diff = yearlyDate - year;
+                break;
+        }
+
+        if (diff) {
+            return true;
+        }
+        return false;
     }
 
     getComparisonStackName(chart: IChartDocument, data: any): IGetComparisonStackName {
