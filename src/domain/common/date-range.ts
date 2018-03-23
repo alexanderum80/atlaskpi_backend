@@ -474,13 +474,13 @@ export function parsePredefinedTargetDateRanges (predefinedDate: string, dueDate
         // frequency = 'quarterly'
         case PredefinedTargetDateRanges.sameQuarterLastYear:
             return {
-                from: moment(dueDate, momentFormat).subtract(1, 'year').quarter(thisQuarter).startOf('quarter').toDate(),
-                to: moment(dueDate, momentFormat).subtract(1, 'year').quarter(thisQuarter).endOf('quarter').toDate()
+                from: moment(dueDate, momentFormat).subtract(1, 'year').startOf('quarter').toDate(),
+                to: moment(dueDate, momentFormat).subtract(1, 'year').endOf('quarter').toDate()
             };
         case PredefinedTargetDateRanges.sameQuarter2YearsAgo:
             return {
-                from: moment(dueDate, momentFormat).subtract(2, 'year').quarter(thisQuarter).startOf('quarter').toDate(),
-                to: moment(dueDate, momentFormat).subtract(2, 'year').quarter(thisQuarter).endOf('quarter').toDate()
+                from: moment(dueDate, momentFormat).subtract(2, 'year').startOf('quarter').toDate(),
+                to: moment(dueDate, momentFormat).subtract(2, 'year').endOf('quarter').toDate()
             };
         // yearly
         case PredefinedTargetDateRanges.twoYearsAgo:
