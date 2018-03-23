@@ -13,8 +13,8 @@ import { tagsPlugin } from '../tags/tag.plugin';
 let Schema = mongoose.Schema;
 
 let AccessLevels = {
-    users: String,
-    accessTypes: String
+    users: [String],
+    accessTypes: [String]
 };
 
 let DashboardSchema = new Schema({

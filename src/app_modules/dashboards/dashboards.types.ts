@@ -7,11 +7,11 @@ import { ErrorDetails } from '../../framework/graphql/common.types';
 
 @input()
 export class AccessLevelsInput {
-    @field({ type: GraphQLTypesMap.String, required: true })
-    users: string;
+    @field({ type: GraphQLTypesMap.String, required: true, isArray: true })
+    users: string[];
 
-    @field({ type: GraphQLTypesMap.String, required: true })
-    accessTypes: string;
+    @field({ type: GraphQLTypesMap.String, required: true, isArray: true })
+    accessTypes: string[];
 
 }
 
@@ -38,11 +38,11 @@ export class DashboardInput  {
 
 @type()
 export class AccessLevels {
-    @field({ type: GraphQLTypesMap.String, required: true })
-    users: string;
+    @field({ type: GraphQLTypesMap.String, isArray: true })
+    users: string[];
 
-    @field({ type: GraphQLTypesMap.String, required: true })
-    accessTypes: string;
+    @field({ type: GraphQLTypesMap.String, isArray: true })
+    accessTypes: string[];
 
 }
 
