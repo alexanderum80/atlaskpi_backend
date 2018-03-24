@@ -27,7 +27,7 @@ export class SPLineChart extends UIChartBase implements IUIChart {
         this.comparison = this._getComparisonDateRanges(this.dateRange, metadata.comparison);
         console.dir(this.comparison);
         return (this.comparison && this.comparison.length > 0)
-            ? this.getDefinitionOfComparisonChart(kpi, metadata)
+            ? this.getDefinitionOfComparisonChart(kpi, metadata, target)
             : this.getDefinitionForDateRange(kpi, metadata, target);
     }
 

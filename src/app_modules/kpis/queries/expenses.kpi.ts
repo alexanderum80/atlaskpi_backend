@@ -31,6 +31,7 @@ export class Expenses extends KpiBase implements IKpiBase {
                 }
             },
             {
+                topN: true,
                 $sort: {
                     '_id.frequency': 1
                 }
