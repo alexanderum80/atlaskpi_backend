@@ -1,6 +1,6 @@
 {
     "name": "atlaskpi-backend",
-    "version": "0.5.55",
+    "version": "0.5.63",
     "description": "",
     "main": "index.ts",
     "scripts": {
@@ -81,9 +81,9 @@
         "fb": "^2.0.0",
         "google-auth-library": "^0.10.0",
         "googleapis": "23",
-        "graphql": "^0.11.0",
+        "graphql": "^0.13.1",
         "graphql-server-express": "^1.2.0",
-        "graphql-tools": "^2.6.0",
+        "graphql-tools": "^2.21.0",
         "handlebars": "^4.0.6",
         "i18n": "^0.8.3",
         "inversify": "^4.5.2",

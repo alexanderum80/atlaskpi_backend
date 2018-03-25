@@ -30,6 +30,7 @@ import {
     IUser,
     IUserDocument,
     IUserModel,
+    IUserPreference,
     IUserProfile,
 } from './user';
 import { IUserToken } from './user-token';
@@ -38,20 +39,20 @@ import { IUserToken } from './user-token';
 export function userPlugin(schema: mongoose.Schema, options: any) {
     options || (options = {});
 
-    let Schema = mongoose.Schema;
+    const Schema = mongoose.Schema;
 
-    let EmailSchema = {
+    const EmailSchema = {
         address: { type: String, required: true },
         verified: Boolean
     };
 
-    let EmailedTokenSchema = {
+    const EmailedTokenSchema = {
         token: { type: String },
         email: { type: String },
         when: { type: Date }
     };
 
-    let ServicesSchema = {
+    const ServicesSchema = {
         loginTokens: [{
             when: Date,
             hashedToken: String,
@@ -66,7 +67,7 @@ export function userPlugin(schema: mongoose.Schema, options: any) {
         }
     };
 
-    let UserProfileSchema = {
+    const UserProfileSchema = {
         firstName: String,
         middleName: String,
         lastName: String,
@@ -74,7 +75,7 @@ export function userPlugin(schema: mongoose.Schema, options: any) {
         dob: Date
     };
 
-    let UserTokenInfo = {
+    const UserTokenInfo = {
         ip: String,
         token: String,
         issued: Date,
@@ -83,10 +84,21 @@ export function userPlugin(schema: mongoose.Schema, options: any) {
         clientDetails: String
     };
 
-    let AddMobileDeviceInfo = {
+    const AddMobileDeviceInfo = {
         token: String,
         network: String,
         name: String
+    };
+
+    const ShowTourSchema = {
+        showTour: {
+            type: Boolean,
+            default: true
+        }
+    };
+
+    const UserPreferenceSchema = {
+        chart: ShowTourSchema
     };
 
     schema.add({
@@ -103,6 +115,7 @@ export function userPlugin(schema: mongoose.Schema, options: any) {
         password: String,
         services: ServicesSchema,
         profile: UserProfileSchema,
+        preferences: UserPreferenceSchema,
         tokens: [UserTokenInfo],
         mobileDevices: [AddMobileDeviceInfo],
         timestamps: { type: Date, default: Date.now }
@@ -299,68 +312,84 @@ export function userPlugin(schema: mongoose.Schema, options: any) {
             let validation = (<any>validate).async(data, constraints, {fullMessages: false})
                 .then(() => {
 
-                    let newUser: IUser = {
-                        profile: {
-                            firstName: data.firstName,
-                            middleName: data.middleName,
-                            lastName: data.lastName
-                        },
-                        username: data.username || data.email,
-                        emails: [{
-                            address: data.email,
-                            verified: opts.emailVerified
-                        }]
-                    };
-
-                    // add password if it was passed
-                    if (data.password) {
-                        newUser.password = data.password;
-                    }
-                    // send verification email if it is not verified
-                    else if (!opts.emailVerified) {
-                        let hash = generateUniqueHash();
-                        newUser.services = {
-                            email: {
-                                verificationTokens: [{
-                                    token: hash,
-                                    email: data.email,
-                                    when: moment.utc().toDate()
-                                }]
-                            },
-                        };
-                    }
-
-                    that.create(newUser, (err, user: IUserDocument) => {
-                        if (err) {
-                            reject({ message: 'There was an error creating the user', error: err });
+                    that.findByEmail(data.email).then((user: IUserDocument) => {
+                        if (user) {
+                            resolve({
+                                success: false,
+                                entity: null,
+                                errors: [
+                                    {
+                                        field: 'user',
+                                        errors: ['Email already exists']
+                                    }
+                                ]
+                            });
                             return;
                         }
 
-                        // add user roles
-                        if (data.roles && data.roles.length > 0) {
-                            data.roles.forEach((role) => {
-                                user.addRole(role, (err, role) => {
-                                    if (err) {
-                                        logger.error('Error adding role: ', err);
-                                    }
-                                });
-                            });
+                        let newUser: IUser = {
+                            profile: {
+                                firstName: data.firstName,
+                                middleName: data.middleName,
+                                lastName: data.lastName
+                            },
+                            username: data.username || data.email,
+                            emails: [{
+                                address: data.email,
+                                verified: opts.emailVerified
+                            }]
+                        };
+
+                        // add password if it was passed
+                        if (data.password) {
+                            newUser.password = data.password;
+                        }
+                        // send verification email if it is not verified
+                        else if (!opts.emailVerified) {
+                            let hash = generateUniqueHash();
+                            newUser.services = {
+                                email: {
+                                    verificationTokens: [{
+                                        token: hash,
+                                        email: data.email,
+                                        when: moment.utc().toDate()
+                                    }]
+                                },
+                            };
                         }
 
-                        // add enrollment email
-                        user.addEnrollmentEmail(data.email);
-
-                        // send email to user
-                        if (opts.notifyUser) {
-                            if (options && options.host) {
-                                notifier.notify(user, data.email, options.host);
-                            } else {
-                                notifier.notify(user, data.email);
+                        that.create(newUser, (err, user: IUserDocument) => {
+                            if (err) {
+                                reject({ message: 'There was an error creating the user', error: err });
+                                return;
                             }
-                        }
 
-                        resolve({ entity: user });
-                    });
+                            // add user roles
+                            if (data.roles && data.roles.length > 0) {
+                                data.roles.forEach((role) => {
+                                    user.addRole(role, (err, role) => {
+                                        if (err) {
+                                            logger.error('Error adding role: ', err);
+                                        }
+                                    });
+                                });
+                            }
+
+                            // add enrollment email
+                            user.addEnrollmentEmail(data.email);
+
+                            // send email to user
+                            if (opts.notifyUser) {
+                                if (options && options.host) {
+                                    notifier.notify(user, data.email, options.host);
+                                } else {
+                                    notifier.notify(user, data.email);
+                                }
+                            }
+
+                            resolve({ entity: user });
+                        });
+                    }).catch(err => reject(err));
 
                 }, (err: { [name: string]: string[] }) => {
                     resolve(MutationResponse.fromValidationErrors(err));
@@ -532,10 +561,10 @@ export function userPlugin(schema: mongoose.Schema, options: any) {
                 if (user) {
                     resolve(user);
                 } else {
-                    reject(null);
+                    resolve(null);
                 }
             }).catch(() => {
-                reject(null);
+                reject('uknown error');
             });
         });
     };
@@ -1037,6 +1066,24 @@ export function userPlugin(schema: mongoose.Schema, options: any) {
                 resolve(null);
                 return;
             }).catch(err => reject(err));
+        });
+    };
+
+    schema.statics.updateUserPreference = function(id: string, input: IUserPreference): Promise<IUserDocument> {
+        const userModel = (<IUserModel>this);
+
+        return new Promise<IUserDocument>((resolve, reject) => {
+            userModel
+                .findOneAndUpdate({_id: id}, { preferences: input }, {new: true })
+                .exec()
+                .then(document => {
+                    resolve(document);
+                    return;
+                })
+                .catch(err => {
+                    reject(err);
+                    return;
+                });
         });
     };
 

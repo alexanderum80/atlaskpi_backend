@@ -106,6 +106,19 @@ SlideshowSchema.statics.slideshowById = function(id: string): Promise<ISlideshow
     });
 };
 
+SlideshowSchema.statics.slideshowByName = function(name: string): Promise<ISlideshowDocument> {
+    const that = <ISlideshowModel> this;
+
+    return new Promise<ISlideshowDocument>((resolve, reject) => {
+        that.findOne({name: name}).then(slideshow => {
+           resolve(slideshow);
+        }).catch(err => {
+            logger.error(err);
+            reject('There was an error retrieving Slideshow');
+        });
+    });
+};
+
 SlideshowSchema.statics.slideshowByGroupChart = function(group: string): Promise<ISlideshowDocument[]>{
     const that = <ISlideshowModel> this;
     ///  falta la verdadera implementacion, tiene otro proposito

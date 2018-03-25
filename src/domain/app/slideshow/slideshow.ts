@@ -50,6 +50,7 @@ export interface ISlideshowModel extends mongoose.Model<ISlideshowDocument> {
       * @returns {slideshow} Returns a Slideshow
       */
       slideshowById(_Id: string): Promise<ISlideshowDocument>;
+      slideshowByName(name: string): Promise<ISlideshowDocument>;
 
       slideshowsByGroupChart(group: string): Promise<ISlideshowDocument[]>;
 

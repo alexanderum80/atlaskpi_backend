@@ -39,11 +39,6 @@ export function getKPITypePropName(type: KPITypeEnum) {
     }
 }
 
-export interface IDocumentExist {
-    chart?: IChartDocument[];
-    widget?: IWidgetDocument[];
-}
-
 export interface IKPIDataSourceHelper {
     sales: Sales;
     expenses: Expenses;
@@ -116,5 +111,5 @@ export interface IKPIModel extends mongoose.Model<IKPIDocument> {
      /**
      * Remove a KPI by its id
      */
-    removeKPI(id: string, documentExists?: IDocumentExist): Promise<IMutationResponse>;
+    removeKPI(id: string): Promise<IMutationResponse>;
 }

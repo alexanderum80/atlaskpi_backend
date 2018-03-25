@@ -1,6 +1,6 @@
 import * as Promise from 'bluebird';
 import { camelCase } from 'change-case';
-import { cloneDeep, find, groupBy, isArray, isNull, isObject, negate, pick, remove, sortBy } from 'lodash';
+import { cloneDeep, find, groupBy, isArray, isDate, isNull, isObject, negate, pick, remove, sortBy } from 'lodash';
 import * as logger from 'winston';
 
 import { IKPI } from '../../../domain/app/kpis/kpi';
@@ -190,9 +190,9 @@ export class KpiBase {
             this.replacementString.forEach(r => key = key.replace(r.key, r.value));
             let value = filter[filterKey];
 
-            if (!isArray(value) && isObject(value)) {
+            if (!isArray(value) && !isDate(value) && isObject(value)) {
                 newFilter[key] = this._cleanFilter(value);
-            } else if (isArrayObject(value)) {
+            } else if (!isDate(value) && isArrayObject(value)) {
                 for (let i = 0; i < value.length; i++) {
                     value[i] = this._cleanFilter(value[i]);
                 }
@@ -213,7 +213,11 @@ export class KpiBase {
                     }
 
                     key = '$regex';
-                    value = new RegExp(filterValue);
+                    if (operatorName === 'regex') {
+                        value = new RegExp(filterValue);
+                    } else {
+                        value = new RegExp(filterValue, 'i');
+                    }
                 } else {
                     value = filterValue;
                 }

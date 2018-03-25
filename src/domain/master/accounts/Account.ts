@@ -51,6 +51,7 @@ export interface IAccount {
     initialToken?: IUserToken;
     seedData?: boolean;
     demoMode?: boolean;
+    authorizationCode?: string;
 }
 
 // declare interface to mix account and mongo docuemnt properties/methods

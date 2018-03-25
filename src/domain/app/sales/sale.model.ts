@@ -1,3 +1,4 @@
+import { criteriaPlugin } from '../../../app_modules/shared/criteria.plugin';
 import * as Promise from 'bluebird';
 import { inject, injectable } from 'inversify';
 import * as mongoose from 'mongoose';
@@ -123,6 +124,8 @@ SaleSchema.index({ 'product.from': 1, 'product.itemDescription': 1 });
 SaleSchema.index({ 'product.from': 1, 'category.name': 1 });
 SaleSchema.index({ 'product.from': 1, 'category.service': 1 });
 
+SaleSchema.plugin(criteriaPlugin);
+
 // SaleSchema.methods.
 
 // SaleSchema.statics.
@@ -221,20 +224,6 @@ SalesSchema.statics.salesEmployeeByDateRange = function(predefinedDateRange: str
         .catch(err => {
             logger.error('There was an error retrieving employee sales by predefined data range', err);
             reject(err);
-        });
-    });
-};
-
-SalesSchema.statics.findCriteria = function(field: string): Promise<any[]> {
-    const that = this;
-
-    return new Promise<any[]>((resolve, reject) => {
-        that.distinct(field, { [field]: { $ne: '' } }).then(sales => {
-            resolve(sales);
-            return;
-        }).catch(err => {
-            reject(err);
-            return;
         });
     });
 };

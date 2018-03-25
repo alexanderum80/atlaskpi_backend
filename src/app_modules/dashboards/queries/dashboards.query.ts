@@ -45,7 +45,10 @@ export class DashboardsQuery implements IQuery<IDashboard[]> {
         if (this._currentUser.get().roles.find(r => r.name === 'owner')) {
             query = {};
         } else {
-            query = { $or: [ { owner: that._currentUser.get()._id }, { users: { $in: [that._currentUser.get()._id]} } ]};
+            query = { $or: [
+                { owner: that._currentUser.get()._id },
+                { users: { $in: [that._currentUser.get()._id]} }
+            ]};
         }
 
         return new Promise<IDashboard[]>((resolve, reject) => {
