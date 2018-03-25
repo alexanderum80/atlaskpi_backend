@@ -83,6 +83,7 @@ export class SimpleKPI extends SimpleKPIBase implements IKpiBase {
                 $match: { }
             },
             {
+                topN: true,
                 $sort: {
                     '_id.frequency': 1
                 }

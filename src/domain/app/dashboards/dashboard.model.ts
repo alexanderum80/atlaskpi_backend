@@ -24,7 +24,7 @@ let DashboardSchema = new Schema({
         type: Schema.Types.String,
         ref: 'Widget'
     }],
-    owne: {
+    owner: {
         type: Schema.Types.String,
         ref: 'User'
     },

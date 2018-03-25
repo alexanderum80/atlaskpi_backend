@@ -7,6 +7,7 @@ import ms = require('ms');
 import * as nodemailer from 'nodemailer';
 import * as validate from 'validate.js';
 import * as logger from 'winston';
+import { isEmpty } from 'lodash';
 
 import { User } from '../../../../app_modules/users/users.types';
 import { field } from '../../../../framework/decorators/field.decorator';
@@ -28,6 +29,7 @@ import {
     ITokenInfo,
     ITokenVerification,
     IUser,
+    IUserAgreementInput,
     IUserDocument,
     IUserModel,
     IUserProfile,
@@ -45,7 +47,13 @@ export function userPlugin(schema: mongoose.Schema, options: any) {
         verified: Boolean
     };
 
-    let EmailedTokenSchema = {
+    const AgreementSchema = {
+        accept: Boolean,
+        timestamp: Date,
+        ipAddress: String
+    };
+
+    const EmailedTokenSchema = {
         token: { type: String },
         email: { type: String },
         when: { type: Date }
@@ -101,6 +109,7 @@ export function userPlugin(schema: mongoose.Schema, options: any) {
         },
         owner: Boolean,
         password: String,
+        agreement: AgreementSchema,
         services: ServicesSchema,
         profile: UserProfileSchema,
         tokens: [UserTokenInfo],
@@ -243,11 +252,22 @@ export function userPlugin(schema: mongoose.Schema, options: any) {
 
         return new Promise<IUserDocument>((resolve, reject) => {
             let condition = {};
+            // i.e. /^john@gmail.com$/i
+            // case insensitive
+            const regexUsername: RegExp = new RegExp('^' + username + '$', 'i');
 
             if (usernameField === 'email') {
-                condition['emails'] = { $elemMatch: { address: username  } };
+                condition['emails'] = {
+                    $elemMatch: {
+                        address: {
+                            $regex: regexUsername
+                        }
+                    }
+                };
             } else {
-                condition['username'] = username;
+                condition['username'] = {
+                    $regex: regexUsername
+                };
             }
 
             User.findOne(condition)
@@ -499,16 +519,24 @@ export function userPlugin(schema: mongoose.Schema, options: any) {
     };
 
     schema.statics.findByUsername = function(username: string): Promise<IUserDocument> {
+        const userModel = (<IUserModel>this);
+
         return new Promise<IUserDocument>((resolve, reject) => {
-            (<IUserModel>this).findOne({ username: username }).then((user) => {
-                if (user) {
-                    resolve(user);
-                } else {
+            userModel.findOne({ username: username })
+                .populate({
+                    path: 'roles',
+                    model: 'Role'
+                })
+                .then((user) => {
+                    if (user) {
+                        resolve(user);
+                    } else {
+                        reject(null);
+                    }
+                })
+                .catch((err) => {
                     reject(null);
-                }
-            }).catch(() => {
-                reject(null);
-            });
+                });
         });
     };
 
@@ -528,7 +556,9 @@ export function userPlugin(schema: mongoose.Schema, options: any) {
 
     schema.statics.findByEmail = function(email: string): Promise<IUserDocument> {
         return new Promise<IUserDocument>((resolve, reject) => {
-            (<IUserModel>this).findOne({ 'emails.address': email }).then((user) => {
+            const regularExpEmail = new RegExp(email, 'i');
+
+            (<IUserModel>this).findOne({ 'emails.address': regularExpEmail }).then((user) => {
                 if (user) {
                     resolve(user);
                 } else {
@@ -759,9 +789,15 @@ export function userPlugin(schema: mongoose.Schema, options: any) {
                         user.services.email.enrollment = [];
                     }
 
-                    if (profile) {
-                        user.profile.firstName = profile.firstName;
-                        user.profile.lastName = profile.lastName;
+                    // isEmpty({}) = true
+                    if (!isEmpty(profile)) {
+                        if (profile.firstName) {
+                            user.profile.firstName = profile.firstName;
+                        }
+
+                        if (profile.lastName) {
+                            user.profile.lastName = profile.lastName;
+                        }
                     }
 
                     user.save().then((user) => {
@@ -1037,6 +1073,50 @@ export function userPlugin(schema: mongoose.Schema, options: any) {
                 resolve(null);
                 return;
             }).catch(err => reject(err));
+        });
+    };
+
+    schema.statics.updateUserPreference = function(id: string, input: IUserPreference): Promise<IUserDocument> {
+        const userModel = (<IUserModel>this);
+
+        return new Promise<IUserDocument>((resolve, reject) => {
+            userModel
+                .findOneAndUpdate({_id: id}, { preferences: input }, {new: true })
+                .exec()
+                .then(document => {
+                    resolve(document);
+                    return;
+                })
+                .catch(err => {
+                    reject(err);
+                    return;
+                });
+        });
+    };
+
+    schema.statics.updateUserAgreement = function(input: IUserAgreementInput): Promise<IUserDocument> {
+        const userModel = (<IUserModel>this);
+
+        return new Promise<IUserDocument>((resolve, reject) => {
+            userModel.findOne({ username: input.email })
+                .then((user: IUserDocument) => {
+                    user.agreement = {
+                        accept: input.accept,
+                        ipAddress: input.ipAddress,
+                        timestamp: input.timestamp
+                    };
+
+                    user.save((err, user: IUserDocument) => {
+                        if (err) {
+                            reject({
+                                message: 'There was an error updating user agreement',
+                                error: err
+                            });
+                            return;
+                        }
+                        resolve(user);
+                    });
+                });
         });
     };
 

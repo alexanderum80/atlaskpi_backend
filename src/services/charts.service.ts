@@ -1,6 +1,10 @@
+import { IObject } from '../app_modules/shared/criteria.plugin';
+import {IChartTop, EnumChartTop, chartTopValue} from '../domain/common/top-n-record';
 import * as Promise from 'bluebird';
 import { inject, injectable } from 'inversify';
-import { difference, isString } from 'lodash';
+import { difference, isString, pick, isNumber } from 'lodash';
+import { camelCase } from 'change-case';
+import * as moment from 'moment';
 
 import { getGroupingMetadata } from '../app_modules/charts/queries/chart-grouping-map';
 import { IChartMetadata } from '../app_modules/charts/queries/charts/chart-metadata';
@@ -13,7 +17,7 @@ import { CurrentUser } from '../domain/app/current-user';
 import { Logger } from '../domain/app/logger';
 import { ChartAttributesInput } from './../app_modules/charts/charts.types';
 import { ChartFactory } from './../app_modules/charts/queries/charts/chart-factory';
-import { IUIChart } from './../app_modules/charts/queries/charts/ui-chart-base';
+import { IUIChart, NULL_CATEGORY_REPLACEMENT } from './../app_modules/charts/queries/charts/ui-chart-base';
 import { DateRangeHelper } from './../app_modules/date-ranges/queries/date-range.helper';
 import { IKpiBase } from './../app_modules/kpis/queries/kpi-base';
 import { KpiFactory } from './../app_modules/kpis/queries/kpi.factory';
@@ -23,13 +27,14 @@ import { IDashboardDocument } from './../domain/app/dashboards/dashboard';
 import { Dashboards } from './../domain/app/dashboards/dashboard.model';
 import { KPIs } from './../domain/app/kpis/kpi.model';
 import { Targets } from './../domain/app/targets/target.model';
-import { IChartDateRange } from './../domain/common/date-range';
-import { FrequencyTable } from './../domain/common/frequency-enum';
+import {IChartDateRange, IDateRange, parsePredifinedDate, PredefinedTargetPeriod} from './../domain/common/date-range';
+import {FrequencyEnum, FrequencyTable} from './../domain/common/frequency-enum';
 import { TargetService } from './target.service';
 
 export interface IRenderChartOptions {
     chartId?: string;
     dateRange?: [IChartDateRange];
+    top?: IChartTop;
     filter?: string;
     frequency?: string;
     groupings?: string[];
@@ -38,6 +43,7 @@ export interface IRenderChartOptions {
     isFutureTarget?: boolean;
     isDrillDown?: boolean;
 }
+
 
 @injectable()
 export class ChartsService {
@@ -84,9 +90,13 @@ export class ChartsService {
             comparison: options && options.comparison || chart.comparison,
             xAxisSource: options && options.xAxisSource || chart.xAxisSource,
             dateRange: (options && !options.isFutureTarget && options.dateRange) || chart.dateRange || null,
+            top: (options && options.top) || chart.top,
             isDrillDown: options && options.isDrillDown || false,
             isFutureTarget: options && options.isFutureTarget || false,
         };
+
+        chart.targetExtraPeriodOptions = this._getTargetExtraPeriodOptions(meta.frequency);
+        chart.canAddTarget = this._canAddTarget(meta.dateRange);
 
         // lets fill the comparison options for this chart if only if its not a comparison chart already
         const isComparisonChart = !chart.comparison || !chart.comparison.length;
@@ -95,11 +105,28 @@ export class ChartsService {
                                                         .map(item => item.key);
         }
 
-        if (!meta.isDrillDown && options && options.chartId) {
-            return this._renderRegularDefinition(options.chartId, kpi, uiChart, meta);
-        }
+        // get top n if have necessary data
+        if (meta.groupings &&
+            meta.groupings.length &&
+            meta.top &&
+            (meta.top.predefined || meta.top.custom)) {
+            return this._getTopByGrouping(meta, kpi).then((data: any[]) => {
+                const groupField = camelCase(meta.groupings[0]);
+                meta.includeTopGroupingValues = data.map(d => d._id[groupField] || NULL_CATEGORY_REPLACEMENT);
 
-        return this._renderPreviewDefinition(kpi, uiChart, meta);
+                if (!meta.isDrillDown && options && options.chartId) {
+                    return this._renderRegularDefinition(options.chartId, kpi, uiChart, meta);
+                }
+
+                return this._renderPreviewDefinition(kpi, uiChart, meta);
+            });
+        } else {
+            if (!meta.isDrillDown && options && options.chartId) {
+                return this._renderRegularDefinition(options.chartId, kpi, uiChart, meta);
+            }
+
+            return this._renderPreviewDefinition(kpi, uiChart, meta);
+        }
     }
 
     public getChart(chart: any): Promise<IChart>;
@@ -380,5 +407,68 @@ export class ChartsService {
                 return;
             });
         });
+    }
+
+    /**
+     * when have groupings and daterange
+     * get top n with the limit
+     * @param meta
+     * @param kpi
+     */
+    private _getTopByGrouping(meta: IChartMetadata, kpi: IKpiBase): Promise<any[]> {
+        const top: IChartTop = meta.top;
+        // i.e. 5, 10, 8, 2
+        const topValue: number = chartTopValue(top);
+        const dateRange: IDateRange[] = [this._getTopDateRange(meta.dateRange)];
+
+        let options = pick(meta, ['groupings', 'dateRange']);
+        Object.assign(options, {
+            limit: topValue
+        });
+
+        return kpi.getData(dateRange, options);
+    }
+
+    private _getTopDateRange(dateRange: IChartDateRange[]): IDateRange {
+        return dateRange[0].custom && dateRange[0].custom.from ?
+                {
+                    from: moment(dateRange[0].custom.from).startOf('day').toDate(),
+                    to: moment(dateRange[0].custom.to).endOf('day').toDate()
+                }
+                : parsePredifinedDate(dateRange[0].predefined);
+    }
+
+    private _getTargetExtraPeriodOptions(frequency: number): IObject {
+        if (!isNumber(frequency)) { return {}; }
+
+        switch (frequency) {
+            case FrequencyEnum.Daily:
+                return PredefinedTargetPeriod.daily;
+            case FrequencyEnum.Weekly:
+                return PredefinedTargetPeriod.weekly;
+            case FrequencyEnum.Monthly:
+                return PredefinedTargetPeriod.monthly;
+            case FrequencyEnum.Quartely:
+                return PredefinedTargetPeriod.quarterly;
+            case FrequencyEnum.Yearly:
+                return PredefinedTargetPeriod.yearly;
+        }
+    }
+
+    private _canAddTarget(dateRange: IChartDateRange[]): boolean {
+        const findDateRange: IChartDateRange = dateRange.find((d: any) => d.predefined);
+        if (!findDateRange) {
+            return true;
+        }
+
+        if (findDateRange.predefined.match(/last/i)) {
+            return false;
+        }
+
+        if (findDateRange.predefined === 'custom') {
+            const isDateInFuture = moment(findDateRange.custom.to).isAfter(moment());
+            return isDateInFuture;
+        }
+        return true;
     }
 }
