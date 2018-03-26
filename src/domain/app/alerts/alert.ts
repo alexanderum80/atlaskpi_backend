@@ -11,8 +11,8 @@ export interface IAlert {
 
 export interface IAlertInfo {
     alertInfo: IAlert[];
-    modelName: string;
-    modelId: string;
+    model_name: string;
+    model_id: string;
 }
 
 export interface IAlertDocument extends IAlertInfo, mongoose.Document {}

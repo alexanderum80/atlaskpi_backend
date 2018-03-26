@@ -10,7 +10,7 @@ import { inject, injectable } from 'inversify';
 
 @injectable()
 @query({
-    name: 'AlertByWidgetId',
+    name: 'alertByWidgetId',
     activity: AlertByWidgetIdActivity,
     parameters: [
         { name: 'id', type: String, required: true }

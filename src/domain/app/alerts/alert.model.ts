@@ -22,8 +22,8 @@ const AlertInfoSchema = {
 
 const AlertSchema = new Schema({
     alertInfo: AlertInfoSchema,
-    modelName: { type: String, required: true},
-    modelId: { type: String, required: true }
+    model_name: { type: String, required: true},
+    model_id: { type: String, required: true }
 });
 
 
@@ -65,8 +65,8 @@ AlertSchema.statics.createAlert = function(input: IAlertInfo): Promise<IAlertDoc
                 frequency: requiredAndNotBlank,
                 active: requiredAndNotBlank
             },
-            modelName: requiredAndNotBlank,
-            modelId: requiredAndNotBlank
+            model_name: requiredAndNotBlank,
+            model_id: requiredAndNotBlank
         };
 
         const errors = (<any> validate)(input, constraints, {
@@ -127,8 +127,8 @@ AlertSchema.statics.updateAlert = function(id: string, input: IAlertInfo): Promi
                 frequency: requiredAndNotBlank,
                 active: requiredAndNotBlank
             },
-            modelName: requiredAndNotBlank,
-            modelId: requiredAndNotBlank
+            model_name: requiredAndNotBlank,
+            model_id: requiredAndNotBlank
         };
 
         const errors = (<any> validate)(input, constraints, {

@@ -1,3 +1,4 @@
+import { IAlert } from '../../domain/app/alerts/alert';
 import { field } from '../../framework/decorators/field.decorator';
 import { GraphQLTypesMap } from '../../framework/decorators/graphql-types-map';
 import { input } from '../../framework/decorators/input.decorator';
@@ -20,17 +21,20 @@ export class AlertInput {
     @field({ type: GraphQLTypesMap.Boolean })
     push_notification: boolean;
 
-    @field({ type: GraphQLTypesMap.String })
-    modelName: string;
+    @field({ type: GraphQLTypesMap.Boolean })
+    email_notified: boolean;
 
     @field({ type: GraphQLTypesMap.String })
-    modelId: string;
+    model_name: string;
+
+    @field({ type: GraphQLTypesMap.String })
+    model_id: string;
 }
 
 @type()
-export class AlertResponse {
-    @field({ type: GraphQLTypesMap.String, isArray: true })
-    notify: String[];
+export class AlertInfoResponse {
+    @field({ type: GraphQLTypesMap.String })
+    notify: String;
 
     @field({ type: GraphQLTypesMap.String })
     frequency: String;
@@ -41,11 +45,23 @@ export class AlertResponse {
     @field({ type: GraphQLTypesMap.Boolean })
     push_notification: boolean;
 
-    @field({ type: GraphQLTypesMap.String })
-    modelName: string;
+    @field({ type: GraphQLTypesMap.Boolean })
+    email_notified: boolean;
+
+    @resolver({ forField: 'notify' })
+    static resolveNotify = (entity: IAlert) => entity.notify.join('|')
+}
+
+@type()
+export class AlertResponse {
+    @field({ type: AlertInfoResponse, isArray: true })
+    alertInfo: AlertInfoResponse[];
 
     @field({ type: GraphQLTypesMap.String })
-    modelId: string;
+    model_name: string;
+
+    @field({ type: GraphQLTypesMap.String })
+    model_id: string;
 }
 
 @type()
