@@ -45,6 +45,7 @@ export class GoogleAnalyticsKpi extends SimpleKPIBase implements IKpiBase {
                 $match: { }
             },
             {
+                topN: true,
                 $sort: {
                     '_id.frequency': 1
                 }

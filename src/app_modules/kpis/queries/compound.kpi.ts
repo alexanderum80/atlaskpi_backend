@@ -155,12 +155,25 @@ export class CompositeKpi implements IKpiBase {
         const that = this;
         let result = [];
 
-        if (!leftList || !leftList.length) {
+        // check if leftList/rightList is null or undefined
+        if (!leftList || !rightList) {
+            return;
+        }
+
+        // check if leftList and rightList has empty array
+        if (!leftList.length && !rightList.length) {
             return;
         }
 
         // get the keys for the first element
-        const keysToTest = Object.keys(leftList[0]._id);
+        const keysToTest: any[] = leftList.length ?
+            Object.keys(leftList[0]._id) :
+            (
+                rightList.length ?
+                Object.keys(rightList[0]._id) :
+                []
+            );
+
         // start on the left collection
         (<Array<any>>leftList).forEach(l => {
             const rightSide = that._popWithSameGroupings(rightList, l, keysToTest);
