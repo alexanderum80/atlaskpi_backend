@@ -38,6 +38,16 @@ IUserPreference,
 import { IUserToken } from './user-token';
 
 
+export function insentive_username(username: string): any {
+    if (!username) { return username; }
+
+    const regexp: RegExp = new RegExp('^' + username + '$', 'i');
+    return {
+        $regex: regexp
+    };
+}
+
+
 export function userPlugin(schema: mongoose.Schema, options: any) {
     options || (options = {});
 
@@ -133,16 +143,6 @@ export function userPlugin(schema: mongoose.Schema, options: any) {
 
     // encrypt passowrd on save
     const SALT_WORK_FACTOR = 10;
-
-
-    function insentive_username(username: string): any {
-        if (!username) { return username; }
-
-        const regexp: RegExp = new RegExp('^' + username + '$', 'i');
-        return {
-            $regex: regexp
-        };
-    }
 
     schema.pre('save', function(next) {
         let user = this;
