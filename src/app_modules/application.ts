@@ -28,13 +28,14 @@ import { WidgetsModule } from './widgets/widgets.module';
 import { CountriesModule } from './countries/countries.module';
 import { TagModule } from './tags/tags.module';
 import { ActivitiesModule } from './activities/activities.module';
-
+import { AlertsModule } from './alerts/alerts.module';
 
 
 @AppModule({
     imports: [
         AccountsModule,
         AccessLogsModule,
+        AlertsModule,
         AppointmentsModule,
         BusinessUnitModule,
         CallRailModule,

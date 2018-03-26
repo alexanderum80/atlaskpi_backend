@@ -4,6 +4,7 @@ import { CurrentAccount } from './../master/current-account';
 import { IBridgeContainer } from '../../framework/di/bridge-container';
 import { AccessLogs } from './access-log/access-log.model';
 import { AppConnection } from './app.connection';
+import { Alerts } from './alerts/alert.model';
 import { Appointments } from './appointments/appointment-model';
 import { BusinessUnits } from './business-unit/business-unit-model';
 import { Charts } from './charts/chart.model';
@@ -42,6 +43,7 @@ interface IRegistrationInfo {
 const registrations: any[] = [
     AppConnection,
     AccessLogs,
+    Alerts,
     Appointments,
     BusinessUnits,
     Calls,
