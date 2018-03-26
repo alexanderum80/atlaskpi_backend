@@ -5,26 +5,27 @@ import * as logger from 'winston';
 
 import { ModelBase } from '../../../type-mongo/model-base';
 import { AppConnection } from '../app.connection';
-import { ILocation, ILocationDocument, ILocationModel } from './location';
+import { ILocation, ILocationDocument, ILocationModel, ILocationInput } from './location';
+import { OperationHoursInfo } from '../../common/location-info.model';
 import { tagsPlugin } from '../tags/tag.plugin';
 
 const LocationSchema = new mongoose.Schema({
     name: { type: String, unique: true, required: true },
     description: String,
-    alias: [String],
     businessunits: String,
-    operhours: String,
     street: String,
     country: String,
     city: String,
     state: String,
-    zip: String
+    zip: String,
+    timezone: String,
+    operhours: [OperationHoursInfo],
 });
 
 // add tags capabilities
 LocationSchema.plugin(tagsPlugin);
 
-LocationSchema.statics.createLocation = function(input: ILocation): Promise < ILocationDocument > {
+LocationSchema.statics.createLocation = function(input: ILocationInput): Promise < ILocationDocument > {
 
     const that = this;
 
@@ -32,9 +33,7 @@ LocationSchema.statics.createLocation = function(input: ILocation): Promise < IL
         if (!input.name) {
             return reject('Information not valid');
         }
-        that.create(
-            input
-        ).then(location => {
+        that.create(input).then(location => {
             resolve(location);
         }).catch(err => {
             logger.error(err);
@@ -43,7 +42,7 @@ LocationSchema.statics.createLocation = function(input: ILocation): Promise < IL
     });
 };
 
-LocationSchema.statics.updateLocation = function(id: string, input: ILocation): Promise < ILocationDocument > {
+LocationSchema.statics.updateLocation = function(id: string, input: ILocationInput): Promise < ILocationDocument > {
 
     const that = < ILocationModel > this;
 
@@ -51,9 +50,7 @@ LocationSchema.statics.updateLocation = function(id: string, input: ILocation): 
         if (!input.name) {
             return reject('Information not valid');
         }
-        that.findByIdAndUpdate(id,
-            input
-        ).then(location => {
+        that.findByIdAndUpdate(id, input).then(location => {
             resolve(location);
         }).catch(err => {
             logger.error(err);

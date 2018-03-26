@@ -1,14 +1,14 @@
 import * as Promise from 'bluebird';
 import { inject, injectable } from 'inversify';
 
-import { ILocation } from '../../../domain/app/location/location';
+import { ILocationInput } from '../../../domain/app/location/location';
 import { Locations } from '../../../domain/app/location/location.model';
 import { mutation } from '../../../framework/decorators/mutation.decorator';
 import { MutationBase } from '../../../framework/mutations/mutation-base';
 import { IMutationResponse } from '../../../framework/mutations/mutation-response';
 import { UpdateLocationActivity } from '../activities/update-location.activity';
-import { ILocationInput, UpdateLocationResponse } from '../locations.types';
-
+import { LocationInput, UpdateLocationResponse } from '../locations.types';
+import { field } from '../../../framework/decorators/field.decorator';
 
 @injectable()
 @mutation({
@@ -16,7 +16,7 @@ import { ILocationInput, UpdateLocationResponse } from '../locations.types';
     activity: UpdateLocationActivity,
     parameters: [
         { name: 'id', type: String },
-        { name: 'input', type: ILocationInput },
+        { name: 'input', type: LocationInput },
     ],
     output: { type: UpdateLocationResponse }
 })
@@ -25,7 +25,7 @@ export class UpdateLocationMutation extends MutationBase<IMutationResponse> {
         super();
     }
 
-    run(data: { id: string, input: ILocation,  }): Promise<IMutationResponse> {
+    run(data: { id: string, input: ILocationInput }): Promise<IMutationResponse> {
         const that = this;
 
         return new Promise<IMutationResponse>((resolve, reject) => {

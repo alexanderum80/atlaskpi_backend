@@ -38,7 +38,8 @@ EmployeeSchema.statics.createNew = function(employeeInput: IEmployeeInput): Prom
             return reject('Information not valid');
         }
 
-        that.create({
+        that.create(
+            {
             firstName: employeeInput.firstName,
             middleName: employeeInput.middleName,
             lastName: employeeInput.lastName,
@@ -49,7 +50,8 @@ EmployeeSchema.statics.createNew = function(employeeInput: IEmployeeInput): Prom
             maritalStatus: employeeInput.maritalStatus,
             address: employeeInput.address,
             employmentInfo: employeeInput.employmentInfo
-        }).then(employee => {
+        }
+    ).then(employee => {
             resolve(employee);
         }).catch(err => {
             logger.error(err);
@@ -66,7 +68,8 @@ EmployeeSchema.statics.updateEmployee = function(_id: string, employeeInput: IEm
             return reject('Information not valid');
         }
 
-        that.findByIdAndUpdate(_id, {
+        that.findByIdAndUpdate(_id,
+            {
             firstName: employeeInput.firstName,
             middleName: employeeInput.middleName,
             lastName: employeeInput.lastName,
@@ -77,7 +80,9 @@ EmployeeSchema.statics.updateEmployee = function(_id: string, employeeInput: IEm
             maritalStatus: employeeInput.maritalStatus,
             address: employeeInput.address,
             employmentInfo: employeeInput.employmentInfo
-        }).then(employee => {
+        }
+    
+    ).then(employee => {
             resolve(employee);
         }).catch(err => {
             logger.error(err);

@@ -7,6 +7,7 @@ import ms = require('ms');
 import * as nodemailer from 'nodemailer';
 import * as validate from 'validate.js';
 import * as logger from 'winston';
+import { isEmpty } from 'lodash';
 
 import { User } from '../../../../app_modules/users/users.types';
 import { field } from '../../../../framework/decorators/field.decorator';
@@ -31,7 +32,6 @@ import {
     IUserAgreementInput,
     IUserDocument,
     IUserModel,
-    IUserPreference,
     IUserProfile,
 } from './user';
 import { IUserToken } from './user-token';
@@ -40,19 +40,16 @@ import { IUserToken } from './user-token';
 export function userPlugin(schema: mongoose.Schema, options: any) {
     options || (options = {});
 
-    const Schema = mongoose.Schema;
+    let Schema = mongoose.Schema;
 
-    const EmailSchema = {
+    let EmailSchema = {
         address: { type: String, required: true },
         verified: Boolean
     };
 
     const AgreementSchema = {
         accept: Boolean,
-        timestamp: {
-            type: Date,
-            default: Date.now
-        },
+        timestamp: Date,
         ipAddress: String
     };
 
@@ -62,7 +59,7 @@ export function userPlugin(schema: mongoose.Schema, options: any) {
         when: { type: Date }
     };
 
-    const ServicesSchema = {
+    let ServicesSchema = {
         loginTokens: [{
             when: Date,
             hashedToken: String,
@@ -77,7 +74,7 @@ export function userPlugin(schema: mongoose.Schema, options: any) {
         }
     };
 
-    const UserProfileSchema = {
+    let UserProfileSchema = {
         firstName: String,
         middleName: String,
         lastName: String,
@@ -85,7 +82,7 @@ export function userPlugin(schema: mongoose.Schema, options: any) {
         dob: Date
     };
 
-    const UserTokenInfo = {
+    let UserTokenInfo = {
         ip: String,
         token: String,
         issued: Date,
@@ -94,21 +91,10 @@ export function userPlugin(schema: mongoose.Schema, options: any) {
         clientDetails: String
     };
 
-    const AddMobileDeviceInfo = {
+    let AddMobileDeviceInfo = {
         token: String,
         network: String,
         name: String
-    };
-
-    const ShowTourSchema = {
-        showTour: {
-            type: Boolean,
-            default: true
-        }
-    };
-
-    const UserPreferenceSchema = {
-        chart: ShowTourSchema
     };
 
     schema.add({
@@ -126,7 +112,6 @@ export function userPlugin(schema: mongoose.Schema, options: any) {
         agreement: AgreementSchema,
         services: ServicesSchema,
         profile: UserProfileSchema,
-        preferences: UserPreferenceSchema,
         tokens: [UserTokenInfo],
         mobileDevices: [AddMobileDeviceInfo],
         timestamps: { type: Date, default: Date.now }
@@ -142,11 +127,11 @@ export function userPlugin(schema: mongoose.Schema, options: any) {
         if (!user.isModified('password')) return next();
 
         // generate a salt
-        bcrypt.genSalt(SALT_WORK_FACTOR, function(err, salt) {
+        bcryptjs.genSalt(SALT_WORK_FACTOR, function(err, salt) {
             if (err) return next(err);
 
             // hash the password using our new salt
-            bcrypt.hash(user.password, salt, function(err, hash) {
+            bcryptjs.hash(user.password, salt, function(err, hash) {
                 if (err) return next(err);
 
                 // override the cleartext password with the hashed one
@@ -267,11 +252,22 @@ export function userPlugin(schema: mongoose.Schema, options: any) {
 
         return new Promise<IUserDocument>((resolve, reject) => {
             let condition = {};
+            // i.e. /^john@gmail.com$/i
+            // case insensitive
+            const regexUsername: RegExp = new RegExp('^' + username + '$', 'i');
 
             if (usernameField === 'email') {
-                condition['emails'] = { $elemMatch: { address: username  } };
+                condition['emails'] = {
+                    $elemMatch: {
+                        address: {
+                            $regex: regexUsername
+                        }
+                    }
+                };
             } else {
-                condition['username'] = username;
+                condition['username'] = {
+                    $regex: regexUsername
+                };
             }
 
             User.findOne(condition)
@@ -323,84 +319,68 @@ export function userPlugin(schema: mongoose.Schema, options: any) {
             let validation = (<any>validate).async(data, constraints, {fullMessages: false})
                 .then(() => {
 
-                    that.findByEmail(data.email).then((user: IUserDocument) => {
-                        if (user) {
-                            resolve({
-                                success: false,
-                                entity: null,
-                                errors: [
-                                    {
-                                        field: 'user',
-                                        errors: ['Email already exists']
-                                    }
-                                ]
-                            });
+                    let newUser: IUser = {
+                        profile: {
+                            firstName: data.firstName,
+                            middleName: data.middleName,
+                            lastName: data.lastName
+                        },
+                        username: data.username || data.email,
+                        emails: [{
+                            address: data.email,
+                            verified: opts.emailVerified
+                        }]
+                    };
+
+                    // add password if it was passed
+                    if (data.password) {
+                        newUser.password = data.password;
+                    }
+                    // send verification email if it is not verified
+                    else if (!opts.emailVerified) {
+                        let hash = generateUniqueHash();
+                        newUser.services = {
+                            email: {
+                                verificationTokens: [{
+                                    token: hash,
+                                    email: data.email,
+                                    when: moment.utc().toDate()
+                                }]
+                            },
+                        };
+                    }
+
+                    that.create(newUser, (err, user: IUserDocument) => {
+                        if (err) {
+                            reject({ message: 'There was an error creating the user', error: err });
                             return;
                         }
 
-                        let newUser: IUser = {
-                            profile: {
-                                firstName: data.firstName,
-                                middleName: data.middleName,
-                                lastName: data.lastName
-                            },
-                            username: data.username || data.email,
-                            emails: [{
-                                address: data.email,
-                                verified: opts.emailVerified
-                            }]
-                        };
-
-                        // add password if it was passed
-                        if (data.password) {
-                            newUser.password = data.password;
-                        }
-                        // send verification email if it is not verified
-                        else if (!opts.emailVerified) {
-                            let hash = generateUniqueHash();
-                            newUser.services = {
-                                email: {
-                                    verificationTokens: [{
-                                        token: hash,
-                                        email: data.email,
-                                        when: moment.utc().toDate()
-                                    }]
-                                },
-                            };
-                        }
-
-                        that.create(newUser, (err, user: IUserDocument) => {
-                            if (err) {
-                                reject({ message: 'There was an error creating the user', error: err });
-                                return;
-                            }
-
-                            // add user roles
-                            if (data.roles && data.roles.length > 0) {
-                                data.roles.forEach((role) => {
-                                    user.addRole(role, (err, role) => {
-                                        if (err) {
-                                            logger.error('Error adding role: ', err);
-                                        }
-                                    });
+                        // add user roles
+                        if (data.roles && data.roles.length > 0) {
+                            data.roles.forEach((role) => {
+                                user.addRole(role, (err, role) => {
+                                    if (err) {
+                                        logger.error('Error adding role: ', err);
+                                    }
                                 });
+                            });
+                        }
+
+                        // add enrollment email
+                        user.addEnrollmentEmail(data.email);
+
+                        // send email to user
+                        if (opts.notifyUser) {
+                            if (options && options.host) {
+                                notifier.notify(user, data.email, options.host);
+                            } else {
+                                notifier.notify(user, data.email);
                             }
+                        }
 
-                            // add enrollment email
-                            user.addEnrollmentEmail(data.email);
-
-                            // send email to user
-                            if (opts.notifyUser) {
-                                if (options && options.host) {
-                                    notifier.notify(user, data.email, options.host);
-                                } else {
-                                    notifier.notify(user, data.email);
-                                }
-                            }
-
-                            resolve({ entity: user });
-                        });
-                    }).catch(err => reject(err));
+                        resolve({ entity: user });
+                    });
 
                 }, (err: { [name: string]: string[] }) => {
                     resolve(MutationResponse.fromValidationErrors(err));
@@ -582,10 +562,10 @@ export function userPlugin(schema: mongoose.Schema, options: any) {
                 if (user) {
                     resolve(user);
                 } else {
-                    resolve(null);
+                    reject(null);
                 }
             }).catch(() => {
-                reject('uknown error');
+                reject(null);
             });
         });
     };
@@ -809,9 +789,15 @@ export function userPlugin(schema: mongoose.Schema, options: any) {
                         user.services.email.enrollment = [];
                     }
 
-                    if (profile) {
-                        user.profile.firstName = profile.firstName;
-                        user.profile.lastName = profile.lastName;
+                    // isEmpty({}) = true
+                    if (!isEmpty(profile)) {
+                        if (profile.firstName) {
+                            user.profile.firstName = profile.firstName;
+                        }
+
+                        if (profile.lastName) {
+                            user.profile.lastName = profile.lastName;
+                        }
                     }
 
                     user.save().then((user) => {
