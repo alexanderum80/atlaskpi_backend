@@ -1,13 +1,13 @@
-import * as bcrypt from 'bcrypt';
+import * as bcrypt from 'bcryptjs';
 import * as Promise from 'bluebird';
 import * as jwt from 'jsonwebtoken';
+import { isEmpty } from 'lodash';
 import * as moment from 'moment';
 import * as mongoose from 'mongoose';
 import ms = require('ms');
 import * as nodemailer from 'nodemailer';
 import * as validate from 'validate.js';
 import * as logger from 'winston';
-import { isEmpty } from 'lodash';
 
 import { InputUserProfile, User } from '../../../../app_modules/users/users.types';
 import { field } from '../../../../framework/decorators/field.decorator';

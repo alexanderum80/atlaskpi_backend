@@ -19,6 +19,7 @@ export const GroupingMap = {
     },
     expenses: {
         businessUnit: 'businessUnit.name',
+        accountType: 'expense.type',
         concept: 'expense.concept',
         group: 'expense.type',
         location: 'location.name',
