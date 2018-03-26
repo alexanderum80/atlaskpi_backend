@@ -71,6 +71,9 @@ export class ITourChart {
 export class ITourInput {
     @field({ type: ITourChart })
     chart: ITourChart;
+
+    @field({ type: GraphQLTypesMap.Boolean })
+    helpCenter: boolean;
 }
 
 @input()
@@ -198,10 +201,14 @@ export class ChartPreference {
     showTour: boolean;
 }
 
+
 @type()
 export class UserPreference {
     @field({ type: ChartPreference })
     chart: ChartPreference;
+
+    @field({ type:  GraphQLTypesMap.Boolean })
+    helpCenter: boolean;
 }
 
 @type()

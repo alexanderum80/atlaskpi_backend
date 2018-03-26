@@ -98,6 +98,18 @@ export function userPlugin(schema: mongoose.Schema, options: any) {
         name: String
     };
 
+    const ShowTourSchema = {
+        showTour: {
+            type: Boolean,
+            default: true
+        }
+    };
+
+    const UserPreferenceSchema = {
+        chart: ShowTourSchema,
+        helpCenter: { type: Boolean, default: true }
+    };
+
     schema.add({
         emails: [{
             address: { type: String, required: true },
@@ -113,6 +125,7 @@ export function userPlugin(schema: mongoose.Schema, options: any) {
         agreement: AgreementSchema,
         services: ServicesSchema,
         profile: UserProfileSchema,
+        preferences: UserPreferenceSchema,
         tokens: [UserTokenInfo],
         mobileDevices: [AddMobileDeviceInfo],
         timestamps: { type: Date, default: Date.now }
@@ -1089,7 +1102,7 @@ export function userPlugin(schema: mongoose.Schema, options: any) {
 
         return new Promise<IUserDocument>((resolve, reject) => {
             userModel
-                .findOneAndUpdate({_id: id}, { preferences: input }, {new: true })
+                .findOneAndUpdate({_id: id}, { 'preferences':  input }, {new: true })
                 .exec()
                 .then(document => {
                     resolve(document);
@@ -1129,5 +1142,20 @@ export function userPlugin(schema: mongoose.Schema, options: any) {
                 });
         });
     };
+
+    schema.statics.findByUserHelpCenter = function(username: string): Promise<IUserDocument> {
+        const UserModel = (<IUserModel>this);
+        return new Promise<IUserDocument>((resolve, reject) => {
+            UserModel.findOne({ username: { $in: username } }).then(users => {
+                if (users) {
+                    resolve(users);
+                    return;
+                }
+                resolve(null);
+                return;
+            }).catch(err => reject(err));
+        });
+    };
+
 
 }
