@@ -79,6 +79,9 @@ export class TargetAmountInput {
     amountBy: string;
 
     @field({ type: GraphQLTypesMap.String })
+    datepicker: string;
+
+    @field({ type: GraphQLTypesMap.String })
     period: string;
 
     @field({ type: GraphQLTypesMap.String })

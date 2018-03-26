@@ -25,6 +25,12 @@ export interface IUserEmail {
     verified: boolean;
 }
 
+export interface IUserAgreement {
+    accept: boolean;
+    timestamp: Date;
+    ipAddress: string;
+}
+
 export interface IUserLoginToken {
     when: Date;
     hashedToken: string;
@@ -74,6 +80,14 @@ export interface IUserPreference {
     // yojanier
     notification?: IUserNotifications;
     avatarAddress?: string;
+}
+
+
+export interface IUserAgreementInput {
+    email: string;
+    accept: boolean;
+    ipAddress: string;
+    timestamp?: Date;
 }
 
 export interface ITokenInfo {
@@ -131,6 +145,7 @@ export interface IUser {
     services?: IUserServices;
     profile: IUserProfile;
     preferences?: IUserPreference;
+    agreement?: IUserAgreement;
     roles?: IRole[];
     tokens?: ITokenInfo[];
     mobileDevices?: IMobileDevice[];
@@ -333,6 +348,10 @@ export interface IUserModel extends mongoose.Model<IUserDocument> {
      * update the user's preferences
      */
     updateUserPreference(id: string, input: IUserPreference): Promise<IUserDocument>;
+    /**
+     * update the user's agreement
+     */
+    updateUserAgreement(input: IUserAgreementInput): Promise<IUserDocument>;
 
     /**
      * Edit user profile by Yojanier

@@ -428,7 +428,7 @@ function generateFirstAccountToken(authService: AuthService, authData: IUserAuth
                 ip: authData.ip,
                 clientId: authData.clientId,
                 clientDetails: authData.clientDetails
-            }).then((tokenInfo) => {
+            }, true).then((tokenInfo) => {
                 resolve({
                     subdomain: authData.hostname,
                     tokenInfo: tokenInfo

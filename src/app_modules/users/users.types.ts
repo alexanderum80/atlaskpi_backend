@@ -107,6 +107,15 @@ export class ITourInput {
     chart: ITourChart;
 }
 
+@input()
+export class UserAgreementInput {
+    @field({ type: GraphQLTypesMap.String })
+    email: string;
+
+    @field({ type: GraphQLTypesMap.Boolean })
+    accept: boolean;
+}
+
 
 @type()
 export class UserEmail  {
@@ -252,6 +261,18 @@ export class UserPreference {
 }
 
 @type()
+export class UserAgreement {
+    @field({ type: GraphQLTypesMap.Boolean })
+    accept: boolean;
+
+    @field({ type: GraphQLTypesMap.String })
+    ipAddress: string;
+
+    @field({ type: GraphQLTypesMap.String })
+    timestamp: Date;
+}
+
+@type()
 export class User  {
     @field({ type: GraphQLTypesMap.String })
     _id: string;
@@ -274,6 +295,9 @@ export class User  {
 
     @field({ type: GraphQLTypesMap.String })
     timestamps: string;
+
+    @field({ type: UserAgreement })
+    agreement: UserAgreement;
 
 }
 

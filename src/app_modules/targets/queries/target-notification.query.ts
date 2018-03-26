@@ -58,7 +58,12 @@ export class TargetNotificationQuery implements IQuery<boolean> {
                         businessUnitName: input.businessUnit
                     };
 
-                    const message = `Name: ${input.targetName}, amount: ${input.targetAmount}, date: ${input.targetDate}, chart: ${chart.title}`;
+                    const message = `
+                        This is a notification for the target ${notifyData.targetName} you set for ${notifyData.businessUnitName}, 
+                        to date you have reached $${notifyData.targetMet} of your targeted $${notifyData.targetAmount} for 
+                        ${notifyData.targetDate}. You can access this on your ${notifyData.dashboardName} dashboard on the chart called 
+                        ${notifyData.chartName}.
+                    `;
                     this._pnsService.sendNotifications(users, message);
 
                     users.forEach(user => that._targetNotification.notify(user, user.username, notifyData));

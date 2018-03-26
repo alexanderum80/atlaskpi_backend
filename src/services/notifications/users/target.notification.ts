@@ -32,6 +32,6 @@ export class TargetNotification implements IEmailNotifier {
         dataSource.businessUnitName = data.businessUnitName;
 
         const emailContent = targetNotificationTemplate(dataSource);
-        return sendEmail(email, `${this._config.usersService.app.name}: Target Notification`, emailContent);
+        return sendEmail(email, `Target Notification`, emailContent);
     }
 }

@@ -1,3 +1,5 @@
+import { UpdateUserAgreementMutation } from './mutations/update-user-agreement.mutation';
+import { FindUserByUsername } from './queries/find-user-by-username.query';
 import { AppModule, ModuleBase } from '../../framework/decorators/app-module';
 import { AddMobileDeviceMutation } from './mutations/add-mobile-device.mutation';
 import { CreateUserMutation } from './mutations/create-user.mutation';
@@ -29,9 +31,9 @@ import { GetUseravatarAddressQuery } from './queries/get-user-avatar-address.que
         UpdateUserMutation,
         UserForgotPasswordMutation,
         UpdateUserPreferenceMutation,
-        /// yojanier
         EditUserProfileMutation,
-        UpdateUserAvatarAddreesMutation
+        UpdateUserAvatarAddreesMutation,
+    UpdateUserAgreementMutation
     ],
     queries: [
         AllUsersQuery,
@@ -42,7 +44,8 @@ import { GetUseravatarAddressQuery } from './queries/get-user-avatar-address.que
         FindByFullNameQuery,
         /// yojanier
         UserProfileByIdQuery,
-        GetUseravatarAddressQuery
+        GetUseravatarAddressQuery,
+    FindUserByUsername
     ]
 })
 export class UsersModule extends ModuleBase { }
