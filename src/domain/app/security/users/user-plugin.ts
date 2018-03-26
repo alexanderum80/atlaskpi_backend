@@ -32,7 +32,8 @@ import {
     IUserAgreementInput,
     IUserDocument,
     IUserModel,
-    IUserProfile,
+IUserProfile,
+IUserPreference,
 } from './user';
 import { IUserToken } from './user-token';
 
@@ -120,6 +121,16 @@ export function userPlugin(schema: mongoose.Schema, options: any) {
     // encrypt passowrd on save
     const SALT_WORK_FACTOR = 10;
 
+
+    function insentive_username(username: string): any {
+        if (!username) { return username; }
+
+        const regexp: RegExp = new RegExp('^' + username + '$', 'i');
+        return {
+            $regex: regexp
+        };
+    }
+
     schema.pre('save', function(next) {
         let user = this;
 
@@ -127,11 +138,11 @@ export function userPlugin(schema: mongoose.Schema, options: any) {
         if (!user.isModified('password')) return next();
 
         // generate a salt
-        bcryptjs.genSalt(SALT_WORK_FACTOR, function(err, salt) {
+        bcrypt.genSalt(SALT_WORK_FACTOR, function(err, salt) {
             if (err) return next(err);
 
             // hash the password using our new salt
-            bcryptjs.hash(user.password, salt, function(err, hash) {
+            bcrypt.hash(user.password, salt, function(err, hash) {
                 if (err) return next(err);
 
                 // override the cleartext password with the hashed one
@@ -254,20 +265,15 @@ export function userPlugin(schema: mongoose.Schema, options: any) {
             let condition = {};
             // i.e. /^john@gmail.com$/i
             // case insensitive
-            const regexUsername: RegExp = new RegExp('^' + username + '$', 'i');
 
             if (usernameField === 'email') {
                 condition['emails'] = {
                     $elemMatch: {
-                        address: {
-                            $regex: regexUsername
-                        }
+                        address: insentive_username(username)
                     }
                 };
             } else {
-                condition['username'] = {
-                    $regex: regexUsername
-                };
+                condition['username'] = insentive_username(username);
             }
 
             User.findOne(condition)
@@ -522,7 +528,9 @@ export function userPlugin(schema: mongoose.Schema, options: any) {
         const userModel = (<IUserModel>this);
 
         return new Promise<IUserDocument>((resolve, reject) => {
-            userModel.findOne({ username: username })
+            userModel.findOne({
+                username: insentive_username(username)
+            })
                 .populate({
                     path: 'roles',
                     model: 'Role'
@@ -1098,7 +1106,9 @@ export function userPlugin(schema: mongoose.Schema, options: any) {
         const userModel = (<IUserModel>this);
 
         return new Promise<IUserDocument>((resolve, reject) => {
-            userModel.findOne({ username: input.email })
+            userModel.findOne({
+                username: insentive_username(input.email)
+            })
                 .then((user: IUserDocument) => {
                     user.agreement = {
                         accept: input.accept,
