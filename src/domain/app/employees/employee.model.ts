@@ -17,7 +17,7 @@ const EmployeeSchema = new mongoose.Schema({
     firstName: { type: String, unique: true, required: true },
     middleName: String,
     lastName: String,
-    email: { type: String, unique: true, required: true },
+    email: String,
     primaryNumber: String,
     dob: Date,
     nationality: String,

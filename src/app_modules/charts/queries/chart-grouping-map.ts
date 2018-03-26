@@ -79,11 +79,14 @@ export const GroupingMap = {
         checkedOut: 'checkoedOut',
         cancelled: 'cancelled',
         noShow: 'noShow',
-        customer: 'customer.name',
+        customer: 'customer.fullname',
         provider: 'provider.name',
         location: 'location.name',
-        type: 'event.name',
-        source: 'source'
+        type: 'appointmentType',
+        source: 'source',
+        procedure: 'procedure.name',
+        referal: 'referal.name',
+        converted: 'converted'
     }
 };
 
