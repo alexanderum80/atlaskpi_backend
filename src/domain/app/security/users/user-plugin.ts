@@ -106,6 +106,10 @@ export function userPlugin(schema: mongoose.Schema, options: any) {
     };
 
     const UserPreferenceSchema = {
+        chart: ShowTourSchema,
+        helpCenter: { type: Boolean, default: true }
+    };
+
     schema.add({
         emails: [{
             address: { type: String, required: true },
