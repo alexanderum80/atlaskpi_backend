@@ -1,4 +1,4 @@
-import * as bcrypt from 'bcrypt';
+import * as bcrypt from 'bcryptjs';
 import * as Promise from 'bluebird';
 import * as jwt from 'jsonwebtoken';
 import * as moment from 'moment';
