@@ -8,14 +8,14 @@ import { ErrorDetails } from '../../framework/graphql/common.types';
 
 
 @input()
-export class AlertInput {
-    @field({ type: GraphQLTypesMap.String, isArray: true })
+export class AlertInfoInput {
+    @field({ type: GraphQLTypesMap.String, isArray: true, required: true })
     notify: String[];
 
-    @field({ type: GraphQLTypesMap.String })
+    @field({ type: GraphQLTypesMap.String, required: true })
     frequency: String;
 
-    @field({ type: GraphQLTypesMap.Boolean })
+    @field({ type: GraphQLTypesMap.Boolean, required: true })
     active: boolean;
 
     @field({ type: GraphQLTypesMap.Boolean })
@@ -23,6 +23,12 @@ export class AlertInput {
 
     @field({ type: GraphQLTypesMap.Boolean })
     email_notified: boolean;
+}
+
+@input()
+export class AlertInput {
+    @field({ type: AlertInfoInput, isArray: true, required: true })
+    alertInfo: AlertInfoInput[];
 
     @field({ type: GraphQLTypesMap.String })
     model_name: string;

@@ -15,13 +15,13 @@ const Schema = mongoose.Schema;
 const AlertInfoSchema = {
     notify: { type: [String], required: true},
     frequency: { type: String, required: true },
-    active: Boolean,
+    active: {type: Boolean, required: true},
     push_notification: Boolean,
     email_notified: Boolean
 };
 
 const AlertSchema = new Schema({
-    alertInfo: AlertInfoSchema,
+    alertInfo: [AlertInfoSchema],
     model_name: { type: String, required: true},
     model_id: { type: String, required: true }
 });
@@ -32,7 +32,7 @@ AlertSchema.statics.alertByWidgetId = function(id: string): Promise<IAlertDocume
     const alertModel = (<IAlertModel>this);
 
     return new Promise<IAlertDocument>((resolve, reject) => {
-        alertModel.findById(id)
+        alertModel.findOne({ model_id: id })
             .then((result: IAlertDocument) => {
                 resolve(result);
                 return;
@@ -59,30 +59,30 @@ AlertSchema.statics.createAlert = function(input: IAlertInfo): Promise<IAlertDoc
             }
         };
 
-        const constraints = {
-            alertInfo: {
-                notify: requiredAndNotBlank,
-                frequency: requiredAndNotBlank,
-                active: requiredAndNotBlank
-            },
-            model_name: requiredAndNotBlank,
-            model_id: requiredAndNotBlank
-        };
+        // const constraints = {
+        //     'alertInfo[]': {
+        //         notify: requiredAndNotBlank,
+        //         frequency: requiredAndNotBlank,
+        //         active: requiredAndNotBlank
+        //     },
+        //     model_name: requiredAndNotBlank,
+        //     model_id: requiredAndNotBlank
+        // };
 
-        const errors = (<any> validate)(input, constraints, {
-            fullMessages: false
-        });
+        // const errors = (<any> validate)(input, constraints, {
+        //     fullMessages: false
+        // });
 
-        if (errors) {
-            reject(errors);
-            return;
-        }
+        // if (errors) {
+        //     reject(errors);
+        //     return;
+        // }
 
         let hasNotification: boolean = true;
         // push_notification or email_notified must have value if active is true
         input.alertInfo.forEach((info: IAlert) => {
             if (info.active) {
-                hasNotification = hasNotification && info.push_notification && info.email_notified;
+                hasNotification = hasNotification && (info.push_notification || info.email_notified);
             }
         });
 
@@ -131,20 +131,20 @@ AlertSchema.statics.updateAlert = function(id: string, input: IAlertInfo): Promi
             model_id: requiredAndNotBlank
         };
 
-        const errors = (<any> validate)(input, constraints, {
-            fullMessages: false
-        });
+        // const errors = (<any> validate)(input, constraints, {
+        //     fullMessages: false
+        // });
 
-        if (errors) {
-            reject(errors);
-            return;
-        }
+        // if (errors) {
+        //     reject(errors);
+        //     return;
+        // }
 
         let hasNotification: boolean = true;
         // push_notification or email_notified must have value if active is true
         input.alertInfo.forEach((info: IAlert) => {
             if (info.active) {
-                hasNotification = hasNotification && info.push_notification && info.email_notified;
+                hasNotification = hasNotification && (info.push_notification || info.email_notified);
             }
         });
 
