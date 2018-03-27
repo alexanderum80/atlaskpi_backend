@@ -18,7 +18,7 @@ import { FindByFullNameQuery } from './queries/user-by-fullName.query';
 import { EditUserProfileMutation} from './mutations/edit-user-profile.mutation';
 import { UserProfileByIdQuery } from './queries/user-profile-by-id.query';
 import { UpdateUserAvatarAddreesMutation } from './mutations/update-user-avatar-address.mutation';
-import { GetUseravatarAddressQuery } from './queries/get-user-avatar-address.query';
+import { GetUserAvatarAddressQuery } from './queries/get-user-avatar-address.query';
 import { UserHelpCenterQuery } from './queries/user-help-center.query';
 
 
@@ -46,7 +46,7 @@ import { UserHelpCenterQuery } from './queries/user-help-center.query';
     UserHelpCenterQuery,
         /// yojanier
         UserProfileByIdQuery,
-        GetUseravatarAddressQuery,
+        GetUserAvatarAddressQuery,
     FindUserByUsername
     ]
 })

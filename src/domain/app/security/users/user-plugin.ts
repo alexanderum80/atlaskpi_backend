@@ -1164,7 +1164,7 @@ export function userPlugin(schema: mongoose.Schema, options: any) {
         const that = <IUserModel>this;
 
         return new Promise<IUserProfileResolve>((resolve, reject) => {
-            
+
             that.findById(id).then(user => {
                 if (!user.preferences) {
                     user.preferences = {
@@ -1187,7 +1187,7 @@ export function userPlugin(schema: mongoose.Schema, options: any) {
                     emailNotification: user.preferences.notification.emailNotification,
                     dnd: user.preferences.notification.dnd
                 };
-                
+
                 resolve(userProfile);
             }).catch(err => {
             logger.error(err);
@@ -1269,6 +1269,4 @@ export function userPlugin(schema: mongoose.Schema, options: any) {
             }).catch(err => reject(err));
         });
     };
-
-
 }

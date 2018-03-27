@@ -14,7 +14,7 @@ import { GetUseravatarAddressActivity } from '../activities/get-user-avatar-addr
     ],
     output: { type: String }
 })
-export class GetUseravatarAddressQuery implements IQuery<string> {
+export class GetUserAvatarAddressQuery implements IQuery<string> {
     constructor(
         @inject(Users.name) private _users: Users) { }
 
