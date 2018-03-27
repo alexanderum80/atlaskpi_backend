@@ -7,6 +7,7 @@ export interface IAlert {
     active: boolean;
     push_notification: boolean;
     email_notified: boolean;
+    weekday: string;
 }
 
 export interface IAlertInfo {

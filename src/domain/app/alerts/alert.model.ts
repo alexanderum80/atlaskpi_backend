@@ -8,16 +8,24 @@ import { isArray } from 'lodash';
 import * as mongoose from 'mongoose';
 import * as Promise from 'bluebird';
 import * as validate from 'validate.js';
-
+import * as moment from 'moment';
 
 const Schema = mongoose.Schema;
 
 const AlertInfoSchema = {
-    notify: { type: [String], required: true},
+    notify: {
+        type: [String],
+        ref: 'User',
+        required: true
+    },
     frequency: { type: String, required: true },
     active: {type: Boolean, required: true},
     push_notification: Boolean,
-    email_notified: Boolean
+    email_notified: Boolean,
+    weekday: {
+        type: String,
+        default: moment().format('dddd')
+    }
 };
 
 const AlertSchema = new Schema({
