@@ -29,6 +29,7 @@ import { CountriesModule } from './countries/countries.module';
 import { TagModule } from './tags/tags.module';
 import { ActivitiesModule } from './activities/activities.module';
 import { AlertsModule } from './alerts/alerts.module';
+import {HelpCenterModule} from './help-centers/help-center.module';
 
 
 @AppModule({
@@ -47,6 +48,7 @@ import { AlertsModule } from './alerts/alerts.module';
         DepartmentsModule,
         EmployeesModule,
         GoogleSpreadSheetModule,
+        HelpCenterModule,
         KpisModule,
         LocationsModule,
         MapsModule,
@@ -62,7 +64,7 @@ import { AlertsModule } from './alerts/alerts.module';
         SocialWidgetsModule,
         TagModule,
         ConnectorsModule,
-    ActivitiesModule
+        ActivitiesModule
     ]
 })
 export class AtlasApp extends ModuleBase { }

@@ -1,3 +1,4 @@
+import { HelpCenter } from './help-center/help-center.model';
 import { Calls } from './calls/call.model';
 import { Inventory } from './inventory/inventory.model';
 import { CurrentAccount } from './../master/current-account';
@@ -54,6 +55,7 @@ const registrations: any[] = [
     Employees,
     EmployeeAttendance,
     Expenses,
+    HelpCenter,
     KPIs,
     Locations,
     Logs,
