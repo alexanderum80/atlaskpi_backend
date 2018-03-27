@@ -1,6 +1,7 @@
 import * as bcryptjs from 'bcryptjs';
 import * as Promise from 'bluebird';
 import * as jwt from 'jsonwebtoken';
+import { isEmpty } from 'lodash';
 import * as moment from 'moment';
 import * as mongoose from 'mongoose';
 import ms = require('ms');
@@ -28,22 +29,39 @@ import {
     ITokenInfo,
     ITokenVerification,
     IUser,
+    IUserAgreementInput,
     IUserDocument,
     IUserModel,
-    IUserPreference,
-    IUserProfile,
+IUserProfile,
+IUserPreference,
 } from './user';
 import { IUserToken } from './user-token';
+
+
+export function insentive_username(username: string): any {
+    if (!username) { return username; }
+
+    const regexp: RegExp = new RegExp('^' + username + '$', 'i');
+    return {
+        $regex: regexp
+    };
+}
 
 
 export function userPlugin(schema: mongoose.Schema, options: any) {
     options || (options = {});
 
-    const Schema = mongoose.Schema;
+    let Schema = mongoose.Schema;
 
-    const EmailSchema = {
+    let EmailSchema = {
         address: { type: String, required: true },
         verified: Boolean
+    };
+
+    const AgreementSchema = {
+        accept: Boolean,
+        timestamp: Date,
+        ipAddress: String
     };
 
     const EmailedTokenSchema = {
@@ -52,7 +70,7 @@ export function userPlugin(schema: mongoose.Schema, options: any) {
         when: { type: Date }
     };
 
-    const ServicesSchema = {
+    let ServicesSchema = {
         loginTokens: [{
             when: Date,
             hashedToken: String,
@@ -67,7 +85,7 @@ export function userPlugin(schema: mongoose.Schema, options: any) {
         }
     };
 
-    const UserProfileSchema = {
+    let UserProfileSchema = {
         firstName: String,
         middleName: String,
         lastName: String,
@@ -75,7 +93,7 @@ export function userPlugin(schema: mongoose.Schema, options: any) {
         dob: Date
     };
 
-    const UserTokenInfo = {
+    let UserTokenInfo = {
         ip: String,
         token: String,
         issued: Date,
@@ -84,7 +102,7 @@ export function userPlugin(schema: mongoose.Schema, options: any) {
         clientDetails: String
     };
 
-    const AddMobileDeviceInfo = {
+    let AddMobileDeviceInfo = {
         token: String,
         network: String,
         name: String
@@ -98,7 +116,8 @@ export function userPlugin(schema: mongoose.Schema, options: any) {
     };
 
     const UserPreferenceSchema = {
-        chart: ShowTourSchema
+        chart: ShowTourSchema,
+        helpCenter: { type: Boolean, default: true }
     };
 
     schema.add({
@@ -113,6 +132,7 @@ export function userPlugin(schema: mongoose.Schema, options: any) {
         },
         owner: Boolean,
         password: String,
+        agreement: AgreementSchema,
         services: ServicesSchema,
         profile: UserProfileSchema,
         preferences: UserPreferenceSchema,
@@ -150,7 +170,7 @@ export function userPlugin(schema: mongoose.Schema, options: any) {
      */
 
     schema.methods.comparePassword = function(candidatePassword): boolean {
-        return bcrypt.compareSync(candidatePassword, this.password);
+        return bcryptjs.compareSync(candidatePassword, this.password);
     };
 
     schema.methods.hasEmail = function(email: string): Boolean {
@@ -256,11 +276,17 @@ export function userPlugin(schema: mongoose.Schema, options: any) {
 
         return new Promise<IUserDocument>((resolve, reject) => {
             let condition = {};
+            // i.e. /^john@gmail.com$/i
+            // case insensitive
 
             if (usernameField === 'email') {
-                condition['emails'] = { $elemMatch: { address: username  } };
+                condition['emails'] = {
+                    $elemMatch: {
+                        address: insentive_username(username)
+                    }
+                };
             } else {
-                condition['username'] = username;
+                condition['username'] = insentive_username(username);
             }
 
             User.findOne(condition)
@@ -512,16 +538,26 @@ export function userPlugin(schema: mongoose.Schema, options: any) {
     };
 
     schema.statics.findByUsername = function(username: string): Promise<IUserDocument> {
+        const userModel = (<IUserModel>this);
+
         return new Promise<IUserDocument>((resolve, reject) => {
-            (<IUserModel>this).findOne({ username: username }).then((user) => {
-                if (user) {
-                    resolve(user);
-                } else {
+            userModel.findOne({
+                username: insentive_username(username)
+            })
+                .populate({
+                    path: 'roles',
+                    model: 'Role'
+                })
+                .then((user) => {
+                    if (user) {
+                        resolve(user);
+                    } else {
+                        reject(null);
+                    }
+                })
+                .catch((err) => {
                     reject(null);
-                }
-            }).catch(() => {
-                reject(null);
-            });
+                });
         });
     };
 
@@ -541,7 +577,9 @@ export function userPlugin(schema: mongoose.Schema, options: any) {
 
     schema.statics.findByEmail = function(email: string): Promise<IUserDocument> {
         return new Promise<IUserDocument>((resolve, reject) => {
-            (<IUserModel>this).findOne({ 'emails.address': email }).then((user) => {
+            const regularExpEmail = new RegExp(email, 'i');
+
+            (<IUserModel>this).findOne({ 'emails.address': regularExpEmail }).then((user) => {
                 if (user) {
                     resolve(user);
                 } else {
@@ -772,9 +810,15 @@ export function userPlugin(schema: mongoose.Schema, options: any) {
                         user.services.email.enrollment = [];
                     }
 
-                    if (profile) {
-                        user.profile.firstName = profile.firstName;
-                        user.profile.lastName = profile.lastName;
+                    // isEmpty({}) = true
+                    if (!isEmpty(profile)) {
+                        if (profile.firstName) {
+                            user.profile.firstName = profile.firstName;
+                        }
+
+                        if (profile.lastName) {
+                            user.profile.lastName = profile.lastName;
+                        }
                     }
 
                     user.save().then((user) => {
@@ -1058,7 +1102,7 @@ export function userPlugin(schema: mongoose.Schema, options: any) {
 
         return new Promise<IUserDocument>((resolve, reject) => {
             userModel
-                .findOneAndUpdate({_id: id}, { preferences: input }, {new: true })
+                .findOneAndUpdate({_id: id}, { 'preferences':  input }, {new: true })
                 .exec()
                 .then(document => {
                     resolve(document);
@@ -1070,5 +1114,48 @@ export function userPlugin(schema: mongoose.Schema, options: any) {
                 });
         });
     };
+
+    schema.statics.updateUserAgreement = function(input: IUserAgreementInput): Promise<IUserDocument> {
+        const userModel = (<IUserModel>this);
+
+        return new Promise<IUserDocument>((resolve, reject) => {
+            userModel.findOne({
+                username: insentive_username(input.email)
+            })
+                .then((user: IUserDocument) => {
+                    user.agreement = {
+                        accept: input.accept,
+                        ipAddress: input.ipAddress,
+                        timestamp: input.timestamp
+                    };
+
+                    user.save((err, user: IUserDocument) => {
+                        if (err) {
+                            reject({
+                                message: 'There was an error updating user agreement',
+                                error: err
+                            });
+                            return;
+                        }
+                        resolve(user);
+                    });
+                });
+        });
+    };
+
+    schema.statics.findByUserHelpCenter = function(username: string): Promise<IUserDocument> {
+        const UserModel = (<IUserModel>this);
+        return new Promise<IUserDocument>((resolve, reject) => {
+            UserModel.findOne({ username: { $in: username } }).then(users => {
+                if (users) {
+                    resolve(users);
+                    return;
+                }
+                resolve(null);
+                return;
+            }).catch(err => reject(err));
+        });
+    };
+
 
 }

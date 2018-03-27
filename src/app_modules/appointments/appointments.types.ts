@@ -1,23 +1,40 @@
+import { IAppointment } from './../../domain/app/appointments/appointment';
 import { field } from '../../framework/decorators/field.decorator';
 import { GraphQLTypesMap } from '../../framework/decorators/graphql-types-map';
 import { input } from '../../framework/decorators/input.decorator';
 import { type } from '../../framework/decorators/type.decorator';
 import { ErrorDetails } from '../../framework/graphql/common.types';
+import { resolver } from '../../framework/decorators/resolver.decorator';
+import { Entity } from '../shared/shared.types';
 
+@input()
+export class SearchAppointmentCriteriaInput {
+    @field ({ type: GraphQLTypesMap.String })
+    date?: string;
+
+    @field ({ type: GraphQLTypesMap.String })
+    startDate?: string;
+
+    @field ({ type: GraphQLTypesMap.String })
+    endDate?: string;
+
+    @field({ type: GraphQLTypesMap.String, isArray: true })
+    provider?: string[];
+}
 
 @input()
 export class AppointmentInput  {
     @field({ type: GraphQLTypesMap.String })
-    source: string;
-
-    @field({ type: GraphQLTypesMap.String })
     externalId: string;
 
     @field({ type: GraphQLTypesMap.String })
-    fullName: string;
+    source: string;
 
-    @field({ type: GraphQLTypesMap.String, required: true })
+    @field({ type: GraphQLTypesMap.String})
     reason: string;
+
+    @field({ type: GraphQLTypesMap.String})
+    comments: string;
 
     @field({ type: GraphQLTypesMap.String, required: true })
     from: string;
@@ -25,14 +42,31 @@ export class AppointmentInput  {
     @field({ type: GraphQLTypesMap.String })
     to: string;
 
-    @field({ type: GraphQLTypesMap.String })
-    provider: string;
+    @field({ type: GraphQLTypesMap.Int })
+    duration: number;
 
-    @field({ type: GraphQLTypesMap.String })
-    state: string;
+    @field({ type: GraphQLTypesMap.Boolean })
+    approved: string;
 
 }
 
+@type()
+export class AppointmentEvent {
+    @field({ type: GraphQLTypesMap.String })
+    externalId: string;
+
+    @field({ type: GraphQLTypesMap.String })
+    name: string;
+
+    @field ({type:  GraphQLTypesMap.String })
+    color: string;
+
+    @field ({type:  GraphQLTypesMap.String })
+    conflictColor: string;
+
+    @field ({type:  GraphQLTypesMap.String })
+    cancelledColor: string;
+}
 
 @type()
 export class Appointment  {
@@ -40,16 +74,16 @@ export class Appointment  {
     _id: string;
 
     @field({ type: GraphQLTypesMap.String })
-    source: string;
-
-    @field({ type: GraphQLTypesMap.String })
     externalId: string;
 
     @field({ type: GraphQLTypesMap.String })
-    fullName: string;
+    source: string;
 
-    @field({ type: GraphQLTypesMap.String, required: true })
+    @field({ type: GraphQLTypesMap.String})
     reason: string;
+
+    @field({ type: GraphQLTypesMap.String})
+    comments: string;
 
     @field({ type: GraphQLTypesMap.String, required: true })
     from: string;
@@ -57,14 +91,60 @@ export class Appointment  {
     @field({ type: GraphQLTypesMap.String })
     to: string;
 
-    @field({ type: GraphQLTypesMap.String })
-    provider: string;
+    @field({ type: GraphQLTypesMap.Int })
+    duration: number;
+
+    @field({ type: GraphQLTypesMap.Boolean })
+    approved: boolean;
+
+    @field({ type: GraphQLTypesMap.Boolean })
+    checkedIn: boolean;
+
+    @field({ type: GraphQLTypesMap.Boolean })
+    checkedOut: boolean;
+
+    @field({ type: GraphQLTypesMap.Boolean })
+    cancelled: boolean;
 
     @field({ type: GraphQLTypesMap.String })
-    state: string;
+    checkedInOn: string;
 
+    @field({ type: GraphQLTypesMap.String })
+    checkedOutOn: string;
+
+    @field({ type: GraphQLTypesMap.String })
+    cancelledOn: string;
+
+    @field({ type: GraphQLTypesMap.String })
+    confirmedOn: string;
+
+    @field({ type: GraphQLTypesMap.String })
+    createdOn: string;
+
+    @field({ type: Entity })
+    customer: Entity;
+
+    @resolver({ forField: 'customer'})
+    static resolveCustomer = (entity: Appointment) => entity.customer
+
+    @field({ type: Entity })
+    location: Entity;
+
+    @resolver({ forField: 'location'})
+    static resolveLocation = (entity: Appointment) => entity.location
+
+    @field({ type: Entity, isArray: true})
+    provider: Entity[];
+
+    @resolver({ forField: 'provider'})
+    static resolveProvier = (entity: Appointment) => entity.provider
+
+    @field({ type: AppointmentEvent })
+    event: AppointmentEvent;
+
+    @resolver({ forField: 'event' })
+    static resolveEvent = (entity: IAppointment) => entity.event
 }
-
 
 @type()
 export class AppointmentMutationResponse  {
@@ -76,6 +156,13 @@ export class AppointmentMutationResponse  {
 
     @field({ type: ErrorDetails, isArray: true })
     errors?: ErrorDetails[];
-
 }
 
+@type()
+export class AppointmentProvider  {
+    @field({ type: GraphQLTypesMap.String })
+    externalId: string;
+
+    @field({ type: GraphQLTypesMap.String })
+    name: string ;
+}

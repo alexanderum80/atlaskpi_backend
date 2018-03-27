@@ -1,7 +1,26 @@
 import { field } from '../../framework/decorators/field.decorator';
 import { GraphQLTypesMap } from '../../framework/decorators/graphql-types-map';
 import { type } from '../../framework/decorators/type.decorator';
+import { input } from '../../framework/decorators/input.decorator';
 import { Permission } from '../permissions/permissions.types';
+
+@input()
+export class MapMarkerGroupingInput {
+    @field({ type: GraphQLTypesMap.String })
+    dateRange: string;
+
+    @field({ type: GraphQLTypesMap.String })
+    grouping: string;
+}
+
+@type()
+export class MapMarkerItemList {
+    @field({ type: GraphQLTypesMap.Float })
+    amount: number;
+
+    @field({ type: GraphQLTypesMap.String })
+    groupName: string;
+}
 
 @type()
 export class MapMarker  {
@@ -19,4 +38,10 @@ export class MapMarker  {
 
     @field({ type: GraphQLTypesMap.Float })
     value: number;
+
+    @field({ type: GraphQLTypesMap.String })
+    groupingName?: string;
+
+    @field({ type: MapMarkerItemList, isArray: true })
+    itemList?: MapMarkerItemList[];
 }

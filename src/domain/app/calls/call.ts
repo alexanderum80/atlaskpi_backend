@@ -32,7 +32,7 @@ export interface ISpeakerAgent {
 }
 export interface ICall {
     externalId: string;
-    answered: boolean;
+    answered: string;
     business: IBusiness;
     customer: ICustomer;
     company: ICompany;
@@ -41,12 +41,12 @@ export interface ICall {
     startTime: Date;
     source: string;
     tracking: ITracking;
-    voicemail: boolean;
+    voicemail: string;
     recording: IRecording;
     // more fields
     created_at: Date;
     device_type: string;
-    first_call: boolean;
+    first_call: string;
     prior_calls: number;
     lead_status: string;
     source_name: string;
@@ -65,5 +65,5 @@ export interface ICall {
 export interface ICallDocument extends ICall, mongoose.Document {}
 
 export interface ICallModel extends mongoose.Model<ICallDocument> {
-    findCriteria(field: string): Promise<string[]>;
+    findCriteria(field: string, limit?: number, filter?: string): Promise<string[]>;
 }

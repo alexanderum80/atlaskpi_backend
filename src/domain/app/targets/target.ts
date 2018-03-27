@@ -17,15 +17,20 @@ export interface ITarget {
     notify: INotify;
     visible: string[];
     owner: string;
+    chart?: string[];
     delete?: boolean;
+    stackName?: string;
+    nonStackName?: string;
     target?: number;
     targetMet?: number;
+    timestamp?: Date;
 }
 
 export interface ITargetDocument extends ITarget, mongoose.Document {}
 
 export interface ITargetModel extends mongoose.Model<ITargetDocument> {
     findTarget(id: string): Promise<ITargetDocument>;
+    findTargetByName(name: string): Promise<ITargetDocument>;
     findTargetByDate(date: string): Promise<ITargetDocument[]>;
     findAllTargets(): Promise<ITargetDocument[]>;
     findUserVisibleTargets(chartId: string, userId: string): Promise<ITargetDocument[]>;

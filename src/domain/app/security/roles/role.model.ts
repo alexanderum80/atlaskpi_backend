@@ -286,6 +286,34 @@ RoleSchema.statics.findAllRoles = function(filter: string): Promise < IRoleDocum
     });
 };
 
+RoleSchema.statics.roleByName = function(name: string): Promise < IRoleDocument > {
+    return new Promise < IRoleDocument > ((resolve, reject) => {
+        ( < IRoleModel > this).findOne({name: name})
+            .then((roles) => {
+                if (roles) {
+                    resolve(roles);
+                } else {
+                    reject({
+                        errors: [{
+                            field: 'role',
+                            errors: ['Not found']
+                        }],
+                        data: null
+                    });
+                }
+            })
+            .catch((err) => {
+                reject({
+                    errors: [{
+                        field: 'role',
+                        errors: ['Not found']
+                    }],
+                    data: null
+                });
+            });
+    });
+};
+
 @injectable()
 export class Roles extends ModelBase < IRoleModel > {
     constructor(@inject(AppConnection.name) appConnection: AppConnection) {

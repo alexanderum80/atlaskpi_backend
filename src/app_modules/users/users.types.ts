@@ -71,6 +71,18 @@ export class ITourChart {
 export class ITourInput {
     @field({ type: ITourChart })
     chart: ITourChart;
+
+    @field({ type: GraphQLTypesMap.Boolean })
+    helpCenter: boolean;
+}
+
+@input()
+export class UserAgreementInput {
+    @field({ type: GraphQLTypesMap.String })
+    email: string;
+
+    @field({ type: GraphQLTypesMap.Boolean })
+    accept: boolean;
 }
 
 
@@ -189,10 +201,26 @@ export class ChartPreference {
     showTour: boolean;
 }
 
+
 @type()
 export class UserPreference {
     @field({ type: ChartPreference })
     chart: ChartPreference;
+
+    @field({ type:  GraphQLTypesMap.Boolean })
+    helpCenter: boolean;
+}
+
+@type()
+export class UserAgreement {
+    @field({ type: GraphQLTypesMap.Boolean })
+    accept: boolean;
+
+    @field({ type: GraphQLTypesMap.String })
+    ipAddress: string;
+
+    @field({ type: GraphQLTypesMap.String })
+    timestamp: Date;
 }
 
 @type()
@@ -218,6 +246,9 @@ export class User  {
 
     @field({ type: GraphQLTypesMap.String })
     timestamps: string;
+
+    @field({ type: UserAgreement })
+    agreement: UserAgreement;
 
 }
 
@@ -258,6 +289,9 @@ export class ErrorSuccessResult {
 
     @field({ type: ErrorDetails, isArray: true })
     errors?: ErrorDetails[];
+
+    @field({ type: User })
+    entity?: User;
 }
 
 

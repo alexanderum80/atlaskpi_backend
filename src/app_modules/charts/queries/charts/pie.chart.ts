@@ -22,7 +22,7 @@ export class PieChart extends UIChartBase implements IUIChart {
         const that = this;
 
         return this.processChartData(kpi, metadata, target).then(() => {
-            return that.buildDefinition(this.basicDefinition, target);
+            return that.buildDefinition(this.basicDefinition, metadata, target);
         });
     }
 

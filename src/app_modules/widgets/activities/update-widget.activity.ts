@@ -11,7 +11,7 @@ export class UpdateWidgetActivity implements IActivity {
 
     check(): Promise<boolean> {
         return Promise.resolve(
-            BasicRoleChecker.hasPermission(this._user, 'Update', 'Widget')
+            BasicRoleChecker.hasPermission(this._user, 'Modify', 'Widget')
         );
     }
 }

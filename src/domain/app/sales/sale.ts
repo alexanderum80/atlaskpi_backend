@@ -52,6 +52,7 @@ export interface ICategory extends IEntity {
 }
 
 export interface ISales {
+    source: string;
     externalId: string;
     location: ISaleLocation;
     customer: ISaleCustomer;
@@ -78,9 +79,18 @@ export enum TypeMap {
     productAndZip = 'productAndZip'
 }
 
+export interface ISaleByZipGrouping {
+    customerZip: string;
+}
+
 export interface ISaleByZip {
-    _id: string;
+    _id: ISaleByZipGrouping;
     sales: number;
+}
+
+export interface IMapMarkerInput {
+    dateRange: string;
+    grouping: string;
 }
 
 
@@ -92,6 +102,6 @@ export interface ISaleModel extends mongoose.Model<ISaleDocument> {
     totalSalesByDateRange(from: string, to: string): Promise<Object>;
     salesEmployeeByDateRange(predefinedDateRange: string): Promise<Object>;
     monthsAvgSales(date: string): Promise<Object>;
-    findCriteria(field: string): Promise<any[]>;
-    salesBy(type: TypeMap): Promise<ISaleByZip[]>;
+    findCriteria(field: string, limit?: number, filter?: string): Promise<string[]>;
+    salesBy(type: TypeMap, input?: IMapMarkerInput): Promise<ISaleByZip[]>;
 }

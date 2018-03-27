@@ -25,6 +25,7 @@ export class CreateAccountMutation extends MutationBase<IMutationResponse> {
         @inject('Request') private _request: IExtendedRequest
     ) {
         super();
+        this.log = false;
     }
 
     run(data: { account: IAccount }): Promise<IMutationResponse> {

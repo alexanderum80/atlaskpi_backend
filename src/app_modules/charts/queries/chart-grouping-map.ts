@@ -14,16 +14,20 @@ export const GroupingMap = {
         customerState: 'customer.state',
         customerCity: 'customer.city',
         customerZip: 'customer.zip',
-        customerGender: 'customer.gender'
+        customerGender: 'customer.gender',
+        source: 'source'
     },
     expenses: {
         businessUnit: 'businessUnit.name',
+        accountType: 'expense.type',
         concept: 'expense.concept',
-        location: 'location.name'
+        location: 'location.name',
+        source: 'source'
     },
     inventory: {
         location: 'location.name',
         product: 'product.itemDescription',
+        source: 'source'
     },
     // Groupings for google analytrics
     googleanalytics: {
@@ -34,7 +38,8 @@ export const GroupingMap = {
         country: 'country',
         deviceCategory: 'deviceCategory',
         language: 'language',
-        operatingSystem: 'operatingSystem'
+        operatingSystem: 'operatingSystem',
+        source: 'source'
     },
     calls: {
         answered: 'answered',
@@ -64,7 +69,24 @@ export const GroupingMap = {
         businessPhone: 'business.phoneNumber',
         tags: 'tags',
         speakerPercentAgent: 'speaker_percent.agent',
-        speakerPercentCustomer: 'speaker_percent.customer'
+        speakerPercentCustomer: 'speaker_percent.customer',
+        source: 'source'
+    },
+    appointments: {
+        duration: 'duration',
+        approved: 'approved',
+        checkedIn: 'checkedIn',
+        checkedOut: 'checkoedOut',
+        cancelled: 'cancelled',
+        noShow: 'noShow',
+        customer: 'customer.fullname',
+        provider: 'provider.name',
+        location: 'location.name',
+        type: 'appointmentType',
+        source: 'source',
+        procedure: 'procedure.name',
+        referal: 'referal.name',
+        converted: 'converted'
     }
 };
 

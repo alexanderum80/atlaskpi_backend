@@ -1,8 +1,11 @@
+import { GroupingMap } from '../../../app_modules/charts/queries/chart-grouping-map';
+import { criteriaPlugin } from '../../../app_modules/shared/criteria.plugin';
 import * as Promise from 'bluebird';
 import { inject, injectable } from 'inversify';
 import * as mongoose from 'mongoose';
 import * as logger from 'winston';
 import * as moment from 'moment';
+import { isObject } from 'lodash';
 
 import { ModelBase } from '../../../type-mongo/model-base';
 import { getCustomerSchema } from '../../common/customer.schema';
@@ -17,7 +20,7 @@ import { getEmployeeSchema } from '../../common/employee.schema';
 import { getLocationSchema } from '../../common/location.schema';
 import { getProductSchema } from '../../common/product.schema';
 import { AppConnection } from '../app.connection';
-import { ISaleDocument, ISaleModel, TypeMap, ISaleByZip } from './sale';
+import {ISaleDocument, ISaleModel, TypeMap, ISaleByZip, IMapMarkerInput} from './sale';
 
 
 let Schema = mongoose.Schema;
@@ -123,6 +126,8 @@ SaleSchema.index({ 'product.from': 1, 'product.itemDescription': 1 });
 SaleSchema.index({ 'product.from': 1, 'category.name': 1 });
 SaleSchema.index({ 'product.from': 1, 'category.service': 1 });
 
+SaleSchema.plugin(criteriaPlugin);
+
 // SaleSchema.methods.
 
 // SaleSchema.statics.
@@ -225,30 +230,75 @@ SalesSchema.statics.salesEmployeeByDateRange = function(predefinedDateRange: str
     });
 };
 
-SalesSchema.statics.findCriteria = function(field: string): Promise<any[]> {
-    const that = this;
-
-    return new Promise<any[]>((resolve, reject) => {
-        that.distinct(field, { [field]: { $ne: '' } }).then(sales => {
-            resolve(sales);
-            return;
-        }).catch(err => {
-            reject(err);
-            return;
-        });
-    });
-};
-
-SalesSchema.statics.salesBy = function(type: TypeMap): Promise<ISaleByZip[]> {
+SalesSchema.statics.salesBy = function(type: TypeMap, input?: IMapMarkerInput): Promise<ISaleByZip[]> {
     const SalesModel = (<ISaleModel>this);
     let aggregate = [];
 
     return new Promise<ISaleByZip[]>((resolve, reject) => {
         switch (type) {
             case TypeMap.customerAndZip:
-                aggregate.push([
-                    { $group: { _id: '$customer.zip', sales: { $sum: '$product.amount' } } }
-                ]);
+                aggregate.push(
+                    { $match: {
+                        'product.amount': {
+                            $gte: 0
+                        }
+                    } },
+                    { $project: {
+                        product: 1,
+                        _id: 0,
+                        customer: 1
+                    }},
+                    {
+                        $group: {
+                            _id: {
+                                customerZip: '$customer.zip'
+                            },
+                            sales: {
+                                $sum: '$product.amount'
+                            }
+                        }
+                    }
+                );
+                // check if input have value and is an object
+                if (input && isObject(input)) {
+                    // check if daterange has value
+                    if (input.dateRange) {
+                        let aggregateMatch = aggregate.find(agg => agg.$match !== undefined);
+                        const dateRange = parsePredifinedDate(input.dateRange);
+
+                        // check if i get object that has $match key and daterange is valid
+                        if (aggregateMatch && moment(dateRange.from).isValid()) {
+                            aggregateMatch.$match['product.from'] = {
+                                $gte: dateRange.from,
+                                $lt: dateRange.to
+                            };
+                        }
+                    }
+
+                    if (input.grouping) {
+                        let aggregateGrouping = aggregate.find(agg => agg.$group !== undefined);
+                        // get the field name for the sales document
+                        const salesGroupByField = GroupingMap.sales[input.grouping];
+
+                        if (aggregateGrouping && salesGroupByField) {
+                            // assign empty object if $group._id is undefined
+                            if (!aggregateGrouping.$group._id) {
+                                aggregateGrouping.$group._id = {};
+                            }
+                            // i.e. $location.name, $product.itemDescription
+                            aggregateGrouping.$group._id['grouping'] = '$' + salesGroupByField;
+                        }
+
+                        // project the group field
+                        let aggregateProject = aggregate.find(agg => agg.$project !== undefined);
+                        if (aggregateProject) {
+                            let projectFieldByGroup = salesGroupByField.replace('$', '');
+                            projectFieldByGroup = projectFieldByGroup.split('.')[0];
+
+                            aggregateProject.$project[projectFieldByGroup] = 1;
+                        }
+                    }
+                }
                 break;
             case TypeMap.productAndZip:
                 break;

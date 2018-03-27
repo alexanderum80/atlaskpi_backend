@@ -23,6 +23,9 @@ export class AccountDetails {
 
     @field({ type: GraphQLTypesMap.Boolean })
     seedData: boolean;
+
+    @field({ type: GraphQLTypesMap.String })
+    authorizationCode: string;
 }
 
 

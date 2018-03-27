@@ -1,3 +1,4 @@
+import { criteriaPlugin } from '../../../app_modules/shared/criteria.plugin';
 import { ICallModel } from './call';
 import { ModelBase } from '../../../type-mongo/model-base';
 import * as mongoose from 'mongoose';
@@ -40,7 +41,7 @@ const SpeakerAgentSchema = {
 
 export const CallSchema = new Schema({
     externalId: String,
-    answered: Boolean,
+    answered: String,
     business: BusinessSchema,
     customer: CustomerSchema,
     company: CompanySchema,
@@ -49,11 +50,11 @@ export const CallSchema = new Schema({
     startTime: Date,
     source: String,
     tracking: TrackingSchema,
-    voicemail: Boolean,
+    voicemail: String,
     recording: RecordingSchema,
     created_at: Date,
     device_type: String,
-    first_call: Boolean,
+    first_call: String,
     prior_calls: Number,
     lead_status: String,
     source_name: String,
@@ -69,19 +70,7 @@ export const CallSchema = new Schema({
     referrer_domain: String
 });
 
-CallSchema.statics.findCriteria = function(field: string): Promise<string[]> {
-    const that = this;
-
-    return new Promise<string[]>((resolve, reject) => {
-        that.distinct(field).then(values => {
-            resolve(values);
-            return;
-        }).catch(err => {
-            reject(err);
-            return;
-        });
-    });
-};
+CallSchema.plugin(criteriaPlugin);
 
 @injectable()
 export class Calls extends ModelBase<ICallModel> {

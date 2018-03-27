@@ -73,12 +73,12 @@ KPISchema.statics.createKPI = function(input: IKPI): Promise<IKPIDocument> {
 
         let kpiType = KPITypeMap[input.type];
 
-        if (kpiType === KPITypeEnum.Simple || KPITypeEnum.ExternalSource) {
-            input.expression = KPIExpressionHelper.ComposeExpression(kpiType, input.expression);
+        if (input.filter) {
+            input.filter = KPIFilterHelper.ComposeFilter(kpiType, input.expression, input.filter);
         }
 
-        if (input.filter) {
-            input.filter = KPIFilterHelper.ComposeFilter(kpiType, input.filter);
+        if (kpiType === KPITypeEnum.Simple || KPITypeEnum.ExternalSource) {
+            input.expression = KPIExpressionHelper.ComposeExpression(kpiType, input.expression);
         }
 
         that.create(input, (err, kpi: IKPIDocument) => {
@@ -110,8 +110,8 @@ KPISchema.statics.updateKPI = function(id: string, input: IKPI): Promise<IKPIDoc
 
         input.code = input.name;
         let kpiType = KPITypeMap[input.type];
+        input.filter = KPIFilterHelper.ComposeFilter(kpiType, input.expression, input.filter);
         input.expression = KPIExpressionHelper.ComposeExpression(kpiType, input.expression);
-        input.filter = KPIFilterHelper.ComposeFilter(kpiType, input.filter);
 
         that.findOneAndUpdate({_id: id}, input, {new: true })
         .exec()
