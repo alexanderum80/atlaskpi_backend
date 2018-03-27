@@ -21,4 +21,5 @@ export interface IAlertModel extends mongoose.Model<IAlertDocument> {
     alertByWidgetId(model: string): Promise<IAlertDocument>;
     createAlert(input: IAlertInfo): Promise<IAlertDocument>;
     updateAlert(id: string, input: IAlertInfo): Promise<IAlertDocument>;
+    removeAlertByModelId(id: string): Promise<IAlertDocument>;
 }

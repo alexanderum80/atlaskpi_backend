@@ -53,31 +53,6 @@ AlertSchema.statics.createAlert = function(input: IAlertInfo): Promise<IAlertDoc
             return;
         }
 
-        const requiredAndNotBlank = {
-            presence: {
-                message: '^cannot be blank'
-            }
-        };
-
-        // const constraints = {
-        //     'alertInfo[]': {
-        //         notify: requiredAndNotBlank,
-        //         frequency: requiredAndNotBlank,
-        //         active: requiredAndNotBlank
-        //     },
-        //     model_name: requiredAndNotBlank,
-        //     model_id: requiredAndNotBlank
-        // };
-
-        // const errors = (<any> validate)(input, constraints, {
-        //     fullMessages: false
-        // });
-
-        // if (errors) {
-        //     reject(errors);
-        //     return;
-        // }
-
         let hasNotification: boolean = true;
         // push_notification or email_notified must have value if active is true
         input.alertInfo.forEach((info: IAlert) => {
@@ -115,31 +90,6 @@ AlertSchema.statics.updateAlert = function(id: string, input: IAlertInfo): Promi
             return;
         }
 
-        const requiredAndNotBlank = {
-            presence: {
-                message: '^cannot be blank'
-            }
-        };
-
-        const constraints = {
-            alertInfo: {
-                notify: requiredAndNotBlank,
-                frequency: requiredAndNotBlank,
-                active: requiredAndNotBlank
-            },
-            model_name: requiredAndNotBlank,
-            model_id: requiredAndNotBlank
-        };
-
-        // const errors = (<any> validate)(input, constraints, {
-        //     fullMessages: false
-        // });
-
-        // if (errors) {
-        //     reject(errors);
-        //     return;
-        // }
-
         let hasNotification: boolean = true;
         // push_notification or email_notified must have value if active is true
         input.alertInfo.forEach((info: IAlert) => {
@@ -162,6 +112,34 @@ AlertSchema.statics.updateAlert = function(id: string, input: IAlertInfo): Promi
                 reject(err);
                 return;
             });
+    });
+};
+
+AlertSchema.statics.removeAlertByModelId = function(id: string): Promise<IAlertDocument> {
+    const alertModel = (<IAlertModel>this);
+
+    return new Promise<IAlertDocument>((resolve, reject) => {
+        if (!id) {
+            reject({ name: 'no id', message: 'no id provided' });
+            return;
+        }
+
+        alertModel.findOne({ model_id: id }).then((alert: IAlertDocument) => {
+            if (!alert) {
+                resolve(null);
+                return;
+            }
+
+            alert.remove((err: any, deletedAlert: IAlertDocument) => {
+                if (err) {
+                    reject(err);
+                    return;
+                }
+
+                resolve(alert);
+                return;
+            });
+        });
     });
 };
 

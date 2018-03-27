@@ -1,3 +1,4 @@
+import { Alerts } from '../domain/app/alerts/alert.model';
 import * as Promise from 'bluebird';
 import { inject, injectable } from 'inversify';
 
@@ -22,7 +23,8 @@ export class WidgetsService {
         @inject(Sales.name) private _sales: Sales,
         @inject(Expenses.name) private _expenses: Expenses,
         @inject(KPIs.name) private _kpis: KPIs,
-        @inject(WidgetFactory.name) private _widgetFactory: WidgetFactory
+        @inject(WidgetFactory.name) private _widgetFactory: WidgetFactory,
+        @inject(Alerts.name) private _alert: Alerts
     ) { }
 
     listWidgets(): Promise<IUIWidget[]> {
@@ -148,11 +150,20 @@ export class WidgetsService {
                         );
                         return;
                     }
-                    that._widgets.model.removeWidget(id).then(widget => {
-                        resolve(widget);
+
+                    // remove alert from widget
+                    const deleteModel = {
+                        widget: that._widgets.model.removeWidget(id),
+                        alert: that._alert.model.removeAlertByModelId(id)
+                    };
+                    Promise.props(deleteModel).then(documents => {
+                        resolve(documents.widget);
                         return;
                     })
-                    .catch(err => reject(err));
+                    .catch(err => {
+                        reject(err);
+                        return;
+                    });
                 })
                 .catch(err => reject(err));
         });
