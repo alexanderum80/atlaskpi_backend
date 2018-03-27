@@ -60,6 +60,9 @@ export class AlertInfoResponse {
 
 @type()
 export class AlertResponse {
+    @field({ type: GraphQLTypesMap.String })
+    _id: string;
+
     @field({ type: AlertInfoResponse, isArray: true })
     alertInfo: AlertInfoResponse[];
 
