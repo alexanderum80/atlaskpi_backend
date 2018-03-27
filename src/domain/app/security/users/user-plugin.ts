@@ -34,10 +34,21 @@ import {
     IUserModel,
     IUserProfile,
     IUserProfileInput,
-    IUserProfileResolve
+    IUserProfileResolve,
+  IUserPreference
 } from './user';
 import { IUserToken } from './user-token';
 import { userAuditSchema } from '../../../common/audit.schema';
+
+
+export function insentive_username(username: string): any {
+    if (!username) { return username; }
+
+    const regexp: RegExp = new RegExp('^' + username + '$', 'i');
+    return {
+        $regex: regexp
+    };
+}
 
 
 export function userPlugin(schema: mongoose.Schema, options: any) {
@@ -118,6 +129,7 @@ export function userPlugin(schema: mongoose.Schema, options: any) {
 
     const UserPreferenceSchema = {
         chart: ShowTourSchema,
+    helpCenter: { type: Boolean, default: true },
         /// yojanier
         notification: UserNotificationsSchema,
         avatarAddress: String
@@ -138,6 +150,7 @@ export function userPlugin(schema: mongoose.Schema, options: any) {
         agreement: AgreementSchema,
         services: ServicesSchema,
         profile: UserProfileSchema,
+        preferences: UserPreferenceSchema,
         tokens: [UserTokenInfo],
         mobileDevices: [AddMobileDeviceInfo],
         timestamps: { type: Date, default: Date.now }
@@ -153,11 +166,11 @@ export function userPlugin(schema: mongoose.Schema, options: any) {
         if (!user.isModified('password')) return next();
 
         // generate a salt
-        bcryptjs.genSalt(SALT_WORK_FACTOR, function(err, salt) {
+        bcrypt.genSalt(SALT_WORK_FACTOR, function(err, salt) {
             if (err) return next(err);
 
             // hash the password using our new salt
-            bcryptjs.hash(user.password, salt, function(err, hash) {
+            bcrypt.hash(user.password, salt, function(err, hash) {
                 if (err) return next(err);
 
                 // override the cleartext password with the hashed one
@@ -280,20 +293,15 @@ export function userPlugin(schema: mongoose.Schema, options: any) {
             let condition = {};
             // i.e. /^john@gmail.com$/i
             // case insensitive
-            const regexUsername: RegExp = new RegExp('^' + username + '$', 'i');
 
             if (usernameField === 'email') {
                 condition['emails'] = {
                     $elemMatch: {
-                        address: {
-                            $regex: regexUsername
-                        }
+                        address: insentive_username(username)
                     }
                 };
             } else {
-                condition['username'] = {
-                    $regex: regexUsername
-                };
+                condition['username'] = insentive_username(username);
             }
 
             User.findOne(condition)
@@ -548,7 +556,9 @@ export function userPlugin(schema: mongoose.Schema, options: any) {
         const userModel = (<IUserModel>this);
 
         return new Promise<IUserDocument>((resolve, reject) => {
-            userModel.findOne({ username: username })
+            userModel.findOne({
+                username: insentive_username(username)
+            })
                 .populate({
                     path: 'roles',
                     model: 'Role'
@@ -1107,7 +1117,7 @@ export function userPlugin(schema: mongoose.Schema, options: any) {
 
         return new Promise<IUserDocument>((resolve, reject) => {
             userModel
-                .findOneAndUpdate({_id: id}, { preferences: input }, {new: true })
+                .findOneAndUpdate({_id: id}, { 'preferences':  input }, {new: true })
                 .exec()
                 .then(document => {
                     resolve(document);
@@ -1222,7 +1232,9 @@ export function userPlugin(schema: mongoose.Schema, options: any) {
         const userModel = (<IUserModel>this);
 
         return new Promise<IUserDocument>((resolve, reject) => {
-            userModel.findOne({ username: input.email })
+            userModel.findOne({
+                username: insentive_username(input.email)
+            })
                 .then((user: IUserDocument) => {
                     user.agreement = {
                         accept: input.accept,
@@ -1243,5 +1255,20 @@ export function userPlugin(schema: mongoose.Schema, options: any) {
                 });
         });
     };
+
+    schema.statics.findByUserHelpCenter = function(username: string): Promise<IUserDocument> {
+        const UserModel = (<IUserModel>this);
+        return new Promise<IUserDocument>((resolve, reject) => {
+            UserModel.findOne({ username: { $in: username } }).then(users => {
+                if (users) {
+                    resolve(users);
+                    return;
+                }
+                resolve(null);
+                return;
+            }).catch(err => reject(err));
+        });
+    };
+
 
 }

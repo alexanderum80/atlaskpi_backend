@@ -19,6 +19,7 @@ import { EditUserProfileMutation} from './mutations/edit-user-profile.mutation';
 import { UserProfileByIdQuery } from './queries/user-profile-by-id.query';
 import { UpdateUserAvatarAddreesMutation } from './mutations/update-user-avatar-address.mutation';
 import { GetUseravatarAddressQuery } from './queries/get-user-avatar-address.query';
+import { UserHelpCenterQuery } from './queries/user-help-center.query';
 
 
 @AppModule({
@@ -42,6 +43,7 @@ import { GetUseravatarAddressQuery } from './queries/get-user-avatar-address.que
         UserQuery,
         UsersQuery,
         FindByFullNameQuery,
+    UserHelpCenterQuery,
         /// yojanier
         UserProfileByIdQuery,
         GetUseravatarAddressQuery,

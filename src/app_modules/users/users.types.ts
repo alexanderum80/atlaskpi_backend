@@ -105,6 +105,9 @@ export class ITourChart {
 export class ITourInput {
     @field({ type: ITourChart })
     chart: ITourChart;
+
+    @field({ type: GraphQLTypesMap.Boolean })
+    helpCenter: boolean;
 }
 
 @input()
@@ -248,14 +251,19 @@ export class UserNotifications {
     dnd: boolean;
 }
 
+
 @type()
 export class UserPreference {
     @field({ type: ChartPreference })
     chart: ChartPreference;
 
+    @field({ type:  GraphQLTypesMap.Boolean })
+    helpCenter: boolean;
+
     // yojanier
     @field({type: UserNotifications })
     notifitation: UserNotifications;
+    
     @field({ type: GraphQLTypesMap.String })
     avatarAddress: string;
 }
