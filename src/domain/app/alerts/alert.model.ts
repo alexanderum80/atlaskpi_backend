@@ -4,7 +4,7 @@ import { ModelBase } from '../../../type-mongo/model-base';
 import { AppConnection } from '../app.connection';
 
 import { inject, injectable } from 'inversify';
-import { isArray } from 'lodash';
+import { isArray, isEqual } from 'lodash';
 import * as mongoose from 'mongoose';
 import * as Promise from 'bluebird';
 import * as validate from 'validate.js';
@@ -13,25 +13,42 @@ import * as moment from 'moment';
 const Schema = mongoose.Schema;
 
 const AlertInfoSchema = {
-    notify: {
-        type: [String],
+    // list of users
+    notify_users: [{
+        type: String,
         ref: 'User',
         required: true
-    },
+    }],
+    // i.e. every business day
     frequency: { type: String, required: true },
+    // alert is active or inactive
     active: {type: Boolean, required: true},
     push_notification: Boolean,
     email_notified: Boolean,
-    weekday: {
-        type: String,
-        default: moment().format('dddd')
+    dayOfMonth: {
+        type: Number,
+        required: true,
+        default: parseInt(moment().format('DD'))
     }
+};
+
+const AlertModelInfoSchema = {
+    name: {
+        type: String,
+        required: true
+    },
+    id: {
+        type: String,
+        required: true
+    },
 };
 
 const AlertSchema = new Schema({
     alertInfo: [AlertInfoSchema],
-    model_name: { type: String, required: true},
-    model_id: { type: String, required: true }
+    model: {
+        type: AlertModelInfoSchema,
+        required: true
+    }
 });
 
 
@@ -111,15 +128,14 @@ AlertSchema.statics.updateAlert = function(id: string, input: IAlertInfo): Promi
             return;
         }
 
-        alertModel.findByIdAndUpdate(id, input)
-            .then((result: IAlertDocument) => {
-                resolve(result);
-                return;
-            })
-            .catch(err => {
-                reject(err);
-                return;
-            });
+        alertModel.findByIdAndUpdate(id, input).then((alert: IAlertDocument) => {
+            resolve(alert);
+            return;
+        })
+        .catch(err => {
+            reject(err);
+            return;
+        });
     });
 };
 

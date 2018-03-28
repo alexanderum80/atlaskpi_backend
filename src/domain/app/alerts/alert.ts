@@ -2,18 +2,22 @@ import * as mongoose from 'mongoose';
 import * as Promise from 'bluebird';
 
 export interface IAlert {
-    notify: string[];
+    notify_users: string[];
     frequency: string;
     active: boolean;
     push_notification: boolean;
     email_notified: boolean;
-    weekday: string;
+    dayOfMonth: number;
+}
+
+export interface IAlertModelInfo {
+    name: string;
+    id: string;
 }
 
 export interface IAlertInfo {
     alertInfo: IAlert[];
-    model_name: string;
-    model_id: string;
+    model: IAlertModelInfo;
 }
 
 export interface IAlertDocument extends IAlertInfo, mongoose.Document {}
