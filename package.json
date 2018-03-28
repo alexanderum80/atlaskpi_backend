@@ -80,6 +80,7 @@
         "datejs": "^1.0.0-rc3",
         "debug": "^2.3.3",
         "express": "4.13.4",
+        "express-fileupload": "^0.4.0",
         "fb": "^2.0.0",
         "global": "^4.3.2",
         "google-auth-library": "^0.10.0",
