@@ -40,7 +40,7 @@ export class AlertInput {
     alertInfo: AlertInfoInput[];
 
     @field({ type: AlertModelInfoInput })
-    model: AlertModelInfoInput;
+    model_alert: AlertModelInfoInput;
 }
 
 @type()
@@ -82,7 +82,7 @@ export class AlertResponse {
     alertInfo: AlertInfoResponse[];
 
     @field({ type: AlertModelInfoResponse })
-    model: AlertModelInfoResponse;
+    model_alert: AlertModelInfoResponse;
 }
 
 @type()

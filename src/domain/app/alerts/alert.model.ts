@@ -45,7 +45,7 @@ const AlertModelInfoSchema = {
 
 const AlertSchema = new Schema({
     alertInfo: [AlertInfoSchema],
-    model: {
+    model_alert: {
         type: AlertModelInfoSchema,
         required: true
     }
@@ -57,7 +57,7 @@ AlertSchema.statics.alertByWidgetId = function(id: string): Promise<IAlertDocume
     const alertModel = (<IAlertModel>this);
 
     return new Promise<IAlertDocument>((resolve, reject) => {
-        alertModel.findOne({ 'model.id': id })
+        alertModel.findOne({ 'model_alert.id': id })
             .then((result: IAlertDocument) => {
                 resolve(result);
                 return;
@@ -148,7 +148,7 @@ AlertSchema.statics.removeAlertByModelId = function(id: string): Promise<IAlertD
             return;
         }
 
-        alertModel.findOne({ 'model.id': id }).then((alert: IAlertDocument) => {
+        alertModel.findOne({ 'model_alert.id': id }).then((alert: IAlertDocument) => {
             if (!alert) {
                 resolve(null);
                 return;
