@@ -47,7 +47,7 @@ export class DashboardsQuery implements IQuery<IDashboard[]> {
         } else {
             query = { $or: [
                 { owner: that._currentUser.get()._id },
-                { 'assessLevels.users': { $in: [that._currentUser.get()._id]} }
+                { 'accessLevels.users': { $in: [that._currentUser.get()._id]} }
             ]};
         }
 
