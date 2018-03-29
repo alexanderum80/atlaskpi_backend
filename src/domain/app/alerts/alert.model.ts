@@ -29,6 +29,10 @@ const AlertInfoSchema = {
         type: Number,
         required: true,
         default: parseInt(moment().format('DD'))
+    },
+    timestamp: {
+        type: Date,
+        default: Date.now()
     }
 };
 
