@@ -17,7 +17,7 @@ attachments.post('/', (req: IExtendedRequest, res: Response) => {
     const fileItem = (req as any).files.fileItem as IFileAttachment;
     const processor = getAttachmentsProcessor(req.Container, type);
 
-    processor.put(fileItem).then(doc => {
+    processor.put(fileItem, true).then(doc => {
         res.status(200).json(doc.toObject());
     }).catch(e => {
         res.status(500).json({ error: 'There was an error uploading image' });

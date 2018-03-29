@@ -27,6 +27,7 @@ export interface IAttachment {
         identifier: string
     };
     description?: string;
+    metadata: any;
     createdOn: Date;
 }
 

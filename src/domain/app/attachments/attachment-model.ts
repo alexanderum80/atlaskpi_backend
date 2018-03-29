@@ -17,6 +17,7 @@ const AttachmentSchema = new mongoose.Schema({
         identifier: { type: String, required: true }
     },
     description: String,
+    metadata: mongoose.Schema.Types.Mixed,
     createdOn: { type: Date, default: Date.now }
 });
 

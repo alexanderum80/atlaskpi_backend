@@ -17,16 +17,15 @@ export class UserAttachmentsService extends BaseAttachmentsService implements IA
         super(config, currentAccount, attachments);
     }
 
-    async put(file: IFileAttachment): Promise<IAttachmentDocument> {
+    async put(file: IFileAttachment, publicFile: boolean, metadata: any): Promise<IAttachmentDocument> {
         const userId = this._user.get().id;
 
         return await this.saveAttachment(
             AttachmentCategoryEnum.User,
-            AttachmentTypeEnum.ProfilePicture, userId, file);
+            AttachmentTypeEnum.ProfilePicture,
+            userId,
+            file,
+            publicFile,
+            metadata);
     }
-
-    get(bucket: string, key: string): Promise<Buffer> {
-        return null;
-    }
-
 }

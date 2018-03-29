@@ -4,9 +4,10 @@ import { S3 } from 'aws-sdk';
 import { Attachments } from '../../domain/app/attachments/attachment-model';
 import { CurrentAccount } from '../../domain/master/current-account';
 import { IFileAttachment, IAttachmentDocument, AttachmentTypeEnum, AttachmentCategoryEnum } from '../../domain/app/attachments/attachment';
+import { PutObjectRequest } from 'aws-sdk/clients/s3';
 
 export interface IAttachementsService {
-    put(file: IFileAttachment): Promise<IAttachmentDocument>;
+    put(file: IFileAttachment, publicFile: boolean, metadata?: any): Promise<IAttachmentDocument>;
     get(bucket: string, key: string): Promise<Buffer>;
 }
 
@@ -30,11 +31,17 @@ export abstract class BaseAttachmentsService {
          });
     }
 
-    protected async saveAttachment(category: AttachmentCategoryEnum, type: AttachmentTypeEnum, id: string, file: IFileAttachment): Promise<IAttachmentDocument> {
+    protected async saveAttachment(
+        category: AttachmentCategoryEnum,
+        type: AttachmentTypeEnum,
+        id: string,
+        file: IFileAttachment,
+        publicFile: boolean,
+        metadata: any): Promise<IAttachmentDocument> {
         const that = this;
 
         try {
-            const uploadResp = await that.upload(file);
+            const uploadResp = await that.upload(file, publicFile);
             const res = await that.attachments.model.findOneAndUpdate({
                 'attachedTo.identifier': id,
                 'attachedTo.type': AttachmentTypeEnum.ProfilePicture
@@ -45,7 +52,8 @@ export abstract class BaseAttachmentsService {
                     category: AttachmentCategoryEnum.User,
                     type: AttachmentTypeEnum.ProfilePicture,
                     identifier: id
-                }
+                },
+                metadata: metadata
             }, { upsert: true });
 
             return res;
@@ -55,67 +63,37 @@ export abstract class BaseAttachmentsService {
         }
     }
 
-    // protected saveAttachment1(category: AttachmentCategoryEnum, type: AttachmentTypeEnum, id: string, file: IFileAttachment): Promise<IAttachmentDocument> {
-    //     const that = this;
+    async get(bucket: string, key: string): Promise<Buffer> {
+        const that = this;
 
-    //     return new Promise<IAttachmentDocument>((resolve, reject) => {
-    //         that.upload(file).then(res => {
-    //             that.attachments.model.findOneAndUpdate({
-    //                 'attachedTo.identifier': id,
-    //                 type: AttachmentTypeEnum.ProfilePicture
-    //             }, {
-    //                 bucket: res.bucket,
-    //                 key: res.key,
-    //                 attachedTo: {
-    //                     category: AttachmentCategoryEnum.User,
-    //                     type: AttachmentTypeEnum.ProfilePicture,
-    //                     identifier: id
-    //                 }
-    //             }, { upsert: true }, (err, doc) => {
-    //                 if (err) {
-    //                     reject(err);
-    //                 }
+        const object = await that._s3.getObject({
+            Bucket: that._bucket,
+            Key: key
+        }).promise();
 
-    //                 resolve(doc);
-    //             });
-    //         });
-    //     });
-    // }
+        return object.Body as Buffer;
+    }
 
-    protected upload(file: IFileAttachment): Promise<IS3ObjectLocation> {
+    protected async upload(file: IFileAttachment, publicFile: boolean = false): Promise<IS3ObjectLocation> {
         const that = this;
         const tenant = this.currentAccount.get.name;
         const key = `${tenant}/${file.md5}_${file.name}`;
+        const object: PutObjectRequest = {
+            Bucket: that._bucket,
+            Key: key,
+            Body: file.data
+        };
 
-        return new Promise<IS3ObjectLocation>((resolve, reject) => {
-            that._s3.putObject({
-                Bucket: that._bucket,
-                Key: key,
-                Body: file.data
-            }, (err, data) => {
-                if (err) {
-                    return reject(err);
-                }
+        if (publicFile) {
+            object.ACL = 'public-read';
+        }
 
-                resolve({
-                    bucket: that._bucket,
-                    key: key
-                });
-            });
-        });
-    }
+        const s3Resp = await that._s3.putObject(object).promise();
 
-    protected download(bucket: string, key: string): Promise<Buffer> {
-        const that = this;
-        
-        return new Promise<boolean>((resolve, reject) => {
-            that._s3.getObject({
-                Bucket: that._bucket,
-                Key: `${tenant}/${md5}_${name}`
-            }, (err, data) => {
-
-            });
-        });
+        return {
+            bucket: that._bucket,
+            key: key
+        };
     }
 
 }
