@@ -6,16 +6,38 @@ import { IMutationResponse } from '../framework/mutations/mutation-response';
 import { ICreateUserDetails } from '../domain/common/create-user';
 import { Users } from '../domain/app/security/users/user.model';
 import { IUserDocument, IUserEmail } from '../domain/app/security/users/user';
-import * as Promise from 'bluebird';
 import { inject, injectable } from 'inversify';
+import { CurrentUser } from '../domain/app/current-user';
+import { Attachments } from '../domain/app/attachments/attachment-model';
+import { AttachmentTypeEnum, AttachmentCategoryEnum } from '../domain/app/attachments/attachment';
+import { Logger } from '../domain/app/logger';
+import { UserAttachmentsService } from './attachments/user-attachments.service';
 
 @injectable()
 export class UserService {
     constructor(
+        @inject(Logger.name) private _logger: Logger,
         @inject(Users.name) private _users: Users,
         @inject(Roles.name) private _roles: Roles,
+        @inject(CurrentUser.name) private _currentUser: CurrentUser,
+        @inject(UserAttachmentsService.name) private _userAttachmentService: UserAttachmentsService,
         @inject(AccountCreatedNotification.name) private _accountCreatedNotification: AccountCreatedNotification
     ) {}
+
+    async getCurrentUserInfo(): Promise<IUserDocument> {
+        try {
+            const user = this._currentUser.get().toObject() as IUserDocument;
+            user.profilePictureUrl = await this._userAttachmentService.getUrl(
+                AttachmentCategoryEnum.User,
+                AttachmentTypeEnum.ProfilePicture,
+                user._id.toString()
+            );
+
+            return user;
+        } catch (e) {
+            this._logger.error('There was an error getting the current user', e);
+        }
+    }
 
     updateUser(input: { id: string, data: UserDetails }): Promise<IMutationResponse> {
         const that = this;

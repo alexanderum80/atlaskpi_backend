@@ -6,16 +6,18 @@ import { CurrentUser } from '../../domain/app/current-user';
 import { CurrentAccount } from '../../domain/master/current-account';
 import { IAttachmentDocument, AttachmentCategoryEnum, AttachmentTypeEnum, IFileAttachment } from '../../domain/app/attachments/attachment';
 import * as sharp from 'sharp';
+import { Logger } from '../../domain/app/logger';
 
 export class UserAttachmentsService extends BaseAttachmentsService implements IAttachementsService {
 
     constructor(
         @inject('Config') config: IAppConfig,
+        @inject(Logger.name) logger: Logger,
         @inject(Attachments.name) attachments: Attachments,
         @inject(CurrentAccount.name) currentAccount: CurrentAccount,
         @inject(CurrentUser.name) private _user: CurrentUser
     ) {
-        super(config, currentAccount, attachments);
+        super(logger, config, currentAccount, attachments);
     }
 
     async put(file: IFileAttachment, publicFile: boolean, metadata: any): Promise<IAttachmentDocument> {

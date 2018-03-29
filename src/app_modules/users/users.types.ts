@@ -307,6 +307,8 @@ export class User  {
     @field({ type: UserAgreement })
     agreement: UserAgreement;
 
+    @field({ type: GraphQLTypesMap.String })
+    profilePictureUrl: string;
 }
 
 

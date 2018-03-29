@@ -5,10 +5,12 @@ import { Attachments } from '../../domain/app/attachments/attachment-model';
 import { CurrentAccount } from '../../domain/master/current-account';
 import { IFileAttachment, IAttachmentDocument, AttachmentTypeEnum, AttachmentCategoryEnum } from '../../domain/app/attachments/attachment';
 import { PutObjectRequest } from 'aws-sdk/clients/s3';
+import { Logger } from '../../domain/app/logger';
 
 export interface IAttachementsService {
     put(file: IFileAttachment, publicFile: boolean, metadata?: any): Promise<IAttachmentDocument>;
     get(bucket: string, key: string): Promise<Buffer>;
+    getUrl(category: AttachmentCategoryEnum, type: AttachmentTypeEnum, id: string): Promise<string>;
 }
 
 export interface IS3ObjectLocation {
@@ -20,8 +22,10 @@ export interface IS3ObjectLocation {
 export abstract class BaseAttachmentsService {
     private _s3: S3;
     private _bucket = 'content.atlaskpi.com';
+    private _baseS3Url = 'https://s3.amazonaws.com/';
 
     constructor(
+        @inject(Logger.name) private _logger: Logger,
         @inject('Config') protected config: IAppConfig,
         @inject(CurrentAccount.name) protected currentAccount: CurrentAccount,
         @inject(Attachments.name) protected attachments: Attachments) {
@@ -72,6 +76,23 @@ export abstract class BaseAttachmentsService {
         }).promise();
 
         return object.Body as Buffer;
+    }
+
+    async getUrl(category: AttachmentCategoryEnum, type: AttachmentTypeEnum, id: string):  Promise<string> {
+        try {
+            const attachment = await this.attachments.model.findOne({
+                'attachedTo.category': AttachmentCategoryEnum.User,
+                'attachedTo.type': AttachmentTypeEnum.ProfilePicture,
+                'attachedTo.identifier': id
+            });
+
+            return attachment
+                ? `${this._baseS3Url}${attachment.bucket}/${attachment.key}`
+                : '';
+        } catch (e) {
+            this._logger.error('There was an error retrieving s3 object url', e);
+            return '';
+        }
     }
 
     protected async upload(file: IFileAttachment, publicFile: boolean = false): Promise<IS3ObjectLocation> {
