@@ -5,6 +5,7 @@ import { Attachments } from '../../domain/app/attachments/attachment-model';
 import { CurrentUser } from '../../domain/app/current-user';
 import { CurrentAccount } from '../../domain/master/current-account';
 import { IAttachmentDocument, AttachmentCategoryEnum, AttachmentTypeEnum, IFileAttachment } from '../../domain/app/attachments/attachment';
+import * as sharp from 'sharp';
 
 export class UserAttachmentsService extends BaseAttachmentsService implements IAttachementsService {
 
@@ -20,12 +21,23 @@ export class UserAttachmentsService extends BaseAttachmentsService implements IA
     async put(file: IFileAttachment, publicFile: boolean, metadata: any): Promise<IAttachmentDocument> {
         const userId = this._user.get().id;
 
-        return await this.saveAttachment(
-            AttachmentCategoryEnum.User,
-            AttachmentTypeEnum.ProfilePicture,
-            userId,
-            file,
-            publicFile,
-            metadata);
+        try {
+            // I need to resize this picture before upload it in order to save space
+            // and data transfer
+            file.data = await sharp(file.data)
+                .resize(120, 120)
+                .toBuffer();
+
+            return await this.saveAttachment(
+                AttachmentCategoryEnum.User,
+                AttachmentTypeEnum.ProfilePicture,
+                userId,
+                file,
+                publicFile,
+                metadata);
+        } catch (e) {
+            console.error('There was an error uploading the image', e);
+            return null;
+        }
     }
 }
