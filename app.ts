@@ -8,7 +8,6 @@ import { AtlasApp } from './src/app_modules/application';
 import { integration } from './src/app_modules/integrations/routes';
 import { auth } from './src/app_modules/security/routes/auth';
 import { me } from './src/app_modules/security/routes/me';
-import { upload } from './src/app_modules/security/routes/upload';
 import { runConfigOverrides } from './src/configuration/run-config-overrides';
 import { Bridge } from './src/framework/bridge';
 import { healthCheck } from './src/middlewares/health-check.middleware';
@@ -17,6 +16,7 @@ import { loadUser } from './src/middlewares/load-user.middleware';
 import { logger } from './src/middlewares/logger.middleware';
 import { tokenValidator } from './src/middlewares/token-validator.middleware';
 import { registerValidators } from './src/validators/validatos';
+import { attachments } from './src/app_modules/attachments/attachments.routes';
 
 const app = Bridge.create(AtlasApp);
 
@@ -41,7 +41,7 @@ app.server.use('/auth', auth);
 app.server.use('/users', me);
 
 app.server.use(fileUpload());
-app.server.use('/upload', upload);
+app.server.use('/attachments', attachments);
 
 app.server.use('/integration', integration);
 

@@ -1,26 +1,32 @@
 import { inject, injectable } from 'inversify';
-import { BaseAttachmentsService } from './base-attachments.service';
+import { BaseAttachmentsService, IAttachementsService } from './base-attachments.service';
 import { IAppConfig } from '../../configuration/config-models';
 import { Attachments } from '../../domain/app/attachments/attachment-model';
 import { CurrentUser } from '../../domain/app/current-user';
 import { CurrentAccount } from '../../domain/master/current-account';
-import { IAttachmentDocument } from '../../domain/app/attachments/attachment';
+import { IAttachmentDocument, AttachmentCategoryEnum, AttachmentTypeEnum, IFileAttachment } from '../../domain/app/attachments/attachment';
 
-export class UserAttachmentsService extends BaseAttachmentsService {
+export class UserAttachmentsService extends BaseAttachmentsService implements IAttachementsService {
 
     constructor(
         @inject('Config') config: IAppConfig,
         @inject(Attachments.name) attachments: Attachments,
         @inject(CurrentAccount.name) currentAccount: CurrentAccount,
-        @inject(CurrentUser.name) user: CurrentUser
+        @inject(CurrentUser.name) private _user: CurrentUser
     ) {
         super(config, currentAccount, attachments);
     }
 
-    updateProfilePicture(name: string, md5: string, data: Buffer): Promise<IAttachmentDocument> {
-        return this.put(name, md5, data).then(res => {
-            return {} as IAttachmentDocument;
-        });
+    async put(file: IFileAttachment): Promise<IAttachmentDocument> {
+        const userId = this._user.get().id;
+
+        return await this.saveAttachment(
+            AttachmentCategoryEnum.User,
+            AttachmentTypeEnum.ProfilePicture, userId, file);
+    }
+
+    get(bucket: string, key: string): Promise<Buffer> {
+        return null;
     }
 
 }

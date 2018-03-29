@@ -1,8 +1,14 @@
 import * as mongoose from 'mongoose';
 import * as Promise from 'bluebird';
 import { S3 } from 'aws-sdk';
-import { S3Service } from '../../../services/aws/s3.service';
 import { CurrentAccount } from '../../master/current-account';
+import { BaseAttachmentsService } from '../../../services/attachments/base-attachments.service';
+
+export interface IFileAttachment {
+    name: string;
+    md5: string;
+    data: Buffer;
+}
 
 export enum AttachmentCategoryEnum {
     User = 'user'
@@ -13,33 +19,28 @@ export enum AttachmentTypeEnum {
 }
 
 export interface IAttachment {
-    bucket: string,
+    bucket: string;
     key: string;
     attachedTo: {
         category: AttachmentCategoryEnum,
         type: AttachmentTypeEnum,
         identifier: string
     };
-    description? : string;
+    description?: string;
     createdOn: Date;
 }
 
-export interface IAttachmentDocument extends IAttachment, mongoose.Document {
-    
-}
+export interface IAttachmentDocument extends IAttachment, mongoose.Document { }
 
 export interface IAttachmentModel extends mongoose.Model<IAttachmentDocument> {
-    s3Service: S3Service;
-    currentAccount: CurrentAccount;
-
-    addAttachment(
-        category: AttachmentCategoryEnum,
-        type: AttachmentTypeEnum,
-        identifier: string,
-        name: string,
-        md5: string,
-        data: Buffer,
-        description?: string): Promise<IAttachmentDocument>;
-    removeAttachment(id: string): Promise<boolean>;
-    getAttachment(id: string): Promise<boolean>;
+    // addAttachment(
+    //     category: AttachmentCategoryEnum,
+    //     type: AttachmentTypeEnum,
+    //     identifier: string,
+    //     name: string,
+    //     md5: string,
+    //     data: Buffer,
+    //     description?: string): Promise<IAttachmentDocument>;
+    // removeAttachment(id: string): Promise<boolean>;
+    // getAttachment(id: string): Promise<boolean>;
 }
