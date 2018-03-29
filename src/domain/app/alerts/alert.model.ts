@@ -24,16 +24,7 @@ const AlertInfoSchema = {
     // alert is active or inactive
     active: {type: Boolean, required: true},
     push_notification: Boolean,
-    email_notified: Boolean,
-    dayOfMonth: {
-        type: Number,
-        required: true,
-        default: parseInt(moment().format('DD'))
-    },
-    timestamp: {
-        type: Date,
-        default: Date.now()
-    }
+    email_notified: Boolean
 };
 
 const AlertModelInfoSchema = {
@@ -52,6 +43,15 @@ const AlertSchema = new Schema({
     model_alert: {
         type: AlertModelInfoSchema,
         required: true
+    },
+    dayOfMonth: {
+        type: Number,
+        required: true,
+        default: parseInt(moment().format('DD'))
+    },
+    timestamp: {
+        type: Date,
+        default: Date.now()
     }
 });
 

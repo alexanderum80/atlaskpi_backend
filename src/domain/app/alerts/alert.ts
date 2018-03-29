@@ -7,7 +7,6 @@ export interface IAlert {
     active: boolean;
     push_notification: boolean;
     email_notified: boolean;
-    dayOfMonth: number;
 }
 
 export interface IAlertModelInfo {
@@ -18,6 +17,8 @@ export interface IAlertModelInfo {
 export interface IAlertInfo {
     alertInfo: IAlert[];
     model_alert: IAlertModelInfo;
+    dayOfMonth: number;
+    timestamp?: Date;
 }
 
 export interface IAlertDocument extends IAlertInfo, mongoose.Document {}
