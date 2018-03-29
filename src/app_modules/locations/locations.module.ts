@@ -5,15 +5,17 @@ import { UpdateLocationMutation } from './mutations/update-location.mutation';
 import { LocationByIdQuery } from './queries/location-by-id.query';
 import { LocationsQuery } from './queries/locations.query';
 
+
 @AppModule({
     mutations: [
         CreateLocationMutation,
         DeleteLocationMutation,
-        UpdateLocationMutation
+        UpdateLocationMutation,
+
     ],
     queries: [
         LocationsQuery,
-        LocationByIdQuery
+        LocationByIdQuery,
     ]
 })
 export class LocationsModule extends ModuleBase { }
