@@ -60,24 +60,22 @@ export interface IUserProfile {
     lastName?: string;
     sex?: string;
     dob?: Date;
-    // yojanier
-    telephoneNumber: string;
+    phoneNumber?: string;
 }
 
 export interface IShowTour {
     showTour: boolean;
 }
-// yojanier
+
 export interface IUserNotifications {
     general?: boolean;
     chat?: boolean;
-    emailNotification?: boolean;
+    email?: boolean;
     dnd?: boolean;
 }
 export interface IUserPreference {
     chart?: IShowTour;
 
-    // yojanier
     notification?: IUserNotifications;
     avatarAddress?: string;
     helpCenter?: boolean;
@@ -120,22 +118,21 @@ export interface IUserProfileInput {
     firstName?: string;
     middleName?: string;
     lastName?: string;
-    telephoneNumber?: string;
+    phoneNumber?: string;
     email?: string;
     general?: boolean;
     chat?: boolean;
-    emailNotification?: boolean;
+    viaEmail?: boolean;
     dnd?: boolean;
 }
 export interface IUserProfileResolve {
     firstName?: string;
     middleName?: string;
     lastName?: string;
-    telephoneNumber?: string;
-    email?: string;
+    phoneNumber?: string;
     general?: boolean;
     chat?: boolean;
-    emailNotification?: boolean;
+    viaEmail?: boolean;
     dnd?: boolean;
 }
 
@@ -352,7 +349,6 @@ export interface IUserModel extends mongoose.Model<IUserDocument> {
      */
     findUsersById(id: string[]): Promise<IUserDocument[]>;
 
-   
     /**
      * update the user's preferences
      */
@@ -363,22 +359,8 @@ export interface IUserModel extends mongoose.Model<IUserDocument> {
     updateUserAgreement(input: IUserAgreementInput): Promise<IUserDocument>;
 
     /**
-     * Edit user profile by Yojanier
+     * Edit user profile
      */
     editUserProfile(id: string, input: IUserProfileInput): Promise<IMutationResponse>;
 
-    /**
-     * Find user profile by Id made by yojanier
-     */
-    userProfileById(id: string): Promise<IUserProfileResolve>;
-
-    /**
-     * add/update avatar address
-     */
-    updateUserAvatarAddress(id: string, avatarAddress: string): Promise<IMutationResponse>;
-
-    /**
-     * get Avatar address
-     */
-    getUserAvatarAddress(id: string): Promise<string>;
 }

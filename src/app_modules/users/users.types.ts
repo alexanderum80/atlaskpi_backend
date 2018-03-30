@@ -26,7 +26,6 @@ export class UserDetails  {
 
 }
 
-// yojanier
 @input()
 export class UserProfileInput {
     @field({ type: GraphQLTypesMap.String })
@@ -38,11 +37,8 @@ export class UserProfileInput {
     @field({ type: GraphQLTypesMap.String })
     lastName: string;
 
-    @field({ type: GraphQLTypesMap.String, required: true })
-    email: string;
-
     @field({ type: GraphQLTypesMap.String })
-    telephoneNumber: string;
+    phoneNumber: string;
 
     @field({ type: GraphQLTypesMap.Boolean })
     general: boolean;
@@ -51,7 +47,7 @@ export class UserProfileInput {
     chat: boolean;
 
     @field({ type: GraphQLTypesMap.Boolean })
-    emailNotification: boolean;
+    viaEmail: boolean;
 
     @field({ type: GraphQLTypesMap.Boolean })
     dnd: boolean;
@@ -88,9 +84,8 @@ export class InputUserProfile  {
     @field({ type: GraphQLTypesMap.String })
     dob: string;
 
-    // yojanier
     @field({ type: GraphQLTypesMap.String })
-    telephoneNumber: string;
+    phoneNumber: string;
 
 }
 
@@ -222,14 +217,16 @@ export class UserProfile  {
     lastName: string;
 
     @field({ type: GraphQLTypesMap.String })
+    email: string;
+
+    @field({ type: GraphQLTypesMap.String })
     sex: string;
 
     @field({ type: GraphQLTypesMap.String })
     dob: string;
 
-    // yojanier
     @field({ type: GraphQLTypesMap.String })
-    telephoneNumber: string;
+    phoneNumber: string;
 
 }
 
@@ -238,15 +235,18 @@ export class ChartPreference {
     @field({ type: GraphQLTypesMap.Boolean })
     showTour: boolean;
 }
-// Yojanier
+
 @type()
 export class UserNotifications {
     @field({ type: GraphQLTypesMap.Boolean })
     general: boolean;
+
     @field({ type: GraphQLTypesMap.Boolean })
     chat: boolean;
+
     @field({ type: GraphQLTypesMap.Boolean })
-    emailNotification: boolean;
+    email: boolean;
+
     @field({ type: GraphQLTypesMap.Boolean })
     dnd: boolean;
 }
@@ -260,10 +260,9 @@ export class UserPreference {
     @field({ type:  GraphQLTypesMap.Boolean })
     helpCenter: boolean;
 
-    // yojanier
     @field({type: UserNotifications })
-    notifitation: UserNotifications;
-    
+    notification: UserNotifications;
+
     @field({ type: GraphQLTypesMap.String })
     avatarAddress: string;
 }

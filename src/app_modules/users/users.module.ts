@@ -16,9 +16,6 @@ import { UserQuery } from './queries/user.query';
 import { UsersQuery } from './queries/users.query';
 import { FindByFullNameQuery } from './queries/user-by-fullName.query';
 import { EditUserProfileMutation} from './mutations/edit-user-profile.mutation';
-import { UserProfileByIdQuery } from './queries/user-profile-by-id.query';
-import { UpdateUserAvatarAddreesMutation } from './mutations/update-user-avatar-address.mutation';
-import { GetUserAvatarAddressQuery } from './queries/get-user-avatar-address.query';
 import { UserHelpCenterQuery } from './queries/user-help-center.query';
 
 
@@ -33,8 +30,7 @@ import { UserHelpCenterQuery } from './queries/user-help-center.query';
         UserForgotPasswordMutation,
         UpdateUserPreferenceMutation,
         EditUserProfileMutation,
-        UpdateUserAvatarAddreesMutation,
-    UpdateUserAgreementMutation
+        UpdateUserAgreementMutation
     ],
     queries: [
         AllUsersQuery,
@@ -43,11 +39,8 @@ import { UserHelpCenterQuery } from './queries/user-help-center.query';
         UserQuery,
         UsersQuery,
         FindByFullNameQuery,
-    UserHelpCenterQuery,
-        /// yojanier
-        UserProfileByIdQuery,
-        GetUserAvatarAddressQuery,
-    FindUserByUsername
+        UserHelpCenterQuery,
+        FindUserByUsername
     ]
 })
 export class UsersModule extends ModuleBase { }

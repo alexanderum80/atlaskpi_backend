@@ -94,8 +94,7 @@ export function userPlugin(schema: mongoose.Schema, options: any) {
         lastName: String,
         sex: String,
         dob: Date,
-        /// yojanier
-        telephoneNumber: String
+        phoneNumber: String
     };
 
     let UserTokenInfo = {
@@ -119,18 +118,17 @@ export function userPlugin(schema: mongoose.Schema, options: any) {
             default: true
         }
     };
-    ///  Yojanier
+    
     const UserNotificationsSchema = {
         general: Boolean,
         chat: Boolean,
-        emailNotification: Boolean,
+        email: Boolean,
         dnd: Boolean
     };
 
     const UserPreferenceSchema = {
         chart: ShowTourSchema,
     helpCenter: { type: Boolean, default: true },
-        /// yojanier
         notification: UserNotificationsSchema,
         avatarAddress: String
     };
@@ -1129,10 +1127,7 @@ export function userPlugin(schema: mongoose.Schema, options: any) {
                 });
         });
     };
-    
 
-
-    ///  Yojanier
     schema.statics.editUserProfile = function(id: string, input: IUserProfileInput): Promise<IMutationResponse> {
            const that = (<IUserModel>this);
 
@@ -1141,11 +1136,10 @@ export function userPlugin(schema: mongoose.Schema, options: any) {
                    user.profile.firstName = input.firstName;
                    user.profile.middleName = input.middleName;
                    user.profile.lastName = input.lastName;
-                   user.profile.telephoneNumber = input.telephoneNumber;
-                   user.emails[0].address = input.email;
+                   user.profile.phoneNumber = input.phoneNumber;
                    user.preferences.notification.general = input.general;
                    user.preferences.notification.chat = input.chat;
-                   user.preferences.notification.emailNotification = input.emailNotification;
+                   user.preferences.notification.email = input.viaEmail;
                    user.preferences.notification.dnd = input.dnd;
 
                    user.save((err, users: IUser) => {
@@ -1156,76 +1150,9 @@ export function userPlugin(schema: mongoose.Schema, options: any) {
                         resolve({entity: users});
                     });
                }).catch((err) => {
-               resolve(MutationResponse.fromValidationErrors({ success: false, reason: err }));
+                resolve(MutationResponse.fromValidationErrors({ success: false, reason: err }));
               });
            });
-    };
-    schema.statics.userProfileById = function(id: string): Promise<IUserProfileResolve> {
-        const that = <IUserModel>this;
-
-        return new Promise<IUserProfileResolve>((resolve, reject) => {
-
-            that.findById(id).then(user => {
-                if (!user.preferences) {
-                    user.preferences = {
-                        notification: {}
-                    }
-                }
-
-                if (!user.preferences.notification) {
-                    user.preferences.notification = {};
-                }
-
-                let userProfile: IUserProfileResolve = {
-                    firstName: user.profile.firstName,
-                    middleName: user.profile.middleName,
-                    lastName: user.profile.lastName,
-                    email: user.emails[0].address,
-                    telephoneNumber: user.profile.telephoneNumber,
-                    general: user.preferences.notification.general,
-                    chat: user.preferences.notification.chat,
-                    emailNotification: user.preferences.notification.emailNotification,
-                    dnd: user.preferences.notification.dnd
-                };
-
-                resolve(userProfile);
-            }).catch(err => {
-            logger.error(err);
-            reject('There was an error retrieving user');
-           });
-        });
-    };
-    schema.statics.updateUserAvatarAddress = function(id: string, avatarAddress: string): Promise<IMutationResponse> {
-        const that = (<IUserModel>this);
-        return new Promise<IMutationResponse>((resolve, reject) => {
-             that.findById(id).then(user => {
-                  user.preferences.avatarAddress = avatarAddress;
-
-                  user.save((err, users: IUser) => {
-                    if (err) {
-                        reject({ message: 'There was an error updating the user', error: err });
-                        return;
-                    }
-                    resolve({entity: users});
-                });
-             }).catch((err) => {
-                resolve(MutationResponse.fromValidationErrors({ success: false, reason: err }));
-               });
-        });
-    };
-
-    schema.statics.getUserAvatarAddress = function(id: string): Promise<string> {
-        const that = (<IUserModel>this);
-        return new Promise<string>((resolve, reject) => {
-            that.findById(id).then(user => {
-                let avatarAddress: string = '';
-                avatarAddress = user.preferences.avatarAddress;
-                resolve(avatarAddress);
-            }).catch(err => {
-                logger.error(err);
-                reject('There was an error retrieving user');
-               });
-        });
     };
 
     schema.statics.updateUserAgreement = function(input: IUserAgreementInput): Promise<IUserDocument> {
