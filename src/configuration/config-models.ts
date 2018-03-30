@@ -42,6 +42,11 @@ export interface ISchedulerConfig {
     secret: string;
 }
 
+export interface IAWSCredentials {
+    accessKeyId: string,
+    secretAccessKey: string
+}
+
 export interface IAppConfig {
     impersonateHost: string;
     subdomain: string;
@@ -56,4 +61,5 @@ export interface IAppConfig {
     pns: IPnsConfig;
     scheduler: ISchedulerConfig;
     integrationRedirectUrl: string;
+    aws: IAWSCredentials;
 }
