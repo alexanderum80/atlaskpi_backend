@@ -6,6 +6,9 @@ import { type } from '../../framework/decorators/type.decorator';
 @type()
 export class DataSourceField  {
     @field({ type: GraphQLTypesMap.String })
+    name?: string;
+
+    @field({ type: GraphQLTypesMap.String })
     path: string;
 
     @field({ type: GraphQLTypesMap.String })

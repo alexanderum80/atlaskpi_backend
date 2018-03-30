@@ -38,6 +38,7 @@ let KPISchema = new Schema({
     emptyValueReplacement: String,
     expression: String,
     type: { type: String, required: true },
+    system: Boolean
 });
 
 // add tags capabilities

@@ -6,9 +6,9 @@ import { DataSourcesHelper } from '../app_modules/data-sources/queries/datasourc
 import { GoogleAnalyticsSchema } from '../domain/app/google-analytics/google-analytics.model';
 import { IConnectorDocument } from '../domain/master/connectors/connector';
 import { ExternalDataSourceResponse } from './../app_modules/data-sources/data-sources.types';
-import { ISchemaField } from './../app_modules/data-sources/queries/datasource.helper';
 import { Connectors } from './../domain/master/connectors/connector.model';
 import { CurrentAccount } from './../domain/master/current-account';
+import { IDataSourceField } from '../domain/app/data-sources/data-source';
 
 export const ExternalDataSourceSchemasMapping = {
     googleanalytics: {
@@ -75,7 +75,7 @@ export class ExternalDataSourcesService {
         return tasks;
     }
 
-    private _createExternalDataSource(connectors: IConnectorDocument[], fields: ISchemaField[], groupings: string[]): any[] {
+    private _createExternalDataSource(connectors: IConnectorDocument[], fields: IDataSourceField[], groupings: string[]): any[] {
         const res = connectors.map(c => {
             return {
                 id: `${c.type}$${c.id}`,

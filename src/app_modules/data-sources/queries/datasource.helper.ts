@@ -10,6 +10,8 @@ import { readMongooseSchema } from '../../../helpers/mongodb.helpers';
 import { flatten } from '../../../helpers/object.helpers';
 import { GroupingMap } from '../../charts/queries/chart-grouping-map';
 import { AppointmentSchema } from './../../../domain/app/appointments/appointment-model';
+import { IDataSourceField } from '../../../domain/app/data-sources/data-source';
+import { DataSourceField } from '../data-sources.types';
 
 export const DataSourceSchemasMapping = [
     {
@@ -41,14 +43,9 @@ const BlackListedFieldNames = [
     'document.identifier'
 ];
 
-export interface ISchemaField {
-    path: string;
-    type: string;
-}
-
 @injectable()
 export class DataSourcesHelper {
-    public static GetFieldsFromSchemaDefinition(schema: mongoose.Schema): ISchemaField[] {
+    public static GetFieldsFromSchemaDefinition(schema: mongoose.Schema): DataSourceField[] {
 
         const objectifiedSchema = readMongooseSchema(schema);
         const flattenedSchema = flatten(objectifiedSchema);
