@@ -49,6 +49,11 @@ const ProviderSchema = {
     type: { type: String }
 };
 
+const AppointmentProcedureSchema = {
+    ...EntitySchema,
+    converted: Boolean
+};
+
 const AppointmentLocationSchema = {
     externalId: String,
     name: String,
@@ -83,8 +88,8 @@ export const AppointmentSchema = new mongoose.Schema({
     provider: [ ProviderSchema ],
     location: { ...AppointmentLocationSchema },
     event: { ...EventSchema },
-    procedure: [ EntitySchema ],
-    referal: { ...EntitySchema },
+    procedure: [ AppointmentProcedureSchema ],
+    referral: { ...EntitySchema },
     date: Date,
     converted: Boolean,
     appointmentType: String,
