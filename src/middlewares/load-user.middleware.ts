@@ -1,3 +1,4 @@
+import { insentive_username } from '../domain/app/security/users/user-plugin';
 import { model } from 'mongoose';
 import * as logger from 'winston';
 
@@ -30,11 +31,11 @@ export function loadUser(req: IExtendedRequest, res: Response, next) {
     if (usernameField === 'email') {
         condition['emails'] = {
             $elemMatch: {
-                address: req.identity.username
+                address: insentive_username(req.identity.username)
             }
         };
     } else {
-        condition['username'] = req.identity.username;
+        condition['username'] = insentive_username(req.identity.username);
     }
 
     let error = {

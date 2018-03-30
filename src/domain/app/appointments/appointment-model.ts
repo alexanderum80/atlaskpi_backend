@@ -10,6 +10,7 @@ import { AppConnection } from '../app.connection';
 import { SearchAppointmentCriteriaInput } from './../../../app_modules/appointments/appointments.types';
 import { IIdName } from './../../common/id-name';
 import { IAppointment, IAppointmentDocument, IAppointmentModel } from './appointment';
+import { getCustomerSchema } from '../../common/customer.schema';
 
 const distinctProvidersPipeline = [
     { '$unwind': '$provider' },
@@ -31,8 +32,36 @@ const EventSchema = {
     cancelledColor: String
 };
 
+const AppoitnmentCustomerSchema = {
+    externalId: String,
+    city: String,
+    state: String,
+    zip: String,
+    gender: String,
+    dob: Date,
+    address: String,
+    fullname: String
+};
+
+const ProviderSchema = {
+    externalId: String,
+    name: String,
+    type: { type: String }
+};
+
+const AppointmentLocationSchema = {
+    externalId: String,
+    name: String,
+    address1: String,
+    address2: String,
+    city: String,
+    state: String,
+    zip: String,
+};
+
 export const AppointmentSchema = new mongoose.Schema({
     // appointment
+    externalId: String,
     source: String,
     reason: String,
     comments: String,
@@ -50,10 +79,15 @@ export const AppointmentSchema = new mongoose.Schema({
     confirmedOn: Date,
     createdOn: Date,
     noShowOn: Date,
-    customer: { ...EntitySchema },
-    provider: [ EntitySchema ],
-    location: { ...EntitySchema },
+    customer: AppoitnmentCustomerSchema,
+    provider: [ ProviderSchema ],
+    location: { ...AppointmentLocationSchema },
     event: { ...EventSchema },
+    procedure: [ EntitySchema ],
+    referal: { ...EntitySchema },
+    date: Date,
+    converted: Boolean,
+    appointmentType: String,
     document: {
         type: String, // invoice, bill, charge, etc
         identifier: String
