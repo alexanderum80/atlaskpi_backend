@@ -15,6 +15,7 @@ import { IsResetPasswordTokenValidQuery } from './queries/is-reset-password-toke
 import { UserQuery } from './queries/user.query';
 import { UsersQuery } from './queries/users.query';
 import { FindByFullNameQuery } from './queries/user-by-fullName.query';
+import { EditUserProfileMutation} from './mutations/edit-user-profile.mutation';
 import { UserHelpCenterQuery } from './queries/user-help-center.query';
 
 
@@ -28,6 +29,7 @@ import { UserHelpCenterQuery } from './queries/user-help-center.query';
         UpdateUserMutation,
         UserForgotPasswordMutation,
         UpdateUserPreferenceMutation,
+        EditUserProfileMutation,
         UpdateUserAgreementMutation
     ],
     queries: [
@@ -37,8 +39,8 @@ import { UserHelpCenterQuery } from './queries/user-help-center.query';
         UserQuery,
         UsersQuery,
         FindByFullNameQuery,
-        FindUserByUsername,
-        UserHelpCenterQuery
+        UserHelpCenterQuery,
+        FindUserByUsername
     ]
 })
 export class UsersModule extends ModuleBase { }

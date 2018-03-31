@@ -35,6 +35,10 @@ export interface IAppointmentLocation extends IEntity {
     zip?: string;
 }
 
+export interface IAppointmentProcedure extends IEntity {
+    converted: boolean;
+}
+
 export interface IAppointment extends BaseModel {
     // Appointment
     reason: string;
@@ -56,7 +60,8 @@ export interface IAppointment extends BaseModel {
     customer: IAppointmentCustomer;
     provider: IAppointmentProvider[];
     location: IAppointmentLocation;
-    referal: IEntity;
+    procedure: IAppointmentProcedure[];
+    referral: IEntity;
     date: Date;
     converted: Boolean;
     appointmentType: string;

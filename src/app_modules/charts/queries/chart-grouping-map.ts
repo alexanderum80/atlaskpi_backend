@@ -15,12 +15,14 @@ export const GroupingMap = {
         customerCity: 'customer.city',
         customerZip: 'customer.zip',
         customerGender: 'customer.gender',
+        referral: 'referral.name',
         source: 'source'
     },
     expenses: {
         businessUnit: 'businessUnit.name',
         accountType: 'expense.type',
         concept: 'expense.concept',
+        group: 'expense.type',
         location: 'location.name',
         source: 'source'
     },
@@ -79,14 +81,18 @@ export const GroupingMap = {
         checkedOut: 'checkoedOut',
         cancelled: 'cancelled',
         noShow: 'noShow',
-        customer: 'customer.fullname',
+        customerName: 'customer.fullname',
+        customerState: 'customer.state',
+        customerCity: 'customer.city',
+        customerZip: 'customer.zip',
         provider: 'provider.name',
         location: 'location.name',
         type: 'appointmentType',
+        code: 'event.code',
         source: 'source',
         procedure: 'procedure.name',
-        referal: 'referal.name',
-        converted: 'converted'
+        referral: 'referral.name',
+        converted: 'procedure.converted'
     }
 };
 
