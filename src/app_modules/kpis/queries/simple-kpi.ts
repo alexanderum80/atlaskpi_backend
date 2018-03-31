@@ -51,17 +51,20 @@ export class SimpleKPI extends SimpleKPIBase implements IKpiBase {
                                     ): SimpleKPI {
 
         const simpleKPIDefinition: IKPISimpleDefinition = KPIExpressionHelper.DecomposeExpression(KPITypeEnum.Simple, kpi.expression);
-        const virtualSource = virtualSources.find(s => s.name.toLocaleLowerCase() === simpleKPIDefinition.dataSource);
         let collection: ICollection;
-        let baseAggregate: any;
 
-        if (virtualSource) {
-            collection = {
-                modelName: virtualSource.modelIdentifier,
-                timestampField: virtualSource.dateField
-            };
-            simpleKPIDefinition.dataSource = virtualSource.source.toLowerCase();
-            baseAggregate = virtualSource.getCleanBaseAggregate();
+        if (virtualSources) {
+            const virtualSource = virtualSources.find(s => s.name.toLocaleLowerCase() === simpleKPIDefinition.dataSource);
+            let baseAggregate: any;
+
+            if (virtualSource) {
+                collection = {
+                    modelName: virtualSource.modelIdentifier,
+                    timestampField: virtualSource.dateField
+                };
+                simpleKPIDefinition.dataSource = virtualSource.source.toLowerCase();
+                baseAggregate = virtualSource.getCleanBaseAggregate();
+            }
         }
 
         if (!collection) {

@@ -90,7 +90,7 @@ export const GroupingMap = {
         converted: 'converted'
     },
     conversions: {
-        converted: 'converted',
+        converted: 'procedure.converted',
         source: 'source',
         referral: 'referral.name',
         procedure: 'procedure.name',
