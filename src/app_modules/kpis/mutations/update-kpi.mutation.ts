@@ -39,15 +39,5 @@ export class UpdateKpiMutation extends MutationBase<IMutationResponse> {
                 errors: [{ field: '', errors: ['There was error updating the KPI'] }]
             };
         }
-
-        // const that = this;
-        // return new Promise<IMutationResponse>((resolve, reject) => {
-        //     that._kpis.model.updateKPI(data.id, data.input)
-        //     .then((kpiDocument) => {
-        //         resolve({entity: kpiDocument, success: true });
-        //         return;
-        //     })
-        //     .catch((err) => resolve({ success: false, errors: [ { field: 'id', errors: [err]}] }));
-        // });
     }
 }
