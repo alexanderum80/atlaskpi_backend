@@ -10,29 +10,33 @@ import { readMongooseSchema } from '../../../helpers/mongodb.helpers';
 import { flatten } from '../../../helpers/object.helpers';
 import { GroupingMap } from '../../charts/queries/chart-grouping-map';
 import { AppointmentSchema } from './../../../domain/app/appointments/appointment-model';
-import { IDataSourceField } from '../../../domain/app/data-sources/data-source';
 import { DataSourceField } from '../data-sources.types';
 
 export const DataSourceSchemasMapping = [
     {
         name: 'sales',
-        definition: SaleSchema
+        definition: SaleSchema,
+        collectionName: 'Sales'
     },
     {
         name: 'expenses',
-        definition: ExpenseSchema
+        definition: ExpenseSchema,
+        collectionName: 'Expenses'
     },
     {
         name: 'inventory',
-        definition: InventorySchema
+        definition: InventorySchema,
+        collectionName: 'Sales'
     },
     {
         name: 'calls',
-        definition: CallSchema
+        definition: CallSchema,
+        collectionName: 'Calls'
     },
     {
         name: 'appointments',
-        definition: AppointmentSchema
+        definition: AppointmentSchema,
+        collectionName: 'Appointments'
     }
 ];
 

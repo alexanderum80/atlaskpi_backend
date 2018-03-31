@@ -41,6 +41,7 @@ async function getDataSources(): Promise<DataSourceResponse[]> {
             const fields = fieldNames.map(f => ({ name: f, path: ds.fieldsMap[f].path, type: ds.fieldsMap[f].dataType }));
             return {
                 name: ds.name.toLocaleLowerCase(),
+                dataSource: ds.source,
                 fields: fields,
                 groupings: fieldNames
             };

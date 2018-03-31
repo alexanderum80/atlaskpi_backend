@@ -22,6 +22,9 @@ export class DataSourceResponse  {
     @field({ type: GraphQLTypesMap.String })
     name: string;
 
+    @field({ type: GraphQLTypesMap.String })
+    dataSource: string;
+
     @field({ type: DataSourceField, isArray: true })
     fields: DataSourceField[];
 

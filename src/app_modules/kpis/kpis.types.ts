@@ -52,7 +52,7 @@ export class KPIAttributesInput  {
 @input()
 export class KPIFilterCriteria {
     @field({ type: GraphQLTypesMap.String, required: true })
-    kpi: string;
+    source: string;
 
     @field({ type: GraphQLTypesMap.String, required: true })
     field: string;
