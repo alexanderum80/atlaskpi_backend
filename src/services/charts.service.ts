@@ -1,6 +1,5 @@
 import { IObject } from '../app_modules/shared/criteria.plugin';
 import {IChartTop, EnumChartTop, chartTopValue} from '../domain/common/top-n-record';
-import * as Promise from 'bluebird';
 import { inject, injectable } from 'inversify';
 import { difference, isString, pick, isNumber } from 'lodash';
 import { camelCase } from 'change-case';
@@ -30,6 +29,7 @@ import { Targets } from './../domain/app/targets/target.model';
 import {IChartDateRange, IDateRange, parsePredifinedDate, PredefinedTargetPeriod} from './../domain/common/date-range';
 import {FrequencyEnum, FrequencyTable} from './../domain/common/frequency-enum';
 import { TargetService } from './target.service';
+import { VirtualSources } from '../domain/app/virtual-sources/virtual-source.model';
 
 export interface IRenderChartOptions {
     chartId?: string;
@@ -57,7 +57,8 @@ export class ChartsService {
         @inject(CurrentUser.name) private _currentUser: CurrentUser,
         @inject(ChartFactory.name) private _chartFactory: ChartFactory,
         @inject(KpiFactory.name) private _kpiFactory: KpiFactory,
-        @inject(Logger.name) private _logger: Logger
+        @inject(Logger.name) private _logger: Logger,
+        @inject(VirtualSources.name) private _virtualSources: VirtualSources
     ) { }
 
     public getChartsWithoutDefinition(criteria?: { }): Promise<IChart[]> {
@@ -75,13 +76,14 @@ export class ChartsService {
         });
     }
 
-    public renderDefinition(chart: IChart, options?: IRenderChartOptions): Promise<any> {
+    async renderDefinition(chart: IChart, options?: IRenderChartOptions): Promise<any> {
         if (!chart) {
             return Promise.reject('missing parameter');
         }
 
+        const virtualSources = await this._virtualSources.model.find({});
         const uiChart = this._chartFactory.getInstance(chart);
-        const kpi = this._kpiFactory.getInstance(chart.kpis[0]);
+        const kpi = this._kpiFactory.getInstance(chart.kpis[0], virtualSources);
 
         const meta: IChartMetadata = {
             filter: options && options.filter || chart.filter,

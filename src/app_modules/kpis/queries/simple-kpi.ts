@@ -14,6 +14,7 @@ import { Appointment } from './../../appointments/appointments.types';
 import { AggregateStage } from './aggregate';
 import { ICollection, IGetDataOptions, IKpiBase } from './kpi-base';
 import { SimpleKPIBase } from './simple-kpi-base';
+import { IVirtualSourceDocument } from '../../../domain/app/virtual-sources/virtual-source';
 
 const CollectionsMapping = {
     sales: {
@@ -45,11 +46,28 @@ export class SimpleKPI extends SimpleKPIBase implements IKpiBase {
                                         expenses: Expenses,
                                         inventory: Inventory,
                                         calls: Calls,
-                                        appointments: Appointments
+                                        appointments: Appointments,
+                                        virtualSources: IVirtualSourceDocument[]
                                     ): SimpleKPI {
-        const simpleKPIDefinition: IKPISimpleDefinition = KPIExpressionHelper.DecomposeExpression(KPITypeEnum.Simple, kpi.expression);
 
-        const collection: ICollection = CollectionsMapping[simpleKPIDefinition.dataSource];
+        const simpleKPIDefinition: IKPISimpleDefinition = KPIExpressionHelper.DecomposeExpression(KPITypeEnum.Simple, kpi.expression);
+        const virtualSource = virtualSources.find(s => s.name.toLocaleLowerCase() === simpleKPIDefinition.dataSource);
+        let collection: ICollection;
+        let baseAggregate: any;
+
+        if (virtualSource) {
+            collection = {
+                modelName: virtualSource.modelIdentifier,
+                timestampField: virtualSource.dateField
+            };
+            simpleKPIDefinition.dataSource = virtualSource.source.toLowerCase();
+            baseAggregate = virtualSource.getCleanBaseAggregate();
+        }
+
+        if (!collection) {
+            collection = CollectionsMapping[simpleKPIDefinition.dataSource];
+        }
+
         if (!collection) { return null; }
 
         const models = {
@@ -61,7 +79,7 @@ export class SimpleKPI extends SimpleKPIBase implements IKpiBase {
         };
 
         const model = models[collection.modelName];
-        const aggregateSkeleton: AggregateStage[] = [
+        let aggregateSkeleton: AggregateStage[] = [
             {
                 filter: true,
                 $match: { }
@@ -89,6 +107,11 @@ export class SimpleKPI extends SimpleKPIBase implements IKpiBase {
                 }
             }
         ];
+
+        if (baseAggregate) {
+            aggregateSkeleton = baseAggregate.concat(aggregateSkeleton);
+        }
+
         return new SimpleKPI(model, aggregateSkeleton, simpleKPIDefinition, kpi, collection);
     }
 

@@ -6,7 +6,7 @@ import { input } from '../../../framework/decorators/input.decorator';
 import { ModelBase } from '../../../type-mongo/model-base';
 import { AppConnection } from '../app.connection';
 import { tagsPlugin } from '../tags/tag.plugin';
-import { IVirtualSourceModel } from '../virtual-sources/virtual-source';
+import { IVirtualSourceModel, IVirtualSourceDocument } from '../virtual-sources/virtual-source';
 import { DataSourceResponse } from '../../../app_modules/data-sources/data-sources.types';
 
 const Schema = mongoose.Schema;
@@ -14,6 +14,7 @@ const VirtualSourceSchema = new mongoose.Schema({
     name: { type: String, required: true },
     description: String,
     source: { type: String, required: true },
+    modelIdentifier: { type: String, required: true },
     dateField: { type: String, required: true },
     aggregate: { type: [mongoose.Schema.Types.Mixed], required: true },
     fieldsMap: { type: mongoose.Schema.Types.Mixed, required: true },
@@ -21,6 +22,8 @@ const VirtualSourceSchema = new mongoose.Schema({
 });
 
 VirtualSourceSchema.statics.getDataSources = getDataSources;
+
+VirtualSourceSchema.methods.getCleanBaseAggregate = getCleanBaseAggregate;
 
 @injectable()
 export class VirtualSources extends ModelBase<IVirtualSourceModel> {
@@ -52,4 +55,29 @@ async function getDataSources(): Promise<DataSourceResponse[]> {
         console.error('Error getting virtual sources');
         return [];
     }
+}
+
+function getCleanBaseAggregate(): any[] {
+    const doc = this as IVirtualSourceDocument;
+
+    if (!doc.aggregate) {
+        return null;
+    }
+
+    const result = [];
+    doc.aggregate.forEach(a => {
+        const operators = Object.keys(a);
+
+        if (!operators || !operators.length || operators.length > 1) {
+            return;
+        }
+
+        const rawOperator = operators[0];
+        const obj = {} as any;
+        obj[rawOperator.replace('__dollar__', '$')] = a[rawOperator];
+
+        result.push(obj);
+    });
+
+    return result;
 }

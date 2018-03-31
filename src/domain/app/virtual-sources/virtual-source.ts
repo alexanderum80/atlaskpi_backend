@@ -15,12 +15,15 @@ export interface IVirtualSource {
     name: string;
     description?: string;
     source: string;
+    modelIdentifier: string;
     dateField: string;
     aggregate: any[];
     fieldsMap: IVirtualSourceFields;
 }
 
-export interface IVirtualSourceDocument extends IVirtualSource, mongoose.Document { }
+export interface IVirtualSourceDocument extends IVirtualSource, mongoose.Document {
+    getCleanBaseAggregate(): any[];
+}
 
 export interface IVirtualSourceModel extends mongoose.Model<IVirtualSourceDocument> {
     getDataSources(): Promise<DataSourceResponse[]>;

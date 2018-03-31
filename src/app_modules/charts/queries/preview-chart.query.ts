@@ -1,4 +1,3 @@
-import * as Promise from 'bluebird';
 import { inject, injectable } from 'inversify';
 
 import { input } from '../../../framework/decorators/input.decorator';
@@ -24,19 +23,13 @@ export class PreviewChartQuery implements IQuery<String> {
         @inject(Logger.name) private _logger: Logger
     ) { }
 
-    run(data: { input: ChartAttributesInput }): Promise<String> {
-        const that = this;
-
-        return new Promise<string>((resolve, reject) => {
-            that._chartsService.previewChart(data.input)
-                .then(chart => {
-                    resolve(JSON.stringify(chart));
-                    return;
-                })
-                .catch(err => {
-                    that._logger.error(err);
-                    reject(err);
-                });
-        });
+    async run(data: { input: ChartAttributesInput }): Promise<String> {
+        try {
+            const chart = await this._chartsService.previewChart(data.input);
+            return JSON.stringify(chart);
+        } catch (e) {
+            this._logger.error(e);
+            return '';
+        }
     }
 }

@@ -15,6 +15,7 @@ import { GoogleAnalyticsKpi } from './google-analytics-kpi';
 import { IKpiBase } from './kpi-base';
 import { Revenue } from './revenue.kpi';
 import { SimpleKPI } from './simple-kpi';
+import { IVirtualSourceDocument } from '../../../domain/app/virtual-sources/virtual-source';
 
 @injectable()
 export class KpiFactory {
@@ -30,7 +31,7 @@ export class KpiFactory {
         @inject(Appointments.name) private _appointments: Appointments
     ) { }
 
-    getInstance(kpiDocument: IKPIDocument): IKpiBase {
+    getInstance(kpiDocument: IKPIDocument, virtualSources: IVirtualSourceDocument[]): IKpiBase {
 
         if (!kpiDocument) { return null; }
 
@@ -48,7 +49,8 @@ export class KpiFactory {
                                 this._expenses,
                                 this._inventory,
                                 this._calls,
-                                this._appointments
+                                this._appointments,
+                                virtualSources
                           );
                 case KPITypeEnum.ExternalSource:
                     return GoogleAnalyticsKpi.CreateFromExpression( kpiDocument,
