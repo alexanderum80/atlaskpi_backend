@@ -30,8 +30,7 @@ export class DataSourcesService {
     async getDistinctValues(source: string, field: string, limit: number, filter: string): Promise<string[]> {
         try {
             const model = (this._container.get(source) as any).model;
-            const criterias = await (model as any).findCriteria(field, limit, filter);
-            return criterias;
+            return await (model as any).findCriteria(field, limit, filter);
         } catch (e) {
             this._logger.error('There was an error retrieving the distinct values', e);
             return [];

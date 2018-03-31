@@ -88,6 +88,13 @@ export const GroupingMap = {
         procedure: 'procedure.name',
         referal: 'referal.name',
         converted: 'converted'
+    },
+    conversions: {
+        converted: 'converted',
+        source: 'source',
+        referral: 'referral.name',
+        procedure: 'procedure.name',
+        provider: 'provider.name'
     }
 };
 

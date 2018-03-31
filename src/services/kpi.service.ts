@@ -43,6 +43,70 @@ export class KpiService {
         @inject(VirtualSources.name) private _virtualSources: VirtualSources
     ) {}
 
+    async getKpi(id: string): Promise<IKPIDocument> {
+        const doc = await this._kpis.model.findOne({ _id: id });
+        const virtualSources = await this._virtualSources.model.find({});
+
+        doc.expression = KPIExpressionHelper.PrepareExpressionField(doc.type, doc.expression);
+
+        return doc;
+    }
+
+    async createKpi(input: IKPI): Promise<IKPIDocument> {
+        const kpiType = KPITypeMap[input.type];
+        const virtualSources = await this._virtualSources.model.find({});
+
+        if (input.filter) {
+            input.filter = KPIFilterHelper.ComposeFilter(kpiType, virtualSources, input.expression, input.filter);
+        }
+
+        if (kpiType === KPITypeEnum.Simple || KPITypeEnum.ExternalSource) {
+            input.expression = KPIExpressionHelper.ComposeExpression(kpiType, input.expression);
+        }
+
+        return await this._kpis.model.createKPI(input);
+    }
+
+    async updateKpi(id: string, input: IKPI): Promise<IKPIDocument> {
+        const kpiType = KPITypeMap[input.type];
+        const virtualSources = await this._virtualSources.model.find({});
+
+        input.filter = KPIFilterHelper.ComposeFilter(kpiType, virtualSources, input.expression, input.filter);
+        input.expression = KPIExpressionHelper.ComposeExpression(kpiType, input.expression);
+
+        return await this._kpis.model.updateKPI(id, input);
+    }
+
+    removeKpi(id: string): Promise<IMutationResponse> {
+        const that = this;
+
+        return new Promise<IMutationResponse>((resolve, reject) => {
+
+            that._kpiInUseByModel(id).then((documents: IDocumentExist) => {
+                // check if kpi is in use by another model
+                const { chart, widget, complexKPI } = documents;
+                const modelExists: number = chart.length || widget.length || complexKPI.length;
+
+                if (modelExists) {
+                    reject({ message: 'KPIs is being used by ', entity: documents, error: 'KPIs is being used by '});
+                    return;
+                }
+
+                // remove kpi when not in use
+                that._kpis.model.removeKPI(id).then(document => {
+                    resolve(document);
+                    return;
+                }).catch(err => {
+                    reject(err);
+                    return;
+                });
+            }).catch(err => {
+                reject(err);
+                return;
+            });
+        });
+    }
+
     GetGroupingsExistInCollectionSchema(schemaName: string): Promise<string[]> {
         const that = this;
         // get sales and expense mongoose models
@@ -87,51 +151,6 @@ export class KpiService {
                     permittedFields = Object.keys(formatToObject);
                     return resolve(sortBy(permittedFields));
                 }
-            });
-        });
-    }
-
-    async createKpi(input: IKPI): Promise<IKPIDocument> {
-        const kpiType = KPITypeMap[input.type];
-        const virtualSources = await this._virtualSources.model.find({});
-
-        if (input.filter) {
-            input.filter = KPIFilterHelper.ComposeFilter(kpiType, virtualSources, input.expression, input.filter);
-        }
-
-        if (kpiType === KPITypeEnum.Simple || KPITypeEnum.ExternalSource) {
-            input.expression = KPIExpressionHelper.ComposeExpression(kpiType, input.expression);
-        }
-
-        return await this._kpis.model.createKPI(input);
-    }
-
-    removeKpi(id: string): Promise<IMutationResponse> {
-        const that = this;
-
-        return new Promise<IMutationResponse>((resolve, reject) => {
-
-            that._kpiInUseByModel(id).then((documents: IDocumentExist) => {
-                // check if kpi is in use by another model
-                const { chart, widget, complexKPI } = documents;
-                const modelExists: number = chart.length || widget.length || complexKPI.length;
-
-                if (modelExists) {
-                    reject({ message: 'KPIs is being used by ', entity: documents, error: 'KPIs is being used by '});
-                    return;
-                }
-
-                // remove kpi when not in use
-                that._kpis.model.removeKPI(id).then(document => {
-                    resolve(document);
-                    return;
-                }).catch(err => {
-                    reject(err);
-                    return;
-                });
-            }).catch(err => {
-                reject(err);
-                return;
             });
         });
     }
