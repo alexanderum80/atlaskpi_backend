@@ -1,4 +1,3 @@
-import * as Promise from 'bluebird';
 import { inject, injectable } from 'inversify';
 
 import { query } from '../../../framework/decorators/query.decorator';
@@ -21,7 +20,7 @@ import { DataSourcesService } from '../../../services/data-sources.service';
 export class DataSourcesQuery implements IQuery<DataSourceResponse[]> {
     constructor(@inject(DataSourcesService.name) private _dataSourcesSvc: DataSourcesService) { }
 
-    run(data: { filter: string }): Promise<DataSourceResponse[]> {
+    async run(data: { filter: string }): Promise<DataSourceResponse[]> {
         return this._dataSourcesSvc.get() as any;
     }
 }

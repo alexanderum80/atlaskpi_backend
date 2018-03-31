@@ -5,8 +5,6 @@ import { DataSourceSchemasMapping, DataSourcesHelper } from '../app_modules/data
 import { sortBy } from 'lodash';
 import { Logger } from '../domain/app/logger';
 
-// return Promise.resolve(dataSources);
-
 @injectable()
 export class DataSourcesService {
 
@@ -40,39 +38,3 @@ export class DataSourcesService {
         }
     }
 }
-
-
-// const that: GetKpisCriteriaQuery = this;
-//         const input: KPIFilterCriteria = data.input;
-
-//         const kpiMapper: IKPIMapper = {
-//             'sales': this._sales,
-//             'expenses': this._expenses,
-//             'inventory': this._inventory,
-//             'calls': this._calls,
-//             'appointments': this._appointments
-//         };
-
-//         return new Promise<KPICriteriaResult>((resolve, reject) => {
-//             if (!input.kpi || !input.field) {
-//                 reject({ message: 'Did not provide the fields', error: 'Did not provide the fields' });
-//                 return;
-//             }
-
-//             // sales, expenses, inventory model
-//             const kpi: any = kpiMapper[input.kpi.toLocaleLowerCase()].model;
-
-//             if (kpi) {
-//                 kpi.findCriteria(input.field, input.limit, input.filter).then((response: string[]) => {
-//                     resolve({
-//                         criteriaValue: response
-//                     });
-//                     return;
-//                 }).catch(err => {
-//                     reject({ message: 'unable to get data', errors: err});
-//                 });
-//             } else {
-//                 reject({ message: 'no kpi provided', errors: 'no kpi provided' });
-//                 return;
-//             }
-//         });

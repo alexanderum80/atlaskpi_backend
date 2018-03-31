@@ -1,24 +1,24 @@
-import { IInventoryModel } from '../domain/app/inventory/inventory';
-import { IExpenseModel } from '../domain/app/expenses/expense';
-import { ISaleModel } from '../domain/app/sales/sale';
-import { IMutationResponse } from '../framework/mutations/mutation-response';
-import { IWidgetDocument } from '../domain/app/widgets/widget';
-import { IChartDocument } from '../domain/app/charts/chart';
-import { Widgets } from '../domain/app/widgets/widget.model';
-import { Charts } from '../domain/app/charts/chart.model';
-import { GroupingMap } from '../app_modules/charts/queries/chart-grouping-map';
-import { KPIs } from '../domain/app/kpis/kpi.model';
-import { Inventory } from '../domain/app/inventory/inventory.model';
-import { Expenses } from '../domain/app/expenses/expense.model';
-import { Sales } from '../domain/app/sales/sale.model';
-import { IDocumentExist, IKPIDocument } from '../domain/app/kpis/kpi';
-import * as Promise from 'bluebird';
+import { VirtualSources } from '../domain/app/virtual-sources/virtual-source.model';
 import { inject, injectable } from 'inversify';
-import {
-    sortBy,
-    isObject
-} from 'lodash';
+import { isObject, sortBy } from 'lodash';
 import { DocumentQuery } from 'mongoose';
+
+import { GroupingMap } from '../app_modules/charts/queries/chart-grouping-map';
+import { IChartDocument } from '../domain/app/charts/chart';
+import { Charts } from '../domain/app/charts/chart.model';
+import { IExpenseModel } from '../domain/app/expenses/expense';
+import { Expenses } from '../domain/app/expenses/expense.model';
+import { IInventoryModel } from '../domain/app/inventory/inventory';
+import { Inventory } from '../domain/app/inventory/inventory.model';
+import { IDocumentExist, IKPIDocument, IKPI, KPITypeMap, KPITypeEnum } from '../domain/app/kpis/kpi';
+import { KPIs } from '../domain/app/kpis/kpi.model';
+import { ISaleModel } from '../domain/app/sales/sale';
+import { Sales } from '../domain/app/sales/sale.model';
+import { IWidgetDocument } from '../domain/app/widgets/widget';
+import { Widgets } from '../domain/app/widgets/widget.model';
+import { IMutationResponse } from '../framework/mutations/mutation-response';
+import { KPIFilterHelper } from '../domain/app/kpis/kpi-filter.helper';
+import { KPIExpressionHelper } from '../domain/app/kpis/kpi-expression.helper';
 
 const codeMapper = {
     'Revenue': 'sales',
@@ -39,7 +39,8 @@ export class KpiService {
         @inject(Inventory.name) private _inventoryModel,
         @inject(KPIs.name) private _kpis: KPIs,
         @inject(Charts.name) private _chart: Charts,
-        @inject(Widgets.name) private _widget: Widgets
+        @inject(Widgets.name) private _widget: Widgets,
+        @inject(VirtualSources.name) private _virtualSources: VirtualSources
     ) {}
 
     GetGroupingsExistInCollectionSchema(schemaName: string): Promise<string[]> {
@@ -88,6 +89,21 @@ export class KpiService {
                 }
             });
         });
+    }
+
+    async createKpi(input: IKPI): Promise<IKPIDocument> {
+        const kpiType = KPITypeMap[input.type];
+        const virtualSources = await this._virtualSources.model.find({});
+
+        if (input.filter) {
+            input.filter = KPIFilterHelper.ComposeFilter(kpiType, virtualSources, input.expression, input.filter);
+        }
+
+        if (kpiType === KPITypeEnum.Simple || KPITypeEnum.ExternalSource) {
+            input.expression = KPIExpressionHelper.ComposeExpression(kpiType, input.expression);
+        }
+
+        return await this._kpis.model.createKPI(input);
     }
 
     removeKpi(id: string): Promise<IMutationResponse> {

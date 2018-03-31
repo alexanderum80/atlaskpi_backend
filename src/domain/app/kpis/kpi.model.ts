@@ -72,15 +72,15 @@ KPISchema.statics.createKPI = function(input: IKPI): Promise<IKPIDocument> {
 
         input.code = input.name;
 
-        let kpiType = KPITypeMap[input.type];
+        // let kpiType = KPITypeMap[input.type];
 
-        if (input.filter) {
-            input.filter = KPIFilterHelper.ComposeFilter(kpiType, input.expression, input.filter);
-        }
+        // if (input.filter) {
+        //     input.filter = KPIFilterHelper.ComposeFilter(kpiType, input.expression, input.filter);
+        // }
 
-        if (kpiType === KPITypeEnum.Simple || KPITypeEnum.ExternalSource) {
-            input.expression = KPIExpressionHelper.ComposeExpression(kpiType, input.expression);
-        }
+        // if (kpiType === KPITypeEnum.Simple || KPITypeEnum.ExternalSource) {
+        //     input.expression = KPIExpressionHelper.ComposeExpression(kpiType, input.expression);
+        // }
 
         that.create(input, (err, kpi: IKPIDocument) => {
             if (err) {
