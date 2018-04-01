@@ -22,7 +22,7 @@ export interface IVirtualSource {
 }
 
 export interface IVirtualSourceDocument extends IVirtualSource, mongoose.Document {
-    getCleanBaseAggregate(): any[];
+    // getCleanBaseAggregate(): any[];
 }
 
 export interface IVirtualSourceModel extends mongoose.Model<IVirtualSourceDocument> {

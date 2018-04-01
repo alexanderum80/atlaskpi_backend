@@ -90,11 +90,18 @@ export const GroupingMap = {
         converted: 'converted'
     },
     conversions: {
-        converted: 'procedure.converted',
-        source: 'source',
+        city: 'customer.city',
+        state: 'customer.state',
+        zip: 'customer.zip',
+        gender: 'customer.gender',
+        dob: 'customer.dob',
+        fullname: 'customer.fullname',
         referral: 'referral.name',
-        procedure: 'procedure.name',
-        provider: 'provider.name'
+        date: 'customer.date',
+        amount: 'customer.amount',
+    },
+    customers: {
+
     }
 };
 

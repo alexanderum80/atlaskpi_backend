@@ -38,7 +38,7 @@ const replacementStrings = [
 ];
 
 export class KPIFilterHelper {
-    public static ComposeFilter(
+    static ComposeFilter(
         kpiType: KPITypeEnum,
         virtualSources: IVirtualSourceDocument[],
         rawExpression: string,
@@ -64,7 +64,7 @@ export class KPIFilterHelper {
         }
     }
 
-    public static DecomposeFilter(kpiType: KPITypeEnum, filter: any): any {
+    static DecomposeFilter(kpiType: KPITypeEnum, filter: any): any {
 
         switch (kpiType) {
             case KPITypeEnum.Simple:
@@ -78,7 +78,7 @@ export class KPIFilterHelper {
         }
     }
 
-    public static PrepareFilterField(type: string, filter: string): string {
+    static PrepareFilterField(type: string, filter: string): string {
         switch (type) {
             case KPITypeEnum.Simple:
                 return KPIFilterHelper.DecomposeFilter(type, filter);
@@ -90,6 +90,10 @@ export class KPIFilterHelper {
                 return filter;
 
         }
+    }
+
+    static CleanObjectKeys(filter: any): any {
+        return KPIFilterHelper._deserializeFilter(filter);
     }
 
     private static _composeSimpleFilter(virtualSources: IVirtualSourceDocument[], datasource: string, filterArray: IKPIFilter[]): string {

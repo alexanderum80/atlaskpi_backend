@@ -1,6 +1,7 @@
 import { inject, injectable } from 'inversify';
 import * as mongoose from 'mongoose';
 import * as logger from 'winston';
+import { isObject } from 'lodash';
 
 import { input } from '../../../framework/decorators/input.decorator';
 import { ModelBase } from '../../../type-mongo/model-base';
@@ -23,7 +24,7 @@ const VirtualSourceSchema = new mongoose.Schema({
 
 VirtualSourceSchema.statics.getDataSources = getDataSources;
 
-VirtualSourceSchema.methods.getCleanBaseAggregate = getCleanBaseAggregate;
+// VirtualSourceSchema.methods.getCleanBaseAggregate = getCleanBaseAggregate;
 
 @injectable()
 export class VirtualSources extends ModelBase<IVirtualSourceModel> {
@@ -57,27 +58,36 @@ async function getDataSources(): Promise<DataSourceResponse[]> {
     }
 }
 
-function getCleanBaseAggregate(): any[] {
-    const doc = this as IVirtualSourceDocument;
+// function getCleanBaseAggregate(): any[] {
+//     const doc = this as IVirtualSourceDocument;
 
-    if (!doc.aggregate) {
-        return null;
-    }
+//     if (!doc.aggregate) {
+//         return null;
+//     }
 
-    const result = [];
-    doc.aggregate.forEach(a => {
-        const operators = Object.keys(a);
+//     const result = [];
+//     doc.aggregate.forEach(a => {
+//         const operators = Object.keys(a);
 
-        if (!operators || !operators.length || operators.length > 1) {
-            return;
-        }
+//         if (!operators || !operators.length || operators.length > 1) {
+//             return;
+//         }
 
-        const rawOperator = operators[0];
-        const obj = {} as any;
-        obj[rawOperator.replace('__dollar__', '$')] = a[rawOperator];
+//         const obj = {} as any;
 
-        result.push(obj);
-    });
+//         operators.forEach(rawOperator => {
+//             if (isObject(a[rawOperator])) {
+//                 obj[rawOperator.replace('__dollar__', '$')] = getCleanBaseAggregate()
+//             } else {
+//                 obj[rawOperator.replace('__dollar__', '$')] = a[rawOperator];
+//             }
+//         });
 
-    return result;
-}
+
+//         result.push(obj);
+//     });
+
+//     return result;
+// }
+
+

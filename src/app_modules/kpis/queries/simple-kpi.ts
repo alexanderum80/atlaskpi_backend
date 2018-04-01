@@ -15,6 +15,7 @@ import { AggregateStage } from './aggregate';
 import { ICollection, IGetDataOptions, IKpiBase } from './kpi-base';
 import { SimpleKPIBase } from './simple-kpi-base';
 import { IVirtualSourceDocument } from '../../../domain/app/virtual-sources/virtual-source';
+import { KPIFilterHelper } from '../../../domain/app/kpis/kpi-filter.helper';
 
 const CollectionsMapping = {
     sales: {
@@ -63,7 +64,9 @@ export class SimpleKPI extends SimpleKPIBase implements IKpiBase {
                     timestampField: virtualSource.dateField
                 };
                 simpleKPIDefinition.dataSource = virtualSource.source.toLowerCase();
-                baseAggregate = virtualSource.getCleanBaseAggregate();
+                baseAggregate = virtualSource.aggregate.map(a => {
+                    return KPIFilterHelper.CleanObjectKeys(a); // virtualSource.getCleanBaseAggregate();
+                });
             }
         }
 
