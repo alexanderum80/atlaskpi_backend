@@ -20,6 +20,8 @@ import {
     IWidget,
     IWidgetMaterializedFields,
 } from './widget';
+import { VirtualSources } from '../virtual-sources/virtual-source.model';
+import { IVirtualSourceDocument } from '../virtual-sources/virtual-source';
 
 
 export class NumericWidget extends UIWidgetBase implements IUIWidget {
@@ -30,7 +32,8 @@ export class NumericWidget extends UIWidgetBase implements IUIWidget {
     constructor(
         widget: IWidget,
         private _kpiFactory: KpiFactory,
-        private _kpis: KPIs
+        private _kpis: KPIs,
+        private _virtualSources: IVirtualSourceDocument[]
         ) {
         super(widget);
     }
@@ -83,7 +86,7 @@ export class NumericWidget extends UIWidgetBase implements IUIWidget {
         return new Promise<IKpiBase>((resolve, reject) => {
             this._kpis.model.findOne({_id: that.numericWidgetAttributes.kpi })
             .then(kpiDocument => {
-                const kpi = that._kpiFactory.getInstance(kpiDocument);
+                const kpi = that._kpiFactory.getInstance(kpiDocument, that._virtualSources);
                 if (kpi) {
                     resolve(kpi);
                     return;

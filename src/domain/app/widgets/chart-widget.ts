@@ -12,6 +12,8 @@ import { KPIs } from '../kpis/kpi.model';
 import { Sales } from '../sales/sale.model';
 import { IUIWidget, UIWidgetBase } from './ui-widget-base';
 import { IWidget, IWidgetMaterializedFields } from './widget';
+import { IVirtualSourceDocument } from '../virtual-sources/virtual-source';
+import { VirtualSources } from '../virtual-sources/virtual-source.model';
 
 
 export class ChartWidget extends UIWidgetBase implements IUIWidget {
@@ -25,7 +27,8 @@ export class ChartWidget extends UIWidgetBase implements IUIWidget {
         private _charts: Charts,
         private _sales: Sales,
         private _expenses: Expenses,
-        private _kpis: KPIs
+        private _kpis: KPIs,
+        private _virtualSources: IVirtualSourceDocument[]
         ) {
         super(widget);
         if (!this.chartWidgetAttributes || !this.chartWidgetAttributes.chart) {
@@ -71,7 +74,7 @@ export class ChartWidget extends UIWidgetBase implements IUIWidget {
                     const chartObject = <IChart>chartDocument.toObject();
                     const uiChart = that._chartFactory.getInstance(chartObject);
                     // TODO: Refactor
-                    const kpi = that._kpiFactory.getInstance(chartObject.kpis[0]);
+                    const kpi = that._kpiFactory.getInstance(chartObject.kpis[0], that._virtualSources);
                     const groupings = getGroupingMetadata(chartDocument, []);
                     const chartParameters: IChartMetadata = {
                         filter: chartObject.filter,
