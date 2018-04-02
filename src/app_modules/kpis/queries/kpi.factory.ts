@@ -6,6 +6,8 @@ import { GoogleAnalytics } from '../../../domain/app/google-analytics/google-ana
 import { IKPIDocument, KPITypeEnum } from '../../../domain/app/kpis/kpi';
 import { KPIs } from '../../../domain/app/kpis/kpi.model';
 import { Sales } from '../../../domain/app/sales/sale.model';
+import { IVirtualSourceDocument } from '../../../domain/app/virtual-sources/virtual-source';
+import { VirtualSources } from '../../../domain/app/virtual-sources/virtual-source.model';
 import { GoogleAnalyticsKPIService } from '../../../services/kpis/google-analytics-kpi/google-analytics-kpi.service';
 import { Appointments } from './../../../domain/app/appointments/appointment-model';
 import { Inventory } from './../../../domain/app/inventory/inventory.model';
@@ -15,7 +17,6 @@ import { GoogleAnalyticsKpi } from './google-analytics-kpi';
 import { IKpiBase } from './kpi-base';
 import { Revenue } from './revenue.kpi';
 import { SimpleKPI } from './simple-kpi';
-import { IVirtualSourceDocument } from '../../../domain/app/virtual-sources/virtual-source';
 
 @injectable()
 export class KpiFactory {
@@ -28,10 +29,12 @@ export class KpiFactory {
         @inject(Calls.name) private _calls: Calls,
         @inject(GoogleAnalytics.name) private _googleAnalytics: GoogleAnalytics,
         @inject(GoogleAnalyticsKPIService.name) private _googleAnalyticsKpiService: GoogleAnalyticsKPIService,
-        @inject(Appointments.name) private _appointments: Appointments
+        @inject(Appointments.name) private _appointments: Appointments,
+        @inject(VirtualSources.name) private _virtualSources: VirtualSources
     ) { }
 
-    getInstance(kpiDocument: IKPIDocument, virtualSources: IVirtualSourceDocument[]): IKpiBase {
+    async getInstance(kpiDocument: IKPIDocument): Promise<IKpiBase> {
+        const virtualSources: IVirtualSourceDocument[] = await this._virtualSources.model.find({});
 
         if (!kpiDocument) { return null; }
 

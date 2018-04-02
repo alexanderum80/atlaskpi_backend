@@ -1,6 +1,6 @@
 import { NULL_CATEGORY_REPLACEMENT } from '../../charts/queries/charts/ui-chart-base';
 import {EnumChartTop, IChartTop, chartTopValue, chartTopMomentFormat} from '../../../domain/common/top-n-record';
-import * as Promise from 'bluebird';
+import * as Bluebird from 'bluebird';
 import { camelCase } from 'change-case';
 import {
     cloneDeep, find, groupBy, reduce, isArray, isDate, isNull,
@@ -48,8 +48,8 @@ export interface IGetDataOptions {
 }
 
 export interface IKpiBase {
-    getData(dateRange?: IDateRange[], options?: IGetDataOptions): Promise<any>;
-    getTargetData?(dateRange?: IDateRange[], options?: IGetDataOptions): Promise<any>;
+    getData(dateRange?: IDateRange[], options?: IGetDataOptions): Promise<any> | Bluebird<any>;
+    getTargetData?(dateRange?: IDateRange[], options?: IGetDataOptions): Promise<any> | Bluebird<any>;
     getSeries?(dateRange: IDateRange, frequency: FrequencyEnum);
 }
 

@@ -128,7 +128,7 @@ export const GroupingMap = {
     }
 };
 
-export function getGroupingMetadata(chartDocument: IChart, groupings: string[]) {
+export function getGroupingMetadata(chartDocument: IChart, groupings?: string[]) {
     if ((!chartDocument || !chartDocument.groupings) && !groupings) {
         return null;
     }
