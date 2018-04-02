@@ -90,15 +90,11 @@ export const GroupingMap = {
         converted: 'converted'
     },
     conversions: {
-        city: 'customer.city',
-        state: 'customer.state',
-        zip: 'customer.zip',
-        gender: 'customer.gender',
-        dob: 'customer.dob',
-        fullname: 'customer.fullname',
+        procedure: 'procedure.name',
         referral: 'referral.name',
-        date: 'customer.date',
-        amount: 'customer.amount',
+        source: 'source',
+        converted: 'procedure.converted',
+        provider: 'provider.name'
     },
     customers: {
         city: 'customer.city',
@@ -108,8 +104,6 @@ export const GroupingMap = {
         dob: 'customer.dob',
         fullname: 'customer.fullname',
         referral: 'referral.name',
-        date: 'customer.date',
-        amount: 'customer.amount'
     },
     invoices: {
         city: 'customer.city',
@@ -122,9 +116,7 @@ export const GroupingMap = {
         locationCity: 'location.city',
         locationState: 'location.state',
         locationZip: 'location.zip',
-        referral: 'referral.name',
-        date: 'customer.date',
-        amount: 'customer.amount'
+        referral: 'referral.name'
     }
 };
 
