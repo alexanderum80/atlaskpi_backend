@@ -15,7 +15,8 @@ const Schema = mongoose.Schema;
 const AlertInfoSchema = {
     // list of users
     notify_users: [{
-        type: Schema.Types.String,
+        // type: Schema.Types.String,
+        type: Schema.Types.ObjectId,
         ref: 'User',
         required: true
     }],
