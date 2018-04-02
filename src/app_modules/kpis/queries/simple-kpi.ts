@@ -53,10 +53,10 @@ export class SimpleKPI extends SimpleKPIBase implements IKpiBase {
 
         const simpleKPIDefinition: IKPISimpleDefinition = KPIExpressionHelper.DecomposeExpression(KPITypeEnum.Simple, kpi.expression);
         let collection: ICollection;
+        let baseAggregate: any;
 
         if (virtualSources) {
             const virtualSource = virtualSources.find(s => s.name.toLocaleLowerCase() === simpleKPIDefinition.dataSource);
-            let baseAggregate: any;
 
             if (virtualSource) {
                 collection = {
@@ -65,7 +65,7 @@ export class SimpleKPI extends SimpleKPIBase implements IKpiBase {
                 };
                 simpleKPIDefinition.dataSource = virtualSource.source.toLowerCase();
                 baseAggregate = virtualSource.aggregate.map(a => {
-                    return KPIFilterHelper.CleanObjectKeys(a); // virtualSource.getCleanBaseAggregate();
+                    return KPIFilterHelper.CleanObjectKeys(a);
                 });
             }
         }
