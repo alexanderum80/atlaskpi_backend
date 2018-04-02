@@ -41,6 +41,7 @@ export class WidgetsService {
             return uiWidget.materialize();
         } catch (e) {
             console.log('error when previewing the widget: ' + e);
+            return e;
         }
     }
 

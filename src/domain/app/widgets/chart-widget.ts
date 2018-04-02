@@ -54,6 +54,10 @@ export class ChartWidget extends UIWidgetBase implements IUIWidget {
                 console.log(materialized.chart);
                 resolve(<any>result);
                 return;
+            })
+            .catch(e => {
+                console.error('There was an error materializing chart widget');
+                reject(e);
             });
         });
     }
