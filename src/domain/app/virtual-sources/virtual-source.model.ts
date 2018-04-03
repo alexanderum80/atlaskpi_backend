@@ -24,9 +24,12 @@ const VirtualSourceSchema = new mongoose.Schema({
     createdOn: { type: Date, default: Date.now }
 });
 
+// STATIC
 VirtualSourceSchema.statics.getDataSources = getDataSources;
 
+// METHODS
 VirtualSourceSchema.methods.getGroupingFieldPaths = getGroupingFieldPaths;
+// VirtualSourceSchema.methods.containsPath = containsPath;
 
 @injectable()
 export class VirtualSources extends ModelBase<IVirtualSourceModel> {
@@ -77,3 +80,5 @@ function getGroupingFieldPaths(): string[] {
 
     return fields;
 }
+
+function containsPath

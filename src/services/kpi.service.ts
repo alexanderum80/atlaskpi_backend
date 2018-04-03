@@ -187,54 +187,6 @@ export class KpiService {
         return intersection(...fieldPaths);
     }
 
-    // GetGroupingsExistInCollectionSchema(schemaName: string): Promise<string[]> {
-    //     const that = this;
-    //     // get sales and expense mongoose models
-    //     const model: IGroupingsModel = {
-    //         sales: this._saleModel.model,
-    //         expenses: this._expenseModel.model,
-    //         inventory: this._inventoryModel.model
-    //     };
-    //     // get sales or expense mongoose models
-    //     const gMap: string = codeMapper[schemaName];
-    //     const collection = GroupingMap[gMap];
-    //     const modelKey: string = codeMapper[schemaName];
-
-    //     let permittedFields: string[] = [];
-    //     const collectionQuery = [];
-
-    //     return new Promise<string[]>((resolve, reject) => {
-    //         // prop: i.e. 'location', 'concept', 'customerName'
-    //         Object.keys(collection).forEach(prop => {
-    //             const field = collection[prop];
-
-    //             collectionQuery.push(model[modelKey].aggregate([{
-    //                 $match: {
-    //                     [field]: { $exists: true}
-    //                 }
-    //             }, {
-    //                 $project: {
-    //                     _id: 0,
-    //                     [prop]: field
-    //                 }
-    //             }, {
-    //                 $limit: 1
-    //             }]));
-    //         });
-
-    //         Promise.all(collectionQuery).then(fieldExist => {
-    //             // array of arrays with objects
-    //             if (fieldExist) {
-    //                 // convert to single object
-    //                 const formatToObject = this._getObjects(fieldExist);
-    //                 // get the keys from the formatToObject
-    //                 permittedFields = Object.keys(formatToObject);
-    //                 return resolve(sortBy(permittedFields));
-    //             }
-    //         });
-    //     });
-    // }
-
     private _kpiInUseByModel(id: string): Promise<IDocumentExist> {
         const that = this;
 

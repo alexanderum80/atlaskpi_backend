@@ -76,14 +76,16 @@ export class NumericWidget extends UIWidgetBase implements IUIWidget {
                     return;
                 });
             })
-            .catch(err => reject(err));
+            .catch(err => {
+                reject(err);
+            });
         });
     }
 
     private async _resolveKpi(): Promise<IKpiBase> {
         const kpiDocument = await this._kpis.model.findOne({_id: this.numericWidgetAttributes.kpi });
         const kpi = await this._kpiFactory.getInstance(kpiDocument);
-        
+
         if (kpi) {
             return kpi;
         }
@@ -97,21 +99,21 @@ export class NumericWidget extends UIWidgetBase implements IUIWidget {
                 : parsePredifinedDate(chartDateRange.predefined);
     }
 
-    private _getKpiData(kpi: IKpiBase, dateRange: IDateRange): Promise<any> {
-        const kpiClone = cloneDeep(kpi);
+    private async _getKpiData(kpi: IKpiBase, dateRange: IDateRange): Promise<any> {
+        try {
+            const kpiClone = cloneDeep(kpi);
+            const result = await kpiClone.getData([dateRange], { filter: null });
 
-        const that = this;
-        return new Promise<any>((resolve, reject) => {
-            return kpiClone.getData([dateRange], { filter: null }).then(result => {
-                if (result && result.length > 0) {
-                    console.log(`value recieved for widget(${that.name}): ${result[0].value}`);
-                    return resolve(result[0].value);
-                }
-                console.log(`value not recieved for widget(${that.name}), displaying 0 as value`);
-                return resolve(0);
-            })
-            .catch(err => reject(err));
-        });
+            if (result && result.length > 0) {
+                console.log(`value recieved for widget(${this.name}): ${result[0].value}`);
+                return result[0].value;
+            }
+            console.log(`value not recieved for widget(${this.name}), displaying 0 as value`);
+            return 0;
+        } catch (e) {
+            console.error('There was an error gettting kpi data for numero widget');
+            return 0;
+        }
     }
 
     private _generateUIWidgetFromPromisesOutput(output, widgetDateRange: IChartDateRange): IUIWidget {

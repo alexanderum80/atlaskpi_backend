@@ -1,19 +1,19 @@
-import { IObject } from '../app_modules/shared/criteria.plugin';
-import {IChartTop, EnumChartTop, chartTopValue} from '../domain/common/top-n-record';
-import { inject, injectable } from 'inversify';
-import { difference, isString, pick, isNumber } from 'lodash';
 import { camelCase } from 'change-case';
+import { inject, injectable } from 'inversify';
+import { difference, isNumber, isString, pick } from 'lodash';
 import * as moment from 'moment';
 
-import { getGroupingMetadata } from '../app_modules/charts/queries/chart-grouping-map';
 import { IChartMetadata } from '../app_modules/charts/queries/charts/chart-metadata';
 import {
     attachToDashboards,
     detachFromAllDashboards,
     detachFromDashboards,
 } from '../app_modules/dashboards/mutations/common';
+import { IObject } from '../app_modules/shared/criteria.plugin';
 import { CurrentUser } from '../domain/app/current-user';
 import { Logger } from '../domain/app/logger';
+import { VirtualSources } from '../domain/app/virtual-sources/virtual-source.model';
+import { chartTopValue, IChartTop } from '../domain/common/top-n-record';
 import { ChartAttributesInput } from './../app_modules/charts/charts.types';
 import { ChartFactory } from './../app_modules/charts/queries/charts/chart-factory';
 import { IUIChart, NULL_CATEGORY_REPLACEMENT } from './../app_modules/charts/queries/charts/ui-chart-base';
@@ -26,10 +26,9 @@ import { IDashboardDocument } from './../domain/app/dashboards/dashboard';
 import { Dashboards } from './../domain/app/dashboards/dashboard.model';
 import { KPIs } from './../domain/app/kpis/kpi.model';
 import { Targets } from './../domain/app/targets/target.model';
-import {IChartDateRange, IDateRange, parsePredifinedDate, PredefinedTargetPeriod} from './../domain/common/date-range';
-import {FrequencyEnum, FrequencyTable} from './../domain/common/frequency-enum';
+import { IChartDateRange, IDateRange, parsePredifinedDate, PredefinedTargetPeriod } from './../domain/common/date-range';
+import { FrequencyEnum, FrequencyTable } from './../domain/common/frequency-enum';
 import { TargetService } from './target.service';
-import { VirtualSources } from '../domain/app/virtual-sources/virtual-source.model';
 
 export interface IRenderChartOptions {
     chartId?: string;
@@ -81,15 +80,16 @@ export class ChartsService {
             if (!chart) {
                 return Promise.reject('missing parameter');
             }
-    
+
             const virtualSources = await this._virtualSources.model.find({});
             const uiChart = this._chartFactory.getInstance(chart);
+            const groupings = this._prepareGroupings(chart, options.groupings);
             const kpi = await this._kpiFactory.getInstance(chart.kpis[0]);
-    
+
             const meta: IChartMetadata = {
                 filter: options && options.filter || chart.filter,
                 frequency: FrequencyTable[options && options.frequency || chart.frequency],
-                groupings: getGroupingMetadata(chart, options && options.groupings || chart.groupings || []),
+                groupings: groupings,
                 comparison: options && options.comparison || chart.comparison,
                 xAxisSource: options && options.xAxisSource || chart.xAxisSource,
                 dateRange: (options && !options.isFutureTarget && options.dateRange) || chart.dateRange || null,
@@ -97,17 +97,17 @@ export class ChartsService {
                 isDrillDown: options && options.isDrillDown || false,
                 isFutureTarget: options && options.isFutureTarget || false,
             };
-    
+
             chart.targetExtraPeriodOptions = this._getTargetExtraPeriodOptions(meta.frequency);
             chart.canAddTarget = this._canAddTarget(meta.dateRange);
-    
+
             // lets fill the comparison options for this chart if only if its not a comparison chart already
             const isComparisonChart = !chart.comparison || !chart.comparison.length;
             if (isComparisonChart) {
                 chart.availableComparison = DateRangeHelper.getComparisonItemsForDateRangeIdentifier(chart.dateRange[0].predefined || 'custom')
                                                             .map(item => item.key);
             }
-    
+
             // get top n if have necessary data
             if (meta.groupings &&
                 meta.groupings.length &&
@@ -355,6 +355,20 @@ export class ChartsService {
                 })
                 .catch(err => reject({ field: 'kpi', errors: ['could get the kpi list']}));
         });
+    }
+
+    private _prepareGroupings(chart: IChart, extraGroupings: string[]): string[] {
+        const groupings = [];
+
+        if (chart && chart.groupings && chart.groupings.length) {
+            chart.groupings.forEach(g => groupings.push(g));
+        }
+
+        if (extraGroupings && extraGroupings.length) {
+            extraGroupings.forEach(g => groupings.push(g));
+        }
+
+        return groupings;
     }
 
     private _resolveDashboards(chart): Promise<IDashboardDocument[]> {

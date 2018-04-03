@@ -25,6 +25,7 @@ export interface IVirtualSource {
 
 export interface IVirtualSourceDocument extends IVirtualSource, mongoose.Document {
     getGroupingFieldPaths(): string[];
+    // containsPath(path: string): boolean;
 }
 
 export interface IVirtualSourceModel extends mongoose.Model<IVirtualSourceDocument> {

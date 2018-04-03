@@ -10,7 +10,6 @@ import { ChartEntityResponse } from '../charts/charts.types';
 import { ChartDateRange, ChartDateRangeInput, PaginationInfo } from '../shared/shared.types';
 import { Widget } from '../widgets/widgets.types';
 import { KPIExpressionHelper } from './../../domain/app/kpis/kpi-expression.helper';
-import { KPIGroupingsHelper } from './../../domain/app/kpis/kpi-groupings.helper';
 
 @input()
 export class KPIAttributesInput  {
@@ -115,21 +114,8 @@ export class KPI  {
     @field({ type: GraphQLTypesMap.String })
     expression: string;
 
-    // @resolver({ forField: 'expression' })
-    // static resolveExpression(entity: IKPIDocument)  {
-    //     return KPIExpressionHelper.PrepareExpressionField(entity.type, entity.expression);
-    // }
-
     @field({ type: GraphQLTypesMap.String })
     type: string;
-
-    // @field({ type: GraphQLTypesMap.String, isArray: true })
-    // availableGroupings: string[];
-
-    // @resolver({ forField: 'availableGroupings'})
-    // static resolveAvailableGroupigs(entity: IKPIDocument) {
-    //     return KPIGroupingsHelper.GetAvailableGroupings(entity);
-    // }
 
     @field({ type: GraphQLTypesMap.String, isArray: true })
     tags: string[];
@@ -147,8 +133,6 @@ export class KPIEntityResponse {
     @field({ type: KPI, isArray: true })
     complexKPI: KPI[];
 }
-
-
 
 @type()
 export class KPIRemoveResponse  {
