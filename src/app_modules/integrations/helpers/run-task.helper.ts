@@ -5,7 +5,7 @@ import { config } from '../../../configuration/config';
 import { IConnectorDocument } from '../../../domain/master/connectors/connector';
 import { ISchedulerRequest } from './../models/ISchedulerRequest';
 
-const pjson = require('../../../../package.json');
+// const pjson = require('../../../../package.json');
 
 // AKPI_CONNECTORS_IDS is the environment variable in all connectors projects
 // ex: AKPI_CONNECTORS_IDS: "5a27248f4aa9765acde192a2|5a22425ff8512d203eac32bc"
