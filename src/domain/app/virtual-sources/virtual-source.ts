@@ -5,6 +5,7 @@ import { DataSourceResponse } from '../../../app_modules/data-sources/data-sourc
 export interface IFieldMetadata {
     path: string;
     dataType: string;
+    allowGrouping: boolean;
 }
 
 export interface IVirtualSourceFields {
@@ -22,7 +23,7 @@ export interface IVirtualSource {
 }
 
 export interface IVirtualSourceDocument extends IVirtualSource, mongoose.Document {
-    // getCleanBaseAggregate(): any[];
+    getGroupings(): string[];
 }
 
 export interface IVirtualSourceModel extends mongoose.Model<IVirtualSourceDocument> {

@@ -9,6 +9,7 @@ import { AppConnection } from '../app.connection';
 import { tagsPlugin } from '../tags/tag.plugin';
 import { IVirtualSourceModel, IVirtualSourceDocument } from '../virtual-sources/virtual-source';
 import { DataSourceResponse } from '../../../app_modules/data-sources/data-sources.types';
+import { IIdName } from '../../common/id-name';
 
 const Schema = mongoose.Schema;
 const VirtualSourceSchema = new mongoose.Schema({
@@ -24,7 +25,7 @@ const VirtualSourceSchema = new mongoose.Schema({
 
 VirtualSourceSchema.statics.getDataSources = getDataSources;
 
-// VirtualSourceSchema.methods.getCleanBaseAggregate = getCleanBaseAggregate;
+// VirtualSourceSchema.methods.getGroupings = getGroupings;
 
 @injectable()
 export class VirtualSources extends ModelBase<IVirtualSourceModel> {
@@ -34,7 +35,6 @@ export class VirtualSources extends ModelBase<IVirtualSourceModel> {
     }
 }
 
-
 async function getDataSources(): Promise<DataSourceResponse[]> {
     const model = this as IVirtualSourceModel;
 
@@ -42,12 +42,16 @@ async function getDataSources(): Promise<DataSourceResponse[]> {
         const virtualSources = await model.find({});
         const dataSources: DataSourceResponse[] = virtualSources.map(ds => {
             const fieldNames = Object.keys(ds.fieldsMap);
-            const fields = fieldNames.map(f => ({ name: f, path: ds.fieldsMap[f].path, type: ds.fieldsMap[f].dataType }));
+            const fields = fieldNames.map(f => ({ 
+                name: f, 
+                path: ds.fieldsMap[f].path, 
+                type: ds.fieldsMap[f].dataType,
+                allowGrouping: ds.fieldsMap[f].allowGrouping
+            }));
             return {
                 name: ds.name.toLocaleLowerCase(),
                 dataSource: ds.source,
-                fields: fields,
-                groupings: fieldNames
+                fields: fields
             };
         });
 
@@ -57,37 +61,3 @@ async function getDataSources(): Promise<DataSourceResponse[]> {
         return [];
     }
 }
-
-// function getCleanBaseAggregate(): any[] {
-//     const doc = this as IVirtualSourceDocument;
-
-//     if (!doc.aggregate) {
-//         return null;
-//     }
-
-//     const result = [];
-//     doc.aggregate.forEach(a => {
-//         const operators = Object.keys(a);
-
-//         if (!operators || !operators.length || operators.length > 1) {
-//             return;
-//         }
-
-//         const obj = {} as any;
-
-//         operators.forEach(rawOperator => {
-//             if (isObject(a[rawOperator])) {
-//                 obj[rawOperator.replace('__dollar__', '$')] = getCleanBaseAggregate()
-//             } else {
-//                 obj[rawOperator.replace('__dollar__', '$')] = a[rawOperator];
-//             }
-//         });
-
-
-//         result.push(obj);
-//     });
-
-//     return result;
-// }
-
-

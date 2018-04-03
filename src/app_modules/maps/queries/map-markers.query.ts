@@ -1,5 +1,4 @@
 import { IZipToMapDocument } from '../../../domain/master/zip-to-map/zip-to-map';
-import { GroupingMap } from '../../charts/queries/chart-grouping-map';
 import * as Promise from 'bluebird';
 import { inject, injectable } from 'inversify';
 import { GetMapDetailsActivity } from '../activities/get-map-details.activity';
