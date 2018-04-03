@@ -2,6 +2,7 @@ import { VirtualSources } from '../domain/app/virtual-sources/virtual-source.mod
 import { inject, injectable } from 'inversify';
 import { isObject, sortBy } from 'lodash';
 import { DocumentQuery } from 'mongoose';
+import * as Bluebird from 'bluebird';
 
 import { GroupingMap } from '../app_modules/charts/queries/chart-grouping-map';
 import { IChartDocument } from '../domain/app/charts/chart';
@@ -183,7 +184,7 @@ export class KpiService {
 
             let documentExists: IDocumentExist = {};
 
-            Promise.all([findCharts, findWidgets, findComplexKpi])
+            Bluebird.all([findCharts, findWidgets, findComplexKpi])
                 .spread((charts: IChartDocument[], widgets: IWidgetDocument[], complexKPI: IKPIDocument[]) => {
                     documentExists = {
                         chart: charts,

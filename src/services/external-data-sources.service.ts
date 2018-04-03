@@ -8,7 +8,6 @@ import { IConnectorDocument } from '../domain/master/connectors/connector';
 import { ExternalDataSourceResponse } from './../app_modules/data-sources/data-sources.types';
 import { Connectors } from './../domain/master/connectors/connector.model';
 import { CurrentAccount } from './../domain/master/current-account';
-import { IDataSourceField } from '../domain/app/data-sources/data-source';
 
 export const ExternalDataSourceSchemasMapping = {
     googleanalytics: {
@@ -75,7 +74,7 @@ export class ExternalDataSourcesService {
         return tasks;
     }
 
-    private _createExternalDataSource(connectors: IConnectorDocument[], fields: IDataSourceField[], groupings: string[]): any[] {
+    private _createExternalDataSource(connectors: IConnectorDocument[], fields: any[], groupings: string[]): any[] {
         const res = connectors.map(c => {
             return {
                 id: `${c.type}$${c.id}`,

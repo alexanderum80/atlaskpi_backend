@@ -1,5 +1,3 @@
-import * as Promise from 'bluebird';
-
 import { IUIChart, UIChartBase } from './ui-chart-base';
 import { IChart } from './../../../../domain/app/charts/chart';
 import { ITargetDocument } from './../../../../domain/app/targets/target';

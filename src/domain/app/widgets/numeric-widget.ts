@@ -97,21 +97,15 @@ export class NumericWidget extends UIWidgetBase implements IUIWidget {
                 : parsePredifinedDate(chartDateRange.predefined);
     }
 
-    private _getKpiData(kpi: IKpiBase, dateRange: IDateRange): Promise<any> {
+    private async _getKpiData(kpi: IKpiBase, dateRange: IDateRange): Promise<any> {
         const kpiClone = cloneDeep(kpi);
-
-        const that = this;
-        return new Promise<any>((resolve, reject) => {
-            return kpiClone.getData([dateRange], { filter: null }).then(result => {
-                if (result && result.length > 0) {
-                    console.log(`value recieved for widget(${that.name}): ${result[0].value}`);
-                    return resolve(result[0].value);
-                }
-                console.log(`value not recieved for widget(${that.name}), displaying 0 as value`);
-                return resolve(0);
-            })
-            .catch(err => reject(err));
-        });
+        const result = await kpiClone.getData([dateRange], { filter: null });
+        
+        if (result && result.length > 0) {
+            return result[0].value;
+        }
+        
+        return 0;
     }
 
     private _generateUIWidgetFromPromisesOutput(output, widgetDateRange: IChartDateRange): IUIWidget {

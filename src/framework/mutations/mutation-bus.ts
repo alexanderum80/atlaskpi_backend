@@ -74,7 +74,7 @@ export class MutationBus implements IMutationBus {
             })
             .then((validated: boolean) => {
                 return new Promise < any > ((resolve, reject) => {
-                    mutation.run(data).then(res => {
+                    (mutation as any).run(data).then(res => {
                             resolve(res);
                         })
                         .catch(e => {

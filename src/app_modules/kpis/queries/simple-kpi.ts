@@ -1,4 +1,3 @@
-import * as Promise from 'bluebird';
 import { cloneDeep } from 'lodash';
 
 import { Calls } from '../../../domain/app/calls/call.model';

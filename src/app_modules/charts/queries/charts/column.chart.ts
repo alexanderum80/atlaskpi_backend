@@ -1,4 +1,3 @@
-import * as Promise from 'bluebird';
 import * as console from 'console';
 import { min } from 'moment';
 
