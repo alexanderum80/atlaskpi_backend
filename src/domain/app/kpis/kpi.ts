@@ -86,7 +86,7 @@ export interface IKPI {
     composition?: string;
     type?: string;
     expression?: string;
-    availableGroupings: string[];
+    availableGroupings?: string[];
     system?: boolean;
 }
 

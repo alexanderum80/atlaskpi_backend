@@ -15,6 +15,7 @@ const Schema = mongoose.Schema;
 const VirtualSourceSchema = new mongoose.Schema({
     name: { type: String, required: true },
     description: String,
+    sourceCollection: { type: String, required: true },
     source: { type: String, required: true },
     modelIdentifier: { type: String, required: true },
     dateField: { type: String, required: true },
@@ -25,7 +26,7 @@ const VirtualSourceSchema = new mongoose.Schema({
 
 VirtualSourceSchema.statics.getDataSources = getDataSources;
 
-// VirtualSourceSchema.methods.getGroupings = getGroupings;
+VirtualSourceSchema.methods.getGroupingFieldPaths = getGroupingFieldPaths;
 
 @injectable()
 export class VirtualSources extends ModelBase<IVirtualSourceModel> {
@@ -42,9 +43,9 @@ async function getDataSources(): Promise<DataSourceResponse[]> {
         const virtualSources = await model.find({});
         const dataSources: DataSourceResponse[] = virtualSources.map(ds => {
             const fieldNames = Object.keys(ds.fieldsMap);
-            const fields = fieldNames.map(f => ({ 
-                name: f, 
-                path: ds.fieldsMap[f].path, 
+            const fields = fieldNames.map(f => ({
+                name: f,
+                path: ds.fieldsMap[f].path,
                 type: ds.fieldsMap[f].dataType,
                 allowGrouping: ds.fieldsMap[f].allowGrouping
             }));
@@ -60,4 +61,19 @@ async function getDataSources(): Promise<DataSourceResponse[]> {
         console.error('Error getting virtual sources');
         return [];
     }
+}
+
+function getGroupingFieldPaths(): string[] {
+    const doc = this as IVirtualSourceDocument;
+    const fields: string[] = [];
+
+    Object.keys(doc.fieldsMap).forEach(k => {
+        const map = doc.fieldsMap[k];
+
+        if (map.allowGrouping) {
+            fields.push(map.path);
+        }
+    });
+
+    return fields;
 }

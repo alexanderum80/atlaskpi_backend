@@ -123,13 +123,13 @@ export class KPI  {
     @field({ type: GraphQLTypesMap.String })
     type: string;
 
-    @field({ type: GraphQLTypesMap.String, isArray: true })
-    availableGroupings: string[];
+    // @field({ type: GraphQLTypesMap.String, isArray: true })
+    // availableGroupings: string[];
 
-    @resolver({ forField: 'availableGroupings'})
-    static resolveAvailableGroupigs(entity: IKPIDocument) {
-        return KPIGroupingsHelper.GetAvailableGroupings(entity);
-    }
+    // @resolver({ forField: 'availableGroupings'})
+    // static resolveAvailableGroupigs(entity: IKPIDocument) {
+    //     return KPIGroupingsHelper.GetAvailableGroupings(entity);
+    // }
 
     @field({ type: GraphQLTypesMap.String, isArray: true })
     tags: string[];

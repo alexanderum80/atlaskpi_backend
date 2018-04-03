@@ -15,6 +15,7 @@ export interface IVirtualSourceFields {
 export interface IVirtualSource {
     name: string;
     description?: string;
+    sourceCollection: string;
     source: string;
     modelIdentifier: string;
     dateField: string;
@@ -23,7 +24,7 @@ export interface IVirtualSource {
 }
 
 export interface IVirtualSourceDocument extends IVirtualSource, mongoose.Document {
-    getGroupings(): string[];
+    getGroupingFieldPaths(): string[];
 }
 
 export interface IVirtualSourceModel extends mongoose.Model<IVirtualSourceDocument> {
