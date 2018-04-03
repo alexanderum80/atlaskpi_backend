@@ -15,12 +15,14 @@ export const GroupingMap = {
         customerCity: 'customer.city',
         customerZip: 'customer.zip',
         customerGender: 'customer.gender',
+        referral: 'referral.name',
         source: 'source'
     },
     expenses: {
         businessUnit: 'businessUnit.name',
         accountType: 'expense.type',
         concept: 'expense.concept',
+        group: 'expense.type',
         location: 'location.name',
         source: 'source'
     },
@@ -79,18 +81,51 @@ export const GroupingMap = {
         checkedOut: 'checkoedOut',
         cancelled: 'cancelled',
         noShow: 'noShow',
-        customer: 'customer.fullname',
+        customerName: 'customer.fullname',
+        customerState: 'customer.state',
+        customerCity: 'customer.city',
+        customerZip: 'customer.zip',
         provider: 'provider.name',
         location: 'location.name',
         type: 'appointmentType',
+        code: 'event.code',
         source: 'source',
         procedure: 'procedure.name',
-        referal: 'referal.name',
+         referral: 'referral.name',
         converted: 'converted'
+    },
+    conversions: {
+        procedure: 'procedure.name',
+        referral: 'referral.name',
+        source: 'source',
+        converted: 'procedure.converted',
+        provider: 'provider.name'
+    },
+    customers: {
+        city: 'customer.city',
+        state: 'customer.state',
+        zip: 'customer.zip',
+        gender: 'customer.gender',
+        dob: 'customer.dob',
+        fullname: 'customer.fullname',
+        referral: 'referral.name',
+    },
+    invoices: {
+        city: 'customer.city',
+        state: 'customer.state',
+        zip: 'customer.zip',
+        gender: 'customer.gender',
+        dob: 'customer.dob',
+        fullname: 'customer.fullname',
+        location: 'location.name',
+        locationCity: 'location.city',
+        locationState: 'location.state',
+        locationZip: 'location.zip',
+        referral: 'referral.name'
     }
 };
 
-export function getGroupingMetadata(chartDocument: IChart, groupings: string[]) {
+export function getGroupingMetadata(chartDocument: IChart, groupings?: string[]) {
     if ((!chartDocument || !chartDocument.groupings) && !groupings) {
         return null;
     }

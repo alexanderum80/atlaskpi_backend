@@ -1,5 +1,5 @@
 import { IMutation } from './mutation';
-import * as Promise from 'bluebird';
+import * as Bluebird from 'bluebird';
 import { injectable } from 'inversify';
 
 @injectable()
@@ -12,5 +12,5 @@ export abstract class MutationBase<T> implements IMutation<T> {
         this.audit = true;
     }
 
-    abstract run(data: any): Promise<T>;
+    abstract run(data: any): Promise<T> | Bluebird<T>;
 }

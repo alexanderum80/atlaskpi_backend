@@ -10,27 +10,33 @@ import { readMongooseSchema } from '../../../helpers/mongodb.helpers';
 import { flatten } from '../../../helpers/object.helpers';
 import { GroupingMap } from '../../charts/queries/chart-grouping-map';
 import { AppointmentSchema } from './../../../domain/app/appointments/appointment-model';
+import { DataSourceField } from '../data-sources.types';
 
 export const DataSourceSchemasMapping = [
     {
         name: 'sales',
-        definition: SaleSchema
+        definition: SaleSchema,
+        collectionName: 'Sales'
     },
     {
         name: 'expenses',
-        definition: ExpenseSchema
+        definition: ExpenseSchema,
+        collectionName: 'Expenses'
     },
     {
         name: 'inventory',
-        definition: InventorySchema
+        definition: InventorySchema,
+        collectionName: 'Sales'
     },
     {
         name: 'calls',
-        definition: CallSchema
+        definition: CallSchema,
+        collectionName: 'Calls'
     },
     {
         name: 'appointments',
-        definition: AppointmentSchema
+        definition: AppointmentSchema,
+        collectionName: 'Appointments'
     }
 ];
 
@@ -41,14 +47,9 @@ const BlackListedFieldNames = [
     'document.identifier'
 ];
 
-export interface ISchemaField {
-    path: string;
-    type: string;
-}
-
 @injectable()
 export class DataSourcesHelper {
-    public static GetFieldsFromSchemaDefinition(schema: mongoose.Schema): ISchemaField[] {
+    public static GetFieldsFromSchemaDefinition(schema: mongoose.Schema): DataSourceField[] {
 
         const objectifiedSchema = readMongooseSchema(schema);
         const flattenedSchema = flatten(objectifiedSchema);

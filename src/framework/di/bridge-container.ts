@@ -99,6 +99,7 @@ export class BridgeContainer implements IBridgeContainer {
     getBridgeContainerForWebRequest(req: Request): IWebRequestContainerDetails {
         const container = new Container({ autoBindInjectable: true });
 
+        // IMPORTANT: Here we register the containr with the request
         container.bind<Container>('Container').toConstantValue(container);
         container.bind<Request>('Request').toConstantValue(req);
 

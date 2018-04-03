@@ -1,3 +1,4 @@
+import { InputUserProfile } from '../../../../app_modules/users/users.types';
 import * as Promise from 'bluebird';
 import mongoose = require('mongoose');
 import * as nodemailer from 'nodemailer';
@@ -59,14 +60,24 @@ export interface IUserProfile {
     lastName?: string;
     sex?: string;
     dob?: Date;
+    phoneNumber?: string;
 }
 
 export interface IShowTour {
     showTour: boolean;
 }
 
+export interface IUserNotifications {
+    general?: boolean;
+    chat?: boolean;
+    email?: boolean;
+    dnd?: boolean;
+}
 export interface IUserPreference {
     chart?: IShowTour;
+
+    notification?: IUserNotifications;
+    avatarAddress?: string;
     helpCenter?: boolean;
 }
 
@@ -103,6 +114,27 @@ export interface IAccountCreatedDataSource {
 export interface IUserForgotPasswordDataSource extends IAccountCreatedDataSource {
 
 }
+export interface IUserProfileInput {
+    firstName?: string;
+    middleName?: string;
+    lastName?: string;
+    phoneNumber?: string;
+    email?: string;
+    general?: boolean;
+    chat?: boolean;
+    viaEmail?: boolean;
+    dnd?: boolean;
+}
+export interface IUserProfileResolve {
+    firstName?: string;
+    middleName?: string;
+    lastName?: string;
+    phoneNumber?: string;
+    general?: boolean;
+    chat?: boolean;
+    viaEmail?: boolean;
+    dnd?: boolean;
+}
 
 export interface IUser {
     username: string;
@@ -120,6 +152,8 @@ export interface IUser {
 
 // declare interface to mix account and mongo docuemnt properties/methods
 export interface IUserDocument extends IUser, mongoose.Document {
+    profilePictureUrl: string;
+
     hasRole(role: string, done: (err: any, hasRole: boolean) => void): void;
     addRole(role: string, done?: (err: any, role: IRoleDocument) => void): void;
     addRoleBatches(role: string, done?: (err: any, role: IRoleDocument) => void): void;
@@ -315,7 +349,6 @@ export interface IUserModel extends mongoose.Model<IUserDocument> {
      */
     findUsersById(id: string[]): Promise<IUserDocument[]>;
 
-   
     /**
      * update the user's preferences
      */
@@ -324,4 +357,10 @@ export interface IUserModel extends mongoose.Model<IUserDocument> {
      * update the user's agreement
      */
     updateUserAgreement(input: IUserAgreementInput): Promise<IUserDocument>;
+
+    /**
+     * Edit user profile
+     */
+    editUserProfile(id: string, input: IUserProfileInput): Promise<IMutationResponse>;
+
 }

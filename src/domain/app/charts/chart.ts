@@ -64,6 +64,7 @@ export interface IGetChartInput {
 }
 
 export interface IChartDocument extends IChart, mongoose.Document {
+    isStacked(): boolean;
 }
 
 export interface IChartModel extends mongoose.Model<IChartDocument> {

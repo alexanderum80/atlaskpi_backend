@@ -1,19 +1,16 @@
-import { NULL_CATEGORY_REPLACEMENT } from '../../charts/queries/charts/ui-chart-base';
-import {EnumChartTop, IChartTop, chartTopValue, chartTopMomentFormat} from '../../../domain/common/top-n-record';
-import * as Promise from 'bluebird';
+import * as Bluebird from 'bluebird';
 import { camelCase } from 'change-case';
-import {
-    cloneDeep, find, groupBy, reduce, isArray, isDate, isNull,
-    isObject, isNumber, negate, pick, remove, sortBy, flatten
-} from 'lodash';
-import * as logger from 'winston';
+import { cloneDeep, flatten, groupBy, isArray, isDate, isNumber, isObject, pick, reduce, sortBy } from 'lodash';
 import * as moment from 'moment';
+import * as logger from 'winston';
 
 import { IKPI } from '../../../domain/app/kpis/kpi';
 import { IChartDateRange, IDateRange } from '../../../domain/common/date-range';
 import { FrequencyEnum } from '../../../domain/common/frequency-enum';
+import { chartTopMomentFormat, chartTopValue, IChartTop } from '../../../domain/common/top-n-record';
 import { field } from '../../../framework/decorators/field.decorator';
-import { isArrayObject, isRegExp } from '../../../helpers/express.helpers';
+import { isArrayObject } from '../../../helpers/express.helpers';
+import { NULL_CATEGORY_REPLACEMENT } from '../../charts/queries/charts/ui-chart-base';
 import { AggregateStage } from './aggregate';
 
 export interface ICollection {
@@ -48,8 +45,8 @@ export interface IGetDataOptions {
 }
 
 export interface IKpiBase {
-    getData(dateRange?: IDateRange[], options?: IGetDataOptions): Promise<any>;
-    getTargetData?(dateRange?: IDateRange[], options?: IGetDataOptions): Promise<any>;
+    getData(dateRange?: IDateRange[], options?: IGetDataOptions): Promise<any> | Bluebird<any>;
+    getTargetData?(dateRange?: IDateRange[], options?: IGetDataOptions): Promise<any> | Bluebird<any>;
     getSeries?(dateRange: IDateRange, frequency: FrequencyEnum);
 }
 
@@ -100,7 +97,9 @@ export class KpiBase {
             });
 
             // logger.debug('With aggregate: ' + JSON.stringify(aggregateParameters));
-            this.model.aggregate(...aggregateParameters).then(data => {
+            const aggregate = this.model.aggregate(...aggregateParameters);
+            aggregate.options = { allowDiskUse: true };
+            aggregate.exec((err, data) => {
                 logger.debug('MongoDB data received: ' + that.model.modelName);
                 // before returning I need to check if a "top" filter was added
                 // if (options.filter && options.filter.top) {

@@ -144,7 +144,7 @@ export class UIChartBase {
      * @param metadata chart metadata
      */
     protected processChartData(kpi: IKpiBase, metadata?: IChartMetadata, target?: ITargetDocument[]): Promise < void > {
-        logger.debug('processChartData for: ' + this.constructor.name + ' - kpi: ' + kpi.constructor.name);
+        // logger.debug('processChartData for: ' + this.constructor.name + ' - kpi: ' + kpi.constructor.name);
         const that = this;
 
         if (metadata.dateRange &&
@@ -186,7 +186,7 @@ export class UIChartBase {
             that.series = that._createSeries(data, metadata, that.categories, that.groupings);
 
             that._injectTargets(that.targetData, metadata, that.categories, that.groupings, that.series);
-            console.log(JSON.stringify( that.series));
+            // console.log(JSON.stringify( that.series));
 
             return;
         }).catch(e => {
@@ -239,7 +239,7 @@ export class UIChartBase {
      * @param metadata chart metadata
      */
     protected getKPIData(kpi: IKpiBase, metadata?: IChartMetadata): Promise<any[]> {
-        logger.debug('trying to get kpi data for: ' + this.chart.title);
+        // logger.debug('trying to get kpi data for: ' + this.chart.title);
         // const dateRange = this.dateRange ? this. dateRange.custom : null;
         const isDateRangeCustomEmpty = this.dateRange || this.dateRange.filter((range) => range.custom !== undefined);
         const dateRange = isDateRangeCustomEmpty.length ? this.dateRange.map((range) => range.custom) : [];

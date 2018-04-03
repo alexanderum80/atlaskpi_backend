@@ -1,4 +1,4 @@
-import * as Promise from 'bluebird';
+import * as Bluebird from 'bluebird';
 import { cloneDeep } from 'lodash';
 
 import { IKpiBase } from '../../../app_modules/kpis/queries/kpi-base';
@@ -20,6 +20,8 @@ import {
     IWidget,
     IWidgetMaterializedFields,
 } from './widget';
+import { VirtualSources } from '../virtual-sources/virtual-source.model';
+import { IVirtualSourceDocument } from '../virtual-sources/virtual-source';
 
 
 export class NumericWidget extends UIWidgetBase implements IUIWidget {
@@ -30,7 +32,8 @@ export class NumericWidget extends UIWidgetBase implements IUIWidget {
     constructor(
         widget: IWidget,
         private _kpiFactory: KpiFactory,
-        private _kpis: KPIs
+        private _kpis: KPIs,
+        private _virtualSources: IVirtualSourceDocument[]
         ) {
         super(widget);
     }
@@ -68,7 +71,7 @@ export class NumericWidget extends UIWidgetBase implements IUIWidget {
                     widgetPromises[that.numericWidgetAttributes.comparison[index]] = that._getKpiData(resolvedKpi, comparisonDateRange);
                 });
 
-                Promise.props(widgetPromises).then(output => {
+                Bluebird.props(widgetPromises).then(output => {
                     resolve(that._generateUIWidgetFromPromisesOutput(output, this.numericWidgetAttributes.dateRange));
                     return;
                 });
@@ -77,21 +80,15 @@ export class NumericWidget extends UIWidgetBase implements IUIWidget {
         });
     }
 
-    private _resolveKpi(): Promise<IKpiBase> {
-        const that = this;
+    private async _resolveKpi(): Promise<IKpiBase> {
+        const kpiDocument = await this._kpis.model.findOne({_id: this.numericWidgetAttributes.kpi });
+        const kpi = await this._kpiFactory.getInstance(kpiDocument);
+        
+        if (kpi) {
+            return kpi;
+        }
 
-        return new Promise<IKpiBase>((resolve, reject) => {
-            this._kpis.model.findOne({_id: that.numericWidgetAttributes.kpi })
-            .then(kpiDocument => {
-                const kpi = that._kpiFactory.getInstance(kpiDocument);
-                if (kpi) {
-                    resolve(kpi);
-                    return;
-                }
-                return reject('could not resolve a kpi with id: ' + that.numericWidgetAttributes.kpi);
-            })
-            .catch(err => reject(err));
-        });
+        throw new Error('could not resolve a kpi with id: ' + this.numericWidgetAttributes.kpi);
     }
 
     private _processChartDateRange(chartDateRange: IChartDateRange): IDateRange {

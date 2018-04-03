@@ -1,10 +1,10 @@
-import * as Promise from 'bluebird';
+import * as Bluebird from 'bluebird';
 
 import { IChartWidgetAttributes, INumericWidgetAttributes, IWidget, IWidgetMaterializedFields } from './widget';
 
 
 export interface IUIWidget extends UIWidgetBase {
-    materialize(): Promise<IUIWidget>;
+    materialize(): Promise<IUIWidget> | Bluebird<IUIWidget>;
 }
 
 export class UIWidgetBase {
