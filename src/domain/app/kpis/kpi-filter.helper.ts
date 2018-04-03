@@ -11,6 +11,7 @@ import { SaleSchema } from '../sales/sale.model';
 import { GoogleAnalyticsSchema } from './../google-analytics/google-analytics.model';
 import { IKPIFilter, KPITypeEnum, IKPISimpleDefinition } from './kpi';
 import { AppointmentSchema } from '../appointments/appointment-model';
+import { IVirtualSourceDocument } from '../virtual-sources/virtual-source';
 
 
 const Schemas = [
@@ -37,7 +38,11 @@ const replacementStrings = [
 ];
 
 export class KPIFilterHelper {
-    public static ComposeFilter(kpiType: KPITypeEnum, rawExpression: string, filter: string): any {
+    static ComposeFilter(
+        kpiType: KPITypeEnum,
+        virtualSources: IVirtualSourceDocument[],
+        rawExpression: string,
+        filter: string): any {
 
         let simpleDefinition: IKPISimpleDefinition;
 
@@ -46,20 +51,20 @@ export class KPIFilterHelper {
                 if (!filter) { return null; }
                 const simpleFilters: IKPIFilter[] = JSON.parse(filter);
                 simpleDefinition = JSON.parse(rawExpression);
-                return KPIFilterHelper._composeSimpleFilter(simpleDefinition.dataSource, simpleFilters);
+                return KPIFilterHelper._composeSimpleFilter(virtualSources, simpleDefinition.dataSource, simpleFilters);
 
             case KPITypeEnum.ExternalSource:
                 if (!filter) { return null; }
                 const externalsourceFilters: IKPIFilter[] = JSON.parse(filter);
                 simpleDefinition = JSON.parse(rawExpression);
-                return KPIFilterHelper._composeSimpleFilter(simpleDefinition.dataSource, externalsourceFilters);
+                return KPIFilterHelper._composeSimpleFilter(virtualSources, simpleDefinition.dataSource, externalsourceFilters);
 
             default:
                 return filter;
         }
     }
 
-    public static DecomposeFilter(kpiType: KPITypeEnum, filter: any): any {
+    static DecomposeFilter(kpiType: KPITypeEnum, filter: any): any {
 
         switch (kpiType) {
             case KPITypeEnum.Simple:
@@ -73,7 +78,7 @@ export class KPIFilterHelper {
         }
     }
 
-    public static PrepareFilterField(type: string, filter: string): string {
+    static PrepareFilterField(type: string, filter: string): string {
         switch (type) {
             case KPITypeEnum.Simple:
                 return KPIFilterHelper.DecomposeFilter(type, filter);
@@ -87,15 +92,24 @@ export class KPIFilterHelper {
         }
     }
 
-    private static _composeSimpleFilter(datasource: string, filterArray: IKPIFilter[]): string {
+    static CleanObjectKeys(filter: any): any {
+        return KPIFilterHelper._deserializeFilter(filter);
+    }
+
+    private static _composeSimpleFilter(virtualSources: IVirtualSourceDocument[], datasource: string, filterArray: IKPIFilter[]): string {
         if (filterArray.length < 1) { return null; }
 
-        // TODO: this should be refactor to get only get the fields of the source model
-        // const fieldset = this._allSchemasFieldSet();
+        const cleanDatasource = datasource.split('$')[0];
+        const virtualSource = virtualSources.find(v => v.name.toLowerCase() === cleanDatasource.toLowerCase());
+        let fieldset: any;
 
-        const cleanDatasource = datasource.split('$');
-
-        const fieldset = this._getFieldsetForDatasource(cleanDatasource[0]);
+        if (virtualSource) {
+            fieldset = {};
+            const map = virtualSource.fieldsMap;
+            Object.keys(virtualSource.fieldsMap).forEach(k => fieldset[map[k].path] = map[k].dataType);
+        } else {
+            fieldset = this._getFieldsetForDatasource(cleanDatasource);
+        }
 
         const mongoDbFilterArray = filterArray.map(f => KPIFilterHelper._transform2MongoFilter(f, fieldset));
 

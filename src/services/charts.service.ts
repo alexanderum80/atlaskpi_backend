@@ -1,6 +1,5 @@
 import { IObject } from '../app_modules/shared/criteria.plugin';
 import {IChartTop, EnumChartTop, chartTopValue} from '../domain/common/top-n-record';
-import * as Promise from 'bluebird';
 import { inject, injectable } from 'inversify';
 import { difference, isString, pick, isNumber } from 'lodash';
 import { camelCase } from 'change-case';
@@ -30,6 +29,7 @@ import { Targets } from './../domain/app/targets/target.model';
 import {IChartDateRange, IDateRange, parsePredifinedDate, PredefinedTargetPeriod} from './../domain/common/date-range';
 import {FrequencyEnum, FrequencyTable} from './../domain/common/frequency-enum';
 import { TargetService } from './target.service';
+import { VirtualSources } from '../domain/app/virtual-sources/virtual-source.model';
 
 export interface IRenderChartOptions {
     chartId?: string;
@@ -57,7 +57,8 @@ export class ChartsService {
         @inject(CurrentUser.name) private _currentUser: CurrentUser,
         @inject(ChartFactory.name) private _chartFactory: ChartFactory,
         @inject(KpiFactory.name) private _kpiFactory: KpiFactory,
-        @inject(Logger.name) private _logger: Logger
+        @inject(Logger.name) private _logger: Logger,
+        @inject(VirtualSources.name) private _virtualSources: VirtualSources
     ) { }
 
     public getChartsWithoutDefinition(criteria?: { }): Promise<IChart[]> {
@@ -75,57 +76,63 @@ export class ChartsService {
         });
     }
 
-    public renderDefinition(chart: IChart, options?: IRenderChartOptions): Promise<any> {
-        if (!chart) {
-            return Promise.reject('missing parameter');
-        }
-
-        const uiChart = this._chartFactory.getInstance(chart);
-        const kpi = this._kpiFactory.getInstance(chart.kpis[0]);
-
-        const meta: IChartMetadata = {
-            filter: options && options.filter || chart.filter,
-            frequency: FrequencyTable[options && options.frequency || chart.frequency],
-            groupings: getGroupingMetadata(chart, options && options.groupings || chart.groupings || []),
-            comparison: options && options.comparison || chart.comparison,
-            xAxisSource: options && options.xAxisSource || chart.xAxisSource,
-            dateRange: (options && !options.isFutureTarget && options.dateRange) || chart.dateRange || null,
-            top: (options && options.top) || chart.top,
-            isDrillDown: options && options.isDrillDown || false,
-            isFutureTarget: options && options.isFutureTarget || false,
-        };
-
-        chart.targetExtraPeriodOptions = this._getTargetExtraPeriodOptions(meta.frequency);
-        chart.canAddTarget = this._canAddTarget(meta.dateRange);
-
-        // lets fill the comparison options for this chart if only if its not a comparison chart already
-        const isComparisonChart = !chart.comparison || !chart.comparison.length;
-        if (isComparisonChart) {
-            chart.availableComparison = DateRangeHelper.getComparisonItemsForDateRangeIdentifier(chart.dateRange[0].predefined || 'custom')
-                                                        .map(item => item.key);
-        }
-
-        // get top n if have necessary data
-        if (meta.groupings &&
-            meta.groupings.length &&
-            meta.top &&
-            (meta.top.predefined || meta.top.custom)) {
-            return this._getTopByGrouping(meta, kpi).then((data: any[]) => {
-                const groupField = camelCase(meta.groupings[0]);
-                meta.includeTopGroupingValues = data.map(d => d._id[groupField] || NULL_CATEGORY_REPLACEMENT);
-
+    async renderDefinition(chart: IChart, options?: IRenderChartOptions): Promise<any> {
+        try {
+            if (!chart) {
+                return Promise.reject('missing parameter');
+            }
+    
+            const virtualSources = await this._virtualSources.model.find({});
+            const uiChart = this._chartFactory.getInstance(chart);
+            const kpi = await this._kpiFactory.getInstance(chart.kpis[0]);
+    
+            const meta: IChartMetadata = {
+                filter: options && options.filter || chart.filter,
+                frequency: FrequencyTable[options && options.frequency || chart.frequency],
+                groupings: getGroupingMetadata(chart, options && options.groupings || chart.groupings || []),
+                comparison: options && options.comparison || chart.comparison,
+                xAxisSource: options && options.xAxisSource || chart.xAxisSource,
+                dateRange: (options && !options.isFutureTarget && options.dateRange) || chart.dateRange || null,
+                top: (options && options.top) || chart.top,
+                isDrillDown: options && options.isDrillDown || false,
+                isFutureTarget: options && options.isFutureTarget || false,
+            };
+    
+            chart.targetExtraPeriodOptions = this._getTargetExtraPeriodOptions(meta.frequency);
+            chart.canAddTarget = this._canAddTarget(meta.dateRange);
+    
+            // lets fill the comparison options for this chart if only if its not a comparison chart already
+            const isComparisonChart = !chart.comparison || !chart.comparison.length;
+            if (isComparisonChart) {
+                chart.availableComparison = DateRangeHelper.getComparisonItemsForDateRangeIdentifier(chart.dateRange[0].predefined || 'custom')
+                                                            .map(item => item.key);
+            }
+    
+            // get top n if have necessary data
+            if (meta.groupings &&
+                meta.groupings.length &&
+                meta.top &&
+                (meta.top.predefined || meta.top.custom)) {
+                return this._getTopByGrouping(meta, kpi).then((data: any[]) => {
+                    const groupField = camelCase(meta.groupings[0]);
+                    meta.includeTopGroupingValues = data.map(d => d._id[groupField] || NULL_CATEGORY_REPLACEMENT);
+    
+                    if (!meta.isDrillDown && options && options.chartId) {
+                        return this._renderRegularDefinition(options.chartId, kpi, uiChart, meta);
+                    }
+    
+                    return this._renderPreviewDefinition(kpi, uiChart, meta);
+                });
+            } else {
                 if (!meta.isDrillDown && options && options.chartId) {
                     return this._renderRegularDefinition(options.chartId, kpi, uiChart, meta);
                 }
-
+    
                 return this._renderPreviewDefinition(kpi, uiChart, meta);
-            });
-        } else {
-            if (!meta.isDrillDown && options && options.chartId) {
-                return this._renderRegularDefinition(options.chartId, kpi, uiChart, meta);
             }
-
-            return this._renderPreviewDefinition(kpi, uiChart, meta);
+        } catch (e) {
+            console.error('There was an error rendering chart definition', e);
+            return null;
         }
     }
 

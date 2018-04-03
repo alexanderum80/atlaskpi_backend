@@ -91,12 +91,41 @@ export const GroupingMap = {
         code: 'event.code',
         source: 'source',
         procedure: 'procedure.name',
+         referral: 'referral.name',
+        converted: 'converted'
+    },
+    conversions: {
+        procedure: 'procedure.name',
         referral: 'referral.name',
-        converted: 'procedure.converted'
+        source: 'source',
+        converted: 'procedure.converted',
+        provider: 'provider.name'
+    },
+    customers: {
+        city: 'customer.city',
+        state: 'customer.state',
+        zip: 'customer.zip',
+        gender: 'customer.gender',
+        dob: 'customer.dob',
+        fullname: 'customer.fullname',
+        referral: 'referral.name',
+    },
+    invoices: {
+        city: 'customer.city',
+        state: 'customer.state',
+        zip: 'customer.zip',
+        gender: 'customer.gender',
+        dob: 'customer.dob',
+        fullname: 'customer.fullname',
+        location: 'location.name',
+        locationCity: 'location.city',
+        locationState: 'location.state',
+        locationZip: 'location.zip',
+        referral: 'referral.name'
     }
 };
 
-export function getGroupingMetadata(chartDocument: IChart, groupings: string[]) {
+export function getGroupingMetadata(chartDocument: IChart, groupings?: string[]) {
     if ((!chartDocument || !chartDocument.groupings) && !groupings) {
         return null;
     }

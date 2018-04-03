@@ -1,5 +1,5 @@
 import { IValidationResult } from './validation-result';
-import * as Promise from 'bluebird';
+import * as Bluebird from 'bluebird';
 
 /**
  * Describes a mutation for an specific type
@@ -18,7 +18,7 @@ export interface IMutation<T> {
     audit?: boolean;
 
     /**
-     * Method called only when authorization is succesful to validate 
+     * Method called only when authorization is succesful to validate
      * if the input data for the activity is valid
      */
     validate?(data: any): Promise<IValidationResult>;
@@ -26,6 +26,6 @@ export interface IMutation<T> {
      /**
      * Executes the logic for this activity
      */
-    run(data: any): Promise<T>;
+    run(data: any): Promise<T> | Bluebird<T>;
 }
 
