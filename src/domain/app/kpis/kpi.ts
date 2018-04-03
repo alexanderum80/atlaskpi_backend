@@ -87,6 +87,7 @@ export interface IKPI {
     type?: string;
     expression?: string;
     availableGroupings: string[];
+    system?: boolean;
 }
 
 export interface IKPIDocument extends IKPI, mongoose.Document { }

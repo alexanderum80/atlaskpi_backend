@@ -1,4 +1,3 @@
-import * as Promise from 'bluebird';
 import * as console from 'console';
 import { inject, injectable } from 'inversify';
 
@@ -8,6 +7,8 @@ import { query } from '../../../framework/decorators/query.decorator';
 import { IQuery } from '../../../framework/queries/query';
 import { GetKpiActivity } from '../activities/get-kpi.activity';
 import { KPI } from '../kpis.types';
+import { KPIExpressionHelper } from '../../../domain/app/kpis/kpi-expression.helper';
+import { KpiService } from '../../../services/kpi.service';
 
 @injectable()
 @query({
@@ -20,18 +21,9 @@ import { KPI } from '../kpis.types';
 })
 export class KpiQuery implements IQuery<IKPIDocument> {
 
-    constructor(@inject(KPIs.name) private _kpis: KPIs) { }
+    constructor(@inject(KpiService.name) private _kpisSvc: KpiService) { }
 
-    run(data: { id: string }): Promise<IKPIDocument> {
-        console.log(data);
-        const that = this;
-        return new Promise<IKPIDocument>((resolve, reject) => {
-            that._kpis.model
-                .findOne({ _id: data.id })
-                .then((kpiDocument) => {
-                    resolve(kpiDocument);
-                })
-                .catch(e => reject(e));
-        });
+    async run(data: { id: string }): Promise<IKPIDocument> {
+        return await this._kpisSvc.getKpi(data.id);
     }
 }

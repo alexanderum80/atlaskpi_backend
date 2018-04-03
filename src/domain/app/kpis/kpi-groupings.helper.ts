@@ -3,7 +3,6 @@ import { KpiService } from './../../../services/kpi.service';
 import { GroupingMap } from '../../../app_modules/charts/queries/chart-grouping-map';
 import { IKPIDocument, IKPISimpleDefinition, KPITypeEnum, IKPI } from './kpi';
 import { KPIExpressionHelper } from './kpi-expression.helper';
-import * as Promise from 'bluebird';
 
 export class KPIGroupingsHelper {
     static kpiService: KpiService;

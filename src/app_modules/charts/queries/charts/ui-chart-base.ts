@@ -2,7 +2,7 @@ import { EnumChartTop, IChartTop } from '../../../../domain/common/top-n-record'
 import 'datejs';
 
 import { from } from 'apollo-link/lib';
-import * as Promise from 'bluebird';
+import * as Bluebird from 'bluebird';
 import * as console from 'console';
 import { cloneDeep, difference, flatten, groupBy, isEmpty, isNull, isUndefined, map, pick, union, uniq, uniqBy, orderBy } from 'lodash';
 import * as moment from 'moment';
@@ -110,41 +110,12 @@ export class UIChartBase {
     }
 
     /**
-     * Process the chart data to it's most basic definition, it's the first step on the chart definition creation pipeline
-     * @param kpi
-     * @param metadata
-     */
-    protected processPureChartData(kpi: IKpiBase, metadata?: IChartMetadata): Promise<void> {
-        logger.debug('processPureChartData for: ' + this.constructor.name + ' - kpi: ' + kpi.constructor.name);
-
-        // set up all elements for retrieving the data
-        this.dateRange = this._getDateRange(metadata.dateRange);
-        this.comparison = this._getComparisonDateRanges(this.dateRange, metadata.comparison);
-
-        const mainPromiseName = this.dateRange[0].predefined ? this.dateRange[0].predefined : 'custom';
-
-        const dataPromises = {
-            mainPromiseName: kpi.getData([this.dateRange[0].custom], metadata),
-        };
-
-        this.comparison.forEach((comparison, index) => {
-            dataPromises[metadata.comparison[index]] = kpi.getData([comparison], metadata);
-        });
-
-        Promise.props(dataPromises).then(output => {
-
-        });
-
-        return null;
-    }
-
-    /**
      * Process the chart data decomposing it into the most relevant parts to build the chart definition
      * @param kpi kpi to run
      * @param metadata chart metadata
      */
     protected processChartData(kpi: IKpiBase, metadata?: IChartMetadata, target?: ITargetDocument[]): Promise < void > {
-        logger.debug('processChartData for: ' + this.constructor.name + ' - kpi: ' + kpi.constructor.name);
+        // logger.debug('processChartData for: ' + this.constructor.name + ' - kpi: ' + kpi.constructor.name);
         const that = this;
 
         if (metadata.dateRange &&
@@ -186,7 +157,7 @@ export class UIChartBase {
             that.series = that._createSeries(data, metadata, that.categories, that.groupings);
 
             that._injectTargets(that.targetData, metadata, that.categories, that.groupings, that.series);
-            console.log(JSON.stringify( that.series));
+            // console.log(JSON.stringify( that.series));
 
             return;
         }).catch(e => {
@@ -239,7 +210,7 @@ export class UIChartBase {
      * @param metadata chart metadata
      */
     protected getKPIData(kpi: IKpiBase, metadata?: IChartMetadata): Promise<any[]> {
-        logger.debug('trying to get kpi data for: ' + this.chart.title);
+        // logger.debug('trying to get kpi data for: ' + this.chart.title);
         // const dateRange = this.dateRange ? this. dateRange.custom : null;
         const isDateRangeCustomEmpty = this.dateRange || this.dateRange.filter((range) => range.custom !== undefined);
         const dateRange = isDateRangeCustomEmpty.length ? this.dateRange.map((range) => range.custom) : [];
@@ -852,7 +823,7 @@ export class UIChartBase {
             chartPromises[metadata.comparison[index]] = newChart.getDefinitionForDateRange(cloneDeep(kpi), newMetadata, target);
         });
 
-        return Promise.props(chartPromises).then(output => {
+        return (Bluebird.props(chartPromises) as any).then(output => {
             return Promise.resolve(this._mergeMultipleChartDefinitions(output, metadata));
         });
     }

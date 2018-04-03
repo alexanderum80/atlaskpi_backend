@@ -52,7 +52,7 @@ export class KPIAttributesInput  {
 @input()
 export class KPIFilterCriteria {
     @field({ type: GraphQLTypesMap.String, required: true })
-    kpi: string;
+    source: string;
 
     @field({ type: GraphQLTypesMap.String, required: true })
     field: string;
@@ -115,10 +115,10 @@ export class KPI  {
     @field({ type: GraphQLTypesMap.String })
     expression: string;
 
-    @resolver({ forField: 'expression' })
-    static resolveExpression(entity: IKPIDocument)  {
-        return KPIExpressionHelper.PrepareExpressionField(entity.type, entity.expression);
-    }
+    // @resolver({ forField: 'expression' })
+    // static resolveExpression(entity: IKPIDocument)  {
+    //     return KPIExpressionHelper.PrepareExpressionField(entity.type, entity.expression);
+    // }
 
     @field({ type: GraphQLTypesMap.String })
     type: string;

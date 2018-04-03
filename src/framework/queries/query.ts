@@ -1,4 +1,4 @@
-import * as Promise from 'bluebird';
+import * as Bluebird from 'bluebird';
 
 export interface IQuery<T> {
 
@@ -16,5 +16,5 @@ export interface IQuery<T> {
      /**
      * Executes the logic for this activity
      */
-    run(data: any): Promise<T>;
+    run(data: any): Promise<T> | Bluebird<T>;
 }

@@ -1,5 +1,4 @@
 import { Alerts } from '../domain/app/alerts/alert.model';
-import * as Promise from 'bluebird';
 import { inject, injectable } from 'inversify';
 
 import { Charts } from '../domain/app/charts/chart.model';
@@ -27,79 +26,49 @@ export class WidgetsService {
         @inject(Alerts.name) private _alert: Alerts
     ) { }
 
-    listWidgets(): Promise<IUIWidget[]> {
-        const that = this;
-
-        return new Promise<IUIWidget[]>((resolve, reject) => {
-            that._widgets.model
-            .find()
-            .sort({ size: 1, order: 1, name: 1 })
-            .then(documents => {
-                that.materializeWidgetDocuments(documents).then(uiWidgets => {
-                    resolve(uiWidgets);
-                    return;
-                })
-                .catch(err => reject(err));
-            })
-            .catch(err => {
-                return reject(err);
-            });
-        });
+    async listWidgets(): Promise<IUIWidget[]> {
+        try {
+            const widgets = await this._widgets.model
+                .find()
+                .sort({ size: 1, order: 1, name: 1 });
+            return await this.materializeWidgetDocuments(widgets)
+        } catch (e) {
+            console.error('There was an error getting the list of widgets', e);
+        }
     }
 
-    previewWidget(data: IWidget): Promise<IUIWidget> {
-        const that = this;
-        return new Promise<IUIWidget>((resolve, reject) => {
-            const uiWidget = that._widgetFactory.getInstance(data);
-            uiWidget.materialize().then(materializedWidget => {
-                resolve(materializedWidget);
-                return;
-            })
-            .catch(err => {
-                console.log('error when previewing the widget: ' + err);
-                return reject(err);
-            });
-        });
+    async previewWidget(data: IWidget): Promise<IUIWidget> {
+        try {
+            const uiWidget = await this._widgetFactory.getInstance(data);
+            return uiWidget.materialize();
+        } catch (e) {
+            console.log('error when previewing the widget: ' + e);
+            return e;
+        }
     }
 
-    getWidgetById(id: string): Promise<IUIWidget> {
-        const that = this;
-        return new Promise<IUIWidget>((resolve, reject) => {
-            that._widgets.model.findOne({ _id: id })
-                            .then(widgetDocument => {
-                const widgetAsObject = <IWidget>widgetDocument.toObject();
-                const uiWidget = that._widgetFactory.getInstance(widgetAsObject);
-                uiWidget.materialize().then(materializedWidget => {
-                    resolve(materializedWidget);
-                    return;
-                })
-                .catch(err => {
-                    console.log(`error when getting the widget(${id}):  ${err}`);
-                    return reject(err);
-                });
-            })
-            .catch(err => reject(err));
-        });
+    async getWidgetById(id: string): Promise<IUIWidget> {
+        try {
+            const widgetDocument = await this._widgets.model.findOne({ _id: id });
+            const widgetAsObject = <IWidget>widgetDocument.toObject();
+            const uiWidget = await this._widgetFactory.getInstance(widgetAsObject);
+
+            return uiWidget.materialize();
+        } catch (e) {
+            console.error(`error when getting the widget(${id}):  ${e}`);
+        }
     }
 
-    getWidgetByName(name: string): Promise<IUIWidget> {
-        const that = this;
-        return new Promise<IUIWidget>((resolve, reject) => {
-            that._widgets.model.findOne({ name: name })
-                            .then(widgetDocument => {
-                const widgetAsObject = <IWidget>widgetDocument.toObject();
-                const uiWidget = that._widgetFactory.getInstance(widgetAsObject);
-                uiWidget.materialize().then(materializedWidget => {
-                    resolve(materializedWidget);
-                    return;
-                })
-                .catch(err => {
-                    console.log(`error when getting the widget(${name}):  ${err}`);
-                    return reject(err);
-                });
-            })
-            .catch(err => reject(err));
-        });
+    async getWidgetByName(name: string): Promise<IUIWidget> {
+        try {
+            const widgetDocument = await this._widgets.model.findOne({ name: name });
+            const widgetAsObject = <IWidget>widgetDocument.toObject();
+            const uiWidget = await this._widgetFactory.getInstance(widgetAsObject);
+            
+            return uiWidget.materialize();
+        } catch (e) {
+            console.log(`error when getting the widget(${name}):  ${e}`);
+        }
     }
 
     materializeWidgetDocuments(docs: IWidgetDocument[]): Promise<IUIWidget[]> {
@@ -112,8 +81,11 @@ export class WidgetsService {
 
             docs.forEach(d => {
                 const widgetAsObject = <IWidget>d.toObject();
-                const uiWidget = that._widgetFactory.getInstance(widgetAsObject);
-                uiWidgetsPromises.push(uiWidget.materialize());
+                uiWidgetsPromises.push(
+                    that._widgetFactory.getInstance(widgetAsObject).then(uiWidget => {
+                        return uiWidget.materialize();
+                    })
+                );
             });
 
             Promise.all(uiWidgetsPromises).then(materializedWidgets => {

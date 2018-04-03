@@ -33,6 +33,8 @@ import { Widgets } from './widgets/widget.model';
 import { Worklogs } from './work-log/work-log.model';
 import { GoogleAnalytics } from './google-analytics/google-analytics.model';
 import { Tags } from './tags/tag.model';
+import { Attachments } from './attachments/attachment-model';
+import { VirtualSources } from './virtual-sources/virtual-source.model';
 
 // import { ChartFormats } from './chart-formats/chart-format.model';
 interface IRegistrationInfo {
@@ -72,7 +74,9 @@ const registrations: any[] = [
     Widgets,
     Worklogs,
     Inventory,
-    GoogleAnalytics
+    GoogleAnalytics,
+    Attachments,
+    VirtualSources
 ];
 
 export function registerAppModels(container: IBridgeContainer) {
