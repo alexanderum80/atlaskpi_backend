@@ -76,9 +76,7 @@ export class NumericWidget extends UIWidgetBase implements IUIWidget {
                     return;
                 });
             })
-            .catch(err => {
-                reject(err);
-            });
+            .catch(err => reject(err));
         });
     }
 

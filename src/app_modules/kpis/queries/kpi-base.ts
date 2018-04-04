@@ -45,8 +45,8 @@ export interface IGetDataOptions {
 }
 
 export interface IKpiBase {
-    getData(dateRange?: IDateRange[], options?: IGetDataOptions): Promise<any> | Bluebird<any>;
-    getTargetData?(dateRange?: IDateRange[], options?: IGetDataOptions): Promise<any> | Bluebird<any>;
+    getData(dateRange?: IDateRange[], options?: IGetDataOptions): Promise<any>;
+    getTargetData?(dateRange?: IDateRange[], options?: IGetDataOptions): Promise<any>;
     getSeries?(dateRange: IDateRange, frequency: FrequencyEnum);
 }
 
