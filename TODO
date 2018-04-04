@@ -1,3 +1,7 @@
 
 Todo:
-  ☐ Item
+  ☐ I need to fix UI maps because I removed GroupMap that was being used in findBy on the sales model. I need to change the ui so show the right group fields and also send the backend the group path ready to use
+  I need to modify the groupings on the charts to use the full path of the field (ex: location -> location.name) I may need to change the ui to create charts
+
+
+  

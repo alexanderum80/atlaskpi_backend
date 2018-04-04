@@ -1,6 +1,5 @@
 import * as jsep from 'jsep';
 
-import { GroupingMap } from '../../../app_modules/charts/queries/chart-grouping-map';
 import { field } from '../../../framework/decorators/field.decorator';
 import { IKPISimpleDefinition, KPITypeEnum } from './kpi';
 
@@ -104,22 +103,15 @@ export class KPIExpressionHelper {
 
         if (!fullField) return null;
 
-        // get collections
-        const collections = Object.keys(GroupingMap);
-        for (let i = 0; i < collections.length; i++) {
-           if  (fullField.indexOf(collections[i]) === 0) {
-               dataSource = collections[i];
-               field = fullField.replace(`${collections[i]}.`, '');
-               break;
-           }
-        }
+        const fullFieldTokens = fullField.split('.');
+        dataSource = fullFieldTokens[0];
+        field = fullField.replace(dataSource + '.', '');
 
-        const simple: IKPISimpleDefinition = {
-                                               dataSource: dataSource,
-                                               function: func,
-                                               field: field
-                                             };
-        return simple;
+        return {
+            dataSource: dataSource,
+            function: func,
+            field: field
+        };
     }
 
     private static _getSimpleKPIFromBinExp(binExp: jsep.IBinaryExpression): IKPISimpleDefinition {

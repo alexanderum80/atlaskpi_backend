@@ -15,16 +15,7 @@ export class DataSourcesService {
 
     async get(): Promise<DataSourceResponse[]> {
         const virtualSources = await this._virtualDatasources.model.getDataSources();
-        const dataSources = DataSourceSchemasMapping.map(s => {
-            return {
-                name: s.name.toLocaleLowerCase(),
-                dataSource: s.collectionName,
-                fields: DataSourcesHelper.GetFieldsFromSchemaDefinition(s.definition),
-                groupings: DataSourcesHelper.GetGroupingsForSchema(s.name)
-            };
-        });
-
-        return sortBy(virtualSources.concat(dataSources), 'name');
+        return sortBy(virtualSources, 'name');
     }
 
     async getDistinctValues(source: string, field: string, limit: number, filter: string): Promise<string[]> {
