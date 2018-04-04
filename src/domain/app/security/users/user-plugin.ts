@@ -9,7 +9,7 @@ import * as nodemailer from 'nodemailer';
 import * as validate from 'validate.js';
 import * as logger from 'winston';
 
-import { User } from '../../../../app_modules/users/users.types';
+import { InputUserProfile, User } from '../../../../app_modules/users/users.types';
 import { field } from '../../../../framework/decorators/field.decorator';
 import { query } from '../../../../framework/decorators/query.decorator';
 import { IMutationResponse, MutationResponse } from '../../../../framework/mutations/mutation-response';
@@ -32,10 +32,13 @@ import {
     IUserAgreementInput,
     IUserDocument,
     IUserModel,
-IUserProfile,
-IUserPreference,
+    IUserProfile,
+    IUserProfileInput,
+    IUserProfileResolve,
+  IUserPreference
 } from './user';
 import { IUserToken } from './user-token';
+import { userAuditSchema } from '../../../common/audit.schema';
 
 
 export function insentive_username(username: string): any {
@@ -90,7 +93,8 @@ export function userPlugin(schema: mongoose.Schema, options: any) {
         middleName: String,
         lastName: String,
         sex: String,
-        dob: Date
+        dob: Date,
+        phoneNumber: String
     };
 
     let UserTokenInfo = {
@@ -114,10 +118,19 @@ export function userPlugin(schema: mongoose.Schema, options: any) {
             default: true
         }
     };
+    
+    const UserNotificationsSchema = {
+        general: Boolean,
+        chat: Boolean,
+        email: Boolean,
+        dnd: Boolean
+    };
 
     const UserPreferenceSchema = {
         chart: ShowTourSchema,
-        helpCenter: { type: Boolean, default: true }
+    helpCenter: { type: Boolean, default: true },
+        notification: UserNotificationsSchema,
+        avatarAddress: String
     };
 
     schema.add({
@@ -1115,6 +1128,33 @@ export function userPlugin(schema: mongoose.Schema, options: any) {
         });
     };
 
+    schema.statics.editUserProfile = function(id: string, input: IUserProfileInput): Promise<IMutationResponse> {
+           const that = (<IUserModel>this);
+
+           return new Promise<IMutationResponse>((resolve, reject) => {
+               that.findById(id).then((user) => {
+                   user.profile.firstName = input.firstName;
+                   user.profile.middleName = input.middleName;
+                   user.profile.lastName = input.lastName;
+                   user.profile.phoneNumber = input.phoneNumber;
+                   user.preferences.notification.general = input.general;
+                   user.preferences.notification.chat = input.chat;
+                   user.preferences.notification.email = input.viaEmail;
+                   user.preferences.notification.dnd = input.dnd;
+
+                   user.save((err, users: IUser) => {
+                        if (err) {
+                            reject({ message: 'There was an error updating the user', error: err });
+                            return;
+                        }
+                        resolve({entity: users});
+                    });
+               }).catch((err) => {
+                resolve(MutationResponse.fromValidationErrors({ success: false, reason: err }));
+              });
+           });
+    };
+
     schema.statics.updateUserAgreement = function(input: IUserAgreementInput): Promise<IUserDocument> {
         const userModel = (<IUserModel>this);
 
@@ -1156,6 +1196,4 @@ export function userPlugin(schema: mongoose.Schema, options: any) {
             }).catch(err => reject(err));
         });
     };
-
-
 }

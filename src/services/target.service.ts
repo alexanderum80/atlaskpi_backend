@@ -1,7 +1,7 @@
 import { IGetDataOptions, IKpiBase } from '../app_modules/kpis/queries/kpi-base';
-import * as Promise from 'bluebird';
 import { inject, injectable } from 'inversify';
 import * as moment from 'moment';
+import * as Bluebird from 'bluebird';
 
 import { getGroupingMetadata } from '../app_modules/charts/queries/chart-grouping-map';
 import { KpiFactory } from '../app_modules/kpis/queries/kpi.factory';
@@ -98,7 +98,7 @@ export class TargetService {
                 return;
             }
 
-            Promise.map(targets, (target: ITargetDocument) => that.updateTarget(target))
+            Bluebird.map(targets, (target: ITargetDocument) => that.updateTarget(target))
                 .then((updatedTargets: ITargetDocument[]) => {
                     resolve(updatedTargets);
                     return;
@@ -129,106 +129,43 @@ export class TargetService {
         });
     }
 
-    periodData(data: ITargetCalculateData): Promise<IPeriodAmount[]> {
-        const that = this;
+    async getBaseValue(data: ITargetCalculateData): Promise<any> {
+        const chart = await this._charts.model.findById(data.chart[0])
+            .populate({ path: 'kpis' });
+        const kpi: IKpiBase = await this._kpiFactory.getInstance(chart.kpis[0]);
+        const groupings: string[] = getGroupingMetadata(chart);
+        const chartDateRange: string = chart.dateRange ? chart.dateRange[0].predefined : '';
+        const targetDateRange: IDateRange = this.getDate(data.period, data.datepicker, chart.frequency, chartDateRange);
+        let getDataOptions: IGetDataOptions;
 
-        return new Promise<IPeriodAmount[]>((resolve, reject) => {
-            that._charts.model.findById(data.chart[0])
-                .populate({ path: 'kpis' })
-                .then((chart: IChartDocument) => {
-                    // check if is a stacked chart
-                    that.isStacked = that._stacked(chart);
+        if (!data.period) {
+            return [{ value: 0 }];
+        }
+        
+        if (chart.isStacked()) {
+            getDataOptions = {
+                filter: chart.filter,
+                groupings: groupings,
+                stackName: this.getComparisonStackName(chart, data).name || null
+            };
+        } else if (Array.isArray(groupings)) {
+            getDataOptions = { filter: chart.filter };
+        } else {
+            getDataOptions = { filter: chart.filter };
 
-                    const kpi: IKpiBase = that._kpiFactory.getInstance(chart.kpis[0]);
-                    const groupings: string[] = getGroupingMetadata(chart, chart.groupings ? chart.groupings : []);
+            if (data.nonStackName.toLocaleLowerCase() !== 'all') {
+                getDataOptions.stackName = this.getComparisonStackName(chart, data).name;
+                getDataOptions.groupings = groupings;
+            }
+        }
 
-                    // get the predefined date range from chart
-                    const chartDateRange: string = chart.dateRange ? chart.dateRange[0].predefined : '';
-                    const targetDateRange: IDateRange = that.getDate(data.period, data.datepicker, chart.frequency, chartDateRange);
-
-                    // check if the chart has no groupings
-                    if (!that.isStacked && (!groupings || !groupings.length || !groupings[0])) {
-                        if (data.period) {
-                            kpi.getData([targetDateRange], { filter: chart.filter})
-                                .then(response => {
-                                    resolve(response);
-                                    return;
-                                }).catch(err => {
-                                    reject(err);
-                                    return;
-                                });
-                        } else {
-                            resolve([{ value: 0}]);
-                            return;
-                        }
-                    } else if (that.isStacked) {
-                        // check if the chart is stacked
-                        const optionsStack: IGetDataOptions = {
-                            filter: chart.filter,
-                            groupings: groupings,
-                            stackName: this.getComparisonStackName(chart, data).name || null
-                        };
-
-                        if (data.period) {
-                            kpi.getData([targetDateRange], optionsStack).then((response) => {
-                                resolve(response);
-                                return;
-                            }).catch((err) => {
-                                reject(err);
-                                return;
-                            });
-                        } else {
-                            resolve([{ value: 0}]);
-                            return;
-                        }
-                    } else {
-
-                        let optionsNonStack: IGetDataOptions = {
-                            filter: chart.filter
-                        };
-                        switch (data.nonStackName) {
-                            case 'all':
-                            case 'All':
-                                if (data.period) {
-                                    kpi.getData([targetDateRange], optionsNonStack).then((response) => {
-                                        resolve(response);
-                                        return;
-                                    }).catch((err) => {
-                                        reject(err);
-                                        return;
-                                    });
-                                } else {
-                                    resolve([{ value: 0}]);
-                                    return;
-                                }
-                                break;
-                            default:
-                                if (data.period) {
-                                    optionsNonStack['stackName'] = this.getComparisonStackName(chart, data).name;
-                                    optionsNonStack['groupings'] = groupings;
-
-                                    kpi.getData([targetDateRange], optionsNonStack).then((response) => {
-                                        resolve(response);
-                                        return;
-                                    }).catch((err) => {
-                                        reject(err);
-                                        return;
-                                    });
-                                } else {
-                                    resolve([{ value: 0}]);
-                                    return;
-                                }
-                                break;
-                        }
-                    }
-                });
-        });
+        return await kpi.getData([targetDateRange], getDataOptions);
     }
 
     caculateFormat(data: ITargetCalculateData): Promise<number> {
 
         return new Promise<number>((resolve, reject) => {
-            this.periodData(data)
+            this.getBaseValue(data)
                 .then((response: any) => {
                     const dataAmount: number = parseFloat(data.amount.toString());
                     const findValue = response ? response.find(r => r.value) : { value: data.amount };
@@ -268,80 +205,60 @@ export class TargetService {
     }
 
 
-    getTargetMet(input: ITargetMet) {
+    async getTargetMet(input: ITargetMet) {
         const that = this;
 
-        return new Promise<any>((resolve, reject) => {
+        if (input.period) {
+            return [{ value: 0}];
+        }
 
-            // get kpi from the chart with input.chart[0]
-            that._charts.model.findById(input.chart[0])
-                .populate({ path: 'kpis' })
-                .then((chart) => {
-                    if (this.isTargetReachZero(chart.frequency, input.datepicker, input.notificationDate)) {
-                        resolve(0);
-                        return;
-                    }
+        // get kpi from the chart with input.chart[0]
+        const chart = await that._charts.model.findById(input.chart[0])
+            .populate({ path: 'kpis' });
+            
+        if (this.isTargetReachZero(chart.frequency, input.datepicker, input.notificationDate)) {
+            return 0;
+        }
+        const kpi: IKpiBase = await that._kpiFactory.getInstance(chart.kpis[0]);
+        const getDateRange: IDateRange = that._getDateRange(
+                input.period,
+                input.notificationDate,
+                chart.frequency
+        );
 
+        // change 'to' property to now timestamp
+        if (getDateRange && getDateRange.to) {
+            getDateRange.to = moment().toDate();
+        }
 
-                    const kpi: IKpiBase = that._kpiFactory.getInstance(chart.kpis[0]);
-                    const getDateRange: IDateRange = that._getDateRange(
-                            input.period,
-                            input.notificationDate,
-                            chart.frequency
-                    );
+        const groupings: string[] = getGroupingMetadata(chart, chart.groupings ? chart.groupings : []);
 
-                    // change 'to' property to now timestamp
-                    if (getDateRange && getDateRange.to) {
-                        getDateRange.to = moment().toDate();
-                    }
+        const stackName: string = input.stackName ? input.stackName : input.nonStackName;
+        const isStackNameEqualToAll: boolean = stackName.toLowerCase() === 'all';
 
-                    const groupings: string[] = getGroupingMetadata(chart, chart.groupings ? chart.groupings : []);
+        const chartDateRange: string = chart.dateRange ? chart.dateRange[0].predefined : '';
+        const dateRange: any = getDateRange || parsePredifinedDate(chartDateRange);
 
-                    const stackName: string = input.stackName ? input.stackName : input.nonStackName;
-                    const isStackNameEqualToAll: boolean = stackName.toLowerCase() === 'all';
+        const options: IGetDataOptions = {
+            filter: chart.filter
+        };
 
-                    const chartDateRange: string = chart.dateRange ? chart.dateRange[0].predefined : '';
-                    const dateRange: any = getDateRange || parsePredifinedDate(chartDateRange);
+        if (!groupings || !groupings.length || !groupings[0]) {
+            Object.assign(options, { 
+                filter: chart.filter
+            });
+        } else if (!isStackNameEqualToAll) {
+            Object.assign(options, {
+                groupings: groupings,
+                stackName: stackName
+            });
+        }
 
-                    const options: IGetDataOptions = {
-                        filter: chart.filter
-                    };
+        const response = await kpi.getData([dateRange], options);
+        const findValue = response ? response.find(r => r.value) : { value: input.amount };
+        const responseValue: number = findValue ? findValue.value : 0;
 
-                    if (!groupings || !groupings.length || !groupings[0]) {
-                        if (input.period) {
-                            kpi.getData([dateRange], { filter: chart.filter})
-                                .then(response => {
-                                    const findValue = response ? response.find(r => r.value) : { value: input.amount };
-                                    const responseValue: number = findValue ? findValue.value : 0;
-
-                                    resolve(responseValue);
-                                    return;
-                                }).catch(err => reject(err));
-                        } else {
-                            resolve([{ value: 0}]);
-                            return;
-                        }
-                    } else {
-                        if (!isStackNameEqualToAll) {
-                            Object.assign(options, {
-                                groupings: groupings,
-                                stackName: stackName
-                            });
-                        }
-
-                        kpi.getData([dateRange], options).then(data => {
-                            const findValue = data ? data.find(r => r.value) : { value: input.amount };
-                            const responseValue: number = findValue ? findValue.value : 0;
-
-                            resolve(responseValue);
-                            return;
-                        }).catch(err => {
-                            reject(err);
-                            return;
-                        });
-                    }
-                });
-        });
+        return responseValue;
     }
 
     // return object with 'from' and 'to' property
@@ -474,14 +391,5 @@ export class TargetService {
                 };
         }
 
-    }
-
-    private _stacked(chart: any): boolean {
-        return ((chart.chartDefinition.chart.type === 'column') &&
-                Array.isArray(chart.groupings) &&
-                chart.groupings && chart.xAxisSource &&
-                (chart.groupings[0] === chart.xAxisSource)) ||
-                (Array.isArray(chart.groupings) &&
-                 chart.groupings.length && !chart.frequency && !chart.xAxisSource);
     }
 }

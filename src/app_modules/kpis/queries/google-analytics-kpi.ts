@@ -1,6 +1,5 @@
 import { IBatchProperties } from './../../../services/kpis/google-analytics-kpi/google-analytics.helper';
 import { cloneDeep, uniq } from 'lodash';
-import * as Promise from 'bluebird';
 import * as moment from 'moment';
 import * as mongoose from 'mongoose';
 

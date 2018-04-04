@@ -6,8 +6,8 @@ import * as logger from 'winston';
 import { input } from '../../../framework/decorators/input.decorator';
 import { ModelBase } from '../../../type-mongo/model-base';
 import { AppConnection } from '../app.connection';
-import { ISlideshowDocument, ISlideshowInput, ISlideshowModel } from './slideshow';
 import { tagsPlugin } from '../tags/tag.plugin';
+import { ISlideshowInput, ISlideshowDocument, ISlideshowModel } from './slideshow';
 
 const SlideshowSchema = new mongoose.Schema({
     name: { type: String, required: true, unique: true },

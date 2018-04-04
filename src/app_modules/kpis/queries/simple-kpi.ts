@@ -1,4 +1,3 @@
-import * as Promise from 'bluebird';
 import { cloneDeep } from 'lodash';
 
 import { Calls } from '../../../domain/app/calls/call.model';
@@ -14,6 +13,8 @@ import { Appointment } from './../../appointments/appointments.types';
 import { AggregateStage } from './aggregate';
 import { ICollection, IGetDataOptions, IKpiBase } from './kpi-base';
 import { SimpleKPIBase } from './simple-kpi-base';
+import { IVirtualSourceDocument } from '../../../domain/app/virtual-sources/virtual-source';
+import { KPIFilterHelper } from '../../../domain/app/kpis/kpi-filter.helper';
 
 const CollectionsMapping = {
     sales: {
@@ -45,11 +46,33 @@ export class SimpleKPI extends SimpleKPIBase implements IKpiBase {
                                         expenses: Expenses,
                                         inventory: Inventory,
                                         calls: Calls,
-                                        appointments: Appointments
+                                        appointments: Appointments,
+                                        virtualSources: IVirtualSourceDocument[]
                                     ): SimpleKPI {
-        const simpleKPIDefinition: IKPISimpleDefinition = KPIExpressionHelper.DecomposeExpression(KPITypeEnum.Simple, kpi.expression);
 
-        const collection: ICollection = CollectionsMapping[simpleKPIDefinition.dataSource];
+        const simpleKPIDefinition: IKPISimpleDefinition = KPIExpressionHelper.DecomposeExpression(KPITypeEnum.Simple, kpi.expression);
+        let collection: ICollection;
+        let baseAggregate: any;
+
+        if (virtualSources) {
+            const virtualSource = virtualSources.find(s => s.name.toLocaleLowerCase() === simpleKPIDefinition.dataSource);
+
+            if (virtualSource) {
+                collection = {
+                    modelName: virtualSource.modelIdentifier,
+                    timestampField: virtualSource.dateField
+                };
+                simpleKPIDefinition.dataSource = virtualSource.source.toLowerCase();
+                baseAggregate = virtualSource.aggregate.map(a => {
+                    return KPIFilterHelper.CleanObjectKeys(a);
+                });
+            }
+        }
+
+        if (!collection) {
+            collection = CollectionsMapping[simpleKPIDefinition.dataSource];
+        }
+
         if (!collection) { return null; }
 
         const models = {
@@ -61,7 +84,7 @@ export class SimpleKPI extends SimpleKPIBase implements IKpiBase {
         };
 
         const model = models[collection.modelName];
-        const aggregateSkeleton: AggregateStage[] = [
+        let aggregateSkeleton: AggregateStage[] = [
             {
                 filter: true,
                 $match: { }
@@ -89,6 +112,11 @@ export class SimpleKPI extends SimpleKPIBase implements IKpiBase {
                 }
             }
         ];
+
+        if (baseAggregate) {
+            aggregateSkeleton = baseAggregate.concat(aggregateSkeleton);
+        }
+
         return new SimpleKPI(model, aggregateSkeleton, simpleKPIDefinition, kpi, collection);
     }
 
