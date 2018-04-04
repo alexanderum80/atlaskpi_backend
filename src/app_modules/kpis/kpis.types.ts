@@ -84,6 +84,9 @@ export class KPI  {
     @field({ type: GraphQLTypesMap.String })
     group: string;
 
+    @field({ type: GraphQLTypesMap.String, isArray: true })
+    groupings: string[];
+
     @field({ type: ValueName, isArray: true })
     groupingInfo: IValueName[];
 
