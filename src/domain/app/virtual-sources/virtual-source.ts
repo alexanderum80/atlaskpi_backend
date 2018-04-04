@@ -1,6 +1,7 @@
 
 import * as mongoose from 'mongoose';
 import { DataSourceResponse } from '../../../app_modules/data-sources/data-sources.types';
+import { IValueName } from '../../common/value-name';
 
 export interface IFieldMetadata {
     path: string;
@@ -24,7 +25,7 @@ export interface IVirtualSource {
 }
 
 export interface IVirtualSourceDocument extends IVirtualSource, mongoose.Document {
-    getGroupingFieldPaths(): string[];
+    getGroupingFieldPaths(): IValueName[];
     // containsPath(path: string): boolean;
 }
 

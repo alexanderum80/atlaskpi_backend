@@ -7,9 +7,10 @@ import { resolver } from '../../framework/decorators/resolver.decorator';
 import { type } from '../../framework/decorators/type.decorator';
 import { ErrorDetails } from '../../framework/graphql/common.types';
 import { ChartEntityResponse } from '../charts/charts.types';
-import { ChartDateRange, ChartDateRangeInput, PaginationInfo } from '../shared/shared.types';
+import { ChartDateRange, ChartDateRangeInput, PaginationInfo, ValueName } from '../shared/shared.types';
 import { Widget } from '../widgets/widgets.types';
 import { KPIExpressionHelper } from './../../domain/app/kpis/kpi-expression.helper';
+import { IValueName } from '../../domain/common/value-name';
 
 @input()
 export class KPIAttributesInput  {
@@ -32,7 +33,7 @@ export class KPIAttributesInput  {
     frequency: string;
 
     @field({ type: GraphQLTypesMap.String, isArray: true })
-    groupings: string[];
+    groupings: IValueName[];
 
     @field({ type: GraphQLTypesMap.String })
     type: string;
@@ -83,8 +84,8 @@ export class KPI  {
     @field({ type: GraphQLTypesMap.String })
     group: string;
 
-    @field({ type: GraphQLTypesMap.String, isArray: true })
-    groupings: string[];
+    @field({ type: ValueName, isArray: true })
+    groupingInfo: IValueName[];
 
     @field({ type: ChartDateRange })
     dateRange: ChartDateRange;

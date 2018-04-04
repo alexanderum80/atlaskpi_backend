@@ -1,7 +1,7 @@
 import { inject, injectable } from 'inversify';
 import { isObject } from 'lodash';
 import { DocumentQuery } from 'mongoose';
-import { intersection } from 'lodash';
+import { intersectionBy } from 'lodash';
 
 import { IChartDocument } from '../domain/app/charts/chart';
 import { Charts } from '../domain/app/charts/chart.model';
@@ -20,6 +20,8 @@ import { VirtualSources } from '../domain/app/virtual-sources/virtual-source.mod
 import { IWidgetDocument } from '../domain/app/widgets/widget';
 import { Widgets } from '../domain/app/widgets/widget.model';
 import { IMutationResponse } from '../framework/mutations/mutation-response';
+import { IIdName } from '../domain/common/id-name';
+import { IValueName } from '../domain/common/value-name';
 
 const codeMapper = {
     'Revenue': 'sales',
@@ -50,11 +52,9 @@ export class KpiService {
 
         // process available groupings
         kpis.forEach(k => {
-            const kpiSources: string[] = [];
-            this._getKpiSources(k, kpis).forEach(s => kpiSources.push(s));
-
+            const kpiSources: string[] = this._getKpiSources(k, kpis);
             // find common field paths on the sources
-            k.groupings = this._getCommonSourcePaths(kpiSources, virtualSources);
+            k.groupingInfo = this._getCommonSourcePaths(kpiSources, virtualSources);
         });
 
         return kpis;
@@ -180,11 +180,37 @@ export class KpiService {
         return sources;
     }
 
-    private _getCommonSourcePaths(sourceNames: string[], virtualSources: IVirtualSourceDocument[]): string[] {
+    private _getCommonSourcePaths(sourceNames: string[], virtualSources: IVirtualSourceDocument[]): IValueName[] {
         const sources = virtualSources.filter(v => sourceNames.indexOf(v.name.toLocaleLowerCase()) !== -1);
         const fieldPaths = sources.map(s => s.getGroupingFieldPaths());
+        const commonFields = [];
 
-        return intersection(...fieldPaths);
+        if (!fieldPaths.length) {
+            return [];
+        }
+
+        if (fieldPaths.length === 1) {
+            return fieldPaths[0];
+        }
+
+        fieldPaths[0].forEach(f => {
+            let findCount = 1;
+
+            for (let i = 1; i < fieldPaths.length; i++) {
+                const pathFound = fieldPaths[i].find(field => field.value === f.value);
+
+                if (pathFound) {
+                    findCount += 1;
+                    continue;
+                }
+            }
+
+            if (findCount === fieldPaths.length) {
+                commonFields.push(f);
+            }
+        });
+            
+        return commonFields;
     }
 
     private _kpiInUseByModel(id: string): Promise<IDocumentExist> {

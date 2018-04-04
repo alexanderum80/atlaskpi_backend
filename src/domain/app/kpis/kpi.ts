@@ -9,6 +9,8 @@ import { Expenses } from '../expenses/expense.model';
 import { Sales } from '../sales/sale.model';
 import { IWidgetDocument } from '../widgets/widget';
 import { Inventory } from './../inventory/inventory.model';
+import { IIdName } from '../../common/id-name';
+import { IValueName } from '../../common/value-name';
 
 
 
@@ -77,7 +79,7 @@ export interface IKPI {
     name: string;
     baseKpi?: string;
     description?: string;
-    groupings?: string[];
+    groupings?: IValueName[];
     dateRange?: IChartDateRange;
     filter?: any;
     frequency?: string;
@@ -90,7 +92,9 @@ export interface IKPI {
     system?: boolean;
 }
 
-export interface IKPIDocument extends IKPI, mongoose.Document { }
+export interface IKPIDocument extends IKPI, mongoose.Document {
+    groupingInfo: IValueName[];
+}
 
 export interface IKPIModel extends mongoose.Model<IKPIDocument> {
     /**

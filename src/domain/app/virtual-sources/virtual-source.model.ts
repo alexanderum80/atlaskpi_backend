@@ -10,6 +10,7 @@ import { tagsPlugin } from '../tags/tag.plugin';
 import { IVirtualSourceModel, IVirtualSourceDocument } from '../virtual-sources/virtual-source';
 import { DataSourceResponse } from '../../../app_modules/data-sources/data-sources.types';
 import { IIdName } from '../../common/id-name';
+import { IValueName } from '../../common/value-name';
 
 const Schema = mongoose.Schema;
 const VirtualSourceSchema = new mongoose.Schema({
@@ -66,19 +67,18 @@ async function getDataSources(): Promise<DataSourceResponse[]> {
     }
 }
 
-function getGroupingFieldPaths(): string[] {
+function getGroupingFieldPaths(): IValueName[] {
     const doc = this as IVirtualSourceDocument;
-    const fields: string[] = [];
+    const fields: IValueName[] = [];
 
     Object.keys(doc.fieldsMap).forEach(k => {
         const map = doc.fieldsMap[k];
 
         if (map.allowGrouping) {
-            fields.push(map.path);
+            fields.push({ value: map.path, name: k });
         }
     });
 
     return fields;
 }
 
-function containsPath
