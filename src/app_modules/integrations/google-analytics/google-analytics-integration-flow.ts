@@ -71,6 +71,7 @@ function getConnectors( profiles: any[], config: any, oAuthConnector: IOAuthConn
             config: { ... connectorConfig },
             databaseName: companyName,
             type: type,
+            virtualSource: 'Google Analytics',
             createdBy: 'backend',
             createdOn: new Date(Date.now()),
             uniqueKeyValue: { ... uniqueKeyValue }

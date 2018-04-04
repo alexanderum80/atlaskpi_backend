@@ -30,6 +30,7 @@ VirtualSourceSchema.statics.getDataSources = getDataSources;
 
 // METHODS
 VirtualSourceSchema.methods.getGroupingFieldPaths = getGroupingFieldPaths;
+VirtualSourceSchema.methods.findByNames = findByNames;
 // VirtualSourceSchema.methods.containsPath = containsPath;
 
 @injectable()
@@ -40,11 +41,12 @@ export class VirtualSources extends ModelBase<IVirtualSourceModel> {
     }
 }
 
-async function getDataSources(): Promise<DataSourceResponse[]> {
+async function getDataSources(names?: string[]): Promise<DataSourceResponse[]> {
     const model = this as IVirtualSourceModel;
 
     try {
-        const virtualSources = await model.find({});
+        const query = names ? { name: { $in: names } } : { };
+        const virtualSources = await model.find(query);
         const dataSources: DataSourceResponse[] = virtualSources.map(ds => {
             const fieldNames = Object.keys(ds.fieldsMap);
             const fields = fieldNames.map(f => ({
@@ -80,5 +82,9 @@ function getGroupingFieldPaths(): IValueName[] {
     });
 
     return fields;
+}
+
+async function findByNames(names: string): Promise<IVirtualSourceDocument[]> {
+    return this.find({ name: { $in: names } });
 }
 
