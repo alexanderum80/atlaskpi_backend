@@ -97,8 +97,8 @@ let BusinessUnitSchema = {
 
 const SaleReferralSchema = {
     ...EntitySchema,
-    referralRevenue: Number,
-    referralRevenueNoTax: Number,
+    revenue: Number,
+    revenueNoTax: Number,
 };
 
 let SalesSchema = new Schema ({

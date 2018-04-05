@@ -57,8 +57,8 @@ export interface ICategory extends IEntity {
 }
 
 export interface ISaleReferral extends IEntity {
-    referralRevenue: number;
-    referralRevenueNoTax: number;
+    revenue: number;
+    revenueNoTax: number;
 }
 
 export interface ISales {
