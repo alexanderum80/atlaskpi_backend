@@ -57,6 +57,7 @@ async function getDataSources(names?: string[]): Promise<DataSourceResponse[]> {
             }));
             return {
                 name: ds.name.toLocaleLowerCase(),
+                description: ds.description,
                 dataSource: ds.source,
                 fields: fields
             };
