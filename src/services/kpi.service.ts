@@ -23,6 +23,8 @@ import { Widgets } from '../domain/app/widgets/widget.model';
 import { IMutationResponse } from '../framework/mutations/mutation-response';
 import { IIdName } from '../domain/common/id-name';
 import { IValueName } from '../domain/common/value-name';
+import { Connectors } from '../domain/master/connectors/connector.model';
+import { IConnectorDocument } from '../domain/master/connectors/connector';
 
 const codeMapper = {
     'Revenue': 'sales',
@@ -44,12 +46,14 @@ export class KpiService {
         @inject(KPIs.name) private _kpis: KPIs,
         @inject(Charts.name) private _chart: Charts,
         @inject(Widgets.name) private _widget: Widgets,
-        @inject(VirtualSources.name) private _virtualSources: VirtualSources
+        @inject(VirtualSources.name) private _virtualSources: VirtualSources,
+        @inject(Connectors.name) private _connectors: Connectors
     ) {}
 
     async getKpis(): Promise<IKPIDocument[]> {
         const kpis = await this._kpis.model.find({});
         const virtualSources = await this._virtualSources.model.find({});
+        const connectors = await this._connectors.model.find({});
 
         // process available groupings
         kpis.forEach(k => {
@@ -57,7 +61,7 @@ export class KpiService {
                 console.log('google analytics');
             }
 
-            const kpiSources: string[] = this._getKpiSources(k, kpis);
+            const kpiSources: string[] = this._getKpiSources(k, kpis, connectors);
             // find common field paths on the sources
             k.groupingInfo = this._getCommonSourcePaths(kpiSources, virtualSources);
         });
@@ -129,7 +133,7 @@ export class KpiService {
         });
     }
 
-    private _getKpiSources(kpi: IKPIDocument, kpis: IKPIDocument[]): string[] {
+    private _getKpiSources(kpi: IKPIDocument, kpis: IKPIDocument[], connectors: IConnectorDocument[]): string[] {
         if (kpi.baseKpi) {
             // return fields for base kpi Revenue or Expenses
             switch (kpi.baseKpi) {
@@ -149,7 +153,27 @@ export class KpiService {
             }
         }
 
-        if (kpi.type === KPITypeEnum.Simple) {
+        if (kpi.type === KPITypeEnum.ExternalSource) {
+            const expression = KPIExpressionHelper.DecomposeExpression(kpi.type, kpi.expression);
+            const sourceTokens = expression.dataSource.split('$');
+
+            if (sourceTokens.length < 2) {
+                console.warn(`External id: ${expression.dataSource} it is not well formed`);
+                return [];
+            }
+
+            const connectorId = sourceTokens[1];
+            const externalSource = connectors.find(c => c.id === connectorId);
+
+            if (!externalSource) {
+                console.error(`External source ${connectorId} not found`);
+                return [];
+            }
+
+            return [externalSource.virtualSource];
+        }
+
+        if (kpi.type === KPITypeEnum.Simple || kpi.type === KPITypeEnum.ExternalSource) {
             const expression = KPIExpressionHelper.DecomposeExpression(kpi.type, kpi.expression);
             return [expression.dataSource];
         }
@@ -159,9 +183,7 @@ export class KpiService {
             return this._getComplexKpiExpressionSources(kpi.expression, kpis);
         }
 
-        if (kpi.type === KPITypeEnum.ExternalSource) {
-            return [kpi.name.toLocaleLowerCase()];
-        }
+       
 
         return [];
     }

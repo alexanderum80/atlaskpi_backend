@@ -24,15 +24,15 @@ export class ExternalDataSourcesService {
         const virtualSourceNames = reportingConnectors.map(c => c.virtualSource);
         const virtualSources = await this._virtualSources.model.getDataSources(virtualSourceNames);
 
-        return virtualSources.map(v => {
-            const conn = reportingConnectors.find(c => c.virtualSource.toLowerCase() === v.name.toLowerCase());
+        return reportingConnectors.map(conn => {
+            const v = virtualSources.find(vs => vs.name.toLocaleLowerCase() === conn.virtualSource.toLocaleLowerCase())
 
             return {
                 id: `${conn.type}$${conn.id}`,
                 connectorId: conn.id,
                 connectorType: conn.type,
                 name: v.name,
-                description: v.description,
+                description: `${conn.name} (${v.description})`,
                 dataSource: v.dataSource,
                 fields: v.fields
             };
