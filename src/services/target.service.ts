@@ -212,8 +212,8 @@ export class TargetService {
     async getTargetMet(input: ITargetMet) {
         const that = this;
 
-        if (input.period) {
-            return [{ value: 0}];
+        if (!input.period) {
+            return 0;
         }
 
         // get kpi from the chart with input.chart[0]
@@ -247,7 +247,7 @@ export class TargetService {
         };
 
         if (!groupings || !groupings.length || !groupings[0]) {
-            Object.assign(options, { 
+            Object.assign(options, {
                 filter: chart.filter
             });
         } else if (!isStackNameEqualToAll) {
