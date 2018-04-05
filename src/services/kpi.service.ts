@@ -1,25 +1,28 @@
-import { VirtualSources } from '../domain/app/virtual-sources/virtual-source.model';
 import { inject, injectable } from 'inversify';
-import { isObject, sortBy } from 'lodash';
+import { isObject } from 'lodash';
 import { DocumentQuery } from 'mongoose';
+import { intersectionBy } from 'lodash';
 import * as Bluebird from 'bluebird';
 
-import { GroupingMap } from '../app_modules/charts/queries/chart-grouping-map';
 import { IChartDocument } from '../domain/app/charts/chart';
 import { Charts } from '../domain/app/charts/chart.model';
 import { IExpenseModel } from '../domain/app/expenses/expense';
 import { Expenses } from '../domain/app/expenses/expense.model';
 import { IInventoryModel } from '../domain/app/inventory/inventory';
 import { Inventory } from '../domain/app/inventory/inventory.model';
-import { IDocumentExist, IKPIDocument, IKPI, KPITypeMap, KPITypeEnum } from '../domain/app/kpis/kpi';
+import { IDocumentExist, IKPI, IKPIDocument, KPITypeEnum, KPITypeMap } from '../domain/app/kpis/kpi';
+import { KPIExpressionHelper } from '../domain/app/kpis/kpi-expression.helper';
+import { KPIFilterHelper } from '../domain/app/kpis/kpi-filter.helper';
 import { KPIs } from '../domain/app/kpis/kpi.model';
 import { ISaleModel } from '../domain/app/sales/sale';
 import { Sales } from '../domain/app/sales/sale.model';
+import { IVirtualSourceDocument } from '../domain/app/virtual-sources/virtual-source';
+import { VirtualSources } from '../domain/app/virtual-sources/virtual-source.model';
 import { IWidgetDocument } from '../domain/app/widgets/widget';
 import { Widgets } from '../domain/app/widgets/widget.model';
 import { IMutationResponse } from '../framework/mutations/mutation-response';
-import { KPIFilterHelper } from '../domain/app/kpis/kpi-filter.helper';
-import { KPIExpressionHelper } from '../domain/app/kpis/kpi-expression.helper';
+import { IIdName } from '../domain/common/id-name';
+import { IValueName } from '../domain/common/value-name';
 
 const codeMapper = {
     'Revenue': 'sales',
@@ -43,6 +46,24 @@ export class KpiService {
         @inject(Widgets.name) private _widget: Widgets,
         @inject(VirtualSources.name) private _virtualSources: VirtualSources
     ) {}
+
+    async getKpis(): Promise<IKPIDocument[]> {
+        const kpis = await this._kpis.model.find({});
+        const virtualSources = await this._virtualSources.model.find({});
+
+        // process available groupings
+        kpis.forEach(k => {
+            if (k.code === 'Google Analytics') {
+                console.log('google analytics');
+            }
+
+            const kpiSources: string[] = this._getKpiSources(k, kpis);
+            // find common field paths on the sources
+            k.groupingInfo = this._getCommonSourcePaths(kpiSources, virtualSources);
+        });
+
+        return kpis;
+    }
 
     async getKpi(id: string): Promise<IKPIDocument> {
         const doc = await this._kpis.model.findOne({ _id: id });
@@ -108,52 +129,97 @@ export class KpiService {
         });
     }
 
-    GetGroupingsExistInCollectionSchema(schemaName: string): Promise<string[]> {
-        const that = this;
-        // get sales and expense mongoose models
-        const model: IGroupingsModel = {
-            sales: this._saleModel.model,
-            expenses: this._expenseModel.model,
-            inventory: this._inventoryModel.model
-        };
-        // get sales or expense mongoose models
-        const gMap: string = codeMapper[schemaName];
-        const collection = GroupingMap[gMap];
-        const modelKey: string = codeMapper[schemaName];
+    private _getKpiSources(kpi: IKPIDocument, kpis: IKPIDocument[]): string[] {
+        if (kpi.baseKpi) {
+            // return fields for base kpi Revenue or Expenses
+            switch (kpi.baseKpi) {
+                case 'Expenses':
+                    return ['expenses'];
+                case 'Revenue':
+                    return ['sales'];
+            }
+        }
 
-        let permittedFields: string[] = [];
-        const collectionQuery = [];
+        if (['Expenses', 'Revenue'].indexOf(kpi.code) !== -1) {
+            switch (kpi.code) {
+                case 'Expenses':
+                    return ['expenses'];
+                case 'Revenue':
+                    return ['sales'];
+            }
+        }
 
-        return new Promise<string[]>((resolve, reject) => {
-            // prop: i.e. 'location', 'concept', 'customerName'
-            Object.keys(collection).forEach(prop => {
-                const field = collection[prop];
+        if (kpi.type === KPITypeEnum.Simple) {
+            const expression = KPIExpressionHelper.DecomposeExpression(kpi.type, kpi.expression);
+            return [expression.dataSource];
+        }
 
-                collectionQuery.push(model[modelKey].aggregate([{
-                    $match: {
-                        [field]: { $exists: true}
+        if (kpi.type === KPITypeEnum.Complex || kpi.type === KPITypeEnum.Compound) {
+            // return sources from complex kpi
+            return this._getComplexKpiExpressionSources(kpi.expression, kpis);
+        }
+
+        if (kpi.type === KPITypeEnum.ExternalSource) {
+            return [kpi.name.toLocaleLowerCase()];
+        }
+
+        return [];
+    }
+
+    private  _getComplexKpiExpressionSources(expression: string, kpis: IKPIDocument[]): string[] {
+        const regex = new RegExp(/kpi(\w+)/g); // I need to extract kpis from the expression
+        let match: RegExpExecArray;
+        const sources: string[] = [];
+
+        while (match = regex.exec(expression)) {
+            const a = expression;
+            const kpiId = match[1];
+            const kpi = kpis.find(k => k.id === kpiId);
+
+            if (kpi) {
+                const kpiSources = this._getKpiSources(kpi, kpis);
+                kpiSources.forEach(s => {
+                    if (sources.indexOf(s) === -1) {
+                        sources.push(s);
                     }
-                }, {
-                    $project: {
-                        _id: 0,
-                        [prop]: field
-                    }
-                }, {
-                    $limit: 1
-                }]));
-            });
+                });
+            }
+        }
 
-            Promise.all(collectionQuery).then(fieldExist => {
-                // array of arrays with objects
-                if (fieldExist) {
-                    // convert to single object
-                    const formatToObject = this._getObjects(fieldExist);
-                    // get the keys from the formatToObject
-                    permittedFields = Object.keys(formatToObject);
-                    return resolve(sortBy(permittedFields));
+        return sources;
+    }
+
+    private _getCommonSourcePaths(sourceNames: string[], virtualSources: IVirtualSourceDocument[]): IValueName[] {
+        const sources = virtualSources.filter(v => sourceNames.indexOf(v.name.toLocaleLowerCase()) !== -1);
+        const fieldPaths = sources.map(s => s.getGroupingFieldPaths());
+        const commonFields = [];
+
+        if (!fieldPaths.length) {
+            return [];
+        }
+
+        if (fieldPaths.length === 1) {
+            return fieldPaths[0];
+        }
+
+        fieldPaths[0].forEach(f => {
+            let findCount = 1;
+
+            for (let i = 1; i < fieldPaths.length; i++) {
+                const pathFound = fieldPaths[i].find(field => field.value === f.value);
+
+                if (pathFound) {
+                    findCount += 1;
+                    continue;
                 }
-            });
+            }
+
+            if (findCount === fieldPaths.length) {
+                commonFields.push(f);
+            }
         });
+            
+        return commonFields;
     }
 
     private _kpiInUseByModel(id: string): Promise<IDocumentExist> {

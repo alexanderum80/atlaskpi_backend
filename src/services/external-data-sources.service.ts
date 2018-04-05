@@ -1,92 +1,41 @@
-import { pascalCase } from 'change-case';
-import * as Promise from 'bluebird';
 import { inject, injectable } from 'inversify';
 
-import { DataSourcesHelper } from '../app_modules/data-sources/queries/datasource.helper';
-import { GoogleAnalyticsSchema } from '../domain/app/google-analytics/google-analytics.model';
-import { IConnectorDocument } from '../domain/master/connectors/connector';
-import { ExternalDataSourceResponse } from './../app_modules/data-sources/data-sources.types';
+import { ExternalDataSourceResponse } from '../app_modules/data-sources/data-sources.types';
+import { VirtualSources } from '../domain/app/virtual-sources/virtual-source.model';
 import { Connectors } from './../domain/master/connectors/connector.model';
 import { CurrentAccount } from './../domain/master/current-account';
-
-export const ExternalDataSourceSchemasMapping = {
-    googleanalytics: {
-        name: 'Google Analytics',
-        schema: GoogleAnalyticsSchema,
-        modelName: '_connectors',
-        type: 'googleanalytics'
-    }
-};
-
-const BlackListedFieldNames = [
-    '_batchId',
-    '_batchTimestamp',
-    'connector.conenctorId',
-    'connector.viewId',
-    'date'
-];
 
 @injectable()
 export class ExternalDataSourcesService {
 
     constructor(
         @inject(Connectors.name) private _connectors: Connectors,
-        @inject(CurrentAccount.name) private _currentAccount: CurrentAccount
-    ) {
-    }
+        @inject(CurrentAccount.name) private _currentAccount: CurrentAccount,
+        @inject(VirtualSources.name) private _virtualSources: VirtualSources
+    ) { }
 
-    public getExternalDataSources(filter?: string): Promise<any[]> {
-        const externalDataSources = [];
-        const that = this;
-        return new Promise<any[]>((resolve, reject) => {
-            Promise .props(this._findConnectorsTasks())
-                    .then(connectors => {
-                        for (let key in connectors) {
-                            const element = ExternalDataSourceSchemasMapping[key];
-                            if (element) {
-                                const fields = DataSourcesHelper.GetFieldsFromSchemaDefinition(element.schema);
-                                const groupings = DataSourcesHelper.GetGroupingsForSchema(key);
-                                externalDataSources.push(...that._createExternalDataSource(connectors[key],
-                                                                                        fields,
-                                                                                        groupings));
-                            }
-                        }
+    async get(): Promise<ExternalDataSourceResponse[]> {
+        const reportingConnectors = 
+            await this._connectors.model.getReportingConnectors(this._currentAccount.get.database.name);
 
-                        resolve(externalDataSources);
-                        return;
-                    })
-                    .catch(err => {
-                        return reject(err);
-                    });
-        });
-    }
-
-    private _findConnectorsTasks(): any {
-        const tasks = {};
-        for (let key in ExternalDataSourceSchemasMapping) {
-            const element = ExternalDataSourceSchemasMapping[key];
-            tasks[element.type] = this[element.modelName].model.find({
-                databaseName: this._currentAccount.get.database.name,
-                type: element.type
-            });
+        if (!reportingConnectors) {
+            return [];
         }
 
-        return tasks;
-    }
+        const virtualSourceNames = reportingConnectors.map(c => c.virtualSource);
+        const virtualSources = await this._virtualSources.model.getDataSources(virtualSourceNames);
+        
+        return virtualSources.map(v => {
+            const conn = reportingConnectors.find(c => c.virtualSource.toLowerCase() === v.name.toLowerCase());
 
-    private _createExternalDataSource(connectors: IConnectorDocument[], fields: any[], groupings: string[]): any[] {
-        const res = connectors.map(c => {
             return {
-                id: `${c.type}$${c.id}`,
-                name: `${pascalCase(c.type)} - ${c.name}`,
-                connectorId: c.id,
-                connectorType: c.type,
-                fields: fields,
-                groupings: groupings
+                id: `${conn.type}$${conn.id}`,
+                connectorId: conn.id,
+                connectorType: conn.type,
+                name: v.name,
+                dataSource: v.dataSource,
+                fields: v.fields
             };
         });
-
-        return res;
     }
-
 }

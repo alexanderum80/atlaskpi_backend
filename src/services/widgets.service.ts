@@ -31,9 +31,12 @@ export class WidgetsService {
             const widgets = await this._widgets.model
                 .find()
                 .sort({ size: 1, order: 1, name: 1 });
-            return await this.materializeWidgetDocuments(widgets)
+            const materializedWidgets = await this.materializeWidgetDocuments(widgets);
+
+            return materializedWidgets;
         } catch (e) {
             console.error('There was an error getting the list of widgets', e);
+            return [];
         }
     }
 
@@ -64,7 +67,7 @@ export class WidgetsService {
             const widgetDocument = await this._widgets.model.findOne({ name: name });
             const widgetAsObject = <IWidget>widgetDocument.toObject();
             const uiWidget = await this._widgetFactory.getInstance(widgetAsObject);
-            
+
             return uiWidget.materialize();
         } catch (e) {
             console.log(`error when getting the widget(${name}):  ${e}`);

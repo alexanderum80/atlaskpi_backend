@@ -1,18 +1,22 @@
-import { IGetDataOptions, IKpiBase } from '../app_modules/kpis/queries/kpi-base';
+import * as Bluebird from 'bluebird';
 import { inject, injectable } from 'inversify';
 import * as moment from 'moment';
-import * as Bluebird from 'bluebird';
 
-import { getGroupingMetadata } from '../app_modules/charts/queries/chart-grouping-map';
+import { IGetDataOptions, IKpiBase } from '../app_modules/kpis/queries/kpi-base';
 import { KpiFactory } from '../app_modules/kpis/queries/kpi.factory';
+import { IChartDocument } from '../domain/app/charts/chart';
 import { Charts } from '../domain/app/charts/chart.model';
 import { Users } from '../domain/app/security/users/user.model';
 import { ITarget, ITargetDocument } from '../domain/app/targets/target';
 import { Targets } from '../domain/app/targets/target.model';
-import {IDateRange, parsePredifinedDate, PredefinedDateRanges, parsePredefinedTargetDateRanges} from '../domain/common/date-range';
-import {FrequencyEnum, FrequencyTable} from '../domain/common/frequency-enum';
-import {field} from '../framework/decorators/field.decorator';
-import {IChartDocument} from '../domain/app/charts/chart';
+import {
+    IDateRange,
+    parsePredefinedTargetDateRanges,
+    parsePredifinedDate,
+    PredefinedDateRanges,
+} from '../domain/common/date-range';
+import { FrequencyEnum, FrequencyTable } from '../domain/common/frequency-enum';
+import { field } from '../framework/decorators/field.decorator';
 
 export interface IMomentFrequencyTable {
     daily: string;
@@ -133,7 +137,7 @@ export class TargetService {
         const chart = await this._charts.model.findById(data.chart[0])
             .populate({ path: 'kpis' });
         const kpi: IKpiBase = await this._kpiFactory.getInstance(chart.kpis[0]);
-        const groupings: string[] = getGroupingMetadata(chart);
+        const groupings: string[] = chart.groupings || [];
         const chartDateRange: string = chart.dateRange ? chart.dateRange[0].predefined : '';
         const targetDateRange: IDateRange = this.getDate(data.period, data.datepicker, chart.frequency, chartDateRange);
         let getDataOptions: IGetDataOptions;
@@ -141,7 +145,7 @@ export class TargetService {
         if (!data.period) {
             return [{ value: 0 }];
         }
-        
+
         if (chart.isStacked()) {
             getDataOptions = {
                 filter: chart.filter,
@@ -215,7 +219,7 @@ export class TargetService {
         // get kpi from the chart with input.chart[0]
         const chart = await that._charts.model.findById(input.chart[0])
             .populate({ path: 'kpis' });
-            
+
         if (this.isTargetReachZero(chart.frequency, input.datepicker, input.notificationDate)) {
             return 0;
         }
@@ -231,8 +235,7 @@ export class TargetService {
             getDateRange.to = moment().toDate();
         }
 
-        const groupings: string[] = getGroupingMetadata(chart, chart.groupings ? chart.groupings : []);
-
+        const groupings: string[] = chart.groupings || [];
         const stackName: string = input.stackName ? input.stackName : input.nonStackName;
         const isStackNameEqualToAll: boolean = stackName.toLowerCase() === 'all';
 

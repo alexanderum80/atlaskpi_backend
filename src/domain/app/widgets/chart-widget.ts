@@ -1,6 +1,5 @@
 import { Expenses } from '../expenses/expense.model';
 
-import { getGroupingMetadata } from '../../../app_modules/charts/queries/chart-grouping-map';
 import { ChartFactory } from '../../../app_modules/charts/queries/charts/chart-factory';
 import { IChartMetadata } from '../../../app_modules/charts/queries/charts/chart-metadata';
 import { KpiFactory } from '../../../app_modules/kpis/queries/kpi.factory';
@@ -67,7 +66,7 @@ export class ChartWidget extends UIWidgetBase implements IUIWidget {
             const chartDocument = await this._charts.model
                 .findOne({ _id: this.chartWidgetAttributes.chart })
                 .populate({ path: 'kpis' });
-            
+
             if (!chartDocument) {
                 console.error('could not resolve a chart object for the kpi');
                 return null;
@@ -75,13 +74,11 @@ export class ChartWidget extends UIWidgetBase implements IUIWidget {
 
             const chartObject = <IChart>chartDocument.toObject();
             const uiChart = this._chartFactory.getInstance(chartObject);
-            // TODO: Refactor
             const kpi = await this._kpiFactory.getInstance(chartObject.kpis[0]);
-            const groupings = getGroupingMetadata(chartDocument, []);
             const chartParameters: IChartMetadata = {
                 filter: chartObject.filter,
                 frequency: FrequencyTable[chartObject.frequency],
-                groupings: groupings,
+                groupings: chartDocument.groupings,
                 comparison: chartObject.comparison,
                 xAxisSource: chartObject.xAxisSource
             };
