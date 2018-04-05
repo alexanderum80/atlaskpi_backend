@@ -31,7 +31,7 @@ export interface IConnector extends IUserAudit {
     name: string;
     databaseName: string;
     type: string;
-    virtualSource: string;
+    virtualSource?: string;
     active: boolean;
     config: IConnectorConfig | any;
     uniqueKeyValue?: IKeyValuePair;

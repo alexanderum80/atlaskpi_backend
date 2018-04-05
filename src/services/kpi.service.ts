@@ -2,6 +2,7 @@ import { inject, injectable } from 'inversify';
 import { isObject } from 'lodash';
 import { DocumentQuery } from 'mongoose';
 import { intersectionBy } from 'lodash';
+import * as Bluebird from 'bluebird';
 
 import { IChartDocument } from '../domain/app/charts/chart';
 import { Charts } from '../domain/app/charts/chart.model';
@@ -249,7 +250,7 @@ export class KpiService {
 
             let documentExists: IDocumentExist = {};
 
-            Promise.all([findCharts, findWidgets, findComplexKpi])
+            Bluebird.all([findCharts, findWidgets, findComplexKpi])
                 .spread((charts: IChartDocument[], widgets: IWidgetDocument[], complexKPI: IKPIDocument[]) => {
                     documentExists = {
                         chart: charts,

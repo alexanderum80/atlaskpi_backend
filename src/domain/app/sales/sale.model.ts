@@ -228,7 +228,8 @@ SalesSchema.statics.salesEmployeeByDateRange = function(predefinedDateRange: str
         });
     });
 };
-TODO: // I need to fix UI maps because I removed GroupMap that was being used in findBy on the sales model.
+
+// TODO: // I need to fix UI maps because I removed GroupMap that was being used in findBy on the sales model.
 // I need to change the ui so show the right group fields and also send the backend the group path ready to use
 
 SalesSchema.statics.salesBy = function(type: TypeMap, input?: IMapMarkerInput): Promise<ISaleByZip[]> {

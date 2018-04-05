@@ -4,7 +4,6 @@ import { query } from '../../../framework/decorators/query.decorator';
 import { IQuery } from '../../../framework/queries/query';
 import { GetDataSourcesActivity } from '../activities/get-data-sources.activity';
 import { DataSourceResponse } from '../data-sources.types';
-import { DataSourceSchemasMapping, DataSourcesHelper } from './datasource.helper';
 import { DataSourcesService } from '../../../services/data-sources.service';
 
 
