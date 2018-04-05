@@ -63,22 +63,20 @@ export class SearchQuery implements IQuery<ISearchResult[]> {
         return new Promise<ISearchResult[]>((resolve, reject) => {
             let result: ISearchResult[] = [];
 
-            resolve([]);
-
             // before go through the rest of the options I want to parse the query
             // in order to determine if the AdaptEngine can extract any intent from it
-            // this._adaptEngine.parse(data.query).then(intents => {
-            //     let promise: Promise<ISearchResult[]>;
+            this._adaptEngine.parse(data.query).then(intents => {
+                let promise: Promise<ISearchResult[]>;
 
-            //     if (intents && intents.length > 0) {
-            //         promise = that._processIntents(intents);
-            //     } else {
-            //         // TODO: Pending
-            //         // promise = that._processModelsSearch(data.sections, data.query);
-            //     }
+                if (intents && intents.length > 0) {
+                    promise = that._processIntents(intents);
+                } else {
+                    // TODO: Pending
+                    // promise = that._processModelsSearch(data.sections, data.query);
+                }
 
-            //     promise.then(result => { resolve(result); }).catch(e => reject(e));
-            // }).catch(e => reject(e));
+                promise.then(result => { resolve(result); }).catch(e => reject(e));
+            }).catch(e => reject(e));
 
         });
     }
