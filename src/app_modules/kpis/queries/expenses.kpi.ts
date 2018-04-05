@@ -1,5 +1,3 @@
-import * as Promise from 'bluebird';
-
 import { IExpenseModel } from '../../../domain/app/expenses/expense';
 import { IDateRange } from '../../../domain/common/date-range';
 import { FrequencyEnum } from '../../../domain/common/frequency-enum';

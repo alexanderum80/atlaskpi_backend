@@ -11,6 +11,7 @@ import { LineChart } from './line.chart';
 import { PieChart } from './pie.chart';
 import { SPLineChart } from './spline.chart';
 import { IUIChart } from './ui-chart-base';
+import { IVirtualSourceDocument } from '../../../../domain/app/virtual-sources/virtual-source';
 
 @injectable()
 export class ChartFactory {

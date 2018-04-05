@@ -1,91 +1,34 @@
 import * as Promise from 'bluebird';
 import * as changeCase from 'change-case';
 import * as Handlebars from 'handlebars';
-import {
-    inject,
-    injectable
-} from 'inversify';
+import { inject, injectable } from 'inversify';
 import * as validate from 'validate.js';
 
-import {
-    IAppConfig
-} from '../configuration/config-models';
-import {
-    AppConnection
-} from '../domain/app/app.connection';
-import {
-    Logger
-} from '../domain/app/logger';
-import {
-    Permissions
-} from '../domain/app/security/permissions/permission.model';
-import {
-    initRoles
-} from '../domain/app/security/roles/init-roles';
-import {
-    initialRoles
-} from '../domain/app/security/roles/initial-roles';
-import {
-    Roles
-} from '../domain/app/security/roles/role.model';
-import {
-    IUserDocument
-} from '../domain/app/security/users/user';
-import {
-    IUserToken
-} from '../domain/app/security/users/user-token';
-import {
-    Users
-} from '../domain/app/security/users/user.model';
-import {
-    ICreateUserDetails
-} from '../domain/common/create-user';
-import {
-    IAccount,
-    IAccountDocument,
-    IDatabaseInfo
-} from '../domain/master/accounts/Account';
-import {
-    Accounts
-} from '../domain/master/accounts/account.model';
-import {
-    ILeadDocument
-} from '../domain/master/leads/lead';
-import {
-    Leads
-} from '../domain/master/leads/lead.model';
-import {
-    field
-} from '../framework/decorators/field.decorator';
-import {
-    input
-} from '../framework/decorators/input.decorator';
-import {
-    IMutationResponse,
-    MutationResponse
-} from '../framework/mutations/mutation-response';
-import {
-    generateUniqueHash
-} from '../helpers/security.helpers';
-import {
-    AppConnectionPool
-} from '../middlewares/app-connection-pool';
-import {
-    IExtendedRequest
-} from '../middlewares/extended-request';
-import {
-    AuthService,
-    IUserAuthenticationData
-} from './auth.service';
-import {
-    EnrollmentNotification
-} from './notifications/users/enrollment.notification';
-import {
-    LeadReceivedNotification
-} from './notifications/users/lead-received.notification';
-import {
-    SeedService
-} from './seed/seed.service';
+import { IAppConfig } from '../configuration/config-models';
+import { AppConnection } from '../domain/app/app.connection';
+import { Logger } from '../domain/app/logger';
+import { Permissions } from '../domain/app/security/permissions/permission.model';
+import { initRoles } from '../domain/app/security/roles/init-roles';
+import { initialRoles } from '../domain/app/security/roles/initial-roles';
+import { Roles } from '../domain/app/security/roles/role.model';
+import { IUserDocument } from '../domain/app/security/users/user';
+import { IUserToken } from '../domain/app/security/users/user-token';
+import { Users } from '../domain/app/security/users/user.model';
+import { ICreateUserDetails } from '../domain/common/create-user';
+import { IAccount, IAccountDocument, IDatabaseInfo } from '../domain/master/accounts/Account';
+import { Accounts } from '../domain/master/accounts/account.model';
+import { ILeadDocument } from '../domain/master/leads/lead';
+import { Leads } from '../domain/master/leads/lead.model';
+import { field } from '../framework/decorators/field.decorator';
+import { input } from '../framework/decorators/input.decorator';
+import { IMutationResponse, MutationResponse } from '../framework/mutations/mutation-response';
+import { generateUniqueHash } from '../helpers/security.helpers';
+import { AppConnectionPool } from '../middlewares/app-connection-pool';
+import { IExtendedRequest } from '../middlewares/extended-request';
+import { AuthService, IUserAuthenticationData } from './auth.service';
+import { EnrollmentNotification } from './notifications/users/enrollment.notification';
+import { LeadReceivedNotification } from './notifications/users/lead-received.notification';
+import { SeedService } from './seed/seed.service';
 
 export interface ICreateAccountInfo {
     ip: string;
@@ -428,7 +371,7 @@ function generateFirstAccountToken(authService: AuthService, authData: IUserAuth
                 ip: authData.ip,
                 clientId: authData.clientId,
                 clientDetails: authData.clientDetails
-            }).then((tokenInfo) => {
+            }, true).then((tokenInfo) => {
                 resolve({
                     subdomain: authData.hostname,
                     tokenInfo: tokenInfo

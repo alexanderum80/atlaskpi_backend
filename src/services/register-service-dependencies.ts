@@ -20,11 +20,17 @@ import { SocialWidgetsService } from './social-widgets.service';
 import { TargetService } from './target.service';
 import { WidgetsService } from './widgets.service';
 import { LeadReceivedNotification } from './notifications/users/lead-received.notification';
+import { BaseAttachmentsService } from './attachments/base-attachments.service';
+import { UserAttachmentsService } from './attachments/user-attachments.service';
+import { DataSourcesService } from './data-sources.service';
 
 export function registerServices(container: IBridgeContainer) {
     container.registerSingleton(AccountsService);
     container.registerSingleton(AuthService);
     container.registerSingleton(PnsService);
+    // container.registerSingleton(BaseAttachmentsService);
+    container.registerSingleton(UserAttachmentsService);
+    container.registerSingleton(DataSourcesService);
 
     // notifications
     container.registerSingleton(TargetNotification);

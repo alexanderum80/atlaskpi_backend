@@ -1,5 +1,4 @@
 import { from } from 'apollo-link/lib';
-import * as Promise from 'bluebird';
 import * as jsep from 'jsep';
 import { clone, isArray, remove } from 'lodash';
 import * as math from 'mathjs';
@@ -8,7 +7,6 @@ import { IKPIDocument } from '../../../domain/app/kpis/kpi';
 import { KPIs } from '../../../domain/app/kpis/kpi.model';
 import { IChartDateRange, IDateRange, parsePredifinedDate } from '../../../domain/common/date-range';
 import { FrequencyTable } from '../../../domain/common/frequency-enum';
-import { getGroupingMetadata } from '../../charts/queries/chart-grouping-map';
 import { IGetDataOptions, IKpiBase } from './kpi-base';
 import { KpiFactory } from './kpi.factory';
 
@@ -81,43 +79,41 @@ export class CompositeKpi implements IKpiBase {
         });
     }
 
-    private _getKpiData(id: string): Promise<any> {
-        const that = this;
-        return new Promise<any>((resolve, reject) => {
-            this._kpis.model.findOne({ _id: id }).then(kpiDocument => {
-                const kpi = that._kpiFactory.getInstance(kpiDocument);
-                let getDateRange: IDateRange;
+    private async _getKpiData(id: string): Promise<any> {
+        try {
+            const kpiDocument = await this._kpis.model.findOne({ _id: id });
+            const kpi = await this._kpiFactory.getInstance(kpiDocument);
+            let getDateRange: IDateRange;
 
-                if (that._dateRange && that._dateRange.length > 0) {
-                    getDateRange = that._dateRange[0];
-                } else {
-                    getDateRange = this._processChartDateRange(kpiDocument.dateRange);
-                }
+            if (this._dateRange && this._dateRange.length > 0) {
+                getDateRange = this._dateRange[0];
+            } else {
+                getDateRange = this._processChartDateRange(kpiDocument.dateRange);
+            }
 
-                if (!getDateRange) {
-                    console.error('Compound kpi without a date range cannot be proccessed');
-                    return;
-                }
+            if (!getDateRange) {
+                console.error('Compound kpi without a date range cannot be proccessed');
+                return;
+            }
 
-                const dateRange = Array.isArray(getDateRange) ? getDateRange : [getDateRange];
+            const dateRange = Array.isArray(getDateRange) ? getDateRange : [getDateRange];
 
-                let options: IGetDataOptions;
+            let options: IGetDataOptions;
 
-                if (this._getDataOptions) {
-                    options = this._getDataOptions;
-                } else {
-                    options = {
-                        filter: kpiDocument.filter,
-                        frequency: FrequencyTable[kpiDocument.frequency],
-                        groupings: getGroupingMetadata(null, kpiDocument.groupings)
-                    };
-                }
+            if (this._getDataOptions) {
+                options = this._getDataOptions;
+            } else {
+                options = {
+                    filter: kpiDocument.filter,
+                    frequency: FrequencyTable[kpiDocument.frequency],
+                    groupings: null
+                };
+            }
 
-                kpi.getData(dateRange, options)
-                    .then(res => resolve(res))
-                    .catch(e => reject(e));
-            });
-        });
+            return await kpi.getData(dateRange, options);
+        } catch (e) {
+            console.error('Error getting kpi data', e);
+        }
     }
 
     private _getCallExpressionData(exp) {
@@ -155,12 +151,25 @@ export class CompositeKpi implements IKpiBase {
         const that = this;
         let result = [];
 
-        if (!leftList || !leftList.length) {
+        // check if leftList/rightList is null or undefined
+        if (!leftList || !rightList) {
+            return;
+        }
+
+        // check if leftList and rightList has empty array
+        if (!leftList.length && !rightList.length) {
             return;
         }
 
         // get the keys for the first element
-        const keysToTest = Object.keys(leftList[0]._id);
+        const keysToTest: any[] = leftList.length ?
+            Object.keys(leftList[0]._id) :
+            (
+                rightList.length ?
+                Object.keys(rightList[0]._id) :
+                []
+            );
+
         // start on the left collection
         (<Array<any>>leftList).forEach(l => {
             const rightSide = that._popWithSameGroupings(rightList, l, keysToTest);

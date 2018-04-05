@@ -1,12 +1,14 @@
 import * as Promise from 'bluebird';
 import { inject, injectable } from 'inversify';
 
+import { ILocationInput } from '../../../domain/app/location/location';
 import { Locations } from '../../../domain/app/location/location.model';
+import { field } from '../../../framework/decorators/field.decorator';
 import { mutation } from '../../../framework/decorators/mutation.decorator';
 import { MutationBase } from '../../../framework/mutations/mutation-base';
 import { IMutationResponse } from '../../../framework/mutations/mutation-response';
 import { CreateLocationActivity } from '../activities/create-location.activity';
-import { CreateLocationResponse, ILocationInput } from '../locations.types';
+import { CreateLocationResponse, LocationInput } from '../locations.types';
 
 
 @injectable()
@@ -14,7 +16,7 @@ import { CreateLocationResponse, ILocationInput } from '../locations.types';
     name: 'createLocation',
     activity: CreateLocationActivity,
     parameters: [
-        { name: 'input', type: ILocationInput },
+        { name: 'input', type: LocationInput },
     ],
     output: { type: CreateLocationResponse }
 })
@@ -23,7 +25,7 @@ export class CreateLocationMutation extends MutationBase<IMutationResponse> {
         super();
     }
 
-    run(data: { input: ILocationInput,  }): Promise<IMutationResponse> {
+    run(data: { input: ILocationInput }): Promise<IMutationResponse> {
         const that = this;
 
         return new Promise<IMutationResponse>((resolve, reject) => {

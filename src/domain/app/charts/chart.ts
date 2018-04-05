@@ -1,3 +1,4 @@
+import { IObject } from '../../../app_modules/shared/criteria.plugin';
 import * as Promise from 'bluebird';
 import * as mongoose from 'mongoose';
 
@@ -25,6 +26,8 @@ export interface IChart {
     comparison?: string[];
     dashboards?: IDashboardDocument[];
     targetList?: any[];
+    targetExtraPeriodOptions?: IObject;
+    canAddTarget?: boolean;
     futureTarget?: boolean;
     availableComparison?: string[];
 }
@@ -61,6 +64,7 @@ export interface IGetChartInput {
 }
 
 export interface IChartDocument extends IChart, mongoose.Document {
+    isStacked(): boolean;
 }
 
 export interface IChartModel extends mongoose.Model<IChartDocument> {

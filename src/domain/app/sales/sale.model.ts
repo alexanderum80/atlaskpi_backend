@@ -1,4 +1,3 @@
-import { GroupingMap } from '../../../app_modules/charts/queries/chart-grouping-map';
 import { criteriaPlugin } from '../../../app_modules/shared/criteria.plugin';
 import * as Promise from 'bluebird';
 import { inject, injectable } from 'inversify';
@@ -231,6 +230,9 @@ SalesSchema.statics.salesEmployeeByDateRange = function(predefinedDateRange: str
     });
 };
 
+// TODO: // I need to fix UI maps because I removed GroupMap that was being used in findBy on the sales model.
+// I need to change the ui so show the right group fields and also send the backend the group path ready to use
+
 SalesSchema.statics.salesBy = function(type: TypeMap, input?: IMapMarkerInput): Promise<ISaleByZip[]> {
     const SalesModel = (<ISaleModel>this);
     let aggregate = [];
@@ -239,24 +241,11 @@ SalesSchema.statics.salesBy = function(type: TypeMap, input?: IMapMarkerInput): 
         switch (type) {
             case TypeMap.customerAndZip:
                 aggregate.push(
-                    { $match: {
-                        'product.amount': {
-                            $gte: 0
-                        }
-                    } },
-                    { $project: {
-                        product: 1,
-                        _id: 0,
-                        customer: 1
-                    }},
-                    {
-                        $group: {
-                            _id: {
-                                customerZip: '$customer.zip'
-                            },
-                            sales: {
-                                $sum: '$product.amount'
-                            }
+                    { $match: { 'product.amount': { $gte: 0 } } },
+                    { $project: { product: 1, _id: 0, customer: 1 } },
+                    { $group: {
+                        _id: { customerZip: '$customer.zip' },
+                        sales: { $sum: '$product.amount' }
                         }
                     }
                 );
@@ -279,22 +268,20 @@ SalesSchema.statics.salesBy = function(type: TypeMap, input?: IMapMarkerInput): 
                     if (input.grouping) {
                         let aggregateGrouping = aggregate.find(agg => agg.$group !== undefined);
                         // get the field name for the sales document
-                        const salesGroupByField = GroupingMap.sales[input.grouping];
 
-                        if (aggregateGrouping && salesGroupByField) {
+                        if (aggregateGrouping) {
                             // assign empty object if $group._id is undefined
                             if (!aggregateGrouping.$group._id) {
                                 aggregateGrouping.$group._id = {};
                             }
                             // i.e. $location.name, $product.itemDescription
-                            aggregateGrouping.$group._id['grouping'] = '$' + salesGroupByField;
+                            aggregateGrouping.$group._id['grouping'] = '$' + input.grouping;
                         }
 
                         // project the group field
                         let aggregateProject = aggregate.find(agg => agg.$project !== undefined);
                         if (aggregateProject) {
-                            let projectFieldByGroup = salesGroupByField.replace('$', '');
-                            projectFieldByGroup = projectFieldByGroup.split('.')[0];
+                            let projectFieldByGroup = input.grouping.split('.')[0];
 
                             aggregateProject.$project[projectFieldByGroup] = 1;
                         }

@@ -65,7 +65,7 @@ export class QueryBus implements IQueryBus {
                 that.authorizedValue = authorized;
                 if (authorized) {
                     console.log('trying to run query: ' + query.constructor.name);
-                    return query.run(data)
+                    return (query as any).run(data)
                         .then(data => data)
                         .catch(err => {
                             logger.error(query.constructor.name, err);

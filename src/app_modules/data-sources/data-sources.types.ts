@@ -6,10 +6,16 @@ import { type } from '../../framework/decorators/type.decorator';
 @type()
 export class DataSourceField  {
     @field({ type: GraphQLTypesMap.String })
+    name?: string;
+
+    @field({ type: GraphQLTypesMap.String })
     path: string;
 
     @field({ type: GraphQLTypesMap.String })
     type: string;
+
+    @field({ type: GraphQLTypesMap.Boolean })
+    allowGrouping: boolean;
 
 }
 
@@ -19,12 +25,14 @@ export class DataSourceResponse  {
     @field({ type: GraphQLTypesMap.String })
     name: string;
 
+    @field({ type: GraphQLTypesMap.String })
+    description: string;
+
+    @field({ type: GraphQLTypesMap.String })
+    dataSource: string;
+
     @field({ type: DataSourceField, isArray: true })
     fields: DataSourceField[];
-
-    @field({ type: GraphQLTypesMap.String, isArray: true })
-    groupings: string[];
-
 }
 
 @type()

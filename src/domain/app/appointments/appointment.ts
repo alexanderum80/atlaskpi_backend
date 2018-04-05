@@ -23,6 +23,22 @@ export interface IAppointmentCustomer extends IEntity {
     fullname: string;
 }
 
+export interface IAppointmentProvider extends IEntity {
+    providerType: String;
+}
+
+export interface IAppointmentLocation extends IEntity {
+    address1?: string;
+    address2?: string;
+    city?: string;
+    state?: string;
+    zip?: string;
+}
+
+export interface IAppointmentProcedure extends IEntity {
+    converted: boolean;
+}
+
 export interface IAppointment extends BaseModel {
     // Appointment
     reason: string;
@@ -42,8 +58,13 @@ export interface IAppointment extends BaseModel {
     createdOn: Date;
     noShowOn: Date;
     customer: IAppointmentCustomer;
-    provider: IEntity[];
-    location: IEntity;
+    provider: IAppointmentProvider[];
+    location: IAppointmentLocation;
+    procedure: IAppointmentProcedure[];
+    referral: IEntity;
+    date: Date;
+    converted: Boolean;
+    appointmentType: string;
 
     event: IAppointmentEvent;
 

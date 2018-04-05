@@ -6,10 +6,11 @@ import { Calls } from '../../../domain/app/calls/call.model';
 import { KPICriteriaResult, KPIFilterCriteria } from '../kpis.types';
 import { GetKpiCriteriaActivity } from '../activities/get-kpi-criteria.activity';
 import { inject, injectable } from 'inversify';
-import * as Promise from 'bluebird';
+// import * as Promise from 'bluebird';
 import { flatten } from 'lodash';
 import { query } from '../../../framework/decorators/query.decorator';
 import { IQuery } from '../../../framework/queries/query';
+import { DataSourcesService } from '../../../services/data-sources.service';
 
 export interface IKPIMapper {
  sales: Sales;
@@ -31,47 +32,23 @@ export interface IKPIMapper {
 })
 export class GetKpisCriteriaQuery implements IQuery<KPICriteriaResult> {
     constructor(
-        @inject(Sales.name) private _sales: Sales,
-        @inject(Expenses.name) private _expenses: Expenses,
-        @inject(Inventory.name) private _inventory: Inventory,
-        @inject(Calls.name) private _calls: Calls,
-        @inject(Appointments.name) private _appointments: Appointments
+        @inject(DataSourcesService.name) private _dataSourcesSvc: DataSourcesService
     ) {}
 
-    run(data: { input: KPIFilterCriteria }): Promise<KPICriteriaResult> {
-        const that: GetKpisCriteriaQuery = this;
-        const input: KPIFilterCriteria = data.input;
+    async run(data: { input: KPIFilterCriteria }): Promise<KPICriteriaResult> {
+        const input = data.input;
 
-        const kpiMapper: IKPIMapper = {
-            'sales': this._sales,
-            'expenses': this._expenses,
-            'inventory': this._inventory,
-            'calls': this._calls,
-            'appointments': this._appointments
-        };
+        try {
+            const criteria = await this._dataSourcesSvc.getDistinctValues(input.source, input.field, input.limit, input.filter);
+            return {
+                criteriaValue: criteria
+            };
+        } catch (e) {
+            return {
+                criteriaValue: null,
+                errors: [{ field: '', errors: ['An error ocurred while retrieving criterias'] }]
+            };
+        }
 
-        return new Promise<KPICriteriaResult>((resolve, reject) => {
-            if (!input.kpi || !input.field) {
-                reject({ message: 'Did not provide the fields', error: 'Did not provide the fields' });
-                return;
-            }
-
-            // sales, expenses, inventory model
-            const kpi: any = kpiMapper[input.kpi.toLocaleLowerCase()].model;
-
-            if (kpi) {
-                kpi.findCriteria(input.field, input.limit, input.filter).then((response: string[]) => {
-                    resolve({
-                        criteriaValue: response
-                    });
-                    return;
-                }).catch(err => {
-                    reject({ message: 'unable to get data', errors: err});
-                });
-            } else {
-                reject({ message: 'no kpi provided', errors: 'no kpi provided' });
-                return;
-            }
-        });
     }
 }
