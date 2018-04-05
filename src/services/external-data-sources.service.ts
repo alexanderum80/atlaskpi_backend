@@ -33,6 +33,7 @@ export class ExternalDataSourcesService {
                 connectorId: conn.id,
                 connectorType: conn.type,
                 name: v.name,
+                description: v.description,
                 dataSource: v.dataSource,
                 fields: v.fields
             };
