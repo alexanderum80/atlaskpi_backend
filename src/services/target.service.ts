@@ -212,7 +212,7 @@ export class TargetService {
     async getTargetMet(input: ITargetMet) {
         const that = this;
 
-        if (input.period) {
+        if (!input.period) {
             return 0;
         }
 
