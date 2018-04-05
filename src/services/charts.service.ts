@@ -1,19 +1,19 @@
-import { IObject } from '../app_modules/shared/criteria.plugin';
-import {IChartTop, EnumChartTop, chartTopValue} from '../domain/common/top-n-record';
-import { inject, injectable } from 'inversify';
-import { difference, isString, pick, isNumber } from 'lodash';
 import { camelCase } from 'change-case';
+import { inject, injectable } from 'inversify';
+import { difference, isNumber, isString, pick } from 'lodash';
 import * as moment from 'moment';
 
-import { getGroupingMetadata } from '../app_modules/charts/queries/chart-grouping-map';
 import { IChartMetadata } from '../app_modules/charts/queries/charts/chart-metadata';
 import {
     attachToDashboards,
     detachFromAllDashboards,
     detachFromDashboards,
 } from '../app_modules/dashboards/mutations/common';
+import { IObject } from '../app_modules/shared/criteria.plugin';
 import { CurrentUser } from '../domain/app/current-user';
 import { Logger } from '../domain/app/logger';
+import { VirtualSources } from '../domain/app/virtual-sources/virtual-source.model';
+import { chartTopValue, IChartTop } from '../domain/common/top-n-record';
 import { ChartAttributesInput } from './../app_modules/charts/charts.types';
 import { ChartFactory } from './../app_modules/charts/queries/charts/chart-factory';
 import { IUIChart, NULL_CATEGORY_REPLACEMENT } from './../app_modules/charts/queries/charts/ui-chart-base';
@@ -26,10 +26,9 @@ import { IDashboardDocument } from './../domain/app/dashboards/dashboard';
 import { Dashboards } from './../domain/app/dashboards/dashboard.model';
 import { KPIs } from './../domain/app/kpis/kpi.model';
 import { Targets } from './../domain/app/targets/target.model';
-import {IChartDateRange, IDateRange, parsePredifinedDate, PredefinedTargetPeriod} from './../domain/common/date-range';
-import {FrequencyEnum, FrequencyTable} from './../domain/common/frequency-enum';
+import { IChartDateRange, IDateRange, parsePredifinedDate, PredefinedTargetPeriod } from './../domain/common/date-range';
+import { FrequencyEnum, FrequencyTable } from './../domain/common/frequency-enum';
 import { TargetService } from './target.service';
-import { VirtualSources } from '../domain/app/virtual-sources/virtual-source.model';
 
 export interface IRenderChartOptions {
     chartId?: string;
@@ -79,17 +78,18 @@ export class ChartsService {
     async renderDefinition(chart: IChart, options?: IRenderChartOptions): Promise<any> {
         try {
             if (!chart) {
-                return Promise.reject('missing parameter');
+                throw new Error('missing parameter');
             }
-    
+
             const virtualSources = await this._virtualSources.model.find({});
             const uiChart = this._chartFactory.getInstance(chart);
+            const groupings = this._prepareGroupings(chart, options);
             const kpi = await this._kpiFactory.getInstance(chart.kpis[0]);
-    
+
             const meta: IChartMetadata = {
                 filter: options && options.filter || chart.filter,
                 frequency: FrequencyTable[options && options.frequency || chart.frequency],
-                groupings: getGroupingMetadata(chart, options && options.groupings || chart.groupings || []),
+                groupings: groupings,
                 comparison: options && options.comparison || chart.comparison,
                 xAxisSource: options && options.xAxisSource || chart.xAxisSource,
                 dateRange: (options && !options.isFutureTarget && options.dateRange) || chart.dateRange || null,
@@ -97,17 +97,17 @@ export class ChartsService {
                 isDrillDown: options && options.isDrillDown || false,
                 isFutureTarget: options && options.isFutureTarget || false,
             };
-    
+
             chart.targetExtraPeriodOptions = this._getTargetExtraPeriodOptions(meta.frequency);
             chart.canAddTarget = this._canAddTarget(meta.dateRange);
-    
+
             // lets fill the comparison options for this chart if only if its not a comparison chart already
             const isComparisonChart = !chart.comparison || !chart.comparison.length;
             if (isComparisonChart) {
                 chart.availableComparison = DateRangeHelper.getComparisonItemsForDateRangeIdentifier(chart.dateRange[0].predefined || 'custom')
                                                             .map(item => item.key);
             }
-    
+
             // get top n if have necessary data
             if (meta.groupings &&
                 meta.groupings.length &&
@@ -228,63 +228,48 @@ export class ChartsService {
         });
     }
 
-    public previewChart(input: ChartAttributesInput): Promise<IChart> {
-        const that = this;
-        return new Promise<IChart>((resolve, reject) => {
-            that._kpis.model.findOne({ _id: input.kpis[0]})
-                .then(kpi => {
-                    const chart = <any>{ ... input };
-                    chart.chartDefinition = JSON.parse(input.chartDefinition);
-                    chart.kpis[0] = kpi;
-                    that.renderDefinition(chart)
-                        .then(definition => {
-                            chart.chartDefinition = definition;
-                            resolve(chart);
-                            return;
-                        })
-                        .catch(err => reject(err));
-                })
-                .catch(err => reject(err));
-        });
+    public async previewChart(input: ChartAttributesInput): Promise<IChart> {
+        try {
+            const kpi = await this._kpis.model.findOne({ _id: input.kpis[0]});
+            const chart = <any>{ ... input };
+
+            chart.chartDefinition = JSON.parse(input.chartDefinition);
+            chart.kpis[0] = kpi;
+            const definition = await this.renderDefinition(chart);
+            chart.chartDefinition = definition;
+
+            return chart;
+        } catch (e) {
+            this._logger.error('There was an error previewing a chart', e);
+            return null;
+        }
     }
 
-    public createChart(input: IChartInput): Promise<IChart> {
-        const that = this;
-        return new Promise<IChart>((resolve, reject) => {
-            that._kpis.model.find({ _id: { $in: input.kpis }})
-            .then((kpis) => {
-                if (!kpis || kpis.length !== input.kpis.length) {
-                    that._logger.error('one or more kpi not found');
-                    reject({ field: 'dashboards', errors: ['one or more kpis not found']});
-                    return;
-                }
+    public async createChart(input: IChartInput): Promise<IChart> {
+        try {
+            const kpis = await this._kpis.model.find({ _id: { $in: input.kpis }});
 
-                // resolve dashboards to include the chart
-                that._dashboards.model.find( {_id: { $in: input.dashboards }})
-                .then((dashboards) => {
-                    const inputDashboards = input.dashboards || [];
-                    if (!dashboards || dashboards.length !== inputDashboards.length) {
-                        that._logger.error('one or more dashboard not found');
-                        reject({ field: 'dashboards', errors: ['one or more dashboards not found'] });
-                        return;
-                    }
+            if (!kpis || kpis.length !== input.kpis.length) {
+                this._logger.error('one or more kpi not found');
+                throw new Error('one or more kpis not found');
+            }
+            // resolve dashboards to include the chart
+            const dashboards = await this._dashboards.model.find( {_id: { $in: input.dashboards }});
+            const inputDashboards = input.dashboards || [];
 
-                    // create the chart
-                    that._charts.model.createChart(input)
-                    .then((chart) => {
-                        attachToDashboards(that._dashboards.model, input.dashboards, chart._id)
-                        .then(() => {
-                            resolve(chart);
-                            return;
-                        })
-                        .catch(err => reject(err));
-                    })
-                    .catch(err => reject(err));
-                })
-                .catch(err => reject(err));
-            })
-            .catch(err => reject(err));
-        });
+            if (!dashboards || dashboards.length !== inputDashboards.length) {
+                this._logger.error('one or more dashboard not found');
+                throw new Error('one or more dashboards not found');
+            }
+            // create the chart
+            const chart = await this._charts.model.createChart(input);
+            await attachToDashboards(this._dashboards.model, input.dashboards, chart._id);
+
+            return chart;
+        } catch (e) {
+            this._logger.error('There was an error creating a chart', e);
+            return null;
+        }
     }
 
     public deleteChart(id: string): Promise<IChart> {
@@ -355,6 +340,29 @@ export class ChartsService {
                 })
                 .catch(err => reject({ field: 'kpi', errors: ['could get the kpi list']}));
         });
+    }
+
+    private _prepareGroupings(chart: IChart, options: IRenderChartOptions): string[] {
+        const groupings = [];
+        const extraGroupings = options && options.groupings ? options.groupings : [];
+
+        if (chart && chart.groupings && chart.groupings.length) {
+            chart.groupings.forEach(g => {
+                if (g) {
+                    groupings.push(g);
+                }
+            });
+        }
+
+        if (extraGroupings && extraGroupings.length) {
+            extraGroupings.forEach(g => {
+                if (g) {
+                    groupings.push(g);
+                }
+            });
+        }
+
+        return groupings;
     }
 
     private _resolveDashboards(chart): Promise<IDashboardDocument[]> {

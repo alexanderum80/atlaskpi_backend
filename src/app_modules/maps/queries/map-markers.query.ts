@@ -1,17 +1,17 @@
-import { IZipToMapDocument } from '../../../domain/master/zip-to-map/zip-to-map';
-import { GroupingMap } from '../../charts/queries/chart-grouping-map';
 import * as Promise from 'bluebird';
 import { inject, injectable } from 'inversify';
-import { GetMapDetailsActivity } from '../activities/get-map-details.activity';
+import { chain, Dictionary, isEmpty, keyBy } from 'lodash';
+
+import { ISaleByZip, TypeMap } from '../../../domain/app/sales/sale';
+import { Sales } from '../../../domain/app/sales/sale.model';
+import { IZipToMapDocument } from '../../../domain/master/zip-to-map/zip-to-map';
+import { ZipsToMap } from '../../../domain/master/zip-to-map/zip-to-map.model';
 import { GraphQLTypesMap } from '../../../framework/decorators/graphql-types-map';
 import { query } from '../../../framework/decorators/query.decorator';
 import { IQuery } from '../../../framework/queries/query';
-import { Sales } from '../../../domain/app/sales/sale.model';
-import { ZipsToMap } from '../../../domain/master/zip-to-map/zip-to-map.model';
-import { ISaleByZip, TypeMap } from '../../../domain/app/sales/sale';
-import { keyBy, find, startCase, toLower, groupBy, map, chain, reduce, isEmpty, Dictionary } from 'lodash';
-import {MapMarker, MapMarkerGroupingInput, MapMarkerItemList} from '../map.types';
-import {NULL_CATEGORY_REPLACEMENT} from '../../charts/queries/charts/ui-chart-base';
+import { NULL_CATEGORY_REPLACEMENT } from '../../charts/queries/charts/ui-chart-base';
+import { GetMapDetailsActivity } from '../activities/get-map-details.activity';
+import { MapMarker, MapMarkerGroupingInput, MapMarkerItemList } from '../map.types';
 
 export interface IMapMarker {
     name: string;

@@ -1,4 +1,3 @@
-import * as Promise from 'bluebird';
 import { inject, injectable } from 'inversify';
 
 import { IChartInput } from '../../../domain/app/charts/chart';
@@ -28,22 +27,14 @@ export class CreateChartMutation extends MutationBase<IMutationResponse> {
         super();
     }
 
-    run(data: { input: IChartInput }): Promise<IMutationResponse> {
-        const that = this;
-
-        return new Promise<IMutationResponse>((resolve, reject) => {
-            that._chartsService
-                .createChart(data.input)
-                .then(chart => {
-                    resolve({ success: true, entity: chart});
-                    return;
-                })
-                .catch(err => {
-                    that._logger.error(err);
-                    resolve({ success: false, errors: [ err ]});
-                    return;
-                });
-        });
+    async run(data: { input: IChartInput }): Promise<IMutationResponse> {
+        try {
+            const chart = await this._chartsService.createChart(data.input);
+            return { success: true, entity: chart};
+        } catch (e) {
+            this._logger.error(e);
+            return { success: false, errors: [ e ] };
+        }
     }
 }
 

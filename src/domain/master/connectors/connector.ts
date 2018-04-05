@@ -31,6 +31,7 @@ export interface IConnector extends IUserAudit {
     name: string;
     databaseName: string;
     type: string;
+    virtualSource: string;
     active: boolean;
     config: IConnectorConfig | any;
     uniqueKeyValue?: IKeyValuePair;
@@ -43,4 +44,5 @@ export interface IConnectorModel extends mongoose.Model<IConnectorDocument> {
     addConnector(data: any): Promise<IConnectorDocument>;
     updateConnector(data: any, access_token: string): Promise<IConnectorDocument>;
     removeConnector(id: string): Promise<IConnectorDocument>;
+    getReportingConnectors(databaseName: string): Promise<IConnectorDocument[]>;
 }
