@@ -172,6 +172,29 @@ AlertSchema.statics.removeAlertByModelId = function(id: string): Promise<IAlertD
     });
 };
 
+AlertSchema.statics.removeDeleteUser = function(id: string): Promise<boolean> {
+    const alertModel = (<IAlertModel>this);
+
+    return new Promise<boolean>((resolve, reject) => {
+        alertModel.update({}, {
+            $pull: {
+                'alertInfo.$.notify_users': {
+                    $in: [id]
+                }
+            }
+        }, {
+            multi: true
+        }).exec()
+        .then((alerts) => {
+            resolve(true);
+            return;
+        }).catch(err => {
+            reject(err);
+            return;
+        });
+    });
+};
+
 
 @injectable()
 export class Alerts extends ModelBase <IAlertModel> {
