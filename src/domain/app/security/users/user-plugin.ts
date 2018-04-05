@@ -118,7 +118,7 @@ export function userPlugin(schema: mongoose.Schema, options: any) {
             default: true
         }
     };
-    
+
     const UserNotificationsSchema = {
         general: Boolean,
         chat: Boolean,
@@ -128,7 +128,7 @@ export function userPlugin(schema: mongoose.Schema, options: any) {
 
     const UserPreferenceSchema = {
         chart: ShowTourSchema,
-    helpCenter: { type: Boolean, default: true },
+        helpCenter: { type: Boolean, default: true },
         notification: UserNotificationsSchema,
         avatarAddress: String
     };
