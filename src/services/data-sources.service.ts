@@ -1,7 +1,6 @@
 import { DataSourceResponse } from '../app_modules/data-sources/data-sources.types';
 import { injectable, inject, Container } from 'inversify';
 import { VirtualSources } from '../domain/app/virtual-sources/virtual-source.model';
-import { DataSourceSchemasMapping, DataSourcesHelper } from '../app_modules/data-sources/queries/datasource.helper';
 import { sortBy } from 'lodash';
 import { Logger } from '../domain/app/logger';
 

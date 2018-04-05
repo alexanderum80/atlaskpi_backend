@@ -52,6 +52,10 @@ export class KpiService {
 
         // process available groupings
         kpis.forEach(k => {
+            if (k.code === 'Google Analytics') {
+                console.log('google analytics');
+            }
+
             const kpiSources: string[] = this._getKpiSources(k, kpis);
             // find common field paths on the sources
             k.groupingInfo = this._getCommonSourcePaths(kpiSources, virtualSources);
@@ -152,6 +156,10 @@ export class KpiService {
         if (kpi.type === KPITypeEnum.Complex || kpi.type === KPITypeEnum.Compound) {
             // return sources from complex kpi
             return this._getComplexKpiExpressionSources(kpi.expression, kpis);
+        }
+
+        if (kpi.type === KPITypeEnum.ExternalSource) {
+            return [kpi.name.toLocaleLowerCase()];
         }
 
         return [];
