@@ -137,9 +137,6 @@ export class SimpleKPI extends SimpleKPIBase implements IKpiBase {
         this._injectFieldToProjection(definition.field);
         this._injectAcumulatorFunctionAndArgs(definition);
 
-        if (deserializedFilter)
-            this._injectPostGroupStageFilters(deserializedFilter, definition.field);
-
         this.pristineAggregate = cloneDeep(baseAggregate);
     }
 
