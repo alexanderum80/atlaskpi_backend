@@ -34,8 +34,7 @@ export class ExternalDataSourcesService {
                 name: v.name,
                 description: v.description,
                 dataSource: v.dataSource,
-                fields: v.fields,
-                description: v.description
+                fields: v.fields
             };
         });
     }
