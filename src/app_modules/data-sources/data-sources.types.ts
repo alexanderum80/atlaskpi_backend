@@ -28,6 +28,9 @@ export class DataSourceResponse  {
     @field({ type: GraphQLTypesMap.String })
     dataSource: string;
 
+    @field({ type: GraphQLTypesMap.Boolean })
+    externalSource?: boolean;
+
     @field({ type: DataSourceField, isArray: true })
     fields: DataSourceField[];
 }

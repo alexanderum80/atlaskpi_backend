@@ -22,6 +22,7 @@ export interface IVirtualSource {
     dateField: string;
     aggregate: any[];
     fieldsMap: IVirtualSourceFields;
+    externalSource?: boolean;
 }
 
 export interface IVirtualSourceDocument extends IVirtualSource, mongoose.Document {

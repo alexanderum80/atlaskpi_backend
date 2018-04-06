@@ -22,6 +22,7 @@ const VirtualSourceSchema = new mongoose.Schema({
     dateField: { type: String, required: true },
     aggregate: { type: [mongoose.Schema.Types.Mixed], required: true },
     fieldsMap: { type: mongoose.Schema.Types.Mixed, required: true },
+    externalSource: Boolean,
     createdOn: { type: Date, default: Date.now }
 });
 
@@ -58,7 +59,8 @@ async function getDataSources(names?: string[]): Promise<DataSourceResponse[]> {
             return {
                 name: ds.name.toLocaleLowerCase(),
                 dataSource: ds.source,
-                fields: fields
+                fields: fields,
+                externalSource: ds.externalSource
             };
         });
 
