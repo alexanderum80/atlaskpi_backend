@@ -49,7 +49,8 @@ export class UserService {
 
             const removeCurrentUser = await this._users.model.removeUser(id);
             if (removeCurrentUser) {
-                const removeDeletedUserFromAlerts = await this._alerts.model.removeDeleteUser(id);
+                const removeDeletedUserFromAlerts = await this._alerts.model
+                                                            .removeDeleteUser(removeCurrentUser.entity._id);
             }
 
             return removeCurrentUser;

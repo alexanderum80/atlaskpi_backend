@@ -6,7 +6,7 @@ import { AppConnection } from '../app.connection';
 import { inject, injectable } from 'inversify';
 import { isArray, isEqual } from 'lodash';
 import * as mongoose from 'mongoose';
-import * as Promise from 'bluebird';
+import * as BlueBird from 'bluebird';
 import * as validate from 'validate.js';
 import * as moment from 'moment';
 
@@ -58,10 +58,10 @@ const AlertSchema = new Schema({
 
 
 
-AlertSchema.statics.alertByWidgetId = function(id: string): Promise<IAlertDocument> {
+AlertSchema.statics.alertByWidgetId = function(id: string): BlueBird<IAlertDocument> {
     const alertModel = (<IAlertModel>this);
 
-    return new Promise<IAlertDocument>((resolve, reject) => {
+    return new BlueBird<IAlertDocument>((resolve, reject) => {
         alertModel.findOne({ 'model_alert.id': id })
             .then((result: IAlertDocument) => {
                 resolve(result);
@@ -74,10 +74,10 @@ AlertSchema.statics.alertByWidgetId = function(id: string): Promise<IAlertDocume
     });
 };
 
-AlertSchema.statics.createAlert = function(input: IAlertInfo): Promise<IAlertDocument> {
+AlertSchema.statics.createAlert = function(input: IAlertInfo): BlueBird<IAlertDocument> {
     const alertModel = (<IAlertModel>this);
 
-    return new Promise<IAlertDocument>((resolve, reject) => {
+    return new BlueBird<IAlertDocument>((resolve, reject) => {
         if (!input || !input.alertInfo || !input.alertInfo.length) {
             reject({ name: 'no data provided', message: 'no data provided' });
             return;
@@ -108,10 +108,10 @@ AlertSchema.statics.createAlert = function(input: IAlertInfo): Promise<IAlertDoc
     });
 };
 
-AlertSchema.statics.updateAlert = function(id: string, input: IAlertInfo): Promise<IAlertDocument> {
+AlertSchema.statics.updateAlert = function(id: string, input: IAlertInfo): BlueBird<IAlertDocument> {
     const alertModel = (<IAlertModel>this);
 
-    return new Promise<IAlertDocument>((resolve, reject) => {
+    return new BlueBird<IAlertDocument>((resolve, reject) => {
         if (!id) {
             reject({ name: 'no id', message: 'no id has been provided' });
         }
@@ -144,10 +144,10 @@ AlertSchema.statics.updateAlert = function(id: string, input: IAlertInfo): Promi
     });
 };
 
-AlertSchema.statics.removeAlertByModelId = function(id: string): Promise<IAlertDocument> {
+AlertSchema.statics.removeAlertByModelId = function(id: string): BlueBird<IAlertDocument> {
     const alertModel = (<IAlertModel>this);
 
-    return new Promise<IAlertDocument>((resolve, reject) => {
+    return new BlueBird<IAlertDocument>((resolve, reject) => {
         if (!id) {
             reject({ name: 'no id', message: 'no id provided' });
             return;
@@ -172,27 +172,22 @@ AlertSchema.statics.removeAlertByModelId = function(id: string): Promise<IAlertD
     });
 };
 
-AlertSchema.statics.removeDeleteUser = function(id: string): Promise<boolean> {
+AlertSchema.statics.removeDeleteUser = async function(id: string): Promise<boolean> {
     const alertModel = (<IAlertModel>this);
-
-    return new Promise<boolean>((resolve, reject) => {
-        alertModel.update({}, {
-            $pull: {
+    try {
+        const removeUser = await this.update(
+            {}, {
                 'alertInfo.$.notify_users': {
                     $in: [id]
                 }
-            }
-        }, {
-            multi: true
-        }).exec()
-        .then((alerts) => {
-            resolve(true);
-            return;
-        }).catch(err => {
-            reject(err);
-            return;
-        });
-    });
+            }, {
+                multi: true
+            }).exec();
+
+        return removeUser;
+    } catch (err) {
+        return err;
+    }
 };
 
 
