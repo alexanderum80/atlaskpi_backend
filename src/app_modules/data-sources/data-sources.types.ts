@@ -26,6 +26,9 @@ export class DataSourceResponse  {
     name: string;
 
     @field({ type: GraphQLTypesMap.String })
+    description: string;
+
+    @field({ type: GraphQLTypesMap.String })
     dataSource: string;
 
     @field({ type: GraphQLTypesMap.Boolean })

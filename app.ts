@@ -1,3 +1,7 @@
+/*
+NODE_ENV="local" AKPI_APP_SUBDOMAIN="d.atlaskpi.com:4200" AKPI_MASTER_DB_URI="mongodb://localhost/kpibi" AKPI_MONGODB_API_USERNAME="orlando@atlaskpi.com" AKPI_NEW_ACCOUNT_DB_URI_FORMAT="mongodb://localhost/{{database}}" AKPI_TOKEN_EXPIRATION="10 d" node app.js
+*/
+
 // This is a must because inversify uses it
 import 'reflect-metadata';
 

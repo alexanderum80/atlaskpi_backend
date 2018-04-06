@@ -1,25 +1,19 @@
-import { criteriaPlugin } from '../../../app_modules/shared/criteria.plugin';
 import * as Promise from 'bluebird';
 import { inject, injectable } from 'inversify';
+import { isObject } from 'lodash';
+import * as moment from 'moment';
 import * as mongoose from 'mongoose';
 import * as logger from 'winston';
-import * as moment from 'moment';
-import { isObject } from 'lodash';
 
+import { criteriaPlugin } from '../../../app_modules/shared/criteria.plugin';
 import { ModelBase } from '../../../type-mongo/model-base';
 import { getCustomerSchema } from '../../common/customer.schema';
-import {
-    backInTime,
-    DateRange,
-    getYesterdayDate,
-    IDateRange,
-    parsePredifinedDate,
-} from '../../common/date-range';
+import { parsePredifinedDate } from '../../common/date-range';
 import { getEmployeeSchema } from '../../common/employee.schema';
 import { getLocationSchema } from '../../common/location.schema';
 import { getProductSchema } from '../../common/product.schema';
 import { AppConnection } from '../app.connection';
-import {ISaleDocument, ISaleModel, TypeMap, ISaleByZip, IMapMarkerInput} from './sale';
+import { IMapMarkerInput, ISaleByZip, ISaleDocument, ISaleModel, TypeMap } from './sale';
 
 
 let Schema = mongoose.Schema;
@@ -228,7 +222,8 @@ SalesSchema.statics.salesEmployeeByDateRange = function(predefinedDateRange: str
         });
     });
 };
-TODO: // I need to fix UI maps because I removed GroupMap that was being used in findBy on the sales model.
+
+// TODO: // I need to fix UI maps because I removed GroupMap that was being used in findBy on the sales model.
 // I need to change the ui so show the right group fields and also send the backend the group path ready to use
 
 SalesSchema.statics.salesBy = function(type: TypeMap, input?: IMapMarkerInput): Promise<ISaleByZip[]> {
