@@ -180,7 +180,7 @@ export class KpiService {
 
         if (kpi.type === KPITypeEnum.Complex || kpi.type === KPITypeEnum.Compound) {
             // return sources from complex kpi
-            return this._getComplexKpiExpressionSources(kpi.expression, kpis);
+            return this._getComplexKpiExpressionSources(kpi.expression, kpis, connectors);
         }
 
        
@@ -188,7 +188,7 @@ export class KpiService {
         return [];
     }
 
-    private  _getComplexKpiExpressionSources(expression: string, kpis: IKPIDocument[]): string[] {
+    private  _getComplexKpiExpressionSources(expression: string, kpis: IKPIDocument[], connectors: IConnectorDocument[]): string[] {
         const regex = new RegExp(/kpi(\w+)/g); // I need to extract kpis from the expression
         let match: RegExpExecArray;
         const sources: string[] = [];
@@ -199,7 +199,7 @@ export class KpiService {
             const kpi = kpis.find(k => k.id === kpiId);
 
             if (kpi) {
-                const kpiSources = this._getKpiSources(kpi, kpis);
+                const kpiSources = this._getKpiSources(kpi, kpis, connectors);
                 kpiSources.forEach(s => {
                     if (sources.indexOf(s) === -1) {
                         sources.push(s);
