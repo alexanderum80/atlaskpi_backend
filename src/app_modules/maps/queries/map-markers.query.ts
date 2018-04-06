@@ -1,4 +1,3 @@
-import * as Promise from 'bluebird';
 import { inject, injectable } from 'inversify';
 import { chain, Dictionary, isEmpty, keyBy } from 'lodash';
 
@@ -36,39 +35,28 @@ export class MapMarkersQuery implements IQuery < IMapMarker[] > {
         @inject(Sales.name) private _sales: Sales,
         @inject(ZipsToMap.name) private _ZipToMaps: ZipsToMap) { }
 
-    run(data: {
-        type: TypeMap,
-        input: MapMarkerGroupingInput
-    }): Promise < IMapMarker[] > {
-        const that = this;
-
-        return new Promise < IMapMarker[] > ((resolve, reject) => {
-            this._sales.model.salesBy(data.type, data.input).then(salesByZip => {
-                    // get the zip codes related
-                    that._ZipToMaps.model.find({
+    async run(data: { type: TypeMap, input: MapMarkerGroupingInput }): Promise < IMapMarker[] > {
+        const salesByZip = await this._sales.model.salesBy(data.type, data.input);
+        // get the zip codes related
+        const zipList = await this._ZipToMaps.model.find({
                             zipCode: {
                                 $in: salesByZip.map(d => d._id.customerZip)
-                            }
-                        })
-                        .then(zipList => {
-                            // convert array to object
-                            let markers;
+                            }});
 
-                            if (data.input) {
-                                if (data.input['grouping']) {
-                                    markers = this._groupingMarkersFormatted(salesByZip, zipList);
-                                } else {
-                                    markers = this._noGroupingsMarkersFormatted(salesByZip, zipList);
-                                }
-                            } else {
-                                markers = this._noGroupingsMarkersFormatted(salesByZip, zipList);
-                            }
+        // convert array to object
+        let markers;
 
-                             resolve(markers);
-                        });
-                })
-                .catch(err => reject(err));
-        });
+        if (data.input) {
+            if (data.input['grouping']) {
+                markers = this._groupingMarkersFormatted(salesByZip, zipList);
+            } else {
+                markers = this._noGroupingsMarkersFormatted(salesByZip, zipList);
+            }
+        } else {
+            markers = this._noGroupingsMarkersFormatted(salesByZip, zipList);
+        }
+
+        return markers;
     }
 
     private _noGroupingsMarkersFormatted(salesByZip: ISaleByZip[], zipList: IZipToMapDocument[]): MapMarker[] {

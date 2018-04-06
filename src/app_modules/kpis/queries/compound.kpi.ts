@@ -119,8 +119,6 @@ export class CompositeKpi implements IKpiBase {
     private _getCallExpressionData(exp) {
         // call expression should be one of the following aggregate functions
         // SUM, MAX, MIN, AVG, COUNT
-
-        debugger;
     }
 
     private _processChartDateRange(chartDateRange: IChartDateRange): IDateRange {
