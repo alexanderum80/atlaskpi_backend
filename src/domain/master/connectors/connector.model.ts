@@ -1,4 +1,3 @@
-import * as Promise from 'bluebird';
 import { inject, injectable } from 'inversify';
 import mongoose = require('mongoose');
 
@@ -13,13 +12,22 @@ const ConnectorSchema = new Schema({
     name: String!,
     databaseName: String!,
     type: String!,
+    virtualSource: String,
     active: Boolean,
     config: mongoose.Schema.Types.Mixed,
     task: mongoose.Schema.Types.Mixed,
     ... userAuditSchema
 });
 
-ConnectorSchema.statics.addConnector = function(data: IConnector): Promise<IConnectorDocument> {
+ConnectorSchema.statics.addConnector = addConnector; 
+ConnectorSchema.statics.updateConnector = updateConnector; 
+ConnectorSchema.statics.removeConnector = removeConnector; 
+ConnectorSchema.statics.getReportingConnectors = getReportingConnectors;
+
+
+// Method's Implementation
+
+function addConnector(data: IConnector): Promise<IConnectorDocument> {
     if (!data) { return Promise.reject('cannot add a document with, empty payload'); }
     const that = this;
     return new Promise<IConnectorDocument>((resolve, reject) => {
@@ -55,7 +63,7 @@ ConnectorSchema.statics.addConnector = function(data: IConnector): Promise<IConn
     });
 };
 
-ConnectorSchema.statics.updateConnector = function(data: IConnector, token: string): Promise<IConnectorDocument> {
+function updateConnector(data: IConnector, token: string): Promise<IConnectorDocument> {
     const that = this;
     return new Promise<IConnectorDocument>((resolve, reject) => {
         if (!token) {
@@ -73,7 +81,7 @@ ConnectorSchema.statics.updateConnector = function(data: IConnector, token: stri
     });
 };
 
-ConnectorSchema.statics.removeConnector = function(id: string): Promise<IConnectorDocument> {
+function removeConnector(id: string): Promise<IConnectorDocument> {
     const that = this;
     return new Promise<IConnectorDocument>((resolve, reject) => {
         that.findOne({_id: id})
@@ -93,6 +101,13 @@ ConnectorSchema.statics.removeConnector = function(id: string): Promise<IConnect
             }).catch(err => resolve(err));
     });
 };
+
+function getReportingConnectors(databaseName: string): Promise<IConnectorDocument[]> {
+    return this.find({
+        databaseName: databaseName,
+        virtualSource: { $ne: null }
+    });
+}
 
 @injectable()
 export class Connectors extends ModelBase<IConnectorModel> {

@@ -7,7 +7,6 @@ import { IKPIDocument } from '../../../domain/app/kpis/kpi';
 import { KPIs } from '../../../domain/app/kpis/kpi.model';
 import { IChartDateRange, IDateRange, parsePredifinedDate } from '../../../domain/common/date-range';
 import { FrequencyTable } from '../../../domain/common/frequency-enum';
-import { getGroupingMetadata } from '../../charts/queries/chart-grouping-map';
 import { IGetDataOptions, IKpiBase } from './kpi-base';
 import { KpiFactory } from './kpi.factory';
 
@@ -107,7 +106,7 @@ export class CompositeKpi implements IKpiBase {
                 options = {
                     filter: kpiDocument.filter,
                     frequency: FrequencyTable[kpiDocument.frequency],
-                    groupings: getGroupingMetadata(null, kpiDocument.groupings)
+                    groupings: null
                 };
             }
 
@@ -120,8 +119,6 @@ export class CompositeKpi implements IKpiBase {
     private _getCallExpressionData(exp) {
         // call expression should be one of the following aggregate functions
         // SUM, MAX, MIN, AVG, COUNT
-
-        debugger;
     }
 
     private _processChartDateRange(chartDateRange: IChartDateRange): IDateRange {

@@ -9,22 +9,30 @@ import { AppConnection } from '../app.connection';
 import { tagsPlugin } from '../tags/tag.plugin';
 import { IVirtualSourceModel, IVirtualSourceDocument } from '../virtual-sources/virtual-source';
 import { DataSourceResponse } from '../../../app_modules/data-sources/data-sources.types';
+import { IIdName } from '../../common/id-name';
+import { IValueName } from '../../common/value-name';
 
 const Schema = mongoose.Schema;
 const VirtualSourceSchema = new mongoose.Schema({
     name: { type: String, required: true },
     description: String,
+    sourceCollection: { type: String, required: true },
     source: { type: String, required: true },
     modelIdentifier: { type: String, required: true },
     dateField: { type: String, required: true },
     aggregate: { type: [mongoose.Schema.Types.Mixed], required: true },
     fieldsMap: { type: mongoose.Schema.Types.Mixed, required: true },
+    externalSource: Boolean,
     createdOn: { type: Date, default: Date.now }
 });
 
+// STATIC
 VirtualSourceSchema.statics.getDataSources = getDataSources;
 
-// VirtualSourceSchema.methods.getCleanBaseAggregate = getCleanBaseAggregate;
+// METHODS
+VirtualSourceSchema.methods.getGroupingFieldPaths = getGroupingFieldPaths;
+VirtualSourceSchema.methods.findByNames = findByNames;
+// VirtualSourceSchema.methods.containsPath = containsPath;
 
 @injectable()
 export class VirtualSources extends ModelBase<IVirtualSourceModel> {
@@ -34,20 +42,26 @@ export class VirtualSources extends ModelBase<IVirtualSourceModel> {
     }
 }
 
-
-async function getDataSources(): Promise<DataSourceResponse[]> {
+async function getDataSources(names?: string[]): Promise<DataSourceResponse[]> {
     const model = this as IVirtualSourceModel;
 
     try {
-        const virtualSources = await model.find({});
+        const query = names ? { name: { $in: names } } : { };
+        const virtualSources = await model.find(query);
         const dataSources: DataSourceResponse[] = virtualSources.map(ds => {
             const fieldNames = Object.keys(ds.fieldsMap);
-            const fields = fieldNames.map(f => ({ name: f, path: ds.fieldsMap[f].path, type: ds.fieldsMap[f].dataType }));
+            const fields = fieldNames.map(f => ({
+                name: f,
+                path: ds.fieldsMap[f].path,
+                type: ds.fieldsMap[f].dataType,
+                allowGrouping: ds.fieldsMap[f].allowGrouping
+            }));
             return {
                 name: ds.name.toLocaleLowerCase(),
+                description: ds.description,
                 dataSource: ds.source,
                 fields: fields,
-                groupings: fieldNames
+                externalSource: ds.externalSource
             };
         });
 
@@ -58,36 +72,22 @@ async function getDataSources(): Promise<DataSourceResponse[]> {
     }
 }
 
-// function getCleanBaseAggregate(): any[] {
-//     const doc = this as IVirtualSourceDocument;
+function getGroupingFieldPaths(): IValueName[] {
+    const doc = this as IVirtualSourceDocument;
+    const fields: IValueName[] = [];
 
-//     if (!doc.aggregate) {
-//         return null;
-//     }
+    Object.keys(doc.fieldsMap).forEach(k => {
+        const map = doc.fieldsMap[k];
 
-//     const result = [];
-//     doc.aggregate.forEach(a => {
-//         const operators = Object.keys(a);
+        if (map.allowGrouping) {
+            fields.push({ value: map.path, name: k });
+        }
+    });
 
-//         if (!operators || !operators.length || operators.length > 1) {
-//             return;
-//         }
+    return fields;
+}
 
-//         const obj = {} as any;
-
-//         operators.forEach(rawOperator => {
-//             if (isObject(a[rawOperator])) {
-//                 obj[rawOperator.replace('__dollar__', '$')] = getCleanBaseAggregate()
-//             } else {
-//                 obj[rawOperator.replace('__dollar__', '$')] = a[rawOperator];
-//             }
-//         });
-
-
-//         result.push(obj);
-//     });
-
-//     return result;
-// }
-
+async function findByNames(names: string): Promise<IVirtualSourceDocument[]> {
+    return this.find({ name: { $in: names } });
+}
 
