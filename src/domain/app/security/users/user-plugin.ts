@@ -229,7 +229,7 @@ export function userPlugin(schema: mongoose.Schema, options: any) {
                 roles: this.roles.map((role) => role.name)
             };
 
-            if (clientId === 'workbench') {
+            if (clientId === 'workbench' || clientId === 'scheduler') {
                 expiresIn = '10 y';
             }
 

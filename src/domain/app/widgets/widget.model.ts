@@ -49,7 +49,8 @@ const WidgetSchema = new Schema({
     size: { type: String!, enum: Object.keys(WidgetSizeMap) },
     color: String!,
     numericWidgetAttributes: NumericWidgetSchema,
-    chartWidgetAttributes: ChartWidgetSchema
+    chartWidgetAttributes: ChartWidgetSchema,
+    tags: String
 });
 
 // add tags capabilities
