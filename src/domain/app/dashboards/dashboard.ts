@@ -7,23 +7,31 @@ import { IWidget } from '../widgets/widget';
 
 
 // import { IWidget } from '../widgets';
+export interface AccessLevels {
+    users: string[];
+    accessTypes: string[];
+}
+
+export interface AccessLevelsInput {
+    users: string[];
+    accessTypes: string[];
+}
+
 export interface IDashboard {
     name: string;
     description: string;
-    group: string;
     charts: IChart[];
     widgets: IWidget[];
     owner: IUser;
-    users: IUser[];
+    accessLevels: AccessLevels[];
 }
 
 export interface IDashboardInput {
     name: string;
     description: string;
-    group: string;
     charts: string[];
     widgets: string[];
-    users: string[];
+    accessLevels: AccessLevelsInput[];
 }
 
 export interface IDashboardDocument extends IDashboard, mongoose.Document {
