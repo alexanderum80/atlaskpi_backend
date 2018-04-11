@@ -151,12 +151,6 @@ export class KpiBase {
     private _injectDataRange(dateRange: IDateRange[], field: string) {
         const matchDateRange = { $match: {} } as any;
 
-        // let matchStage = this.findStage('filter', '$match');
-
-        // if (!matchStage) {
-        //     throw 'KpiBase#_injectDataRange: Cannot inject date range because a dateRange/$match stage could not be found';
-        // }
-
         if (dateRange && dateRange.length) {
             if (dateRange.length === 1) {
                 matchDateRange.$match[field] = { '$gte': dateRange[0].from, '$lt': dateRange[0].to };
