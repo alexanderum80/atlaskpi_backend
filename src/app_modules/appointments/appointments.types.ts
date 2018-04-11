@@ -69,6 +69,33 @@ export class AppointmentEvent {
 }
 
 @type()
+export class AppointmentCustomer {
+    @field({ type: GraphQLTypesMap.String })
+    externalId: string;
+
+    @field({ type: GraphQLTypesMap.String })
+    fullname: string;
+
+    @field ({type:  GraphQLTypesMap.String })
+    city: string;
+
+    @field ({type:  GraphQLTypesMap.String })
+    state: string;
+
+    @field ({type:  GraphQLTypesMap.String })
+    zip: string;
+
+    @field ({type:  GraphQLTypesMap.String })
+    gender: string;
+
+    @field ({type:  GraphQLTypesMap.String })
+    dob: string;
+
+    @field ({type:  GraphQLTypesMap.String })
+    address: string;
+}
+
+@type()
 export class Appointment  {
     @field({ type: GraphQLTypesMap.String })
     _id: string;
@@ -121,8 +148,8 @@ export class Appointment  {
     @field({ type: GraphQLTypesMap.String })
     createdOn: string;
 
-    @field({ type: Entity })
-    customer: Entity;
+    @field({ type: AppointmentCustomer })
+    customer: AppointmentCustomer;
 
     @resolver({ forField: 'customer'})
     static resolveCustomer = (entity: Appointment) => entity.customer

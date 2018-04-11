@@ -24,6 +24,17 @@ const EntitySchema = {
     name: String
 };
 
+const AppointmentCustomerSchema = {
+    ...EntitySchema,
+    city: String,
+    state: String,
+    zip: String,
+    gender: String,
+    dob: Date,
+    address: String,
+    fullname: String
+};
+
 const EventSchema = {
     ...EntitySchema,
     code: String,
