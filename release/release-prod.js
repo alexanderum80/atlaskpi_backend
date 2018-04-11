@@ -127,7 +127,7 @@ function uploadAppToEC2(version) {
 function createTaskRevision(version) {
     log('Creating new task revision');
 
-    const taskTmpl = fs.readFileSync(__dirname + '/../../release/api.task.json.tmpl').toString();
+    const taskTmpl = fs.readFileSync(__dirname + '/../../../release/api.task.json.tmpl').toString();
     const compiledTmpl = Handlebars.compile(taskTmpl);
     const task = compiledTmpl({ tag: version });
 
