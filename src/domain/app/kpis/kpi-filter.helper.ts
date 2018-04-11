@@ -151,15 +151,6 @@ export class KPIFilterHelper {
         let newFilter = {};
         Object.keys(filter).forEach(filterKey => {
             let newKey = KPIFilterHelper._getCleanString(filterKey, operation);
-
-            // replacementStrings.forEach(replacement => {
-            //     if (operation === 'serialize') {
-            //         newKey = newKey.replace(replacement.value, replacement.key);
-            //     } else if (operation === 'deserialize') {
-            //         newKey = newKey.replace(replacement.key, replacement.value);
-            //     }
-            // });
-
             let value = filter[filterKey];
 
             if (!isArray(value) && !isDate(value) && isObject(value)) {
