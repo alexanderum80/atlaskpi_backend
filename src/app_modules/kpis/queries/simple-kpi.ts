@@ -62,10 +62,14 @@ export class SimpleKPI extends SimpleKPIBase implements IKpiBase {
                     modelName: virtualSource.modelIdentifier,
                     timestampField: virtualSource.dateField
                 };
+                
                 simpleKPIDefinition.dataSource = virtualSource.source.toLowerCase();
-                baseAggregate = virtualSource.aggregate.map(a => {
-                    return KPIFilterHelper.CleanObjectKeys(a);
-                });
+
+                if (virtualSource.aggregate) {
+                    baseAggregate = virtualSource.aggregate.map(a => {
+                        return KPIFilterHelper.CleanObjectKeys(a);
+                    });
+                }
             }
         }
 
