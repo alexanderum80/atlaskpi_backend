@@ -6,6 +6,10 @@ export function getCustomerSchema() {
                 city: String,
                 state: String,
                 zip: String,
-                gender: String
+                gender: String,
+                dob: Date,
+                address: String,
+                fullname: String,
+                firstBillDate: Date
         });
 }
