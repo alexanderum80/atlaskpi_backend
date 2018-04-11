@@ -60,6 +60,7 @@ let ProductSchema = {
     tax: Number,
     tax2: Number,
     amount: Number,
+    preTaxTotal: Number,
     paid: Number,
     discount: Number,
     from: Date,
@@ -88,10 +89,16 @@ let BusinessUnitSchema = {
     name: String
 };
 
+const SaleReferralSchema = {
+    ...EntitySchema,
+    revenue: Number,
+    revenueNoTax: Number,
+};
 
 let SalesSchema = new Schema ({
     source: String,
     externalId: { type: String, unique: true },
+    billId: String,
     location: (<any>getLocationSchema()),
     customer: (<any>getCustomerSchema()),
     employee: (<any>getEmployeeSchema()),
@@ -103,7 +110,8 @@ let SalesSchema = new Schema ({
     document: DocumentSchema,
     payment: PaymentSchema,
     businessUnit: (<any>BusinessUnitSchema),
-    serviceType: String
+    serviceType: String,
+    referral: [SaleReferralSchema],
 });
 
 export const SaleSchema = SalesSchema;

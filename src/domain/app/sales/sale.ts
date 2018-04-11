@@ -23,6 +23,10 @@ export interface ISaleCustomer extends IEntity {
         state: string;
         zip: string;
         gender: string;
+        dob: Date;
+        address: string;
+        fullname: string;
+        firstBillDate: Date;
 }
 
 
@@ -41,6 +45,7 @@ export interface ISaleProduct extends IEntity {
     tax: number;
     tax2: number;
     amount: number;
+    preTaxTotal: number;
     paid: number;
     discount: number;
     from: Date;
@@ -51,8 +56,14 @@ export interface ICategory extends IEntity {
     service: number;
 }
 
+export interface ISaleReferral extends IEntity {
+    revenue: number;
+    revenueNoTax: number;
+}
+
 export interface ISales {
     source: string;
+    billId: string;
     externalId: string;
     location: ISaleLocation;
     customer: ISaleCustomer;
@@ -66,7 +77,7 @@ export interface ISales {
         type: string, // invoice, bill, charge, etc
         identifier: string
     };
-
+    referral: [ISaleReferral];
     payment: {
         method: string; // cash, credit, check
         type: string;   // visa, master card
