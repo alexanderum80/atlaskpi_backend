@@ -23,51 +23,6 @@ let EntitySchema = {
     name: String,
 };
 
-let LocationSchema = {
-    externalId: String,
-    identifier: String,
-    name: String,
-    city: String,
-    state: String,
-    zip: String,
-
-    type: String,
-    size: String
-};
-
-let CustomerSchema = {
-        externalId: String,
-        city: String,
-        state: String,
-        zip: String,
-        gender: String,
-};
-
-let EmployeeSchema = {
-    externalId: String,
-    fullName: String,
-    role: String,
-    type: String, // full time (f), part time (p)
-    workedTime: Number // time in seconds
-};
-
-let ProductSchema = {
-    externalId: String,
-    itemCode: String,
-    itemDescription: String,
-    quantity: Number,
-    unitPrice: Number,
-    tax: Number,
-    tax2: Number,
-    amount: Number,
-    preTaxTotal: Number,
-    paid: Number,
-    discount: Number,
-    from: Date,
-    to: Date,
-    type: String
-};
-
 let CategorySchema = {
     externalId: String,
     name: String,

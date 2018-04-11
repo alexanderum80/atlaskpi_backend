@@ -12,6 +12,7 @@ import { GoogleAnalyticsSchema } from './../google-analytics/google-analytics.mo
 import { IKPIFilter, KPITypeEnum, IKPISimpleDefinition } from './kpi';
 import { AppointmentSchema } from '../appointments/appointment-model';
 import { IVirtualSourceDocument } from '../virtual-sources/virtual-source';
+import { isString, isNumber } from 'util';
 
 
 const Schemas = [
@@ -139,23 +140,31 @@ export class KPIFilterHelper {
     }
 
     private static _serializer(filter: any, operation = 'serialize'): any {
+        if (isNumber(filter)) {
+            return filter;
+        }
+
+        if (isString(filter)) {
+            return KPIFilterHelper._getCleanString(filter, operation);
+        }
+
         let newFilter = {};
         Object.keys(filter).forEach(filterKey => {
-            let newKey = filterKey;
+            let newKey = KPIFilterHelper._getCleanString(filterKey, operation);
 
-            replacementStrings.forEach(replacement => {
-                if (operation === 'serialize') {
-                    newKey = newKey.replace(replacement.value, replacement.key);
-                } else if (operation === 'deserialize') {
-                    newKey = newKey.replace(replacement.key, replacement.value);
-                }
-            });
+            // replacementStrings.forEach(replacement => {
+            //     if (operation === 'serialize') {
+            //         newKey = newKey.replace(replacement.value, replacement.key);
+            //     } else if (operation === 'deserialize') {
+            //         newKey = newKey.replace(replacement.key, replacement.value);
+            //     }
+            // });
 
             let value = filter[filterKey];
 
             if (!isArray(value) && !isDate(value) && isObject(value)) {
                 value = KPIFilterHelper._serializer(value, operation);
-            } else if (!isDate(value) && isArrayObject(value)) {
+            } else if (!isDate(value) && isArray(value)) {
                 for (let i = 0; i < value.length; i++) {
                     value[i] = this._serializer(value[i], operation);
                 }
@@ -164,6 +173,20 @@ export class KPIFilterHelper {
             newFilter[newKey] = value;
         });
         return newFilter;
+    }
+
+    private static _getCleanString(text: string, operation: string) {
+        let result: string = text;
+
+        replacementStrings.forEach(replacement => {
+            if (operation === 'serialize') {
+                result = result.replace(replacement.value, replacement.key);
+            } else if (operation === 'deserialize') {
+                result = result.replace(replacement.key, replacement.value);
+            }
+        });
+
+        return result;
     }
 
     private static _allSchemasFieldSet() {
