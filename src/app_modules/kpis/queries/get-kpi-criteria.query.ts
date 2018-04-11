@@ -41,7 +41,7 @@ export class GetKpisCriteriaQuery implements IQuery<KPICriteriaResult> {
         try {
             const criteria = await this._dataSourcesSvc.getDistinctValues(input.source, input.field, input.limit, input.filter);
             return {
-                criteriaValue: criteria
+                criteriaValue: criteria.sort()
             };
         } catch (e) {
             return {
