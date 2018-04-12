@@ -119,6 +119,7 @@ export interface IUserProfileInput {
     middleName?: string;
     lastName?: string;
     phoneNumber?: string;
+    timezone?: string;
     email?: string;
     general?: boolean;
     chat?: boolean;
@@ -138,6 +139,7 @@ export interface IUserProfileResolve {
 
 export interface IUser {
     username: string;
+    timezone?: string;
     password?: string;
     emails: IUserEmail[];
     services?: IUserServices;

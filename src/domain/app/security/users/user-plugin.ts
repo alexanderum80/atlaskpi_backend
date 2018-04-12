@@ -143,6 +143,7 @@ export function userPlugin(schema: mongoose.Schema, options: any) {
             required: false,
             unique: true
         },
+        timezone: String,
         owner: Boolean,
         password: String,
         agreement: AgreementSchema,
@@ -363,6 +364,10 @@ export function userPlugin(schema: mongoose.Schema, options: any) {
                             verified: opts.emailVerified
                         }]
                     };
+
+                    if (data.timezone) {
+                        newUser.timezone = data.timezone;
+                    }
 
                     // add password if it was passed
                     if (data.password) {
@@ -1141,6 +1146,8 @@ export function userPlugin(schema: mongoose.Schema, options: any) {
                    user.preferences.notification.chat = input.chat;
                    user.preferences.notification.email = input.viaEmail;
                    user.preferences.notification.dnd = input.dnd;
+
+                   user.timezone = input.timezone;
 
                    user.save((err, users: IUser) => {
                         if (err) {

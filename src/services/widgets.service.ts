@@ -1,5 +1,6 @@
 import { Alerts } from '../domain/app/alerts/alert.model';
 import { inject, injectable } from 'inversify';
+import * as BlueBird from 'bluebird';
 
 import { Charts } from '../domain/app/charts/chart.model';
 import { Dashboards } from '../domain/app/dashboards/dashboard.model';
@@ -131,7 +132,7 @@ export class WidgetsService {
                         widget: that._widgets.model.removeWidget(id),
                         alert: that._alert.model.removeAlertByModelId(id)
                     };
-                    Promise.props(deleteModel).then(documents => {
+                    BlueBird.props(deleteModel).then(documents => {
                         resolve(documents.widget);
                         return;
                     })

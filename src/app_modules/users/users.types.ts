@@ -40,6 +40,9 @@ export class UserProfileInput {
     @field({ type: GraphQLTypesMap.String })
     phoneNumber: string;
 
+    @field({ type: GraphQLTypesMap.String })
+    timezone: string;
+
     @field({ type: GraphQLTypesMap.Boolean })
     general: boolean;
 
@@ -286,6 +289,9 @@ export class User  {
 
     @field({ type: GraphQLTypesMap.String })
     username: string;
+
+    @field({ type: GraphQLTypesMap.String })
+    timezone: String;
 
     @field({ type: UserEmail, isArray: true })
     emails: UserEmail[];
