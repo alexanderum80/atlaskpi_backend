@@ -21,6 +21,9 @@ export class UserDetails  {
     @field({ type: GraphQLTypesMap.String, required: true })
     email: string;
 
+    @field({ type: GraphQLTypesMap.String })
+    timezone: string;
+
     @field({ type: GraphQLTypesMap.String, required: true, isArray: true })
     roles: string[];
 
