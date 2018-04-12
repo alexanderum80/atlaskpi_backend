@@ -489,6 +489,9 @@ export function userPlugin(schema: mongoose.Schema, options: any) {
                     user.emails[0].address = data.email;
                     user.username = data.email;
                 }
+                if (data.timezone) {
+                    user.timezone = data.timezone;
+                }
 
                 if (data.roles) {
                     user.roles = [];
