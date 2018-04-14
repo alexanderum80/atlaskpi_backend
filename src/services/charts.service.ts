@@ -92,6 +92,8 @@ export class ChartsService {
             top: (options && options.top) || chart.top,
             isDrillDown: options && options.isDrillDown || false,
             isFutureTarget: options && options.isFutureTarget || false,
+            sortingCriteria: chart.sortingCriteria,
+            sortingOrder: chart.sortingOrder
         };
 
         // lets fill the comparison options for this chart if only if its not a comparison chart already

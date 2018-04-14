@@ -41,8 +41,8 @@ export class FrequencyHelper {
         };
     }
 
-    getCategories(frequency: FrequencyEnum): IXAxisCategory[] {
-        let sequence = getFrequencySequence(frequency);
+    getCategories(data: any, frequency: FrequencyEnum, groupingField: string , sortingCriteria: string , sortingOrder: string): IXAxisCategory[] {
+        let sequence = getFrequencySequence(data, frequency, groupingField , sortingCriteria , sortingOrder);
 
         switch (frequency) {
             case FrequencyEnum.Daily:
