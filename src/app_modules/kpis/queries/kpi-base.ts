@@ -73,7 +73,7 @@ export class KpiBase {
         let that = this;
 
         return new Promise<any>((resolve, reject) => {
-            if (dateRange && dateRange.hasOwnProperty('length') && dateRange.length)
+            if (dateRange && dateRange.length)
                 that._injectDataRange(dateRange, dateField);
             if (options.filter)
                 that._injectFilter(options.filter);
@@ -149,25 +149,21 @@ export class KpiBase {
     }
 
     private _injectDataRange(dateRange: IDateRange[], field: string) {
-        let matchStage = this.findStage('filter', '$match');
-
-        if (!matchStage) {
-            throw 'KpiBase#_injectDataRange: Cannot inject date range because a dateRange/$match stage could not be found';
-        }
+        const matchDateRange = { $match: {} } as any;
 
         if (dateRange && dateRange.length) {
             if (dateRange.length === 1) {
-                matchStage.$match[field] = { '$gte': dateRange[0].from, '$lt': dateRange[0].to };
+                matchDateRange.$match[field] = { '$gte': dateRange[0].from, '$lt': dateRange[0].to };
             } else {
-                if (!matchStage['$match']) {
-                    matchStage.$match = {};
+                if (!matchDateRange['$match']) {
+                    matchDateRange.$match = {};
                 }
 
-                if (!matchStage.$match['$or']) {
-                    matchStage.$match.$or = {};
+                if (!matchDateRange.$match['$or']) {
+                    matchDateRange.$match.$or = {};
                 }
 
-                matchStage.$match.$or = dateRange.map((dateParams: IDateRange) => ({
+                matchDateRange.$match.$or = dateRange.map((dateParams: IDateRange) => ({
                     // field => i.e. 'product.from', timestamp
                     [field]: {
                         $gte: dateParams.from,
@@ -176,6 +172,8 @@ export class KpiBase {
                 }));
             }
         }
+
+        this.aggregate.unshift(matchDateRange);
     }
 
     private _injectFilter(filter: any) {

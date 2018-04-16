@@ -165,6 +165,9 @@ export class Widget  {
     @field({ type: WidgetMaterializedFields })
     materialized: WidgetMaterializedFields;
 
+    @field({ type: GraphQLTypesMap.String, isArray: true })
+    tags: string[];
+
 }
 
 

@@ -23,50 +23,6 @@ let EntitySchema = {
     name: String,
 };
 
-let LocationSchema = {
-    externalId: String,
-    identifier: String,
-    name: String,
-    city: String,
-    state: String,
-    zip: String,
-
-    type: String,
-    size: String
-};
-
-let CustomerSchema = {
-        externalId: String,
-        city: String,
-        state: String,
-        zip: String,
-        gender: String,
-};
-
-let EmployeeSchema = {
-    externalId: String,
-    fullName: String,
-    role: String,
-    type: String, // full time (f), part time (p)
-    workedTime: Number // time in seconds
-};
-
-let ProductSchema = {
-    externalId: String,
-    itemCode: String,
-    itemDescription: String,
-    quantity: Number,
-    unitPrice: Number,
-    tax: Number,
-    tax2: Number,
-    amount: Number,
-    paid: Number,
-    discount: Number,
-    from: Date,
-    to: Date,
-    type: String
-};
-
 let CategorySchema = {
     externalId: String,
     name: String,
@@ -88,10 +44,16 @@ let BusinessUnitSchema = {
     name: String
 };
 
+const SaleReferralSchema = {
+    ...EntitySchema,
+    revenue: Number,
+    revenueNoTax: Number,
+};
 
 let SalesSchema = new Schema ({
     source: String,
     externalId: { type: String, unique: true },
+    billId: String,
     location: (<any>getLocationSchema()),
     customer: (<any>getCustomerSchema()),
     employee: (<any>getEmployeeSchema()),
@@ -103,7 +65,8 @@ let SalesSchema = new Schema ({
     document: DocumentSchema,
     payment: PaymentSchema,
     businessUnit: (<any>BusinessUnitSchema),
-    serviceType: String
+    serviceType: String,
+    referral: [SaleReferralSchema],
 });
 
 export const SaleSchema = SalesSchema;
