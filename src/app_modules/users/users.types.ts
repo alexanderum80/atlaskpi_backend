@@ -249,6 +249,9 @@ export class UserProfile  {
     @field({ type: UserAgreement })
     agreement: UserAgreement;
 
+    @field({ type: GraphQLTypesMap.String })
+    timezone: string;
+
 }
 
 @type()
