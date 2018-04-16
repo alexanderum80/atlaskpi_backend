@@ -43,10 +43,10 @@ export class DashboardQuery implements IQuery<IDashboard> {
 
         // lets prepare the query for the dashboards
         let query = { };
-        if (user.roles.find(r => r.name === 'owner')) {
+        if (user && user.roles && user.roles.find(r => r.name === 'owner')) {
             query = { _id: data.id };
         } else {
-            query = { _id: data.id, $or: [ { owner: user._id }, { users: { $in: [user._id]} } ]};
+            query = { _id: data.id, $or: [ { owner: user._id }, { 'accessLevels.users': { $in: [user._id]} } ]};
         }
 
         return new Promise<IDashboard>((resolve, reject) => {

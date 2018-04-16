@@ -38,6 +38,7 @@ let KPISchema = new Schema({
     emptyValueReplacement: String,
     expression: String,
     type: { type: String, required: true },
+    system: Boolean
 });
 
 // add tags capabilities
@@ -71,16 +72,6 @@ KPISchema.statics.createKPI = function(input: IKPI): Promise<IKPIDocument> {
 
         input.code = input.name;
 
-        let kpiType = KPITypeMap[input.type];
-
-        if (kpiType === KPITypeEnum.Simple || KPITypeEnum.ExternalSource) {
-            input.expression = KPIExpressionHelper.ComposeExpression(kpiType, input.expression);
-        }
-
-        if (input.filter) {
-            input.filter = KPIFilterHelper.ComposeFilter(kpiType, input.filter);
-        }
-
         that.create(input, (err, kpi: IKPIDocument) => {
             if (err) {
                 reject({ message: 'There was an error creating the kpi', error: err });
@@ -96,22 +87,7 @@ KPISchema.statics.updateKPI = function(id: string, input: IKPI): Promise<IKPIDoc
     const that = this;
 
     return new Promise<IKPIDocument>((resolve, reject) => {
-        // let constraints = {
-        //     name: { presence: { message: '^cannot be blank' }},
-        //     expression: { presence: { message: '^cannot be blank' } },
-        //     type: { presence: { message: '^cannot be blank' } }
-        // };
-
-        // let errors = (<any>validate)((<any>input), constraints, {fullMessages: false});
-        // if (errors) {
-        //     reject(errors);
-        //     return;
-        // }
-
         input.code = input.name;
-        let kpiType = KPITypeMap[input.type];
-        input.expression = KPIExpressionHelper.ComposeExpression(kpiType, input.expression);
-        input.filter = KPIFilterHelper.ComposeFilter(kpiType, input.filter);
 
         that.findOneAndUpdate({_id: id}, input, {new: true })
         .exec()

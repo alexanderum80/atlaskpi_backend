@@ -55,6 +55,14 @@ export class PaginationInfo  {
 
 }
 
+@type()
+export class ValueName  {
+    @field({ type: GraphQLTypesMap.String })
+    value: string;
+
+    @field({ type: GraphQLTypesMap.String })
+    name: string;
+}
 
 @type()
 export class DateRange  {
@@ -76,4 +84,14 @@ export class ChartDateRange  {
     custom: DateRange;
 
 }
+
+@type()
+export class Entity {
+    @field({ type: GraphQLTypesMap.String })
+    externalId: string;
+
+    @field({ type: GraphQLTypesMap.String })
+    name: string;
+}
+
 

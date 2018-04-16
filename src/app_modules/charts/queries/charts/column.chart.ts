@@ -1,4 +1,3 @@
-import * as Promise from 'bluebird';
 import * as console from 'console';
 import { min } from 'moment';
 
@@ -14,7 +13,6 @@ export class ColumnChart extends UIChartBase implements IUIChart {
     protected basicDefinition = {
         chart: { type: 'column' },
         yAxis: {
-            min: 0,
             title: { text: '' }
         }
     };
@@ -28,9 +26,9 @@ export class ColumnChart extends UIChartBase implements IUIChart {
 
         this.dateRange = this._getDateRange(metadata.dateRange);
         this.comparison = this._getComparisonDateRanges(this.dateRange, metadata.comparison);
-        console.dir(this.comparison);
+        
         return (this.comparison && this.comparison.length > 0)
-            ? this.getDefinitionOfComparisonChart(kpi, metadata)
+            ? this.getDefinitionOfComparisonChart(kpi, metadata, target)
             : this.getDefinitionForDateRange(kpi, metadata, target);
     }
 }

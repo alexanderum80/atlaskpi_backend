@@ -1,3 +1,4 @@
+import { criteriaPlugin } from '../../../app_modules/shared/criteria.plugin';
 import { inject, injectable } from 'inversify';
 import * as mongoose from 'mongoose';
 
@@ -29,19 +30,7 @@ export const InventorySchema = new Schema({
     cost: Number
 });
 
-InventorySchema.statics.findCriteria = function(field: string): Promise<string[]> {
-    const that = this;
-
-    return new Promise<string[]>((resolve, reject) => {
-        that.distinct(field).then(values => {
-            resolve(values);
-            return;
-        }).catch(err => {
-            reject(err);
-            return;
-        });
-    });
-};
+InventorySchema.plugin(criteriaPlugin);
 
 @injectable()
 export class Inventory extends ModelBase<IInventoryModel> {

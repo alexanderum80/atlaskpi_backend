@@ -1,7 +1,5 @@
 import { Expenses } from '../expenses/expense.model';
-import * as Promise from 'bluebird';
 
-import { getGroupingMetadata } from '../../../app_modules/charts/queries/chart-grouping-map';
 import { ChartFactory } from '../../../app_modules/charts/queries/charts/chart-factory';
 import { IChartMetadata } from '../../../app_modules/charts/queries/charts/chart-metadata';
 import { KpiFactory } from '../../../app_modules/kpis/queries/kpi.factory';
@@ -12,6 +10,8 @@ import { KPIs } from '../kpis/kpi.model';
 import { Sales } from '../sales/sale.model';
 import { IUIWidget, UIWidgetBase } from './ui-widget-base';
 import { IWidget, IWidgetMaterializedFields } from './widget';
+import { IVirtualSourceDocument } from '../virtual-sources/virtual-source';
+import { VirtualSources } from '../virtual-sources/virtual-source.model';
 
 
 export class ChartWidget extends UIWidgetBase implements IUIWidget {
@@ -25,7 +25,8 @@ export class ChartWidget extends UIWidgetBase implements IUIWidget {
         private _charts: Charts,
         private _sales: Sales,
         private _expenses: Expenses,
-        private _kpis: KPIs
+        private _kpis: KPIs,
+        private _virtualSources: IVirtualSourceDocument[]
         ) {
         super(widget);
         if (!this.chartWidgetAttributes || !this.chartWidgetAttributes.chart) {
@@ -52,45 +53,40 @@ export class ChartWidget extends UIWidgetBase implements IUIWidget {
                 console.log(materialized.chart);
                 resolve(<any>result);
                 return;
+            })
+            .catch(e => {
+                console.error('There was an error materializing chart widget');
+                reject(e);
             });
         });
     }
 
-    private _resolveUIChart(): Promise<IChart> {
-        const that = this;
+    private async _resolveUIChart(): Promise<IChart> {
+        try {
+            const chartDocument = await this._charts.model
+                .findOne({ _id: this.chartWidgetAttributes.chart })
+                .populate({ path: 'kpis' });
 
-        return new Promise<IChart>((resolve, reject) => {
-            that._charts.model
-                .findOne({ _id: that.chartWidgetAttributes.chart })
-                .populate({ path: 'kpis' })
-                .then(chartDocument => {
-                    if (!chartDocument) {
-                        console.log('could not resolve a chart object for the kpi');
-                        return resolve(null);
-                    }
-                    const chartObject = <IChart>chartDocument.toObject();
-                    const uiChart = that._chartFactory.getInstance(chartObject);
-                    // TODO: Refactor
-                    const kpi = that._kpiFactory.getInstance(chartObject.kpis[0]);
-                    const groupings = getGroupingMetadata(chartDocument, []);
-                    const chartParameters: IChartMetadata = {
-                        filter: chartObject.filter,
-                        frequency: FrequencyTable[chartObject.frequency],
-                        groupings: groupings,
-                        comparison: chartObject.comparison,
-                        xAxisSource: chartObject.xAxisSource
-                    };
+            if (!chartDocument) {
+                console.error('could not resolve a chart object for the kpi');
+                return null;
+            }
 
-                    uiChart.getDefinition(kpi, chartParameters, [])
-                            .then(definition => {
-                            console.log('chart definition received for id: ' + chartDocument._id);
-                            chartObject.chartDefinition = definition;
-                            resolve(chartObject);
-                            return;
-                    })
-                    .catch(err => reject(err));
-                })
-                .catch(err => reject(err));
-        });
+            const chartObject = <IChart>chartDocument.toObject();
+            const uiChart = this._chartFactory.getInstance(chartObject);
+            const kpi = await this._kpiFactory.getInstance(chartObject.kpis[0]);
+            const chartParameters: IChartMetadata = {
+                filter: chartObject.filter,
+                frequency: FrequencyTable[chartObject.frequency],
+                groupings: chartDocument.groupings,
+                comparison: chartObject.comparison,
+                xAxisSource: chartObject.xAxisSource
+            };
+
+            return await uiChart.getDefinition(kpi, chartParameters, []);
+        } catch (e) {
+            console.error('Error resolving ui chart', e);
+            return null;
+        }
     }
 }

@@ -1,3 +1,4 @@
+import { InputUserProfile } from '../../../../app_modules/users/users.types';
 import * as Promise from 'bluebird';
 import mongoose = require('mongoose');
 import * as nodemailer from 'nodemailer';
@@ -22,6 +23,12 @@ export interface IEmbeddedDocument {
 export interface IUserEmail {
     address: string;
     verified: boolean;
+}
+
+export interface IUserAgreement {
+    accept: boolean;
+    timestamp: Date;
+    ipAddress: string;
 }
 
 export interface IUserLoginToken {
@@ -53,14 +60,33 @@ export interface IUserProfile {
     lastName?: string;
     sex?: string;
     dob?: Date;
+    phoneNumber?: string;
 }
 
 export interface IShowTour {
     showTour: boolean;
 }
 
+export interface IUserNotifications {
+    general?: boolean;
+    chat?: boolean;
+    email?: boolean;
+    dnd?: boolean;
+}
 export interface IUserPreference {
     chart?: IShowTour;
+
+    notification?: IUserNotifications;
+    avatarAddress?: string;
+    helpCenter?: boolean;
+}
+
+
+export interface IUserAgreementInput {
+    email: string;
+    accept: boolean;
+    ipAddress: string;
+    timestamp?: Date;
 }
 
 export interface ITokenInfo {
@@ -88,6 +114,27 @@ export interface IAccountCreatedDataSource {
 export interface IUserForgotPasswordDataSource extends IAccountCreatedDataSource {
 
 }
+export interface IUserProfileInput {
+    firstName?: string;
+    middleName?: string;
+    lastName?: string;
+    phoneNumber?: string;
+    email?: string;
+    general?: boolean;
+    chat?: boolean;
+    viaEmail?: boolean;
+    dnd?: boolean;
+}
+export interface IUserProfileResolve {
+    firstName?: string;
+    middleName?: string;
+    lastName?: string;
+    phoneNumber?: string;
+    general?: boolean;
+    chat?: boolean;
+    viaEmail?: boolean;
+    dnd?: boolean;
+}
 
 export interface IUser {
     username: string;
@@ -96,6 +143,7 @@ export interface IUser {
     services?: IUserServices;
     profile: IUserProfile;
     preferences?: IUserPreference;
+    agreement?: IUserAgreement;
     roles?: IRole[];
     tokens?: ITokenInfo[];
     mobileDevices?: IMobileDevice[];
@@ -104,6 +152,8 @@ export interface IUser {
 
 // declare interface to mix account and mongo docuemnt properties/methods
 export interface IUserDocument extends IUser, mongoose.Document {
+    profilePictureUrl: string;
+
     hasRole(role: string, done: (err: any, hasRole: boolean) => void): void;
     addRole(role: string, done?: (err: any, role: IRoleDocument) => void): void;
     addRoleBatches(role: string, done?: (err: any, role: IRoleDocument) => void): void;
@@ -170,16 +220,24 @@ export interface IUserModel extends mongoose.Model<IUserDocument> {
      * @return {Promise<IUserDocument>}
      */
     findByUsername(username: string): Promise<IUserDocument>;
-        /**
+   
+    /**
      * Finds the user with the specified Full Name but if more than one user matches the case insensitive search, it returns null.
      * @param {string} firstName - the firstName to look for
      * @param {string} lastName - the firstName to look for
      * @return {Promise<IUserDocument>}
      */
-    findByFullName(firstName: string, lastName: string): Promise<IUserDocument>;
-     /**
+     findByFullName(firstName: string, lastName: string): Promise<IUserDocument>;
+
+      /**
      * Finds the user with the specified username but if more than one user matches the case insensitive search, it returns null.
      * @param {string} username - the username to look for
+     * @return {Promise<IUserDocument>}
+     */
+    findByUserHelpCenter(username: string): Promise<IUserDocument>;
+     /**
+     * Finds the user with the specified username but if more than one user matches the case insensitive search, it returns null.
+     * @param {string} id - the username to look for
      * @return {Promise<IUserDocument>}
      */
     findUserById(id: string): Promise<IUserDocument>;
@@ -188,11 +246,7 @@ export interface IUserModel extends mongoose.Model<IUserDocument> {
      * @param {string} email - the email address to look for
      * @returns {Promise<IUserDocument>}
      */
-    /**
-     * Finds the user with the specified username but if more than one user matches the case insensitive search, it returns null.
-     * @param {string} username - the username to look for
-     * @return {Promise<IUserDocument>}
-     */
+    
     findByEmail(email: string): Promise<IUserDocument>;
     /**
      * Add an email address for a user. Use this instead of directly updating the database.
@@ -294,8 +348,19 @@ export interface IUserModel extends mongoose.Model<IUserDocument> {
      * find users with array of user ids
      */
     findUsersById(id: string[]): Promise<IUserDocument[]>;
+
     /**
      * update the user's preferences
      */
     updateUserPreference(id: string, input: IUserPreference): Promise<IUserDocument>;
+    /**
+     * update the user's agreement
+     */
+    updateUserAgreement(input: IUserAgreementInput): Promise<IUserDocument>;
+
+    /**
+     * Edit user profile
+     */
+    editUserProfile(id: string, input: IUserProfileInput): Promise<IMutationResponse>;
+
 }

@@ -9,6 +9,7 @@ import { ModelBase } from '../../../type-mongo/model-base';
 import { AppConnection } from '../app.connection';
 import { IChartDocument, IChartInput, IChartModel } from './chart';
 import { tagsPlugin } from '../tags/tag.plugin';
+import { ChartType } from '../../../app_modules/charts/queries/charts/chart-type';
 
 let Schema = mongoose.Schema;
 
@@ -20,6 +21,11 @@ const customDateRangeSchema = {
 let ChartDateRangeSchema = {
     predefined: String,
     custom: customDateRangeSchema
+};
+
+const TopSchema = {
+    predefined: String,
+    custom: Number
 };
 
 let ChartSchema = new Schema({
@@ -45,13 +51,20 @@ let ChartSchema = new Schema({
     },
     chartDefinition: { type: Schema.Types.Mixed, required: true },
     xAxisSource: String,
-    comparison: [String]
+    comparison: [String],
+    top: TopSchema
 });
 
 // add tags capabilities
 ChartSchema.plugin(tagsPlugin);
 
-// ChartSchema.methods.
+ChartSchema.methods.isStacked = function(): boolean {
+    return ((this.chartDefinition.chart.type === ChartType.Column) &&
+        Array.isArray(this.groupings) &&
+        this.xAxisSource && (this.groupings[0] === this.xAxisSource)) ||
+        (Array.isArray(this.groupings) &&
+        this.groupings.length && !this.frequency && !this.xAxisSource);
+}
 
 ChartSchema.statics.createChart = function(input: IChartInput): Promise < IChartDocument > {
     const that = this;
@@ -92,7 +105,8 @@ ChartSchema.statics.createChart = function(input: IChartInput): Promise < IChart
             yFormat: input.yFormat,
             chartDefinition: JSON.parse(input.chartDefinition),
             xAxisSource: input.xAxisSource,
-            comparison: input.comparison
+            comparison: input.comparison,
+            top: input.top
         };
 
         that.create(newChart)
@@ -145,7 +159,8 @@ ChartSchema.statics.updateChart = function(id: string, input: IChartInput): Prom
             yFormat: input.yFormat,
             chartDefinition: JSON.parse(input.chartDefinition),
             xAxisSource: input.xAxisSource,
-            comparison: input.comparison
+            comparison: input.comparison,
+            top: input.top
         };
 
         that.findOneAndUpdate({

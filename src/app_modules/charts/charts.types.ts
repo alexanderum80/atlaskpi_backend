@@ -30,9 +30,16 @@ export class GetChartInput  {
 
     @field({ type: GraphQLTypesMap.Boolean })
     isFutureTarget: boolean;
-
 }
 
+@input()
+export class ChartTopInput {
+    @field({ type: GraphQLTypesMap.String })
+    predefined: string;
+
+    @field({ type: GraphQLTypesMap.Int })
+    custom: number;
+}
 
 @input()
 export class ChartAttributesInput  {
@@ -50,6 +57,9 @@ export class ChartAttributesInput  {
 
     @field({ type: ChartDateRangeInput, isArray: true })
     dateRange: ChartDateRangeInput[];
+
+    @field({ type: ChartTopInput})
+    top: ChartTopInput;
 
     @field({ type: GraphQLTypesMap.String })
     frequency: string;
@@ -76,6 +86,15 @@ export class ChartAttributesInput  {
     isDrillDown?: boolean;
 }
 
+@type()
+export class ChartTopResponse {
+    @field({ type: GraphQLTypesMap.String })
+    predefined: string;
+
+    @field({ type: GraphQLTypesMap.Int })
+    custom: number;
+}
+
 
 @type()
 export class ChartEntityResponse  {
@@ -96,6 +115,9 @@ export class ChartEntityResponse  {
 
     @field({ type: ChartDateRange })
     dateRange: ChartDateRange;
+
+    @field({ type: ChartTopResponse })
+    top: ChartTopResponse;
 
     @field({ type: GraphQLTypesMap.String })
     filter: string;

@@ -1,3 +1,5 @@
+import { UpdateUserAgreementMutation } from './mutations/update-user-agreement.mutation';
+import { FindUserByUsername } from './queries/find-user-by-username.query';
 import { AppModule, ModuleBase } from '../../framework/decorators/app-module';
 import { AddMobileDeviceMutation } from './mutations/add-mobile-device.mutation';
 import { CreateUserMutation } from './mutations/create-user.mutation';
@@ -13,6 +15,8 @@ import { IsResetPasswordTokenValidQuery } from './queries/is-reset-password-toke
 import { UserQuery } from './queries/user.query';
 import { UsersQuery } from './queries/users.query';
 import { FindByFullNameQuery } from './queries/user-by-fullName.query';
+import { EditUserProfileMutation} from './mutations/edit-user-profile.mutation';
+import { UserHelpCenterQuery } from './queries/user-help-center.query';
 
 
 @AppModule({
@@ -24,7 +28,9 @@ import { FindByFullNameQuery } from './queries/user-by-fullName.query';
         ResetPasswordMutation,
         UpdateUserMutation,
         UserForgotPasswordMutation,
-        UpdateUserPreferenceMutation
+        UpdateUserPreferenceMutation,
+        EditUserProfileMutation,
+        UpdateUserAgreementMutation
     ],
     queries: [
         AllUsersQuery,
@@ -32,7 +38,9 @@ import { FindByFullNameQuery } from './queries/user-by-fullName.query';
         IsResetPasswordTokenValidQuery,
         UserQuery,
         UsersQuery,
-        FindByFullNameQuery
+        FindByFullNameQuery,
+        UserHelpCenterQuery,
+        FindUserByUsername
     ]
 })
 export class UsersModule extends ModuleBase { }

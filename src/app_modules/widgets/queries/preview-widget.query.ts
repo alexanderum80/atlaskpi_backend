@@ -1,4 +1,3 @@
-import * as Promise from 'bluebird';
 import { inject, injectable } from 'inversify';
 
 import { Widgets } from '../../../domain/app/widgets/widget.model';

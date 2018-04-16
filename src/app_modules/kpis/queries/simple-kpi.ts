@@ -1,25 +1,20 @@
+import { cloneDeep } from 'lodash';
+
 import { Calls } from '../../../domain/app/calls/call.model';
-import { SimpleKPIBase } from './simple-kpi-base';
 import { Expenses } from '../../../domain/app/expenses/expense.model';
 import { Inventory } from '../../../domain/app/inventory/inventory.model';
-import * as Promise from 'bluebird';
 import { IKPI, IKPIDocument, IKPISimpleDefinition, KPITypeEnum } from '../../../domain/app/kpis/kpi';
 import { KPIExpressionHelper } from '../../../domain/app/kpis/kpi-expression.helper';
 import { Sales } from '../../../domain/app/sales/sale.model';
 import { IDateRange } from '../../../domain/common/date-range';
 import { FrequencyEnum } from '../../../domain/common/frequency-enum';
-import { field } from '../../../framework/decorators/field.decorator';
+import { Appointments } from './../../../domain/app/appointments/appointment-model';
+import { Appointment } from './../../appointments/appointments.types';
 import { AggregateStage } from './aggregate';
-import { IGetDataOptions, IKpiBase, KpiBase, ICollection } from './kpi-base';
-import { isArrayObject, isRegExp } from '../../../helpers/express.helpers';
-
-import * as changeCase from 'change-case';
-
-import {
-    cloneDeep,
-    isArray,
-    isObject
-} from 'lodash';
+import { ICollection, IGetDataOptions, IKpiBase } from './kpi-base';
+import { SimpleKPIBase } from './simple-kpi-base';
+import { IVirtualSourceDocument } from '../../../domain/app/virtual-sources/virtual-source';
+import { KPIFilterHelper } from '../../../domain/app/kpis/kpi-filter.helper';
 
 const CollectionsMapping = {
     sales: {
@@ -37,6 +32,10 @@ const CollectionsMapping = {
     calls: {
         modelName: 'Call',
         timestampField: 'created_at'
+    },
+    appointments: {
+        modelName: 'Appointment',
+        timestampField: 'from'
     }
 };
 
@@ -46,22 +45,50 @@ export class SimpleKPI extends SimpleKPIBase implements IKpiBase {
                                         sales: Sales,
                                         expenses: Expenses,
                                         inventory: Inventory,
-                                        calls: Calls
+                                        calls: Calls,
+                                        appointments: Appointments,
+                                        virtualSources: IVirtualSourceDocument[]
                                     ): SimpleKPI {
-        const simpleKPIDefinition: IKPISimpleDefinition = KPIExpressionHelper.DecomposeExpression(KPITypeEnum.Simple, kpi.expression);
 
-        const collection: ICollection = CollectionsMapping[simpleKPIDefinition.dataSource];
+        const simpleKPIDefinition: IKPISimpleDefinition = KPIExpressionHelper.DecomposeExpression(KPITypeEnum.Simple, kpi.expression);
+        let collection: ICollection;
+        let baseAggregate: any;
+
+        if (virtualSources) {
+            const virtualSource = virtualSources.find(s => s.name.toLocaleLowerCase() === simpleKPIDefinition.dataSource);
+
+            if (virtualSource) {
+                collection = {
+                    modelName: virtualSource.modelIdentifier,
+                    timestampField: virtualSource.dateField
+                };
+                
+                simpleKPIDefinition.dataSource = virtualSource.source.toLowerCase();
+
+                if (virtualSource.aggregate) {
+                    baseAggregate = virtualSource.aggregate.map(a => {
+                        return KPIFilterHelper.CleanObjectKeys(a);
+                    });
+                }
+            }
+        }
+
+        if (!collection) {
+            collection = CollectionsMapping[simpleKPIDefinition.dataSource];
+        }
+
         if (!collection) { return null; }
 
         const models = {
             Sale: sales.model,
             Expense: expenses.model,
             Inventory: inventory.model,
-            Call: calls.model
+            Call: calls.model,
+            Appointment: appointments.model
         };
 
         const model = models[collection.modelName];
-        const aggregateSkeleton: AggregateStage[] = [
+        let aggregateSkeleton: AggregateStage[] = [
             {
                 filter: true,
                 $match: { }
@@ -83,11 +110,17 @@ export class SimpleKPI extends SimpleKPIBase implements IKpiBase {
                 $match: { }
             },
             {
+                topN: true,
                 $sort: {
                     '_id.frequency': 1
                 }
             }
         ];
+
+        if (baseAggregate) {
+            aggregateSkeleton = baseAggregate.concat(aggregateSkeleton);
+        }
+
         return new SimpleKPI(model, aggregateSkeleton, simpleKPIDefinition, kpi, collection);
     }
 
@@ -103,13 +136,11 @@ export class SimpleKPI extends SimpleKPIBase implements IKpiBase {
             deserializedFilter = this._cleanFilter(this.kpi.filter);
 
         if (deserializedFilter)
-            this._injectPreGroupStageFilters(deserializedFilter, definition.field);
+            this._injectPreGroupStageFilters(deserializedFilter, null);
+            // this._injectPreGroupStageFilters(deserializedFilter, definition.field);
 
         this._injectFieldToProjection(definition.field);
         this._injectAcumulatorFunctionAndArgs(definition);
-
-        if (deserializedFilter)
-            this._injectPostGroupStageFilters(deserializedFilter, definition.field);
 
         this.pristineAggregate = cloneDeep(baseAggregate);
     }

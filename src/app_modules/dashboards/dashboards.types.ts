@@ -5,6 +5,15 @@ import { type } from '../../framework/decorators/type.decorator';
 import { ErrorDetails } from '../../framework/graphql/common.types';
 
 
+@input()
+export class AccessLevelsInput {
+    @field({ type: GraphQLTypesMap.String, required: true, isArray: true })
+    users: string[];
+
+    @field({ type: GraphQLTypesMap.String, required: true, isArray: true })
+    accessTypes: string[];
+
+}
 
 @input()
 export class DashboardInput  {
@@ -14,20 +23,28 @@ export class DashboardInput  {
     @field({ type: GraphQLTypesMap.String, required: true })
     description: string;
 
-    @field({ type: GraphQLTypesMap.String, required: true })
-    group: string;
-
     @field({ type: GraphQLTypesMap.String, isArray: true })
     charts: string[];
 
     @field({ type: GraphQLTypesMap.String, isArray: true })
     widgets: string[];
 
+    @field({ type: AccessLevelsInput, isArray: true })
+    accessLevels: AccessLevelsInput[];
+
+    @field({ type: GraphQLTypesMap.String })
+    owner: string;
+}
+
+@type()
+export class AccessLevels {
     @field({ type: GraphQLTypesMap.String, isArray: true })
     users: string[];
 
-}
+    @field({ type: GraphQLTypesMap.String, isArray: true })
+    accessTypes: string[];
 
+}
 
 @type()
 export class Dashboard  {
@@ -40,17 +57,17 @@ export class Dashboard  {
     @field({ type: GraphQLTypesMap.String })
     description: string;
 
-    @field({ type: GraphQLTypesMap.String })
-    group: string;
-
     @field({ type: GraphQLTypesMap.String, isArray: true })
     charts: string[];
 
     @field({ type: GraphQLTypesMap.String, isArray: true })
     widgets: string[];
 
-    @field({ type: GraphQLTypesMap.String, isArray: true })
-    users: string[];
+    @field({ type: AccessLevels, isArray: true })
+    accessLevels: AccessLevels[];
+
+    @field({ type: GraphQLTypesMap.String })
+    owner: string;
 
 }
 

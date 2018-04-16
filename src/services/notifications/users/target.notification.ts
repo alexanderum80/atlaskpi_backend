@@ -24,14 +24,14 @@ export class TargetNotification implements IEmailNotifier {
         }
 
         dataSource.targetName = data.targetName;
-        dataSource.targetAmount = parseInt(data.targetAmount).toFixed(2);
+        dataSource.targetAmount = parseFloat(data.targetAmount).toFixed(2);
         dataSource.targetDate = data.targetDate;
-        dataSource.targetMet = data.targetMet;
+        dataSource.targetMet = parseFloat(data.targetMet).toFixed(2);
         dataSource.dashboardName = data.dashboardName;
         dataSource.chartName = data.chartName;
         dataSource.businessUnitName = data.businessUnitName;
 
         const emailContent = targetNotificationTemplate(dataSource);
-        return sendEmail(email, `${this._config.usersService.app.name}: Target Notification`, emailContent);
+        return sendEmail(email, `Target Notification`, emailContent);
     }
 }

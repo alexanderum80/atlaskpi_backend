@@ -1,13 +1,16 @@
-import * as Promise from 'bluebird';
+import * as Bluebird from 'bluebird';
 import { camelCase } from 'change-case';
-import { cloneDeep, find, groupBy, isArray, isDate, isNull, isObject, negate, pick, remove, sortBy } from 'lodash';
+import { cloneDeep, flatten, groupBy, isArray, isDate, isNumber, isObject, pick, reduce, sortBy } from 'lodash';
+import * as moment from 'moment';
 import * as logger from 'winston';
 
 import { IKPI } from '../../../domain/app/kpis/kpi';
 import { IChartDateRange, IDateRange } from '../../../domain/common/date-range';
 import { FrequencyEnum } from '../../../domain/common/frequency-enum';
+import { chartTopMomentFormat, chartTopValue, IChartTop } from '../../../domain/common/top-n-record';
 import { field } from '../../../framework/decorators/field.decorator';
-import { isArrayObject, isRegExp } from '../../../helpers/express.helpers';
+import { isArrayObject } from '../../../helpers/express.helpers';
+import { NULL_CATEGORY_REPLACEMENT } from '../../charts/queries/charts/ui-chart-base';
 import { AggregateStage } from './aggregate';
 
 export interface ICollection {
@@ -29,10 +32,13 @@ export interface IKPIResult {
 
 export interface IGetDataOptions {
     dateRange?: [IChartDateRange];
+    top?: IChartTop;
+    includeTopGroupingValues?: string[];
+    limit?: number;
     filter?: any;
     frequency?: FrequencyEnum;
     groupings?: string[];
-    stackName?: any;
+    stackName?: string;
     isDrillDown?: boolean;
     isFutureTarget?: boolean;
     comparison?: string[];
@@ -67,7 +73,7 @@ export class KpiBase {
         let that = this;
 
         return new Promise<any>((resolve, reject) => {
-            if (dateRange && dateRange.hasOwnProperty('length') && dateRange.length)
+            if (dateRange && dateRange.length)
                 that._injectDataRange(dateRange, dateField);
             if (options.filter)
                 that._injectFilter(options.filter);
@@ -77,6 +83,10 @@ export class KpiBase {
                 that._injectFrequency(options.frequency, dateField);
             if (options.groupings)
                 that._injectGroupings(options.groupings);
+            if (options.groupings && options.limit)
+                that._injectSort();
+            if (options.limit)
+                that._injectLimit(options.limit, options.groupings);
 
             // decompose aggregate object into array
             let aggregateParameters = [];
@@ -87,12 +97,25 @@ export class KpiBase {
             });
 
             // logger.debug('With aggregate: ' + JSON.stringify(aggregateParameters));
-            this.model.aggregate(...aggregateParameters).then(data => {
+            const aggregate = this.model.aggregate(...aggregateParameters);
+            aggregate.options = { allowDiskUse: true };
+            aggregate.exec((err, data) => {
                 logger.debug('MongoDB data received: ' + that.model.modelName);
                 // before returning I need to check if a "top" filter was added
-                if (options.filter && options.filter.top) {
-                    data = that._applyTop(data, options.filter.top);
+                // if (options.filter && options.filter.top) {
+                //     data = that._applyTopWithOutGroupings(data, options.filter.top);
+                // }
+
+                if (options.top && (options.top.predefined || options.top.custom)) {
+                    if (options.groupings && options.includeTopGroupingValues) {
+                        data = that._applyTopWithGroupings(data, options.groupings, options.includeTopGroupingValues);
+                    } else {
+                        if ((!options.groupings || !options.groupings.length) && options.frequency) {
+                            data = that._applyTopWithOutGroupings(data, options.frequency, options.top);
+                        }
+                    }
                 }
+
 
                 resolve(data);
             }, (e) => {
@@ -126,28 +149,31 @@ export class KpiBase {
     }
 
     private _injectDataRange(dateRange: IDateRange[], field: string) {
-        let matchStage = this.findStage('filter', '$match');
+        const matchDateRange = { $match: {} } as any;
 
-        if (!matchStage) {
-            throw 'KpiBase#_injectDataRange: Cannot inject date range because a dateRange/$match stage could not be found';
-        }
-
-        if (dateRange &&
-            (<any>dateRange).length) {
-            if ((<any>dateRange).length === 1) {
-                matchStage.$match[field] = { '$gte': dateRange[0].from, '$lt': dateRange[0].to };
+        if (dateRange && dateRange.length) {
+            if (dateRange.length === 1) {
+                matchDateRange.$match[field] = { '$gte': dateRange[0].from, '$lt': dateRange[0].to };
             } else {
-                (<any>dateRange).map((dateParams) => {
-                    matchStage.$match = {
-                        $or: [
-                            {
-                                [field]: { '$gte': dateParams.from, '$lt': dateParams.to }
-                            }
-                        ]
-                    };
-                });
+                if (!matchDateRange['$match']) {
+                    matchDateRange.$match = {};
+                }
+
+                if (!matchDateRange.$match['$or']) {
+                    matchDateRange.$match.$or = {};
+                }
+
+                matchDateRange.$match.$or = dateRange.map((dateParams: IDateRange) => ({
+                    // field => i.e. 'product.from', timestamp
+                    [field]: {
+                        $gte: dateParams.from,
+                        $lt: dateParams.to
+                    }
+                }));
             }
         }
+
+        this.aggregate.unshift(matchDateRange);
     }
 
     private _injectFilter(filter: any) {
@@ -172,7 +198,11 @@ export class KpiBase {
         }
 
         if (field && stackName) {
-            matchStage.$match[field[0]] = stackName;
+            if (stackName === NULL_CATEGORY_REPLACEMENT) {
+                matchStage.$match[field[0]] = null;
+            } else {
+                matchStage.$match[field[0]] = stackName;
+            }
         }
     }
 
@@ -213,7 +243,11 @@ export class KpiBase {
                     }
 
                     key = '$regex';
-                    value = new RegExp(filterValue);
+                    if (operatorName === 'regex') {
+                        value = new RegExp(filterValue);
+                    } else {
+                        value = new RegExp(filterValue, 'i');
+                    }
                 } else {
                     value = filterValue;
                 }
@@ -382,6 +416,41 @@ export class KpiBase {
         });
     }
 
+    /**
+     * add $limit to aggregate for: i.e. top 5, top 10
+     * @param limit
+     */
+    private _injectLimit(limit: number, groupings: string[]): void {
+        if (!isNumber(limit) || (limit === 0)) {
+            return;
+        }
+
+        // i.e. top 5 = top 4 and others
+        if (limit !== 1 && (groupings || groupings.length)) {
+            limit = limit - 1;
+        }
+
+        const aggregateLimit = {
+            $limit: limit
+        };
+
+        this.aggregate.push(aggregateLimit);
+    }
+
+    /**
+     * use for top n
+     * sort highest to lowest values
+     */
+    private _injectSort(): void {
+        let limitStage = this.findStage('topN', '$sort');
+
+        if (limitStage && limitStage.$sort) {
+            limitStage.$sort = {
+                value: -1
+            };
+        }
+    }
+
     private _applyGroupings(group: any, groupings: string[]) {
         if (!groupings) {
             return;
@@ -397,39 +466,96 @@ export class KpiBase {
         });
     }
 
-    private _applyTop(data: any[], top: { field: string, value: number }): any[] {
+    private _applyTopWithGroupings(data: any[], groupings: string[], includeTopGroupingValues: string[]): any[] {
+        if (!data || !data.length) { return data; }
+        if (!groupings || !groupings.length) { return data; }
+        if (!includeTopGroupingValues || !includeTopGroupingValues.length) { return data; }
+
+        /**
+         * if not in top n, group by 'Others'
+         * else return same object
+         */
+        const groupedData = groupBy(data, (item) => {
+            const groupField = camelCase(groupings[0]);
+
+            // assign NULL_CATEGORY_REPLACEMENT if object does not contain grouping field
+            if (!item._id[groupField]) {
+                item._id[groupField] = NULL_CATEGORY_REPLACEMENT;
+            }
+
+            // check if the grouping value exist in the top n
+            const topNotExist = item._id ?
+                              includeTopGroupingValues.indexOf(item._id[groupField]) === -1 :
+                              false;
+
+            if (topNotExist) {
+                item._id[groupField] = 'Others';
+                // i.e. Others-2018-01
+                return `${item._id[groupField]}-${item._id.frequency}`;
+            }
+
+            return `${item._id[groupField]}`;
+        });
+
+        data = this._reduceOthersAndTop(groupedData, includeTopGroupingValues);
+
+        return data;
+    }
+
+    private _reduceOthersAndTop(groupedData: any, includeTopGroupingValues: string[]): any[] {
+        for (let i in groupedData) {
+            if (includeTopGroupingValues.indexOf(i) === -1) {
+                // get the total of 'Other' grouping
+                const othersTotal = reduce(groupedData[i], (result: any, item: any) => {
+                    return {
+                        value: result.value + item.value
+                    };
+                });
+
+                // get _id object
+                const { _id } = pick(groupedData[i][0], '_id');
+                // show the _id object with the total by frequency of 'Others'
+                groupedData[i] = [{
+                    _id,
+                    value: othersTotal.value
+                }];
+            }
+        }
+
+        return this._reformatTopAndOthers(groupedData);
+    }
+
+    private _reformatTopAndOthers(groupedData: any): any[] {
+        const structuredData = [];
+        // restructure the data back to its original format
+        for (let k in groupedData) {
+            structuredData.push(groupedData[k]);
+        }
+        // convert to single arrary of objects
+        return flatten(structuredData);
+    }
+
+    private _applyTopWithOutGroupings(data: any[], frequency: number, top: IChartTop): any[] {
         // validate if data array has elements
         if (!data || data.length === 0) {
             return data;
         }
-        // get first record to extract the groupings
-        let groupings = Object.keys(data[0]._id);
-        // remove out of that group the filed use for the top
-        remove(groupings, g => g === top.field);
-
-        if (groupings.length === 0) {
-            groupings = ['frequency'];
+        if (!top || (!top.predefined && !top.custom)) {
+            return data;
         }
 
-        // now group the results and remove all values that exceed the group size
-        // https://stackoverflow.com/questions/29587488/grouping-objects-by-multiple-columns-with-lodash-or-underscore
-        const notNull = negate(isNull);
-        const dataGroups = groupBy(data, (item) => {
-            return find(pick(item._id, groupings), notNull);
+        const topValue: number = chartTopValue(top);
+        const sortByValue: any[] = sortBy(data, 'value');
+
+        const topNData: any[] = sortByValue.slice(0, topValue);
+        const that = this;
+
+        data = topNData.sort((a: any, b: any) => {
+            const momentFormat = chartTopMomentFormat(frequency);
+            return moment(a, momentFormat).diff(moment(b, momentFormat));
         });
 
-        let newResult: any[] = [];
-
-        // sort / slice results
-        for (let k in dataGroups) {
-            let groupData = dataGroups[k];
-            const sortedResult = sortBy(groupData, (item: any) => -item.value );
-            const slicedList = sortedResult.slice(0, top.value);
-
-            newResult = newResult.concat(slicedList);
-        }
-
-        return newResult;
+        return data;
     }
 
     private _regexPattern(type: string, value: string) {

@@ -6,8 +6,8 @@ import * as logger from 'winston';
 import { input } from '../../../framework/decorators/input.decorator';
 import { ModelBase } from '../../../type-mongo/model-base';
 import { AppConnection } from '../app.connection';
-import { ISlideshowDocument, ISlideshowInput, ISlideshowModel } from './slideshow';
 import { tagsPlugin } from '../tags/tag.plugin';
+import { ISlideshowInput, ISlideshowDocument, ISlideshowModel } from './slideshow';
 
 const SlideshowSchema = new mongoose.Schema({
     name: { type: String, required: true, unique: true },
@@ -98,6 +98,19 @@ SlideshowSchema.statics.slideshowById = function(id: string): Promise<ISlideshow
 
     return new Promise<ISlideshowDocument>((resolve, reject) => {
         that.findById({_id: id}).then(slideshow => {
+           resolve(slideshow);
+        }).catch(err => {
+            logger.error(err);
+            reject('There was an error retrieving Slideshow');
+        });
+    });
+};
+
+SlideshowSchema.statics.slideshowByName = function(name: string): Promise<ISlideshowDocument> {
+    const that = <ISlideshowModel> this;
+
+    return new Promise<ISlideshowDocument>((resolve, reject) => {
+        that.findOne({name: name}).then(slideshow => {
            resolve(slideshow);
         }).catch(err => {
             logger.error(err);

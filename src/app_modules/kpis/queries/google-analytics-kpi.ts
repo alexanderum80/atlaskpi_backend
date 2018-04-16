@@ -1,6 +1,5 @@
 import { IBatchProperties } from './../../../services/kpis/google-analytics-kpi/google-analytics.helper';
 import { cloneDeep, uniq } from 'lodash';
-import * as Promise from 'bluebird';
 import * as moment from 'moment';
 import * as mongoose from 'mongoose';
 
@@ -45,6 +44,7 @@ export class GoogleAnalyticsKpi extends SimpleKPIBase implements IKpiBase {
                 $match: { }
             },
             {
+                topN: true,
                 $sort: {
                     '_id.frequency': 1
                 }
@@ -106,7 +106,7 @@ export class GoogleAnalyticsKpi extends SimpleKPIBase implements IKpiBase {
         // get the groupings
         // options groupings have precedence over kpi groupings
         let groupings = options.groupings  && options.groupings.length  && options.groupings  ||
-                          this._kpi.groupings && this._kpi.groupings.length && this._kpi.groupings ||
+                          this._kpi.groupings && this._kpi.groupings.length && this._kpi.groupings.map(g => g.value) ||
                           [];
 
         groupings = [...groupings, ...filterGroupungs];

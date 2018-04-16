@@ -1,5 +1,3 @@
-import * as Promise from 'bluebird';
-
 import { IChart } from '../../../../domain/app/charts/chart';
 import { ITargetDocument } from '../../../../domain/app/targets/target';
 import { IKpiBase } from '../../../kpis/queries/kpi-base';
@@ -22,7 +20,7 @@ export class PieChart extends UIChartBase implements IUIChart {
         const that = this;
 
         return this.processChartData(kpi, metadata, target).then(() => {
-            return that.buildDefinition(this.basicDefinition, target);
+            return that.buildDefinition(this.basicDefinition, metadata, target);
         });
     }
 

@@ -1,18 +1,22 @@
-import { Inventory } from './../../../domain/app/inventory/inventory.model';
-import { Sales } from '../../../domain/app/sales/sale.model';
-import { Expenses } from '../../../domain/app/expenses/expense.model';
+import { inject, injectable } from 'inversify';
+
 import { Calls } from '../../../domain/app/calls/call.model';
+import { Expenses } from '../../../domain/app/expenses/expense.model';
+import { GoogleAnalytics } from '../../../domain/app/google-analytics/google-analytics.model';
 import { IKPIDocument, KPITypeEnum } from '../../../domain/app/kpis/kpi';
 import { KPIs } from '../../../domain/app/kpis/kpi.model';
+import { Sales } from '../../../domain/app/sales/sale.model';
+import { IVirtualSourceDocument } from '../../../domain/app/virtual-sources/virtual-source';
+import { VirtualSources } from '../../../domain/app/virtual-sources/virtual-source.model';
+import { GoogleAnalyticsKPIService } from '../../../services/kpis/google-analytics-kpi/google-analytics-kpi.service';
+import { Appointments } from './../../../domain/app/appointments/appointment-model';
+import { Inventory } from './../../../domain/app/inventory/inventory.model';
 import { CompositeKpi } from './compound.kpi';
 import { Expenses as ExpensesKPI } from './expenses.kpi';
+import { GoogleAnalyticsKpi } from './google-analytics-kpi';
 import { IKpiBase } from './kpi-base';
 import { Revenue } from './revenue.kpi';
 import { SimpleKPI } from './simple-kpi';
-import { injectable, inject } from 'inversify';
-import { GoogleAnalytics } from '../../../domain/app/google-analytics/google-analytics.model';
-import { GoogleAnalyticsKpi } from './google-analytics-kpi';
-import { GoogleAnalyticsKPIService } from '../../../services/kpis/google-analytics-kpi/google-analytics-kpi.service';
 
 @injectable()
 export class KpiFactory {
@@ -24,10 +28,13 @@ export class KpiFactory {
         @inject(Inventory.name) private _inventory: Inventory,
         @inject(Calls.name) private _calls: Calls,
         @inject(GoogleAnalytics.name) private _googleAnalytics: GoogleAnalytics,
-        @inject(GoogleAnalyticsKPIService.name) private _googleAnalyticsKpiService: GoogleAnalyticsKPIService
+        @inject(GoogleAnalyticsKPIService.name) private _googleAnalyticsKpiService: GoogleAnalyticsKPIService,
+        @inject(Appointments.name) private _appointments: Appointments,
+        @inject(VirtualSources.name) private _virtualSources: VirtualSources
     ) { }
 
-    getInstance(kpiDocument: IKPIDocument): IKpiBase {
+    async getInstance(kpiDocument: IKPIDocument): Promise<IKpiBase> {
+        const virtualSources: IVirtualSourceDocument[] = await this._virtualSources.model.find({});
 
         if (!kpiDocument) { return null; }
 
@@ -44,7 +51,9 @@ export class KpiFactory {
                                 this._sales,
                                 this._expenses,
                                 this._inventory,
-                                this._calls
+                                this._calls,
+                                this._appointments,
+                                virtualSources
                           );
                 case KPITypeEnum.ExternalSource:
                     return GoogleAnalyticsKpi.CreateFromExpression( kpiDocument,

@@ -1,3 +1,4 @@
+import { criteriaPlugin } from '../../../app_modules/shared/criteria.plugin';
 import { inject, injectable } from 'inversify';
 import * as mongoose from 'mongoose';
 import * as logger from 'winston';
@@ -25,13 +26,14 @@ export const ExpenseSchema = new Schema({
     externalId: { type: String, unique: true },
     location: IdNameSchema,
     expense: {
+        type: String,
         concept: String,
         amount: Number
     },
     timestamp: Date,
     businessUnit: BusinessUnitSchema,
     document: {
-        type: String, // invoice, bill, charge, etc
+        type: { type: String }, // invoice, bill, charge, etc
         identifier: String
     }
 });
@@ -42,6 +44,8 @@ export const ExpenseSchema = new Schema({
 ExpenseSchema.index({ 'timestamp': 1 });
 ExpenseSchema.index({ 'timestamp': 1, 'businessUnit.name': 1 });
 ExpenseSchema.index({ 'timestamp': 1, 'expense.concept': 1 });
+
+ExpenseSchema.plugin(criteriaPlugin);
 
 ExpenseSchema.statics.findByPredefinedDateRange = function(predefinedDateRange: string): Promise<IExpenseDocument[]> {
     const ExpenseModel = (<IExpenseModel>this);
@@ -55,20 +59,6 @@ ExpenseSchema.statics.findByPredefinedDateRange = function(predefinedDateRange: 
         .catch(err => {
             logger.error('There was an error retrieving expenses by predefined data range', err);
             reject(err);
-        });
-    });
-};
-
-ExpenseSchema.statics.findCriteria = function(field: string): Promise<any[]> {
-    const that = this;
-
-    return new Promise<any[]>((resolve, reject) => {
-        that.distinct(field, { [field]: { $ne: '' } }).then(expenses => {
-            resolve(expenses);
-            return;
-        }).catch(err => {
-            reject(err);
-            return;
         });
     });
 };

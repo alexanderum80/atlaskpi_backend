@@ -12,6 +12,9 @@ export interface IUsersServiceConfig {
         period: number; // minutes
     };
     services: {
+        leadReceived: {
+            emailTemplate: string;
+        },
         createUser: {
             emailTemplate: string;
             expiresIn: number | string; // a week
@@ -51,6 +54,9 @@ export const usersServiceConfig = {
         period: 5, // minutes
     },
     services: {
+        leadReceived: {
+            emailTemplate: readTemplate('users', 'lead-received')
+        },
         createUser: {
             emailTemplate: readTemplate('users', 'account-created'),
             // https://github.com/zeit/ms
