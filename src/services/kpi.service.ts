@@ -1,8 +1,8 @@
 import { inject, injectable } from 'inversify';
 import { isObject } from 'lodash';
 import { DocumentQuery } from 'mongoose';
-import { intersectionBy } from 'lodash';
-import * as Bluebird from 'bluebird';
+import { intersectionBy, uniq } from 'lodash';
+import * as Bluebird from 'bluebird';  
 
 import { IChartDocument } from '../domain/app/charts/chart';
 import { Charts } from '../domain/app/charts/chart.model';
@@ -13,6 +13,7 @@ import { Inventory } from '../domain/app/inventory/inventory.model';
 import { IDocumentExist, IKPI, IKPIDocument, KPITypeEnum, KPITypeMap } from '../domain/app/kpis/kpi';
 import { KPIExpressionHelper } from '../domain/app/kpis/kpi-expression.helper';
 import { KPIFilterHelper } from '../domain/app/kpis/kpi-filter.helper';
+import { KPIFilterFromSourceHelper } from '../domain/app/kpis/kpi-filterFromSource.helper';
 import { KPIs } from '../domain/app/kpis/kpi.model';
 import { ISaleModel } from '../domain/app/sales/sale';
 import { Sales } from '../domain/app/sales/sale.model';
@@ -86,6 +87,17 @@ export class KpiService {
             input.filter = KPIFilterHelper.ComposeFilter(kpiType, virtualSources, input.expression, input.filter);
         }
 
+        if (input.source) {
+            const valueSourceFilter = KPIFilterFromSourceHelper.ComposeFilter(input.source);
+            if (input.filter) {
+                input.filter = KPIFilterFromSourceHelper._concatAllFilters(input.filter, valueSourceFilter);
+            }else{
+                input.filter = valueSourceFilter;
+            }
+        }
+
+        delete(input.source);
+
         if (kpiType === KPITypeEnum.Simple || KPITypeEnum.ExternalSource) {
             input.expression = KPIExpressionHelper.ComposeExpression(kpiType, input.expression);
         }
@@ -98,6 +110,17 @@ export class KpiService {
         const virtualSources = await this._virtualSources.model.find({});
 
         input.filter = KPIFilterHelper.ComposeFilter(kpiType, virtualSources, input.expression, input.filter);
+
+        if (input.source) {
+            const valueSourceFilter = KPIFilterFromSourceHelper.ComposeFilter(input.source);
+            if (input.filter) {
+                input.filter = KPIFilterFromSourceHelper._concatAllFilters(input.filter, valueSourceFilter);
+            }else{
+                input.filter = valueSourceFilter;
+            }
+        }
+        delete(input.source);
+
         input.expression = KPIExpressionHelper.ComposeExpression(kpiType, input.expression);
 
         return await this._kpis.model.updateKPI(id, input);
@@ -182,9 +205,7 @@ export class KpiService {
             // return sources from complex kpi
             return this._getComplexKpiExpressionSources(kpi.expression, kpis, connectors);
         }
-
-       
-
+        
         return [];
     }
 
