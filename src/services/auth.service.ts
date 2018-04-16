@@ -88,7 +88,7 @@ export class AuthService {
                     }
 
                     // if owner, check if has agreed
-                    if (!accountUser.agreement || !accountUser.agreement.accept) {
+                    if (!accountUser.profile.agreement || !accountUser.profile.agreement.accept) {
                         return Promise.reject(errorResponse.NO_AGREEMENT);
                     }
 
@@ -162,7 +162,7 @@ export class AuthService {
                             return;
                         }
 
-                        const hasAgreed: boolean = owner.agreement ? owner.agreement.accept : false;
+                        const hasAgreed: boolean = owner.profile.agreement ? owner.profile.agreement.accept : false;
 
                         if (hasAgreed) {
                             resolve(user);

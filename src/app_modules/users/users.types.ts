@@ -207,6 +207,18 @@ export class UserServices  {
 
 }
 
+@type()
+export class UserAgreement {
+    @field({ type: GraphQLTypesMap.Boolean })
+    accept: boolean;
+
+    @field({ type: GraphQLTypesMap.String })
+    ipAddress: string;
+
+    @field({ type: GraphQLTypesMap.String })
+    timestamp: Date;
+}
+
 
 @type()
 export class UserProfile  {
@@ -233,6 +245,9 @@ export class UserProfile  {
 
     @field({ type: GraphQLTypesMap.String })
     phoneNumber: string;
+
+    @field({ type: UserAgreement })
+    agreement: UserAgreement;
 
 }
 
@@ -274,27 +289,12 @@ export class UserPreference {
 }
 
 @type()
-export class UserAgreement {
-    @field({ type: GraphQLTypesMap.Boolean })
-    accept: boolean;
-
-    @field({ type: GraphQLTypesMap.String })
-    ipAddress: string;
-
-    @field({ type: GraphQLTypesMap.String })
-    timestamp: Date;
-}
-
-@type()
 export class User  {
     @field({ type: GraphQLTypesMap.String })
     _id: string;
 
     @field({ type: GraphQLTypesMap.String })
     username: string;
-
-    @field({ type: GraphQLTypesMap.String })
-    timezone: String;
 
     @field({ type: UserEmail, isArray: true })
     emails: UserEmail[];
@@ -311,9 +311,6 @@ export class User  {
 
     @field({ type: GraphQLTypesMap.String })
     timestamps: string;
-
-    @field({ type: UserAgreement })
-    agreement: UserAgreement;
 
     @field({ type: GraphQLTypesMap.String })
     profilePictureUrl: string;

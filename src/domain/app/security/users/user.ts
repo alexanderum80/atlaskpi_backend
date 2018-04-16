@@ -61,6 +61,8 @@ export interface IUserProfile {
     sex?: string;
     dob?: Date;
     phoneNumber?: string;
+    timezone?: string;
+    agreement?: IUserAgreement;
 }
 
 export interface IShowTour {
@@ -139,13 +141,11 @@ export interface IUserProfileResolve {
 
 export interface IUser {
     username: string;
-    timezone?: string;
     password?: string;
     emails: IUserEmail[];
     services?: IUserServices;
     profile: IUserProfile;
     preferences?: IUserPreference;
-    agreement?: IUserAgreement;
     roles?: IRole[];
     tokens?: ITokenInfo[];
     mobileDevices?: IMobileDevice[];
