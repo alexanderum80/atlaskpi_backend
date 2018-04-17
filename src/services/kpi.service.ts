@@ -87,15 +87,6 @@ export class KpiService {
             input.filter = KPIFilterHelper.ComposeFilter(kpiType, virtualSources, input.expression, input.filter);
         }
 
-        if (input.source) {
-            const valueSourceFilter = KPIFilterFromSourceHelper.ComposeFilter(input.source);
-            if (input.filter) {
-                input.filter = KPIFilterFromSourceHelper._concatAllFilters(input.filter, valueSourceFilter);
-            }else{
-                input.filter = valueSourceFilter;
-            }
-        }
-
         delete(input.source);
 
         if (kpiType === KPITypeEnum.Simple || KPITypeEnum.ExternalSource) {
@@ -111,14 +102,6 @@ export class KpiService {
 
         input.filter = KPIFilterHelper.ComposeFilter(kpiType, virtualSources, input.expression, input.filter);
 
-        if (input.source) {
-            const valueSourceFilter = KPIFilterFromSourceHelper.ComposeFilter(input.source);
-            if (input.filter) {
-                input.filter = KPIFilterFromSourceHelper._concatAllFilters(input.filter, valueSourceFilter);
-            }else{
-                input.filter = valueSourceFilter;
-            }
-        }
         delete(input.source);
 
         input.expression = KPIExpressionHelper.ComposeExpression(kpiType, input.expression);
