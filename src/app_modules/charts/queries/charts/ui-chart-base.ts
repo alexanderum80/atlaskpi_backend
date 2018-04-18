@@ -284,9 +284,11 @@ export class UIChartBase {
             return this.frequencyHelper.getCategories(metadata.frequency);
         }
 
-        const xAxisSource: any = this._getXaxisSource(data, metadata);
+        const getXaxisSource: any = this._getXaxisSource(data, metadata);
+        const xAxisSource: string = isString(getXaxisSource) ? camelCase(getXaxisSource) : getXaxisSource;
+
         const uniqueCategories = <string[]> orderBy(uniq(data.map(item => {
-            let val = JSON.stringify(item._id[camelCase(xAxisSource)]);
+            let val = JSON.stringify(item._id[xAxisSource]);
             if (isString(val)) {
                 // remove double quotes
                 val = val.replace(/['"]+/g, '');
