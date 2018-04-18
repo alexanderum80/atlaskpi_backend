@@ -4,7 +4,7 @@ import 'datejs';
 import { from } from 'apollo-link/lib';
 import * as Bluebird from 'bluebird';
 import * as console from 'console';
-import { cloneDeep, difference, flatten, groupBy, isEmpty, isNull, isUndefined, map, pick, union, uniq, uniqBy, orderBy } from 'lodash';
+import { cloneDeep, difference, flatten, isString, groupBy, isEmpty, isNull, isUndefined, map, pick, union, uniq, uniqBy, orderBy } from 'lodash';
 import * as moment from 'moment';
 import * as logger from 'winston';
 import { camelCase } from 'change-case';
@@ -287,6 +287,10 @@ export class UIChartBase {
         const xAxisSource: any = this._getXaxisSource(data, metadata);
         const uniqueCategories = <string[]> orderBy(uniq(data.map(item => {
             let val = JSON.stringify(item._id[camelCase(xAxisSource)]);
+            if (isString(val)) {
+                // remove double quotes
+                val = val.replace(/['"]+/g, '');
+            }
                 return (val === 'null' || val === undefined ) ?
                         NULL_CATEGORY_REPLACEMENT :
                         item._id[xAxisSource];
