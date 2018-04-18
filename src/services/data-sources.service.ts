@@ -3,6 +3,7 @@ import { injectable, inject, Container } from 'inversify';
 import { VirtualSources } from '../domain/app/virtual-sources/virtual-source.model';
 import { sortBy } from 'lodash';
 import { Logger } from '../domain/app/logger';
+import { KPIFilterHelper } from '../domain/app/kpis/kpi-filter.helper';
 
 @injectable()
 export class DataSourcesService {
@@ -19,8 +20,18 @@ export class DataSourcesService {
 
     async getDistinctValues(source: string, field: string, limit: number, filter: string): Promise<string[]> {
         try {
+            const vs = await this._virtualDatasources.model.findOne({ source: source });
             const model = (this._container.get(source) as any).model;
-            return await (model as any).findCriteria(field, limit, filter);
+
+            let aggregate = [];
+
+            if (vs.aggregate) {
+                aggregate = vs.aggregate.map(a => {
+                    return KPIFilterHelper.CleanObjectKeys(a);
+                });
+            }
+
+            return await (model as any).findCriteria(field, aggregate, limit, filter);
         } catch (e) {
             this._logger.error('There was an error retrieving the distinct values', e);
             return [];
