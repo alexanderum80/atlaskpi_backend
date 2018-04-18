@@ -142,7 +142,12 @@ export class UIChartBase {
             }
 
             /// order by grouping if any was selected////////
-            data = this._sortingDataWhitGrouping(metadata, data);
+
+            let groupingField = metadata.groupings.length ? camelCase(metadata.groupings[0]) : null;
+
+            if (groupingField) {
+                data = this._sortingDataWithGrouping(metadata, data);
+            }
 
             that.groupings = that._getGroupingFields(data);
 
@@ -249,7 +254,7 @@ export class UIChartBase {
      * Understand how to convert a chart data range interface into a simple date range
      * @param chartDateRange data range that includes a predefined or a custom data range
      */
-    private _sortingDataWhitGrouping(metadata: IChartMetadata, data: any): any {
+    private _sortingDataWithGrouping(metadata: IChartMetadata, data: any): any {
         /// order by grouping if any was selected//////////////////////////////////////////////////////////////////////////////////////
         let groupingField = metadata.groupings.length ? camelCase(metadata.groupings[0]) : null;
         if (groupingField && data.find(e => e._id[groupingField] === metadata.sortingCriteria)) {
@@ -276,6 +281,42 @@ export class UIChartBase {
             data = orderBy(data, '_id[' + groupingField + ']', 'asc');
         } else if (groupingField && metadata.sortingCriteria && (metadata.sortingCriteria === 'categories' || metadata.sortingCriteria === 'groupingAlphabetically') && metadata.sortingOrder && metadata.sortingOrder === 'descending') {
             data = orderBy(data, '_id[' + groupingField + ']', 'desc');
+        }
+        else if (metadata.sortingCriteria && metadata.sortingCriteria === 'valuesTotal') {
+            let dataTemp = [];
+            let dataSorted = [];
+            // let data4 = [];
+            // Here I most group by frequency,  then sum the values
+            let groupedData1 = groupBy(data, '_id.frequency');
+            for (let serieName in groupedData1) {
+                /* const data3 = {
+                    name: serieName,
+                    totalValue: sumBy(groupedData1[serieName], 'value')
+                }; */
+                dataTemp.push({
+                    name: serieName,
+                    totalValue: sumBy(groupedData1[serieName], 'value')
+                });
+            }
+            if (metadata.sortingOrder && metadata.sortingOrder === 'ascending') {
+                dataSorted = orderBy(dataTemp, 'totalValue', 'asc');
+            }
+            else if (metadata.sortingOrder && metadata.sortingOrder === 'descending') {
+                dataSorted = orderBy(dataTemp, 'totalValue', 'desc');
+            }
+            // Here is sorting by totalValue
+            // forEach data4, filter original data by frecuency & adding in new data
+            // finally assign to data again
+            const datasemifinal = [];
+            dataSorted.forEach(element => {
+                let datafilt = data.filter(x => x._id.frequency === element.name);
+                datafilt.forEach(z => {
+                    datasemifinal.push(z);
+                });
+            });
+            data = datasemifinal;
+
+            ///////////////////////////////////////////////////////////////////////////////////////
         }
         return data;
         //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -312,16 +353,16 @@ export class UIChartBase {
      */
     private _createCategories(data: any, metadata: IChartMetadata): IXAxisCategory[] {
         let groupingField = metadata.groupings.length ? camelCase(metadata.groupings[0]) : null;
-        if (metadata.sortingCriteria && metadata.sortingCriteria === 'values' && (!metadata.sortingOrder || metadata.sortingOrder && metadata.sortingOrder === 'ascending')) {
+        if (metadata.sortingCriteria && metadata.sortingCriteria === 'values' && metadata.sortingOrder && metadata.sortingOrder === 'ascending') {
             data = orderBy(data, 'value', 'asc');
         } else if (metadata.sortingCriteria && metadata.sortingCriteria === 'values' && metadata.sortingOrder && metadata.sortingOrder === 'descending') {
             data = orderBy(data, 'value', 'desc');
-        } else if (groupingField && metadata.sortingCriteria && (metadata.sortingCriteria === 'categories' || metadata.sortingCriteria === 'groupingAlphabetically') && (!metadata.sortingOrder || metadata.sortingOrder && metadata.sortingOrder === 'ascending')) {
+        } else if (groupingField && metadata.sortingCriteria && (metadata.sortingCriteria === 'categories' || metadata.sortingCriteria === 'groupingAlphabetically') && metadata.sortingOrder && metadata.sortingOrder === 'ascending') {
             data = orderBy(data, '_id[' + groupingField + ']', 'asc');
         } else if (groupingField && metadata.sortingCriteria && (metadata.sortingCriteria === 'categories' || metadata.sortingCriteria === 'groupingAlphabetically') && metadata.sortingOrder && metadata.sortingOrder === 'descending') {
             data = orderBy(data, '_id[' + groupingField + ']', 'desc');
         }
-        else if (groupingField && metadata.frequency && metadata.sortingCriteria && metadata.sortingCriteria === 'valuesTotal') {
+        /* else if (groupingField && metadata.frequency && metadata.sortingCriteria && metadata.sortingCriteria === 'valuesTotal') {
             let data2 = [];
             let data4 = [];
             // Here I most group by frequency,  then sum the values
@@ -333,14 +374,14 @@ export class UIChartBase {
                 };
                 data2.push(data3);
             }
-            if (!metadata.sortingOrder || (metadata.sortingOrder && metadata.sortingOrder === 'ascending')) {
+            if (metadata.sortingOrder && metadata.sortingOrder === 'ascending') {
                 data4 = orderBy(data2, 'totalValue', 'asc');
             }
             else if (metadata.sortingOrder && metadata.sortingOrder === 'descending') {
                 data4 = orderBy(data2, 'totalValue', 'desc');
             }
             // Here is sorting by totalValue
-            // forEach data2, filter original data by frecuency & adding in new data
+            // forEach data4, filter original data by frecuency & adding in new data
             // finally assign to data again
             const datasemifinal = [];
             data4.forEach(element => {
@@ -349,7 +390,7 @@ export class UIChartBase {
             data = datasemifinal;
 
             ///////////////////////////////////////////////////////////////////////////////////////
-        }
+        } */
         if (metadata.xAxisSource === 'frequency') {
             let categoryHelper;
             let noGrouping = !metadata.groupings || !metadata.groupings.length || !metadata.groupings[0];

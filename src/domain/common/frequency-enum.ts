@@ -1,4 +1,4 @@
-import { find } from 'lodash';
+import { find, orderBy } from 'lodash';
 import { String } from 'aws-sdk/clients/cloudsearch';
 export const FREQUENCY_GROUPING_NAME = 'frequency';
 
@@ -38,7 +38,9 @@ export function getFrequencySequence(data: any, frequency: FrequencyEnum, groupi
     switch (frequency) {
         case FrequencyEnum.Daily:
             if (sortingCriteria && sortingCriteria === 'valuesTotal') {
-                data.forEach(element => { frequencies.push(element._id.day); });
+                data.forEach(element => {
+                    if (!frequencies.find(m => m === element._id.day)) frequencies.push(element._id.day);
+                });
             } else if (sortingCriteria && (sortingCriteria === 'values' || (groupingField && data.find(element => element._id[groupingField] === sortingCriteria)))) {
                 data.forEach(element => {
                     if (!frequencies.find(m => m === element._id.day)) frequencies.push(element._id.day);
@@ -51,7 +53,9 @@ export function getFrequencySequence(data: any, frequency: FrequencyEnum, groupi
             return frequencies;
         case FrequencyEnum.Monthly:
             if (sortingCriteria && sortingCriteria === 'valuesTotal') {
-                data.forEach(element => { frequencies.push(element[0]._id.month); });
+                data.forEach(element => {
+                    if (!frequencies.find(m => m === element._id.month)) frequencies.push(element._id.month);
+                });
             } else if (sortingCriteria && (sortingCriteria === 'values' || (groupingField && data.find(element => element._id[groupingField] === sortingCriteria)))) {
                 data.forEach(element => {
                     if (!frequencies.find(m => m === element._id.month)) frequencies.push(element._id.month);
@@ -75,8 +79,26 @@ export function getFrequencySequence(data: any, frequency: FrequencyEnum, groupi
                 for (let i = 1; i <= 4; i++) { frequencies.push(i); }
             }
             return frequencies;
-    // case FrequencyEnum.Yearly:
-    //     return 'year';
+        case FrequencyEnum.Yearly:
+        if (sortingCriteria && sortingCriteria === 'valuesTotal') {
+            data.forEach(element => { frequencies.push(element[0]._id.year); });
+        } else if (sortingCriteria && (sortingCriteria === 'values' || (groupingField && data.find(element => element._id[groupingField] === sortingCriteria)))) {
+            data.forEach(element => {
+                if (!frequencies.find(m => m === element._id.year)) frequencies.push(element._id.year);
+            });
+        } else if (sortingCriteria && sortingCriteria === 'frequency' && sortingOrder && sortingOrder === 'descending') {
+            data = orderBy(data, '_id.year', 'desc');
+            data.forEach(element => {
+                if (!frequencies.find(m => m === element._id.year)) frequencies.push(element._id.year);
+            });
+        }
+        else if (sortingCriteria && sortingCriteria === 'frequency' && sortingOrder && sortingOrder === 'ascending') {
+            data = orderBy(data, '_id.year', 'asc');
+            data.forEach(element => {
+                if (!frequencies.find(m => m === element._id.year)) frequencies.push(element._id.year);
+            });
+        }
+        return frequencies;
         case FrequencyEnum.Weekly:
             return _getArrayFromRange(data , 1, 53, groupingField , sortingCriteria, sortingOrder);
     }
