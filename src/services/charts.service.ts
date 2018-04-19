@@ -165,6 +165,12 @@ export class ChartsService {
         }
         return new Promise<IChart>((resolve, reject) => {
             chartPromise.then(chart => {
+                if (input) {
+                    // update dateRange and etc
+                    // use case: change daterange and frequency in chart view of dashboard
+                    Object.assign(chart, input);
+                }
+
                 that.renderDefinition(chart, input).then(definition => {
                     chart.chartDefinition = definition;
                     resolve(chart);
