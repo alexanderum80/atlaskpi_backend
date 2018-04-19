@@ -171,7 +171,7 @@ export class ChartsService {
                     const chartOptions: PartialDeep<IChartInput> = pick(input,
                                 ['dateRange', 'frequency', 'grouping', 'isDrillDown']
                     );
-                    Object.assign(chart, input);
+                    Object.assign(chart, chartOptions);
                 }
 
                 that.renderDefinition(chart, input).then(definition => {
