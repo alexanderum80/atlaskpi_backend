@@ -240,7 +240,7 @@ SalesSchema.statics.salesBy = function(type: TypeMap, input?: IMapMarkerInput): 
                             const schemaFieldType = (SalesModel.schema as any).paths.referral.instance;
                             if (schemaFieldType === 'Array') {
                                 aggregateUnwind.$unwind = {
-                                    path: `$${input.grouping}`,
+                                    path: `$${input.grouping.split('.')[0]}`,
                                     preserveNullAndEmptyArrays: true
                                 };
                             }
