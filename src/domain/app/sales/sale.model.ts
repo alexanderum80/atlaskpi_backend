@@ -199,6 +199,7 @@ SalesSchema.statics.salesBy = function(type: TypeMap, input?: IMapMarkerInput): 
                 aggregate.push(
                     { $match: { 'product.amount': { $gte: 0 } } },
                     { $project: { product: 1, _id: 0, customer: 1 } },
+                    { $unwind: {} },
                     { $group: {
                         _id: { customerZip: '$customer.zip' },
                         sales: { $sum: '$product.amount' }
@@ -232,6 +233,17 @@ SalesSchema.statics.salesBy = function(type: TypeMap, input?: IMapMarkerInput): 
                             }
                             // i.e. $location.name, $product.itemDescription
                             aggregateGrouping.$group._id['grouping'] = '$' + input.grouping;
+                        }
+
+                        let aggregateUnwind = aggregate.find(agg => agg.$unwind !== undefined);
+                        if (aggregateUnwind) {
+                            const schemaFieldType = (SalesModel.schema as any).paths.referral.instance;
+                            if (schemaFieldType === 'Array') {
+                                aggregateUnwind.$unwind = {
+                                    path: `$${input.grouping}`,
+                                    preserveNullAndEmptyArrays: true
+                                };
+                            }
                         }
 
                         // project the group field
