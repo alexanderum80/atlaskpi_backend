@@ -88,7 +88,6 @@ export class MapMarkersQuery implements IQuery < IMapMarker[] > {
                             if (value[i]) {
                                 let groupName: string = (value[i]._id as any).grouping ||
                                                           NULL_CATEGORY_REPLACEMENT;
-                                groupName = Array.isArray(groupName) ? groupName[0] : NULL_CATEGORY_REPLACEMENT;
                                 const amount: number = value[i].sales;
 
                                 total += amount;
