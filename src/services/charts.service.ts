@@ -1,6 +1,6 @@
 import { camelCase } from 'change-case';
 import { inject, injectable } from 'inversify';
-import { difference, isNumber, isString, pick } from 'lodash';
+import {difference, isNumber, isString, pick, PartialDeep} from 'lodash';
 import * as moment from 'moment';
 
 import { IChartMetadata } from '../app_modules/charts/queries/charts/chart-metadata';
@@ -116,18 +116,18 @@ export class ChartsService {
                 return this._getTopByGrouping(meta, kpi).then((data: any[]) => {
                     const groupField = camelCase(meta.groupings[0]);
                     meta.includeTopGroupingValues = data.map(d => d._id[groupField] || NULL_CATEGORY_REPLACEMENT);
-    
+
                     if (!meta.isDrillDown && options && options.chartId) {
                         return this._renderRegularDefinition(options.chartId, kpi, uiChart, meta);
                     }
-    
+
                     return this._renderPreviewDefinition(kpi, uiChart, meta);
                 });
             } else {
                 if (!meta.isDrillDown && options && options.chartId) {
                     return this._renderRegularDefinition(options.chartId, kpi, uiChart, meta);
                 }
-    
+
                 return this._renderPreviewDefinition(kpi, uiChart, meta);
             }
         } catch (e) {
@@ -165,9 +165,12 @@ export class ChartsService {
         }
         return new Promise<IChart>((resolve, reject) => {
             chartPromise.then(chart => {
-                if (input) {
-                    // update dateRange and etc
+                if (input && input.dateRange) {
+                    // update dateRange, frequency, grouping, isDrillDown
                     // use case: change daterange and frequency in chart view of dashboard
+                    const chartOptions: PartialDeep<IChartInput> = pick(input,
+                                ['dateRange', 'frequency', 'grouping', 'isDrillDown']
+                    );
                     Object.assign(chart, input);
                 }
 
