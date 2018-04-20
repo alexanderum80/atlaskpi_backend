@@ -1,6 +1,6 @@
 import { camelCase } from 'change-case';
 import { inject, injectable } from 'inversify';
-import { difference, isNumber, isString, pick } from 'lodash';
+import { difference, isNumber, isString, pick, orderBy } from 'lodash';
 import * as moment from 'moment';
 
 import { IChartMetadata } from '../app_modules/charts/queries/charts/chart-metadata';
@@ -113,21 +113,21 @@ export class ChartsService {
                 meta.groupings.length &&
                 meta.top &&
                 (meta.top.predefined || meta.top.custom)) {
-                return this._getTopByGrouping(meta, kpi).then((data: any[]) => {
+                    const topNData = await this._getTopByGrouping(meta, kpi);
+
                     const groupField = camelCase(meta.groupings[0]);
-                    meta.includeTopGroupingValues = data.map(d => d._id[groupField] || NULL_CATEGORY_REPLACEMENT);
-    
+                    meta.includeTopGroupingValues = topNData.map(d => d._id[groupField] || NULL_CATEGORY_REPLACEMENT);
+
                     if (!meta.isDrillDown && options && options.chartId) {
                         return this._renderRegularDefinition(options.chartId, kpi, uiChart, meta);
                     }
-    
+
                     return this._renderPreviewDefinition(kpi, uiChart, meta);
-                });
             } else {
                 if (!meta.isDrillDown && options && options.chartId) {
                     return this._renderRegularDefinition(options.chartId, kpi, uiChart, meta);
                 }
-    
+
                 return this._renderPreviewDefinition(kpi, uiChart, meta);
             }
         } catch (e) {
@@ -430,18 +430,27 @@ export class ChartsService {
      * @param meta
      * @param kpi
      */
-    private _getTopByGrouping(meta: IChartMetadata, kpi: IKpiBase): Promise<any[]> {
+    private async _getTopByGrouping(meta: IChartMetadata, kpi: IKpiBase): Promise<any[]> {
         const top: IChartTop = meta.top;
         // i.e. 5, 10, 8, 2
-        const topValue: number = chartTopValue(top);
+        let limit: number = chartTopValue(top);
+
         const dateRange: IDateRange[] = [this._getTopDateRange(meta.dateRange)];
 
-        let options = pick(meta, ['groupings', 'dateRange']);
-        Object.assign(options, {
-            limit: topValue
-        });
+        const options = pick(meta, ['groupings', 'dateRange']);
+        const groupings = options.groupings;
 
-        return kpi.getData(dateRange, options);
+        const data = await kpi.getData(dateRange, options);
+        const sortData = data.sort((a, b) => a.value < b.value); // .slice(0, limit);
+
+        if (!isNumber(limit) || limit === 0) {
+            return data;
+        }
+
+        if (limit !== 1 && (groupings || groupings.length)) {
+            limit = limit - 1;
+        }
+        return sortData.slice(0, limit);
     }
 
     private _getTopDateRange(dateRange: IChartDateRange[]): IDateRange {

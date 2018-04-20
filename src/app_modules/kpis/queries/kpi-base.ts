@@ -83,10 +83,6 @@ export class KpiBase {
                 that._injectFrequency(options.frequency, dateField);
             if (options.groupings)
                 that._injectGroupings(options.groupings);
-            if (options.groupings && options.limit)
-                that._injectSort();
-            if (options.limit)
-                that._injectLimit(options.limit, options.groupings);
 
             // decompose aggregate object into array
             let aggregateParameters = [];
@@ -402,41 +398,6 @@ export class KpiBase {
                 projection[groupingTokens[0]] = 1;
             }
         });
-    }
-
-    /**
-     * add $limit to aggregate for: i.e. top 5, top 10
-     * @param limit
-     */
-    private _injectLimit(limit: number, groupings: string[]): void {
-        if (!isNumber(limit) || (limit === 0)) {
-            return;
-        }
-
-        // i.e. top 5 = top 4 and others
-        if (limit !== 1 && (groupings || groupings.length)) {
-            limit = limit - 1;
-        }
-
-        const aggregateLimit = {
-            $limit: limit
-        };
-
-        this.aggregate.push(aggregateLimit);
-    }
-
-    /**
-     * use for top n
-     * sort highest to lowest values
-     */
-    private _injectSort(): void {
-        let limitStage = this.findStage('topN', '$sort');
-
-        if (limitStage && limitStage.$sort) {
-            limitStage.$sort = {
-                value: -1
-            };
-        }
     }
 
     private _applyGroupings(group: any, groupings: string[]) {
