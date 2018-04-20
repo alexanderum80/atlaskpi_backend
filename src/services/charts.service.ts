@@ -29,6 +29,7 @@ import { Targets } from './../domain/app/targets/target.model';
 import { IChartDateRange, IDateRange, parsePredifinedDate, PredefinedTargetPeriod } from './../domain/common/date-range';
 import { FrequencyEnum, FrequencyTable } from './../domain/common/frequency-enum';
 import { TargetService } from './target.service';
+import {dataSortDesc} from '../helpers/number.helpers';
 
 export interface IRenderChartOptions {
     chartId?: string;
@@ -445,7 +446,7 @@ export class ChartsService {
             return data;
         }
 
-        const sortedData: any[] = data.sort((a, b) => a.value < b.value);
+        const sortedData: any[] = data.sort(dataSortDesc);
 
         if (limit !== 1 && (groupings || groupings.length)) {
             limit = limit - 1;
