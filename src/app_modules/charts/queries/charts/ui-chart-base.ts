@@ -953,8 +953,8 @@ export class UIChartBase {
 
     private _noSerieName(serieName: any): boolean {
         return isEmpty(serieName) ||
-               serieName === 'undefined' ||
-               serieName === 'null';
+               serieName.toLowerCase() === 'undefined' ||
+               serieName.toLowerCase() === 'null';
     }
 
     /**
