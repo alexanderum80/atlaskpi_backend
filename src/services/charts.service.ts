@@ -13,7 +13,7 @@ import { IObject } from '../app_modules/shared/criteria.plugin';
 import { CurrentUser } from '../domain/app/current-user';
 import { Logger } from '../domain/app/logger';
 import { VirtualSources } from '../domain/app/virtual-sources/virtual-source.model';
-import { chartTopValue, IChartTop } from '../domain/common/top-n-record';
+import { chartTopLimit, IChartTop } from '../domain/common/top-n-record';
 import { ChartAttributesInput } from './../app_modules/charts/charts.types';
 import { ChartFactory } from './../app_modules/charts/queries/charts/chart-factory';
 import { IUIChart, NULL_CATEGORY_REPLACEMENT } from './../app_modules/charts/queries/charts/ui-chart-base';
@@ -113,10 +113,10 @@ export class ChartsService {
                 meta.groupings.length &&
                 meta.top &&
                 (meta.top.predefined || meta.top.custom)) {
-                    const topNData = await this._getTopByGrouping(meta, kpi);
+                    const topNData: any[] = await this._getTopByGrouping(meta, kpi);
 
-                    const groupField = camelCase(meta.groupings[0]);
-                    meta.includeTopGroupingValues = topNData.map(d => d._id[groupField] || NULL_CATEGORY_REPLACEMENT);
+                    const groupByField: string = camelCase(meta.groupings[0]);
+                    meta.includeTopGroupingValues = topNData.map(d => d._id[groupByField] || NULL_CATEGORY_REPLACEMENT);
 
                     if (!meta.isDrillDown && options && options.chartId) {
                         return this._renderRegularDefinition(options.chartId, kpi, uiChart, meta);
@@ -433,24 +433,24 @@ export class ChartsService {
     private async _getTopByGrouping(meta: IChartMetadata, kpi: IKpiBase): Promise<any[]> {
         const top: IChartTop = meta.top;
         // i.e. 5, 10, 8, 2
-        let limit: number = chartTopValue(top);
+        let limit: number = chartTopLimit(top);
 
         const dateRange: IDateRange[] = [this._getTopDateRange(meta.dateRange)];
 
         const options = pick(meta, ['groupings', 'dateRange']);
-        const groupings = options.groupings;
+        const groupings: string[] = options.groupings;
 
         const data = await kpi.getData(dateRange, options);
-        const sortData = data.sort((a, b) => a.value < b.value); // .slice(0, limit);
-
         if (!isNumber(limit) || limit === 0) {
             return data;
         }
 
+        const sortedData: any[] = data.sort((a, b) => a.value < b.value);
+
         if (limit !== 1 && (groupings || groupings.length)) {
             limit = limit - 1;
         }
-        return sortData.slice(0, limit);
+        return sortedData.slice(0, limit);
     }
 
     private _getTopDateRange(dateRange: IChartDateRange[]): IDateRange {

@@ -3,7 +3,7 @@ import { camelCase } from 'change-case';
 import { NULL_CATEGORY_REPLACEMENT } from './ui-chart-base';
 import * as moment from 'moment';
 
-import { chartTopMomentFormat, chartTopValue, IChartTop } from '../../../../domain/common/top-n-record';
+import { chartTopMomentFormat, chartTopLimit, IChartTop } from '../../../../domain/common/top-n-record';
 import { IGetDataOptions } from '../../../kpis/queries/kpi-base';
 
 export class ApplyTopNChart {
@@ -100,7 +100,7 @@ export class ApplyTopNChart {
             return data;
         }
 
-        const topValue: number = chartTopValue(top);
+        const topValue: number = chartTopLimit(top);
         const sortByValue: any[] = sortBy(data, 'value');
 
         const topNData: any[] = sortByValue.slice(0, topValue);
