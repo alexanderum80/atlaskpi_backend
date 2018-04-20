@@ -1,3 +1,4 @@
+import { dataSortDesc } from '../../../../helpers/number.helpers';
 import { groupBy, reduce, pick, flatten, sortBy } from 'lodash';
 import { camelCase } from 'change-case';
 import { NULL_CATEGORY_REPLACEMENT } from './ui-chart-base';
@@ -101,7 +102,7 @@ export class ApplyTopNChart {
         }
 
         const topValue: number = chartTopLimit(top);
-        const sortByValue: any[] = sortBy(data, 'value');
+        const sortByValue: any[] = data.sort(dataSortDesc);
 
         const topNData: any[] = sortByValue.slice(0, topValue);
         const that = this;
