@@ -136,6 +136,12 @@ export class ChartEntityResponse  {
     groupings: string[];
 
     @field({ type: GraphQLTypesMap.String })
+    sortingCriteria: string;
+
+    @field({ type: GraphQLTypesMap.String })
+    sortingOrder: string;
+
+    @field({ type: GraphQLTypesMap.String })
     xFormat: string;
 
     @field({ type: GraphQLTypesMap.String })

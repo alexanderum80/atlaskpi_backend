@@ -40,6 +40,8 @@ let ChartSchema = new Schema({
     filter: Schema.Types.Mixed,
     frequency: String,
     groupings: [String],
+    sortingCriteria: String,
+    sortingOrder: String,
     xFormat: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'ChartFormat'
@@ -94,6 +96,8 @@ ChartSchema.statics.createChart = function(input: IChartInput): Promise < IChart
             // filter: any;
             frequency: input.frequency,
             groupings: input.groupings,
+            sortingCriteria: input.sortingCriteria,
+            sortingOrder: input.sortingOrder,
             xFormat: input.xFormat,
             yFormat: input.yFormat,
             chartDefinition: JSON.parse(input.chartDefinition),
@@ -147,6 +151,8 @@ ChartSchema.statics.updateChart = function(id: string, input: IChartInput): Prom
             dateRange: input.dateRange,
             frequency: input.frequency,
             groupings: input.groupings,
+            sortingCriteria: input.sortingCriteria,
+            sortingOrder: input.sortingOrder,
             kpis: input.kpis,
             xFormat: input.xFormat,
             yFormat: input.yFormat,
