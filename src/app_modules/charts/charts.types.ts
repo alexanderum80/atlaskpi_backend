@@ -30,7 +30,6 @@ export class GetChartInput  {
 
     @field({ type: GraphQLTypesMap.Boolean })
     isFutureTarget: boolean;
-
 }
 
 @input()

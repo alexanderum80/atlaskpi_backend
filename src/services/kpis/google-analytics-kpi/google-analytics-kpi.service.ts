@@ -1,4 +1,3 @@
-import * as Promise from 'bluebird';
 import { inject, injectable } from 'inversify';
 
 import { loadIntegrationConfig } from '../../../app_modules/integrations/models/load-integration-controller';

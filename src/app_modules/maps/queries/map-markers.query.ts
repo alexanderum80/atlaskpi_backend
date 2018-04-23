@@ -1,17 +1,16 @@
-import { IZipToMapDocument } from '../../../domain/master/zip-to-map/zip-to-map';
-import { GroupingMap } from '../../charts/queries/chart-grouping-map';
-import * as Promise from 'bluebird';
 import { inject, injectable } from 'inversify';
-import { GetMapDetailsActivity } from '../activities/get-map-details.activity';
+import { chain, Dictionary, isEmpty, keyBy } from 'lodash';
+
+import { ISaleByZip, TypeMap } from '../../../domain/app/sales/sale';
+import { Sales } from '../../../domain/app/sales/sale.model';
+import { IZipToMapDocument } from '../../../domain/master/zip-to-map/zip-to-map';
+import { ZipsToMap } from '../../../domain/master/zip-to-map/zip-to-map.model';
 import { GraphQLTypesMap } from '../../../framework/decorators/graphql-types-map';
 import { query } from '../../../framework/decorators/query.decorator';
 import { IQuery } from '../../../framework/queries/query';
-import { Sales } from '../../../domain/app/sales/sale.model';
-import { ZipsToMap } from '../../../domain/master/zip-to-map/zip-to-map.model';
-import { ISaleByZip, TypeMap } from '../../../domain/app/sales/sale';
-import { keyBy, find, startCase, toLower, groupBy, map, chain, reduce, isEmpty, Dictionary } from 'lodash';
-import {MapMarker, MapMarkerGroupingInput, MapMarkerItemList} from '../map.types';
-import {NULL_CATEGORY_REPLACEMENT} from '../../charts/queries/charts/ui-chart-base';
+import { NULL_CATEGORY_REPLACEMENT } from '../../charts/queries/charts/ui-chart-base';
+import { GetMapDetailsActivity } from '../activities/get-map-details.activity';
+import { MapMarker, MapMarkerGroupingInput, MapMarkerItemList } from '../map.types';
 
 export interface IMapMarker {
     name: string;
@@ -36,39 +35,28 @@ export class MapMarkersQuery implements IQuery < IMapMarker[] > {
         @inject(Sales.name) private _sales: Sales,
         @inject(ZipsToMap.name) private _ZipToMaps: ZipsToMap) { }
 
-    run(data: {
-        type: TypeMap,
-        input: MapMarkerGroupingInput
-    }): Promise < IMapMarker[] > {
-        const that = this;
-
-        return new Promise < IMapMarker[] > ((resolve, reject) => {
-            this._sales.model.salesBy(data.type, data.input).then(salesByZip => {
-                    // get the zip codes related
-                    that._ZipToMaps.model.find({
+    async run(data: { type: TypeMap, input: MapMarkerGroupingInput }): Promise < IMapMarker[] > {
+        const salesByZip = await this._sales.model.salesBy(data.type, data.input);
+        // get the zip codes related
+        const zipList = await this._ZipToMaps.model.find({
                             zipCode: {
                                 $in: salesByZip.map(d => d._id.customerZip)
-                            }
-                        })
-                        .then(zipList => {
-                            // convert array to object
-                            let markers;
+                            }});
 
-                            if (data.input) {
-                                if (data.input['grouping']) {
-                                    markers = this._groupingMarkersFormatted(salesByZip, zipList);
-                                } else {
-                                    markers = this._noGroupingsMarkersFormatted(salesByZip, zipList);
-                                }
-                            } else {
-                                markers = this._noGroupingsMarkersFormatted(salesByZip, zipList);
-                            }
+        // convert array to object
+        let markers;
 
-                             resolve(markers);
-                        });
-                })
-                .catch(err => reject(err));
-        });
+        if (data.input) {
+            if (data.input['grouping']) {
+                markers = this._groupingMarkersFormatted(salesByZip, zipList);
+            } else {
+                markers = this._noGroupingsMarkersFormatted(salesByZip, zipList);
+            }
+        } else {
+            markers = this._noGroupingsMarkersFormatted(salesByZip, zipList);
+        }
+
+        return markers;
     }
 
     private _noGroupingsMarkersFormatted(salesByZip: ISaleByZip[], zipList: IZipToMapDocument[]): MapMarker[] {

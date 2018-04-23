@@ -79,4 +79,8 @@ export const config: IAppConfig = {
     },
     // integrationRedirectUrl: process.env.AKPI_INTEGRATION_REDIRECT_URL  || 'https://af31c66b.ngrok.io/integration'
     integrationRedirectUrl: process.env.AKPI_INTEGRATION_REDIRECT_URL  || 'http://localhost:9091/integration',
+    aws: {
+        accessKeyId: process.env.AKPI_AWS_ACCESSKEY_ID || 'AKIAIFEP6XNL3HGHDRCQ',
+        secretAccessKey: process.env.AKPI_AWS_SECRET_ACCESS_KEY || '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'
+    }
 };

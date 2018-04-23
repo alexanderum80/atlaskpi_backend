@@ -1,19 +1,16 @@
-import { NULL_CATEGORY_REPLACEMENT } from '../../charts/queries/charts/ui-chart-base';
-import {EnumChartTop, IChartTop, chartTopValue, chartTopMomentFormat} from '../../../domain/common/top-n-record';
-import * as Promise from 'bluebird';
+import * as Bluebird from 'bluebird';
 import { camelCase } from 'change-case';
-import {
-    cloneDeep, find, groupBy, reduce, isArray, isDate, isNull,
-    isObject, isNumber, negate, pick, remove, sortBy, flatten
-} from 'lodash';
-import * as logger from 'winston';
+import { cloneDeep, flatten, groupBy, isArray, isDate, isNumber, isObject, pick, reduce, sortBy } from 'lodash';
 import * as moment from 'moment';
+import * as logger from 'winston';
 
 import { IKPI } from '../../../domain/app/kpis/kpi';
 import { IChartDateRange, IDateRange } from '../../../domain/common/date-range';
 import { FrequencyEnum } from '../../../domain/common/frequency-enum';
+import { chartTopMomentFormat, chartTopValue, IChartTop } from '../../../domain/common/top-n-record';
 import { field } from '../../../framework/decorators/field.decorator';
-import { isArrayObject, isRegExp } from '../../../helpers/express.helpers';
+import { isArrayObject } from '../../../helpers/express.helpers';
+import { NULL_CATEGORY_REPLACEMENT } from '../../charts/queries/charts/ui-chart-base';
 import { AggregateStage } from './aggregate';
 
 export interface ICollection {
@@ -78,7 +75,7 @@ export class KpiBase {
         let that = this;
 
         return new Promise<any>((resolve, reject) => {
-            if (dateRange && dateRange.hasOwnProperty('length') && dateRange.length)
+            if (dateRange && dateRange.length)
                 that._injectDataRange(dateRange, dateField);
             if (options.filter)
                 that._injectFilter(options.filter);
@@ -102,7 +99,9 @@ export class KpiBase {
             });
 
             // logger.debug('With aggregate: ' + JSON.stringify(aggregateParameters));
-            this.model.aggregate(...aggregateParameters).then(data => {
+            const aggregate = this.model.aggregate(...aggregateParameters);
+            aggregate.options = { allowDiskUse: true };
+            aggregate.exec((err, data) => {
                 logger.debug('MongoDB data received: ' + that.model.modelName);
                 // before returning I need to check if a "top" filter was added
                 // if (options.filter && options.filter.top) {
@@ -152,25 +151,21 @@ export class KpiBase {
     }
 
     private _injectDataRange(dateRange: IDateRange[], field: string) {
-        let matchStage = this.findStage('filter', '$match');
-
-        if (!matchStage) {
-            throw 'KpiBase#_injectDataRange: Cannot inject date range because a dateRange/$match stage could not be found';
-        }
+        const matchDateRange = { $match: {} } as any;
 
         if (dateRange && dateRange.length) {
             if (dateRange.length === 1) {
-                matchStage.$match[field] = { '$gte': dateRange[0].from, '$lt': dateRange[0].to };
+                matchDateRange.$match[field] = { '$gte': dateRange[0].from, '$lt': dateRange[0].to };
             } else {
-                if (!matchStage['$match']) {
-                    matchStage.$match = {};
+                if (!matchDateRange['$match']) {
+                    matchDateRange.$match = {};
                 }
 
-                if (!matchStage.$match['$or']) {
-                    matchStage.$match.$or = {};
+                if (!matchDateRange.$match['$or']) {
+                    matchDateRange.$match.$or = {};
                 }
 
-                matchStage.$match.$or = dateRange.map((dateParams: IDateRange) => ({
+                matchDateRange.$match.$or = dateRange.map((dateParams: IDateRange) => ({
                     // field => i.e. 'product.from', timestamp
                     [field]: {
                         $gte: dateParams.from,
@@ -179,6 +174,8 @@ export class KpiBase {
                 }));
             }
         }
+
+        this.aggregate.unshift(matchDateRange);
     }
 
     private _injectFilter(filter: any) {

@@ -26,13 +26,14 @@ export const ExpenseSchema = new Schema({
     externalId: { type: String, unique: true },
     location: IdNameSchema,
     expense: {
+        type: String,
         concept: String,
         amount: Number
     },
     timestamp: Date,
     businessUnit: BusinessUnitSchema,
     document: {
-        type: String, // invoice, bill, charge, etc
+        type: { type: String }, // invoice, bill, charge, etc
         identifier: String
     }
 });

@@ -1,5 +1,3 @@
-import * as Promise from 'bluebird';
-
 import { IChart } from '../../../../domain/app/charts/chart';
 import { ITargetDocument } from '../../../../domain/app/targets/target';
 import { IKpiBase } from '../../../kpis/queries/kpi-base';

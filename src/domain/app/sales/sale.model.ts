@@ -1,26 +1,19 @@
-import { GroupingMap } from '../../../app_modules/charts/queries/chart-grouping-map';
-import { criteriaPlugin } from '../../../app_modules/shared/criteria.plugin';
 import * as Promise from 'bluebird';
 import { inject, injectable } from 'inversify';
+import { isObject } from 'lodash';
+import * as moment from 'moment';
 import * as mongoose from 'mongoose';
 import * as logger from 'winston';
-import * as moment from 'moment';
-import { isObject } from 'lodash';
 
+import { criteriaPlugin } from '../../../app_modules/shared/criteria.plugin';
 import { ModelBase } from '../../../type-mongo/model-base';
 import { getCustomerSchema } from '../../common/customer.schema';
-import {
-    backInTime,
-    DateRange,
-    getYesterdayDate,
-    IDateRange,
-    parsePredifinedDate,
-} from '../../common/date-range';
+import { parsePredifinedDate } from '../../common/date-range';
 import { getEmployeeSchema } from '../../common/employee.schema';
 import { getLocationSchema } from '../../common/location.schema';
 import { getProductSchema } from '../../common/product.schema';
 import { AppConnection } from '../app.connection';
-import {ISaleDocument, ISaleModel, TypeMap, ISaleByZip, IMapMarkerInput} from './sale';
+import { IMapMarkerInput, ISaleByZip, ISaleDocument, ISaleModel, TypeMap } from './sale';
 
 
 let Schema = mongoose.Schema;
@@ -28,50 +21,6 @@ let Schema = mongoose.Schema;
 let EntitySchema = {
     externalId: String,
     name: String,
-};
-
-let LocationSchema = {
-    externalId: String,
-    identifier: String,
-    name: String,
-    city: String,
-    state: String,
-    zip: String,
-
-    type: String,
-    size: String
-};
-
-let CustomerSchema = {
-        externalId: String,
-        city: String,
-        state: String,
-        zip: String,
-        gender: String,
-};
-
-let EmployeeSchema = {
-    externalId: String,
-    fullName: String,
-    role: String,
-    type: String, // full time (f), part time (p)
-    workedTime: Number // time in seconds
-};
-
-let ProductSchema = {
-    externalId: String,
-    itemCode: String,
-    itemDescription: String,
-    quantity: Number,
-    unitPrice: Number,
-    tax: Number,
-    tax2: Number,
-    amount: Number,
-    paid: Number,
-    discount: Number,
-    from: Date,
-    to: Date,
-    type: String
 };
 
 let CategorySchema = {
@@ -95,10 +44,16 @@ let BusinessUnitSchema = {
     name: String
 };
 
+const SaleReferralSchema = {
+    ...EntitySchema,
+    revenue: Number,
+    revenueNoTax: Number,
+};
 
 let SalesSchema = new Schema ({
     source: String,
     externalId: { type: String, unique: true },
+    billId: String,
     location: (<any>getLocationSchema()),
     customer: (<any>getCustomerSchema()),
     employee: (<any>getEmployeeSchema()),
@@ -110,7 +65,8 @@ let SalesSchema = new Schema ({
     document: DocumentSchema,
     payment: PaymentSchema,
     businessUnit: (<any>BusinessUnitSchema),
-    serviceType: String
+    serviceType: String,
+    referral: [SaleReferralSchema],
 });
 
 export const SaleSchema = SalesSchema;
@@ -230,6 +186,9 @@ SalesSchema.statics.salesEmployeeByDateRange = function(predefinedDateRange: str
     });
 };
 
+// TODO: // I need to fix UI maps because I removed GroupMap that was being used in findBy on the sales model.
+// I need to change the ui so show the right group fields and also send the backend the group path ready to use
+
 SalesSchema.statics.salesBy = function(type: TypeMap, input?: IMapMarkerInput): Promise<ISaleByZip[]> {
     const SalesModel = (<ISaleModel>this);
     let aggregate = [];
@@ -238,24 +197,11 @@ SalesSchema.statics.salesBy = function(type: TypeMap, input?: IMapMarkerInput): 
         switch (type) {
             case TypeMap.customerAndZip:
                 aggregate.push(
-                    { $match: {
-                        'product.amount': {
-                            $gte: 0
-                        }
-                    } },
-                    { $project: {
-                        product: 1,
-                        _id: 0,
-                        customer: 1
-                    }},
-                    {
-                        $group: {
-                            _id: {
-                                customerZip: '$customer.zip'
-                            },
-                            sales: {
-                                $sum: '$product.amount'
-                            }
+                    { $match: { 'product.amount': { $gte: 0 } } },
+                    { $project: { product: 1, _id: 0, customer: 1 } },
+                    { $group: {
+                        _id: { customerZip: '$customer.zip' },
+                        sales: { $sum: '$product.amount' }
                         }
                     }
                 );
@@ -278,22 +224,20 @@ SalesSchema.statics.salesBy = function(type: TypeMap, input?: IMapMarkerInput): 
                     if (input.grouping) {
                         let aggregateGrouping = aggregate.find(agg => agg.$group !== undefined);
                         // get the field name for the sales document
-                        const salesGroupByField = GroupingMap.sales[input.grouping];
 
-                        if (aggregateGrouping && salesGroupByField) {
+                        if (aggregateGrouping) {
                             // assign empty object if $group._id is undefined
                             if (!aggregateGrouping.$group._id) {
                                 aggregateGrouping.$group._id = {};
                             }
                             // i.e. $location.name, $product.itemDescription
-                            aggregateGrouping.$group._id['grouping'] = '$' + salesGroupByField;
+                            aggregateGrouping.$group._id['grouping'] = '$' + input.grouping;
                         }
 
                         // project the group field
                         let aggregateProject = aggregate.find(agg => agg.$project !== undefined);
                         if (aggregateProject) {
-                            let projectFieldByGroup = salesGroupByField.replace('$', '');
-                            projectFieldByGroup = projectFieldByGroup.split('.')[0];
+                            let projectFieldByGroup = input.grouping.split('.')[0];
 
                             aggregateProject.$project[projectFieldByGroup] = 1;
                         }

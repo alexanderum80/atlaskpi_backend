@@ -250,13 +250,8 @@ export class UIChartBase {
      * Understand how to convert a chart data range interface into a simple date range
      * @param chartDateRange data range that includes a predefined or a custom data range
      */
-<<<<<<< HEAD
     private _sortingData(metadata: IChartMetadata, data: any): any {
 
-=======
-    private _sortingDataWithGrouping(metadata: IChartMetadata, data: any): any {
-        /// order by grouping if any was selected//////////////////////////////////////////////////////////////////////////////////////
->>>>>>> ec437dbe5ce4bb6fc4d0a6fc15d73be5a9cd0a64
         let groupingField = metadata.groupings.length ? camelCase(metadata.groupings[0]) : null;
 
         if (metadata.sortingCriteria && metadata.sortingCriteria === 'values') {
@@ -437,6 +432,12 @@ export class UIChartBase {
         }
 
         const xAxisSource: any = this._getXaxisSource(data, metadata);
+<<<<<<< HEAD
+=======
+        const uniqueCategories = <string[]> orderBy(uniq(data.map(item => 
+            { let val = JSON.stringify(item._id[xAxisSource]); 
+                return (val === "null" || val === undefined ) ? NULL_CATEGORY_REPLACEMENT : item._id[xAxisSource]})));
+>>>>>>> origin/development
 
         if (!metadata.groupings) {
             const uniqueCategories = <string[]> orderBy(uniq(data.map(item => {

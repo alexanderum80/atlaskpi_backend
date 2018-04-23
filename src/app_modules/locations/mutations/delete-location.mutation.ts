@@ -23,7 +23,7 @@ export class DeleteLocationMutation extends MutationBase<IMutationResponse> {
         super();
     }
 
-    run(data: { _id: string }): Promise<IMutationResponse> {
+    run(data: {_id: string }): Promise<IMutationResponse> {
         const that = this;
 
         return new Promise<IMutationResponse>((resolve, reject) => {

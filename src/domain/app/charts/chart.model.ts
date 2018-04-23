@@ -9,6 +9,7 @@ import { ModelBase } from '../../../type-mongo/model-base';
 import { AppConnection } from '../app.connection';
 import { IChartDocument, IChartInput, IChartModel } from './chart';
 import { tagsPlugin } from '../tags/tag.plugin';
+import { ChartType } from '../../../app_modules/charts/queries/charts/chart-type';
 
 let Schema = mongoose.Schema;
 
@@ -59,7 +60,13 @@ let ChartSchema = new Schema({
 // add tags capabilities
 ChartSchema.plugin(tagsPlugin);
 
-// ChartSchema.methods.
+ChartSchema.methods.isStacked = function(): boolean {
+    return ((this.chartDefinition.chart.type === ChartType.Column) &&
+        Array.isArray(this.groupings) &&
+        this.xAxisSource && (this.groupings[0] === this.xAxisSource)) ||
+        (Array.isArray(this.groupings) &&
+        this.groupings.length && !this.frequency && !this.xAxisSource);
+}
 
 ChartSchema.statics.createChart = function(input: IChartInput): Promise < IChartDocument > {
     const that = this;

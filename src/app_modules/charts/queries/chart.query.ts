@@ -1,4 +1,4 @@
-import * as Promise from 'bluebird';
+import * as Bluebird from 'bluebird';
 import { inject, injectable } from 'inversify';
 
 import { IChartInput } from '../../../domain/app/charts/chart';

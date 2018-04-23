@@ -26,7 +26,8 @@ export class ListWidgetsQuery implements IQuery<IUIWidget[]> {
         return new Promise<IUIWidget[]>((resolve, reject) => {
             that._widgetsService
                 .listWidgets()
-                .then(widgets => { return resolve(widgets); })
+                .then(widgets => {
+                    return resolve(widgets); })
                 .catch(err => {
                     that._logger.error(err);
                     resolve([]);

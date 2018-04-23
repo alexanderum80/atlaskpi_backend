@@ -35,9 +35,9 @@ export class ModuleBase implements IAppModule {
 
 
 export interface IModuleOptions {
-    imports ? : Array < new() => IAppModule > ; // IModuleOptions[];
-    queries ? : Array < new(...args) => IQuery < any >> ;
-    mutations ? : Array < new(...args) => IMutation < any >> ;
+    imports ?: Array < new() => IAppModule > ; // IModuleOptions[];
+    queries ?: Array < new(...args) => IQuery < any >> ;
+    mutations ?: Array < new(...args) => IMutation < any >> ;
 }
 
 export function AppModule(options: IModuleOptions) {

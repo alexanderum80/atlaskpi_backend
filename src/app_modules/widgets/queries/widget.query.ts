@@ -1,4 +1,3 @@
-import * as Promise from 'bluebird';
 import { inject, injectable } from 'inversify';
 
 import { IUIWidget } from '../../../domain/app/widgets/ui-widget-base';

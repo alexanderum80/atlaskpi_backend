@@ -1,6 +1,7 @@
-import * as bcrypt from 'bcrypt';
+import * as bcrypt from 'bcryptjs';
 import * as Promise from 'bluebird';
 import * as jwt from 'jsonwebtoken';
+import { isEmpty } from 'lodash';
 import * as moment from 'moment';
 import * as mongoose from 'mongoose';
 import ms = require('ms');
@@ -8,7 +9,7 @@ import * as nodemailer from 'nodemailer';
 import * as validate from 'validate.js';
 import * as logger from 'winston';
 
-import { User } from '../../../../app_modules/users/users.types';
+import { InputUserProfile, User } from '../../../../app_modules/users/users.types';
 import { field } from '../../../../framework/decorators/field.decorator';
 import { query } from '../../../../framework/decorators/query.decorator';
 import { IMutationResponse, MutationResponse } from '../../../../framework/mutations/mutation-response';
@@ -31,28 +32,38 @@ import {
     IUserAgreementInput,
     IUserDocument,
     IUserModel,
-    IUserPreference,
     IUserProfile,
+    IUserProfileInput,
+    IUserProfileResolve,
+  IUserPreference
 } from './user';
 import { IUserToken } from './user-token';
+import { userAuditSchema } from '../../../common/audit.schema';
+
+
+export function insentive_username(username: string): any {
+    if (!username) { return username; }
+
+    const regexp: RegExp = new RegExp('^' + username + '$', 'i');
+    return {
+        $regex: regexp
+    };
+}
 
 
 export function userPlugin(schema: mongoose.Schema, options: any) {
     options || (options = {});
 
-    const Schema = mongoose.Schema;
+    let Schema = mongoose.Schema;
 
-    const EmailSchema = {
+    let EmailSchema = {
         address: { type: String, required: true },
         verified: Boolean
     };
 
     const AgreementSchema = {
         accept: Boolean,
-        timestamp: {
-            type: Date,
-            default: Date.now
-        },
+        timestamp: Date,
         ipAddress: String
     };
 
@@ -62,7 +73,7 @@ export function userPlugin(schema: mongoose.Schema, options: any) {
         when: { type: Date }
     };
 
-    const ServicesSchema = {
+    let ServicesSchema = {
         loginTokens: [{
             when: Date,
             hashedToken: String,
@@ -77,15 +88,16 @@ export function userPlugin(schema: mongoose.Schema, options: any) {
         }
     };
 
-    const UserProfileSchema = {
+    let UserProfileSchema = {
         firstName: String,
         middleName: String,
         lastName: String,
         sex: String,
-        dob: Date
+        dob: Date,
+        phoneNumber: String
     };
 
-    const UserTokenInfo = {
+    let UserTokenInfo = {
         ip: String,
         token: String,
         issued: Date,
@@ -94,7 +106,7 @@ export function userPlugin(schema: mongoose.Schema, options: any) {
         clientDetails: String
     };
 
-    const AddMobileDeviceInfo = {
+    let AddMobileDeviceInfo = {
         token: String,
         network: String,
         name: String
@@ -106,9 +118,19 @@ export function userPlugin(schema: mongoose.Schema, options: any) {
             default: true
         }
     };
+    
+    const UserNotificationsSchema = {
+        general: Boolean,
+        chat: Boolean,
+        email: Boolean,
+        dnd: Boolean
+    };
 
     const UserPreferenceSchema = {
-        chart: ShowTourSchema
+        chart: ShowTourSchema,
+    helpCenter: { type: Boolean, default: true },
+        notification: UserNotificationsSchema,
+        avatarAddress: String
     };
 
     schema.add({
@@ -207,7 +229,7 @@ export function userPlugin(schema: mongoose.Schema, options: any) {
                 roles: this.roles.map((role) => role.name)
             };
 
-            if (clientId === 'workbench') {
+            if (clientId === 'workbench' || clientId === 'scheduler') {
                 expiresIn = '10 y';
             }
 
@@ -267,11 +289,17 @@ export function userPlugin(schema: mongoose.Schema, options: any) {
 
         return new Promise<IUserDocument>((resolve, reject) => {
             let condition = {};
+            // i.e. /^john@gmail.com$/i
+            // case insensitive
 
             if (usernameField === 'email') {
-                condition['emails'] = { $elemMatch: { address: username  } };
+                condition['emails'] = {
+                    $elemMatch: {
+                        address: insentive_username(username)
+                    }
+                };
             } else {
-                condition['username'] = username;
+                condition['username'] = insentive_username(username);
             }
 
             User.findOne(condition)
@@ -323,84 +351,68 @@ export function userPlugin(schema: mongoose.Schema, options: any) {
             let validation = (<any>validate).async(data, constraints, {fullMessages: false})
                 .then(() => {
 
-                    that.findByEmail(data.email).then((user: IUserDocument) => {
-                        if (user) {
-                            resolve({
-                                success: false,
-                                entity: null,
-                                errors: [
-                                    {
-                                        field: 'user',
-                                        errors: ['Email already exists']
-                                    }
-                                ]
-                            });
+                    let newUser: IUser = {
+                        profile: {
+                            firstName: data.firstName,
+                            middleName: data.middleName,
+                            lastName: data.lastName
+                        },
+                        username: data.username || data.email,
+                        emails: [{
+                            address: data.email,
+                            verified: opts.emailVerified
+                        }]
+                    };
+
+                    // add password if it was passed
+                    if (data.password) {
+                        newUser.password = data.password;
+                    }
+                    // send verification email if it is not verified
+                    else if (!opts.emailVerified) {
+                        let hash = generateUniqueHash();
+                        newUser.services = {
+                            email: {
+                                verificationTokens: [{
+                                    token: hash,
+                                    email: data.email,
+                                    when: moment.utc().toDate()
+                                }]
+                            },
+                        };
+                    }
+
+                    that.create(newUser, (err, user: IUserDocument) => {
+                        if (err) {
+                            reject({ message: 'There was an error creating the user', error: err });
                             return;
                         }
 
-                        let newUser: IUser = {
-                            profile: {
-                                firstName: data.firstName,
-                                middleName: data.middleName,
-                                lastName: data.lastName
-                            },
-                            username: data.username || data.email,
-                            emails: [{
-                                address: data.email,
-                                verified: opts.emailVerified
-                            }]
-                        };
-
-                        // add password if it was passed
-                        if (data.password) {
-                            newUser.password = data.password;
-                        }
-                        // send verification email if it is not verified
-                        else if (!opts.emailVerified) {
-                            let hash = generateUniqueHash();
-                            newUser.services = {
-                                email: {
-                                    verificationTokens: [{
-                                        token: hash,
-                                        email: data.email,
-                                        when: moment.utc().toDate()
-                                    }]
-                                },
-                            };
-                        }
-
-                        that.create(newUser, (err, user: IUserDocument) => {
-                            if (err) {
-                                reject({ message: 'There was an error creating the user', error: err });
-                                return;
-                            }
-
-                            // add user roles
-                            if (data.roles && data.roles.length > 0) {
-                                data.roles.forEach((role) => {
-                                    user.addRole(role, (err, role) => {
-                                        if (err) {
-                                            logger.error('Error adding role: ', err);
-                                        }
-                                    });
+                        // add user roles
+                        if (data.roles && data.roles.length > 0) {
+                            data.roles.forEach((role) => {
+                                user.addRole(role, (err, role) => {
+                                    if (err) {
+                                        logger.error('Error adding role: ', err);
+                                    }
                                 });
+                            });
+                        }
+
+                        // add enrollment email
+                        user.addEnrollmentEmail(data.email);
+
+                        // send email to user
+                        if (opts.notifyUser) {
+                            if (options && options.host) {
+                                notifier.notify(user, data.email, options.host);
+                            } else {
+                                notifier.notify(user, data.email);
                             }
+                        }
 
-                            // add enrollment email
-                            user.addEnrollmentEmail(data.email);
-
-                            // send email to user
-                            if (opts.notifyUser) {
-                                if (options && options.host) {
-                                    notifier.notify(user, data.email, options.host);
-                                } else {
-                                    notifier.notify(user, data.email);
-                                }
-                            }
-
-                            resolve({ entity: user });
-                        });
-                    }).catch(err => reject(err));
+                        resolve({ entity: user });
+                    });
 
                 }, (err: { [name: string]: string[] }) => {
                     resolve(MutationResponse.fromValidationErrors(err));
@@ -542,7 +554,9 @@ export function userPlugin(schema: mongoose.Schema, options: any) {
         const userModel = (<IUserModel>this);
 
         return new Promise<IUserDocument>((resolve, reject) => {
-            userModel.findOne({ username: username })
+            userModel.findOne({
+                username: insentive_username(username)
+            })
                 .populate({
                     path: 'roles',
                     model: 'Role'
@@ -582,10 +596,10 @@ export function userPlugin(schema: mongoose.Schema, options: any) {
                 if (user) {
                     resolve(user);
                 } else {
-                    resolve(null);
+                    reject(null);
                 }
             }).catch(() => {
-                reject('uknown error');
+                reject(null);
             });
         });
     };
@@ -809,9 +823,15 @@ export function userPlugin(schema: mongoose.Schema, options: any) {
                         user.services.email.enrollment = [];
                     }
 
-                    if (profile) {
-                        user.profile.firstName = profile.firstName;
-                        user.profile.lastName = profile.lastName;
+                    // isEmpty({}) = true
+                    if (!isEmpty(profile)) {
+                        if (profile.firstName) {
+                            user.profile.firstName = profile.firstName;
+                        }
+
+                        if (profile.lastName) {
+                            user.profile.lastName = profile.lastName;
+                        }
                     }
 
                     user.save().then((user) => {
@@ -1095,7 +1115,7 @@ export function userPlugin(schema: mongoose.Schema, options: any) {
 
         return new Promise<IUserDocument>((resolve, reject) => {
             userModel
-                .findOneAndUpdate({_id: id}, { preferences: input }, {new: true })
+                .findOneAndUpdate({_id: id}, { 'preferences':  input }, {new: true })
                 .exec()
                 .then(document => {
                     resolve(document);
@@ -1108,11 +1128,40 @@ export function userPlugin(schema: mongoose.Schema, options: any) {
         });
     };
 
+    schema.statics.editUserProfile = function(id: string, input: IUserProfileInput): Promise<IMutationResponse> {
+           const that = (<IUserModel>this);
+
+           return new Promise<IMutationResponse>((resolve, reject) => {
+               that.findById(id).then((user) => {
+                   user.profile.firstName = input.firstName;
+                   user.profile.middleName = input.middleName;
+                   user.profile.lastName = input.lastName;
+                   user.profile.phoneNumber = input.phoneNumber;
+                   user.preferences.notification.general = input.general;
+                   user.preferences.notification.chat = input.chat;
+                   user.preferences.notification.email = input.viaEmail;
+                   user.preferences.notification.dnd = input.dnd;
+
+                   user.save((err, users: IUser) => {
+                        if (err) {
+                            reject({ message: 'There was an error updating the user', error: err });
+                            return;
+                        }
+                        resolve({entity: users});
+                    });
+               }).catch((err) => {
+                resolve(MutationResponse.fromValidationErrors({ success: false, reason: err }));
+              });
+           });
+    };
+
     schema.statics.updateUserAgreement = function(input: IUserAgreementInput): Promise<IUserDocument> {
         const userModel = (<IUserModel>this);
 
         return new Promise<IUserDocument>((resolve, reject) => {
-            userModel.findOne({ username: input.email })
+            userModel.findOne({
+                username: insentive_username(input.email)
+            })
                 .then((user: IUserDocument) => {
                     user.agreement = {
                         accept: input.accept,
@@ -1134,4 +1183,17 @@ export function userPlugin(schema: mongoose.Schema, options: any) {
         });
     };
 
+    schema.statics.findByUserHelpCenter = function(username: string): Promise<IUserDocument> {
+        const UserModel = (<IUserModel>this);
+        return new Promise<IUserDocument>((resolve, reject) => {
+            UserModel.findOne({ username: { $in: username } }).then(users => {
+                if (users) {
+                    resolve(users);
+                    return;
+                }
+                resolve(null);
+                return;
+            }).catch(err => reject(err));
+        });
+    };
 }
