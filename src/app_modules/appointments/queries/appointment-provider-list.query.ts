@@ -12,9 +12,6 @@ import { AppointmentProvider } from './../appointments.types';
 @query({
     name: 'appointmentProvidersList',
     activity: ListAppointmentProvidersActivity,
-    parameters: [
-        { name: 'cancelled', type: Boolean }
-    ],
     output: { type: AppointmentProvider, isArray: true }
 })
 export class AppointmentProvidersListQuery implements IQuery<IIdName[]> {
@@ -22,7 +19,7 @@ export class AppointmentProvidersListQuery implements IQuery<IIdName[]> {
         @inject(Appointments.name) private _appointments: Appointments
     ) { }
 
-    run(data: { cancelled: boolean }): Promise<IIdName[]> {
-        return this._appointments.model.providersList(data.cancelled);
+    run(): Promise<IIdName[]> {
+        return this._appointments.model.providersList();
     }
 }

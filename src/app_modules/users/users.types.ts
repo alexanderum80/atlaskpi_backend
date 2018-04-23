@@ -104,7 +104,7 @@ export class ITourInput {
     @field({ type: GraphQLTypesMap.Boolean })
     helpCenter: boolean;
 
-    @field({ type: GraphQLTypesMap.String })
+    @field({ type: GraphQLTypesMap.Boolean })
     showAppointmentCancelled: boolean;
 }
 
@@ -268,6 +268,9 @@ export class UserPreference {
 
     @field({ type: GraphQLTypesMap.String })
     avatarAddress: string;
+
+    @field({ type: GraphQLTypesMap.Boolean })
+    showAppointmentCancelled: boolean;
 }
 
 @type()
