@@ -152,7 +152,7 @@ export class TargetService {
                 groupings: groupings,
                 stackName: this.getComparisonStackName(chart, data).name || null
             };
-        } else if (Array.isArray(groupings)) {
+        } else if (Array.isArray(groupings) && !groupings[0]) {
             getDataOptions = { filter: chart.filter };
         } else {
             getDataOptions = { filter: chart.filter };
