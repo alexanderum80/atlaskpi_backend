@@ -1,6 +1,6 @@
 import { camelCase } from 'change-case';
 import { inject, injectable } from 'inversify';
-import {difference, isNumber, isString, pick, PartialDeep} from 'lodash';
+import {difference, isNumber, isString, pick, PartialDeep, orderBy}  from 'lodash';
 import * as moment from 'moment';
 
 import { IChartMetadata } from '../app_modules/charts/queries/charts/chart-metadata';
@@ -13,7 +13,7 @@ import { IObject } from '../app_modules/shared/criteria.plugin';
 import { CurrentUser } from '../domain/app/current-user';
 import { Logger } from '../domain/app/logger';
 import { VirtualSources } from '../domain/app/virtual-sources/virtual-source.model';
-import { chartTopValue, IChartTop } from '../domain/common/top-n-record';
+import { chartTopLimit, IChartTop } from '../domain/common/top-n-record';
 import { ChartAttributesInput } from './../app_modules/charts/charts.types';
 import { ChartFactory } from './../app_modules/charts/queries/charts/chart-factory';
 import { IUIChart, NULL_CATEGORY_REPLACEMENT } from './../app_modules/charts/queries/charts/ui-chart-base';
@@ -29,6 +29,7 @@ import { Targets } from './../domain/app/targets/target.model';
 import { IChartDateRange, IDateRange, parsePredifinedDate, PredefinedTargetPeriod } from './../domain/common/date-range';
 import { FrequencyEnum, FrequencyTable } from './../domain/common/frequency-enum';
 import { TargetService } from './target.service';
+import {dataSortDesc} from '../helpers/number.helpers';
 
 export interface IRenderChartOptions {
     chartId?: string;
@@ -113,16 +114,16 @@ export class ChartsService {
                 meta.groupings.length &&
                 meta.top &&
                 (meta.top.predefined || meta.top.custom)) {
-                return this._getTopByGrouping(meta, kpi).then((data: any[]) => {
-                    const groupField = camelCase(meta.groupings[0]);
-                    meta.includeTopGroupingValues = data.map(d => d._id[groupField] || NULL_CATEGORY_REPLACEMENT);
+                    const topNData: any[] = await this._getTopByGrouping(meta, kpi);
+
+                    const groupByField: string = camelCase(meta.groupings[0]);
+                    meta.includeTopGroupingValues = topNData.map(d => d._id[groupByField] || NULL_CATEGORY_REPLACEMENT);
 
                     if (!meta.isDrillDown && options && options.chartId) {
                         return this._renderRegularDefinition(options.chartId, kpi, uiChart, meta);
                     }
 
                     return this._renderPreviewDefinition(kpi, uiChart, meta);
-                });
             } else {
                 if (!meta.isDrillDown && options && options.chartId) {
                     return this._renderRegularDefinition(options.chartId, kpi, uiChart, meta);
@@ -439,18 +440,27 @@ export class ChartsService {
      * @param meta
      * @param kpi
      */
-    private _getTopByGrouping(meta: IChartMetadata, kpi: IKpiBase): Promise<any[]> {
+    private async _getTopByGrouping(meta: IChartMetadata, kpi: IKpiBase): Promise<any[]> {
         const top: IChartTop = meta.top;
         // i.e. 5, 10, 8, 2
-        const topValue: number = chartTopValue(top);
+        let limit: number = chartTopLimit(top);
+
         const dateRange: IDateRange[] = [this._getTopDateRange(meta.dateRange)];
 
-        let options = pick(meta, ['groupings', 'dateRange']);
-        Object.assign(options, {
-            limit: topValue
-        });
+        const options = pick(meta, ['groupings', 'dateRange']);
+        const groupings: string[] = options.groupings;
 
-        return kpi.getData(dateRange, options);
+        const data = await kpi.getData(dateRange, options);
+        if (!isNumber(limit) || limit === 0) {
+            return data;
+        }
+
+        const sortedData: any[] = data.sort(dataSortDesc);
+
+        if (limit !== 1 && (groupings || groupings.length)) {
+            limit = limit - 1;
+        }
+        return sortedData.slice(0, limit);
     }
 
     private _getTopDateRange(dateRange: IChartDateRange[]): IDateRange {

@@ -20,6 +20,9 @@ export class SearchAppointmentCriteriaInput {
 
     @field({ type: GraphQLTypesMap.String, isArray: true })
     provider?: string[];
+
+    @field({ type: GraphQLTypesMap.Boolean })
+    cancelled?: boolean;
 }
 
 @input()

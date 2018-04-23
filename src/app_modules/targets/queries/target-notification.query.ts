@@ -11,6 +11,7 @@ import * as Promise from 'bluebird';
 import { inject, injectable } from 'inversify';
 import { query } from '../../../framework/decorators/query.decorator';
 import { IQuery } from '../../../framework/queries/query';
+import { isNumber } from 'lodash';
 
 @injectable()
 @query({
@@ -48,10 +49,19 @@ export class TargetNotificationQuery implements IQuery<boolean> {
                         reject({ field: 'target notification', errors: 'inefficient data'});
                         return;
                     }
+
+                    if (!isNumber(input.targetAmount)) {
+                        input.targetAmount = parseFloat(input.targetAmount);
+                    }
+
+                    if (!isNumber(input.targetMet)) {
+                        input.targetMet = parseFloat(input.targetMet);
+                    }
+
                     const notifyData = {
                         targetName: input.targetName,
-                        targetAmount: input.targetAmount,
-                        targetMet: input.targetMet,
+                        targetAmount: input.targetAmount.toFixed(2),
+                        targetMet: input.targetMet.toFixed(2),
                         targetDate: input.targetDate,
                         dashboardName: dashboard,
                         chartName: chart.title,

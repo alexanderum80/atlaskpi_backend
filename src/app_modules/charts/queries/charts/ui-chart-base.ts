@@ -4,7 +4,7 @@ import 'datejs';
 import { from } from 'apollo-link/lib';
 import * as Bluebird from 'bluebird';
 import * as console from 'console';
-import { cloneDeep, difference, flatten, groupBy, isEmpty, isNull, isUndefined, map, pick, union, uniq, uniqBy, orderBy } from 'lodash';
+import { cloneDeep, difference, flatten, isString, groupBy, isEmpty, isNull, isUndefined, map, pick, union, uniq, uniqBy, orderBy } from 'lodash';
 import * as moment from 'moment';
 import * as logger from 'winston';
 import { camelCase } from 'change-case';
@@ -32,6 +32,7 @@ import { ChartPreProcessorExtention } from './chart-preprocessor-extention';
 import { IChartSerie } from './chart-serie';
 import { ChartType } from './chart-type';
 import { FrequencyHelper } from './frequency-values';
+import {ApplyTopNChart} from './apply-top-n.chart';
 
 export const NULL_CATEGORY_REPLACEMENT = 'Uncategorized*';
 
@@ -135,6 +136,10 @@ export class UIChartBase {
             if (!data || !data.length) {
                 return;
             }
+
+            // must transform data first to apply top n
+            // will return data if top n input is not given
+            data = ApplyTopNChart.applyTopNToData(data, metadata);
 
             that.groupings = that._getGroupingFields(data);
 
@@ -284,10 +289,19 @@ export class UIChartBase {
             return this.frequencyHelper.getCategories(metadata.frequency);
         }
 
-        const xAxisSource: any = this._getXaxisSource(data, metadata);
-        const uniqueCategories = <string[]> orderBy(uniq(data.map(item => 
-            { let val = JSON.stringify(item._id[xAxisSource]); 
-                return (val === "null" || val === undefined ) ? NULL_CATEGORY_REPLACEMENT : item._id[xAxisSource]})));
+        const getXaxisSource: any = this._getXaxisSource(data, metadata);
+        const xAxisSource: string = isString(getXaxisSource) ? camelCase(getXaxisSource) : getXaxisSource;
+
+        const uniqueCategories = <string[]> orderBy(uniq(data.map(item => {
+            let val = JSON.stringify(item._id[xAxisSource]);
+            if (isString(val)) {
+                // remove double quotes
+                val = val.replace(/['"]+/g, '');
+            }
+                return (val === 'null' || val === undefined || val.toLowerCase() === 'undefined' ) ?
+                        NULL_CATEGORY_REPLACEMENT :
+                        item._id[xAxisSource];
+        })));
 
         return uniqueCategories.map(category => {
             return {
@@ -467,7 +481,11 @@ export class UIChartBase {
             categories.forEach(cat => {
                 let dataItem = cat.id !== NULL_CATEGORY_REPLACEMENT
                                ? data.find((item: any) => item._id[matchField] === cat.id)
-                               : data.find((item: any) => (item._id[matchField] === null || !Object.keys(item._id).length ));
+                               : data.find((item: any) => (
+                                   item._id[matchField] === null ||
+                                   item._id[matchField] === NULL_CATEGORY_REPLACEMENT ||
+                                   !Object.keys(item._id).length
+                                ));
 
                 serieObject.data.push(dataItem ? dataItem.value : null);
             });
@@ -944,8 +962,8 @@ export class UIChartBase {
 
     private _noSerieName(serieName: any): boolean {
         return isEmpty(serieName) ||
-               serieName === 'undefined' ||
-               serieName === 'null';
+               serieName.toLowerCase() === 'undefined' ||
+               serieName.toLowerCase() === 'null';
     }
 
     /**

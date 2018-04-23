@@ -20,7 +20,7 @@ export interface IChartTop {
 }
 
 
-export function chartTopValue(top: IChartTop): number {
+export function chartTopLimit(top: IChartTop): number {
     const isTopCustom = (top.predefined === 'other' || top.predefined === 'Other') &&
                       isNumber(top.custom);
     if (isTopCustom) {
