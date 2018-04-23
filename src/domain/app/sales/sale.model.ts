@@ -111,27 +111,15 @@ SalesSchema.statics.amountByDateRange = function(fromDate: Date, toDate: Date): 
 
     return new Promise<Object>((resolve, reject) => {
         SalesModel.aggregate({ '$match': { 'product.from': { '$gte': from, '$lt': to } } },
-                            { '$group': { '_id': { 'source': '$source', 'timestamp': '$timestamp' }, 'count': { '$sum': 1 }, 'amount': { '$sum': '$product.paid' } } })
-        .then(sales => {
-            resolve(sales);
-        })
-        .catch(err => {
-            logger.error('There was an error retrieving sales by predefined data range', err);
-            reject(err);
-        });
-    });
-};
-
-SalesSchema.statics.totalSalesByDateRange = function(fromDate: Date, toDate: Date): Promise<Object> {
-    const SalesModel = (<ISaleModel>this);
-
-    const from = moment(fromDate).utc().toDate();
-    const to = moment(toDate).utc().toDate();
-
-    return new Promise<Object>((resolve, reject) => {
-        SalesModel.aggregate({ '$match': { 'product.from': { '$gte': from, '$lt': to } } },
-                            { '$group': { '_id': null, 'count': { '$sum': 1 }, 'amount': { '$sum': '$product.paid' } } })
-        .then(sales => {
+                { '$group': { _id: { source: '$source'},
+                    count: { '$sum': 1 },
+                    amount: { '$sum': '$product.paid' } }
+                },
+                { $project: { amount: 1, count: 1, _id: 1 } },
+                { $group: { _id: null, revenueSources: { $addToSet:  { count: '$count', amount: '$amount', source: '$_id.source'} },
+                    total: { $sum: '$amount' }, totalCount: { $sum: '$count' } }
+                })
+            .then(sales => {
             resolve(sales);
         })
         .catch(err => {
@@ -173,9 +161,9 @@ SalesSchema.statics.salesEmployeeByDateRange = function(predefinedDateRange: str
 
     return new Promise<Object>((resolve, reject) => {
         SalesModel.aggregate({ '$match': { 'product.from': { '$gte': DateRange.from, '$lt': DateRange.to } } },
-                            { '$group': { '_id': '$employee._id', 'amount': { '$sum': '$product.paid' } } },
-                            { '$sort': { 'amount': 1 } },
-                            { '$group': { '_id': null, 'employee': { '$last': '$_id'}, 'amount': { '$last': '$amount' } } })
+                            { '$group': { '_id': '$employee.fullName', 'amount': { '$sum': '$product.paid' } } },
+                            { '$sort': { 'amount': -1 } },
+                            { '$group': { '_id': null, 'employee': { '$first': '$_id'}, 'total': { '$first': '$amount' } } })
         .then(sales => {
             resolve(sales);
         })
