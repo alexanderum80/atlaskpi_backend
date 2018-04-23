@@ -404,6 +404,10 @@ export const PredefinedTargetPeriod = {
         twoYearsAgo: '2 years ago',
         samePeriodLastYear: 'same period, last year',
         samePeriod2YearsAgo: 'same period, 2 years ago'
+    },
+    custom: {
+        samePeriodLastYear: 'same period, last year',
+        samePeriod2YearsAgo: 'same period, 2 years ago'
     }
 };
 
