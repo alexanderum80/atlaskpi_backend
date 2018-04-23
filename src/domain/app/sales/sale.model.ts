@@ -1,6 +1,6 @@
 import * as Promise from 'bluebird';
 import { inject, injectable } from 'inversify';
-import { isObject } from 'lodash';
+import { isObject, filter, isEmpty } from 'lodash';
 import * as moment from 'moment';
 import * as mongoose from 'mongoose';
 import * as logger from 'winston';
@@ -199,6 +199,7 @@ SalesSchema.statics.salesBy = function(type: TypeMap, input?: IMapMarkerInput): 
                 aggregate.push(
                     { $match: { 'product.amount': { $gte: 0 } } },
                     { $project: { product: 1, _id: 0, customer: 1 } },
+                    { $unwind: {} },
                     { $group: {
                         _id: { customerZip: '$customer.zip' },
                         sales: { $sum: '$product.amount' }
@@ -222,6 +223,7 @@ SalesSchema.statics.salesBy = function(type: TypeMap, input?: IMapMarkerInput): 
                     }
 
                     if (input.grouping) {
+                        let groupFieldName = input.grouping.split('.')[0];
                         let aggregateGrouping = aggregate.find(agg => agg.$group !== undefined);
                         // get the field name for the sales document
 
@@ -234,10 +236,24 @@ SalesSchema.statics.salesBy = function(type: TypeMap, input?: IMapMarkerInput): 
                             aggregateGrouping.$group._id['grouping'] = '$' + input.grouping;
                         }
 
+                        let aggregateUnwind = aggregate.find(agg => agg.$unwind !== undefined);
+                        if (aggregateUnwind) {
+                            const schemaFieldType = (SalesModel.schema as any).paths[groupFieldName].instance;
+                            if (schemaFieldType === 'Array') {
+                                aggregateUnwind.$unwind = {
+                                    path: `$${groupFieldName}`,
+                                    preserveNullAndEmptyArrays: true
+                                };
+                            } else {
+                                delete aggregateUnwind.$unwind;
+                                aggregate = filter(aggregate, (agg) => !isEmpty(agg));
+                            }
+                        }
+
                         // project the group field
                         let aggregateProject = aggregate.find(agg => agg.$project !== undefined);
                         if (aggregateProject) {
-                            let projectFieldByGroup = input.grouping.split('.')[0];
+                            let projectFieldByGroup = groupFieldName;
 
                             aggregateProject.$project[projectFieldByGroup] = 1;
                         }
