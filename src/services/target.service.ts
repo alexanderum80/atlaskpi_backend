@@ -352,6 +352,9 @@ export class TargetService {
                 return moment(targetDate).format('YYYY-MM-DD');
             case FrequencyEnum.Weekly:
                 return moment(targetDate).week() - 1;
+            default:
+                // no frequency
+                return null;
         }
     }
 

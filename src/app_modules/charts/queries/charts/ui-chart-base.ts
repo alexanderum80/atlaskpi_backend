@@ -537,6 +537,8 @@ export class UIChartBase {
                 // if chart has no groupings
                 this.commonField = ['noGroupingName'];
             }
+        } else {
+            this.commonField = ['noFrequencyName'];
         }
 
         if (target.length) {
@@ -603,10 +605,12 @@ export class UIChartBase {
                 if (meta.xAxisSource) {
                     return this._targetMetaData(meta, meta.xAxisSource, data, categories);
                 } else {
-                    return [{
-                        name: '',
-                        data: data.map(item => item.value)
-                    }];
+                    return data.map(d => ({
+                        name: d._id['noFrequencyName'],
+                        type: 'spline',
+                        data: [].concat(d.value),
+                        targetId: d.targetId
+                    }));
                 }
             case 1:
                 return this._targetMetaData(meta, groupings, data, categories);
