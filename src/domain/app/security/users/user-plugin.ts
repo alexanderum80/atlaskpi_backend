@@ -131,7 +131,7 @@ export function userPlugin(schema: mongoose.Schema, options: any) {
         helpCenter: { type: Boolean, default: true },
         notification: UserNotificationsSchema,
         avatarAddress: String,
-        showAppointmentCancellation: { type: Boolean, default: false }
+        showAppointmentCancelled: { type: Boolean, default: false }
     };
 
     schema.add({

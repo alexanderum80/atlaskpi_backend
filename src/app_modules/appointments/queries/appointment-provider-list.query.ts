@@ -12,6 +12,9 @@ import { AppointmentProvider } from './../appointments.types';
 @query({
     name: 'appointmentProvidersList',
     activity: ListAppointmentProvidersActivity,
+    parameters: [
+        { name: 'cancelled', type: Boolean }
+    ],
     output: { type: AppointmentProvider, isArray: true }
 })
 export class AppointmentProvidersListQuery implements IQuery<IIdName[]> {

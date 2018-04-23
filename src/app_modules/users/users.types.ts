@@ -105,7 +105,7 @@ export class ITourInput {
     helpCenter: boolean;
 
     @field({ type: GraphQLTypesMap.String })
-    showAppointmentCancellation: boolean;
+    showAppointmentCancelled: boolean;
 }
 
 @input()
