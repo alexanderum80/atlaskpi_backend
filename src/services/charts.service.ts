@@ -1,6 +1,6 @@
 import { camelCase } from 'change-case';
 import { inject, injectable } from 'inversify';
-import { difference, isNumber, isString, pick, orderBy } from 'lodash';
+import {difference, isNumber, isString, pick, PartialDeep, orderBy}  from 'lodash';
 import * as moment from 'moment';
 
 import { IChartMetadata } from '../app_modules/charts/queries/charts/chart-metadata';
@@ -166,6 +166,15 @@ export class ChartsService {
         }
         return new Promise<IChart>((resolve, reject) => {
             chartPromise.then(chart => {
+                if (input && input.dateRange) {
+                    // update dateRange, frequency, grouping, isDrillDown
+                    // use case: change daterange and frequency in chart view of dashboard
+                    const chartOptions: PartialDeep<IChartInput> = pick(input,
+                                ['dateRange', 'frequency', 'groupings', 'isDrillDown']
+                    );
+                    Object.assign(chart, chartOptions);
+                }
+
                 that.renderDefinition(chart, input).then(definition => {
                     chart.chartDefinition = definition;
                     resolve(chart);
