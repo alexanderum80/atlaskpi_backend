@@ -288,10 +288,19 @@ export class UIChartBase {
             return this.frequencyHelper.getCategories(metadata.frequency);
         }
 
-        const xAxisSource: any = this._getXaxisSource(data, metadata);
-        const uniqueCategories = <string[]> orderBy(uniq(data.map(item => 
-            { let val = JSON.stringify(item._id[xAxisSource]); 
-                return (val === "null" || val === undefined ) ? NULL_CATEGORY_REPLACEMENT : item._id[xAxisSource]})));
+        const getXaxisSource: any = this._getXaxisSource(data, metadata);
+        const xAxisSource: string = isString(getXaxisSource) ? camelCase(getXaxisSource) : getXaxisSource;
+
+        const uniqueCategories = <string[]> orderBy(uniq(data.map(item => {
+            let val = JSON.stringify(item._id[xAxisSource]);
+            if (isString(val)) {
+                // remove double quotes
+                val = val.replace(/['"]+/g, '');
+            }
+                return (val === 'null' || val === undefined ) ?
+                        NULL_CATEGORY_REPLACEMENT :
+                        item._id[xAxisSource];
+        })));
 
         return uniqueCategories.map(category => {
             return {
