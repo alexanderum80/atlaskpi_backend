@@ -7,6 +7,7 @@ import { RemoveTargetMutation } from './mutations/remove-target.mutation';
 import { UpdateTargetMutation } from './mutations/update-target.mutation';
 import { FindAllTargetsQuery } from './queries/find-all-targets.query';
 import { FindTargetQuery } from './queries/find-target.query';
+import { FindTargetByIdQuery } from './queries/find-target-by-id.query';
 import { FindTargetByNameQuery } from './queries/find-target-by-name.query';
 
 
@@ -20,6 +21,7 @@ import { FindTargetByNameQuery } from './queries/find-target-by-name.query';
     queries: [
         FindAllTargetsQuery,
         FindTargetQuery,
+        FindTargetByIdQuery,
         FindTargetByNameQuery,
         GetTargetAmountQuery,
         TargetNotificationQuery

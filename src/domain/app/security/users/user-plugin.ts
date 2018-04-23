@@ -118,7 +118,7 @@ export function userPlugin(schema: mongoose.Schema, options: any) {
             default: true
         }
     };
-    
+
     const UserNotificationsSchema = {
         general: Boolean,
         chat: Boolean,
@@ -128,9 +128,10 @@ export function userPlugin(schema: mongoose.Schema, options: any) {
 
     const UserPreferenceSchema = {
         chart: ShowTourSchema,
-    helpCenter: { type: Boolean, default: true },
+        helpCenter: { type: Boolean, default: true },
         notification: UserNotificationsSchema,
-        avatarAddress: String
+        avatarAddress: String,
+        showAppointmentCancelled: { type: Boolean, default: false }
     };
 
     schema.add({
@@ -1114,17 +1115,28 @@ export function userPlugin(schema: mongoose.Schema, options: any) {
         const userModel = (<IUserModel>this);
 
         return new Promise<IUserDocument>((resolve, reject) => {
-            userModel
-                .findOneAndUpdate({_id: id}, { 'preferences':  input }, {new: true })
-                .exec()
-                .then(document => {
-                    resolve(document);
-                    return;
-                })
-                .catch(err => {
-                    reject(err);
+            userModel.findById(id).then((user: IUserDocument) => {
+                const preferences = input;
+
+                if (!isEmpty(user.preferences)) {
+                    Object.assign(user.preferences, preferences);
+                } else {
+                    user.preferences = preferences;
+                }
+
+                user.save((err, updatedUser: IUserDocument) => {
+                    if (err) {
+                        reject(err);
+                        return;
+                    }
+
+                    resolve(updatedUser);
                     return;
                 });
+            }).catch(err => {
+                reject(err);
+                return;
+            });
         });
     };
 
