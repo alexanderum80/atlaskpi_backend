@@ -293,7 +293,7 @@ export class UIChartBase {
                 // remove double quotes
                 val = val.replace(/['"]+/g, '');
             }
-                return (val === 'null' || val === undefined ) ?
+                return (val === 'null' || val === undefined || val.toLowerCase() === 'undefined' ) ?
                         NULL_CATEGORY_REPLACEMENT :
                         item._id[xAxisSource];
         })));
