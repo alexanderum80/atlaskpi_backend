@@ -7,7 +7,7 @@ import * as console from 'console';
 import {
     cloneDeep, difference, flatten, groupBy,
     isEmpty, isNull, isUndefined, map, pick,
-    union, uniq, uniqBy, orderBy, isNumber
+    union, uniq, uniqBy, orderBy, isNumber, isString
 } from 'lodash';
 import * as moment from 'moment';
 import * as logger from 'winston';
@@ -297,7 +297,7 @@ export class UIChartBase {
                 // remove double quotes
                 val = val.replace(/['"]+/g, '');
             }
-                return (val === 'null' || val === undefined ) ?
+                return (val === 'null' || val === undefined || val.toLowerCase() === 'undefined' ) ?
                         NULL_CATEGORY_REPLACEMENT :
                         item._id[xAxisSource];
         })));
