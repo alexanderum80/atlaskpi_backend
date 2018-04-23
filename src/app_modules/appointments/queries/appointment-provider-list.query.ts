@@ -19,7 +19,7 @@ export class AppointmentProvidersListQuery implements IQuery<IIdName[]> {
         @inject(Appointments.name) private _appointments: Appointments
     ) { }
 
-    run(): Promise<IIdName[]> {
-        return this._appointments.model.providersList();
+    run(data: { cancelled: boolean }): Promise<IIdName[]> {
+        return this._appointments.model.providersList(data.cancelled);
     }
 }

@@ -1,6 +1,6 @@
 import { criteriaPlugin } from '../../../app_modules/shared/criteria.plugin';
 import { inject, injectable } from 'inversify';
-import { isEmpty } from 'lodash';
+import { isEmpty, isBoolean } from 'lodash';
 import * as moment from 'moment';
 import * as mongoose from 'mongoose';
 import * as logger from 'winston';
@@ -119,6 +119,10 @@ AppointmentSchema.index({ 'from': 1, 'event.name': 1 });
 AppointmentSchema.index({ 'from': 1, 'source': 1 });
 
 AppointmentSchema.plugin(criteriaPlugin);
+
+function findProviderAggregateStage(operator: string): any {
+    return distinctProvidersPipeline.filter(s => s[operator] !== undefined);
+}
 
 AppointmentSchema.statics.createNew = function(input: IAppointment): Promise < IAppointmentDocument > {
     const that = < IAppointmentModel > this;
@@ -301,9 +305,17 @@ AppointmentSchema.statics.search = function(criteria: SearchAppointmentCriteriaI
     });
 };
 
-AppointmentSchema.statics.providersList = function(): Promise<IIdName[]> {
+AppointmentSchema.statics.providersList = function(cancelled: boolean): Promise<IIdName[]> {
     const that = this;
     return new Promise <IIdName[]>((resolve, reject) => {
+        if (isBoolean(cancelled)) {
+            const findMatch = findProviderAggregateStage('$match');
+            if (findMatch) {
+                Object.assign(findMatch.$match, {
+                    cancelled: cancelled
+                });
+            }
+        }
         that.aggregate(distinctProvidersPipeline).then(providers => {
             resolve(<any>providers);
             return;
