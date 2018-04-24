@@ -84,6 +84,16 @@ SaleSchema.index({ 'product.from': 1, 'category.service': 1 });
 
 SaleSchema.plugin(criteriaPlugin);
 
+function filterEmptyUnwindPipe(aggregate: any[]): any[] {
+    let findStage = aggregate.find((agg) => agg.$unwind !== undefined);
+
+    if (isEmpty(findStage.$unwind)) {
+        delete findStage.$unwind;
+    }
+
+    return filter(aggregate, (agg) => !isEmpty(agg));
+}
+
 // SaleSchema.methods.
 
 // SaleSchema.statics.
@@ -232,9 +242,6 @@ SalesSchema.statics.salesBy = function(type: TypeMap, input?: IMapMarkerInput): 
                                     path: `$${groupFieldName}`,
                                     preserveNullAndEmptyArrays: true
                                 };
-                            } else {
-                                delete aggregateUnwind.$unwind;
-                                aggregate = filter(aggregate, (agg) => !isEmpty(agg));
                             }
                         }
 
@@ -252,6 +259,7 @@ SalesSchema.statics.salesBy = function(type: TypeMap, input?: IMapMarkerInput): 
                 break;
         }
 
+        aggregate = filterEmptyUnwindPipe(aggregate);
         SalesModel.aggregate(aggregate).then(res => {
             if (!res) {
                 resolve([]);
