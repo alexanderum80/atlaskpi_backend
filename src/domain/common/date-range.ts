@@ -114,11 +114,11 @@ export function parsePredifinedDate(textDate: string): IDateRange {
             const lastQuarter = thisQuarter - 1 || 4;
             const year = (thisQuarter - 1)
                          ? moment().year()
-                         : moment().subtract(1, 'year');
+                         : moment().subtract(1, 'year').year();
 
             return {
-                from: moment(year).quarter(lastQuarter).startOf('quarter').toDate(),
-                to: moment(year).quarter(lastQuarter).endOf('quarter').toDate()
+                from: moment().year(year).quarter(lastQuarter).startOf('quarter').toDate(),
+                to: moment().year(year).quarter(lastQuarter).endOf('quarter').toDate()
             };
         case PredefinedDateRanges.lastYear:
             return {
@@ -402,6 +402,10 @@ export const PredefinedTargetPeriod = {
     yearly: {
         lastYear: 'last year',
         twoYearsAgo: '2 years ago',
+        samePeriodLastYear: 'same period, last year',
+        samePeriod2YearsAgo: 'same period, 2 years ago'
+    },
+    custom: {
         samePeriodLastYear: 'same period, last year',
         samePeriod2YearsAgo: 'same period, 2 years ago'
     }

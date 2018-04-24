@@ -1,6 +1,6 @@
 import { camelCase } from 'change-case';
 import { inject, injectable } from 'inversify';
-import {difference, isNumber, isString, pick, PartialDeep, orderBy}  from 'lodash';
+import {difference, isNumber, isString, pick, PartialDeep, orderBy, isEmpty, omit }  from 'lodash';
 import * as moment from 'moment';
 
 import { IChartMetadata } from '../app_modules/charts/queries/charts/chart-metadata';
@@ -26,8 +26,8 @@ import { IDashboardDocument } from './../domain/app/dashboards/dashboard';
 import { Dashboards } from './../domain/app/dashboards/dashboard.model';
 import { KPIs } from './../domain/app/kpis/kpi.model';
 import { Targets } from './../domain/app/targets/target.model';
-import { IChartDateRange, IDateRange, parsePredifinedDate, PredefinedTargetPeriod } from './../domain/common/date-range';
-import { FrequencyEnum, FrequencyTable } from './../domain/common/frequency-enum';
+import {IChartDateRange, IDateRange, parsePredifinedDate, PredefinedTargetPeriod, PredefinedDateRanges} from './../domain/common/date-range';
+import {FrequencyEnum, FrequencyTable} from './../domain/common/frequency-enum';
 import { TargetService } from './target.service';
 import {dataSortDesc} from '../helpers/number.helpers';
 
@@ -99,7 +99,7 @@ export class ChartsService {
                 isFutureTarget: options && options.isFutureTarget || false,
             };
 
-            chart.targetExtraPeriodOptions = this._getTargetExtraPeriodOptions(meta.frequency);
+            chart.targetExtraPeriodOptions = this._getTargetExtraPeriodOptions(meta.frequency, chart.dateRange);
             chart.canAddTarget = this._canAddTarget(meta.dateRange);
 
             // lets fill the comparison options for this chart if only if its not a comparison chart already
@@ -472,8 +472,10 @@ export class ChartsService {
                 : parsePredifinedDate(dateRange[0].predefined);
     }
 
-    private _getTargetExtraPeriodOptions(frequency: number): IObject {
-        if (!isNumber(frequency)) { return {}; }
+    private _getTargetExtraPeriodOptions(frequency: number, chartDateRange?: IChartDateRange[]): IObject {
+        if (!isNumber(frequency) && !isEmpty(chartDateRange)) {
+            return this._noFrequencyTargetExtraOptions(chartDateRange);
+        }
 
         switch (frequency) {
             case FrequencyEnum.Daily:
@@ -486,6 +488,35 @@ export class ChartsService {
                 return PredefinedTargetPeriod.quarterly;
             case FrequencyEnum.Yearly:
                 return PredefinedTargetPeriod.yearly;
+        }
+    }
+
+    private _noFrequencyTargetExtraOptions(chartDateRange: IChartDateRange[]): IObject {
+        const predefinedDateRange: string = chartDateRange[0].predefined;
+        const samePeriodLast: string[] = ['samePeriodLastYear', 'samePeriod2YearsAgo'];
+
+        switch (predefinedDateRange) {
+            case PredefinedDateRanges.thisYear:
+            case PredefinedDateRanges.thisYearToDate:
+                return omit(PredefinedTargetPeriod.monthly, samePeriodLast);
+
+            case PredefinedDateRanges.custom:
+                return PredefinedTargetPeriod.custom;
+
+            case PredefinedDateRanges.thisQuarter:
+            case PredefinedDateRanges.thisQuarterToDate:
+                return omit(PredefinedTargetPeriod.quarterly, samePeriodLast);
+
+            case PredefinedDateRanges.thisMonth:
+            case PredefinedDateRanges.thisMonthToDate:
+                return omit(PredefinedTargetPeriod.monthly, samePeriodLast);
+
+            case PredefinedDateRanges.thisWeek:
+            case PredefinedDateRanges.thisWeekToDate:
+                return omit(PredefinedTargetPeriod.weekly, samePeriodLast);
+            default:
+                return {};
+
         }
     }
 

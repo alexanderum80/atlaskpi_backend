@@ -4,7 +4,11 @@ import 'datejs';
 import { from } from 'apollo-link/lib';
 import * as Bluebird from 'bluebird';
 import * as console from 'console';
-import { cloneDeep, difference, flatten, isString, groupBy, isEmpty, isNull, isUndefined, map, pick, union, uniq, uniqBy, orderBy } from 'lodash';
+import {
+    cloneDeep, difference, flatten, groupBy,
+    isEmpty, isNull, isUndefined, map, pick,
+    union, uniq, uniqBy, orderBy, isNumber, isString
+} from 'lodash';
 import * as moment from 'moment';
 import * as logger from 'winston';
 import { camelCase } from 'change-case';
@@ -555,6 +559,8 @@ export class UIChartBase {
                 // if chart has no groupings
                 this.commonField = ['noGroupingName'];
             }
+        } else {
+            this.commonField = ['noFrequencyName'];
         }
 
         if (target.length) {
@@ -621,17 +627,19 @@ export class UIChartBase {
                 if (meta.xAxisSource) {
                     return this._targetMetaData(meta, meta.xAxisSource, data, categories);
                 } else {
-                    return [{
-                        name: '',
-                        data: data.map(item => item.value)
-                    }];
+                    return data.map(d => ({
+                        name: d._id['noFrequencyName'],
+                        type: 'spline',
+                        data: [].concat(d.value),
+                        targetId: d.targetId
+                    }));
                 }
             case 1:
                 return this._targetMetaData(meta, groupings, data, categories);
         }
     }
 
-    private _targetMetaData(meta: any, groupByField: any, data: any[], categories: IXAxisCategory[]) {
+    private _targetMetaData(meta: IChartMetadata, groupByField: any, data: any[], categories: IXAxisCategory[]) {
         let targetCategories = [];
         if (meta.frequency === 4) {
             data.forEach((target) => {
@@ -657,7 +665,7 @@ export class UIChartBase {
         // check if stack chart, or no groupings charts
         // otherwise go to the else statement
         let groupedData: Dictionary<any> = groupBy(data, (val) => {
-            if (val['_id'].hasOwnProperty('stackName')) {
+            if (val['_id'].hasOwnProperty('stackName') && isNumber(meta.frequency)) {
                 return val._id[groupByField] + '_' + val._id['stackName'];
             } else if (val['_id'].hasOwnProperty('noGroupingName')) {
                 return val._id[groupByField] + '_' + val._id['noGroupingName'];
