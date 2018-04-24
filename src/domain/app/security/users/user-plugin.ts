@@ -94,7 +94,9 @@ export function userPlugin(schema: mongoose.Schema, options: any) {
         lastName: String,
         sex: String,
         dob: Date,
-        phoneNumber: String
+        phoneNumber: String,
+        timezone: String,
+        agreement: AgreementSchema
     };
 
     let UserTokenInfo = {
@@ -146,7 +148,6 @@ export function userPlugin(schema: mongoose.Schema, options: any) {
         },
         owner: Boolean,
         password: String,
-        agreement: AgreementSchema,
         services: ServicesSchema,
         profile: UserProfileSchema,
         preferences: UserPreferenceSchema,
@@ -356,7 +357,8 @@ export function userPlugin(schema: mongoose.Schema, options: any) {
                         profile: {
                             firstName: data.firstName,
                             middleName: data.middleName,
-                            lastName: data.lastName
+                            lastName: data.lastName,
+                            timezone: data.timezone
                         },
                         username: data.username || data.email,
                         emails: [{
@@ -484,6 +486,9 @@ export function userPlugin(schema: mongoose.Schema, options: any) {
                 if (data.email) {
                     user.emails[0].address = data.email;
                     user.username = data.email;
+                }
+                if (data.timezone) {
+                    user.profile.timezone = data.timezone;
                 }
 
                 if (data.roles) {
@@ -1149,6 +1154,7 @@ export function userPlugin(schema: mongoose.Schema, options: any) {
                    user.profile.middleName = input.middleName;
                    user.profile.lastName = input.lastName;
                    user.profile.phoneNumber = input.phoneNumber;
+                   user.profile.timezone = input.timezone;
                    user.preferences.notification.general = input.general;
                    user.preferences.notification.chat = input.chat;
                    user.preferences.notification.email = input.viaEmail;
@@ -1175,7 +1181,7 @@ export function userPlugin(schema: mongoose.Schema, options: any) {
                 username: insentive_username(input.email)
             })
                 .then((user: IUserDocument) => {
-                    user.agreement = {
+                    user.profile.agreement = {
                         accept: input.accept,
                         ipAddress: input.ipAddress,
                         timestamp: input.timestamp

@@ -43,8 +43,8 @@ export interface ISchedulerConfig {
 }
 
 export interface IAWSCredentials {
-    accessKeyId: string,
-    secretAccessKey: string
+    accessKeyId: string;
+    secretAccessKey: string;
 }
 
 export interface IAppConfig {
