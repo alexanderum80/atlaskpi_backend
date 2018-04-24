@@ -289,7 +289,7 @@ AppointmentSchema.statics.search = function(criteria: SearchAppointmentCriteriaI
         }
 
         if (isBoolean(criteria.cancelled) && criteria.cancelled === false) {
-            query['cancelled'] = !criteria.cancelled;
+            query['cancelled'] = criteria.cancelled;
         }
     }
 
