@@ -71,8 +71,11 @@ ExpenseSchema.statics.amountByDateRange = function(fromDate: string, toDate: str
 
     return new Promise<Object>((resolve, reject) => {
         ExpenseModel.aggregate({ '$match': { 'timestamp': { '$gte': from, '$lt': to } } },
-                            { '$group': { '_id': null, 'count': { '$sum': 1 }, 'amount': { '$sum': '$expense.amount' } } })
-        .then(expenses => {
+                    { '$group': { '_id': '$expense.concept', 'amount': { '$sum': '$expense.amount' } } },
+                    { '$project': { '_id': 1, 'amount': 1 } },
+                    { '$group': { '_id': null, 'expenses': { $addToSet: { concept: '$_id' , amount: '$amount' } },
+                                'total': { '$sum': '$amount' } } })
+            .then(expenses => {
             resolve(expenses);
         })
         .catch(err => {

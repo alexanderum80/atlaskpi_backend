@@ -178,19 +178,35 @@ TargetSchema.statics.findTarget = function(id: string): Promise<ITargetDocument[
     });
 };
 
+TargetSchema.statics.findTargetById = function(id: string): Promise<ITargetDocument> {
+    const that = this;
+    return new Promise<ITargetDocument>((resolve, reject) => {
+      (<ITargetModel>this).findOne({_id: id})
+            .then((target) => {
+                if (target) {
+                    resolve(target);
+                    return;
+                }
+                resolve(<any>{ errors: [ { field: 'target', errors: ['Not found'] } ], data: null });
+            }).catch((err) => {
+                resolve(<any>{ errors: [ { field: 'target', errors: ['Not found'] } ], data: null });
+            });
+    });
+};
+
 TargetSchema.statics.findTargetByName = function(name: string): Promise<ITargetDocument> {
     const that = this;
     return new Promise<ITargetDocument>((resolve, reject) => {
-      (<ITargetModel>this).findOne({name: name, delete: 0})
-        .then((target) => {
-            if (target) {
-                resolve(target);
-                return;
-            }
-            resolve(<any>{ errors: [ { field: 'target', errors: ['Not found'] } ], data: null });
-        }).catch((err) => {
-            resolve(<any>{ errors: [ { field: 'target', errors: ['Not found'] } ], data: null });
-        });
+      (<ITargetModel>this).findOne({name: name})
+            .then((target) => {
+                if (target) {
+                    resolve(target);
+                    return;
+                }
+                resolve(<any>{ errors: [ { field: 'target', errors: ['Not found'] } ], data: null });
+            }).catch((err) => {
+                resolve(<any>{ errors: [ { field: 'target', errors: ['Not found'] } ], data: null });
+            });
     });
 };
 

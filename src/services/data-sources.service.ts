@@ -18,9 +18,9 @@ export class DataSourcesService {
         return sortBy(virtualSources, 'name');
     }
 
-    async getDistinctValues(source: string, field: string, limit: number, filter: string): Promise<string[]> {
+    async getDistinctValues(name: string, source: string, field: string, limit: number, filter: string): Promise<string[]> {
         try {
-            const vs = await this._virtualDatasources.model.findOne({ source: source });
+            const vs = await this._virtualDatasources.model.findOne({ name: { $regex: new RegExp(name, 'i') }  });
             const model = (this._container.get(source) as any).model;
 
             let aggregate = [];

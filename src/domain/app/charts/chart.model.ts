@@ -63,8 +63,11 @@ ChartSchema.methods.isStacked = function(): boolean {
         Array.isArray(this.groupings) &&
         this.xAxisSource && (this.groupings[0] === this.xAxisSource)) ||
         (Array.isArray(this.groupings) &&
-        this.groupings.length && !this.frequency && !this.xAxisSource);
-}
+        this.groupings.length &&
+        this.groupings[0] &&
+        !this.frequency &&
+        !this.xAxisSource);
+};
 
 ChartSchema.statics.createChart = function(input: IChartInput): Promise < IChartDocument > {
     const that = this;

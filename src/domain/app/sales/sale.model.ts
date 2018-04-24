@@ -1,6 +1,6 @@
 import * as Promise from 'bluebird';
 import { inject, injectable } from 'inversify';
-import { isObject } from 'lodash';
+import { isObject, filter, isEmpty } from 'lodash';
 import * as moment from 'moment';
 import * as mongoose from 'mongoose';
 import * as logger from 'winston';
@@ -84,6 +84,16 @@ SaleSchema.index({ 'product.from': 1, 'category.service': 1 });
 
 SaleSchema.plugin(criteriaPlugin);
 
+function filterEmptyUnwindPipe(aggregate: any[]): any[] {
+    let findStage = aggregate.find((agg) => agg.$unwind !== undefined);
+
+    if (isEmpty(findStage.$unwind)) {
+        delete findStage.$unwind;
+    }
+
+    return filter(aggregate, (agg) => !isEmpty(agg));
+}
+
 // SaleSchema.methods.
 
 // SaleSchema.statics.
@@ -111,27 +121,15 @@ SalesSchema.statics.amountByDateRange = function(fromDate: Date, toDate: Date): 
 
     return new Promise<Object>((resolve, reject) => {
         SalesModel.aggregate({ '$match': { 'product.from': { '$gte': from, '$lt': to } } },
-                            { '$group': { '_id': { 'source': '$source', 'timestamp': '$timestamp' }, 'count': { '$sum': 1 }, 'amount': { '$sum': '$product.paid' } } })
-        .then(sales => {
-            resolve(sales);
-        })
-        .catch(err => {
-            logger.error('There was an error retrieving sales by predefined data range', err);
-            reject(err);
-        });
-    });
-};
-
-SalesSchema.statics.totalSalesByDateRange = function(fromDate: Date, toDate: Date): Promise<Object> {
-    const SalesModel = (<ISaleModel>this);
-
-    const from = moment(fromDate).utc().toDate();
-    const to = moment(toDate).utc().toDate();
-
-    return new Promise<Object>((resolve, reject) => {
-        SalesModel.aggregate({ '$match': { 'product.from': { '$gte': from, '$lt': to } } },
-                            { '$group': { '_id': null, 'count': { '$sum': 1 }, 'amount': { '$sum': '$product.paid' } } })
-        .then(sales => {
+                { '$group': { _id: { source: '$source'},
+                    count: { '$sum': 1 },
+                    amount: { '$sum': '$product.paid' } }
+                },
+                { $project: { amount: 1, count: 1, _id: 1 } },
+                { $group: { _id: null, revenueSources: { $addToSet:  { count: '$count', amount: '$amount', source: '$_id.source'} },
+                    total: { $sum: '$amount' }, totalCount: { $sum: '$count' } }
+                })
+            .then(sales => {
             resolve(sales);
         })
         .catch(err => {
@@ -173,9 +171,9 @@ SalesSchema.statics.salesEmployeeByDateRange = function(predefinedDateRange: str
 
     return new Promise<Object>((resolve, reject) => {
         SalesModel.aggregate({ '$match': { 'product.from': { '$gte': DateRange.from, '$lt': DateRange.to } } },
-                            { '$group': { '_id': '$employee._id', 'amount': { '$sum': '$product.paid' } } },
-                            { '$sort': { 'amount': 1 } },
-                            { '$group': { '_id': null, 'employee': { '$last': '$_id'}, 'amount': { '$last': '$amount' } } })
+                            { '$group': { '_id': '$employee.fullName', 'amount': { '$sum': '$product.paid' } } },
+                            { '$sort': { 'amount': -1 } },
+                            { '$group': { '_id': null, 'employee': { '$first': '$_id'}, 'total': { '$first': '$amount' } } })
         .then(sales => {
             resolve(sales);
         })
@@ -199,6 +197,7 @@ SalesSchema.statics.salesBy = function(type: TypeMap, input?: IMapMarkerInput): 
                 aggregate.push(
                     { $match: { 'product.amount': { $gte: 0 } } },
                     { $project: { product: 1, _id: 0, customer: 1 } },
+                    { $unwind: {} },
                     { $group: {
                         _id: { customerZip: '$customer.zip' },
                         sales: { $sum: '$product.amount' }
@@ -222,6 +221,7 @@ SalesSchema.statics.salesBy = function(type: TypeMap, input?: IMapMarkerInput): 
                     }
 
                     if (input.grouping) {
+                        let groupFieldName = input.grouping.split('.')[0];
                         let aggregateGrouping = aggregate.find(agg => agg.$group !== undefined);
                         // get the field name for the sales document
 
@@ -234,10 +234,21 @@ SalesSchema.statics.salesBy = function(type: TypeMap, input?: IMapMarkerInput): 
                             aggregateGrouping.$group._id['grouping'] = '$' + input.grouping;
                         }
 
+                        let aggregateUnwind = aggregate.find(agg => agg.$unwind !== undefined);
+                        if (aggregateUnwind) {
+                            const schemaFieldType = (SalesModel.schema as any).paths[groupFieldName].instance;
+                            if (schemaFieldType === 'Array') {
+                                aggregateUnwind.$unwind = {
+                                    path: `$${groupFieldName}`,
+                                    preserveNullAndEmptyArrays: true
+                                };
+                            }
+                        }
+
                         // project the group field
                         let aggregateProject = aggregate.find(agg => agg.$project !== undefined);
                         if (aggregateProject) {
-                            let projectFieldByGroup = input.grouping.split('.')[0];
+                            let projectFieldByGroup = groupFieldName;
 
                             aggregateProject.$project[projectFieldByGroup] = 1;
                         }
@@ -248,6 +259,7 @@ SalesSchema.statics.salesBy = function(type: TypeMap, input?: IMapMarkerInput): 
                 break;
         }
 
+        aggregate = filterEmptyUnwindPipe(aggregate);
         SalesModel.aggregate(aggregate).then(res => {
             if (!res) {
                 resolve([]);
