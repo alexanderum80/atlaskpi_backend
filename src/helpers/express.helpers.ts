@@ -62,7 +62,7 @@ export function getStateParamHostname(req: Request): string {
 }
 
 
-export function getHostByCompanyName(req: Request): string {
+export function getHostNameByGraphqlQuery(req: Request): string {
     if (req.body.operationName.toLowerCase() === findByUserNameQueryName &&
         req.body.variables.hostname) {
         return req.body.variables.hostname;

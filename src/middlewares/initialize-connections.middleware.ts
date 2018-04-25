@@ -51,7 +51,7 @@ function getAppConnection(accounts: IAccountModel, req: IExtendedRequest, res: R
         logger.debug(`${loggerSuffix} Hostname: ${hostname}`);
 
         if (!req.identity && !hostname) {
-            hostname = getHostByCompanyName(req);
+            hostname = getHostNameByGraphqlQuery(req);
         }
 
         if ((!req.identity && !hostname) || graphqlOperationExceptions.indexOf(req.body.operationName) !== -1) {
