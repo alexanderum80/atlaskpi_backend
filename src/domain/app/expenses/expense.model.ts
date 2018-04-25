@@ -26,7 +26,7 @@ export const ExpenseSchema = new Schema({
     externalId: { type: String, unique: true },
     location: IdNameSchema,
     expense: {
-        type: String,
+        type: { type: String },
         concept: String,
         amount: Number
     },
