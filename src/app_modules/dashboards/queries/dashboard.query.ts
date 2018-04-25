@@ -1,6 +1,7 @@
 import * as Promise from 'bluebird';
 import * as console from 'console';
 import { inject, injectable } from 'inversify';
+import { isEmpty } from 'lodash';
 
 import { CurrentUser } from '../../../domain/app/current-user';
 import { IDashboard } from '../../../domain/app/dashboards/dashboard';
@@ -43,6 +44,11 @@ export class DashboardQuery implements IQuery<IDashboard> {
 
         // lets prepare the query for the dashboards
         let query = { };
+
+        if (isEmpty(user) || isEmpty(user.roles)) {
+            return Promise.resolve({} as any);
+        }
+
         if (user && user.roles && user.roles.find(r => r.name === 'owner')) {
             query = { _id: data.id };
         } else {
