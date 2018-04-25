@@ -8,7 +8,6 @@ export class BasicRoleChecker {
         if (!currentUser) { return false; }
         if (!currentUser.roles || !currentUser.roles.length) { return false; }
 
-        // this code creates a uniq array of user's permissions
         const allUserPermissions = Array.from(new Set<IPermission>([].concat(...currentUser.roles.map(r => r.permissions))));
 
         const found = allUserPermissions.find(p => p.action === action && p.subject === subject);
