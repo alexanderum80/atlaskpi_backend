@@ -11,6 +11,7 @@ import { AggregateStage } from './aggregate';
 import { IGetDataOptions, IKpiBase, KpiBase, ICollection } from './kpi-base';
 import { GoogleAnalyticsKPIService } from '../../../services/kpis/google-analytics-kpi/google-analytics-kpi.service';
 import { SimpleKPIBase } from './simple-kpi-base';
+import { IVirtualSourceDocument } from '../../../domain/app/virtual-sources/virtual-source';
 
 export class GoogleAnalyticsKpi extends SimpleKPIBase implements IKpiBase {
 
@@ -18,7 +19,8 @@ export class GoogleAnalyticsKpi extends SimpleKPIBase implements IKpiBase {
 
     public static CreateFromExpression( kpi: IKPIDocument,
                                         googleAnalytics: GoogleAnalytics,
-                                        googleAnalyticsKpiService): GoogleAnalyticsKpi {
+                                        googleAnalyticsKpiService: GoogleAnalyticsKPIService,
+                                        virtualSources: IVirtualSourceDocument[]): GoogleAnalyticsKpi {
 
         const kpiDefinition: IKPISimpleDefinition = KPIExpressionHelper.DecomposeExpression(KPITypeEnum.ExternalSource, kpi.expression);
 
@@ -51,9 +53,10 @@ export class GoogleAnalyticsKpi extends SimpleKPIBase implements IKpiBase {
             }
         ];
 
+        // I can get virtual source here by the name
         kpiDefinition.dataSource = kpiDefinition.dataSource.replace('$', '');
 
-        return new GoogleAnalyticsKpi(googleAnalytics.model, aggregateSkeleton, kpiDefinition, kpi, googleAnalyticsKpiService);
+        return new GoogleAnalyticsKpi(googleAnalytics.model, aggregateSkeleton, kpiDefinition, kpi, googleAnalyticsKpiService, virtualSources);
     }
 
 
