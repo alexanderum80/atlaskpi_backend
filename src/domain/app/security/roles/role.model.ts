@@ -12,6 +12,7 @@ import { initRoles } from './init-roles';
 import { initialRoles } from './initial-roles';
 import { IRoleCustom, IRoleDocument, IRoleModel, IRoleResponse } from './role';
 import { CAN_ALL, CAN_ANY, doCan } from './utils';
+import { searchPlugin } from '../../global-search/global-search.plugin';
 
 // INTERFACES
 
@@ -35,6 +36,7 @@ export const RoleSchema = new mongoose.Schema({
     }
 });
 
+RoleSchema.plugin(searchPlugin);
 
 // METHODS
 
