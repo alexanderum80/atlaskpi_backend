@@ -94,7 +94,7 @@ export class GoogleAnalyticsKPIService {
         return <any> getAnalyticsData(analytics, authClient, this._connector.config.view.id, {
             startDate: startDate,
             endDate: endDate,
-            metrics: [fieldMetricsMap[field]],
+            metrics: [`ga:${field}`],
             dimensions: constructDimensionsArray(groupings, frequency),
             extraOpts: {
                 'include-empty-rows': false

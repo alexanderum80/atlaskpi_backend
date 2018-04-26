@@ -140,12 +140,8 @@ export class KPIFilterHelper {
     }
 
     private static _serializer(filter: any, operation = 'serialize'): any {
-        if (isNumber(filter)) {
+        if (isNumber(filter) || isString(filter)) {
             return filter;
-        }
-
-        if (isString(filter)) {
-            return KPIFilterHelper._getCleanString(filter, operation);
         }
 
         let newFilter = {};

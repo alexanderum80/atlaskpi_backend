@@ -133,7 +133,8 @@ export class KpiBase {
     }
 
     private _injectDataRange(dateRange: IDateRange[], field: string) {
-        const matchDateRange = { $match: {} } as any;
+        // const matchDateRange = { $match: {} } as any;
+        let matchDateRange = this.findStage('filter', '$match');
 
         if (dateRange && dateRange.length) {
             if (dateRange.length === 1) {
@@ -157,7 +158,7 @@ export class KpiBase {
             }
         }
 
-        this.aggregate.unshift(matchDateRange);
+        // this.aggregate.unshift(matchDateRange);
     }
 
     private _injectFilter(filter: any) {
