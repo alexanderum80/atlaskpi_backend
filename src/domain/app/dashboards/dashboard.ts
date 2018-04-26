@@ -1,3 +1,4 @@
+import { ISearchableModel } from '../global-search/global-search';
 import * as Promise from 'bluebird';
 import * as mongoose from 'mongoose';
 
@@ -43,7 +44,7 @@ export interface IDashboardDocument extends IDashboard, mongoose.Document {
     // removeChart(chartId: string, done: (err: any, dashboard: IDashboardDocument) => void): void;
 }
 
-export interface IDashboardModel extends mongoose.Model<IDashboardDocument> {
+export interface IDashboardModel extends mongoose.Model<IDashboardDocument>, ISearchableModel {
     createDashboard(input: IDashboardInput): Promise<IDashboardDocument>;
     updateDashboard(id: string, input: IDashboardInput): Promise<IDashboardDocument>;
     deleteDashboard(id: string): Promise<IDashboardDocument>;

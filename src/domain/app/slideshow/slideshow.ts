@@ -1,6 +1,7 @@
 
 import * as mongoose from 'mongoose';
 import * as Promise from 'bluebird';
+import { ISearchableModel } from '../global-search/global-search';
 
 export interface ISlideshow {
     name: string;
@@ -16,7 +17,7 @@ export interface ISlideshowInput {
 export interface ISlideshowDocument extends ISlideshow, mongoose.Document {
 }
 
-export interface ISlideshowModel extends mongoose.Model<ISlideshowDocument> {
+export interface ISlideshowModel extends mongoose.Model<ISlideshowDocument>, ISearchableModel {
     /**
      * Create a slideshow
      * @param {name: string, description: string, charts: string[]} input -  with the details of the Slideshow

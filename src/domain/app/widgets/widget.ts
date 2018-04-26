@@ -1,3 +1,4 @@
+import { ISearchableModel } from '../global-search/global-search';
 import * as mongoose from 'mongoose';
 
 import { input } from '../../../framework/decorators/input.decorator';
@@ -114,7 +115,7 @@ export interface IWidgetInput {
 
 export interface IWidgetDocument extends IWidget, mongoose.Document { }
 
-export interface IWidgetModel extends mongoose.Model<IWidgetDocument> {
+export interface IWidgetModel extends mongoose.Model<IWidgetDocument>, ISearchableModel {
     /**
      * retrieves all widgets
      * @returns {Promise<IWidgetDocument[]>}

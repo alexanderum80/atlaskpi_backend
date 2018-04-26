@@ -11,6 +11,7 @@ import { SearchAppointmentCriteriaInput } from './../../../app_modules/appointme
 import { IIdName } from './../../common/id-name';
 import { IAppointment, IAppointmentDocument, IAppointmentModel } from './appointment';
 import { getCustomerSchema } from '../../common/customer.schema';
+import { searchPlugin } from '../global-search/global-search.plugin';
 
 const distinctProvidersPipeline = [
     { '$unwind': '$provider' },
@@ -119,6 +120,7 @@ AppointmentSchema.index({ 'from': 1, 'event.name': 1 });
 AppointmentSchema.index({ 'from': 1, 'source': 1 });
 
 AppointmentSchema.plugin(criteriaPlugin);
+AppointmentSchema.plugin(searchPlugin);
 
 AppointmentSchema.statics.createNew = function(input: IAppointment): Promise < IAppointmentDocument > {
     const that = < IAppointmentModel > this;
