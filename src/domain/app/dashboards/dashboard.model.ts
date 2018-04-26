@@ -32,7 +32,10 @@ let DashboardSchema = new Schema({
         type: Schema.Types.String,
         ref: 'User'
     },
-    accessLevels: [AccessLevels]
+    users: [{
+        type: Schema.Types.String,
+        ref: 'User'
+    }],
 });
 
 // add tags capabilities
