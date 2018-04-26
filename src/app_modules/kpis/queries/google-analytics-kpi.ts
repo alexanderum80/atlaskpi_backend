@@ -19,8 +19,7 @@ export class GoogleAnalyticsKpi extends SimpleKPIBase implements IKpiBase {
 
     public static CreateFromExpression( kpi: IKPIDocument,
                                         googleAnalytics: GoogleAnalytics,
-                                        googleAnalyticsKpiService: GoogleAnalyticsKPIService,
-                                        virtualSources: IVirtualSourceDocument[]): GoogleAnalyticsKpi {
+                                        googleAnalyticsKpiService: GoogleAnalyticsKPIService): GoogleAnalyticsKpi {
 
         const kpiDefinition: IKPISimpleDefinition = KPIExpressionHelper.DecomposeExpression(KPITypeEnum.ExternalSource, kpi.expression);
 
@@ -56,7 +55,7 @@ export class GoogleAnalyticsKpi extends SimpleKPIBase implements IKpiBase {
         // I can get virtual source here by the name
         kpiDefinition.dataSource = kpiDefinition.dataSource.replace('$', '');
 
-        return new GoogleAnalyticsKpi(googleAnalytics.model, aggregateSkeleton, kpiDefinition, kpi, googleAnalyticsKpiService, virtualSources);
+        return new GoogleAnalyticsKpi(googleAnalytics.model, aggregateSkeleton, kpiDefinition, kpi, googleAnalyticsKpiService);
     }
 
 
