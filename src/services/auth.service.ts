@@ -21,22 +21,6 @@ export interface IUserAuthenticationData {
     clientDetails: string;
 }
 
-export interface IAuthErrorResponseObject {
-    name: string;
-    message: string;
-}
-export interface IAuthErrorResponse {
-    NO_AGREEMENT: IAuthErrorResponseObject;
-    NO_OWNER: IAuthErrorResponseObject;
-    NO_ROLE: IAuthErrorResponseObject;
-}
-
-const errorResponse: IAuthErrorResponse = {
-    NO_AGREEMENT: { name: 'no agreement', message: 'user has not agreed to the terms' },
-    NO_OWNER: { name: 'no owner', message: 'no owner exists' },
-    NO_ROLE: { name: 'no role provided', message: 'no role provided for this user' }
-};
-
 @injectable()
 export class AuthService {
 
