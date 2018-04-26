@@ -4,7 +4,6 @@ import { isArray, isObject } from 'lodash';
 import { config } from '../configuration/config';
 
 const loggerSuffix = '(FUNCTION getRequestHostname)';
-const findByUserNameQueryName = 'findbyusername';
 
 export function getRequestHostname(req: Request): string {
     //  just for testing
@@ -60,17 +59,6 @@ export function getStateParamHostname(req: Request): string {
 
     return `${host}.${config.subdomain}`;
 }
-
-
-export function getHostNameByGraphqlQuery(req: Request): string {
-    if (req.body.operationName.toLowerCase() === findByUserNameQueryName &&
-        req.body.variables.hostname) {
-        return req.body.variables.hostname;
-    }
-
-    return '';
-}
-
 
 export function isRegExp(value: any): boolean {
     return value instanceof RegExp;

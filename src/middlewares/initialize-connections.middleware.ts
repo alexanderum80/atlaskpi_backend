@@ -6,7 +6,7 @@ import * as logger from 'winston';
 import { config } from '../configuration/config';
 import { IAccountDocument, IAccountModel } from '../domain/master/accounts/Account';
 import { Accounts } from '../domain/master/accounts/account.model';
-import { getRequestHostname, getStateParamHostname, getHostByCompanyName } from '../helpers/express.helpers';
+import { getRequestHostname, getStateParamHostname } from '../helpers/express.helpers';
 import { makeDefaultConnection } from '../helpers/mongodb.helpers';
 import { AppConnectionPool } from './app-connection-pool';
 import { IExtendedRequest } from './extended-request';
@@ -15,7 +15,7 @@ const connectionPool = new AppConnectionPool();
 
 const graphqlOperationExceptions = [
     'AccountNameAvailable',
-    'CreateAccount'
+    'CreateAccount',
 ];
 
 const loggerSuffix = '(MIDDLEWARE initialize connections)';
@@ -49,10 +49,6 @@ function getAppConnection(accounts: IAccountModel, req: IExtendedRequest, res: R
 
         let hostname =  getRequestHostname(req) || getStateParamHostname(req);
         logger.debug(`${loggerSuffix} Hostname: ${hostname}`);
-
-        if (!req.identity && !hostname) {
-            hostname = getHostNameByGraphqlQuery(req);
-        }
 
         if ((!req.identity && !hostname) || graphqlOperationExceptions.indexOf(req.body.operationName) !== -1) {
             logger.debug(`${loggerSuffix} Not trying to create app connection because of the lack of identity, hostname or the operation is not part the exception list`);

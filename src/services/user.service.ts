@@ -13,6 +13,7 @@ import { Attachments } from '../domain/app/attachments/attachment-model';
 import { AttachmentTypeEnum, AttachmentCategoryEnum } from '../domain/app/attachments/attachment';
 import { Logger } from '../domain/app/logger';
 import { UserAttachmentsService } from './attachments/user-attachments.service';
+import { isEmpty } from 'lodash';
 
 @injectable()
 export class UserService {
@@ -29,6 +30,8 @@ export class UserService {
     async getCurrentUserInfo(): Promise<IUserDocument> {
         try {
             const user = this._currentUser.get().toObject() as IUserDocument;
+            user.ownerAgreed = await this._hasOwnerAgreed();
+
             user.profilePictureUrl = await this._userAttachmentService.getUrl(
                 AttachmentCategoryEnum.User,
                 AttachmentTypeEnum.ProfilePicture,
@@ -114,5 +117,18 @@ export class UserService {
             });
 
         });
+    }
+
+    private async _hasOwnerAgreed(): Promise<boolean> {
+        const users: IUserDocument[] = await this._users.model.find().populate('roles');
+        const owner: any = users.find((user: IUserDocument) => {
+            return (user.roles).find(role => role.name === 'owner') as any;
+        });
+
+        if (isEmpty(owner.profile.agreement)) {
+            return false;
+        }
+
+        return owner.profile.agreement.accept;
     }
 }

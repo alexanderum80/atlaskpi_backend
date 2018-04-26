@@ -15,8 +15,7 @@ import { query } from '../../../framework/decorators/query.decorator';
     name: 'findByUserName',
     activity: FindUserByUsernameActivity,
     parameters: [
-        { name: 'username', type: GraphQLTypesMap.String },
-        { name: 'hostname', type: GraphQLTypesMap.String }
+        { name: 'username', type: GraphQLTypesMap.String }
     ],
     output: { type: User }
 })

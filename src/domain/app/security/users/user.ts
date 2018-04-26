@@ -155,6 +155,7 @@ export interface IUser {
 // declare interface to mix account and mongo docuemnt properties/methods
 export interface IUserDocument extends IUser, mongoose.Document {
     profilePictureUrl: string;
+    ownerAgreed?: boolean;
 
     hasRole(role: string, done: (err: any, hasRole: boolean) => void): void;
     addRole(role: string, done?: (err: any, role: IRoleDocument) => void): void;
