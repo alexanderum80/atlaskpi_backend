@@ -390,7 +390,9 @@ export class ChartsService {
                                         meta: IChartMetadata ): Promise<any> {
         const that = this;
         return new Promise<any>((resolve, reject) => {
-            that._targetService.getTargets(chartId, that._currentUser.get()._id)
+            const userId = (!that._currentUser || !that._currentUser.get()) ? '' : that._currentUser.get()._id;
+
+            that._targetService.getTargets(chartId, userId)
                 .then((res) => {
                     if (meta.isFutureTarget &&
                         meta.frequency !== FrequencyTable.yearly) {

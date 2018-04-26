@@ -111,6 +111,7 @@ export interface IAccountCreatedDataSource {
     subdomain?: string;
     resetToken?: string;
     fullName?: string;
+    companyName?: string;
 }
 
 export interface IUserForgotPasswordDataSource extends IAccountCreatedDataSource {
