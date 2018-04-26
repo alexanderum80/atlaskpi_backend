@@ -8,6 +8,7 @@ import { ModelBase } from '../../../type-mongo/model-base';
 import { AppConnection } from '../app.connection';
 import { IDashboardDocument, IDashboardInput, IDashboardModel } from './dashboard';
 import { tagsPlugin } from '../tags/tag.plugin';
+import { searchPlugin } from '../global-search/global-search.plugin';
 
 
 let Schema = mongoose.Schema;
@@ -37,6 +38,7 @@ let DashboardSchema = new Schema({
 
 // add tags capabilities
 DashboardSchema.plugin(tagsPlugin);
+DashboardSchema.plugin(searchPlugin);
 
 DashboardSchema.statics.createDashboard = function(input: IDashboardInput):
     Promise < IDashboardDocument > {

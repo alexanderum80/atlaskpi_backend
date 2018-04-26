@@ -8,6 +8,7 @@ import { ModelBase } from '../../../type-mongo/model-base';
 import { AppConnection } from '../app.connection';
 import { tagsPlugin } from '../tags/tag.plugin';
 import { ISlideshowInput, ISlideshowDocument, ISlideshowModel } from './slideshow';
+import { searchPlugin } from '../global-search/global-search.plugin';
 
 const SlideshowSchema = new mongoose.Schema({
     name: { type: String, required: true, unique: true },
@@ -17,6 +18,7 @@ const SlideshowSchema = new mongoose.Schema({
 
 // add tags capabilities
 SlideshowSchema.plugin(tagsPlugin);
+SlideshowSchema.plugin(searchPlugin);
 
 SlideshowSchema.statics.createSlideshow = function(input: ISlideshowInput): Promise<ISlideshowDocument> {
     const that = <ISlideshowModel> this;

@@ -1,3 +1,4 @@
+import { searchPlugin } from '../global-search/global-search.plugin';
 import { from } from 'apollo-link/lib';
 import * as Promise from 'bluebird';
 import { inject, injectable } from 'inversify';
@@ -57,6 +58,7 @@ let ChartSchema = new Schema({
 
 // add tags capabilities
 ChartSchema.plugin(tagsPlugin);
+ChartSchema.plugin(searchPlugin);
 
 ChartSchema.methods.isStacked = function(): boolean {
     return ((this.chartDefinition.chart.type === ChartType.Column) &&

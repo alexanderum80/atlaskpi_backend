@@ -2,6 +2,7 @@ import * as Promise from 'bluebird';
 import * as mongoose from 'mongoose';
 
 import { IPermission } from '../../../../framework/modules/security/permission';
+import { ISearchableModel } from '../../global-search/global-search';
 
 
 export interface IRole {
@@ -34,7 +35,7 @@ export interface IRoleDocument extends IRole, mongoose.Document {
     canAny(actionsAndSubjects: any, done: (err: any, can: boolean) => void);
 }
 
-export interface IRoleModel extends mongoose.Model < IRoleDocument > {
+export interface IRoleModel extends mongoose.Model < IRoleDocument >, ISearchableModel {
     seedRoles(): Promise<boolean>;
     findAllRoles(filter: string): Promise<IRoleDocument[]>;
     roleByName(name: string): Promise<IRoleDocument>;

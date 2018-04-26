@@ -13,6 +13,7 @@ import { ICreateUserDetails } from '../../../common/create-user';
 import { IRole, IRoleDocument, IRoleList } from '../roles/role';
 import { IIdentity } from './identity';
 import { IUserToken } from './user-token';
+import { ISearchableModel } from '../../global-search/global-search';
 
 
 
@@ -188,7 +189,7 @@ export interface ICreateUserOptions {
 /**
  * Defines the class methods for the User Model
  */
-export interface IUserModel extends mongoose.Model<IUserDocument> {
+export interface IUserModel extends mongoose.Model<IUserDocument>, ISearchableModel {
     /**
      * Authenticate a user using the username and its password
      * @param {string} username - User's username or email
