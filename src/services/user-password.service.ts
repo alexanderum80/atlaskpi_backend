@@ -15,6 +15,7 @@ import {AccessLogs} from '../domain/app/access-log/access-log.model';
 import {IUserProfile} from '../domain/app/security/users/user';
 import {IMutationResponse} from '../framework/mutations/mutation-response';
 import { pick } from 'lodash';
+import {IAccountDocument} from '../domain/master/accounts/Account';
 
 interface IUserPassword {
     email?: string;
@@ -46,9 +47,10 @@ export class UserPasswordService {
 
     async instantiateDependencies(data: IUserPassword) {
         this._payload = data;
-        const account = await this._account.model.findAccountByHostname(data.companyName);
+        let account: IAccountDocument;
 
         if (data.companyName) {
+            account = await this._account.model.findAccountByHostname(data.companyName);
             this._connection = await this._appConnectionPool.getConnection(account.getConnectionString());
         } else {
             this._connection = this._request.appConnection;
@@ -56,6 +58,10 @@ export class UserPasswordService {
 
         if (!this._connection) {
             throw new Error('no connection provided');
+        }
+
+        if (!account) {
+            account = await this._account.model.findAccountByHostname((this._connection as any).name);
         }
 
         this._request.appConnection = this._connection;
