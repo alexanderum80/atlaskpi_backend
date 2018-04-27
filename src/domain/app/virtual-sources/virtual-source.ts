@@ -16,7 +16,7 @@ export interface IVirtualSourceFields {
 export interface IVirtualSource {
     name: string;
     description?: string;
-    sourceCollection: string;
+    sourceCollection?: string;
     source: string;
     modelIdentifier: string;
     dateField: string;
