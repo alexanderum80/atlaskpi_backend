@@ -1,21 +1,10 @@
-import {
-    ISearchResult
-} from '../search.query';
-import * as Promise from 'bluebird';
-import {
-    injectable,
-    inject
-} from 'inversify';
+import { SearchResult } from '../../search.types';
+import { inject, injectable } from 'inversify';
 
-import {
-    IChart
-} from '../../../../domain/app/charts/chart';
-import {
-    IKPIDocument
-} from '../../../../domain/app/kpis/kpi';
-import {
-    ChartsService
-} from '../../../../services/charts.service';
+import { IChart } from '../../../../domain/app/charts/chart';
+import { IKPIDocument } from '../../../../domain/app/kpis/kpi';
+import { ChartsService } from '../../../../services/charts.service';
+import { ISearchResult } from '../search.query';
 
 const SalesKPI: IKPIDocument = < any > {
     _id: '59c3bd0c3da88e92a1703fd6',
@@ -46,15 +35,18 @@ export class ChartIntentProcessor {
 
     constructor(@inject(ChartsService.name) private _chartService: ChartsService) {}
 
-    run(intent: any): Promise < ISearchResult[] > {
+    run(intent: any): Promise < SearchResult[] > {
         const that = this;
 
-        return new Promise < ISearchResult[] > ((resolve, reject) => {
+        return new Promise < SearchResult[] > ((resolve, reject) => {
             const chart = that._convertIntentToChart(intent);
             that._chartService.getChart(chart).then(chart => {
                 resolve([{
                     section: 'chart',
-                    data: JSON.stringify(chart)
+                    items: [{
+                        name: '',
+                        data: JSON.stringify(chart)
+                    }]
                 }]);
             }).catch(e => reject(e));
         });

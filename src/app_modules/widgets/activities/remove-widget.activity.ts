@@ -11,7 +11,7 @@ export class RemoveWidgetActivity implements IActivity {
 
     check(): Promise<boolean> {
         return Promise.resolve(
-            BasicRoleChecker.hasPermission(this._user, 'Remove', 'Widget')
+            BasicRoleChecker.hasPermission(this._user, 'Delete', 'Widget')
         );
     }
 }

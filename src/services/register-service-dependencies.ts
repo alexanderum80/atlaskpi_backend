@@ -1,3 +1,4 @@
+import { UserPasswordService } from './user-password.service';
 import { UserService } from './user.service';
 import { IBridgeContainer } from '../framework/di/bridge-container';
 import { AccountsService } from './accounts.service';
@@ -54,4 +55,5 @@ export function registerServices(container: IBridgeContainer) {
     container.registerPerWebRequest(ConnectorsService);
     container.registerPerWebRequest(GoogleAnalyticsKPIService);
     container.registerPerWebRequest(ExternalDataSourcesService);
+    container.registerPerWebRequest(UserPasswordService);
 }

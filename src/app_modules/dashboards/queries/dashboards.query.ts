@@ -35,19 +35,20 @@ export class DashboardsQuery implements IQuery<IDashboard[]> {
     run(data: { group: string,  }): Promise<IDashboard[]> {
         const that = this;
 
-        if (!this._currentUser) {
+        if (!this._currentUser || !this._currentUser.get()) {
             this._logger.error('No user logged in at this point, so not dashboards can be generated');
             return Promise.resolve([]);
         }
 
         // lets prepare the query for the dashboards
         let query = {};
+
         if (this._currentUser.get().roles.find(r => r.name === 'owner')) {
             query = {};
         } else {
             query = { $or: [
                 { owner: that._currentUser.get()._id },
-                { 'accessLevels.users': { $in: [that._currentUser.get()._id]} }
+                { users: { $in: [that._currentUser.get()._id]} }
             ]};
         }
 
