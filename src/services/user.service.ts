@@ -120,6 +120,7 @@ export class UserService {
     }
 
     private async _hasOwnerAgreed(currentUser: IUserDocument): Promise<boolean> {
+        // check if current user is the owner
         const isCurrentUserOwner = currentUser.roles.find(role => role.name === 'owner');
 
         if (isCurrentUserOwner) {
@@ -131,6 +132,7 @@ export class UserService {
                 return currentUser.profile.agreement.accept;
             }
 
+            // return false user has no agreement subdocument
             return false;
         }
 
