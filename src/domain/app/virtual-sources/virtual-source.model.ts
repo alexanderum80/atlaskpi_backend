@@ -23,7 +23,10 @@ const VirtualSourceSchema = new mongoose.Schema({
     source: { type: String, required: true },
     modelIdentifier: { type: String, required: true },
     dateField: { type: String, required: true },
-    aggregate: { type: [mongoose.Schema.Types.Mixed], required: true },
+    aggregate: {
+        type: [mongoose.Schema.Types.Mixed],
+        // required: true
+    },
     fieldsMap: { type: mongoose.Schema.Types.Mixed, required: true },
     externalSource: Boolean,
     createdOn: { type: Date, default: Date.now }
