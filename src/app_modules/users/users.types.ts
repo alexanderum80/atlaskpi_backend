@@ -323,6 +323,9 @@ export class User  {
 
     @field({ type: GraphQLTypesMap.String })
     profilePictureUrl: string;
+
+    @field({ type: GraphQLTypesMap.Boolean })
+    ownerAgreed?: boolean;
 }
 
 

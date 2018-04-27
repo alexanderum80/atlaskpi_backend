@@ -1,4 +1,4 @@
-import * as Promise from 'bluebird';
+import * as Bluebird from 'bluebird';
 import { inject, injectable } from 'inversify';
 
 import { IAppConfig } from '../../../configuration/config-models';
@@ -8,6 +8,7 @@ import { MutationBase } from '../../../framework/mutations/mutation-base';
 import { UserForgotPasswordNotification } from '../../../services/notifications/users/user-forgot-password.notification';
 import { UserForgotPasswordActivity } from '../activities/user-forgot-password.activity';
 import { ErrorSuccessResult } from '../users.types';
+import {UserPasswordService} from '../../../services/user-password.service';
 
 @injectable()
 @mutation({
@@ -15,24 +16,19 @@ import { ErrorSuccessResult } from '../users.types';
     activity: UserForgotPasswordActivity,
     parameters: [
         { name: 'email', type: String, required: true },
+        { name: 'companyName', type: String }
     ],
     output: { type: ErrorSuccessResult }
 })
 export class UserForgotPasswordMutation extends MutationBase<ErrorSuccessResult> {
     constructor(
-        @inject('Config') private _config: IAppConfig,
-        @inject(Users.name) private _users: Users,
-        @inject(UserForgotPasswordNotification.name) private _userForgotPasswordNotification: UserForgotPasswordNotification
+        @inject(UserPasswordService.name) private _userPasswordSvc
     ) {
         super();
     }
 
-    run(data: { email: string,  }): Promise<ErrorSuccessResult> {
-        return this._users.model.forgotPassword(data.email, this._config.usersService.usernameField, this._userForgotPasswordNotification)
-        .then((sentInfo) => {
-            return { success: true };
-        }, (err) => {
-            return { success: false };
-        });
+    async run(data: { email: string, companyName: string }): Promise<ErrorSuccessResult> {
+        const dependencies = await this._userPasswordSvc.instantiateDependencies(data);
+        return await this._userPasswordSvc.forgotPassword();
     }
 }
