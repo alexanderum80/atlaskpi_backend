@@ -1,30 +1,7 @@
-[{
-        "name": "Main",
-        "group": "Financial",
-        "charts": ["597a2e783bf9d71c2e23feee",
-            "597a2f663bf9d71c2e23feef",
-            "597a2f7b3bf9d71c2e23fef0",
-            "597a2f9b3bf9d71c2e23fef1",
-            "597a2fb23bf9d71c2e23fef2",
-            "597a2fc73bf9d71c2e23fef3",
-            "597a30a43bf9d71c2e23fef4",
-            "597a30b93bf9d71c2e23fef5"
-        ]
-    },
-    {
-        "name": "Financial",
-        "group": "Financial",
-        "charts": ["597a312d3bf9d71c2e23fef6",
-            "597a31493bf9d71c2e23fef7",
-            "597a31633bf9d71c2e23fef8",
-            "597a31773bf9d71c2e23fef9",
-            "597a318c3bf9d71c2e23fefa",
-            "597a31a33bf9d71c2e23fefb"
-        ]
-    },
-    {
-        "name": "Playground",
-        "group": "Test",
-        "charts": ["597a31493bf9d71c2e23fef7"]
-    }
+[
+    { "_id": { "$oid": "5a1c3a7b21b9ae0001b35dee" }, "__v": 0, "name": "Main", "group": "Financial", "users": ["5ac4fcc788de3df88156ffe3"], "widgets": ["5a1d93c221b9ae0001b41f6e", "5a2adb6c21b9ae0001b679de", "5a69fdd9b10537000185c44b", "5a62b52d7f7a030001a47cb0", "5a5ea5a6b425d60001c4276c"], "charts": ["5a73c12cb7eed200017029ef", "5a9de5ec21d789498a25303f", "5ae0ea014ce592fa9d2745ee", "5ae0edeb4ce59277d4274615", "5ae1f5309132483044d82585"], "description": "Home Screen Dashboard", "accessLevels": [{ "_id": { "$oid": "5ae0e62c913248b1efd822c4" }, "accessTypes": ["All"], "users": ["5ac4fcc788de3df88156ffe3"] }] },
+    { "_id": { "$oid": "5ae0e4ad4ce592acb027457e" }, "name": "Office Manager", "description": "Office Manager", "owner": "5ac400c89f1a78eca6a098e5", "tags": [], "accessLevels": [{ "_id": { "$oid": "5ae0e4ad4ce592cce527457f" }, "accessTypes": [""], "users": [""] }], "widgets": ["5a1d93c221b9ae0001b41f6e"], "charts": ["5ae0ea014ce592fa9d2745ee"], "__v": 0, "users": [] },
+    { "_id": { "$oid": "5ae0e4be4ce592c02327459a" }, "name": "Financial", "description": "Financial", "owner": "5ac400c89f1a78eca6a098e5", "tags": [], "accessLevels": [{ "_id": { "$oid": "5ae0e4be4ce59235fa27459b" }, "accessTypes": [""], "users": [""] }], "widgets": ["5a1d93c221b9ae0001b41f6e"], "charts": ["5ae0ea014ce592fa9d2745ee"], "__v": 0, "users": [] },
+    { "_id": { "$oid": "5ae0e4d94ce592ae282745b6" }, "name": "Marketing", "description": "Marketing", "owner": "5ac400c89f1a78eca6a098e5", "tags": [], "accessLevels": [{ "_id": { "$oid": "5ae0e4d94ce592330d2745b7" }, "accessTypes": [""], "users": [""] }], "widgets": ["5a1d93c221b9ae0001b41f6e"], "charts": [], "__v": 0, "users": [] },
+    { "_id": { "$oid": "5ae0e4f3913248d6bed82272" }, "name": "Sales/Staff", "description": "Sales/Staff", "owner": "5ac400c89f1a78eca6a098e5", "tags": [], "accessLevels": [{ "_id": { "$oid": "5ae0e4f391324843ebd82273" }, "accessTypes": [""], "users": [""] }], "widgets": ["5a1d93c221b9ae0001b41f6e"], "charts": [], "__v": 0, "users": [] }
 ]
