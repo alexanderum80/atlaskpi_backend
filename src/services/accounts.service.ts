@@ -85,6 +85,56 @@ export class AccountsService {
 
     createAccount(input: ICreateAccountInfo): Promise < IMutationResponse > {
         let that = this;
+        return new Promise < IMutationResponse > ((resolve, reject) => {
+            const accountDatabaseName = changeCase.paramCase(input.account.name);
+            const validationErrors = ( < any > validate)(input.account, ACCOUNT_CREATION_CONSTRAINTS, {
+                fullMessages: false
+            });
+            if (validationErrors) {
+                resolve(MutationResponse.fromValidationErrors(validationErrors));
+                return;
+            }
+            const hash = generateUniqueHash();
+            const accountDbUser: IClusterUser = getClusterDbUser(hash, accountDatabaseName);
+            const fullName: IFullName = getFullName(input.account.personalInfo.fullname);
+            const firstUserInfo = getFirstUserInfo(hash, input.account.personalInfo.email, fullName);
+            input.account.database = generateDBObject(that._config.newAccountDbUriFormat, accountDatabaseName, accountDbUser.user, accountDbUser.pwd);
+            that._accounts.model.create(input.account, (err, newAccount: IAccountDocument) => {
+                if (err) {
+                    resolve({
+                        errors: [{
+                            field: 'account',
+                            errors: [err.message]
+                        }],
+                        entity: null
+                    });
+                    return;
+                }
+                createUserDatabase(
+                        that._req,
+                        that._config,
+                        that._accounts,
+                        that._logger,
+                        newAccount,
+                        input,
+                        firstUserInfo,
+                        accountDatabaseName,
+                        that._config.newAccountDbUriFormat,
+                        that._appConnectionPool,
+                        that._enrollmentNotification,
+                        that._config.subdomain)
+                    .then(result => {
+                        resolve(result);
+                    })
+                    .catch(err => reject(err));
+            })
+            .catch(err => reject(err));
+        });
+    }
+
+    // ************* To go back to Leads Signup Flow rename this function to createAccount ********
+    createAccountAuthorizationCodeFlow(input: ICreateAccountInfo): Promise < IMutationResponse > {
+        let that = this;
 
         return new Promise < IMutationResponse > ((resolve, reject) => {
 
