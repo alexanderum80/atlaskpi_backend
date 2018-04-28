@@ -7,7 +7,7 @@ import { input } from '../../../framework/decorators/input.decorator';
 import { ModelBase } from '../../../type-mongo/model-base';
 import { AppConnection } from '../app.connection';
 import { tagsPlugin } from '../tags/tag.plugin';
-import { IVirtualSourceModel, IVirtualSourceDocument } from '../virtual-sources/virtual-source';
+import { IVirtualSourceModel, IVirtualSourceDocument, IFilterOperator } from '../virtual-sources/virtual-source';
 import { DataSourceResponse } from '../../../app_modules/data-sources/data-sources.types';
 import { IIdName } from '../../common/id-name';
 import { IValueName } from '../../common/value-name';
@@ -125,7 +125,7 @@ function getFieldDefinition(fieldName: string) {
     return field;
 }
 
-function getDataTypeOperator(dataType: string, filterName: string) {
+function getDataTypeOperator(dataType: string, filterName: string): IFilterOperator {
     if (!dataType || !filterName) {
         return null;
     }

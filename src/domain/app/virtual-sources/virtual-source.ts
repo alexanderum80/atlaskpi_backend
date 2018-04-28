@@ -42,7 +42,7 @@ export interface IVirtualSource {
 export interface IVirtualSourceDocument extends IVirtualSource, mongoose.Document {
     getGroupingFieldPaths(): IValueName[];
     getFieldDefinition(fieldName: string);
-    getDataTypeOperator(dataType: string, filterName: string);
+    getDataTypeOperator(dataType: string, filterName: string): IFilterOperator;
     // containsPath(path: string): boolean;
 }
 
