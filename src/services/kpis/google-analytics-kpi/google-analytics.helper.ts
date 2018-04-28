@@ -67,7 +67,6 @@ export interface IGetAnalyticsOptions {
     dimensions?: string[];
     filters?: string;
     extraOpts?: any;
-    filters?: any;
 }
 
 export interface IBatchProperties {
