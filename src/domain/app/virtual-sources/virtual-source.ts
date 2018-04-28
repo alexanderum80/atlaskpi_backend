@@ -16,7 +16,7 @@ export interface IVirtualSourceFields {
 export interface IFilterOperator {
     description: string;
     name: string;
-    oper: string;
+    operator: string;
     exp: string;
     listSeparator: string;
 }
@@ -41,6 +41,8 @@ export interface IVirtualSource {
 
 export interface IVirtualSourceDocument extends IVirtualSource, mongoose.Document {
     getGroupingFieldPaths(): IValueName[];
+    getFieldDefinition(fieldName: string);
+    getDataTypeOperator(dataType: string, filterName: string);
     // containsPath(path: string): boolean;
 }
 
