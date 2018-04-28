@@ -23,7 +23,7 @@ export class AppConnectionPool {
     getConnection(uri: string): Promise<mongoose.Connection> {
         const that = this;
         const connectionWithSameUri = this._getConnectionWithSameUri(uri);
-        
+
         return new Promise<mongoose.Connection>((resolve, reject) => {
             /**
              * Connection ready state

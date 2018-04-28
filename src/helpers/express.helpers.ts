@@ -18,7 +18,7 @@ export function getRequestHostname(req: Request): string {
         'x-hostname': req.headers['x-hostname']
     };
 
-    logger.debug(`${loggerSuffix} Posible hostname sources: ${JSON.stringify(rawHostname)}`);
+    logger.debug(`${loggerSuffix} Possible hostname sources: ${JSON.stringify(rawHostname)}`);
 
     // check host value from body
     let hostname: string = req.body.host || req.headers['x-hostname'] || req.hostname;

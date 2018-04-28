@@ -13,6 +13,20 @@ import { IIdName } from '../../common/id-name';
 import { IValueName } from '../../common/value-name';
 
 const Schema = mongoose.Schema;
+
+const FilterOperator = new mongoose.Schema({
+    description: String,
+    name: String,
+    oper: String,
+    exp: String,
+    listSeparator: String
+});
+
+const DataTypeFiltersSchema = new mongoose.Schema({
+    Number: [FilterOperator],
+    String: [FilterOperator]
+});
+
 const VirtualSourceSchema = new mongoose.Schema({
     name: { type: String, required: true },
     description: String,
@@ -29,6 +43,7 @@ const VirtualSourceSchema = new mongoose.Schema({
     },
     fieldsMap: { type: mongoose.Schema.Types.Mixed, required: true },
     externalSource: Boolean,
+    filterOperators: DataTypeFiltersSchema,
     createdOn: { type: Date, default: Date.now }
 });
 
@@ -67,7 +82,8 @@ async function getDataSources(names?: string[]): Promise<DataSourceResponse[]> {
                 description: ds.description,
                 dataSource: ds.source,
                 fields: fields,
-                externalSource: ds.externalSource
+                externalSource: ds.externalSource,
+                filterOperators: ds.filterOperators as any
             };
         });
 
