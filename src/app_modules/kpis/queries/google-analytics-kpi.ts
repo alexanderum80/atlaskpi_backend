@@ -125,13 +125,18 @@ export class GoogleAnalyticsKpi extends SimpleKPIBase implements IKpiBase {
                 return;
             }
 
+            let filterValue = filter[filterKeys[0]];
             const filterName = filterKeys[0].trim().replace(/^\__dollar__/, '');
             const operator = this._virtualSource.getDataTypeOperator(field.dataType, filterName);
 
+            if (operator.exp) {
+                filterValue = operator.exp.replace('{expression}', filterValue);
+            }
+
             if (!filterString) {
-                filterString = `ga:${k}${operator.operator}${filter[filterKeys[0]]}`;
+                filterString = `ga:${k}${operator.operator}${filterValue}`;
             } else {
-                filterString += `;ga:${k}${operator.operator}${filter[filterKeys[0]]}`;
+                filterString += `;ga:${k}${operator.operator}${filterValue}`;
             }
         });
 
