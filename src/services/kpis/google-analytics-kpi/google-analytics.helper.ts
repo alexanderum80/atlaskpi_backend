@@ -65,7 +65,9 @@ export interface IGetAnalyticsOptions {
     endDate?: string;
     metrics?: string[];
     dimensions?: string[];
+    filters?: string;
     extraOpts?: any;
+    filters?: any;
 }
 
 export interface IBatchProperties {
@@ -106,6 +108,7 @@ export function  getAnalyticsData(  analyticsObj: any,
         'start-date': startDate,
         'end-date': endDate,
         'metrics': metrics.join(','),
+        'filters': options.filters,
         'dimensions': dimensions.slice(0, 7).join(','), // maximun 7 dimentions allowed by google
         ... options.extraOpts || {} // if you know google analytics api you can add parameters to the request here.
     };

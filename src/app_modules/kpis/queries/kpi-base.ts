@@ -96,11 +96,6 @@ export class KpiBase {
             const aggregate = this.model.aggregate(...aggregateParameters);
             aggregate.options = { allowDiskUse: true };
             aggregate.exec((err, data) => {
-                logger.debug('MongoDB data received: ' + that.model.modelName);
-                // before returning I need to check if a "top" filter was added
-                // if (options.filter && options.filter.top) {
-                //     data = that._applyTopWithOutGroupings(data, options.filter.top);
-                // }
                 resolve(data);
             }, (e) => {
                 reject(e);

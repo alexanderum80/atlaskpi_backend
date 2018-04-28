@@ -19,6 +19,33 @@ export class DataSourceField  {
 
 }
 
+@type()
+export class FilterOperator {
+    @field({ type: GraphQLTypesMap.String })
+    description: string;
+
+    @field({ type: GraphQLTypesMap.String })
+    name: string;
+
+    @field({ type: GraphQLTypesMap.String })
+    oper: string;
+
+    @field({ type: GraphQLTypesMap.String })
+    exp: string;
+
+    @field({ type: GraphQLTypesMap.String })
+    listSeparator: string;
+}
+
+@type()
+export class DataTypeFilters {
+    @field({ type: FilterOperator, isArray: true })
+    Number: FilterOperator[];
+
+    @field({ type: FilterOperator, isArray: true })
+    String: FilterOperator[];
+}
+
 
 @type()
 export class DataSourceResponse  {
@@ -36,6 +63,9 @@ export class DataSourceResponse  {
 
     @field({ type: DataSourceField, isArray: true })
     fields: DataSourceField[];
+
+    @field({ type: DataTypeFilters })
+    filterOperators: DataTypeFilters;
 }
 
 @type()

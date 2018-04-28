@@ -134,7 +134,7 @@ export class UIChartBase {
         this.futureTarget = metadata.isFutureTarget;
 
         return that.getKPIData(kpi, metadata).then(data => {
-            logger.debug('data received, for chart: ' + this.constructor.name + ' - kpi: ' + kpi.constructor.name);
+            // logger.debug('data received, for chart: ' + this.constructor.name + ' - kpi: ' + kpi.constructor.name);
             that.data = data;
 
             if (!data || !data.length) {
