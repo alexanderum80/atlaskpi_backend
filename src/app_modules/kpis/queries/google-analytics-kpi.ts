@@ -15,7 +15,7 @@ import { IVirtualSourceDocument } from '../../../domain/app/virtual-sources/virt
 
 export class GoogleAnalyticsKpi extends SimpleKPIBase implements IKpiBase {
 
-    private _deserializedFilter = {};
+    // private _deserializedFilter = {};
 
     public static CreateFromExpression( kpi: IKPIDocument,
                                         googleAnalytics: GoogleAnalytics,
@@ -71,17 +71,17 @@ export class GoogleAnalyticsKpi extends SimpleKPIBase implements IKpiBase {
 
         this.collection = { modelName: 'GoogleAnalytics', timestampField: 'date' };
 
-        if (this._kpi && this._kpi.filter)
-            this._deserializedFilter = this._cleanFilter(this._kpi.filter);
+        // if (this._kpi && this._kpi.filter)
+        //     this._deserializedFilter = this._cleanFilter(this._kpi.filter);
 
-        if (this._deserializedFilter)
-            this._injectPreGroupStageFilters({}, _definition.field);
+        // if (this._deserializedFilter)
+        //     this._injectPreGroupStageFilters({}, _definition.field);
 
         this._injectFieldToProjection(_definition.field);
         this._injectAcumulatorFunctionAndArgs(_definition);
 
-        if (this._deserializedFilter)
-            this._injectPostGroupStageFilters(this._deserializedFilter, _definition.field);
+        // if (this._deserializedFilter)
+        //     this._injectPostGroupStageFilters(this._deserializedFilter, _definition.field);
     }
 
     getData(dateRange?: IDateRange[], options?: IGetDataOptions): Promise<any> {
@@ -90,10 +90,10 @@ export class GoogleAnalyticsKpi extends SimpleKPIBase implements IKpiBase {
         const startDate = moment(firstDateRange.from).format('YYYY-MM-DD');
         const endDate = moment(firstDateRange.to).format('YYYY-MM-DD');
 
-        const preparedFilters = this._getFilterString(this._deserializedFilter);
+        const preparedFilters = this._getFilterString(this._kpi.filter);
 
         // we need to call the ga api including any dimension included in the filters
-        const filterGroupings = Object.keys(this._deserializedFilter).filter(k => k !== this._definition.field);
+        const filterGroupings = Object.keys(this._kpi.filter).filter(k => k !== this._definition.field);
 
         const that = this;
         return this._cacheData(dateRange, preparedFilters, options, filterGroupings)
@@ -125,7 +125,7 @@ export class GoogleAnalyticsKpi extends SimpleKPIBase implements IKpiBase {
                 return;
             }
 
-            const filterName = filterKeys[0].trim().replace(/^\$/, '');
+            const filterName = filterKeys[0].trim().replace(/^\__dollar__/, '');
             const operator = this._virtualSource.getDataTypeOperator(field.dataType, filterName);
 
             if (!filterString) {
