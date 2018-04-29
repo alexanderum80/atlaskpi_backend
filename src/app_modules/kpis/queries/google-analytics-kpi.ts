@@ -158,7 +158,11 @@ export class GoogleAnalyticsKpi extends SimpleKPIBase implements IKpiBase {
                           this._kpi.groupings && this._kpi.groupings.length && this._kpi.groupings.map(g => g.value) ||
                           [];
 
-        groupings = [...groupings, ...filterGroupungs];
+        if (filterGroupungs) {
+            groupings = groupings.concat(filterGroupungs);
+        }
+
+        // groupings = [...groupings, ...filterGroupungs];
 
         const that = this;
         return this ._googleAnalyticsKpiService
