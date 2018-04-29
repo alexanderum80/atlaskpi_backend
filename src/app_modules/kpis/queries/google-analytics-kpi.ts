@@ -91,9 +91,12 @@ export class GoogleAnalyticsKpi extends SimpleKPIBase implements IKpiBase {
         const endDate = moment(firstDateRange.to).format('YYYY-MM-DD');
 
         const preparedFilters = this._getFilterString(this._kpi.filter);
+        let filterGroupings = null;
 
         // we need to call the ga api including any dimension included in the filters
-        const filterGroupings = Object.keys(this._kpi.filter).filter(k => k !== this._definition.field);
+        if (this._kpi.filter) {
+            filterGroupings = Object.keys(this._kpi.filter).filter(k => k !== this._definition.field);
+        }
 
         const that = this;
         return this._cacheData(dateRange, preparedFilters, options, filterGroupings)
