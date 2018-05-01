@@ -76,42 +76,11 @@ export class ChartsService {
         });
     }
 
-<<<<<<< HEAD
-    public renderDefinition(chart: IChart, options?: IRenderChartOptions): Promise<any> {
-        if (!chart) {
-            return Promise.reject('missing parameter');
-        }
-
-        const uiChart = this._chartFactory.getInstance(chart);
-        const kpi = this._kpiFactory.getInstance(chart.kpis[0]);
-
-        const meta: IChartMetadata = {
-            filter: options && options.filter || chart.filter,
-            frequency: FrequencyTable[options && options.frequency || chart.frequency],
-            groupings: getGroupingMetadata(chart, options && options.groupings || chart.groupings || []),
-            comparison: options && options.comparison || chart.comparison,
-            xAxisSource: options && options.xAxisSource || chart.xAxisSource,
-            dateRange: (options && !options.isFutureTarget && options.dateRange) || chart.dateRange || null,
-            top: (options && options.top) || chart.top,
-            isDrillDown: options && options.isDrillDown || false,
-            isFutureTarget: options && options.isFutureTarget || false,
-            sortingCriteria: chart.sortingCriteria,
-            sortingOrder: chart.sortingOrder
-        };
-
-        // lets fill the comparison options for this chart if only if its not a comparison chart already
-        const isComparisonChart = !chart.comparison || !chart.comparison.length;
-        if (isComparisonChart) {
-            chart.availableComparison = DateRangeHelper.getComparisonItemsForDateRangeIdentifier(chart.dateRange[0].predefined || 'custom')
-                                                        .map(item => item.key);
-        }
-=======
     async renderDefinition(chart: IChart, options?: IRenderChartOptions): Promise<any> {
         try {
             if (!chart) {
                 throw new Error('missing parameter');
             }
->>>>>>> origin/development
 
             const virtualSources = await this._virtualSources.model.find({});
             const uiChart = this._chartFactory.getInstance(chart);
@@ -128,6 +97,8 @@ export class ChartsService {
                 top: (options && options.top) || chart.top,
                 isDrillDown: options && options.isDrillDown || false,
                 isFutureTarget: options && options.isFutureTarget || false,
+                sortingCriteria: chart.sortingCriteria,
+                sortingOrder: chart.sortingOrder
             };
 
             chart.targetExtraPeriodOptions = this._getTargetExtraPeriodOptions(meta.frequency, chart.dateRange);
