@@ -28,6 +28,12 @@ export class WidgetsService {
     ) { }
 
     async listWidgets(options = { materialize: true }): Promise<IUIWidget[]> {
+        options = options || { materialize: true };
+
+        if (options.materialize == undefined) {
+            options.materialize = true;
+        }
+
         const { materialize } = options;
         try {
             const widgetDocuments = await this._widgets.model
