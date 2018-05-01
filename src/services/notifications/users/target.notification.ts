@@ -24,9 +24,9 @@ export class TargetNotification implements IEmailNotifier {
         }
 
         dataSource.targetName = data.targetName;
-        dataSource.targetAmount = parseFloat(data.targetAmount).toFixed(2);
+        dataSource.targetAmount = data.targetAmount;
         dataSource.targetDate = data.targetDate;
-        dataSource.targetMet = parseFloat(data.targetMet).toFixed(2);
+        dataSource.targetMet = data.targetMet;
         dataSource.dashboardName = data.dashboardName;
         dataSource.chartName = data.chartName;
         dataSource.businessUnitName = data.businessUnitName;

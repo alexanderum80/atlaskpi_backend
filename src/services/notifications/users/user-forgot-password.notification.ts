@@ -8,7 +8,7 @@ import { IAppConfig } from '../../../configuration/config-models';
 import { IUserDocument, IUserForgotPasswordDataSource } from '../../../domain/app/security/users/user';
 import { IEmailNotifier } from '../email-notifier';
 import { CurrentAccount } from '../../../domain/master/current-account';
-
+import {IExtendedRequest} from '../../../middlewares/extended-request';
 
 export interface IForgotPasswordNotifier extends IEmailNotifier { }
 
@@ -18,7 +18,8 @@ export class UserForgotPasswordNotification implements IEmailNotifier {
 
     constructor(
         @inject('Config') private _config: IAppConfig,
-        @inject(CurrentAccount.name) private _currentAccount: CurrentAccount
+        @inject(CurrentAccount.name) private _currentAccount: CurrentAccount,
+        @inject('Request') private _request: IExtendedRequest
     ) { }
 
     notify(user: IUserDocument, email: string, data?: any): Promise<nodemailer.SentMessageInfo> {
@@ -31,6 +32,12 @@ export class UserForgotPasswordNotification implements IEmailNotifier {
             dataSource.fullName = user.username;
         } else {
             dataSource.fullName = `${user.profile.firstName} ${user.profile.lastName}`;
+        }
+
+        if (this._request.body.operationName === 'userForgotPassword' &&
+            this._request.body.variables &&
+            this._request.body.variables.companyName) {
+            dataSource.companyName = this._currentAccount.get.database.name;
         }
 
         dataSource.host = this._currentAccount.get.database.name; // hostname;

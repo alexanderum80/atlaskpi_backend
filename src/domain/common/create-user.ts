@@ -7,6 +7,7 @@ export interface ICreateUserDetails {
     lastName?: string;
     email: string;
     username?: string;
+    timezone?: string;
     password?: string;
     roles?: string[];
     fullname?: string;

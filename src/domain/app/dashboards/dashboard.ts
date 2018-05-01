@@ -1,3 +1,4 @@
+import { ISearchableModel } from '../global-search/global-search';
 import * as Promise from 'bluebird';
 import * as mongoose from 'mongoose';
 
@@ -7,15 +8,6 @@ import { IWidget } from '../widgets/widget';
 
 
 // import { IWidget } from '../widgets';
-export interface AccessLevels {
-    users: string[];
-    accessTypes: string[];
-}
-
-export interface AccessLevelsInput {
-    users: string[];
-    accessTypes: string[];
-}
 
 export interface IDashboard {
     name: string;
@@ -23,7 +15,7 @@ export interface IDashboard {
     charts: IChart[];
     widgets: IWidget[];
     owner: IUser;
-    accessLevels: AccessLevels[];
+    users: IUser[];
 }
 
 export interface IDashboardInput {
@@ -31,7 +23,8 @@ export interface IDashboardInput {
     description: string;
     charts: string[];
     widgets: string[];
-    accessLevels: AccessLevelsInput[];
+    owner: string;
+    users: string[];
 }
 
 export interface IDashboardDocument extends IDashboard, mongoose.Document {
@@ -43,7 +36,7 @@ export interface IDashboardDocument extends IDashboard, mongoose.Document {
     // removeChart(chartId: string, done: (err: any, dashboard: IDashboardDocument) => void): void;
 }
 
-export interface IDashboardModel extends mongoose.Model<IDashboardDocument> {
+export interface IDashboardModel extends mongoose.Model<IDashboardDocument>, ISearchableModel {
     createDashboard(input: IDashboardInput): Promise<IDashboardDocument>;
     updateDashboard(id: string, input: IDashboardInput): Promise<IDashboardDocument>;
     deleteDashboard(id: string): Promise<IDashboardDocument>;

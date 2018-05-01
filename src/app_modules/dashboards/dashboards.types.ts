@@ -1,3 +1,4 @@
+import { isArray } from 'lodash';
 import { field } from '../../framework/decorators/field.decorator';
 import { GraphQLTypesMap } from '../../framework/decorators/graphql-types-map';
 import { input } from '../../framework/decorators/input.decorator';
@@ -29,21 +30,11 @@ export class DashboardInput  {
     @field({ type: GraphQLTypesMap.String, isArray: true })
     widgets: string[];
 
-    @field({ type: AccessLevelsInput, isArray: true })
-    accessLevels: AccessLevelsInput[];
-
     @field({ type: GraphQLTypesMap.String })
     owner: string;
-}
 
-@type()
-export class AccessLevels {
-    @field({ type: GraphQLTypesMap.String, isArray: true })
+    @field({ type: GraphQLTypesMap.String, isArray: true})
     users: string[];
-
-    @field({ type: GraphQLTypesMap.String, isArray: true })
-    accessTypes: string[];
-
 }
 
 @type()
@@ -63,12 +54,11 @@ export class Dashboard  {
     @field({ type: GraphQLTypesMap.String, isArray: true })
     widgets: string[];
 
-    @field({ type: AccessLevels, isArray: true })
-    accessLevels: AccessLevels[];
-
     @field({ type: GraphQLTypesMap.String })
     owner: string;
 
+    @field({ type: GraphQLTypesMap.String, isArray: true })
+    users: string[];
 }
 
 
@@ -82,6 +72,5 @@ export class DashboardResponse {
 
     @field({ type: ErrorDetails, isArray: true })
     errors: ErrorDetails[];
-
 }
 

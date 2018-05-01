@@ -17,7 +17,7 @@ import { Sales } from '../../domain/app/sales/sale.model';
 import { Inventory } from '../../domain/app/inventory/inventory.model';
 import { WorkLog } from '../../domain/app/work-log/work-log';
 import { Worklogs } from '../../domain/app/work-log/work-log.model';
-
+import { VirtualSources } from '../../domain/app/virtual-sources/virtual-source.model';
 
 
 
@@ -29,6 +29,7 @@ interface ISeedModels {
     KPI: KPIs;
     Chart: Charts;
     Dashboard: Dashboards;
+    VirtualSource: VirtualSources;
 }
 
 @injectable()
@@ -43,7 +44,8 @@ export class SeedService {
             Inventory: new Inventory(appConnection),
             KPI: new KPIs(appConnection),
             Chart: new Charts(appConnection),
-            Dashboard: new Dashboards(appConnection)
+            Dashboard: new Dashboards(appConnection),
+            VirtualSource: new VirtualSources(appConnection)
         };
     }
 
@@ -75,6 +77,10 @@ export class SeedService {
             {
                 model: 'Dashboard',
                 filename: 'dashboards.json'
+            },
+            {
+                model: 'VirtualSource',
+                filename: 'virtualSources.json'
             }
         ];
 

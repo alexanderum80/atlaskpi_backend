@@ -17,7 +17,7 @@ import { query } from '../../../framework/decorators/query.decorator';
     parameters: [
         { name: 'username', type: GraphQLTypesMap.String }
     ],
-    output: {type: User}
+    output: { type: User }
 })
 export class FindUserByUsername implements IQuery<IUserDocument> {
 

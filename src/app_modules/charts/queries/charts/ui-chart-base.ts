@@ -5,7 +5,15 @@ import 'datejs';
 import { from } from 'apollo-link/lib';
 import * as Bluebird from 'bluebird';
 import * as console from 'console';
+<<<<<<< HEAD
 import { cloneDeep, difference, flatten, groupBy, isEmpty, isNull, isUndefined, map, pick, union, uniq, uniqBy, orderBy, filter, sortBy, find, sumBy } from 'lodash';
+=======
+import {
+    cloneDeep, difference, flatten, groupBy,
+    isEmpty, isNull, isUndefined, map, pick,
+    union, uniq, uniqBy, orderBy, isNumber, isString
+} from 'lodash';
+>>>>>>> origin/development
 import * as moment from 'moment';
 import * as logger from 'winston';
 import { camelCase } from 'change-case';
@@ -33,6 +41,7 @@ import { ChartPreProcessorExtention } from './chart-preprocessor-extention';
 import { IChartSerie } from './chart-serie';
 import { ChartType } from './chart-type';
 import { FrequencyHelper } from './frequency-values';
+import {ApplyTopNChart} from './apply-top-n.chart';
 
 export const NULL_CATEGORY_REPLACEMENT = 'Uncategorized*';
 
@@ -134,16 +143,22 @@ export class UIChartBase {
         this.sortingOrder = metadata.sortingOrder;
 
         return that.getKPIData(kpi, metadata).then(data => {
-            logger.debug('data received, for chart: ' + this.constructor.name + ' - kpi: ' + kpi.constructor.name);
+            // logger.debug('data received, for chart: ' + this.constructor.name + ' - kpi: ' + kpi.constructor.name);
             that.data = data;
 
             if (!data || !data.length) {
                 return;
             }
 
+<<<<<<< HEAD
             let groupingField = metadata.groupings.length ? camelCase(metadata.groupings[0]) : null;
 
             data = this._sortingData(metadata, data);
+=======
+            // must transform data first to apply top n
+            // will return data if top n input is not given
+            data = ApplyTopNChart.applyTopNToData(data, metadata);
+>>>>>>> origin/development
 
             that.groupings = that._getGroupingFields(data);
 
@@ -431,6 +446,7 @@ export class UIChartBase {
             return this.frequencyHelper.getCategories(data, metadata.frequency, noGrouping ? null : camelCase(metadata.groupings[0]), metadata.sortingCriteria , metadata.sortingOrder);
         }
 
+<<<<<<< HEAD
         const xAxisSource: any = this._getXaxisSource(data, metadata);
 <<<<<<< HEAD
 =======
@@ -463,6 +479,28 @@ export class UIChartBase {
                 };
             });
         }
+=======
+        const getXaxisSource: any = this._getXaxisSource(data, metadata);
+        const xAxisSource: string = isString(getXaxisSource) ? camelCase(getXaxisSource) : getXaxisSource;
+
+        const uniqueCategories = <string[]> orderBy(uniq(data.map(item => {
+            let val = JSON.stringify(item._id[xAxisSource]);
+            if (isString(val)) {
+                // remove double quotes
+                val = val.replace(/['"]+/g, '');
+            }
+                return (val === 'null' || val === undefined || val.toLowerCase() === 'undefined' ) ?
+                        NULL_CATEGORY_REPLACEMENT :
+                        item._id[xAxisSource];
+        })));
+
+        return uniqueCategories.map(category => {
+            return {
+                id: category,
+                name: category
+            };
+        });
+>>>>>>> origin/development
     }
 
     private _getXaxisSource(data: any[], metadata: IChartMetadata, groupings?: string[]) {
@@ -640,7 +678,11 @@ export class UIChartBase {
             categories.forEach(cat => {
                 let dataItem = cat.id !== NULL_CATEGORY_REPLACEMENT
                                ? data.find((item: any) => item._id[matchField] === cat.id)
-                               : data.find((item: any) => (item._id[matchField] === null || !Object.keys(item._id).length ));
+                               : data.find((item: any) => (
+                                   item._id[matchField] === null ||
+                                   item._id[matchField] === NULL_CATEGORY_REPLACEMENT ||
+                                   !Object.keys(item._id).length
+                                ));
 
                 serieObject.data.push(dataItem ? dataItem.value : null);
             });
@@ -713,6 +755,8 @@ export class UIChartBase {
                 // if chart has no groupings
                 this.commonField = ['noGroupingName'];
             }
+        } else {
+            this.commonField = ['noFrequencyName'];
         }
 
         if (target.length) {
@@ -779,17 +823,19 @@ export class UIChartBase {
                 if (meta.xAxisSource) {
                     return this._targetMetaData(meta, meta.xAxisSource, data, categories);
                 } else {
-                    return [{
-                        name: '',
-                        data: data.map(item => item.value)
-                    }];
+                    return data.map(d => ({
+                        name: d._id['noFrequencyName'],
+                        type: 'spline',
+                        data: [].concat(d.value),
+                        targetId: d.targetId
+                    }));
                 }
             case 1:
                 return this._targetMetaData(meta, groupings, data, categories);
         }
     }
 
-    private _targetMetaData(meta: any, groupByField: any, data: any[], categories: IXAxisCategory[]) {
+    private _targetMetaData(meta: IChartMetadata, groupByField: any, data: any[], categories: IXAxisCategory[]) {
         let targetCategories = [];
         if (meta.frequency === 4) {
             data.forEach((target) => {
@@ -815,7 +861,7 @@ export class UIChartBase {
         // check if stack chart, or no groupings charts
         // otherwise go to the else statement
         let groupedData: Dictionary<any> = groupBy(data, (val) => {
-            if (val['_id'].hasOwnProperty('stackName')) {
+            if (val['_id'].hasOwnProperty('stackName') && isNumber(meta.frequency)) {
                 return val._id[groupByField] + '_' + val._id['stackName'];
             } else if (val['_id'].hasOwnProperty('noGroupingName')) {
                 return val._id[groupByField] + '_' + val._id['noGroupingName'];
@@ -1120,8 +1166,8 @@ export class UIChartBase {
 
     private _noSerieName(serieName: any): boolean {
         return isEmpty(serieName) ||
-               serieName === 'undefined' ||
-               serieName === 'null';
+               serieName.toLowerCase() === 'undefined' ||
+               serieName.toLowerCase() === 'null';
     }
 
     /**

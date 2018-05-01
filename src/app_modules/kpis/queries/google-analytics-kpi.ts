@@ -11,14 +11,16 @@ import { AggregateStage } from './aggregate';
 import { IGetDataOptions, IKpiBase, KpiBase, ICollection } from './kpi-base';
 import { GoogleAnalyticsKPIService } from '../../../services/kpis/google-analytics-kpi/google-analytics-kpi.service';
 import { SimpleKPIBase } from './simple-kpi-base';
+import { IVirtualSourceDocument } from '../../../domain/app/virtual-sources/virtual-source';
 
 export class GoogleAnalyticsKpi extends SimpleKPIBase implements IKpiBase {
 
-    private _deserializedFilter = {};
+    // private _deserializedFilter = {};
 
     public static CreateFromExpression( kpi: IKPIDocument,
                                         googleAnalytics: GoogleAnalytics,
-                                        googleAnalyticsKpiService): GoogleAnalyticsKpi {
+                                        googleAnalyticsKpiService: GoogleAnalyticsKPIService,
+                                        virtualSources: IVirtualSourceDocument[]): GoogleAnalyticsKpi {
 
         const kpiDefinition: IKPISimpleDefinition = KPIExpressionHelper.DecomposeExpression(KPITypeEnum.ExternalSource, kpi.expression);
 
@@ -51,9 +53,11 @@ export class GoogleAnalyticsKpi extends SimpleKPIBase implements IKpiBase {
             }
         ];
 
+        // I can get virtual source here by the name
         kpiDefinition.dataSource = kpiDefinition.dataSource.replace('$', '');
+        const gaVirtualSource = virtualSources.find(vs => vs.name === 'google_analytics');
 
-        return new GoogleAnalyticsKpi(googleAnalytics.model, aggregateSkeleton, kpiDefinition, kpi, googleAnalyticsKpiService);
+        return new GoogleAnalyticsKpi(googleAnalytics.model, aggregateSkeleton, kpiDefinition, kpi, googleAnalyticsKpiService, gaVirtualSource);
     }
 
 
@@ -61,22 +65,23 @@ export class GoogleAnalyticsKpi extends SimpleKPIBase implements IKpiBase {
                         private _baseAggregate: any,
                         private _definition: IKPISimpleDefinition,
                         private _kpi: IKPI,
-                        private _googleAnalyticsKpiService: GoogleAnalyticsKPIService) {
+                        private _googleAnalyticsKpiService: GoogleAnalyticsKPIService,
+                        private _virtualSource: IVirtualSourceDocument) {
         super(model, _baseAggregate);
 
         this.collection = { modelName: 'GoogleAnalytics', timestampField: 'date' };
 
-        if (this._kpi && this._kpi.filter)
-            this._deserializedFilter = this._cleanFilter(this._kpi.filter);
+        // if (this._kpi && this._kpi.filter)
+        //     this._deserializedFilter = this._cleanFilter(this._kpi.filter);
 
-        if (this._deserializedFilter)
-            this._injectPreGroupStageFilters(this._deserializedFilter, _definition.field);
+        // if (this._deserializedFilter)
+        //     this._injectPreGroupStageFilters({}, _definition.field);
 
         this._injectFieldToProjection(_definition.field);
         this._injectAcumulatorFunctionAndArgs(_definition);
 
-        if (this._deserializedFilter)
-            this._injectPostGroupStageFilters(this._deserializedFilter, _definition.field);
+        // if (this._deserializedFilter)
+        //     this._injectPostGroupStageFilters(this._deserializedFilter, _definition.field);
     }
 
     getData(dateRange?: IDateRange[], options?: IGetDataOptions): Promise<any> {
@@ -85,11 +90,16 @@ export class GoogleAnalyticsKpi extends SimpleKPIBase implements IKpiBase {
         const startDate = moment(firstDateRange.from).format('YYYY-MM-DD');
         const endDate = moment(firstDateRange.to).format('YYYY-MM-DD');
 
+        const preparedFilters = this._getFilterString(this._kpi.filter);
+        let filterGroupings = null;
+
         // we need to call the ga api including any dimension included in the filters
-        const filterGroupings = Object.keys(this._deserializedFilter).filter(k => k !== this._definition.field);
+        if (this._kpi.filter) {
+            filterGroupings = Object.keys(this._kpi.filter).filter(k => k !== this._definition.field);
+        }
 
         const that = this;
-        return this._cacheData(dateRange, options, filterGroupings)
+        return this._cacheData(dateRange, preparedFilters, options, filterGroupings)
                     .then(batch => {
                         that._injectPreGroupStageFilters({ _batchId: batch._batchId }, that._definition.field);
                         that.pristineAggregate = cloneDeep(that._baseAggregate);
@@ -97,7 +107,46 @@ export class GoogleAnalyticsKpi extends SimpleKPIBase implements IKpiBase {
                     });
     }
 
-    private _cacheData(dateRange?: IDateRange[], options?: IGetDataOptions, filterGroupungs?: string[]): Promise<IBatchProperties> {
+    private _getFilterString(filterObj: any): string {
+        if (!filterObj) {
+            return null;
+        }
+
+        let filterString = null;
+
+        Object.keys(filterObj).forEach(k => {
+            const field = this._virtualSource.getFieldDefinition(k);
+            const filter = filterObj[k];
+
+            if (!filter) {
+                return;
+            }
+
+            const filterKeys = Object.keys(filter);
+
+            if (!filterKeys || !filterKeys.length) {
+                return;
+            }
+
+            let filterValue = filter[filterKeys[0]];
+            const filterName = filterKeys[0].trim().replace(/^\__dollar__/, '');
+            const operator = this._virtualSource.getDataTypeOperator(field.dataType, filterName);
+
+            if (operator.exp) {
+                filterValue = operator.exp.replace('{expression}', filterValue);
+            }
+
+            if (!filterString) {
+                filterString = `ga:${k}${operator.operator}${filterValue}`;
+            } else {
+                filterString += `;ga:${k}${operator.operator}${filterValue}`;
+            }
+        });
+
+        return filterString;
+    }
+
+    private _cacheData(dateRange?: IDateRange[],  filters?: string, options?: IGetDataOptions, filterGroupungs?: string[]): Promise<IBatchProperties> {
         const firstDateRange = dateRange && dateRange[0];
 
         const startDate = moment(firstDateRange.from).format('YYYY-MM-DD');
@@ -122,6 +171,7 @@ export class GoogleAnalyticsKpi extends SimpleKPIBase implements IKpiBase {
                                                 endDate,
                                                 this._definition.field,
                                                 options.frequency,
+                                                filters,
                                                 groupings);
                     });
     }

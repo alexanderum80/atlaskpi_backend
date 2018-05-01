@@ -13,6 +13,7 @@ import { ICreateUserDetails } from '../../../common/create-user';
 import { IRole, IRoleDocument, IRoleList } from '../roles/role';
 import { IIdentity } from './identity';
 import { IUserToken } from './user-token';
+import { ISearchableModel } from '../../global-search/global-search';
 
 
 
@@ -61,6 +62,8 @@ export interface IUserProfile {
     sex?: string;
     dob?: Date;
     phoneNumber?: string;
+    timezone?: string;
+    agreement?: IUserAgreement;
 }
 
 export interface IShowTour {
@@ -109,6 +112,7 @@ export interface IAccountCreatedDataSource {
     subdomain?: string;
     resetToken?: string;
     fullName?: string;
+    companyName?: string;
 }
 
 export interface IUserForgotPasswordDataSource extends IAccountCreatedDataSource {
@@ -119,6 +123,7 @@ export interface IUserProfileInput {
     middleName?: string;
     lastName?: string;
     phoneNumber?: string;
+    timezone?: string;
     email?: string;
     general?: boolean;
     chat?: boolean;
@@ -143,7 +148,6 @@ export interface IUser {
     services?: IUserServices;
     profile: IUserProfile;
     preferences?: IUserPreference;
-    agreement?: IUserAgreement;
     roles?: IRole[];
     tokens?: ITokenInfo[];
     mobileDevices?: IMobileDevice[];
@@ -153,6 +157,7 @@ export interface IUser {
 // declare interface to mix account and mongo docuemnt properties/methods
 export interface IUserDocument extends IUser, mongoose.Document {
     profilePictureUrl: string;
+    ownerAgreed?: boolean;
 
     hasRole(role: string, done: (err: any, hasRole: boolean) => void): void;
     addRole(role: string, done?: (err: any, role: IRoleDocument) => void): void;
@@ -186,7 +191,7 @@ export interface ICreateUserOptions {
 /**
  * Defines the class methods for the User Model
  */
-export interface IUserModel extends mongoose.Model<IUserDocument> {
+export interface IUserModel extends mongoose.Model<IUserDocument>, ISearchableModel {
     /**
      * Authenticate a user using the username and its password
      * @param {string} username - User's username or email

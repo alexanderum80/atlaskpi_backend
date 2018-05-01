@@ -13,6 +13,7 @@ import { KPIFilterHelper } from './kpi-filter.helper';
 import { IMutationResponse, MutationResponse } from '../../../framework/mutations/mutation-response';
 import { Paginator, IPaginationDetails, IPagedQueryResult } from '../../../framework/queries/pagination';
 import { tagsPlugin } from '../tags/tag.plugin';
+import { searchPlugin } from '../global-search/global-search.plugin';
 
 let Schema = mongoose.Schema;
 
@@ -43,6 +44,7 @@ let KPISchema = new Schema({
 
 // add tags capabilities
 KPISchema.plugin(tagsPlugin);
+KPISchema.plugin(searchPlugin);
 
 // KPISchema.pre('save', function(done) {
 //     console.log('******** pre save **********');

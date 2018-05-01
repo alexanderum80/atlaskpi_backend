@@ -1,3 +1,4 @@
+import { searchPlugin } from '../global-search/global-search.plugin';
 import { from } from 'apollo-link/lib';
 import * as Promise from 'bluebird';
 import { inject, injectable } from 'inversify';
@@ -59,14 +60,18 @@ let ChartSchema = new Schema({
 
 // add tags capabilities
 ChartSchema.plugin(tagsPlugin);
+ChartSchema.plugin(searchPlugin);
 
 ChartSchema.methods.isStacked = function(): boolean {
     return ((this.chartDefinition.chart.type === ChartType.Column) &&
         Array.isArray(this.groupings) &&
         this.xAxisSource && (this.groupings[0] === this.xAxisSource)) ||
         (Array.isArray(this.groupings) &&
-        this.groupings.length && !this.frequency && !this.xAxisSource);
-}
+        this.groupings.length &&
+        this.groupings[0] &&
+        !this.frequency &&
+        !this.xAxisSource);
+};
 
 ChartSchema.statics.createChart = function(input: IChartInput): Promise < IChartDocument > {
     const that = this;

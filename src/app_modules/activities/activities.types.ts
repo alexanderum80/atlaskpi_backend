@@ -111,28 +111,44 @@ export class Sale  {
 }
 
 @type()
-export class SalesAmountId {
-    @field({ type: GraphQLTypesMap.String })
-    source: string;
-
-    @field({ type: GraphQLTypesMap.String })
-    timestamp: string;
-
-}
-
-@type()
-export class SalesAmount {
-    @field({ type: SalesAmountId })
-    _id: SalesAmountId[];
-
-    @field({ type: GraphQLTypesMap.Int })
+export class SalesAmountSource {
+    @field({ type: GraphQLTypesMap.Float })
     count: number;
 
     @field({ type: GraphQLTypesMap.Float })
     amount: number;
 
     @field({ type: GraphQLTypesMap.String })
+    source: string;
+
+}
+
+@type()
+export class SalesAmount {
+    @field({ type: GraphQLTypesMap.String })
+    _id: string;
+
+    @field({ type: SalesAmountSource, isArray: true })
+    revenueSources: SalesAmountSource[];
+
+    @field({ type: GraphQLTypesMap.Float })
+    total: number;
+
+    @field({ type: GraphQLTypesMap.Int })
+    totalCount: number;
+
+    @field({ type: GraphQLTypesMap.String })
     employee: string;
+
+}
+
+@type()
+export class ExpensesConcept {
+    @field({ type: GraphQLTypesMap.String })
+    concept: string;
+
+    @field({ type: GraphQLTypesMap.Float })
+    amount: number;
 
 }
 
@@ -141,11 +157,14 @@ export class ExpensesAmount {
     @field({ type: GraphQLTypesMap.String })
     _id: string;
 
+    @field({ type: ExpensesConcept, isArray: true })
+    expenses: ExpensesConcept[];
+
     @field({ type: GraphQLTypesMap.Int })
     count: number;
 
     @field({ type: GraphQLTypesMap.Float })
-    amount: number;
+    total: number;
 
     @field({ type: GraphQLTypesMap.String })
     employee: string;

@@ -2,6 +2,8 @@
     // Use IntelliSense to learn about possible Node.js debug attributes.
     // Hover to view descriptions of existing attributes.
     // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    //  NODE_ENV=local AKPI_APP_SUBDOMAIN="d.atlaskpi.com:4200" AKPI_MASTER_DB_URI="mongodb://localhost/kpibi" AKPI_NEW_ACCOUNT_DB_URI_FORMAT="mongodb://localhost/{{database}}" AKPI_TOKEN_EXPIRATION="10 d" node app.js
+
     "version": "0.2.0",
     "configurations": [
         {

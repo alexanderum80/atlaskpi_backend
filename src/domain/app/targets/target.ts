@@ -30,6 +30,7 @@ export interface ITargetDocument extends ITarget, mongoose.Document {}
 
 export interface ITargetModel extends mongoose.Model<ITargetDocument> {
     findTarget(id: string): Promise<ITargetDocument>;
+    findTargetById(id: string): Promise<ITargetDocument>;
     findTargetByName(name: string): Promise<ITargetDocument>;
     findTargetByDate(date: string): Promise<ITargetDocument[]>;
     findAllTargets(): Promise<ITargetDocument[]>;
