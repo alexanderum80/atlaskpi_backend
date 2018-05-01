@@ -13,6 +13,19 @@ export interface IVirtualSourceFields {
     [key: string]: IFieldMetadata;
 }
 
+export interface IFilterOperator {
+    description: string;
+    name: string;
+    operator: string;
+    exp: string;
+    listSeparator: string;
+}
+
+export interface IDataTypeFilters {
+    Number: IFilterOperator[];
+    String: IFilterOperator[];
+}
+
 export interface IVirtualSource {
     name: string;
     description?: string;
@@ -23,10 +36,13 @@ export interface IVirtualSource {
     aggregate: any[];
     fieldsMap: IVirtualSourceFields;
     externalSource?: boolean;
+    filterOperators?: IDataTypeFilters;
 }
 
 export interface IVirtualSourceDocument extends IVirtualSource, mongoose.Document {
     getGroupingFieldPaths(): IValueName[];
+    getFieldDefinition(fieldName: string);
+    getDataTypeOperator(dataType: string, filterName: string): IFilterOperator;
     // containsPath(path: string): boolean;
 }
 

@@ -83,6 +83,7 @@ export class GoogleAnalyticsKPIService {
                         endDate: string,
                         field: string,
                         frequency?: FrequencyEnum,
+                        filters?: string,
                         groupings?: string[]): Promise<IBatchProperties> {
 
         if (!Boolean(analytics)) {
@@ -95,6 +96,7 @@ export class GoogleAnalyticsKPIService {
             startDate: startDate,
             endDate: endDate,
             metrics: [`ga:${field}`],
+            filters: filters,
             dimensions: constructDimensionsArray(groupings, frequency),
             extraOpts: {
                 'include-empty-rows': false
