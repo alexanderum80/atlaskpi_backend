@@ -3,6 +3,7 @@ import { CreateAlertMutation } from './mutations/create-alert.mutation';
 import { AlertByWidgetIdQuery } from './queries/alert-by-widget-id.query';
 import { AppModule, ModuleBase } from '../../framework/decorators/app-module';
 import {RemoveAlertMutation} from './mutations/remove-alert.mutation';
+import {UpdateAlertActiveMutation} from './mutations/update-alert-active.mutation';
 
 @AppModule({
     queries: [
@@ -11,6 +12,7 @@ import {RemoveAlertMutation} from './mutations/remove-alert.mutation';
     mutations: [
         CreateAlertMutation,
         UpdateAlertMutation,
+        UpdateAlertActiveMutation,
         RemoveAlertMutation
     ]
 })
