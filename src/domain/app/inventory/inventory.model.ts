@@ -21,7 +21,7 @@ const locationSchema = {
 
 export const InventorySchema = new Schema({
     source: String,
-    externalId: { type: String, unique: true },
+    externalId: { type: String },
     location: locationSchema,
     product: inventoryProductSchema,
     updatedAt: Date,
