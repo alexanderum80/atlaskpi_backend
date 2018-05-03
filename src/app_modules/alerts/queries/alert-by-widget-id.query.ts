@@ -15,7 +15,7 @@ import { inject, injectable } from 'inversify';
     parameters: [
         { name: 'id', type: String, required: true }
     ],
-    output: { type: AlertResponse }
+    output: { type: AlertResponse, isArray: true }
 })
 export class AlertByWidgetIdQuery implements IQuery<IAlertDocument[]> {
     constructor(@inject(Alerts.name) private _alert: Alerts) {}

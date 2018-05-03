@@ -11,7 +11,7 @@ import { UpdateAlertActiveActivity } from '../activities/update-alert-active.act
 
 @injectable()
 @mutation({
-    name: 'removeAlert',
+    name: 'updateAlertActive',
     activity: UpdateAlertActiveActivity,
     parameters: [
         { name: 'id', type: GraphQLTypesMap.String, required: true },
