@@ -5,11 +5,13 @@ import { UpdateDashboardMutation } from './mutations/update-dashboard.mutation';
 import { DashboardQuery } from './queries/dashboard.query';
 import { DashboardsQuery } from './queries/dashboards.query';
 import { DashboardByNameQuery } from './queries/dashboard-by-name.query';
+import {DeleteWidgetFromDashboard} from './mutations/delete-widget-from-dashboard.mutation';
 
 @AppModule({
     mutations: [
         CreateDashboardMutation,
         DeleteDashboardMutation,
+        DeleteWidgetFromDashboard,
         UpdateDashboardMutation
     ],
     queries: [
