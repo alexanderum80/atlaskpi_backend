@@ -5,15 +5,9 @@ import 'datejs';
 import { from } from 'apollo-link/lib';
 import * as Bluebird from 'bluebird';
 import * as console from 'console';
-<<<<<<< HEAD
-import { cloneDeep, difference, flatten, groupBy, isEmpty, isNull, isUndefined, map, pick, union, uniq, uniqBy, orderBy, filter, sortBy, find, sumBy } from 'lodash';
-=======
-import {
-    cloneDeep, difference, flatten, groupBy,
+import { filter, sortBy, find, sumBy, cloneDeep, difference, flatten, groupBy,
     isEmpty, isNull, isUndefined, map, pick,
-    union, uniq, uniqBy, orderBy, isNumber, isString
-} from 'lodash';
->>>>>>> origin/development
+    union, uniq, uniqBy, orderBy, isNumber, isString } from 'lodash';
 import * as moment from 'moment';
 import * as logger from 'winston';
 import { camelCase } from 'change-case';
@@ -150,15 +144,12 @@ export class UIChartBase {
                 return;
             }
 
-<<<<<<< HEAD
             let groupingField = metadata.groupings.length ? camelCase(metadata.groupings[0]) : null;
 
             data = this._sortingData(metadata, data);
-=======
             // must transform data first to apply top n
             // will return data if top n input is not given
             data = ApplyTopNChart.applyTopNToData(data, metadata);
->>>>>>> origin/development
 
             that.groupings = that._getGroupingFields(data);
 
@@ -390,9 +381,7 @@ export class UIChartBase {
      * @param metadata chart metadata
      */
     private _createCategories(data: any, metadata: IChartMetadata): IXAxisCategory[] {
-<<<<<<< HEAD
 
-=======
         let groupingField = metadata.groupings.length ? camelCase(metadata.groupings[0]) : null;
         if (metadata.sortingCriteria && metadata.sortingCriteria === 'values' && metadata.sortingOrder && metadata.sortingOrder === 'ascending') {
             data = orderBy(data, 'value', 'asc');
@@ -432,7 +421,6 @@ export class UIChartBase {
 
             ///////////////////////////////////////////////////////////////////////////////////////
         } */
->>>>>>> ec437dbe5ce4bb6fc4d0a6fc15d73be5a9cd0a64
         if (metadata.xAxisSource === 'frequency') {
             let categoryHelper;
             let noGrouping = !metadata.groupings || !metadata.groupings.length || !metadata.groupings[0];

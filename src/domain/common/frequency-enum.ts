@@ -68,7 +68,7 @@ export function getFrequencySequence(data: any, frequency: FrequencyEnum, groupi
             return frequencies;
         case FrequencyEnum.Quartely:
             if (sortingCriteria && sortingCriteria === 'valuesTotal') {
-                data.forEach(element => { frequencies.push(element[0]._id.quarter); });
+                data.forEach(element => { frequencies.push(element._id.quarter); });
             } else if (sortingCriteria && (sortingCriteria === 'values' || (groupingField && data.find(element => element._id[groupingField] === sortingCriteria)))) {
                 data.forEach(element => {
                     if (!frequencies.find(m => m === element._id.quarter)) frequencies.push(element._id.quarter);
@@ -98,6 +98,10 @@ export function getFrequencySequence(data: any, frequency: FrequencyEnum, groupi
                 if (!frequencies.find(m => m === element._id.year)) frequencies.push(element._id.year);
             });
         }
+        else {
+            data.forEach(element => { frequencies.push(element._id.year); });
+        }
+
         return frequencies;
         case FrequencyEnum.Weekly:
             return _getArrayFromRange(data , 1, 53, groupingField , sortingCriteria, sortingOrder);
