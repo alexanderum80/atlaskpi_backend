@@ -284,14 +284,9 @@ export class UIChartBase {
         else if (metadata.sortingCriteria && metadata.sortingCriteria === 'valuesTotal') {
             let dataTemp = [];
             let dataSorted = [];
-            // let data4 = [];
             // Here I most group by frequency,  then sum the values
             let groupedData1 = groupBy(data, '_id.frequency');
             for (let serieName in groupedData1) {
-                /* const data3 = {
-                    name: serieName,
-                    totalValue: sumBy(groupedData1[serieName], 'value')
-                }; */
                 dataTemp.push({
                     name: serieName,
                     totalValue: sumBy(groupedData1[serieName], 'value')
@@ -301,11 +296,11 @@ export class UIChartBase {
             if (metadata.sortingOrder) dataSorted = orderBy(dataTemp, 'totalValue', metadata.sortingOrder === 'ascending' ? 'asc' : 'desc');
 
             // Here is sorting by totalValue
-            // forEach data4, filter original data by frecuency & adding in new data
+            // forEach dataSorted, filter original data by frecuency & adding in new data
             // finally assign to data again
             const datasemifinal = [];
             dataSorted.forEach(element => {
-                let datafilt = data.filter(x => x._id.frequency === element.name);
+                let datafilt = data.filter(x => x._id.frequency === parseInt(element.name));
                 datafilt.forEach(z => {
                     datasemifinal.push(z);
                 });
@@ -315,14 +310,9 @@ export class UIChartBase {
         else if (metadata.sortingCriteria && metadata.sortingCriteria === 'valuesTotal') {
             let dataTemp = [];
             let dataSorted = [];
-            // let data4 = [];
             // Here I most group by frequency,  then sum the values
             let groupedData1 = groupBy(data, '_id.frequency');
             for (let serieName in groupedData1) {
-                /* const data3 = {
-                    name: serieName,
-                    totalValue: sumBy(groupedData1[serieName], 'value')
-                }; */
                 dataTemp.push({
                     name: serieName,
                     totalValue: sumBy(groupedData1[serieName], 'value')
@@ -335,7 +325,7 @@ export class UIChartBase {
                 dataSorted = orderBy(dataTemp, 'totalValue', 'desc');
             }
             // Here is sorting by totalValue
-            // forEach data4, filter original data by frecuency & adding in new data
+            // forEach dataSorted, filter original data by frecuency & adding in new data
             // finally assign to data again
             const datasemifinal = [];
             dataSorted.forEach(element => {
