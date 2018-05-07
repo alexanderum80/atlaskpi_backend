@@ -7,7 +7,7 @@ import * as Bluebird from 'bluebird';
 import * as console from 'console';
 import { filter, sortBy, find, sumBy, cloneDeep, difference, flatten, groupBy,
     isEmpty, isNull, isUndefined, map, pick,
-    union, uniq, uniqBy, orderBy, isNumber, isString } from 'lodash';
+    union, uniq, uniqBy, orderBy, isNumber, isString, toString } from 'lodash';
 import * as moment from 'moment';
 import * as logger from 'winston';
 import { camelCase } from 'change-case';
@@ -268,7 +268,7 @@ export class UIChartBase {
             // Now sorting per value
             if (metadata.sortingOrder) { datafiltered = orderBy( datafiltered , 'value', metadata.sortingOrder === 'ascending' ? 'asc' : 'desc'); }
 
-            // Here the data is sorted by value of the selected groupingFiled
+            // Here the data is sorted by value of the selected groupingField
             // NOW foreach datafiltered record, filtering the original data by frecuency
             // and adding in datasemifinal
             // finally assign the data again
@@ -300,43 +300,12 @@ export class UIChartBase {
             // finally assign to data again
             const datasemifinal = [];
             dataSorted.forEach(element => {
-                let datafilt = data.filter(x => x._id.frequency === parseInt(element.name));
+                let datafilt = data.filter(x => x._id.frequency.toString() === element.name);
                 datafilt.forEach(z => {
                     datasemifinal.push(z);
                 });
             });
             data = datasemifinal;
-        }
-        else if (metadata.sortingCriteria && metadata.sortingCriteria === 'valuesTotal') {
-            let dataTemp = [];
-            let dataSorted = [];
-            // Here I most group by frequency,  then sum the values
-            let groupedData1 = groupBy(data, '_id.frequency');
-            for (let serieName in groupedData1) {
-                dataTemp.push({
-                    name: serieName,
-                    totalValue: sumBy(groupedData1[serieName], 'value')
-                });
-            }
-            if (metadata.sortingOrder && metadata.sortingOrder === 'ascending') {
-                dataSorted = orderBy(dataTemp, 'totalValue', 'asc');
-            }
-            else if (metadata.sortingOrder && metadata.sortingOrder === 'descending') {
-                dataSorted = orderBy(dataTemp, 'totalValue', 'desc');
-            }
-            // Here is sorting by totalValue
-            // forEach dataSorted, filter original data by frecuency & adding in new data
-            // finally assign to data again
-            const datasemifinal = [];
-            dataSorted.forEach(element => {
-                let datafilt = data.filter(x => x._id.frequency === element.name);
-                datafilt.forEach(z => {
-                    datasemifinal.push(z);
-                });
-            });
-            data = datasemifinal;
-
-            ///////////////////////////////////////////////////////////////////////////////////////
         }
         return data;
     }
