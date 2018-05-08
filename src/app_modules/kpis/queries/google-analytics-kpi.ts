@@ -90,6 +90,20 @@ export class GoogleAnalyticsKpi extends SimpleKPIBase implements IKpiBase {
         const startDate = moment(firstDateRange.from).format('YYYY-MM-DD');
         const endDate = moment(firstDateRange.to).format('YYYY-MM-DD');
 
+        // the way to deal with and cases for google analytics its a little bit different
+        var andOptions = this._kpi.filter['__dollar__and'];
+        
+        if (andOptions) {
+            const f = {};
+
+            andOptions.forEach(o => {
+                const firstKey = Object.keys(o)[0];
+                f[firstKey] = o[firstKey];
+            });
+
+            this._kpi.filter = f;
+        }
+
         const preparedFilters = this._getFilterString(this._kpi.filter);
         let filterGroupings = null;
 
