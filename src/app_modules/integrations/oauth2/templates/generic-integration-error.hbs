@@ -136,9 +136,16 @@
                 </div>
             </div>
             <div class="content">
+                {{#if error }}
+                <p>
+                    {{error}}
+                </p>
+                {{else}}
                 <p>
                     We're experiencing some problems. Please try again later.
                 </p>
+                {{/if}}
+                
 
                 <div class="close-container">
                     <button class="btn bgm-blue normal btn-block" type="button" onclick="window.close();">

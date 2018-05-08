@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <script>
+    window.opener.postMessage({
+        messageSource: 'atlasKPIIntegrations',
+        connectorName: '{{connectorName}}',
+        success: true
+    }, '*');
+    window.close();
+    </script>
+</head>
+
+<body>
+</body>
+
+</html>

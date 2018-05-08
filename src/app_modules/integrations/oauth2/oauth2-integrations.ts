@@ -6,7 +6,8 @@ import { JsSafeString } from '../../../helpers/string.helpers';
 import * as Handlebars from 'handlebars';
 import * as fs from 'fs';
 
-const genericErrorPage = fs.readFileSync(__dirname + '/templates/generic-integration-error.hbs', 'utf8');
+const genericErrorPage = Handlebars.compile(fs.readFileSync(__dirname + '/templates/generic-integration-error.hbs', 'utf8'));
+const integrationSuccessPage = Handlebars.compile(fs.readFileSync(__dirname + '/templates/integration-success.hbs', 'utf8'));
 
 export async function handleOAuth2Itegration(req: IExtendedRequest, res: Response) {
     const logger = req.logger;
@@ -14,13 +15,14 @@ export async function handleOAuth2Itegration(req: IExtendedRequest, res: Respons
     logger.debug('processing an oauth2 integration... ');
 
     if (req.query.hasOwnProperty('error') && req.query.error === 'access_denied') {
-        return res.status(200).send(genericErrorPage);
+        return res.status(200).send(genericErrorPage({}));
     }
 
     // code flow authentication only at this point
     if (!req.query.code || !req.query.state) {
+        const error = 'invalid query string';
         // return res.status(401).json({ error: 'invalid query string' }).end();
-        return res.status(500).send(genericErrorPage);
+        return res.status(500).send(genericErrorPage({ error: error }));
     }
 
     const integrationController = req.Container.instance.get<IntegrationController>(IntegrationController.name);
@@ -28,31 +30,21 @@ export async function handleOAuth2Itegration(req: IExtendedRequest, res: Respons
     if (!integrationController) {
         const err = 'something went wrong processing the integration...';
         logger.error(err);
-        return res.status(200).send(genericErrorPage);
+        return res.status(200).send(genericErrorPage({}));
     }
 
     try {
         await integrationController.initialize();
         const result = await integrationController.executeFlow(req.originalUrl);
 
-        if (result.success) {
-            res.send(`
-                <!DOCTYPE html>
-                <html>
-                <head>
-                    <script>
-                        window.opener.postMessage({messageSource: 'atlasKPIIntegrations', connectorName: '${JsSafeString(result.connector.name)}', success: true }, '*');
-                        window.close();
-                    </script>
-                </head>
-                <body>
-                </body>
-                </html>`);
-            return;
+        if (!result.success || result.error) {
+            return res.status(200).send(genericErrorPage({ error: result.error }));
         }
+
+        return res.send(integrationSuccessPage({ connectorName: JsSafeString(result.connector.name) }));
     } catch (err) {
         logger.error(err);
         // res.status(500).send(err);
-        return res.status(500).send(genericErrorPage);
+        return res.status(200).send(genericErrorPage({}));
     }
 }

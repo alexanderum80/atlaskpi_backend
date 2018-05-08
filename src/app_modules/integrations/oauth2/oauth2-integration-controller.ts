@@ -174,7 +174,7 @@ export class IntegrationController {
         if (!companies || !companies.length) {
             const flowResult: IExecutionFlowResult = {
                 success: false,
-                error: 'LinkedIn account does not contains companies'
+                error: 'Your LinkedIn Account is not admin of any page'
             };
             return Promise.resolve(flowResult);
         }
