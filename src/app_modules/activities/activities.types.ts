@@ -143,15 +143,15 @@ export class SalesAmount {
 }
 
 @type()
-export class MonthAvgSalesId {
+export class MonthAvgSalesAmountId {
     @field({ type: GraphQLTypesMap.String })
     source: string;
 }
 
 @type()
-export class MonthAvgSales {
-    @field({ type: MonthAvgSalesId })
-    _id: MonthAvgSalesId;
+export class MonthAvgSalesAmount {
+    @field({ type: MonthAvgSalesAmountId })
+    _id: MonthAvgSalesAmountId;
 
     @field({ type: GraphQLTypesMap.Float })
     amount: number;
