@@ -593,7 +593,8 @@ export class UIChartBase {
                         targetId: v._id
                     },
                     value: (<any>v).target,
-                    targetId: v._id
+                    targetId: v._id,
+                    percentageCompletion: v.percentageCompletion
                 } : {
                     _id: {
                         frequency: TargetService.formatFrequency(metadata.frequency, v.datepicker),
@@ -601,7 +602,8 @@ export class UIChartBase {
                         targetId: v._id
                     },
                     value: (<any>v).target,
-                    targetId: v._id
+                    targetId: v._id,
+                    percentageCompletion: v.percentageCompletion
                 };
             });
             this.frequencyHelper.decomposeFrequencyInfo(this.targetData, metadata.frequency);
@@ -727,6 +729,7 @@ export class UIChartBase {
 
             serie['type'] = 'spline';
             serie['targetId'] = groupedData[serieName][0].targetId;
+            serie['percentageCompletion'] = groupedData[serieName][0].percentageCompletion;
 
             categories.forEach(cat => {
                 let dataItem = groupedData[serieName].find((item: any) => {

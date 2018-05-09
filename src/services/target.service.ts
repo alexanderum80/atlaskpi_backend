@@ -1,6 +1,7 @@
 import * as Bluebird from 'bluebird';
 import { inject, injectable } from 'inversify';
 import * as moment from 'moment';
+import { clone } from 'lodash';
 
 import { IGetDataOptions, IKpiBase } from '../app_modules/kpis/queries/kpi-base';
 import { KpiFactory } from '../app_modules/kpis/queries/kpi.factory';
@@ -73,64 +74,56 @@ export class TargetService {
                 @inject(Targets.name) private _targets: Targets,
                 @inject(Charts.name) private _charts: Charts) { }
 
-    getTargets(chartId: string, userId: string): Promise<ITargetDocument[]> {
-        const that = this;
-
-        return new Promise<ITargetDocument[]>((resolve, reject) => {
-            this._targets.model.findUserVisibleTargets(chartId, userId)
-                .then((targets: ITargetDocument[]) => {
-                    that.frequentlyUpdateTargets(targets).then((updatedTargets: ITargetDocument[]) => {
-                        resolve(updatedTargets);
-                        return;
-                    }).catch(err => {
-                        reject(err);
-                        return;
-                    });
-                }).catch((err) => {
-                    reject({ success: false, errors: [ {field: 'target', errors: [err] } ] });
-                    return;
-                });
-        });
+    async getTargets(chartId: string, userId: string): Promise<ITargetDocument[]> {
+        try {
+            const visibleTargets: ITargetDocument[] = await this._targets.model.findUserVisibleTargets(chartId, userId);
+            return await this.frequentlyUpdateTargets(visibleTargets);
+        } catch (err) {
+            return ({
+                success: false,
+                errors: [ { field: 'target', errors: [err] }]
+            }) as any;
+        }
     }
 
-    frequentlyUpdateTargets(targets: ITargetDocument[]): Promise<ITargetDocument[]> {
-        const that = this;
-
-        return new Promise<ITargetDocument[]>((resolve, reject) => {
+    async frequentlyUpdateTargets(targets: ITargetDocument[]): Promise<ITargetDocument[]> {
+        try {
             if (!targets || !targets.length) {
-                resolve(targets);
-                return;
+                return targets;
             }
 
-            Bluebird.map(targets, (target: ITargetDocument) => that.updateTarget(target))
-                .then((updatedTargets: ITargetDocument[]) => {
-                    resolve(updatedTargets);
-                    return;
-                })
-                .catch((err) => {
-                    reject(err);
-                });
-        });
+            const updatedListTargets: ITargetDocument[] = await Bluebird.map(
+                                        targets,
+                                        (target: ITargetDocument) => this.updateTarget(target)
+                                    );
+            return updatedListTargets;
+        } catch (err) {
+            throw new Error('unable to update all targets');
+        }
     }
 
-    updateTarget(target: ITargetDocument): Promise<ITargetDocument> {
-        const that = this;
 
-        return new Promise<ITargetDocument>((resolve, reject) => {
+    async updateTarget(target: ITargetDocument): Promise<ITargetDocument> {
+        try {
             const id: string = target.id;
             const inputData: ITarget = Object.assign({}, target.toObject() as ITarget);
 
-            that.caculateFormat(inputData).then((targetAmount: number) => {
-                inputData.target = targetAmount;
-                inputData.timestamp = new Date();
+            const targetAmount: number = await this.caculateFormat(inputData);
+            inputData.target = targetAmount;
+            inputData.timestamp = new Date();
 
-                that._targets.model.updateTarget(id, inputData).then((updatedTarget: ITargetDocument) => {
-                    resolve(updatedTarget);
-                }).catch(err => {
-                    reject(err);
-                });
-            });
-        });
+            const updatedTarget: ITargetDocument = await this._targets.model.updateTarget(id, inputData);
+
+            const clonedTarget = clone(updatedTarget);
+            clonedTarget.datepicker = moment().toDate().toString();
+
+            const targetMet: number = await this.getTargetMet(clonedTarget);
+            updatedTarget.percentageCompletion = (targetMet / updatedTarget.target) * 100;
+
+            return updatedTarget;
+        } catch (err) {
+            throw new Error('unable to update target');
+        }
     }
 
     async getBaseValue(data: ITargetCalculateData): Promise<any> {
@@ -166,48 +159,46 @@ export class TargetService {
         return await kpi.getData([targetDateRange], getDataOptions);
     }
 
-    caculateFormat(data: ITargetCalculateData): Promise<number> {
+    async caculateFormat(data: ITargetCalculateData): Promise<number> {
+        try {
+            const response = await this.getBaseValue(data);
+            const dataAmount: number = parseFloat(data.amount.toString());
+            const findValue = response ? response.find(r => r.value) : { value: data.amount };
 
-        return new Promise<number>((resolve, reject) => {
-            this.getBaseValue(data)
-                .then((response: any) => {
-                    const dataAmount: number = parseFloat(data.amount.toString());
-                    const findValue = response ? response.find(r => r.value) : { value: data.amount };
+            const responseValue: number = findValue ? findValue.value : 0;
 
-                    const responseValue: number = findValue ? findValue.value : 0;
+            switch (data.vary) {
 
-                    switch (data.vary) {
+                case 'fixed':
+                    return dataAmount;
 
-                        case 'fixed':
-                            return resolve(dataAmount);
+                case 'increase':
+                    switch (data.amountBy) {
+                        case 'percent':
+                            const increasePercentResult: number = responseValue + (responseValue * (dataAmount / 100) );
+                            return increasePercentResult;
 
-                        case 'increase':
-                            switch (data.amountBy) {
-                                case 'percent':
-                                    const increasePercentResult: number = responseValue + (responseValue * (dataAmount / 100) );
-                                    return resolve(increasePercentResult);
+                        case 'dollar':
+                            const increaseDollarResult: number = responseValue + dataAmount;
+                            return increaseDollarResult;
 
-                                case 'dollar':
-                                    const increaseDollarResult: number = responseValue + dataAmount;
-                                    return resolve(increaseDollarResult);
-
-                            }
-                        case 'decrease':
-                            switch (data.amountBy) {
-                                case 'percent':
-                                    const decreasePercentResult: number = responseValue - (responseValue * (dataAmount / 100) );
-                                    return resolve(decreasePercentResult);
-
-                                case 'dollar':
-                                    const descreaseDollarResult: number = responseValue - dataAmount;
-                                    return resolve(descreaseDollarResult);
-
-                            }
                     }
-                });
-        });
-    }
+                case 'decrease':
+                    switch (data.amountBy) {
+                        case 'percent':
+                            const decreasePercentResult: number = responseValue - (responseValue * (dataAmount / 100) );
+                            return decreasePercentResult;
 
+                        case 'dollar':
+                            const descreaseDollarResult: number = responseValue - dataAmount;
+                            return descreaseDollarResult;
+
+                    }
+            }
+        } catch (err) {
+            throw new Error('unable to calcuate target amount');
+        }
+    }
 
     async getTargetMet(input: ITargetMet) {
         const that = this;
