@@ -64,7 +64,8 @@ export function connectToMongoDb(dbUri: string): Promise<mongoose.Connection> {
                     connectTimeoutMS: 3600000,
                     keepAlive: 3600000,
                     socketTimeoutMS: 3600000
-                }
+                },
+                useMongoClient: true
             }
         };
 
