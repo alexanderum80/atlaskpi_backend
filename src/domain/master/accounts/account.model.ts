@@ -134,7 +134,6 @@ accountSchema.methods.createAccountDbUser = function(accountDbUser: IAccountDBUs
         request.post(options, function(error, response, body) {
             if (!error || body.error) {
                 // winston.error('There was an error creating the database account', error || body.error);
-                console.log('User created...');
                 resolve(true);
             } else {
                 // console.log('Code : ' + response.statusCode);

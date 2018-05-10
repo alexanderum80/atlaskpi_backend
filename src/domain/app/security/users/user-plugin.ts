@@ -642,10 +642,8 @@ export function userPlugin(schema: mongoose.Schema, options: any) {
                 if (user) {
                     console.dir(user._id);
                     if (user._id.toString().toLowerCase() !==  userId.toLowerCase()) {
-                        console.log('different user');
                         throw({ name: 'duplicated', message: 'Another user is using this email address' });
                     } else {
-                        console.log('same user');
                         throw({ name: 'exist', message: 'This email was already assigned to this user' });
                     }
                 } else {

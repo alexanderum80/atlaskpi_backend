@@ -42,7 +42,7 @@ export class NumericWidget extends UIWidgetBase implements IUIWidget {
         Object.assign(this, this.widget);
 
         if (!this.numericWidgetAttributes || !this.numericWidgetAttributes.kpi) {
-            console.log('A numeric Widget cannot live without a kpi');
+            console.log('A numeric Widget cannot exist without a kpi');
             return null;
         }
 
@@ -103,10 +103,9 @@ export class NumericWidget extends UIWidgetBase implements IUIWidget {
             const result = await kpiClone.getData([dateRange], { filter: null });
 
             if (result && result.length > 0) {
-                console.log(`value recieved for widget(${this.name}): ${result[0].value}`);
                 return result[0].value;
             }
-            console.log(`value not recieved for widget(${this.name}), displaying 0 as value`);
+
             return 0;
         } catch (e) {
             console.error('There was an error gettting kpi data for numero widget');

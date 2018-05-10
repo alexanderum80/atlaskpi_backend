@@ -129,7 +129,6 @@ function convertSheetsToObjects(auth, spreadsheetId: string, source: DataSource)
             let rows = response.values;
 
             if (rows.length === 0) {
-                console.log('No data found.');
                 return;
             }
 
