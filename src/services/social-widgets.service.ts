@@ -94,7 +94,6 @@ export class SocialWidgetsService {
                         .limit(1)
                         .exec()
                         .then(doc => {
-                            console.log('latest: ' + JSON.stringify(doc));
                             resolve(doc);
                             return;
                         })
@@ -120,7 +119,6 @@ export class SocialWidgetsService {
                         .limit(1)
                         .exec()
                         .then(doc => {
-                            console.log('historical: ' + JSON.stringify(doc));
                             resolve(doc);
                             return;
                         })

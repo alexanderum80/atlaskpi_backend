@@ -185,12 +185,10 @@ WidgetSchema.statics.updateWidget = function(id: string, input: IWidgetInput): P
             }
 
             if (result) {
-                console.log(result);
                 resolve(result);
                 return;
             }
 
-            console.log('error updating widget');
             reject('There was an error updating the widget');
         });
     });
