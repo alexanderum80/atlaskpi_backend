@@ -7,6 +7,9 @@ import { IAppConfig } from '../configuration/config-models';
 export function makeDefaultConnection(config: IAppConfig): Promise<boolean> {
   return new Promise<boolean>((resolve, reject) => {
     let dbUri = config.masterDb; // 'mongodb://localhost/kpibi';
+    const options = {
+        useMongoClient: true
+    };
 
     // if the connection is open, leave this function
     /**
@@ -23,7 +26,7 @@ export function makeDefaultConnection(config: IAppConfig): Promise<boolean> {
       return;
     }
 
-    mongoose.connect(dbUri);
+    mongoose.connect(dbUri, options);
 
     mongoose.connection.on('connected', () => {
         winston.debug('debug', 'Mongoose default connection open to ' + dbUri);
