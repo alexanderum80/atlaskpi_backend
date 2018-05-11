@@ -524,7 +524,7 @@ export class UIChartBase {
         let series: IChartSerie[] = [];
         let matchField: string;
 
-        if (meta.xAxisSource === FREQUENCY_GROUPING_NAME && meta.frequency) {
+        if (meta.xAxisSource === FREQUENCY_GROUPING_NAME && meta.frequency !== null) {
             matchField = getFrequencyPropName(meta.frequency);
         } else {
             matchField = camelCase(meta.groupings[0]);
