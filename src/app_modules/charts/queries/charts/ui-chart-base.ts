@@ -524,7 +524,7 @@ export class UIChartBase {
         let series: IChartSerie[] = [];
         let matchField: string;
 
-        if (meta.xAxisSource === FREQUENCY_GROUPING_NAME) {
+        if (meta.xAxisSource === FREQUENCY_GROUPING_NAME && meta.frequency) {
             matchField = getFrequencyPropName(meta.frequency);
         } else {
             matchField = camelCase(meta.groupings[0]);
@@ -544,7 +544,7 @@ export class UIChartBase {
 
             categories.forEach(cat => {
                 let dataItem = groupedData[serieName].find((item: any) => {
-                    return item._id[matchField] === cat.id;
+                    return item._id[matchField] === (cat.id !== NULL_CATEGORY_REPLACEMENT ? cat.id : serieName);
                 });
 
                 serie.data.push( dataItem ? dataItem.value : null );
