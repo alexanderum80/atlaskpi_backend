@@ -30,7 +30,7 @@ export class ChartWidget extends UIWidgetBase implements IUIWidget {
         ) {
         super(widget);
         if (!this.chartWidgetAttributes || !this.chartWidgetAttributes.chart) {
-            console.log('A Chart Widget cannot live without a chart');
+            console.log('A Chart Widget cannot exist without a chart');
             return null;
         }
     }
@@ -50,7 +50,6 @@ export class ChartWidget extends UIWidgetBase implements IUIWidget {
                 };
 
                 const result = Object.assign({}, this.widget, { materialized: materialized });
-                console.log(materialized.chart);
                 resolve(<any>result);
                 return;
             })

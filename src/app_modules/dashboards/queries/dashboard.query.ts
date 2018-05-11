@@ -91,7 +91,7 @@ export class DashboardQuery implements IQuery<IDashboard> {
 
                     Promise.props(dashboardElementsPromises).then((elements: { widgets: IUIWidget[], charts: string[]}) => {
                         let response = {};
-                        console.dir(elements.widgets);
+
                         const widgetsAsString = elements.widgets.map(w => JSON.stringify(w));
                         Object.assign(response, dashboard.toObject(), { widgets: widgetsAsString, charts: elements.charts });
                         resolve(<any>response);
