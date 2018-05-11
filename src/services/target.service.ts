@@ -114,10 +114,7 @@ export class TargetService {
 
             const updatedTarget: ITargetDocument = await this._targets.model.updateTarget(id, inputData);
 
-            const clonedTarget = clone(updatedTarget);
-            clonedTarget.datepicker = moment().toDate().toString();
-
-            const targetMet: number = await this.getTargetMet(clonedTarget);
+            const targetMet: number = await this.getTargetMet(updatedTarget);
             updatedTarget.percentageCompletion = (targetMet / updatedTarget.target) * 100;
 
             return updatedTarget;
