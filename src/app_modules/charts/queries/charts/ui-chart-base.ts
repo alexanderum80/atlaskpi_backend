@@ -286,11 +286,18 @@ export class UIChartBase {
             if (noGrouping && this.chart.chartDefinition.chart.type !== ChartType.Pie && metadata.frequency !== FrequencyEnum.Yearly) {
                 let dateRange = metadata.dateRange || this.dateRange;
                 categoryHelper = this._noGroupingsCategoryHelper(dateRange, metadata.frequency);
-                if (categoryHelper && categoryHelper.length && !metadata.top && !(metadata.top.predefined || metadata.top.custom)) {
+                if (categoryHelper && categoryHelper.length && metadata.top && !(metadata.top.predefined || metadata.top.custom)) {
                     return categoryHelper;
                 }
             }
-            return this.frequencyHelper.getCategories(metadata.frequency);
+            const categories = this.frequencyHelper.getCategories(metadata.frequency);
+            if (!categories.length) {
+                categories.push({
+                    id: NULL_CATEGORY_REPLACEMENT,
+                    name: NULL_CATEGORY_REPLACEMENT
+                })
+            }
+            return categories;
         }
 
         const getXaxisSource: any = this._getXaxisSource(data, metadata);
@@ -484,11 +491,11 @@ export class UIChartBase {
 
             categories.forEach(cat => {
                 let dataItem = cat.id !== NULL_CATEGORY_REPLACEMENT
-                               ? data.find((item: any) => item._id[matchField] === cat.id)
-                               : data.find((item: any) => (
-                                   item._id[matchField] === null ||
-                                   item._id[matchField] === NULL_CATEGORY_REPLACEMENT ||
-                                   !Object.keys(item._id).length
+                                ? data.find((item: any) => item._id[matchField] === cat.id)
+                                : data.find((item: any) => (
+                                    item._id[matchField] === null ||
+                                    item._id[matchField] === NULL_CATEGORY_REPLACEMENT ||
+                                    !Object.keys(item._id).length
                                 ));
 
                 serieObject.data.push(dataItem ? dataItem.value : null);
