@@ -491,6 +491,11 @@ export class UIChartBase {
                                    !Object.keys(item._id).length
                                 ));
 
+                const chartType = this.chart.chartDefinition.chart.type;
+                if ((chartType === 'column' || chartType === 'bar') && dataItem && dataItem.value === 0) {
+                    dataItem.value = null;
+                }
+
                 serieObject.data.push(dataItem ? dataItem.value : null);
             });
          }
@@ -539,6 +544,11 @@ export class UIChartBase {
                 let dataItem = groupedData[serieName].find((item: any) => {
                     return item._id[matchField] === cat.id;
                 });
+
+                const chartType = this.chart.chartDefinition.chart.type;
+                if ((chartType === 'column' || chartType === 'bar') && dataItem && dataItem.value === 0) {
+                    dataItem.value = null;
+                }
 
                 serie.data.push( dataItem ? dataItem.value : null );
             });
