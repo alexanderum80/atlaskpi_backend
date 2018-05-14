@@ -20,7 +20,7 @@ let MilestoneSchema = new Schema({
     task: { type: String, required: true },
     dueDate: { type: Date, required: true },
     status: String,
-    responsible: [{ type: Schema.Types.ObjectId, ref: 'Employee' }]
+    responsible: [{ type: Schema.Types.ObjectId, ref: 'User' }]
 });
 
 MilestoneSchema.statics.createMilestone = function(target: string, task: string, dueDate: string, status: string, responsible: string[]):
