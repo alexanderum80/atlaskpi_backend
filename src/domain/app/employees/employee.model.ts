@@ -144,10 +144,10 @@ function dropFirstNameIndex(employeeModel: IEmployeeModel): void {
                 const keys: string[] = Object.keys(indexes);
                 const schemaField: RegExp = /firstName/;
 
-                keys.forEach((field: string) => {
-                    if (schemaField.test(field)) {
+                keys.forEach((key: string) => {
+                    if (schemaField.test(key)) {
                         obj.indexExist = true;
-                        obj.indexName = field;
+                        obj.indexName = key;
                     }
                 });
 
