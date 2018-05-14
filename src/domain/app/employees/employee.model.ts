@@ -14,7 +14,7 @@ import { tagsPlugin } from '../tags/tag.plugin';
 let Schema = mongoose.Schema;
 
 const EmployeeSchema = new mongoose.Schema({
-    firstName: { type: String, unique: true, required: true },
+    firstName: { type: String, required: true },
     middleName: String,
     lastName: String,
     email: String,
