@@ -18,7 +18,7 @@ export class GoogleAnalyticsConnector implements IOAuthConnector {
 
     constructor(private _connectorConfig: any, private _config?: IAppConfig) {
         if (!_connectorConfig) {
-            console.log('you tried to create a connector without config...');
+            console.error('you tried to create a connector without config...');
             return null;
         }
 
@@ -72,7 +72,7 @@ export class GoogleAnalyticsConnector implements IOAuthConnector {
 
     getConfiguration(): IConnectorConfig {
         if (!this._token) {
-            console.log('configuration not ready... you have to request a token and set a realmid');
+            console.error('configuration not ready... you have to request a token and set a realmid');
         }
 
         const config: IConnectorConfig = {
