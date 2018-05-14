@@ -134,25 +134,26 @@ function dropFirstNameIndex(employeeModel: IEmployeeModel): void {
     if (employeeModel && employeeModel.collection) {
         let obj = {
             indexExist: false,
-            name: ''
+            indexName: ''
         };
         // indexes are objects, i.e. [key: string]: array[]
         employeeModel.collection.getIndexes().then(indexes => {
             // check if indexes exists
             if (!isEmpty(indexes)) {
-                const fields: string[] = Object.keys(indexes);
+                // ['firstName_1']
+                const keys: string[] = Object.keys(indexes);
                 const schemaField: RegExp = /firstName/;
 
-                fields.forEach((field: string) => {
+                keys.forEach((field: string) => {
                     if (schemaField.test(field)) {
                         obj.indexExist = true;
-                        obj.name = field;
+                        obj.indexName = field;
                     }
                 });
 
                 // drop firstName index if it exists
-                if (obj.indexExist && obj.name) {
-                    employeeModel.collection.dropIndex(obj.name);
+                if (obj.indexExist && obj.indexName) {
+                    employeeModel.collection.dropIndex(obj.indexName);
                 }
             }
         }).catch(err => {
