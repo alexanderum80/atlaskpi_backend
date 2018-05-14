@@ -4,6 +4,7 @@ import * as Promise from 'bluebird';
 import { inject, injectable } from 'inversify';
 import * as mongoose from 'mongoose';
 import * as logger from 'winston';
+import { isEmpty } from 'lodash';
 
 import { ModelBase } from '../../../type-mongo/model-base';
 import { AppConnection } from '../app.connection';
@@ -81,7 +82,6 @@ EmployeeSchema.statics.updateEmployee = function(_id: string, employeeInput: IEm
             address: employeeInput.address,
             employmentInfo: employeeInput.employmentInfo
         }
-    
     ).then(employee => {
             resolve(employee);
         }).catch(err => {
@@ -130,10 +130,42 @@ EmployeeSchema.statics.employeeById = function(id: string): Promise<IEmployeeDoc
     });
 };
 
+function dropFirstNameIndex(employeeModel: IEmployeeModel): void {
+    if (employeeModel && employeeModel.collection) {
+        let obj = {
+            indexExist: false,
+            name: ''
+        };
+        // indexes are objects, i.e. [key: string]: array[]
+        employeeModel.collection.getIndexes().then(indexes => {
+            // check if indexes exists
+            if (!isEmpty(indexes)) {
+                const fields: string[] = Object.keys(indexes);
+                const schemaField: RegExp = /firstName/;
+
+                fields.forEach((field: string) => {
+                    if (schemaField.test(field)) {
+                        obj.indexExist = true;
+                        obj.name = field;
+                    }
+                });
+
+                // drop firstName index if it exists
+                if (obj.indexExist && obj.name) {
+                    employeeModel.collection.dropIndex(obj.name);
+                }
+            }
+        }).catch(err => {
+            logger.error(err);
+        });
+    }
+}
+
 @injectable()
 export class Employees extends ModelBase<IEmployeeModel> {
     constructor(@inject(AppConnection.name) appConnection: AppConnection) {
         super();
-        this.initializeModel(appConnection.get, 'Employee', EmployeeSchema, 'employees');
+        const employeeModel = this.initializeModel(appConnection.get, 'Employee', EmployeeSchema, 'employees');
+        dropFirstNameIndex(employeeModel);
     }
 }
