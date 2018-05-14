@@ -136,7 +136,7 @@ function dropFirstNameIndex(employeeModel: IEmployeeModel): void {
             indexExist: false,
             indexName: ''
         };
-        // indexes are objects, i.e. [key: string]: array[]
+        // indexes: object, i.e. [key: string]: [['firstName', '1']]
         employeeModel.collection.getIndexes().then(indexes => {
             // check if indexes exists
             if (!isEmpty(indexes)) {
