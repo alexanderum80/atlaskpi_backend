@@ -50,13 +50,13 @@ export class FacebookService {
                     return;
                 })
                 .catch(err => {
-                    console.log('an error occured upserting metrics: ' + err);
+                    console.error('an error occured upserting metrics: ' + err);
                     reject(err);
                     return;
                 });
             })
             .catch(err => {
-                console.log('an error occured getting metrics: ' + err);
+                console.error('an error occured getting metrics: ' + err);
                 reject(err);
                 return;
             });
@@ -77,7 +77,7 @@ export class FacebookService {
                                                     'checkins']
                                         }, (res) => {
                 if (!res || res.error) {
-                    console.log(!res ? 'error occurred' : res.error);
+                    console.error(!res ? 'error occurred' : res.error);
                     reject(res.error);
                     return;
                 }
