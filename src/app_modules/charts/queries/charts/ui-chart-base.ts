@@ -636,7 +636,8 @@ export class UIChartBase {
                         name: d._id['noFrequencyName'],
                         type: 'spline',
                         data: [].concat(d.value),
-                        targetId: d.targetId
+                        targetId: d.targetId,
+                        percentageCompletion: d.percentageCompletion
                     }));
                 }
             case 1:
@@ -940,16 +941,16 @@ export class UIChartBase {
                             name: objData.serieName,
                             data: serieData,
                             stack: stack,
-                            type: 'spline'
+                            type: 'spline',
+                            targetId: hasTarget.targetId,
+                            percentageCompletion: hasTarget.percentageCompletion
                         };
                     }
                 } else {
                     serieObject = {
                         name: objData.serieName + `(${comparisonString})`,
                         data: serieData,
-                        stack: stack,
-                        targetId: hasTarget.targetId,
-                        percentageCompletion: hasTarget.percentageCompletion
+                        stack: stack
                     };
                 }
 
