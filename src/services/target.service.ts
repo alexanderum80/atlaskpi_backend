@@ -298,7 +298,7 @@ export class TargetService {
         } else if (!isStackNameEqualToAll) {
             Object.assign(options, {
                 groupings: groupings,
-                stackName: stackName
+                stackName: this.getStackName(chart, stackName).name || null
             });
         }
 
