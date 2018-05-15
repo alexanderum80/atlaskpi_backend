@@ -130,7 +130,7 @@ export class TargetService {
                                                 .populate({ path: 'kpis' });
             const kpi: IKpiBase = await this._kpiFactory.getInstance(chart.kpis[0]);
 
-            const groupings: string[] = chart.groupings || [];
+            const groupings: string[] = (chart.groupings && chart.groupings[0]) ? chart.groupings : [];
             const stackName: string = data.stackName ? data.stackName : data.nonStackName;
             const isStackNameEqualToAll: boolean = stackName.toLowerCase() === 'all';
 

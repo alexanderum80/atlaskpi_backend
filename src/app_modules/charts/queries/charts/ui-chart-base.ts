@@ -57,6 +57,8 @@ export interface IComparisonSerieObject {
     data?: string[];
     type?: string;
     stack?: string;
+    targetId?: string;
+    percentageCompletion?: number;
 }
 
 export interface ICategoriesWithValues {
@@ -65,6 +67,7 @@ export interface ICategoriesWithValues {
     serieValue?: number|object;
     type?: string;
     targetId?: any;
+    percentageCompletion?: number;
 }
 
 export interface IComparsionDefObjectData {
@@ -882,6 +885,7 @@ export class UIChartBase {
                     if (serie.type && serie.targetId) {
                         categoriesWithValues.type = serie.type;
                         categoriesWithValues.targetId = serie.targetId;
+                        categoriesWithValues.percentageCompletion = serie.percentageCompletion;
                     }
 
                     defObject['data'][keys[i]].push(categoriesWithValues);
@@ -943,7 +947,9 @@ export class UIChartBase {
                     serieObject = {
                         name: objData.serieName + `(${comparisonString})`,
                         data: serieData,
-                        stack: stack
+                        stack: stack,
+                        targetId: hasTarget.targetId,
+                        percentageCompletion: hasTarget.percentageCompletion
                     };
                 }
 
