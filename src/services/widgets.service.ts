@@ -27,14 +27,27 @@ export class WidgetsService {
         @inject(Alerts.name) private _alert: Alerts
     ) { }
 
-    async listWidgets(): Promise<IUIWidget[]> {
+    async listWidgets(options = { materialize: true }): Promise<IUIWidget[]> {
+        options = options || { materialize: true };
+
+        if (options.materialize == undefined) {
+            options.materialize = true;
+        }
+
+        const { materialize } = options;
         try {
-            const widgets = await this._widgets.model
+            const widgetDocuments = await this._widgets.model
                 .find()
                 .sort({ size: 1, order: 1, name: 1 });
-            const materializedWidgets = await this.materializeWidgetDocuments(widgets);
 
-            return materializedWidgets;
+            let widgets = [];
+            if (materialize) {
+                widgets = await this.materializeWidgetDocuments(widgetDocuments);
+            } else {
+                widgets = widgetDocuments.map(d => d.toObject());
+            }
+
+            return widgets;
         } catch (e) {
             console.error('There was an error getting the list of widgets', e);
             return [];
