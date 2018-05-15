@@ -1,3 +1,4 @@
+import { Payments } from './../../../domain/app/payments/payment.model';
 import { cloneDeep } from 'lodash';
 
 import { Calls } from '../../../domain/app/calls/call.model';
@@ -47,6 +48,7 @@ export class SimpleKPI extends SimpleKPIBase implements IKpiBase {
                                         inventory: Inventory,
                                         calls: Calls,
                                         appointments: Appointments,
+                                        payments: Payments,
                                         virtualSources: IVirtualSourceDocument[]
                                     ): SimpleKPI {
 
@@ -62,7 +64,7 @@ export class SimpleKPI extends SimpleKPIBase implements IKpiBase {
                     modelName: virtualSource.modelIdentifier,
                     timestampField: virtualSource.dateField
                 };
-                
+
                 simpleKPIDefinition.dataSource = virtualSource.source.toLowerCase();
 
                 if (virtualSource.aggregate) {
@@ -84,7 +86,8 @@ export class SimpleKPI extends SimpleKPIBase implements IKpiBase {
             Expense: expenses.model,
             Inventory: inventory.model,
             Call: calls.model,
-            Appointment: appointments.model
+            Appointment: appointments.model,
+            Payment: payments.model
         };
 
         const model = models[collection.modelName];
