@@ -114,12 +114,49 @@ export class TargetService {
 
             const updatedTarget: ITargetDocument = await this._targets.model.updateTarget(id, inputData);
 
-            const targetMet: number = await this.getTargetMet(updatedTarget);
-            updatedTarget.percentageCompletion = (targetMet / updatedTarget.target) * 100;
+            const targetProgress: number = await this.targetProgressValue(updatedTarget);
+            updatedTarget.percentageCompletion = (targetProgress / updatedTarget.target) * 100;
 
             return updatedTarget;
         } catch (err) {
             throw new Error('unable to update target');
+        }
+    }
+
+    async targetProgressValue(data: ITargetDocument): Promise<number> {
+        try {
+            const chart: IChartDocument = await this._charts.model.findById(data.chart[0]);
+            const kpi: IKpiBase = await this._kpiFactory.getInstance(chart.kpis[0]);
+
+            const groupings: string[] = chart.groupings || [];
+            const stackName: string = data.stackName ? data.stackName : data.nonStackName;
+            const isStackNameEqualToAll: boolean = stackName.toLowerCase() === 'all';
+
+            const dateRange = this._getTargetProgressDateRange(chart.frequency, data.datepicker);
+            const options: IGetDataOptions = {
+                filter: chart.filter
+            };
+
+            if (!groupings || !groupings.length || !groupings) {
+                Object.assign(options, {
+                    filter: chart.filter
+                });
+            } else {
+                if (!isStackNameEqualToAll) {
+                    Object.assign(options, {
+                        groupings: groupings,
+                        stackName: stackName
+                    });
+                }
+            }
+
+            const response = await kpi.getData([dateRange], options);
+            const totalProgress = response ? response.find(r => r.value) : { value : data.amount };
+            const amount: number = totalProgress ? totalProgress.value : 0;
+
+            return amount;
+        } catch (err) {
+            throw new Error('error getting target progress');
         }
     }
 
@@ -262,6 +299,12 @@ export class TargetService {
         return (chart.comparison && chart.comparison.length) ? true : false;
     }
 
+    /**
+     * check if current time is past dueDate
+     * @param chartFrequency
+     * @param datepicker
+     * @param notificationDate
+     */
     isTargetReachZero(chartFrequency: string, datepicker: string, notificationDate: string): any {
         const now = moment();
         const dueDate = moment(datepicker, 'MM/DD/YYYY');
@@ -385,5 +428,32 @@ export class TargetService {
                 };
         }
 
+    }
+
+    private _getTargetProgressDateRange(chartFrequency: string, dueDate: string): IDateRange {
+        const to = moment(dueDate).toDate();
+        let from: Date;
+
+        const frequency = FrequencyTable[chartFrequency];
+
+        switch (frequency) {
+            case FrequencyEnum.Daily:
+                from = moment(dueDate).startOf('day').toDate();
+                break;
+            case FrequencyEnum.Weekly:
+                from = moment(dueDate).startOf('week').toDate();
+                break;
+            case FrequencyEnum.Monthly:
+                from = moment(dueDate).startOf('month').toDate();
+                break;
+            case FrequencyEnum.Yearly:
+                from = moment(dueDate).startOf('year').toDate();
+                break;
+        }
+
+        return {
+            from: from,
+            to: to
+        };
     }
 }
