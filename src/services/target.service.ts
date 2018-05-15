@@ -109,7 +109,7 @@ export class TargetService {
             const id: string = target.id;
             const inputData: ITarget = Object.assign({}, target.toObject() as ITarget);
 
-            const targetAmount: number = await this.caculateFormat(inputData);
+            const targetAmount: number = await this.getTargetValue(inputData);
             inputData.target = targetAmount;
             inputData.timestamp = new Date();
 
@@ -162,39 +162,33 @@ export class TargetService {
         }
     }
 
-    async getBaseValue(data: ITargetCalculateData): Promise<any> {
-        const chart = await this._charts.model.findById(data.chart[0])
-            .populate({ path: 'kpis' });
-        const kpi: IKpiBase = await this._kpiFactory.getInstance(chart.kpis[0]);
-        const groupings: string[] = chart.groupings || [];
-        const targetDateRange: IDateRange[] = this.getDate(data.period, data.datepicker, chart.frequency, chart.dateRange);
-        let getDataOptions: IGetDataOptions;
+    async createUpdateTarget(data: ITarget, id?: string): Promise<ITargetDocument> {
+        try {
+            // target value
+            data.target = await this.getTargetValue(data);
 
-        if (!data.period) {
-            return [{ value: 0 }];
-        }
-
-        if (chart.isStacked()) {
-            getDataOptions = {
-                filter: chart.filter,
-                groupings: groupings,
-                stackName: this.getComparisonStackName(chart, data).name || null
-            };
-        } else if (Array.isArray(groupings) && !groupings[0]) {
-            getDataOptions = { filter: chart.filter };
-        } else {
-            getDataOptions = { filter: chart.filter };
-
-            if (data.nonStackName.toLocaleLowerCase() !== 'all') {
-                getDataOptions.stackName = this.getComparisonStackName(chart, data).name;
-                getDataOptions.groupings = groupings;
+            // transform stackName, nonStackName if have something like, Miami (this year)
+            const chart = await this._charts.model.findById(data.chart[0]);
+            if (data.stackName) {
+                data.stackName = this.getStackName(chart, data).name;
+            } else {
+                data.nonStackName = this.getStackName(chart, data).name;
             }
-        }
 
-        return await kpi.getData(targetDateRange, getDataOptions);
+            if (!id) {
+                // create target
+                return await this._targets.model.createTarget(data);
+            } else {
+                // update target
+                return await this._targets.model.updateTarget(id, data);
+            }
+
+        } catch (err) {
+            throw new Error('unable to modify target');
+        }
     }
 
-    async caculateFormat(data: ITargetCalculateData): Promise<number> {
+    async getTargetValue(data: ITargetCalculateData): Promise<number> {
         try {
             const response = await this.getBaseValue(data);
             const dataAmount: number = parseFloat(data.amount.toString());
@@ -233,6 +227,38 @@ export class TargetService {
         } catch (err) {
             throw new Error('unable to calcuate target amount');
         }
+    }
+
+    async getBaseValue(data: ITargetCalculateData): Promise<any> {
+        const chart = await this._charts.model.findById(data.chart[0])
+            .populate({ path: 'kpis' });
+        const kpi: IKpiBase = await this._kpiFactory.getInstance(chart.kpis[0]);
+        const groupings: string[] = chart.groupings || [];
+        const targetDateRange: IDateRange[] = this.getDate(data.period, data.datepicker, chart.frequency, chart.dateRange);
+        let getDataOptions: IGetDataOptions;
+
+        if (!data.period) {
+            return [{ value: 0 }];
+        }
+
+        if (chart.isStacked()) {
+            getDataOptions = {
+                filter: chart.filter,
+                groupings: groupings,
+                stackName: this.getStackName(chart, data).name || null
+            };
+        } else if (Array.isArray(groupings) && !groupings[0]) {
+            getDataOptions = { filter: chart.filter };
+        } else {
+            getDataOptions = { filter: chart.filter };
+
+            if (data.nonStackName.toLocaleLowerCase() !== 'all') {
+                getDataOptions.stackName = this.getStackName(chart, data).name;
+                getDataOptions.groupings = groupings;
+            }
+        }
+
+        return await kpi.getData(targetDateRange, getDataOptions);
     }
 
     async getTargetMet(input: ITargetMet) {
@@ -351,7 +377,7 @@ export class TargetService {
         return false;
     }
 
-    getComparisonStackName(chart: IChartDocument, data: any): IGetComparisonStackName {
+    getStackName(chart: IChartDocument, data: any): IGetComparisonStackName {
         const targetName: string = data.stackName || data.nonStackName;
 
         if (!targetName || !this.isComparison(chart)) {
