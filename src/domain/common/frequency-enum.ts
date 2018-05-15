@@ -10,6 +10,19 @@ export enum FrequencyEnum {
     Yearly
 }
 
+export enum SortingCriteriaEnum {
+    Values = 'values',
+    Frequency = 'frequency',
+    Categories = 'categories',
+    Groupings = 'groupingAlphabetically',
+    Totals = 'valuesTotal'
+ }
+
+ export enum SortingOrderEnum {
+    Ascending = 'ascending',
+    Descending = 'descending'
+ }
+
 export const FrequencyTable = {
     daily: FrequencyEnum.Daily,
     weekly: FrequencyEnum.Weekly,
@@ -35,80 +48,74 @@ export function getFrequencyPropName(frequency: FrequencyEnum) {
 
 export function getFrequencySequence(data: any, frequency: FrequencyEnum, groupingField: string , sortingCriteria: string, sortingOrder: string): number[] {
     const frequencies = [];
+    let existFrequency = false;
     switch (frequency) {
         case FrequencyEnum.Daily:
-            if (sortingCriteria && sortingCriteria === 'valuesTotal') {
-                data.forEach(element => {
-                    if (!frequencies.find(m => m === element._id.day)) frequencies.push(element._id.day);
-                });
-            } else if (sortingCriteria && (sortingCriteria === 'values' || (groupingField && data.find(element => element._id[groupingField] === sortingCriteria)))) {
-                data.forEach(element => {
-                    if (!frequencies.find(m => m === element._id.day)) frequencies.push(element._id.day);
-                });
-            } else if (sortingCriteria &&  sortingCriteria === 'frequency' && sortingOrder && sortingOrder === 'descending') {
-                for (let i = 31; i >= 1; i--) { frequencies.push(i); }
+            if (sortingCriteria) {
+                if (sortingCriteria !== SortingCriteriaEnum.Frequency) {
+                    data.forEach(element => {
+                        existFrequency = frequencies.find(m => m === element._id.day);
+                        if (!existFrequency) frequencies.push(element._id.day);
+                    });
+                } else if (sortingCriteria === SortingCriteriaEnum.Frequency && sortingOrder) {
+                    if (sortingOrder === SortingOrderEnum.Descending) {
+                        // return array of values from 31 to 1
+                        for (let i = 31; i >= 1; i--) frequencies.push(i);
+                    } else if (sortingOrder === SortingOrderEnum.Ascending) {
+                        // return array of values from 1 to 31
+                        for (let i = 1; i <= 31; i++) frequencies.push(i);
+                    }
+                }
             } else {
-                for (let i = 1; i <= 31; i++) { frequencies.push(i); }
+                // return array of values from 1 to 31
+                for (let i = 1; i <= 31; i++) frequencies.push(i);
             }
             return frequencies;
         case FrequencyEnum.Monthly:
-            if (sortingCriteria && sortingCriteria === 'valuesTotal') {
-                data.forEach(element => {
-                    if (!frequencies.find(m => m === element._id.month)) frequencies.push(element._id.month);
-                });
-            } else if (sortingCriteria && (sortingCriteria === 'values' || (groupingField && data.find(element => element._id[groupingField] === sortingCriteria)))) {
-                data.forEach(element => {
-                    if (!frequencies.find(m => m === element._id.month)) frequencies.push(element._id.month);
-                });
-            } else if (sortingCriteria && sortingCriteria === 'frequency' && sortingOrder && sortingOrder === 'descending') {
-                for (let i = 12; i >= 1; i--) { frequencies.push(i); }
-            }
-            else { for (let i = 1; i <= 12; i++) { frequencies.push(i); }
-            }
-            return frequencies;
-        case FrequencyEnum.Quartely:
-            if (sortingCriteria && sortingCriteria === 'valuesTotal') {
-                data.forEach(element => {
-                    if (!frequencies.find(m => m === element._id.quarter)) frequencies.push(element._id.quarter);
-                });
-            } else if (sortingCriteria && (sortingCriteria === 'values' || (groupingField && data.find(element => element._id[groupingField] === sortingCriteria)))) {
-                data.forEach(element => {
-                    if (!frequencies.find(m => m === element._id.quarter)) frequencies.push(element._id.quarter);
-                });
-            } else if (sortingCriteria && sortingCriteria === 'frequency' && sortingOrder && sortingOrder === 'descending') {
-                for (let i = 4; i >= 1; i--) { frequencies.push(i); }
+            if (sortingCriteria) {
+                if (sortingCriteria !== SortingCriteriaEnum.Frequency) {
+                    data.forEach(element => {
+                        existFrequency = frequencies.find(m => m === element._id.month);
+                        if (!existFrequency) frequencies.push(element._id.month);
+                    });
+                } else if (sortingCriteria === SortingCriteriaEnum.Frequency && sortingOrder) {
+                    if (sortingOrder === SortingOrderEnum.Descending) {
+                        return [12, 11, 10, 9, 8 , 7, 6, 5 , 4 , 3 , 2 , 1];
+                    } else if (sortingOrder === SortingOrderEnum.Ascending) {
+                        return [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
+                    }
+                }
+                return frequencies;
             } else {
-                for (let i = 1; i <= 4; i++) { frequencies.push(i); }
+                return [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
             }
-            return frequencies;
+        case FrequencyEnum.Quartely:
+            if (sortingCriteria) {
+                if (sortingCriteria !== SortingCriteriaEnum.Frequency) {
+                    data.forEach(element => {
+                        existFrequency = frequencies.find(m => m === element._id.quarter);
+                        if (!existFrequency) frequencies.push(element._id.quarter);
+                    });
+                    return frequencies;
+                } else if (sortingCriteria === SortingCriteriaEnum.Frequency && sortingOrder) {
+                    if (sortingOrder === SortingOrderEnum.Descending) {
+                        return [4, 3, 2, 1];
+                    } else if (sortingOrder === SortingOrderEnum.Ascending) {
+                        return [1, 2, 3, 4];
+                    }
+                }
+            } else {
+                return [1, 2, 3, 4];
+            }
         case FrequencyEnum.Yearly:
-        if (sortingCriteria && sortingCriteria === 'valuesTotal') {
+            if (sortingCriteria && sortingCriteria === SortingCriteriaEnum.Frequency && sortingOrder) {
+                data = orderBy(data, '_id.year', sortingOrder === SortingOrderEnum.Ascending ? 'asc' : 'desc');
+            }
             data.forEach(element => {
-                if (!frequencies.find(m => m === element._id.year)) frequencies.push(element._id.year);
+                existFrequency = frequencies.find(m => m === element._id.year);
+                if (!existFrequency) frequencies.push(element._id.year);
             });
-        } else if (sortingCriteria && (sortingCriteria === 'values' || (groupingField && data.find(element => element._id[groupingField] === sortingCriteria)))) {
-            data.forEach(element => {
-                if (!frequencies.find(m => m === element._id.year)) frequencies.push(element._id.year);
-            });
-        } else if (sortingCriteria && sortingCriteria === 'frequency' && sortingOrder && sortingOrder === 'descending') {
-            data = orderBy(data, '_id.year', 'desc');
-            data.forEach(element => {
-                if (!frequencies.find(m => m === element._id.year)) frequencies.push(element._id.year);
-            });
-        }
-        else if (sortingCriteria && sortingCriteria === 'frequency' && sortingOrder && sortingOrder === 'ascending') {
-            data = orderBy(data, '_id.year', 'asc');
-            data.forEach(element => {
-                if (!frequencies.find(m => m === element._id.year)) frequencies.push(element._id.year);
-            });
-        }
-        else {
-            data.forEach(element => {
-                if (!frequencies.find(m => m === element._id.year)) frequencies.push(element._id.year);
-            });
-        }
-
-        return frequencies;
+            return frequencies;
         case FrequencyEnum.Weekly:
             return _getArrayFromRange(data , 1, 53, groupingField , sortingCriteria, sortingOrder);
     }
@@ -117,21 +124,22 @@ export function getFrequencySequence(data: any, frequency: FrequencyEnum, groupi
 function _getArrayFromRange(data: any, from: number, to: number, groupingField: string , sortingCriteria , sortingOrder: string) {
     let i = from;
     let range: number[] = [];
-    if (sortingCriteria && sortingCriteria === 'valuesTotal') {
-        data.forEach(element => { range.push(element._id.week); });
-        return range;
-    } else if (sortingCriteria && (sortingCriteria === 'values' || (groupingField && data.find(e => e._id[groupingField] === sortingCriteria)))) {
-        data.forEach(element => {
-            if (!range.find(m => m === element._id.week)) range.push(element._id.week);
-        });
-        return range;
-    } else if (sortingCriteria && sortingCriteria === 'frequency' && sortingOrder && sortingOrder === 'descending') {
-        let i = to;
-        while (i > from) { range.push(i); i--; }
-    }
-    else {
-        let i = from;
-        while (i < to) { range.push(i); i++; }
+    if (sortingCriteria) {
+        if (sortingCriteria !== SortingCriteriaEnum.Frequency) {
+            data.forEach(element => {
+                if (!range.find(m => m === element._id.week)) range.push(element._id.week);
+            });
+        } else if (sortingOrder && sortingOrder === SortingOrderEnum.Descending) {
+            let i = to;
+            while (i > from) { range.push(i); i--; }
+        } else if (sortingOrder && sortingOrder === SortingOrderEnum.Ascending) {
+            let i = from;
+            while (i < to) { range.push(i); i++; }
+        }
+    } else {
+        while (i < to) {
+            range.push(i); i++;
+        }
     }
     return range;
 }

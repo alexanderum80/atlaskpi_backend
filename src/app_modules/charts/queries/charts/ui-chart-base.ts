@@ -76,6 +76,18 @@ export interface IComparsionDefObject {
     data?: IComparsionDefObjectData;
     uniqCategories?: string[];
 }
+export enum SortingCriteriaEnum {
+    Values = 'values',
+    Frequency = 'frequency',
+    Categories = 'categories',
+    Groupings = 'groupingAlphabetically',
+    Totals = 'valuesTotal'
+ }
+
+ export enum SortingOrderEnum {
+    Ascending = 'ascending',
+    Descending = 'descending'
+ }
 
 // export interface IXAxisConfig {
 //     fieldName: string;
@@ -260,13 +272,15 @@ export class UIChartBase {
 
         let groupingField = metadata.groupings.length ? camelCase(metadata.groupings[0]) : null;
 
-        if (metadata.sortingCriteria && metadata.sortingCriteria === 'values') {
-            if (metadata.sortingOrder) data = orderBy( data , 'value', metadata.sortingOrder === 'ascending' ? 'asc' : 'desc');
+        if (metadata.sortingCriteria && metadata.sortingCriteria === SortingCriteriaEnum.Values) {
+            if (metadata.sortingOrder) data = orderBy( data , 'value', metadata.sortingOrder === SortingOrderEnum.Ascending ? 'asc' : 'desc');
         } else if (groupingField && data.find(e => e._id[groupingField] === metadata.sortingCriteria)) {
             // First of all filter the selected serie data
             let datafiltered = data.filter(x => x._id[groupingField] === metadata.sortingCriteria);
             // Now sorting per value
-            if (metadata.sortingOrder) { datafiltered = orderBy( datafiltered , 'value', metadata.sortingOrder === 'ascending' ? 'asc' : 'desc'); }
+            if (metadata.sortingOrder) {
+                datafiltered = orderBy( datafiltered , 'value', metadata.sortingOrder === SortingOrderEnum.Ascending ? 'asc' : 'desc');
+            }
 
             // Here the data is sorted by value of the selected groupingField
             // NOW foreach datafiltered record, filtering the original data by frecuency
@@ -278,10 +292,10 @@ export class UIChartBase {
                 dataTemp.forEach(z => { datasemifinal.push(z); });
             });
             data = datasemifinal;
-        } else if (groupingField && metadata.sortingCriteria && (metadata.sortingCriteria === 'categories' || metadata.sortingCriteria === 'groupingAlphabetically')) {
-            if (this.sortingOrder) data = orderBy(data, '_id[' + groupingField + ']', metadata.sortingOrder === 'ascending' ? 'asc' : 'desc');
+        } else if (groupingField && metadata.sortingCriteria && (metadata.sortingCriteria === SortingCriteriaEnum.Categories || metadata.sortingCriteria === SortingCriteriaEnum.Groupings)) {
+            if (this.sortingOrder) data = orderBy(data, '_id[' + groupingField + ']', metadata.sortingOrder === SortingOrderEnum.Ascending ? 'asc' : 'desc');
         }
-        else if (metadata.sortingCriteria && metadata.sortingCriteria === 'valuesTotal') {
+        else if (metadata.sortingCriteria && metadata.sortingCriteria === SortingCriteriaEnum.Totals) {
             let dataTemp = [];
             let dataSorted = [];
             // Here I most group by frequency,  then sum the values
@@ -293,7 +307,7 @@ export class UIChartBase {
                 });
             }
 
-            if (metadata.sortingOrder) dataSorted = orderBy(dataTemp, 'totalValue', metadata.sortingOrder === 'ascending' ? 'asc' : 'desc');
+            if (metadata.sortingOrder) dataSorted = orderBy(dataTemp, 'totalValue', metadata.sortingOrder === SortingOrderEnum.Ascending ? 'asc' : 'desc');
 
             // Here is sorting by totalValue
             // forEach dataSorted, filter original data by frecuency & adding in new data
@@ -342,44 +356,13 @@ export class UIChartBase {
     private _createCategories(data: any, metadata: IChartMetadata): IXAxisCategory[] {
 
         let groupingField = metadata.groupings.length ? camelCase(metadata.groupings[0]) : null;
-        if (metadata.sortingCriteria && metadata.sortingCriteria === 'values' && metadata.sortingOrder && metadata.sortingOrder === 'ascending') {
-            data = orderBy(data, 'value', 'asc');
-        } else if (metadata.sortingCriteria && metadata.sortingCriteria === 'values' && metadata.sortingOrder && metadata.sortingOrder === 'descending') {
-            data = orderBy(data, 'value', 'desc');
-        } else if (groupingField && metadata.sortingCriteria && (metadata.sortingCriteria === 'categories' || metadata.sortingCriteria === 'groupingAlphabetically') && metadata.sortingOrder && metadata.sortingOrder === 'ascending') {
-            data = orderBy(data, '_id[' + groupingField + ']', 'asc');
-        } else if (groupingField && metadata.sortingCriteria && (metadata.sortingCriteria === 'categories' || metadata.sortingCriteria === 'groupingAlphabetically') && metadata.sortingOrder && metadata.sortingOrder === 'descending') {
-            data = orderBy(data, '_id[' + groupingField + ']', 'desc');
+        if (metadata.sortingCriteria) {
+            if (metadata.sortingCriteria === SortingCriteriaEnum.Values && metadata.sortingOrder) {
+                data = orderBy(data, 'value', metadata.sortingOrder === SortingOrderEnum.Ascending ? 'asc' : 'desc');
+            } else if (groupingField && (metadata.sortingCriteria === SortingCriteriaEnum.Categories || metadata.sortingCriteria === SortingCriteriaEnum.Groupings) && metadata.sortingOrder && metadata.sortingOrder === SortingOrderEnum.Ascending) {
+                data = orderBy(data, '_id[' + groupingField + ']', metadata.sortingOrder === SortingOrderEnum.Ascending ? 'asc' : 'desc');
+            }
         }
-        /* else if (groupingField && metadata.frequency && metadata.sortingCriteria && metadata.sortingCriteria === 'valuesTotal') {
-            let data2 = [];
-            let data4 = [];
-            // Here I most group by frequency,  then sum the values
-            let groupedData1 = groupBy(data, '_id.frequency');
-            for (let serieName in groupedData1) {
-                const data3 = {
-                    name: serieName,
-                    totalValue: sumBy(groupedData1[serieName], 'value')
-                };
-                data2.push(data3);
-            }
-            if (metadata.sortingOrder && metadata.sortingOrder === 'ascending') {
-                data4 = orderBy(data2, 'totalValue', 'asc');
-            }
-            else if (metadata.sortingOrder && metadata.sortingOrder === 'descending') {
-                data4 = orderBy(data2, 'totalValue', 'desc');
-            }
-            // Here is sorting by totalValue
-            // forEach data4, filter original data by frecuency & adding in new data
-            // finally assign to data again
-            const datasemifinal = [];
-            data4.forEach(element => {
-                datasemifinal.push(data.filter(x => x._id.frequency === element.name));
-            });
-            data = datasemifinal;
-
-            ///////////////////////////////////////////////////////////////////////////////////////
-        } */
         if (metadata.xAxisSource === 'frequency') {
             let categoryHelper;
             let noGrouping = !metadata.groupings || !metadata.groupings.length || !metadata.groupings[0];
@@ -393,42 +376,7 @@ export class UIChartBase {
             return this.frequencyHelper.getCategories(data, metadata.frequency, noGrouping ? null : camelCase(metadata.groupings[0]), metadata.sortingCriteria , metadata.sortingOrder);
         }
 
-<<<<<<< HEAD
         const xAxisSource: any = this._getXaxisSource(data, metadata);
-<<<<<<< HEAD
-=======
-        const uniqueCategories = <string[]> orderBy(uniq(data.map(item => 
-            { let val = JSON.stringify(item._id[xAxisSource]); 
-                return (val === "null" || val === undefined ) ? NULL_CATEGORY_REPLACEMENT : item._id[xAxisSource]})));
->>>>>>> origin/development
-
-        if (!metadata.groupings) {
-            const uniqueCategories = <string[]> orderBy(uniq(data.map(item => {
-                    let val = JSON.stringify(item._id[xAxisSource]);
-                    return (val === null || val === undefined ) ? NULL_CATEGORY_REPLACEMENT : item._id[xAxisSource];
-                })));
-            return uniqueCategories.map(category => {
-                return {
-                    id: category,
-                    name: category
-                };
-            });
-        }
-        else {
-            const uniqueCategories = <string[]> (uniq(data.map(item => {
-                let val = JSON.stringify(item._id[xAxisSource]);
-                return (val === null || val === undefined ) ? NULL_CATEGORY_REPLACEMENT : item._id[xAxisSource];
-            })));
-            return uniqueCategories.map(category => {
-                return {
-                    id: category,
-                    name: category
-                };
-            });
-        }
-=======
-        const getXaxisSource: any = this._getXaxisSource(data, metadata);
-        const xAxisSource: string = isString(getXaxisSource) ? camelCase(getXaxisSource) : getXaxisSource;
 
         const uniqueCategories = <string[]> orderBy(uniq(data.map(item => {
             let val = JSON.stringify(item._id[xAxisSource]);
@@ -447,7 +395,6 @@ export class UIChartBase {
                 name: category
             };
         });
->>>>>>> origin/development
     }
 
     private _getXaxisSource(data: any[], metadata: IChartMetadata, groupings?: string[]) {
@@ -501,26 +448,27 @@ export class UIChartBase {
     private _noGroupingsCategoryHelper(data: any, metadata: any , dateRange: IChartDateRange[], frequency: number, sortingCriteria, sortingOrder): any[] {
         const predefined = dateRange[0].predefined;
         let duplicateCategories: any[] = [];
+        let groupingField = metadata.groupings.length ? camelCase(metadata.groupings[0]) : null;
 
         switch (predefined) {
             case PredefinedDateRanges.last2Years:
                 [1, 2].forEach(iterator => {
-                    duplicateCategories.push(this.frequencyHelper.getCategories(data, frequency, metadata.groupings.length ? camelCase(metadata.groupings[0]) : null , sortingCriteria, sortingOrder));
+                    duplicateCategories.push(this.frequencyHelper.getCategories(data, frequency, groupingField , sortingCriteria, sortingOrder));
                 });
                 break;
             case PredefinedDateRanges.last3Years:
                 [1, 2, 3].forEach(iterator => {
-                    duplicateCategories.push(this.frequencyHelper.getCategories(data, frequency, metadata.groupings.length ? camelCase(metadata.groupings[0]) : null , sortingCriteria, sortingOrder));
+                    duplicateCategories.push(this.frequencyHelper.getCategories(data, frequency, groupingField , sortingCriteria, sortingOrder));
                 });
                 break;
             case PredefinedDateRanges.last4Years:
                 [1, 2, 3, 4].forEach(iterator => {
-                    duplicateCategories.push(this.frequencyHelper.getCategories(data, frequency, metadata.groupings.length ? camelCase(metadata.groupings[0]) : null , sortingCriteria, sortingOrder));
+                    duplicateCategories.push(this.frequencyHelper.getCategories(data, frequency, groupingField , sortingCriteria, sortingOrder));
                 });
                 break;
             case PredefinedDateRanges.last5Years:
                 [1, 2, 3, 4, 5].forEach(iterator => {
-                    duplicateCategories.push(this.frequencyHelper.getCategories(data, frequency, metadata.groupings.length ? camelCase(metadata.groupings[0]) : null , metadata.sortingCriteria, metadata.sortingOrder));
+                    duplicateCategories.push(this.frequencyHelper.getCategories(data, frequency, groupingField , metadata.sortingCriteria, metadata.sortingOrder));
                 });
                 break;
         }
@@ -557,11 +505,6 @@ export class UIChartBase {
          *  At this point I already know which field is going to be used for the xAxis
          *  so I need to get a list of the rest of the grouping fields so I can build the series
          */
-
-        // let existValues = data.find(e => e._id.categoryName === meta.sortingCriteria);
-        // if (existValues) {
-        //     data = data.filter(x => x._id.categoryName === meta.sortingCriteria);
-        // }
 
         const chartGroupings = this._getXaxisSource(data, meta, groupings);
         const availableGroupingsForSeries = difference(chartGroupings, [meta.xAxisSource]);
@@ -686,7 +629,7 @@ export class UIChartBase {
             series.push(serie);
         }
         // sorting values by data.value/
-        if (sortingCriteria && sortingCriteria === 'values' && (!sortingOrder || (sortingOrder && sortingOrder === 'ascending'))) {
+        if (sortingCriteria && sortingCriteria === SortingCriteriaEnum.Values && (!sortingOrder || (sortingOrder && sortingOrder === SortingOrderEnum.Ascending))) {
             series = orderBy(series, 'data.value', 'asc');
         }
         return series;
@@ -888,8 +831,9 @@ export class UIChartBase {
     }
 
     private _dummyData(data: any[], metadata: any, target: any[]) {
+        let groupingField = metadata.groupings.length ? camelCase(metadata.groupings[0]) : null;
         if (!data || !data.length) {
-            let tempData = getFrequencySequence(data, metadata.frequency, metadata.groupings.length ? camelCase(metadata.groupings[0]) : null , metadata.sortingCriteria, metadata.sortingOrder);
+            let tempData = getFrequencySequence(data, metadata.frequency, groupingField , metadata.sortingCriteria, metadata.sortingOrder);
             if (!this.commonField || !this.commonField.length) {
                 this.commonField = this.chart.groupings;
             }
