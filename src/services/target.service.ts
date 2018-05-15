@@ -166,14 +166,8 @@ export class TargetService {
         try {
             // target value
             data.target = await this.getTargetValue(data);
-
             // transform stackName, nonStackName if have something like, Miami (this year)
             const chart = await this._charts.model.findById(data.chart[0]);
-            if (data.stackName) {
-                data.stackName = this.getStackName(chart, data).name;
-            } else {
-                data.nonStackName = this.getStackName(chart, data).name;
-            }
 
             if (!id) {
                 // create target
