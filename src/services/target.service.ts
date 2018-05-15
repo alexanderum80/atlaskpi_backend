@@ -147,7 +147,7 @@ export class TargetService {
                 if (!isStackNameEqualToAll) {
                     Object.assign(options, {
                         groupings: groupings,
-                        stackName: stackName
+                        stackName: this.getStackName(chart, stackName).name || null
                     });
                 }
             }
@@ -166,7 +166,6 @@ export class TargetService {
         try {
             // target value
             data.target = await this.getTargetValue(data);
-            // transform stackName, nonStackName if have something like, Miami (this year)
             const chart = await this._charts.model.findById(data.chart[0]);
 
             if (!id) {
