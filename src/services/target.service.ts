@@ -474,6 +474,9 @@ export class TargetService {
             case FrequencyEnum.Monthly:
                 from = moment(dueDate).startOf('month').toDate();
                 break;
+            case FrequencyEnum.Quartely:
+                from = moment(dueDate).startOf('quarter').toDate();
+                break;
             case FrequencyEnum.Yearly:
                 from = moment(dueDate).startOf('year').toDate();
                 break;
