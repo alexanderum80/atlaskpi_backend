@@ -14,7 +14,8 @@ import {
     IDateRange,
     parsePredefinedTargetDateRanges,
     parsePredifinedDate,
-    PredefinedDateRanges,
+PredefinedDateRanges,
+IChartDateRange,
 } from '../domain/common/date-range';
 import { FrequencyEnum, FrequencyTable } from '../domain/common/frequency-enum';
 import { field } from '../framework/decorators/field.decorator';
@@ -125,14 +126,15 @@ export class TargetService {
 
     async targetProgressValue(data: ITargetDocument): Promise<number> {
         try {
-            const chart: IChartDocument = await this._charts.model.findById(data.chart[0]);
+            const chart: IChartDocument = await this._charts.model.findById(data.chart[0])
+                                                .populate({ path: 'kpis' });
             const kpi: IKpiBase = await this._kpiFactory.getInstance(chart.kpis[0]);
 
             const groupings: string[] = chart.groupings || [];
             const stackName: string = data.stackName ? data.stackName : data.nonStackName;
             const isStackNameEqualToAll: boolean = stackName.toLowerCase() === 'all';
 
-            const dateRange = this._getTargetProgressDateRange(chart.frequency, data.datepicker);
+            const dateRange: IDateRange[] = this._getTargetProgressDateRange(chart.frequency, data.datepicker, chart.dateRange);
             const options: IGetDataOptions = {
                 filter: chart.filter
             };
@@ -150,7 +152,7 @@ export class TargetService {
                 }
             }
 
-            const response = await kpi.getData([dateRange], options);
+            const response = await kpi.getData(dateRange, options);
             const totalProgress = response ? response.find(r => r.value) : { value : data.amount };
             const amount: number = totalProgress ? totalProgress.value : 0;
 
@@ -165,8 +167,7 @@ export class TargetService {
             .populate({ path: 'kpis' });
         const kpi: IKpiBase = await this._kpiFactory.getInstance(chart.kpis[0]);
         const groupings: string[] = chart.groupings || [];
-        const chartDateRange: string = chart.dateRange ? chart.dateRange[0].predefined : '';
-        const targetDateRange: IDateRange = this.getDate(data.period, data.datepicker, chart.frequency, chartDateRange);
+        const targetDateRange: IDateRange[] = this.getDate(data.period, data.datepicker, chart.frequency, chart.dateRange);
         let getDataOptions: IGetDataOptions;
 
         if (!data.period) {
@@ -190,7 +191,7 @@ export class TargetService {
             }
         }
 
-        return await kpi.getData([targetDateRange], getDataOptions);
+        return await kpi.getData(targetDateRange, getDataOptions);
     }
 
     async caculateFormat(data: ITargetCalculateData): Promise<number> {
@@ -290,8 +291,16 @@ export class TargetService {
     }
 
     // return object with 'from' and 'to' property
-    getDate(period: string, dueDate: string, chartFrequency: string, alternateDatePeriod: string): IDateRange {
-        return parsePredefinedTargetDateRanges(period, dueDate, chartFrequency) || parsePredifinedDate(alternateDatePeriod);
+    getDate(period: string, dueDate: string, chartFrequency: string, chartDateRange: IChartDateRange[]): IDateRange[] {
+        return [parsePredefinedTargetDateRanges(period, dueDate, chartFrequency)] ||
+               chartDateRange.map(dateRange => {
+                   return dateRange.custom && dateRange.custom.from ?
+                   {
+                        from: moment(dateRange.custom.from).startOf('day').toDate(),
+                        to: moment(dateRange.custom.to).startOf('day').toDate()
+                   }
+                   : parsePredifinedDate(dateRange.predefined);
+               });
     }
 
     isComparison(chart: IChartDocument): boolean {
@@ -430,7 +439,7 @@ export class TargetService {
 
     }
 
-    private _getTargetProgressDateRange(chartFrequency: string, dueDate: string): IDateRange {
+    private _getTargetProgressDateRange(chartFrequency: string, dueDate: string, chartDateRange: IChartDateRange[]): IDateRange[] {
         const to = moment(dueDate).toDate();
         let from: Date;
 
@@ -451,9 +460,19 @@ export class TargetService {
                 break;
         }
 
-        return {
+        if (!from) {
+            return chartDateRange.map(dateRange => {
+                return dateRange.custom && dateRange.custom.from ?
+                {
+                  from: moment(dateRange.custom.from).startOf('day').toDate(),
+                  to: moment(dateRange.custom.to).startOf('day').toDate()
+                }
+                : parsePredifinedDate(dateRange.predefined);
+            });
+        }
+        return [{
             from: from,
             to: to
-        };
+        }];
     }
 }
