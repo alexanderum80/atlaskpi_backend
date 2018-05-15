@@ -177,7 +177,7 @@ export class KpiBase {
             throw 'KpiBase#_injectDataRange: Cannot inject filter because a dateRange/$match stage could not be found';
         }
 
-        if (field && stackName) {
+        if (Array.isArray(field) && field[0] && stackName) {
             if (stackName === NULL_CATEGORY_REPLACEMENT) {
                 matchStage.$match[field[0]] = null;
             } else {
