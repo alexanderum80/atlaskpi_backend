@@ -30,7 +30,11 @@ const TopSchema = {
 };
 
 let ChartSchema = new Schema({
-    title: { type: String, unique: true, required: true },
+    title: {
+        type: String,
+        // unique: true,
+        required: true
+    },
     subtitle: String,
     group: String,
     kpis: [{
