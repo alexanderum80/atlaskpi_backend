@@ -20,8 +20,8 @@ export interface IChart {
     filter?: any;
     frequency?: string;
     groupings?: string[];
-    sortingCriteria: string;
-    sortingOrder: string;
+    sortingCriteria?: string;
+    sortingOrder?: string;
     xFormat?: string;
     yFormat?: string;
     chartDefinition: any;
@@ -45,8 +45,8 @@ export interface IChartInput {
     filter?: any;
     frequency?: string;
     groupings?: string[];
-    sortingCriteria: string;
-    sortingOrder: string;
+    sortingCriteria?: string;
+    sortingOrder?: string;
     xFormat?: string;
     yFormat?: string;
     chartDefinition: any;
@@ -61,8 +61,8 @@ export interface IGetChartInput {
     dateRange: [IChartDateRange];
     frequency: string;
     groupings: [string];
-    sortingCriteria: string;
-    sortingOrder: string;
+    sortingCriteria?: string;
+    sortingOrder?: string;
     xAxisSource: string;
     comparison?: [string];
     filter?: string;
