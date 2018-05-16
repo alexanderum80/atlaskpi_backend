@@ -18,9 +18,9 @@ export function criteriaPlugin(schema: mongoose.Schema): void {
     schema.statics.findCriteria = findCriteria;
 }
 
-function findCriteria(field: string, limit?: number, filter?: string): Promise<string[]> {
+function findCriteria(field: string, aggregate: any[], limit?: number, filter?: string): Promise<string[]> {
     const that = this;
-    const aggregateOptions = criteriaAggregation({ field, limit, filter });
+    let aggregateOptions = aggregate.concat(criteriaAggregation({ field, limit, filter }));
 
     return new Promise<string[]>((resolve, reject) => {
         that.aggregate(aggregateOptions).then(res => {

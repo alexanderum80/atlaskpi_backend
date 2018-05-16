@@ -1,89 +1,18 @@
 [
-    {
-        "_id": "59c3bd0c3da88e92a1703fd6",
-        "code": "Revenue",
-        "name": "Revenue",
-        "description": "Revenue",
-        "groupings": [],
-        "filter": "",
-        "type": "system"
-    },
-    {
-        "_id": "59c3bdd43da88e92a1703fd7",
-        "code": "Expenses",
-        "name": "Expenses",
-        "description": "Expenses",
-        "groupings": [],
-        "filter": "",
-        "type": "system"
-    },
-    
-    {
-        "_id": "59c3bddd3da88e92a1703fd8",
-        "baseKpi": "Revenue",
-        "name": "This year sales grouped by location with a monthly frequency",
-        "description": "Revenue",
-        "dateRange": {
-            "predefined": "this year"
-        },
-        "filter": {
-            "product__dot__itemCode": { "__dollar__ne": "TIP" }
-        },
-        "frequency": "monthly",
-        "groupings": ["businessUnit"],
-        "type": "base"
-    },
-    {
-        "_id": "59c3d0b33da88e92a1703fdd",
-        "baseKpi": "Expenses",
-        "name": "This year expenses grouped by location with a monthly frequency",
-        "description": "Revenue",
-        "dateRange": {
-            "predefined": "this year"
-        },
-        "frequency": "monthly",
-        "groupings": ["businessUnit"],
-        "type": "base"
-    },
-    {
-        "_id": "59c3bded3da88e92a1703fd9",
-        "baseKpi": "Expenses",
-        "name": "Payroll Expenses",
-        "description": "Payroll Expenses",
-        "filter": {
-            "expense__dot__concept": { "__dollar__regex": "/^Payroll/" }
-        },
-        "dateRange": {
-            "predefined": "last 2 years"
-        },
-        "frequency": "monthly",
-        "groupings": ["businessUnit"],
-        "type": "base" 
-    },
-    
-    {
-        "_id": "59c3bdfa3da88e92a1703fda",
-        "code": "Ebitda by business unit",
-        "name": "Ebitda by business unit ",
-        "description": "Ebitda by business unit ",
-        "expression": "kpi59c3bddd3da88e92a1703fd8 - kpi59c3d0b33da88e92a1703fdd",
-        "type": "complex"
-    },
-    {
-        "_id": "59c3be043da88e92a1703fdb",
-        "code": "Expense Ratio",
-        "name": "Expense Ratio",
-        "description": "Expense Ratio",
-        "expression": "kpi59c3d0b33da88e92a1703fdd - kpi59c3bddd3da88e92a1703fd8 * 100",
-        "type": "complex" 
-    },
-    {
-        "_id": "59c3be0e3da88e92a1703fdc",
-        "code": "Payrol Expense Ratio",
-        "name": "Payroll Expense Ratio",
-        "description": "Expense Ratio",
-        "expression": "kpi59c3bded3da88e92a1703fd9 - kpi59c3bddd3da88e92a1703fd8 * 100",
-        "type": "complex"
-    }
-
+    { "_id": "59c3bd0c3da88e92a1703fd6", "__v": 0, "code": "Revenue", "name": "Revenue", "description": "Revenue", "type": "base", "filter": "", "groupings": [] },
+    { "_id": "59c3bdd43da88e92a1703fd7", "__v": 0, "code": "Expenses", "name": "Expenses", "description": "Expenses", "type": "base", "filter": "", "groupings": [] },
+    { "_id": "5a2adbfa21b9ae0001b67a05", "code": "Botox Revenue", "name": "Botox Revenue", "group": "Sales", "description": "Sales", "frequency": "", "type": "simple", "expression": "sum(sales.product.paid)", "filter": { "__dollar__and": [{ "product__dot__itemDescription": { "__dollar__eq": "Botox" } }, { "source": { "__dollar__eq": "PatientNow ( patientnow )" } }] }, "dateRange": { "custom": { "to": null, "from": null }, "predefined": "" }, "groupings": [null], "__v": 0, "tags": [] },
+    { "_id": "5a5ea4b7b425d60001c42751", "name": "Google Analytics Users", "group": null, "description": "Total Website Users Visits", "type": "externalsource", "expression": "sum(googleanalytics$5a5ea2c7b425d60001c4274b.users)", "filter": null, "code": "Google Analytics Users", "groupings": [], "__v": 0 },
+    { "_id": "5a73bfb5b7eed200017029eb", "name": "Total Calls", "group": null, "description": "Total Calls ", "type": "simple", "expression": "sum(calls.total_calls)", "filter": null, "code": "Total Calls", "tags": [], "groupings": [], "__v": 0 },
+    { "_id": "5a9db5f921d7894316252eba", "name": "Completed Surgeries", "group": null, "description": "Completed Surgeries", "type": "simple", "expression": "count(appointments.duration)", "filter": { "__dollar__and": [{ "event__dot__code": { "__dollar__eq": "SUR" } }, { "cancelled": { "__dollar__ne": true } }] }, "code": "Completed Surgeries", "tags": [], "groupings": [], "__v": 0 },
+    { "_id": "5a9dd7c121d78946c7252f8a", "name": "Body Surgery", "group": "category", "description": "All Body Surgery except thigh debulking", "type": "simple", "expression": "sum(sales.product.paid)", "filter": { "product__dot__itemDescription": { "__dollar__in": ["Panniculectomy", "Abdominoplasty - Revision", "Monsplasty", "Revision brachioplasty", "Medial Thigh Lift", "Lipo 360", "Liposuction - Additional Area(s)", "Liposuction - 1st Area", "Labiaplasty", "Gluteal Augmentation (BBL)", "Flankplasty", "Brachioplasty", "Reverse abdominoplasty", "Upper Body Lift", "Abdominoplasty - Extended", "Umbilical Hernia Repair", "Body Lift (belt lipectomy)", "Abdominoplasty - Mini", "Abdominoplasty"] } }, "code": "Body Surgery", "tags": [], "groupings": [], "__v": 0 },
+    { "_id": "5a9dd9ff21d789a3af252f8e", "name": "Breast Surgery", "group": "Category", "description": "All breast Surgery ", "type": "simple", "expression": "sum(sales.product.paid)", "filter": { "product__dot__itemDescription": { "__dollar__in": ["Breast Reconstruction - 2nd stage bilateral", "Removal of implants", "Breast Reduction", "Removal of implants (stand-alone procedure)", "Periareolar Mastopexy", "Breast Augmentation - Anatomic", "Breast Augmentation - Revision", "Augmentation Mastopexy - Revision", "Mastopexy", "Augmentation Mastopexy", "Mastectomy", "Gynecomastia Correction (bilateral)", "Correction of Inverted Nipples", "Fat Grafting", "Breast Reconstruction", "Breast Reconstruction - 1st stage unilateral", "Breast Reconstruction - 1st stage bilateral", "Breast Reconstruction Package - expander placement", "Breast Augmentation - Round", "Saline Implant"] } }, "code": "Breast Surgery", "tags": [], "groupings": [], "__v": 0 },
+    { "_id": "5a9ddfd321d7890bb5252f97", "name": "Facial Surgery", "group": "Category", "description": "Facial Surgery Revenue", "type": "simple", "expression": "sum(sales.product.paid)", "filter": { "product__dot__itemDescription": { "__dollar__in": ["Blepharoplasty - Upper with corrugator resection", "Neck Lift - Revision", "Rhinoplasty - Revision", "Midface Lift", "Rhinoplasty (Non-surgical)", "Rhinophyma Excision - Radiowave Surgery", "Cheek Augmentation (with implant)", "Forehead Reduction", "Turbinectomy", "Threadlift - Small (2-4)", "Septorhinoplasty", "Septoplasty (+/- grafting)", "Repair Septal Perforation", "Rhinoplasty - Primary", "Cleft Lip Revision", "Facelift - Revison", "Ptosis repair", "Neurotoxin - Lower Face (Chin)", "Otoplasty", "Neurotoxin - Lower Face (Lips)", "Neurotoxin - Lower Face (DAO)", "Blepharoplasty - Lower", "Neck Lift", "Neck Liposuction", "Brow Lift (Open or Endoscopic)", "Lip Lift", "Facelift", "Canthopexy/Canthoplasty", "Genioplasty", "Fat Grafting", "Chin Augmentation (with implant)", "EarWell - Unilateral", "EarWell - Bilateral", "Ear Reconstruction (2 stage", "Blepharoplasty - Quad", "Blepharoplasty - Upper"] } }, "code": "Facial Surgery", "tags": [], "groupings": [], "__v": 0 },
+    { "_id": "5a9de2ca21d7895848252ff7", "name": "Aesthetician Tx Revenue", "group": "Category", "description": "Aest Tx Revenue", "type": "simple", "expression": "sum(sales.product.paid)", "filter": { "product__dot__itemDescription": { "__dollar__in": ["Chemical Peel - Half Legs (PCA) - lower", "LHR - Chest", "LHR - Extended Bikini", "LHR - Bikini Line", "LHR - Shoulders", "LHR - Areola", "LHR - Half Arms", "LHR - Neck (front or back)", "LHR - Underarms", "LHR - Half Legs", "LHR - Full Back", "LHR - Full Arms", "LHR - Abdomen", "LHR - Lip & Chin", "LHR - Brazilian", "Facial (VIP Package)", "Chemical Peel - Half Legs (PCA) - upper", "Chemical Peel - Full Back (PCA)", "Eyelash Tinting", "Eyebrow Waxing", "Eyebrow Tinting", "Dermaplaning with Hydrating Treatment", "Chemical Peel - Vitalize", "Chemical Peel - Arms (PCA)", "Chemical Peel - Chest (PCA)", "Chemical Peel - Obagi Blue Radiance", "Chemical Peel - Illuminize", "Chemical Peel - 6% Retinol PCA", "Chemical Peel - PCA", "Chemical Peel - 1/2 Back (PCA)", "Chemical Peel - Rejuvenize", "Chemical Peel - Oxy Trio"] } }, "code": "Aesthetician Tx Revenue", "tags": [], "groupings": [], "__v": 0 },
+    { "_id": "5ae0ea8c9132482750d8234c", "name": "OPERATION HOURS PER MONTH", "group": "", "description": "OPERATION HOURS PER MONTH", "type": "complex", "expression": "195", "code": "OPERATION HOURS PER MONTH", "tags": [], "groupings": [], "__v": 0 },
+    { "_id": "5ae0eaac913248818cd8234e", "name": "Monthly revenue by hour", "group": "", "description": "Monthly revenue by hour", "type": "complex", "expression": "kpi59c3bd0c3da88e92a1703fd6/kpi5ae0ea8c9132482750d8234c", "code": "Monthly revenue by hour", "tags": [], "groupings": [], "__v": 0 },
+    { "_id": "5ae0ef4f91324821fed823a8", "name": "Converted Procedures", "group": null, "description": "Converted Procedures", "type": "simple", "expression": "count(conversions.procedure.converted)", "filter": null, "code": "Converted Procedures", "tags": [], "groupings": [], "__v": 0 },
+    { "_id": "5ae0f068913248717fd823e1", "name": "Count of Appointments", "group": null, "description": "Count of Appointments", "type": "simple", "expression": "count(appointments.source)", "filter": null, "code": "Count of Appointments", "tags": [], "groupings": [], "__v": 0 },
+    { "_id": "5ae1df90913248556cd824d4", "name": "products sold by the day", "group": null, "description": "products sold by the day", "type": "simple", "expression": "sum(sales.product.quantity)", "filter": null, "code": "products sold by the day", "tags": [], "groupings": [], "__v": 0 },
+    { "_id": "5ae21a329132481cbed8258b", "name": "Expenses by month", "group": "", "description": "Expenses by month", "type": "simple", "expression": "sum(expenses.expense.amount)", "filter": null, "code": "Expenses by month", "tags": [], "groupings": [], "__v": 0 }
 ]

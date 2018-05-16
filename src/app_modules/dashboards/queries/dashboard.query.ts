@@ -1,6 +1,7 @@
 import * as Promise from 'bluebird';
 import * as console from 'console';
 import { inject, injectable } from 'inversify';
+import { isEmpty } from 'lodash';
 
 import { CurrentUser } from '../../../domain/app/current-user';
 import { IDashboard } from '../../../domain/app/dashboards/dashboard';
@@ -43,10 +44,20 @@ export class DashboardQuery implements IQuery<IDashboard> {
 
         // lets prepare the query for the dashboards
         let query = { };
+
+        if (isEmpty(user) || isEmpty(user.roles)) {
+            return Promise.resolve({} as any);
+        }
+
         if (user && user.roles && user.roles.find(r => r.name === 'owner')) {
             query = { _id: data.id };
         } else {
-            query = { _id: data.id, $or: [ { owner: user._id }, { 'accessLevels.users': { $in: [user._id]} } ]};
+            query = { _id: data.id,
+                      $or: [
+                          { owner: user._id },
+                          { users: { $in: [user._id]} }
+                    ]
+                };
         }
 
         return new Promise<IDashboard>((resolve, reject) => {
@@ -80,7 +91,7 @@ export class DashboardQuery implements IQuery<IDashboard> {
 
                     Promise.props(dashboardElementsPromises).then((elements: { widgets: IUIWidget[], charts: string[]}) => {
                         let response = {};
-                        console.dir(elements.widgets);
+
                         const widgetsAsString = elements.widgets.map(w => JSON.stringify(w));
                         Object.assign(response, dashboard.toObject(), { widgets: widgetsAsString, charts: elements.charts });
                         resolve(<any>response);

@@ -28,6 +28,7 @@ import { WidgetsModule } from './widgets/widgets.module';
 import { CountriesModule } from './countries/countries.module';
 import { TagModule } from './tags/tags.module';
 import { ActivitiesModule } from './activities/activities.module';
+import { AlertsModule } from './alerts/alerts.module';
 import {HelpCenterModule} from './help-centers/help-center.module';
 
 
@@ -35,6 +36,7 @@ import {HelpCenterModule} from './help-centers/help-center.module';
     imports: [
         AccountsModule,
         AccessLogsModule,
+        AlertsModule,
         AppointmentsModule,
         BusinessUnitModule,
         CallRailModule,

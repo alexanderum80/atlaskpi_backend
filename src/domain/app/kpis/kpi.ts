@@ -11,6 +11,7 @@ import { IWidgetDocument } from '../widgets/widget';
 import { Inventory } from './../inventory/inventory.model';
 import { IIdName } from '../../common/id-name';
 import { IValueName } from '../../common/value-name';
+import { ISearchableModel } from '../global-search/global-search';
 
 
 
@@ -97,7 +98,7 @@ export interface IKPIDocument extends IKPI, mongoose.Document {
     groupingInfo: IValueName[];
 }
 
-export interface IKPIModel extends mongoose.Model<IKPIDocument> {
+export interface IKPIModel extends mongoose.Model<IKPIDocument>, ISearchableModel {
     /**
      * Get all kpis by page
      * @param { IPaginationDetails }  details - pagination details

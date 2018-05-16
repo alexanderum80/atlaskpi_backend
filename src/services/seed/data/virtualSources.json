@@ -1,0 +1,2663 @@
+[{
+    "_id": "5abe82d82f8a3702e97ce055",
+    "name": "Conversions",
+    "description": "Procedure Conversions",
+    "source": "Appointments",
+    "modelIdentifier": "Appointment",
+    "dateField": "date",
+    "aggregate": [{
+            "__dollar__unwind": "$procedure"
+        },
+        {
+            "__dollar__project": {
+                "date": 1.0,
+                "procedure": 1.0,
+                "referral": 1.0,
+                "converted": 1.0,
+                "source": 1.0,
+                "provider": {
+                    "__dollar__reduce": {
+                        "input": "$provider",
+                        "initialValue": "",
+                        "in": {
+                            "__dollar__concat": [
+                                "$$value",
+                                "$$this.name"
+                            ]
+                        }
+                    }
+                }
+            }
+        }
+    ],
+    "fieldsMap": {
+        "Converted": {
+            "path": "procedure.converted",
+            "dataType": "Boolean",
+            "allowGrouping": true
+        },
+        "Source": {
+            "path": "source",
+            "dataType": "String",
+            "allowGrouping": true
+        },
+        "Referral": {
+            "path": "referral.name",
+            "dataType": "String",
+            "allowGrouping": true
+        },
+        "Procedure": {
+            "path": "procedure.name",
+            "dataType": "String",
+            "allowGrouping": true
+        },
+        "Provider": {
+            "path": "provider",
+            "dataType": "String",
+            "allowGrouping": true
+        }
+    }
+}, {
+    "_id": "5ac0fdad2f8a3702e97ce058",
+    "name": "Customers",
+    "description": "Customers",
+    "source": "Sales",
+    "modelIdentifier": "Sale",
+    "dateField": "date",
+    "aggregate": [{
+        "__dollar__group": {
+            "_id": {
+                "source": "$source",
+                "externalId": "$customer.externalId"
+            },
+            "customer": {
+                "__dollar__first": "$customer"
+            },
+            "referral": {
+                "__dollar__first": "$referral"
+            },
+            "date": {
+                "__dollar__min": "$product.from"
+            },
+            "amount": {
+                "__dollar__sum": "$product.amount"
+            }
+        }
+    }],
+    "fieldsMap": {
+        "City": {
+            "path": "customer.city",
+            "dataType": "String",
+            "allowGrouping": true
+        },
+        "State": {
+            "path": "customer.state",
+            "dataType": "String",
+            "allowGrouping": true
+        },
+        "Zip Code": {
+            "path": "customer.zip",
+            "dataType": "String",
+            "allowGrouping": true
+        },
+        "Gender": {
+            "path": "customer.gender",
+            "dataType": "String",
+            "allowGrouping": true
+        },
+        "Date of Birth": {
+            "path": "customer.dob",
+            "dataType": "Date"
+        },
+        "Full Name": {
+            "path": "customer.fullname",
+            "dataType": "String",
+            "allowGrouping": true
+        },
+        "Referral": {
+            "path": "referral.name",
+            "dataType": "String",
+            "allowGrouping": true
+        },
+        "Date": {
+            "path": "date",
+            "dataType": "Date"
+        },
+        "Amount": {
+            "path": "amount",
+            "dataType": "Number"
+        }
+    }
+}, {
+    "_id": "5ac2a6dc49bdac0208430f04",
+    "name": "Invoices",
+    "description": "Invoices",
+    "source": "Sales",
+    "modelIdentifier": "Sale",
+    "dateField": "date",
+    "aggregate": [{
+        "__dollar__group": {
+            "_id": {
+                "invoiceId": "$billId"
+            },
+            "customer": {
+                "__dollar__first": "$customer"
+            },
+            "referral": {
+                "__dollar__first": "$referral"
+            },
+            "location": {
+                "__dollar__first": "$location"
+            },
+            "date": {
+                "__dollar__first": "$product.from"
+            },
+            "amount": {
+                "__dollar__sum": "$product.amount"
+            }
+        }
+    }],
+    "fieldsMap": {
+        "Customer's City": {
+            "path": "customer.city",
+            "dataType": "String",
+            "allowGrouping": true
+        },
+        "Customer's State": {
+            "path": "customer.state",
+            "dataType": "String",
+            "allowGrouping": true
+        },
+        "Customer's Zip Code": {
+            "path": "customer.zip",
+            "dataType": "String",
+            "allowGrouping": true
+        },
+        "Customer's Gender": {
+            "path": "customer.gender",
+            "dataType": "String",
+            "allowGrouping": true
+        },
+        "Customer's Date of Birth": {
+            "path": "customer.dob",
+            "dataType": "Date"
+        },
+        "Customer's Full Name": {
+            "path": "customer.fullname",
+            "dataType": "String",
+            "allowGrouping": true
+        },
+        "Referral": {
+            "path": "referral.name",
+            "dataType": "String",
+            "allowGrouping": true
+        },
+        "Date": {
+            "path": "date",
+            "dataType": "Date"
+        },
+        "Amount": {
+            "path": "amount",
+            "dataType": "Number"
+        },
+        "Location's Name": {
+            "path": "location.name",
+            "dataType": "String",
+            "allowGrouping": true
+        },
+        "Location's City": {
+            "path": "location.city",
+            "dataType": "String",
+            "allowGrouping": true
+        },
+        "Location's State": {
+            "path": "location.state",
+            "dataType": "String",
+            "allowGrouping": true
+        },
+        "Location's Zip": {
+            "path": "location.zip",
+            "dataType": "String",
+            "allowGrouping": true
+        }
+    }
+}, {
+    "_id": "5ac3d47549bdac0208430ff9",
+    "name": "Inventory",
+    "description": "Inventory",
+    "source": "Inventory",
+    "modelIdentifier": "Inventory",
+    "dateField": "updatedAt",
+    "fieldsMap": {
+        "Source": {
+            "path": "source",
+            "dataType": "String",
+            "allowGrouping": true
+        },
+        "External Id": {
+            "path": "externalId",
+            "dataType": "String"
+        },
+        "Location's name": {
+            "path": "location.name",
+            "dataType": "String",
+            "allowGrouping": true
+        },
+        "Location's external Id": {
+            "path": "location.externalId",
+            "dataType": "String"
+        },
+        "Product's external Id": {
+            "path": "product.externalId",
+            "dataType": "String"
+        },
+        "Product's code": {
+            "path": "product.itemCode",
+            "dataType": "String",
+            "allowGrouping": true
+        },
+        "Product's description": {
+            "path": "product.itemDescription",
+            "dataType": "String",
+            "allowGrouping": true
+        },
+        "Updated Date": {
+            "path": "updatedAt",
+            "dataType": "Date"
+        },
+        "Products on Hand": {
+            "path": "onHand",
+            "dataType": "Number"
+        },
+        "Products on Order": {
+            "path": "onOrder",
+            "dataType": "Number"
+        },
+        "Cost": {
+            "path": "cost",
+            "dataType": "Number"
+        }
+    }
+}, {
+    "_id": "5ac3ad1249bdac0208430f84",
+    "name": "Sales",
+    "description": "Sales",
+    "source": "Sales",
+    "modelIdentifier": "Sale",
+    "dateField": "product.from",
+    "fieldsMap": {
+        "Location's Name": {
+            "path": "location.name",
+            "dataType": "String",
+            "allowGrouping": true
+        },
+        "Location's City": {
+            "path": "location.city",
+            "dataType": "String",
+            "allowGrouping": true
+        },
+        "Location's State": {
+            "path": "location.state",
+            "dataType": "String",
+            "allowGrouping": true
+        },
+        "Location's Zip": {
+            "path": "location.zip",
+            "dataType": "String",
+            "allowGrouping": true
+        },
+        "Location's External Id": {
+            "path": "location.externalId",
+            "dataType": "String"
+        },
+        "Customer's Address": {
+            "path": "customer.address",
+            "dataType": "String"
+        },
+        "Customer's City": {
+            "path": "customer.city",
+            "dataType": "String",
+            "allowGrouping": true
+        },
+        "Customer's State": {
+            "path": "customer.state",
+            "dataType": "String",
+            "allowGrouping": true
+        },
+        "Customer's Zip Code": {
+            "path": "customer.zip",
+            "dataType": "String",
+            "allowGrouping": true
+        },
+        "Customer's Gender": {
+            "path": "customer.gender",
+            "dataType": "String",
+            "allowGrouping": true
+        },
+        "Customer's Date of Birth": {
+            "path": "customer.dob",
+            "dataType": "Date"
+        },
+        "Customer's Full Name": {
+            "path": "customer.fullname",
+            "dataType": "String",
+            "allowGrouping": true
+        },
+        "Customer's External Id": {
+            "path": "customer.externalId",
+            "dataType": "String"
+        },
+        "Employee's Full Name": {
+            "path": "employee.fullName",
+            "dataType": "String",
+            "allowGrouping": true
+        },
+        "Employee's Role": {
+            "path": "employee.role",
+            "dataType": "String",
+            "allowGrouping": true
+        },
+        "Employee's Type of Employment": {
+            "path": "employee.type",
+            "dataType": "String",
+            "allowGrouping": true
+        },
+        "Employee's External Id": {
+            "path": "employee.externalId",
+            "dataType": "String"
+        },
+        "Product's code": {
+            "path": "product.itemCode",
+            "dataType": "String",
+            "allowGrouping": true
+        },
+        "Product's description": {
+            "path": "product.itemDescription",
+            "dataType": "String",
+            "allowGrouping": true
+        },
+        "Product's quantity": {
+            "path": "product.quantity",
+            "dataType": "Number"
+        },
+        "Product's unit price": {
+            "path": "product.unitPrice",
+            "dataType": "Number"
+        },
+        "Product's tax 1": {
+            "path": "product.tax",
+            "dataType": "Number"
+        },
+        "Product's tax 2": {
+            "path": "product.tax2",
+            "dataType": "Number"
+        },
+        "Amount": {
+            "path": "product.amount",
+            "dataType": "Number"
+        },
+        "Total before taxes": {
+            "path": "product.preTaxTotal",
+            "dataType": "Number"
+        },
+        "Paid": {
+            "path": "product.paid",
+            "dataType": "Number"
+        },
+        "Discounts": {
+            "path": "product.discount",
+            "dataType": "Number"
+        },
+        "From": {
+            "path": "product.from",
+            "dataType": "Date"
+        },
+        "To": {
+            "path": "product.to",
+            "dataType": "Date"
+        },
+        "Product's external Id": {
+            "path": "product.externalId",
+            "dataType": "String"
+        },
+        "Category": {
+            "path": "category.name",
+            "dataType": "String",
+            "allowGrouping": true
+        },
+        "Category's type of service": {
+            "path": "category.service",
+            "dataType": "Number",
+            "allowGrouping": true
+        },
+        "Category's External Id": {
+            "path": "category.externalId",
+            "dataType": "String"
+        },
+        "Timestamp": {
+            "path": "timestamp",
+            "dataType": "Date"
+        },
+        "Concept": {
+            "path": "concept",
+            "dataType": "String"
+        },
+        "Bill id": {
+            "path": "billId",
+            "dataType": "String"
+        },
+        "Source": {
+            "path": "source",
+            "dataType": "String",
+            "allowGrouping": true
+        },
+        "External Id": {
+            "path": "externalId",
+            "dataType": "String"
+        },
+        "Business Unit": {
+            "path": "businessUnit.name",
+            "dataType": "String",
+            "allowGrouping": true
+        },
+        "Service Type": {
+            "path": "serviceType",
+            "dataType": "String",
+            "allowGrouping": true
+        },
+        "Referral": {
+            "path": "referral.name",
+            "dataType": "String",
+            "allowGrouping": true
+        },
+        "Referral's External Id": {
+            "path": "referral.externalId",
+            "dataType": "String"
+        }
+    }
+}, {
+    "_id": "5ac3cfbb49bdac0208430ff6",
+    "name": "Calls",
+    "description": "Calls from Callrail",
+    "source": "Calls",
+    "modelIdentifier": "Call",
+    "dateField": "created_at",
+    "fieldsMap": {
+        "Answered": {
+            "path": "answered",
+            "dataType": "Boolean",
+            "allowGrouping": true
+        },
+        "External Id": {
+            "path": "externalId",
+            "dataType": "String"
+        },
+        "Call Direction": {
+            "path": "direction",
+            "dataType": "String",
+            "allowGrouping": true
+        },
+        "Call Duration": {
+            "path": "duration",
+            "dataType": "Number"
+        },
+        "Call's Start Time": {
+            "path": "startTime",
+            "dataType": "Date"
+        },
+        "Source": {
+            "path": "source",
+            "dataType": "String",
+            "allowGrouping": true
+        },
+        "Voicemail": {
+            "path": "voicemail",
+            "dataType": "Boolean",
+            "allowGrouping": true
+        },
+        "Call created at": {
+            "path": "created_at",
+            "dataType": "Date"
+        },
+        "Device used": {
+            "path": "device_type",
+            "dataType": "String",
+            "allowGrouping": true
+        },
+        "First call": {
+            "path": "first_call",
+            "dataType": "Boolean",
+            "allowGrouping": true
+        },
+        "Number of prior calls": {
+            "path": "prior_calls",
+            "dataType": "Number",
+            "allowGrouping": true
+        },
+        "Lead Status": {
+            "path": "lead_status",
+            "dataType": "String",
+            "allowGrouping": true
+        },
+        "Source Name": {
+            "path": "source_name",
+            "dataType": "String",
+            "allowGrouping": true
+        },
+        "Total calls": {
+            "path": "total_calls",
+            "dataType": "Number"
+        },
+        "Referring url": {
+            "path": "referring_url",
+            "dataType": "String",
+            "allowGrouping": true
+        },
+        "Formatted tracking source": {
+            "path": "formatted_tracking_source",
+            "dataType": "String",
+            "allowGrouping": true
+        },
+        "Keywords": {
+            "path": "keywords",
+            "dataType": "String",
+            "allowGrouping": true
+        },
+        "Medium": {
+            "path": "medium",
+            "dataType": "String",
+            "allowGrouping": true
+        },
+        "Landing page url": {
+            "path": "landing_page_url",
+            "dataType": "String",
+            "allowGrouping": true
+        },
+        "Last requested url": {
+            "path": "last_requested_url",
+            "dataType": "String",
+            "allowGrouping": true
+        },
+        "Referrer domain": {
+            "path": "referrer_domain",
+            "dataType": "String",
+            "allowGrouping": true
+        },
+        "Business phone": {
+            "path": "business.phoneNumber",
+            "dataType": "String",
+            "allowGrouping": true
+        },
+        "Customer's City": {
+            "path": "customer.city",
+            "dataType": "String",
+            "allowGrouping": true
+        },
+        "Customer's Country": {
+            "path": "customer.country",
+            "dataType": "String",
+            "allowGrouping": true
+        },
+        "Customer's Name": {
+            "path": "customer.name",
+            "dataType": "String",
+            "allowGrouping": true
+        },
+        "Customer's Phone number": {
+            "path": "phoneNumber",
+            "dataType": "String",
+            "allowGrouping": true
+        },
+        "Customer's State": {
+            "path": "state",
+            "dataType": "String",
+            "allowGrouping": true
+        },
+        "Company's External Id": {
+            "path": "company.externalId",
+            "dataType": "String",
+            "allowGrouping": true
+        },
+        "Company's Name": {
+            "path": "company.name",
+            "dataType": "String",
+            "allowGrouping": true
+        },
+        "Company's Timezone": {
+            "path": "company.timeZone",
+            "dataType": "String"
+        },
+        "Tracking Number": {
+            "path": "tracking.phoneNumber",
+            "dataType": "String",
+            "allowGrouping": true
+        },
+        "Recording Duration": {
+            "path": "recording.duration",
+            "dataType": "Number"
+        },
+        "Speaker percent Agent": {
+            "path": "speaker_percent.agent",
+            "dataType": "Number"
+        },
+        "Speaker percent Customer": {
+            "path": "speaker_percent.agent",
+            "dataType": "Number"
+        }
+    }
+}, {
+    "_id": "5ac3dc4e49bdac0208431002",
+    "name": "Appointments",
+    "description": "Appointments",
+    "source": "Appointments",
+    "modelIdentifier": "Appointment",
+    "dateField": "from",
+    "fieldsMap": {
+        "Source": {
+            "path": "source",
+            "dataType": "String",
+            "allowGrouping": true
+        },
+        "External Id": {
+            "path": "externalId",
+            "dataType": "String"
+        },
+        "Location's Name": {
+            "path": "location.name",
+            "dataType": "String",
+            "allowGrouping": true
+        },
+        "Location's City": {
+            "path": "location.city",
+            "dataType": "String",
+            "allowGrouping": true
+        },
+        "Location's State": {
+            "path": "location.state",
+            "dataType": "String",
+            "allowGrouping": true
+        },
+        "Location's Zip": {
+            "path": "location.zip",
+            "dataType": "String",
+            "allowGrouping": true
+        },
+        "Location's External Id": {
+            "path": "location.externalId",
+            "dataType": "String"
+        },
+        "Location's Address 1": {
+            "path": "location.address1",
+            "dataType": "String"
+        },
+        "Location's Address 2": {
+            "path": "location.address2",
+            "dataType": "String"
+        },
+        "Customer's Address": {
+            "path": "customer.address",
+            "dataType": "String"
+        },
+        "Customer's City": {
+            "path": "customer.city",
+            "dataType": "String",
+            "allowGrouping": true
+        },
+        "Customer's State": {
+            "path": "customer.state",
+            "dataType": "String",
+            "allowGrouping": true
+        },
+        "Customer's Zip Code": {
+            "path": "customer.zip",
+            "dataType": "String",
+            "allowGrouping": true
+        },
+        "Customer's Gender": {
+            "path": "customer.gender",
+            "dataType": "String",
+            "allowGrouping": true
+        },
+        "Customer's Date of Birth": {
+            "path": "customer.dob",
+            "dataType": "Date"
+        },
+        "Customer's Full Name": {
+            "path": "customer.fullname",
+            "dataType": "String",
+            "allowGrouping": true
+        },
+        "Customer's External Id": {
+            "path": "customer.externalId",
+            "dataType": "String"
+        },
+        "Provider's Full Name": {
+            "path": "provider.name",
+            "dataType": "String",
+            "allowGrouping": true
+        },
+        "Provider's External Id": {
+            "path": "provider.externalId",
+            "dataType": "String"
+        },
+        "Provider's type": {
+            "path": "provider.type",
+            "dataType": "String",
+            "allowGrouping": true
+        },
+        "Reason": {
+            "path": "reason",
+            "dataType": "String",
+            "allowGrouping": true
+        },
+        "Comments": {
+            "path": "comments",
+            "dataType": "String",
+            "allowGrouping": true
+        },
+        "From": {
+            "path": "from",
+            "dataType": "Date"
+        },
+        "To": {
+            "path": "to",
+            "dataType": "Date"
+        },
+        "Duration": {
+            "path": "duration",
+            "dataType": "Number"
+        },
+        "Approved": {
+            "path": "approved",
+            "dataType": "Boolean",
+            "allowGrouping": true
+        },
+        "Checked In": {
+            "path": "checkedIn",
+            "dataType": "Boolean",
+            "allowGrouping": true
+        },
+        "Checked Out": {
+            "path": "checkedOut",
+            "dataType": "Boolean",
+            "allowGrouping": true
+        },
+        "Cancelled": {
+            "path": "cancelled",
+            "dataType": "Boolean",
+            "allowGrouping": true
+        },
+        "No Show": {
+            "path": "noShow",
+            "dataType": "Boolean",
+            "allowGrouping": true
+        },
+        "Checked in On": {
+            "path": "checkedInOn",
+            "dataType": "Date"
+        },
+        "Checked out On": {
+            "path": "checkedOutOn",
+            "dataType": "Date"
+        },
+        "Cancelled On": {
+            "path": "cancelledOn",
+            "dataType": "Date"
+        },
+        "Confirmed On": {
+            "path": "confirmedOn",
+            "dataType": "Date"
+        },
+        "Created On": {
+            "path": "createdOn",
+            "dataType": "Date"
+        },
+        "No show On": {
+            "path": "noShowOn",
+            "dataType": "Date"
+        },
+        "Event name": {
+            "path": "event.name",
+            "dataType": "String",
+            "allowGrouping": true
+        },
+        "Event External Id": {
+            "path": "event.externalId",
+            "dataType": "String",
+            "allowGrouping": true
+        },
+        "Event Code": {
+            "path": "event.code",
+            "dataType": "String",
+            "allowGrouping": true
+        },
+        "Event Color": {
+            "path": "event.color",
+            "dataType": "String"
+        },
+        "Conflict Color": {
+            "path": "event.conflictColor",
+            "dataType": "String"
+        },
+        "Conflict cancelled color": {
+            "path": "event.cancelledColor",
+            "dataType": "String"
+        },
+        "Procedure name": {
+            "path": "procedure.name",
+            "dataType": "String",
+            "allowGrouping": true
+        },
+        "Procedure External Id": {
+            "path": "procedure.externalId",
+            "dataType": "String"
+        },
+        "Referral name": {
+            "path": "referral.name",
+            "dataType": "String",
+            "allowGrouping": true
+        },
+        "Referral External Id": {
+            "path": "referral.externalId",
+            "dataType": "String"
+        },
+        "Date": {
+            "path": "date",
+            "dataType": "Date"
+        },
+        "Converted": {
+            "path": "converted",
+            "dataType": "Boolean",
+            "allowGrouping": true
+        },
+        "Appointment type": {
+            "path": "appointmentType",
+            "dataType": "String",
+            "allowGrouping": true
+        },
+        "Document type": {
+            "path": "document.type",
+            "dataType": "String"
+        },
+        "Document identifier": {
+            "path": "document.identifier",
+            "dataType": "String"
+        }
+    }
+}, {
+    "_id": "5ac3e1d62f8a3702e97ce05a",
+    "name": "google_analytics",
+    "description": "Google Analytics",
+    "source": "GoogleAnalytics",
+    "modelIdentifier": "GoogleAnalytics",
+    "dateField": "date",
+    "fieldsMap": {
+        "Users": {
+            "path": "users",
+            "dataType": "Number"
+        },
+        "New Users": {
+            "path": "newUsers",
+            "dataType": "Number"
+        },
+        "NewSessions% New Sessions": {
+            "path": "percent",
+            "dataType": "Number"
+        },
+        "Users1 Day Active Users": {
+            "path": "1day",
+            "dataType": "Number"
+        },
+        "Users7 Day Active Users": {
+            "path": "7day",
+            "dataType": "Number"
+        },
+        "Users14 Day Active Users": {
+            "path": "14day",
+            "dataType": "Number"
+        },
+        "Users28 Day Active Users": {
+            "path": "28day",
+            "dataType": "Number"
+        },
+        "Users30 Day Active Users": {
+            "path": "30day",
+            "dataType": "Number"
+        },
+        "Number of Sessions per User": {
+            "path": "sessionsPerUser",
+            "dataType": "Number"
+        },
+        "Sessions": {
+            "path": "sessions",
+            "dataType": "Number"
+        },
+        "Bounces": {
+            "path": "bounces",
+            "dataType": "Number"
+        },
+        "Bounce Rate": {
+            "path": "bounceRate",
+            "dataType": "Number"
+        },
+        "Session Duration": {
+            "path": "sessionDurationBucket",
+            "dataType": "String",
+            "allowGrouping": true
+        },
+        "Avg Session Duration": {
+            "path": "avgSessionDuration",
+            "dataType": "Number"
+        },
+        "Unique Dimension Combinations": {
+            "path": "uniqueDimensionCombinations",
+            "dataType": "Number"
+        },
+        "Hits": {
+            "path": "hits",
+            "dataType": "Number"
+        },
+        "Organic Searches": {
+            "path": "organicSearches",
+            "dataType": "Number"
+        },
+        "Impressions": {
+            "path": "impressions",
+            "dataType": "Number"
+        },
+        "Clicks": {
+            "path": "adClicks",
+            "dataType": "Number"
+        },
+        "Cost": {
+            "path": "adCost",
+            "dataType": "Number"
+        },
+        "CPM": {
+            "path": "CPM",
+            "dataType": "Number"
+        },
+        "CPC": {
+            "path": "CPC",
+            "dataType": "Number"
+        },
+        "CTR": {
+            "path": "CTR",
+            "dataType": "Number"
+        },
+        "Cost per Transaction": {
+            "path": "costPerTransaction",
+            "dataType": "Number"
+        },
+        "Cost per Goal Conversion": {
+            "path": "costPerGoalConversion",
+            "dataType": "Number"
+        },
+        "Cost per Conversion": {
+            "path": "costPerConversion",
+            "dataType": "Number"
+        },
+        "RPC": {
+            "path": "RPC",
+            "dataType": "Number"
+        },
+        "ROAS": {
+            "path": "ROAS",
+            "dataType": "Number"
+        },
+        "Goal XX Starts": {
+            "path": "goalXXStarts",
+            "dataType": "Number"
+        },
+        "Goal Starts": {
+            "path": "goalStartsAll",
+            "dataType": "Number"
+        },
+        "Goal XX Completions": {
+            "path": "goalXXCompletions",
+            "dataType": "Number"
+        },
+        "Goal Completions": {
+            "path": "goalCompletionsAll",
+            "dataType": "Number"
+        },
+        "Goal XX Value": {
+            "path": "goalXXValue",
+            "dataType": "Number"
+        },
+        "Goal Value": {
+            "path": "goalValueAll",
+            "dataType": "Number"
+        },
+        "Per Session Goal Value": {
+            "path": "goalValuePerSession",
+            "dataType": "Number"
+        },
+        "Goal XX Conversion Rate": {
+            "path": "goalXXConversionRate",
+            "dataType": "Number"
+        },
+        "Goal Conversion Rate": {
+            "path": "goalConversionRateAll",
+            "dataType": "Number"
+        },
+        "Goal XX Abandoned Funnels": {
+            "path": "goalXXAbandons",
+            "dataType": "Number"
+        },
+        "Abandoned Funnels": {
+            "path": "goalAbandonsAll",
+            "dataType": "Number"
+        },
+        "Goal XX Abandonment Rate": {
+            "path": "goalXXAbandonRate",
+            "dataType": "Number"
+        },
+        "Total Abandonment Rate": {
+            "path": "goalAbandonRateAll",
+            "dataType": "Number"
+        },
+        "Page Value": {
+            "path": "pageValue",
+            "dataType": "Number"
+        },
+        "Entrances": {
+            "path": "entrances",
+            "dataType": "Number"
+        },
+        "Entrances / Pageviews": {
+            "path": "entranceRate",
+            "dataType": "Number"
+        },
+        "Pageviews": {
+            "path": "searchResultViewsResults",
+            "dataType": "Number"
+        },
+        "Pages / Session": {
+            "path": "pageviewsPerSession",
+            "dataType": "Number"
+        },
+        "Unique Pageviews": {
+            "path": "uniquePageviews",
+            "dataType": "Number"
+        },
+        "Time on Page": {
+            "path": "timeOnPage",
+            "dataType": "Number"
+        },
+        "Avg Time on Page": {
+            "path": "avgTimeOnPage",
+            "dataType": "Number"
+        },
+        "Exits": {
+            "path": "searchExitsSearch",
+            "dataType": "Number"
+        },
+        "% Exit": {
+            "path": "exitRate",
+            "dataType": "Number"
+        },
+        "Unique Views XX": {
+            "path": "contentGroupUniqueViewsXX",
+            "dataType": "Number"
+        },
+        "Unique Searches": {
+            "path": "searchUniquesTotal",
+            "dataType": "Number"
+        },
+        "Pageviews / Search": {
+            "path": "avgSearchResultViewsResults",
+            "dataType": "Number"
+        },
+        "with Search": {
+            "path": "searchSessionsSessions",
+            "dataType": "Number"
+        },
+        " Sessions with Search": {
+            "path": "percentSessionsWithSearch",
+            "dataType": "Number"
+        },
+        "Depth": {
+            "path": "searchDepthSearch",
+            "dataType": "Number"
+        },
+        " Search Depth": {
+            "path": "avgSearchDepthAvg",
+            "dataType": "Number"
+        },
+        "Refinements": {
+            "path": "searchRefinementsSearch",
+            "dataType": "Number"
+        },
+        " Search Refinements": {
+            "path": "percentSearchRefinements",
+            "dataType": "Number"
+        },
+        "after Search": {
+            "path": "avgSearchDurationTime",
+            "dataType": "Number"
+        },
+        " Search Exits": {
+            "path": "searchExitRate",
+            "dataType": "Number"
+        },
+        "Search Goal XX Conversion Rate": {
+            "path": "searchGoalXXConversionRateSite",
+            "dataType": "Number"
+        },
+        "Search Goal Conversion Rate": {
+            "path": "searchGoalConversionRateAllSite",
+            "dataType": "Number"
+        },
+        "Search Goal Value": {
+            "path": "goalValueAllPerSearchPer",
+            "dataType": "Number"
+        },
+        "Load Time (ms)": {
+            "path": "pageLoadTimePage",
+            "dataType": "Number"
+        },
+        "Load Sample": {
+            "path": "pageLoadSamplePage",
+            "dataType": "Number"
+        },
+        " Page Load Time (sec)": {
+            "path": "avgPageLoadTimeAvg",
+            "dataType": "Number"
+        },
+        "Lookup Time (ms)": {
+            "path": "domainLookupTimeDomain",
+            "dataType": "Number"
+        },
+        " Domain Lookup Time (sec)": {
+            "path": "avgDomainLookupTimeAvg",
+            "dataType": "Number"
+        },
+        "Download Time (ms)": {
+            "path": "pageDownloadTimePage",
+            "dataType": "Number"
+        },
+        " Page Download Time (sec)": {
+            "path": "avgPageDownloadTimeAvg",
+            "dataType": "Number"
+        },
+        "Time (ms)": {
+            "path": "redirectionTimeRedirection",
+            "dataType": "Number"
+        },
+        " Redirection Time (sec)": {
+            "path": "avgRedirectionTimeAvg",
+            "dataType": "Number"
+        },
+        "Connection Time (ms)": {
+            "path": "serverConnectionTimeServer",
+            "dataType": "Number"
+        },
+        " Server Connection Time (sec)": {
+            "path": "avgServerConnectionTimeAvg",
+            "dataType": "Number"
+        },
+        "Response Time (ms)": {
+            "path": "serverResponseTimeServer",
+            "dataType": "Number"
+        },
+        " Server Response Time (sec)": {
+            "path": "avgServerResponseTimeAvg",
+            "dataType": "Number"
+        },
+        "Metrics Sample": {
+            "path": "speedMetricsSampleSpeed",
+            "dataType": "Number"
+        },
+        "Interactive Time (ms)": {
+            "path": "domInteractiveTimeDocument",
+            "dataType": "Number"
+        },
+        " Document Interactive Time (sec)": {
+            "path": "avgDomInteractiveTimeAvg",
+            "dataType": "Number"
+        },
+        "Content Loaded Time (ms)": {
+            "path": "domContentLoadedTimeDocument",
+            "dataType": "Number"
+        },
+        " Document Content Loaded Time (sec)": {
+            "path": "avgDomContentLoadedTimeAvg",
+            "dataType": "Number"
+        },
+        "Latency Metrics Sample": {
+            "path": "domLatencyMetricsSampleDOM",
+            "dataType": "Number"
+        },
+        "Screen Views": {
+            "path": "screenviews",
+            "dataType": "Number"
+        },
+        "Unique Screen Views": {
+            "path": "uniqueScreenviews",
+            "dataType": "Number"
+        },
+        "Screens / Session": {
+            "path": "screenviewsPerSession",
+            "dataType": "Number"
+        },
+        "Time on Screen": {
+            "path": "timeOnScreen",
+            "dataType": "Number"
+        },
+        "Avg Time on Screen": {
+            "path": "avgScreenviewDuration",
+            "dataType": "Number"
+        },
+        "Total Events": {
+            "path": "totalEvents",
+            "dataType": "Number"
+        },
+        "Unique Events": {
+            "path": "uniqueEvents",
+            "dataType": "Number"
+        },
+        "Event Value": {
+            "path": "eventValue",
+            "dataType": "Number"
+        },
+        "Avg Value": {
+            "path": "avgEventValue",
+            "dataType": "Number"
+        },
+        "Sessions with Event": {
+            "path": "sessionsWithEvent",
+            "dataType": "Number"
+        },
+        "Events / Session with Event": {
+            "path": "eventsPerSessionWithEvent",
+            "dataType": "Number"
+        },
+        "Transactions": {
+            "path": "transactions",
+            "dataType": "Number"
+        },
+        "Ecommerce Conversion Rate": {
+            "path": "transactionsPerSession",
+            "dataType": "Number"
+        },
+        "Revenue": {
+            "path": "transactionRevenue",
+            "dataType": "Number"
+        },
+        "Avg Order Value": {
+            "path": "revenuePerTransaction",
+            "dataType": "Number"
+        },
+        "Per Session Value": {
+            "path": "transactionRevenuePerSession",
+            "dataType": "Number"
+        },
+        "Shipping": {
+            "path": "transactionShipping",
+            "dataType": "Number"
+        },
+        "Tax": {
+            "path": "transactionTax",
+            "dataType": "Number"
+        },
+        "Total Value": {
+            "path": "totalValue",
+            "dataType": "Number"
+        },
+        "Quantity": {
+            "path": "itemQuantity",
+            "dataType": "Number"
+        },
+        "Unique Purchases": {
+            "path": "uniquePurchases",
+            "dataType": "Number"
+        },
+        "Avg Price": {
+            "path": "revenuePerItem",
+            "dataType": "Number"
+        },
+        "Product Revenue": {
+            "path": "itemRevenue",
+            "dataType": "Number"
+        },
+        "Avg QTY": {
+            "path": "itemsPerPurchase",
+            "dataType": "Number"
+        },
+        "Local Revenue": {
+            "path": "localTransactionRevenue",
+            "dataType": "Number"
+        },
+        "Local Shipping": {
+            "path": "localTransactionShipping",
+            "dataType": "Number"
+        },
+        "Local Tax": {
+            "path": "localTransactionTax",
+            "dataType": "Number"
+        },
+        "Local Product Revenue": {
+            "path": "localItemRevenue",
+            "dataType": "Number"
+        },
+        "Buy-to-Detail Rate": {
+            "path": "buyToDetailRate",
+            "dataType": "Number"
+        },
+        "Cart-to-Detail Rate": {
+            "path": "cartToDetailRate",
+            "dataType": "Number"
+        },
+        "Internal Promotion CTR": {
+            "path": "internalPromotionCTR",
+            "dataType": "Number"
+        },
+        "Internal Promotion Clicks": {
+            "path": "internalPromotionClicks",
+            "dataType": "Number"
+        },
+        "Internal Promotion Views": {
+            "path": "internalPromotionViews",
+            "dataType": "Number"
+        },
+        "Local Product Refund Amount": {
+            "path": "localProductRefundAmount",
+            "dataType": "Number"
+        },
+        "Local Refund Amount": {
+            "path": "localRefundAmount",
+            "dataType": "Number"
+        },
+        "Product Adds To Cart": {
+            "path": "productAddsToCart",
+            "dataType": "Number"
+        },
+        "Product Checkouts": {
+            "path": "productCheckouts",
+            "dataType": "Number"
+        },
+        "Product Detail Views": {
+            "path": "productDetailViews",
+            "dataType": "Number"
+        },
+        "Product List CTR": {
+            "path": "productListCTR",
+            "dataType": "Number"
+        },
+        "Product List Clicks": {
+            "path": "productListClicks",
+            "dataType": "Number"
+        },
+        "Product List Views": {
+            "path": "productListViews",
+            "dataType": "Number"
+        },
+        "Product Refund Amount": {
+            "path": "productRefundAmount",
+            "dataType": "Number"
+        },
+        "Product Refunds": {
+            "path": "productRefunds",
+            "dataType": "Number"
+        },
+        "Product Removes From Cart": {
+            "path": "productRemovesFromCart",
+            "dataType": "Number"
+        },
+        "Product Revenue per Purchase": {
+            "path": "productRevenuePerPurchase",
+            "dataType": "Number"
+        },
+        "Quantity Added To Cart": {
+            "path": "quantityAddedToCart",
+            "dataType": "Number"
+        },
+        "Quantity Checked Out": {
+            "path": "quantityCheckedOut",
+            "dataType": "Number"
+        },
+        "Quantity Refunded": {
+            "path": "quantityRefunded",
+            "dataType": "Number"
+        },
+        "Quantity Removed From Cart": {
+            "path": "quantityRemovedFromCart",
+            "dataType": "Number"
+        },
+        "Refund Amount": {
+            "path": "refundAmount",
+            "dataType": "Number"
+        },
+        "Revenue per User": {
+            "path": "revenuePerUser",
+            "dataType": "Number"
+        },
+        "Refunds": {
+            "path": "totalRefunds",
+            "dataType": "Number"
+        },
+        "Transactions per User": {
+            "path": "transactionsPerUser",
+            "dataType": "Number"
+        },
+        "Social Actions": {
+            "path": "socialInteractions",
+            "dataType": "Number"
+        },
+        "Unique Social Actions": {
+            "path": "uniqueSocialInteractions",
+            "dataType": "Number"
+        },
+        "Actions Per Social Session": {
+            "path": "socialInteractionsPerSession",
+            "dataType": "Number"
+        },
+        "User Timing (ms)": {
+            "path": "userTimingValue",
+            "dataType": "Number"
+        },
+        "User Timing Sample": {
+            "path": "userTimingSample",
+            "dataType": "Number"
+        },
+        "Avg User Timing (sec)": {
+            "path": "avgUserTimingValue",
+            "dataType": "Number"
+        },
+        "User Type": {
+            "path": "userType",
+            "dataType": "String",
+            "allowGrouping": true
+        },
+        "Count of Sessions": {
+            "path": "sessionCount",
+            "dataType": "String",
+            "allowGrouping": true
+        },
+        "Days Since Last Session": {
+            "path": "daysSinceLastSession",
+            "dataType": "String",
+            "allowGrouping": true
+        },
+        "User Defined Value": {
+            "path": "userDefinedValue",
+            "dataType": "String",
+            "allowGrouping": true
+        },
+        "User Bucket": {
+            "path": "userBucket",
+            "dataType": "String",
+            "allowGrouping": true
+        },
+        "Referral Path": {
+            "path": "referralPath",
+            "dataType": "String",
+            "allowGrouping": true
+        },
+        "Full Referrer": {
+            "path": "fullReferrer",
+            "dataType": "String",
+            "allowGrouping": true
+        },
+        "Campaign": {
+            "path": "campaign",
+            "dataType": "String",
+            "allowGrouping": true
+        },
+        "Source": {
+            "path": "source",
+            "dataType": "String",
+            "allowGrouping": true
+        },
+        "Medium": {
+            "path": "medium",
+            "dataType": "String",
+            "allowGrouping": true
+        },
+        "Source / Medium": {
+            "path": "sourceMedium",
+            "dataType": "String",
+            "allowGrouping": true
+        },
+        "Keyword": {
+            "path": "keyword",
+            "dataType": "String",
+            "allowGrouping": true
+        },
+        "Ad Content": {
+            "path": "adContent",
+            "dataType": "String",
+            "allowGrouping": true
+        },
+        "Social Network": {
+            "path": "socialInteractionNetwork",
+            "dataType": "String",
+            "allowGrouping": true
+        },
+        "Social Source Referral": {
+            "path": "hasSocialSourceReferral",
+            "dataType": "String",
+            "allowGrouping": true
+        },
+        "Campaign Code": {
+            "path": "campaignCode",
+            "dataType": "String",
+            "allowGrouping": true
+        },
+        "AdWords Ad Group": {
+            "path": "adGroup",
+            "dataType": "String",
+            "allowGrouping": true
+        },
+        "AdWords Ad Slot": {
+            "path": "adSlot",
+            "dataType": "String",
+            "allowGrouping": true
+        },
+        "Ad Distribution Network": {
+            "path": "adDistributionNetwork",
+            "dataType": "String",
+            "allowGrouping": true
+        },
+        "Query Match Type": {
+            "path": "adMatchType",
+            "dataType": "String",
+            "allowGrouping": true
+        },
+        "Keyword Match Type": {
+            "path": "adKeywordMatchType",
+            "dataType": "String",
+            "allowGrouping": true
+        },
+        "Search Query": {
+            "path": "adMatchedQuery",
+            "dataType": "String",
+            "allowGrouping": true
+        },
+        "Placement Domain": {
+            "path": "adPlacementDomain",
+            "dataType": "String",
+            "allowGrouping": true
+        },
+        "Placement URL": {
+            "path": "adPlacementUrl",
+            "dataType": "String",
+            "allowGrouping": true
+        },
+        "Ad Format": {
+            "path": "adFormat",
+            "dataType": "String",
+            "allowGrouping": true
+        },
+        "Targeting Type": {
+            "path": "adTargetingType",
+            "dataType": "String",
+            "allowGrouping": true
+        },
+        "Placement Type": {
+            "path": "adTargetingOption",
+            "dataType": "String",
+            "allowGrouping": true
+        },
+        "Display URL": {
+            "path": "adDisplayUrl",
+            "dataType": "String",
+            "allowGrouping": true
+        },
+        "Destination URL": {
+            "path": "adDestinationUrl",
+            "dataType": "String",
+            "allowGrouping": true
+        },
+        "AdWords Customer ID": {
+            "path": "adwordsCustomerID",
+            "dataType": "String",
+            "allowGrouping": true
+        },
+        "AdWords Campaign ID": {
+            "path": "adwordsCampaignID",
+            "dataType": "String",
+            "allowGrouping": true
+        },
+        "AdWords Ad Group ID": {
+            "path": "adwordsAdGroupID",
+            "dataType": "String",
+            "allowGrouping": true
+        },
+        "AdWords Creative ID": {
+            "path": "adwordsCreativeID",
+            "dataType": "String",
+            "allowGrouping": true
+        },
+        "AdWords Criteria ID": {
+            "path": "adwordsCriteriaID",
+            "dataType": "String",
+            "allowGrouping": true
+        },
+        "Query Word Count": {
+            "path": "adQueryWordCount",
+            "dataType": "String",
+            "allowGrouping": true
+        },
+        "TrueView Video Ad": {
+            "path": "isTrueViewVideoAd",
+            "dataType": "String",
+            "allowGrouping": true
+        },
+        "Goal Completion Location": {
+            "path": "goalCompletionLocation",
+            "dataType": "String",
+            "allowGrouping": true
+        },
+        "Goal Previous Step - 1": {
+            "path": "goalPreviousStep1",
+            "dataType": "String",
+            "allowGrouping": true
+        },
+        "Goal Previous Step - 2": {
+            "path": "goalPreviousStep2",
+            "dataType": "String",
+            "allowGrouping": true
+        },
+        "Goal Previous Step - 3": {
+            "path": "goalPreviousStep3",
+            "dataType": "String",
+            "allowGrouping": true
+        },
+        "Browser": {
+            "path": "browser",
+            "dataType": "String",
+            "allowGrouping": true
+        },
+        "Browser Version": {
+            "path": "browserVersion",
+            "dataType": "String",
+            "allowGrouping": true
+        },
+        "Operating System": {
+            "path": "operatingSystem",
+            "dataType": "String",
+            "allowGrouping": true
+        },
+        "Operating System Version": {
+            "path": "operatingSystemVersion",
+            "dataType": "String",
+            "allowGrouping": true
+        },
+        "Mobile Device Branding": {
+            "path": "mobileDeviceBranding",
+            "dataType": "String",
+            "allowGrouping": true
+        },
+        "Mobile Device Model": {
+            "path": "mobileDeviceModel",
+            "dataType": "String",
+            "allowGrouping": true
+        },
+        "Mobile Input Selector": {
+            "path": "mobileInputSelector",
+            "dataType": "String",
+            "allowGrouping": true
+        },
+        "Mobile Device Info": {
+            "path": "mobileDeviceInfo",
+            "dataType": "String",
+            "allowGrouping": true
+        },
+        "Mobile Device Marketing Name": {
+            "path": "mobileDeviceMarketingName",
+            "dataType": "String",
+            "allowGrouping": true
+        },
+        "Device Category": {
+            "path": "deviceCategory",
+            "dataType": "String",
+            "allowGrouping": true
+        },
+        "Browser Size": {
+            "path": "browserSize",
+            "dataType": "String",
+            "allowGrouping": true
+        },
+        "Data Source": {
+            "path": "dataSource",
+            "dataType": "String",
+            "allowGrouping": true
+        },
+        "Continent": {
+            "path": "continent",
+            "dataType": "String",
+            "allowGrouping": true
+        },
+        "Sub Continent": {
+            "path": "subContinent",
+            "dataType": "String",
+            "allowGrouping": true
+        },
+        "Country": {
+            "path": "country",
+            "dataType": "String",
+            "allowGrouping": true
+        },
+        "Region": {
+            "path": "region",
+            "dataType": "String",
+            "allowGrouping": true
+        },
+        "Metro": {
+            "path": "metro",
+            "dataType": "String",
+            "allowGrouping": true
+        },
+        "City": {
+            "path": "city",
+            "dataType": "String",
+            "allowGrouping": true
+        },
+        "Latitude": {
+            "path": "latitude",
+            "dataType": "String",
+            "allowGrouping": true
+        },
+        "Longitude": {
+            "path": "longitude",
+            "dataType": "String",
+            "allowGrouping": true
+        },
+        "Network Domain": {
+            "path": "networkDomain",
+            "dataType": "String",
+            "allowGrouping": true
+        },
+        "Service Provider": {
+            "path": "networkLocation",
+            "dataType": "String",
+            "allowGrouping": true
+        },
+        "City ID": {
+            "path": "cityId",
+            "dataType": "String",
+            "allowGrouping": true
+        },
+        "Continent ID": {
+            "path": "continentId",
+            "dataType": "String",
+            "allowGrouping": true
+        },
+        "Country ISO Code": {
+            "path": "countryIsoCode",
+            "dataType": "String",
+            "allowGrouping": true
+        },
+        "Metro Id": {
+            "path": "metroId",
+            "dataType": "String",
+            "allowGrouping": true
+        },
+        "Region ID": {
+            "path": "regionId",
+            "dataType": "String",
+            "allowGrouping": true
+        },
+        "Region ISO Code": {
+            "path": "regionIsoCode",
+            "dataType": "String",
+            "allowGrouping": true
+        },
+        "Sub Continent Code": {
+            "path": "subContinentCode",
+            "dataType": "String",
+            "allowGrouping": true
+        },
+        "Flash Version": {
+            "path": "flashVersion",
+            "dataType": "String",
+            "allowGrouping": true
+        },
+        "Java Support": {
+            "path": "javaEnabled",
+            "dataType": "String",
+            "allowGrouping": true
+        },
+        "Language": {
+            "path": "language",
+            "dataType": "String",
+            "allowGrouping": true
+        },
+        "Screen Colors": {
+            "path": "screenColors",
+            "dataType": "String",
+            "allowGrouping": true
+        },
+        "Source Property Display Name": {
+            "path": "sourcePropertyDisplayName",
+            "dataType": "String",
+            "allowGrouping": true
+        },
+        "Source Property Tracking ID": {
+            "path": "sourcePropertyTrackingId",
+            "dataType": "String",
+            "allowGrouping": true
+        },
+        "Screen Resolution": {
+            "path": "screenResolution",
+            "dataType": "String",
+            "allowGrouping": true
+        },
+        "Hostname": {
+            "path": "hostname",
+            "dataType": "String",
+            "allowGrouping": true
+        },
+        "Page": {
+            "path": "pagePath",
+            "dataType": "String",
+            "allowGrouping": true
+        },
+        "Page path level 1": {
+            "path": "pagePathLevel1",
+            "dataType": "String",
+            "allowGrouping": true
+        },
+        "Page path level 2": {
+            "path": "pagePathLevel2",
+            "dataType": "String",
+            "allowGrouping": true
+        },
+        "Page path level 3": {
+            "path": "pagePathLevel3",
+            "dataType": "String",
+            "allowGrouping": true
+        },
+        "Page path level 4": {
+            "path": "pagePathLevel4",
+            "dataType": "String",
+            "allowGrouping": true
+        },
+        "Page Title": {
+            "path": "pageTitle",
+            "dataType": "String",
+            "allowGrouping": true
+        },
+        "Landing Page": {
+            "path": "landingPagePath",
+            "dataType": "String",
+            "allowGrouping": true
+        },
+        "Second Page": {
+            "path": "secondPagePath",
+            "dataType": "String",
+            "allowGrouping": true
+        },
+        "Exit Page": {
+            "path": "exitPagePath",
+            "dataType": "String",
+            "allowGrouping": true
+        },
+        "Previous Page Path": {
+            "path": "previousPagePath",
+            "dataType": "String",
+            "allowGrouping": true
+        },
+        "Page Depth": {
+            "path": "pageDepth",
+            "dataType": "String",
+            "allowGrouping": true
+        },
+        "Landing Page Group XX": {
+            "path": "landingContentGroupXX",
+            "dataType": "String",
+            "allowGrouping": true
+        },
+        "Previous Page Group XX": {
+            "path": "previousContentGroupXX",
+            "dataType": "String",
+            "allowGrouping": true
+        },
+        "Page Group XX": {
+            "path": "contentGroupXX",
+            "dataType": "String",
+            "allowGrouping": true
+        },
+        "Site Search Status": {
+            "path": "searchUsed",
+            "dataType": "String",
+            "allowGrouping": true
+        },
+        "Search Term": {
+            "path": "searchKeyword",
+            "dataType": "String",
+            "allowGrouping": true
+        },
+        "Refined Keyword": {
+            "path": "searchKeywordRefinement",
+            "dataType": "String",
+            "allowGrouping": true
+        },
+        "Site Search Category": {
+            "path": "searchCategory",
+            "dataType": "String",
+            "allowGrouping": true
+        },
+        "Start Page": {
+            "path": "searchStartPage",
+            "dataType": "String",
+            "allowGrouping": true
+        },
+        "Destination Page": {
+            "path": "searchDestinationPage",
+            "dataType": "String",
+            "allowGrouping": true
+        },
+        "Search Destination Page": {
+            "path": "searchAfterDestinationPage",
+            "dataType": "String",
+            "allowGrouping": true
+        },
+        "App Installer ID": {
+            "path": "appInstallerId",
+            "dataType": "String",
+            "allowGrouping": true
+        },
+        "App Version": {
+            "path": "appVersion",
+            "dataType": "String",
+            "allowGrouping": true
+        },
+        "App Name": {
+            "path": "appName",
+            "dataType": "String",
+            "allowGrouping": true
+        },
+        "App ID": {
+            "path": "appId",
+            "dataType": "String",
+            "allowGrouping": true
+        },
+        "Screen Name": {
+            "path": "screenName",
+            "dataType": "String",
+            "allowGrouping": true
+        },
+        "Screen Depth": {
+            "path": "screenDepth",
+            "dataType": "String",
+            "allowGrouping": true
+        },
+        "Landing Screen": {
+            "path": "landingScreenName",
+            "dataType": "String",
+            "allowGrouping": true
+        },
+        "Exit Screen": {
+            "path": "exitScreenName",
+            "dataType": "String",
+            "allowGrouping": true
+        },
+        "Event Category": {
+            "path": "eventCategory",
+            "dataType": "String",
+            "allowGrouping": true
+        },
+        "Event Action": {
+            "path": "eventAction",
+            "dataType": "String",
+            "allowGrouping": true
+        },
+        "Event Label": {
+            "path": "eventLabel",
+            "dataType": "String",
+            "allowGrouping": true
+        },
+        "Transaction ID": {
+            "path": "transactionId",
+            "dataType": "String",
+            "allowGrouping": true
+        },
+        "Affiliation": {
+            "path": "affiliation",
+            "dataType": "String",
+            "allowGrouping": true
+        },
+        "Sessions to Transaction": {
+            "path": "sessionsToTransaction",
+            "dataType": "String",
+            "allowGrouping": true
+        },
+        "Days to Transaction": {
+            "path": "daysToTransaction",
+            "dataType": "String",
+            "allowGrouping": true
+        },
+        "Product SKU": {
+            "path": "productSku",
+            "dataType": "String",
+            "allowGrouping": true
+        },
+        "Product": {
+            "path": "productName",
+            "dataType": "String",
+            "allowGrouping": true
+        },
+        "Product Category": {
+            "path": "productCategory",
+            "dataType": "String",
+            "allowGrouping": true
+        },
+        "Currency Code": {
+            "path": "currencyCode",
+            "dataType": "String",
+            "allowGrouping": true
+        },
+        "Checkout Options": {
+            "path": "checkoutOptions",
+            "dataType": "String",
+            "allowGrouping": true
+        },
+        "Internal Promotion Creative": {
+            "path": "internalPromotionCreative",
+            "dataType": "String",
+            "allowGrouping": true
+        },
+        "Internal Promotion ID": {
+            "path": "internalPromotionId",
+            "dataType": "String",
+            "allowGrouping": true
+        },
+        "Internal Promotion Name": {
+            "path": "internalPromotionName",
+            "dataType": "String",
+            "allowGrouping": true
+        },
+        "Internal Promotion Position": {
+            "path": "internalPromotionPosition",
+            "dataType": "String",
+            "allowGrouping": true
+        },
+        "Order Coupon Code": {
+            "path": "orderCouponCode",
+            "dataType": "String",
+            "allowGrouping": true
+        },
+        "Product Brand": {
+            "path": "productBrand",
+            "dataType": "String",
+            "allowGrouping": true
+        },
+        "Product Category (Enhanced Ecommerce)": {
+            "path": "productCategoryHierarchy",
+            "dataType": "String",
+            "allowGrouping": true
+        },
+        "Product Category Level XX": {
+            "path": "productCategoryLevelXX",
+            "dataType": "String",
+            "allowGrouping": true
+        },
+        "Product Coupon Code": {
+            "path": "productCouponCode",
+            "dataType": "String",
+            "allowGrouping": true
+        },
+        "Product List Name": {
+            "path": "productListName",
+            "dataType": "String",
+            "allowGrouping": true
+        },
+        "Product List Position": {
+            "path": "productListPosition",
+            "dataType": "String",
+            "allowGrouping": true
+        },
+        "Product Variant": {
+            "path": "productVariant",
+            "dataType": "String",
+            "allowGrouping": true
+        },
+        "Shopping Stage": {
+            "path": "shoppingStage",
+            "dataType": "String",
+            "allowGrouping": true
+        },
+        "Social Action": {
+            "path": "socialInteractionAction",
+            "dataType": "String",
+            "allowGrouping": true
+        },
+        "Social Network and Action": {
+            "path": "socialInteractionNetworkAction",
+            "dataType": "String",
+            "allowGrouping": true
+        },
+        "Social Entity": {
+            "path": "socialInteractionTarget",
+            "dataType": "String",
+            "allowGrouping": true
+        },
+        "Social Type": {
+            "path": "socialEngagementType",
+            "dataType": "String",
+            "allowGrouping": true
+        },
+        "Timing Category": {
+            "path": "userTimingCategory",
+            "dataType": "String",
+            "allowGrouping": true
+        },
+        "Timing Label": {
+            "path": "userTimingLabel",
+            "dataType": "String",
+            "allowGrouping": true
+        },
+        "Timing Variable": {
+            "path": "userTimingVariable",
+            "dataType": "String",
+            "allowGrouping": true
+        }
+    },
+    "externalSource": true
+}, {
+    "_id": "5ac3b36749bdac0208430f96",
+    "name": "Expenses",
+    "description": "Expenses",
+    "source": "Expenses",
+    "modelIdentifier": "Expense",
+    "dateField": "timestamp",
+    "aggregate": [{
+        "__dollar__addFields": {
+            "mainConcept": {
+                "__dollar__arrayElemAt": [{
+                        "__dollar__split": [
+                            "__dollar__expense.concept",
+                            ":"
+                        ]
+                    },
+                    0.0
+                ]
+            }
+        }
+    }],
+    "fieldsMap": {
+        "Location's Name": {
+            "path": "location.name",
+            "dataType": "String",
+            "allowGrouping": true
+        },
+        "Location's Id": {
+            "path": "location.id",
+            "dataType": "String"
+        },
+        "Location's External Id": {
+            "path": "location.externalId",
+            "dataType": "String"
+        },
+        "Expense's Concept": {
+            "path": "mainConcept",
+            "dataType": "String",
+            "allowGrouping": true
+        },
+        "Expense's Detailed Concept": {
+            "path": "expense.concept",
+            "dataType": "String",
+            "allowGrouping": true
+        },
+        "Expense's Type": {
+            "path": "expense.type",
+            "dataType": "String",
+            "allowGrouping": true
+        },
+        "Expense's Concept Id": {
+            "path": "expense.conceptId",
+            "dataType": "String",
+            "allowGrouping": true
+        },
+        "Amount": {
+            "path": "expense.amount",
+            "dataType": "Number"
+        },
+        "Timestamp": {
+            "path": "timestamp",
+            "dataType": "Date"
+        },
+        "Source": {
+            "path": "source",
+            "dataType": "String",
+            "allowGrouping": true
+        },
+        "External Id": {
+            "path": "externalId",
+            "dataType": "String"
+        },
+        "Business Unit": {
+            "path": "businessUnit.name",
+            "dataType": "String"
+        },
+        "Document Type": {
+            "path": "document.type",
+            "dataType": "String",
+            "allowGrouping": true
+        },
+        "Document Identifier": {
+            "path": "document.identifier",
+            "dataType": "String"
+        }
+    }
+}, {
+    "_id": "5ace6e5ae8ab271c09d73457",
+    "name": "revenue_by_referrals",
+    "description": "Revenue by Referrals",
+    "source": "Sales",
+    "modelIdentifier": "Sale",
+    "dateField": "product.from",
+    "aggregate": [{
+            "__dollar__unwind": "$referral"
+        },
+        {
+            "__dollar__project": {
+                "location": 1,
+                "customer": 1,
+                "employee": 1,
+                "product": 1,
+                "category": 1,
+                "businessUnit": 1,
+                "serviceType": 1,
+                "referralMain": {
+                    "__dollar__arrayElemAt": [{
+                            "__dollar__split": [
+                                "__dollar__referral.name",
+                                ":"
+                            ]
+                        },
+                        0.0
+                    ]
+                },
+                "referral": 1
+            }
+        }
+    ],
+    "fieldsMap": {
+        "Location's Name": {
+            "path": "location.name",
+            "dataType": "String",
+            "allowGrouping": true
+        },
+        "Location's City": {
+            "path": "location.city",
+            "dataType": "String",
+            "allowGrouping": true
+        },
+        "Location's State": {
+            "path": "location.state",
+            "dataType": "String",
+            "allowGrouping": true
+        },
+        "Location's Zip": {
+            "path": "location.zip",
+            "dataType": "String",
+            "allowGrouping": true
+        },
+        "Customer's Address": {
+            "path": "customer.address",
+            "dataType": "String"
+        },
+        "Customer's City": {
+            "path": "customer.city",
+            "dataType": "String",
+            "allowGrouping": true
+        },
+        "Customer's State": {
+            "path": "customer.state",
+            "dataType": "String",
+            "allowGrouping": true
+        },
+        "Customer's Zip Code": {
+            "path": "customer.zip",
+            "dataType": "String",
+            "allowGrouping": true
+        },
+        "Customer's Gender": {
+            "path": "customer.gender",
+            "dataType": "String",
+            "allowGrouping": true
+        },
+        "Customer's Date of Birth": {
+            "path": "customer.dob",
+            "dataType": "Date"
+        },
+        "Customer's Full Name": {
+            "path": "customer.fullname",
+            "dataType": "String",
+            "allowGrouping": true
+        },
+        "Employee's Full Name": {
+            "path": "employee.fullName",
+            "dataType": "String",
+            "allowGrouping": true
+        },
+        "Employee's Role": {
+            "path": "employee.role",
+            "dataType": "String",
+            "allowGrouping": true
+        },
+        "Employee's Type of Employment": {
+            "path": "employee.type",
+            "dataType": "String",
+            "allowGrouping": true
+        },
+        "Product's code": {
+            "path": "product.itemCode",
+            "dataType": "String",
+            "allowGrouping": true
+        },
+        "Product's description": {
+            "path": "product.itemDescription",
+            "dataType": "String",
+            "allowGrouping": true
+        },
+        "Product's quantity": {
+            "path": "product.quantity",
+            "dataType": "Number"
+        },
+        "Product's tax 1": {
+            "path": "product.tax",
+            "dataType": "Number"
+        },
+        "Product's tax 2": {
+            "path": "product.tax2",
+            "dataType": "Number"
+        },
+        "From": {
+            "path": "product.from",
+            "dataType": "Date"
+        },
+        "To": {
+            "path": "product.to",
+            "dataType": "Date"
+        },
+        "Category": {
+            "path": "category.name",
+            "dataType": "String",
+            "allowGrouping": true
+        },
+        "Category's type of service": {
+            "path": "category.service",
+            "dataType": "Number",
+            "allowGrouping": true
+        },
+        "Timestamp": {
+            "path": "timestamp",
+            "dataType": "Date"
+        },
+        "Source": {
+            "path": "source",
+            "dataType": "String",
+            "allowGrouping": true
+        },
+        "Business Unit": {
+            "path": "businessUnit.name",
+            "dataType": "String",
+            "allowGrouping": true
+        },
+        "Service Type": {
+            "path": "serviceType",
+            "dataType": "String",
+            "allowGrouping": true
+        },
+        "Referral": {
+            "path": "referralMain",
+            "dataType": "String",
+            "allowGrouping": true
+        },
+        "Detailed Referral": {
+            "path": "referral.name",
+            "dataType": "String",
+            "allowGrouping": true
+        },
+        "Amount": {
+            "path": "referral.revenue",
+            "dataType": "Number"
+        },
+        "Amount Before Tax": {
+            "path": "referral.revenueNoTax",
+            "dataType": "Number"
+        }
+    }
+}, {
+    "_id": "5acec100e8ab271c09d73460",
+    "name": "established_customers_sales",
+    "description": "Sales (Established Customers)",
+    "source": "Sales",
+    "modelIdentifier": "Sale",
+    "dateField": "product.from",
+    "aggregate": [{
+            "__dollar__match": {
+                "customer__dot__firstBillDate": {
+                    "__dollar__ne": null
+                }
+            }
+        },
+        {
+            "__dollar__addFields": {
+                "monthCmp": {
+                    "__dollar__cmp": [{
+                            "__dollar__month": "$customer.firstBillDate"
+                        },
+                        {
+                            "__dollar__month": "$product.from"
+                        }
+                    ]
+                },
+                "yearCmp": {
+                    "__dollar__cmp": [{
+                            "__dollar__year": "$customer.firstBillDate"
+                        },
+                        {
+                            "__dollar__year": "$product.from"
+                        }
+                    ]
+                }
+            }
+        },
+        {
+            "__dollar__match": {
+                "monthCmp": {
+                    "__dollar__lt": 0
+                },
+                "yearCmp": {
+                    "__dollar__lte": 0
+                }
+            }
+        }
+    ],
+    "fieldsMap": {
+        "Location's Name": {
+            "path": "location.name",
+            "dataType": "String",
+            "allowGrouping": true
+        },
+        "Location's City": {
+            "path": "location.city",
+            "dataType": "String",
+            "allowGrouping": true
+        },
+        "Location's State": {
+            "path": "location.state",
+            "dataType": "String",
+            "allowGrouping": true
+        },
+        "Location's Zip": {
+            "path": "location.zip",
+            "dataType": "String",
+            "allowGrouping": true
+        },
+        "Location's External Id": {
+            "path": "location.externalId",
+            "dataType": "String"
+        },
+        "Customer's Address": {
+            "path": "customer.address",
+            "dataType": "String"
+        },
+        "Customer's City": {
+            "path": "customer.city",
+            "dataType": "String",
+            "allowGrouping": true
+        },
+        "Customer's State": {
+            "path": "customer.state",
+            "dataType": "String",
+            "allowGrouping": true
+        },
+        "Customer's Zip Code": {
+            "path": "customer.zip",
+            "dataType": "String",
+            "allowGrouping": true
+        },
+        "Customer's Gender": {
+            "path": "customer.gender",
+            "dataType": "String",
+            "allowGrouping": true
+        },
+        "Customer's Date of Birth": {
+            "path": "customer.dob",
+            "dataType": "Date"
+        },
+        "Customer's Full Name": {
+            "path": "customer.fullname",
+            "dataType": "String",
+            "allowGrouping": true
+        },
+        "Customer's External Id": {
+            "path": "customer.externalId",
+            "dataType": "String"
+        },
+        "Employee's Full Name": {
+            "path": "employee.fullName",
+            "dataType": "String",
+            "allowGrouping": true
+        },
+        "Employee's Role": {
+            "path": "employee.role",
+            "dataType": "String",
+            "allowGrouping": true
+        },
+        "Employee's Type of Employment": {
+            "path": "employee.type",
+            "dataType": "String",
+            "allowGrouping": true
+        },
+        "Employee's External Id": {
+            "path": "employee.externalId",
+            "dataType": "String"
+        },
+        "Product's code": {
+            "path": "product.itemCode",
+            "dataType": "String",
+            "allowGrouping": true
+        },
+        "Product's description": {
+            "path": "product.itemDescription",
+            "dataType": "String",
+            "allowGrouping": true
+        },
+        "Product's quantity": {
+            "path": "product.quantity",
+            "dataType": "Number"
+        },
+        "Product's unit price": {
+            "path": "product.unitPrice",
+            "dataType": "Number"
+        },
+        "Product's tax 1": {
+            "path": "product.tax",
+            "dataType": "Number"
+        },
+        "Product's tax 2": {
+            "path": "product.tax2",
+            "dataType": "Number"
+        },
+        "Amount": {
+            "path": "product.amount",
+            "dataType": "Number"
+        },
+        "Total before taxes": {
+            "path": "product.preTaxTotal",
+            "dataType": "Number"
+        },
+        "Paid": {
+            "path": "product.paid",
+            "dataType": "Number"
+        },
+        "Discounts": {
+            "path": "product.discount",
+            "dataType": "Number"
+        },
+        "From": {
+            "path": "product.from",
+            "dataType": "Date"
+        },
+        "To": {
+            "path": "product.to",
+            "dataType": "Date"
+        },
+        "Product's external Id": {
+            "path": "product.externalId",
+            "dataType": "String"
+        },
+        "Category": {
+            "path": "category.name",
+            "dataType": "String",
+            "allowGrouping": true
+        },
+        "Category's type of service": {
+            "path": "category.service",
+            "dataType": "Number",
+            "allowGrouping": true
+        },
+        "Category's External Id": {
+            "path": "category.externalId",
+            "dataType": "String"
+        },
+        "Timestamp": {
+            "path": "timestamp",
+            "dataType": "Date"
+        },
+        "Concept": {
+            "path": "concept",
+            "dataType": "String"
+        },
+        "Bill id": {
+            "path": "billId",
+            "dataType": "String"
+        },
+        "Source": {
+            "path": "source",
+            "dataType": "String",
+            "allowGrouping": true
+        },
+        "External Id": {
+            "path": "externalId",
+            "dataType": "String"
+        },
+        "Business Unit": {
+            "path": "businessUnit.name",
+            "dataType": "String",
+            "allowGrouping": true
+        },
+        "Service Type": {
+            "path": "serviceType",
+            "dataType": "String",
+            "allowGrouping": true
+        },
+        "Referral": {
+            "path": "referral.name",
+            "dataType": "String",
+            "allowGrouping": true
+        },
+        "Referral's External Id": {
+            "path": "referral.externalId",
+            "dataType": "String"
+        }
+    }
+}]

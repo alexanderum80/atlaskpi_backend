@@ -55,7 +55,7 @@ export class SimpleKPIBase extends KpiBase {
     protected _getValueObject(definition: IKPISimpleDefinition): any {
         switch (definition.function) {
             case 'count':
-                return { $sum: 1 };
+                return { $sum: this._getAcumulatorObject(definition, 1) };
 
             default:
                 const func = '$' + definition.function;
@@ -65,8 +65,8 @@ export class SimpleKPIBase extends KpiBase {
         }
     }
 
-    protected _getAcumulatorObject(definition: IKPISimpleDefinition): any {
-        const field = '$' + definition.field;
+    protected _getAcumulatorObject(definition: IKPISimpleDefinition, overrideFieldValue?: number): any {
+        const field = overrideFieldValue || `$${definition.field}`;
 
         if (!definition.operator) {
             return field;

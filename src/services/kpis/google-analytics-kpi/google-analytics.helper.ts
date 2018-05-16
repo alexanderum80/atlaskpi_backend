@@ -58,13 +58,14 @@ export const frequencyDimensionsMap = {
 const dateDimensions = ['date', 'isoYearIsoWeek', 'yearMonth', 'year'];
 
 export const cleanHeaders = (headers): string[] => headers.map(h => h.name.replace('ga:', ''));
-export const groupingsToDimensions = (groupings): string[] => groupings.map(g => groupingDimensionsMap[g]).filter(g => Boolean(g));
+export const groupingsToDimensions = (groupings): string[] => groupings.filter(g => g !== null && g !== undefined).map(g => `ga:${g}`).filter(g => Boolean(g));
 
 export interface IGetAnalyticsOptions {
     startDate?: string;
     endDate?: string;
     metrics?: string[];
     dimensions?: string[];
+    filters?: string;
     extraOpts?: any;
 }
 
@@ -106,9 +107,16 @@ export function  getAnalyticsData(  analyticsObj: any,
         'start-date': startDate,
         'end-date': endDate,
         'metrics': metrics.join(','),
-        'dimensions': dimensions.slice(0, 7).join(','), // maximun 7 dimentions allowed by google
         ... options.extraOpts || {} // if you know google analytics api you can add parameters to the request here.
     };
+
+    if (options.filters) {
+        queryObj.filters = options.filters;
+    }
+
+    if (options.dimensions && options.dimensions.length) {
+        queryObj.dimensions = dimensions.slice(0, 7).join(','); // maximun 7 dimentions allowed by google
+    }
 
     return new Promise<any>((resolve, reject) => {
         analyticsObj.data.ga.get(queryObj, (err, res) => {
@@ -159,7 +167,10 @@ export function parseGoogleAnalyticsDatesDimentions(id: string, value: any, tz: 
 }
 
 export function constructDimensionsArray(groupings: string[], frequency?: FrequencyEnum): string[] {
-    const groupingDimensions = groupingsToDimensions(groupings || []);
+    groupings = groupings || [];
+    let groupingDimensions =  groupingsToDimensions(groupings || []);
+
+
     const frequencyPropName = (frequency === FrequencyEnum.Daily || frequency) && getFrequencyPropName(frequency) || null;
     const frequencyDimension = frequencyPropName && frequencyDimensionsMap[frequencyPropName];
 

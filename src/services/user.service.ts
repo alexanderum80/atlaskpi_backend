@@ -1,3 +1,4 @@
+import { Alerts } from '../domain/app/alerts/alert.model';
 import { IRoleDocument } from '../domain/app/security/roles/role';
 import { Roles } from '../domain/app/security/roles/role.model';
 import { UserDetails } from '../app_modules/users/users.types';
@@ -12,12 +13,14 @@ import { Attachments } from '../domain/app/attachments/attachment-model';
 import { AttachmentTypeEnum, AttachmentCategoryEnum } from '../domain/app/attachments/attachment';
 import { Logger } from '../domain/app/logger';
 import { UserAttachmentsService } from './attachments/user-attachments.service';
+import { isEmpty, find } from 'lodash';
 
 @injectable()
 export class UserService {
     constructor(
         @inject(Logger.name) private _logger: Logger,
         @inject(Users.name) private _users: Users,
+        @inject(Alerts.name) private _alerts: Alerts,
         @inject(Roles.name) private _roles: Roles,
         @inject(CurrentUser.name) private _currentUser: CurrentUser,
         @inject(UserAttachmentsService.name) private _userAttachmentService: UserAttachmentsService,
@@ -27,6 +30,8 @@ export class UserService {
     async getCurrentUserInfo(): Promise<IUserDocument> {
         try {
             const user = this._currentUser.get().toObject() as IUserDocument;
+            user.ownerAgreed = await this._hasOwnerAgreed(user);
+
             user.profilePictureUrl = await this._userAttachmentService.getUrl(
                 AttachmentCategoryEnum.User,
                 AttachmentTypeEnum.ProfilePicture,
@@ -36,6 +41,24 @@ export class UserService {
             return user;
         } catch (e) {
             this._logger.error('There was an error getting the current user', e);
+        }
+    }
+
+    async removeUser(id: string): Promise<IMutationResponse> {
+        try {
+            if (!id) {
+                throw new Error('missing id to remove user');
+            }
+
+            const removeCurrentUser = await this._users.model.removeUser(id);
+            if (removeCurrentUser) {
+                const removeDeletedUserFromAlerts = await this._alerts.model
+                                                            .removeDeleteUser(removeCurrentUser.entity._id);
+            }
+
+            return removeCurrentUser;
+        } catch (err) {
+            this._logger.error('There was an removing the current user', err);
         }
     }
 
@@ -94,5 +117,48 @@ export class UserService {
             });
 
         });
+    }
+
+    private async _hasOwnerAgreed(currentUser: IUserDocument): Promise<boolean> {
+        // check if current user is the owner
+        const isCurrentUserOwner = currentUser.roles.find(role => role.name === 'owner');
+
+        if (isCurrentUserOwner) {
+            if (isEmpty(currentUser.profile)) {
+                return false;
+            }
+            // check if current user has agreement
+            if (!isEmpty(currentUser.profile.agreement)) {
+                return currentUser.profile.agreement.accept;
+            }
+
+            // return false user has no agreement subdocument
+            return false;
+        }
+
+        const users: IUserDocument[] = await this._users.model.find().populate('roles');
+
+        // filter users that has owner role
+        const owners: any[] = users.filter(user => user.roles.find(role => role.name === 'owner'));
+        // filter owners that has profile
+        const ownersWithProfile = owners.filter(o => !isEmpty(o.profile));
+
+        if (ownersWithProfile && ownersWithProfile.length) {
+            // find owner that has agreement object
+            const findAgreement = find(ownersWithProfile, (ownerProfile) => {
+                const owner = ownerProfile.toObject();
+                return !isEmpty(owner.profile.agreement);
+            });
+
+            // return accept value if user has agreement
+            if (findAgreement) {
+                const agreementObject = findAgreement.toObject();
+                return agreementObject.profile.agreement.accept;
+            }
+            // return if user agreement isn't there
+            return false;
+        }
+        // return false if no owner has a profile
+        return false;
     }
 }

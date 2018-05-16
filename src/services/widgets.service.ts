@@ -1,4 +1,6 @@
+import { Alerts } from '../domain/app/alerts/alert.model';
 import { inject, injectable } from 'inversify';
+import * as BlueBird from 'bluebird';
 
 import { Charts } from '../domain/app/charts/chart.model';
 import { Dashboards } from '../domain/app/dashboards/dashboard.model';
@@ -21,17 +23,31 @@ export class WidgetsService {
         @inject(Sales.name) private _sales: Sales,
         @inject(Expenses.name) private _expenses: Expenses,
         @inject(KPIs.name) private _kpis: KPIs,
-        @inject(WidgetFactory.name) private _widgetFactory: WidgetFactory
+        @inject(WidgetFactory.name) private _widgetFactory: WidgetFactory,
+        @inject(Alerts.name) private _alert: Alerts
     ) { }
 
-    async listWidgets(): Promise<IUIWidget[]> {
+    async listWidgets(options = { materialize: true }): Promise<IUIWidget[]> {
+        options = options || { materialize: true };
+
+        if (options.materialize == undefined) {
+            options.materialize = true;
+        }
+
+        const { materialize } = options;
         try {
-            const widgets = await this._widgets.model
+            const widgetDocuments = await this._widgets.model
                 .find()
                 .sort({ size: 1, order: 1, name: 1 });
-            const materializedWidgets = await this.materializeWidgetDocuments(widgets);
 
-            return materializedWidgets;
+            let widgets = [];
+            if (materialize) {
+                widgets = await this.materializeWidgetDocuments(widgetDocuments);
+            } else {
+                widgets = widgetDocuments.map(d => d.toObject());
+            }
+
+            return widgets;
         } catch (e) {
             console.error('There was an error getting the list of widgets', e);
             return [];
@@ -123,11 +139,20 @@ export class WidgetsService {
                         );
                         return;
                     }
-                    that._widgets.model.removeWidget(id).then(widget => {
-                        resolve(widget);
+
+                    // remove alert from widget
+                    const deleteModel = {
+                        widget: that._widgets.model.removeWidget(id),
+                        alert: that._alert.model.removeAlertByModelId(id)
+                    };
+                    BlueBird.props(deleteModel).then(documents => {
+                        resolve(documents.widget);
                         return;
                     })
-                    .catch(err => reject(err));
+                    .catch(err => {
+                        reject(err);
+                        return;
+                    });
                 })
                 .catch(err => reject(err));
         });

@@ -21,6 +21,9 @@ export class UserDetails  {
     @field({ type: GraphQLTypesMap.String, required: true })
     email: string;
 
+    @field({ type: GraphQLTypesMap.String })
+    timezone: string;
+
     @field({ type: GraphQLTypesMap.String, required: true, isArray: true })
     roles: string[];
 
@@ -39,6 +42,9 @@ export class UserProfileInput {
 
     @field({ type: GraphQLTypesMap.String })
     phoneNumber: string;
+
+    @field({ type: GraphQLTypesMap.String })
+    timezone: string;
 
     @field({ type: GraphQLTypesMap.Boolean })
     general: boolean;
@@ -103,6 +109,9 @@ export class ITourInput {
 
     @field({ type: GraphQLTypesMap.Boolean })
     helpCenter: boolean;
+
+    @field({ type: GraphQLTypesMap.Boolean })
+    showAppointmentCancelled: boolean;
 }
 
 @input()
@@ -201,6 +210,18 @@ export class UserServices  {
 
 }
 
+@type()
+export class UserAgreement {
+    @field({ type: GraphQLTypesMap.Boolean })
+    accept: boolean;
+
+    @field({ type: GraphQLTypesMap.String })
+    ipAddress: string;
+
+    @field({ type: GraphQLTypesMap.String })
+    timestamp: Date;
+}
+
 
 @type()
 export class UserProfile  {
@@ -227,6 +248,12 @@ export class UserProfile  {
 
     @field({ type: GraphQLTypesMap.String })
     phoneNumber: string;
+
+    @field({ type: UserAgreement })
+    agreement: UserAgreement;
+
+    @field({ type: GraphQLTypesMap.String })
+    timezone: string;
 
 }
 
@@ -265,18 +292,9 @@ export class UserPreference {
 
     @field({ type: GraphQLTypesMap.String })
     avatarAddress: string;
-}
 
-@type()
-export class UserAgreement {
     @field({ type: GraphQLTypesMap.Boolean })
-    accept: boolean;
-
-    @field({ type: GraphQLTypesMap.String })
-    ipAddress: string;
-
-    @field({ type: GraphQLTypesMap.String })
-    timestamp: Date;
+    showAppointmentCancelled: boolean;
 }
 
 @type()
@@ -303,11 +321,11 @@ export class User  {
     @field({ type: GraphQLTypesMap.String })
     timestamps: string;
 
-    @field({ type: UserAgreement })
-    agreement: UserAgreement;
-
     @field({ type: GraphQLTypesMap.String })
     profilePictureUrl: string;
+
+    @field({ type: GraphQLTypesMap.Boolean })
+    ownerAgreed?: boolean;
 }
 
 

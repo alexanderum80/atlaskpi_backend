@@ -57,6 +57,9 @@ export class KPIAttributesInput  {
 @input()
 export class KPIFilterCriteria {
     @field({ type: GraphQLTypesMap.String, required: true })
+    name: string;
+
+    @field({ type: GraphQLTypesMap.String, required: true })
     source: string;
 
     @field({ type: GraphQLTypesMap.String, required: true })

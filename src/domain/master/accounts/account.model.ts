@@ -36,7 +36,7 @@ let accountSchema = new mongoose.Schema({
         createdOn: { type: Date, default: Date.now },
         updatedOn: { type: Date, default: Date.now },
     },
-    demoMode: Boolean
+    demoMode: { type: Boolean, default: true }
 });
 
 accountSchema.statics.findAccountByUsername = function(username: string): Promise<IAccountDocument> {
@@ -134,7 +134,6 @@ accountSchema.methods.createAccountDbUser = function(accountDbUser: IAccountDBUs
         request.post(options, function(error, response, body) {
             if (!error || body.error) {
                 // winston.error('There was an error creating the database account', error || body.error);
-                console.log('User created...');
                 resolve(true);
             } else {
                 // console.log('Code : ' + response.statusCode);

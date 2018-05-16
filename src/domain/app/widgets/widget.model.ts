@@ -1,3 +1,4 @@
+import { searchPlugin } from '../global-search/global-search.plugin';
 import { inject, injectable } from 'inversify';
 import * as mongoose from 'mongoose';
 import * as validate from 'validate.js';
@@ -55,6 +56,7 @@ const WidgetSchema = new Schema({
 
 // add tags capabilities
 WidgetSchema.plugin(tagsPlugin);
+WidgetSchema.plugin(searchPlugin);
 
 WidgetSchema.statics.listWidgets = function(): Promise<IWidgetDocument[]> {
     const that = this;
@@ -183,12 +185,10 @@ WidgetSchema.statics.updateWidget = function(id: string, input: IWidgetInput): P
             }
 
             if (result) {
-                console.log(result);
                 resolve(result);
                 return;
             }
 
-            console.log('error updating widget');
             reject('There was an error updating the widget');
         });
     });

@@ -1,3 +1,4 @@
+import { ISearchableModel } from '../global-search/global-search';
 import { IObject } from '../../../app_modules/shared/criteria.plugin';
 import * as Promise from 'bluebird';
 import * as mongoose from 'mongoose';
@@ -19,6 +20,8 @@ export interface IChart {
     filter?: any;
     frequency?: string;
     groupings?: string[];
+    sortingCriteria: string;
+    sortingOrder: string;
     xFormat?: string;
     yFormat?: string;
     chartDefinition: any;
@@ -42,6 +45,8 @@ export interface IChartInput {
     filter?: any;
     frequency?: string;
     groupings?: string[];
+    sortingCriteria: string;
+    sortingOrder: string;
     xFormat?: string;
     yFormat?: string;
     chartDefinition: any;
@@ -56,6 +61,8 @@ export interface IGetChartInput {
     dateRange: [IChartDateRange];
     frequency: string;
     groupings: [string];
+    sortingCriteria: string;
+    sortingOrder: string;
     xAxisSource: string;
     comparison?: [string];
     filter?: string;
@@ -67,7 +74,7 @@ export interface IChartDocument extends IChart, mongoose.Document {
     isStacked(): boolean;
 }
 
-export interface IChartModel extends mongoose.Model<IChartDocument> {
+export interface IChartModel extends mongoose.Model<IChartDocument>, ISearchableModel {
     /**
      * Create a Chart
      * @param { IChartInput } input - and input object with the details of the chart

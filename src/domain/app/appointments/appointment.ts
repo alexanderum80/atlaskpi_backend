@@ -1,3 +1,4 @@
+import { ISearchableModel } from '../global-search/global-search';
 import * as Promise from 'bluebird';
 import * as mongoose from 'mongoose';
 
@@ -77,7 +78,7 @@ export interface IAppointmentDocument extends IAppointment, mongoose.Document {
 
 }
 
-export interface IAppointmentModel extends mongoose.Model<IAppointmentDocument> {
+export interface IAppointmentModel extends mongoose.Model<IAppointmentDocument>, ISearchableModel {
     createNew(input: IAppointment): Promise<IAppointmentDocument>;
     updateAppointment(id: string, input: IAppointment): Promise<IAppointmentDocument>;
     appointments(start: string, end: string): Promise<IAppointmentDocument[]>;
@@ -88,5 +89,5 @@ export interface IAppointmentModel extends mongoose.Model<IAppointmentDocument> 
 
     search(criteria: SearchAppointmentCriteriaInput): Promise<IAppointment[]>;
     providersList(): Promise<IIdName[]>;
-    findCriteria(field: string, limit?: number, filter?: string): Promise<string[]>;
+    findCriteria(field: string, aggregate: any[], limit?: number, filter?: string): Promise<string[]>;
 }

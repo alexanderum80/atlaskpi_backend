@@ -1,6 +1,6 @@
 import { criteriaPlugin } from '../../../app_modules/shared/criteria.plugin';
 import { inject, injectable } from 'inversify';
-import { isEmpty } from 'lodash';
+import { isEmpty, isBoolean } from 'lodash';
 import * as moment from 'moment';
 import * as mongoose from 'mongoose';
 import * as logger from 'winston';
@@ -11,6 +11,7 @@ import { SearchAppointmentCriteriaInput } from './../../../app_modules/appointme
 import { IIdName } from './../../common/id-name';
 import { IAppointment, IAppointmentDocument, IAppointmentModel } from './appointment';
 import { getCustomerSchema } from '../../common/customer.schema';
+import { searchPlugin } from '../global-search/global-search.plugin';
 
 const distinctProvidersPipeline = [
     { '$unwind': '$provider' },
@@ -119,6 +120,7 @@ AppointmentSchema.index({ 'from': 1, 'event.name': 1 });
 AppointmentSchema.index({ 'from': 1, 'source': 1 });
 
 AppointmentSchema.plugin(criteriaPlugin);
+AppointmentSchema.plugin(searchPlugin);
 
 AppointmentSchema.statics.createNew = function(input: IAppointment): Promise < IAppointmentDocument > {
     const that = < IAppointmentModel > this;
@@ -262,31 +264,35 @@ AppointmentSchema.statics.search = function(criteria: SearchAppointmentCriteriaI
     let from: moment.Moment;
     let to: moment.Moment;
 
-    // date
-    if (criteria && criteria.date) {
-        from = moment(criteria.date).startOf('day');
-        to = moment(criteria.date).add(1, 'day').startOf('day');
-    }  else if (criteria && criteria.startDate && criteria.endDate) {
-        from = moment(criteria.startDate);
-        to = moment(criteria.endDate);
-    } else {
-        const rightNow = moment();
-        from = rightNow.startOf('month');
-        to = rightNow.endOf('month');
-    }
+    if (criteria) {
+        // date
+        if (criteria.date) {
+            from = moment(criteria.date).startOf('day');
+            to = moment(criteria.date).add(1, 'day').startOf('day');
+        } else if (criteria.startDate && criteria.endDate) {
+            from = moment(criteria.startDate);
+            to = moment(criteria.endDate);
+        } else {
+            const rightNow = moment();
+            from = rightNow.startOf('month');
+            to = rightNow.endOf('month');
+        }
 
-    query['from'] = {
-        '$gte': from,
-        '$lt': to
-    };
-
-    // provider
-    if (criteria && criteria.provider &&
-        criteria.provider.length &&
-        !isEmpty(criteria.provider[0])) {
-        query['provider.externalId'] = {
-            '$in': criteria.provider,
+        query['from'] = {
+            '$gte': from,
+            '$lt': to
         };
+
+        // provider
+        if (criteria.provider && criteria.provider.length && !isEmpty(criteria.provider[0])) {
+            query['provider.externalId'] = {
+                '$in': criteria.provider,
+            };
+        }
+
+        if (isBoolean(criteria.cancelled) && criteria.cancelled === false) {
+            query['cancelled'] = criteria.cancelled;
+        }
     }
 
     const that = this;
