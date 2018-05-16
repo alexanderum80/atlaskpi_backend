@@ -1,3 +1,4 @@
+import { PreviewDashboardQuery } from './queries/preview-dashboard.query';
 import { AppModule, ModuleBase } from '../../framework/decorators/app-module';
 import { CreateDashboardMutation } from './mutations/create-dashboard.mutation';
 import { DeleteDashboardMutation } from './mutations/delete-dashboard.mutation';
@@ -17,7 +18,8 @@ import {DeleteWidgetFromDashboard} from './mutations/delete-widget-from-dashboar
     queries: [
         DashboardQuery,
         DashboardsQuery,
-        DashboardByNameQuery
+        DashboardByNameQuery,
+        PreviewDashboardQuery
     ]
 })
 export class DashboardsModule extends ModuleBase { }
