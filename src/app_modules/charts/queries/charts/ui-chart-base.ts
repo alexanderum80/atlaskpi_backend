@@ -449,28 +449,13 @@ export class UIChartBase {
         const predefined = dateRange[0].predefined;
         let duplicateCategories: any[] = [];
         let groupingField = metadata.groupings.length ? camelCase(metadata.groupings[0]) : null;
-
-        switch (predefined) {
-            case PredefinedDateRanges.last2Years:
-                [1, 2].forEach(iterator => {
-                    duplicateCategories.push(this.frequencyHelper.getCategories(data, frequency, groupingField , sortingCriteria, sortingOrder));
-                });
-                break;
-            case PredefinedDateRanges.last3Years:
-                [1, 2, 3].forEach(iterator => {
-                    duplicateCategories.push(this.frequencyHelper.getCategories(data, frequency, groupingField , sortingCriteria, sortingOrder));
-                });
-                break;
-            case PredefinedDateRanges.last4Years:
-                [1, 2, 3, 4].forEach(iterator => {
-                    duplicateCategories.push(this.frequencyHelper.getCategories(data, frequency, groupingField , sortingCriteria, sortingOrder));
-                });
-                break;
-            case PredefinedDateRanges.last5Years:
-                [1, 2, 3, 4, 5].forEach(iterator => {
-                    duplicateCategories.push(this.frequencyHelper.getCategories(data, frequency, groupingField , metadata.sortingCriteria, metadata.sortingOrder));
-                });
-                break;
+        let dateRangesMap = {};
+        dateRangesMap[PredefinedDateRanges.last2Years] = 2;
+        dateRangesMap[PredefinedDateRanges.last3Years] = 3;
+        dateRangesMap[PredefinedDateRanges.last4Years] = 4;
+        dateRangesMap[PredefinedDateRanges.last5Years] = 5;
+        for (let i = 1; i <= dateRangesMap[predefined]; i++) {
+            duplicateCategories.push(this.frequencyHelper.getCategories(data, frequency, groupingField , sortingCriteria, sortingOrder));
         }
         if (duplicateCategories.length) {
             duplicateCategories = flatten(duplicateCategories);

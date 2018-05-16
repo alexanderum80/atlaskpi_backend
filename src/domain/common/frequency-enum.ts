@@ -60,15 +60,15 @@ export function getFrequencySequence(data: any, frequency: FrequencyEnum, groupi
                 } else if (sortingCriteria === SortingCriteriaEnum.Frequency && sortingOrder) {
                     if (sortingOrder === SortingOrderEnum.Descending) {
                         // return array of values from 31 to 1
-                        for (let i = 31; i >= 1; i--) frequencies.push(i);
+                        return [31, 30, 29, 28, 27, 26, 25, 24, 23, 22, 21, 20, 19, 18, 17, 16, 15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1];
                     } else if (sortingOrder === SortingOrderEnum.Ascending) {
                         // return array of values from 1 to 31
-                        for (let i = 1; i <= 31; i++) frequencies.push(i);
+                        return [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31];
                     }
                 }
             } else {
                 // return array of values from 1 to 31
-                for (let i = 1; i <= 31; i++) frequencies.push(i);
+                return [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31];
             }
             return frequencies;
         case FrequencyEnum.Monthly:
