@@ -311,7 +311,7 @@ export class TargetService {
 
             const message = `
                 This is a notification for the target ${notifyData.targetName} you set for ${notifyData.businessUnitName}, 
-                to date you have reached $${notifyData.targetMet} of your targeted $${notifyData.targetAmount} for 
+                to date you have reached ${notifyData.targetMet} of your targeted ${notifyData.targetAmount} for 
                 ${notifyData.targetDate}. You can access this on your ${notifyData.dashboardName} dashboard on the chart called 
                 ${notifyData.chartName}.
             `;
@@ -470,7 +470,7 @@ export class TargetService {
             if (decimal === 0) {
                 amount = Math.round(amount);
             }
-            amount = parseFloat(amount.toFixed(decimal));
+            amount = amount.toFixed(decimal) as any;
         }
         return `${custom.prefix}${amount}${custom.suffix}`;
     }
