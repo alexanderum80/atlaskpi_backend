@@ -156,7 +156,7 @@ export class UIChartBase {
                 return;
             }
 
-            let groupingField = metadata.groupings.length ? camelCase(metadata.groupings[0]) : null;
+            let groupingField = (metadata.groupings && metadata.groupings.length) ? camelCase(metadata.groupings[0]) : null;
 
             data = this._sortingData(metadata, data);
             // must transform data first to apply top n
