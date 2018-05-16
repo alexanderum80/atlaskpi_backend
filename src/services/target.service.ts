@@ -291,13 +291,8 @@ export class TargetService {
                 throw new Error('inefficient data');
             }
 
-            if (!isNumber(input.targetAmount)) {
-                targetAmount = this._formatNotificationValue(chartDefinition, input.targetAmount);
-            }
-
-            if (!isNumber(input.targetMet)) {
-                targetMet = this._formatNotificationValue(chartDefinition, input.targetMet);
-            }
+            targetAmount = this._formatNotificationValue(chartDefinition, input.targetAmount);
+            targetMet = this._formatNotificationValue(chartDefinition, input.targetMet);
 
             const notifyData: INotificationData = {
                 targetName: input.targetName,
