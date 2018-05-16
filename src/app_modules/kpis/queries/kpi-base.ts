@@ -39,7 +39,7 @@ export interface IGetDataOptions {
     frequency?: FrequencyEnum;
     groupings?: string[];
     sortingCriteria?: string;
-    sortingOrder: string;
+    sortingOrder?: string;
     stackName?: string;
     isDrillDown?: boolean;
     isFutureTarget?: boolean;
