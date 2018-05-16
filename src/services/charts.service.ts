@@ -97,6 +97,8 @@ export class ChartsService {
                 top: (options && options.top) || chart.top,
                 isDrillDown: options && options.isDrillDown || false,
                 isFutureTarget: options && options.isFutureTarget || false,
+                sortingCriteria: chart.sortingCriteria,
+                sortingOrder: chart.sortingOrder
             };
 
             chart.targetExtraPeriodOptions = this._getTargetExtraPeriodOptions(meta.frequency, chart.dateRange);
