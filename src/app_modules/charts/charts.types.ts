@@ -68,6 +68,12 @@ export class ChartAttributesInput  {
     groupings: string[];
 
     @field({ type: GraphQLTypesMap.String })
+    sortingCriteria: string;
+
+    @field({ type: GraphQLTypesMap.String })
+    sortingOrder: string;
+
+    @field({ type: GraphQLTypesMap.String })
     chartDefinition: string;
 
     @field({ type: GraphQLTypesMap.String })
@@ -127,6 +133,12 @@ export class ChartEntityResponse  {
 
     @field({ type: GraphQLTypesMap.String, isArray: true })
     groupings: string[];
+
+    @field({ type: GraphQLTypesMap.String })
+    sortingCriteria: string;
+
+    @field({ type: GraphQLTypesMap.String })
+    sortingOrder: string;
 
     @field({ type: GraphQLTypesMap.String })
     xFormat: string;
