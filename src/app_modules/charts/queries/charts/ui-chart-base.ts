@@ -156,7 +156,7 @@ export class UIChartBase {
                 return;
             }
 
-            let groupingField = metadata.groupings.length ? camelCase(metadata.groupings[0]) : null;
+            let groupingField = (metadata.groupings && metadata.groupings.length) ? camelCase(metadata.groupings[0]) : null;
 
             data = this._sortingData(metadata, data);
             // must transform data first to apply top n
@@ -270,7 +270,7 @@ export class UIChartBase {
      */
     private _sortingData(metadata: IChartMetadata, data: any): any {
 
-        let groupingField = metadata.groupings.length ? camelCase(metadata.groupings[0]) : null;
+        let groupingField = (metadata.groupings && metadata.groupings.length) ? camelCase(metadata.groupings[0]) : null;
 
         if (metadata.sortingCriteria && metadata.sortingCriteria === SortingCriteriaEnum.Values) {
             if (metadata.sortingOrder) data = orderBy( data , 'value', metadata.sortingOrder === SortingOrderEnum.Ascending ? 'asc' : 'desc');
@@ -355,7 +355,7 @@ export class UIChartBase {
      */
     private _createCategories(data: any, metadata: IChartMetadata): IXAxisCategory[] {
 
-        let groupingField = metadata.groupings.length ? camelCase(metadata.groupings[0]) : null;
+        let groupingField = (metadata.groupings && metadata.groupings.length) ? camelCase(metadata.groupings[0]) : null;
         if (metadata.sortingCriteria) {
             if (metadata.sortingCriteria === SortingCriteriaEnum.Values && metadata.sortingOrder) {
                 data = orderBy(data, 'value', metadata.sortingOrder === SortingOrderEnum.Ascending ? 'asc' : 'desc');
@@ -448,7 +448,7 @@ export class UIChartBase {
     private _noGroupingsCategoryHelper(data: any, metadata: any , dateRange: IChartDateRange[], frequency: number, sortingCriteria, sortingOrder): any[] {
         const predefined = dateRange[0].predefined;
         let duplicateCategories: any[] = [];
-        let groupingField = metadata.groupings.length ? camelCase(metadata.groupings[0]) : null;
+        let groupingField = (metadata.groupings && metadata.groupings.length) ? camelCase(metadata.groupings[0]) : null;
         let dateRangesMap = {};
         dateRangesMap[PredefinedDateRanges.last2Years] = 2;
         dateRangesMap[PredefinedDateRanges.last3Years] = 3;
@@ -816,7 +816,7 @@ export class UIChartBase {
     }
 
     private _dummyData(data: any[], metadata: any, target: any[]) {
-        let groupingField = metadata.groupings.length ? camelCase(metadata.groupings[0]) : null;
+        let groupingField = (metadata.groupings && metadata.groupings.length) ? camelCase(metadata.groupings[0]) : null;
         if (!data || !data.length) {
             let tempData = getFrequencySequence(data, metadata.frequency, groupingField , metadata.sortingCriteria, metadata.sortingOrder);
             if (!this.commonField || !this.commonField.length) {
