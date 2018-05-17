@@ -1,8 +1,7 @@
+import * as Bluebird from 'bluebird';
 import { inject, injectable } from 'inversify';
 import { isObject } from 'lodash';
 import { DocumentQuery } from 'mongoose';
-import { intersectionBy, uniq } from 'lodash';
-import * as Bluebird from 'bluebird';  
 
 import { IChartDocument } from '../domain/app/charts/chart';
 import { Charts } from '../domain/app/charts/chart.model';
@@ -13,7 +12,6 @@ import { Inventory } from '../domain/app/inventory/inventory.model';
 import { IDocumentExist, IKPI, IKPIDocument, KPITypeEnum, KPITypeMap } from '../domain/app/kpis/kpi';
 import { KPIExpressionHelper } from '../domain/app/kpis/kpi-expression.helper';
 import { KPIFilterHelper } from '../domain/app/kpis/kpi-filter.helper';
-import { KPIFilterFromSourceHelper } from '../domain/app/kpis/kpi-filterFromSource.helper';
 import { KPIs } from '../domain/app/kpis/kpi.model';
 import { ISaleModel } from '../domain/app/sales/sale';
 import { Sales } from '../domain/app/sales/sale.model';
@@ -21,11 +19,10 @@ import { IVirtualSourceDocument } from '../domain/app/virtual-sources/virtual-so
 import { VirtualSources } from '../domain/app/virtual-sources/virtual-source.model';
 import { IWidgetDocument } from '../domain/app/widgets/widget';
 import { Widgets } from '../domain/app/widgets/widget.model';
-import { IMutationResponse } from '../framework/mutations/mutation-response';
-import { IIdName } from '../domain/common/id-name';
 import { IValueName } from '../domain/common/value-name';
-import { Connectors } from '../domain/master/connectors/connector.model';
 import { IConnectorDocument } from '../domain/master/connectors/connector';
+import { Connectors } from '../domain/master/connectors/connector.model';
+import { IMutationResponse } from '../framework/mutations/mutation-response';
 
 const codeMapper = {
     'Revenue': 'sales',
@@ -58,10 +55,6 @@ export class KpiService {
 
         // process available groupings
         kpis.forEach(k => {
-            if (k.code === 'Google Analytics') {
-                console.log('google analytics');
-            }
-
             const kpiSources: string[] = this._getKpiSources(k, kpis, connectors);
             // find common field paths on the sources
             k.groupingInfo = this._getCommonSourcePaths(kpiSources, virtualSources);
