@@ -1,5 +1,7 @@
 import { IKPIDocument } from '../../domain/app/kpis/kpi';
 import { KPIFilterHelper } from '../../domain/app/kpis/kpi-filter.helper';
+import { KPIFilterFromSourceHelper } from '../../domain/app/kpis/kpi-filterFromSource.helper';
+
 import { field } from '../../framework/decorators/field.decorator';
 import { GraphQLTypesMap } from '../../framework/decorators/graphql-types-map';
 import { input } from '../../framework/decorators/input.decorator';
@@ -46,6 +48,9 @@ export class KPIAttributesInput  {
 
     @field({ type: GraphQLTypesMap.String, isArray: true })
     tags: string[];
+    
+    @field({ type: GraphQLTypesMap.String })
+    source: string;
 
 }
 
@@ -126,6 +131,9 @@ export class KPI  {
 
     @field({ type: GraphQLTypesMap.String, isArray: true })
     tags: string[];
+
+    @field({ type: GraphQLTypesMap.String })
+    source: string;
 }
 
 
