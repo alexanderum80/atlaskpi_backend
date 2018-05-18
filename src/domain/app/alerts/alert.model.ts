@@ -24,7 +24,7 @@ const AlertModelInfoSchema = {
 };
 
 const AlertSchema = new Schema({
-    notify_users: [{
+    notifyUsers: [{
         // type: Schema.Types.String,
         type: Schema.Types.ObjectId,
         ref: 'User',
@@ -34,9 +34,9 @@ const AlertSchema = new Schema({
     frequency: { type: String, required: true },
     // alert is active or inactive
     active: {type: Boolean, required: true},
-    push_notification: Boolean,
-    email_notified: Boolean,
-    model_alert: {
+    pushNotification: Boolean,
+    emailNotified: Boolean,
+    modelAlert: {
         type: AlertModelInfoSchema,
         required: true
     },
@@ -57,7 +57,7 @@ AlertSchema.statics.alertByWidgetId = function(id: string): BlueBird<IAlertDocum
     const alertModel = (<IAlertModel>this);
 
     return new BlueBird<IAlertDocument[]>((resolve, reject) => {
-        alertModel.find({ 'model_alert.id': id })
+        alertModel.find({ 'modelAlert.id': id })
             .then((result: IAlertDocument[]) => {
                 resolve(result);
                 return;
@@ -182,7 +182,7 @@ AlertSchema.statics.removeAlertByModelId = function(id: string): BlueBird<IAlert
             return;
         }
 
-        alertModel.findOne({ 'model_alert.id': id }).then((alert: IAlertDocument) => {
+        alertModel.findOne({ 'modelAlert.id': id }).then((alert: IAlertDocument) => {
             if (!alert) {
                 resolve(null);
                 return;
@@ -208,7 +208,7 @@ AlertSchema.statics.removeDeleteUser = async function(id: string): Promise<boole
     try {
         const removeUser = await this.update(
             {}, {
-                'notify_users': {
+                'notifyUsers': {
                     $in: [id]
                 }
             }, {

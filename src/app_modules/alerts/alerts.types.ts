@@ -18,7 +18,7 @@ export class AlertModelInfoInput {
 @input()
 export class AlertInput {
     @field({ type: GraphQLTypesMap.String, isArray: true, required: true })
-    notify_users: String[];
+    notifyUsers: String[];
 
     @field({ type: GraphQLTypesMap.String, required: true })
     frequency: String;
@@ -27,13 +27,13 @@ export class AlertInput {
     active: boolean;
 
     @field({ type: GraphQLTypesMap.Boolean })
-    push_notification: boolean;
+    pushNotification: boolean;
 
     @field({ type: GraphQLTypesMap.Boolean })
-    email_notified: boolean;
+    emailNotified: boolean;
 
     @field({ type: AlertModelInfoInput })
-    model_alert: AlertModelInfoInput;
+    modelAlert: AlertModelInfoInput;
 }
 
 @type()
@@ -51,7 +51,7 @@ export class AlertResponse {
     _id: string;
 
     @field({ type: GraphQLTypesMap.String, isArray: true })
-    notify_users: String[];
+    notifyUsers: String[];
 
     @field({ type: GraphQLTypesMap.String })
     frequency: String;
@@ -60,13 +60,13 @@ export class AlertResponse {
     active: boolean;
 
     @field({ type: GraphQLTypesMap.Boolean })
-    push_notification: boolean;
+    pushNotification: boolean;
 
     @field({ type: GraphQLTypesMap.Boolean })
-    email_notified: boolean;
+    emailNotified: boolean;
 
     @field({ type: AlertModelInfoResponse })
-    model_alert: AlertModelInfoResponse;
+    modelAlert: AlertModelInfoResponse;
 }
 
 @type()

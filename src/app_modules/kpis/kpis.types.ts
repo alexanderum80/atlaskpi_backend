@@ -1,6 +1,5 @@
 import { IKPIDocument } from '../../domain/app/kpis/kpi';
 import { KPIFilterHelper } from '../../domain/app/kpis/kpi-filter.helper';
-import { KPIFilterFromSourceHelper } from '../../domain/app/kpis/kpi-filterFromSource.helper';
 
 import { field } from '../../framework/decorators/field.decorator';
 import { GraphQLTypesMap } from '../../framework/decorators/graphql-types-map';

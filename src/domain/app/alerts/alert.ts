@@ -8,13 +8,13 @@ export interface IAlertModelInfo {
 }
 
 export interface IAlertInfo {
-    notify_users: string[];
+    notifyUsers: string[];
     frequency: string;
     active: boolean;
-    push_notification: boolean;
-    email_notified: boolean;
+    pushNotification: boolean;
+    emailNotified: boolean;
     timezone: string;
-    model_alert: IAlertModelInfo;
+    modelAlert: IAlertModelInfo;
     dayOfMonth: number;
     timestamp?: Date;
 }
