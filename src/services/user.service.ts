@@ -27,10 +27,15 @@ export class UserService {
         @inject(AccountCreatedNotification.name) private _accountCreatedNotification: AccountCreatedNotification
     ) {}
 
-    async getCurrentUserInfo(): Promise<IUserDocument> {
+    async getCurrentUserInfo(aUser?: IUserDocument): Promise<IUserDocument> {
         try {
-            const user = this._currentUser.get().toObject() as IUserDocument;
-            user.ownerAgreed = await this._hasOwnerAgreed(user);
+            let user: IUserDocument;
+            if (aUser) {
+                user = aUser;
+            } else {
+                user = this._currentUser.get().toObject() as IUserDocument;
+                user.ownerAgreed = await this._hasOwnerAgreed(user);
+            }
 
             user.profilePictureUrl = await this._userAttachmentService.getUrl(
                 AttachmentCategoryEnum.User,
