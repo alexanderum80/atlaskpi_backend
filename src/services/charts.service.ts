@@ -172,7 +172,7 @@ export class ChartsService {
                     // update dateRange, frequency, grouping, isDrillDown
                     // use case: change daterange and frequency in chart view of dashboard
                     const chartOptions: PartialDeep<IChartInput> = pick(input,
-                                ['dateRange', 'frequency', 'groupings', 'isDrillDown']
+                                ['dateRange', 'frequency', 'groupings', 'isDrillDown', 'xAxisSource']
                     );
                     Object.assign(chart, chartOptions);
                 }
