@@ -60,7 +60,6 @@ export class AdaptEngine {
         return new Promise<any>((resolve, reject) => {
             this._engine.query(sentence)
                 .then(intents => {
-                    console.log(intents);
                     that._engine.stop();
                     resolve(intents);
                 })
