@@ -39,6 +39,7 @@ let KPISchema = new Schema({
     emptyValueReplacement: String,
     expression: String,
     type: { type: String, required: true },
+    source: Schema.Types.Mixed,
     system: Boolean
 });
 
