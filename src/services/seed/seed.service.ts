@@ -19,7 +19,7 @@ import { Inventory } from '../../domain/app/inventory/inventory.model';
 import { WorkLog } from '../../domain/app/work-log/work-log';
 import { Worklogs } from '../../domain/app/work-log/work-log.model';
 import { VirtualSources } from '../../domain/app/virtual-sources/virtual-source.model';
-
+import {Widgets} from '../../domain/app/widgets/widget.model';
 
 
 interface ISeedModels {
@@ -31,6 +31,7 @@ interface ISeedModels {
     KPI: KPIs;
     Chart: Charts;
     Dashboard: Dashboards;
+    Widget: Widgets;
     VirtualSource: VirtualSources;
 }
 
@@ -48,6 +49,7 @@ export class SeedService {
             KPI: new KPIs(appConnection),
             Chart: new Charts(appConnection),
             Dashboard: new Dashboards(appConnection),
+            Widget: new Widgets(appConnection),
             VirtualSource: new VirtualSources(appConnection)
         };
     }
@@ -84,6 +86,10 @@ export class SeedService {
             {
                 model: 'Dashboard',
                 filename: 'dashboards.json'
+            },
+            {
+                model: 'Widget',
+                filename: 'widgets.json'
             },
             {
                 model: 'VirtualSource',
