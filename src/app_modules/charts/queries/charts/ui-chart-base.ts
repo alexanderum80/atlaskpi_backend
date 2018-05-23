@@ -56,6 +56,8 @@ export interface IComparisonSerieObject {
     data?: string[];
     type?: string;
     stack?: string;
+    targetId?: string;
+    percentageCompletion?: number;
 }
 
 export interface ICategoriesWithValues {
@@ -64,6 +66,7 @@ export interface ICategoriesWithValues {
     serieValue?: number|object;
     type?: string;
     targetId?: any;
+    percentageCompletion?: number;
 }
 
 export interface IComparsionDefObjectData {
@@ -674,7 +677,8 @@ export class UIChartBase {
                         targetId: v._id
                     },
                     value: (<any>v).target,
-                    targetId: v._id
+                    targetId: v._id,
+                    percentageCompletion: v.percentageCompletion
                 } : {
                     _id: {
                         frequency: TargetService.formatFrequency(metadata.frequency, v.datepicker),
@@ -682,7 +686,8 @@ export class UIChartBase {
                         targetId: v._id
                     },
                     value: (<any>v).target,
-                    targetId: v._id
+                    targetId: v._id,
+                    percentageCompletion: v.percentageCompletion
                 };
             });
             this.frequencyHelper.decomposeFrequencyInfo(this.targetData, metadata.frequency);
@@ -712,7 +717,8 @@ export class UIChartBase {
                         name: d._id['noFrequencyName'],
                         type: 'spline',
                         data: [].concat(d.value),
-                        targetId: d.targetId
+                        targetId: d.targetId,
+                        percentageCompletion: d.percentageCompletion
                     }));
                 }
             case 1:
@@ -808,6 +814,7 @@ export class UIChartBase {
 
             serie['type'] = 'spline';
             serie['targetId'] = groupedData[serieName][0].targetId;
+            serie['percentageCompletion'] = groupedData[serieName][0].percentageCompletion;
 
             categories.forEach(cat => {
                 let dataItem = groupedData[serieName].find((item: any) => {
@@ -961,6 +968,7 @@ export class UIChartBase {
                     if (serie.type && serie.targetId) {
                         categoriesWithValues.type = serie.type;
                         categoriesWithValues.targetId = serie.targetId;
+                        categoriesWithValues.percentageCompletion = serie.percentageCompletion;
                     }
 
                     defObject['data'][keys[i]].push(categoriesWithValues);
@@ -1015,7 +1023,9 @@ export class UIChartBase {
                             name: objData.serieName,
                             data: serieData,
                             stack: stack,
-                            type: 'spline'
+                            type: 'spline',
+                            targetId: hasTarget.targetId,
+                            percentageCompletion: hasTarget.percentageCompletion
                         };
                     }
                 } else {
