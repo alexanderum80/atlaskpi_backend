@@ -7,9 +7,13 @@ import { IGetDataOptions, IKpiBase } from '../app_modules/kpis/queries/kpi-base'
 import { KpiFactory } from '../app_modules/kpis/queries/kpi.factory';
 import { IChartDocument } from '../domain/app/charts/chart';
 import { Charts } from '../domain/app/charts/chart.model';
+import { IChart } from '../domain/app/charts/chart';
 import { Users } from '../domain/app/security/users/user.model';
-import { ITarget, ITargetDocument } from '../domain/app/targets/target';
-import { Targets } from '../domain/app/targets/target.model';
+import { IUserDocument } from '../domain/app/security/users/user';
+import { Dashboards } from '../domain/app/dashboards/dashboard.model';
+import {ITarget, ITargetDocument, INotificationData} from '../domain/app/targets/target';
+import {Targets} from '../domain/app/targets/target.model';
+import { NotificationInput } from '../app_modules/targets/targets.types';
 import {
     IDateRange,
     parsePredefinedTargetDateRanges,
@@ -19,6 +23,9 @@ IChartDateRange,
 } from '../domain/common/date-range';
 import { FrequencyEnum, FrequencyTable } from '../domain/common/frequency-enum';
 import { field } from '../framework/decorators/field.decorator';
+import { isNumber } from 'lodash';
+import {TargetNotification} from './notifications/users/target.notification';
+import {PnsService} from './pns.service';
 
 export interface IMomentFrequencyTable {
     daily: string;
@@ -73,7 +80,11 @@ export class TargetService {
     constructor(@inject(Users.name) private _users: Users,
                 @inject(KpiFactory.name) private _kpiFactory: KpiFactory,
                 @inject(Targets.name) private _targets: Targets,
-                @inject(Charts.name) private _charts: Charts) { }
+                @inject(Charts.name) private _charts: Charts,
+                @inject(Dashboards.name) private _dashboard: Dashboards,
+                @inject(TargetNotification.name) private _targetNotification: TargetNotification,
+                @inject(PnsService.name) private _pnsService: PnsService
+    ) { }
 
     async getTargets(chartId: string, userId: string): Promise<ITargetDocument[]> {
         try {
@@ -309,6 +320,50 @@ export class TargetService {
         return responseValue;
     }
 
+    async sendNotification(input: NotificationInput): Promise<boolean> {
+        try {
+            const chartDoc: IChartDocument = await this._charts.model.findById(input.chartId);
+            const dashboardName: string = await this._dashboard.model.findDashboardByChartId(input.chartId);
+            const usersDoc: IUserDocument[] = await this._users.model.findUsersById(input.usersId);
+
+            const chart = chartDoc.toObject() as IChart;
+            const chartDefinition = chart.chartDefinition;
+
+            let targetAmount: string;
+            let targetMet: string;
+
+            if (!chartDoc || !dashboardName || !usersDoc) {
+                throw new Error('inefficient data');
+            }
+
+            targetAmount = this._formatNotificationValue(chartDefinition, input.targetAmount);
+            targetMet = this._formatNotificationValue(chartDefinition, input.targetMet);
+
+            const notifyData: INotificationData = {
+                targetName: input.targetName,
+                targetAmount: targetAmount,
+                targetMet: targetMet,
+                targetDate: input.targetDate,
+                dashboardName: dashboardName,
+                chartName: chartDoc.title,
+                businessUnitName: input.businessUnit
+            };
+
+            const message = `
+                This is a notification for the target ${notifyData.targetName} you set for ${notifyData.businessUnitName}, 
+                to date you have reached ${notifyData.targetMet} of your targeted ${notifyData.targetAmount} for 
+                ${notifyData.targetDate}. You can access this on your ${notifyData.dashboardName} dashboard on the chart called 
+                ${notifyData.chartName}.
+            `;
+            this._pnsService.sendNotifications(usersDoc, message);
+
+            usersDoc.forEach(user => this._targetNotification.notify(user, user.username, notifyData));
+            return true;
+        } catch (err) {
+            throw new Error('error getting dashboard name, chart, and users');
+        }
+    }
+
     // return object with 'from' and 'to' property
     getDate(period: string, dueDate: string, chartFrequency: string, chartDateRange: IChartDateRange[]): IDateRange[] {
         return [parsePredefinedTargetDateRanges(period, dueDate, chartFrequency)] ||
@@ -496,5 +551,21 @@ export class TargetService {
             from: from,
             to: to
         }];
+    }
+    
+    private _formatNotificationValue(chartDefinition: any, amount: number): string {
+        if (!chartDefinition || !chartDefinition.tooltip || !chartDefinition.tooltip.custom) {
+            return amount.toString();
+        }
+
+        const custom = chartDefinition.tooltip.custom;
+        const decimal = custom.decimals;
+        if (isNumber(decimal)) {
+            if (decimal === 0) {
+                amount = Math.round(amount);
+            }
+            amount = amount.toFixed(decimal) as any;
+        }
+        return `${custom.prefix}${amount}${custom.suffix}`;
     }
 }
