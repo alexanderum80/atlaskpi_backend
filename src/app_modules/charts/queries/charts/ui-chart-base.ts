@@ -1009,9 +1009,24 @@ export class UIChartBase {
                     objData.serieName = groupKey;
                 }
 
-                const dateRangeId: string = getDateRangeIdFromString(that.chart.dateRange[0].predefined);
-                const comparisonString: string = (stack === 'main') ?
-                            that.chart.dateRange[0].predefined : PredefinedComparisonDateRanges[dateRangeId][stack];
+                let dateRangeId: string = '';
+                if (that.chart && Array.isArray(that.chart.dateRange)) {
+                    if (that.chart.dateRange[0].predefined) {
+                        dateRangeId = getDateRangeIdFromString(that.chart.dateRange[0].predefined);
+                    } else {
+                        dateRangeId = 'custom';
+                    }
+                }
+                let comparisonString: string = '';
+                if (stack === 'main') {
+                    if (that.chart && Array.isArray(that.chart.dateRange)) {
+                        comparisonString = that.chart.dateRange[0].predefined;
+                    }
+                } else {
+                    if (dateRangeId && stack) {
+                        comparisonString = PredefinedComparisonDateRanges[dateRangeId][stack];
+                    }
+                }
 
                 let serieObject: IComparisonSerieObject;
 
