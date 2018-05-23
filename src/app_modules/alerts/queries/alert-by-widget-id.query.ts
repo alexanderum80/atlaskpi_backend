@@ -1,5 +1,5 @@
 import { Alerts } from '../../../domain/app/alerts/alert.model';
-import { IAlertInfo } from '../../../domain/app/alerts/alert';
+import { IAlertInfo, IAlertDocument } from '../../../domain/app/alerts/alert';
 import { AlertResponse } from '../alerts.types';
 import { AlertByWidgetIdActivity } from '../activities/alert-by-widget-id.activity';
 import * as Promise from 'bluebird';
@@ -15,12 +15,12 @@ import { inject, injectable } from 'inversify';
     parameters: [
         { name: 'id', type: String, required: true }
     ],
-    output: { type: AlertResponse }
+    output: { type: AlertResponse, isArray: true }
 })
-export class AlertByWidgetIdQuery implements IQuery<IAlertInfo> {
+export class AlertByWidgetIdQuery implements IQuery<IAlertDocument[]> {
     constructor(@inject(Alerts.name) private _alert: Alerts) {}
 
-    run(data: { id: string }): Promise<IAlertInfo> {
+    run(data: { id: string }): Promise<IAlertDocument[]> {
         if (!data || !data.id) {
             Promise.reject({ name: 'no id provided', message: 'no id provided'});
             return;

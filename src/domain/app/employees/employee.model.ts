@@ -4,6 +4,7 @@ import * as Promise from 'bluebird';
 import { inject, injectable } from 'inversify';
 import * as mongoose from 'mongoose';
 import * as logger from 'winston';
+import { isEmpty } from 'lodash';
 
 import { ModelBase } from '../../../type-mongo/model-base';
 import { AppConnection } from '../app.connection';
@@ -14,7 +15,7 @@ import { tagsPlugin } from '../tags/tag.plugin';
 let Schema = mongoose.Schema;
 
 const EmployeeSchema = new mongoose.Schema({
-    firstName: { type: String, unique: true, required: true },
+    firstName: { type: String, required: true },
     middleName: String,
     lastName: String,
     email: String,
@@ -81,7 +82,6 @@ EmployeeSchema.statics.updateEmployee = function(_id: string, employeeInput: IEm
             address: employeeInput.address,
             employmentInfo: employeeInput.employmentInfo
         }
-    
     ).then(employee => {
             resolve(employee);
         }).catch(err => {
@@ -130,10 +130,48 @@ EmployeeSchema.statics.employeeById = function(id: string): Promise<IEmployeeDoc
     });
 };
 
+function dropFirstNameIndex(employeeModel: IEmployeeModel): void {
+    if (employeeModel && employeeModel.collection) {
+        let obj = {
+            indexExist: false,
+            indexName: ''
+        };
+        // indexes: object, i.e. [key: string]: [['firstName', '1']]
+        employeeModel.collection.getIndexes().then(indexes => {
+            // check if indexes exists
+            if (!isEmpty(indexes)) {
+                // ['firstName_1']
+                const keys: string[] = Object.keys(indexes);
+                const schemaField: RegExp = /firstName/;
+
+                // check if index keys exists
+                if (isEmpty(keys)) {
+                    return;
+                }
+
+                keys.forEach((key: string) => {
+                    if (schemaField.test(key)) {
+                        obj.indexExist = true;
+                        obj.indexName = key;
+                    }
+                });
+
+                // drop firstName index if it exists
+                if (obj.indexExist && obj.indexName) {
+                    employeeModel.collection.dropIndex(obj.indexName);
+                }
+            }
+        }).catch(err => {
+            logger.error(err);
+        });
+    }
+}
+
 @injectable()
 export class Employees extends ModelBase<IEmployeeModel> {
     constructor(@inject(AppConnection.name) appConnection: AppConnection) {
         super();
-        this.initializeModel(appConnection.get, 'Employee', EmployeeSchema, 'employees');
+        const employeeModel = this.initializeModel(appConnection.get, 'Employee', EmployeeSchema, 'employees');
+        dropFirstNameIndex(employeeModel);
     }
 }

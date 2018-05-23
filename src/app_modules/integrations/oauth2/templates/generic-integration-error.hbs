@@ -1,0 +1,315 @@
+<html>
+
+<head>
+    <style>
+        body {
+            background-color: #eee;
+            color: gray;
+            font-family: Verdana, Geneva, Tahoma, sans-serif;
+        }
+
+        .container {
+            margin-top: 25px;
+            margin: auto;
+            width: 70%;
+        }
+
+        .card {
+            background-color: white;
+            border: 1px solid whitesmoke;
+        }
+
+        .card .header {
+            text-align: center;
+            padding: 35px;
+            background-color: #061657;
+        }
+
+        .card .content {
+            text-color: black;
+            text-align: center;
+            font-size: 14px;
+            padding: 40px;
+        }
+
+        .logo {
+            height: 60px;
+            margin-top: 30px;
+        }
+
+        .title {
+            margin: 10px;
+            color: white;
+            font-size: 12px;
+            font-weight: 100;
+        }
+
+        .close-container {
+            margin: 40px 20px;
+            text-align: center;
+            padding: 10px;
+        }
+
+        .btn[class*="bgm-"]:not(.bgm-white) {
+            color: #fff;
+        }
+
+        .btn:not(.btn-link) {
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.16), 0 2px 10px rgba(0, 0, 0, 0.12);
+        }
+
+        .btn {
+            display: inline-block;
+            margin-bottom: 0;
+            font-weight: 400;
+            text-align: center;
+            vertical-align: middle;
+            -ms-touch-action: manipulation;
+            touch-action: manipulation;
+            cursor: pointer;
+            background-image: none;
+            border: 1px solid transparent;
+            white-space: nowrap;
+            padding: 6px 12px;
+            font-size: 13px;
+            line-height: 1.42857143;
+            border-radius: 2px;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+        }
+
+        .btn-block {
+            display: block;
+            width: 100%;
+        }
+
+        .bgm-blue {
+            background-color: #2196F3 !important;
+        }
+
+        .alternative {
+            margin: 40px 0;
+            text-align: center;
+        }
+
+        .plain-link {
+            margin: 50px 20px;
+        }
+
+        .dont-break-out {
+            /* These are technically the same, but use both */
+            overflow-wrap: break-word;
+            word-wrap: break-word;
+
+            -ms-word-break: break-all;
+            /* This is the dangerous one in WebKit, as it breaks things wherever */
+            word-break: break-all;
+            /* Instead use this non-standard one: */
+            word-break: break-word;
+
+            /* Adds a hyphen where the word breaks, if supported (No Blink) */
+            -ms-hyphens: auto;
+            -moz-hyphens: auto;
+            -webkit-hyphens: auto;
+            hyphens: auto;
+        }
+
+        .footer {
+            margin-top: 10px;
+            border-top: 1px solid lightgray;
+            font-size: 11px;
+            text-align: center;
+            padding: 10px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="card">
+            <div class="header">
+                <img class="logo" alt="Logo" src="https://bi.atlaskpi.com/assets/img/logos/white-logo.png"/>
+                <div class="title">
+                    <span>We're sorry!</span>
+                </div>
+            </div>
+            <div class="content">
+                {{#if error }}
+                <p>
+                    {{error}}
+                </p>
+                {{else}}
+                <p>
+                    We're experiencing some problems. Please try again later.
+                </p>
+                {{/if}}
+                
+
+                <div class="close-container">
+                    <button class="btn bgm-blue normal btn-block" type="button" onclick="window.close();">
+                        Close
+                    </button>
+                </div> 
+
+                <p class="alternative">
+                    Get in touch if you have any questions regarding our new product. Feel free to contact us at info@atlaskpi.com. We are here
+                    to help!
+                </p>
+
+                <p>
+                    All the best, AtlasKPI Team
+                </p>
+
+            </div>
+        </div>
+
+        <table align="center" border="0" cellpadding="0" cellspacing="0" style="margin-top: 20px; border-collapse: collapse;mso-table-lspace: 0pt;mso-table-rspace: 0pt;-ms-text-size-adjust: 100%;-webkit-text-size-adjust: 100%;">
+            <tbody>
+                <tr>
+                    <td align="center" valign="top" style="mso-line-height-rule: exactly;-ms-text-size-adjust: 100%;-webkit-text-size-adjust: 100%;">
+                  
+                        <table align="left" border="0" cellpadding="0" cellspacing="0" style="display: inline;border-collapse: collapse;mso-table-lspace: 0pt;mso-table-rspace: 0pt;-ms-text-size-adjust: 100%;-webkit-text-size-adjust: 100%;">
+                            <tbody>
+                                <tr>
+                                    <td valign="top" style="padding-right: 10px;padding-bottom: 9px;mso-line-height-rule: exactly;-ms-text-size-adjust: 100%;-webkit-text-size-adjust: 100%;"
+                                        class="mcnFollowContentItemContainer">
+                                        <table border="0" cellpadding="0" cellspacing="0" width="100%" class="mcnFollowContentItem" style="border-collapse: collapse;mso-table-lspace: 0pt;mso-table-rspace: 0pt;-ms-text-size-adjust: 100%;-webkit-text-size-adjust: 100%;">
+                                            <tbody>
+                                                <tr>
+                                                    <td align="left" valign="middle" style="padding-top: 5px;padding-right: 10px;padding-bottom: 5px;padding-left: 9px;mso-line-height-rule: exactly;-ms-text-size-adjust: 100%;-webkit-text-size-adjust: 100%;">
+                                                        <table align="left" border="0" cellpadding="0" cellspacing="0" width="" style="border-collapse: collapse;mso-table-lspace: 0pt;mso-table-rspace: 0pt;-ms-text-size-adjust: 100%;-webkit-text-size-adjust: 100%;">
+                                                            <tbody>
+                                                                <tr>
+
+                                                                    <td align="center" valign="middle" width="24" class="mcnFollowIconContent" style="mso-line-height-rule: exactly;-ms-text-size-adjust: 100%;-webkit-text-size-adjust: 100%;">
+                                                                        <a href="https://www.instagram.com/atlaskpi/" target="_blank" style="mso-line-height-rule: exactly;-ms-text-size-adjust: 100%;-webkit-text-size-adjust: 100%;">
+                                                                            <img src="https://cdn-images.mailchimp.com/icons/social-block-v2/color-instagram-48.png"
+                                                                                style="display: block;border: 0;height: auto;outline: none;text-decoration: none;-ms-interpolation-mode: bicubic;"
+                                                                                height="24" width="24" class="">
+                                                                        </a>
+                                                                    </td>
+
+
+                                                                </tr>
+                                                            </tbody>
+                                                        </table>
+                                                    </td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+
+                        <!--[if mso]>
+                        </td>
+                        <![endif]-->
+
+                        <!--[if mso]>
+                        <td align="center" valign="top">
+                        <![endif]-->
+
+
+                        <table align="left" border="0" cellpadding="0" cellspacing="0" style="display: inline;border-collapse: collapse;mso-table-lspace: 0pt;mso-table-rspace: 0pt;-ms-text-size-adjust: 100%;-webkit-text-size-adjust: 100%;">
+                            <tbody>
+                                <tr>
+                                    <td valign="top" style="padding-right: 10px;padding-bottom: 9px;mso-line-height-rule: exactly;-ms-text-size-adjust: 100%;-webkit-text-size-adjust: 100%;"
+                                        class="mcnFollowContentItemContainer">
+                                        <table border="0" cellpadding="0" cellspacing="0" width="100%" class="mcnFollowContentItem" style="border-collapse: collapse;mso-table-lspace: 0pt;mso-table-rspace: 0pt;-ms-text-size-adjust: 100%;-webkit-text-size-adjust: 100%;">
+                                            <tbody>
+                                                <tr>
+                                                    <td align="left" valign="middle" style="padding-top: 5px;padding-right: 10px;padding-bottom: 5px;padding-left: 9px;mso-line-height-rule: exactly;-ms-text-size-adjust: 100%;-webkit-text-size-adjust: 100%;">
+                                                        <table align="left" border="0" cellpadding="0" cellspacing="0" width="" style="border-collapse: collapse;mso-table-lspace: 0pt;mso-table-rspace: 0pt;-ms-text-size-adjust: 100%;-webkit-text-size-adjust: 100%;">
+                                                            <tbody>
+                                                                <tr>
+
+                                                                    <td align="center" valign="middle" width="24" class="mcnFollowIconContent" style="mso-line-height-rule: exactly;-ms-text-size-adjust: 100%;-webkit-text-size-adjust: 100%;">
+                                                                        <a href="https://www.facebook.com/atlaskpi/" target="_blank" style="mso-line-height-rule: exactly;-ms-text-size-adjust: 100%;-webkit-text-size-adjust: 100%;">
+                                                                            <img src="https://cdn-images.mailchimp.com/icons/social-block-v2/color-facebook-48.png"
+                                                                                style="display: block;border: 0;height: auto;outline: none;text-decoration: none;-ms-interpolation-mode: bicubic;"
+                                                                                height="24" width="24" class="">
+                                                                        </a>
+                                                                    </td>
+
+
+                                                                </tr>
+                                                            </tbody>
+                                                        </table>
+                                                    </td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+
+                        <!--[if mso]>
+                        </td>
+                        <![endif]-->
+
+                        <!--[if mso]>
+                        <td align="center" valign="top">
+                        <![endif]-->
+
+
+                        <table align="left" border="0" cellpadding="0" cellspacing="0" style="display: inline;border-collapse: collapse;mso-table-lspace: 0pt;mso-table-rspace: 0pt;-ms-text-size-adjust: 100%;-webkit-text-size-adjust: 100%;">
+                            <tbody>
+                                <tr>
+                                    <td valign="top" style="padding-right: 0;padding-bottom: 9px;mso-line-height-rule: exactly;-ms-text-size-adjust: 100%;-webkit-text-size-adjust: 100%;"
+                                        class="mcnFollowContentItemContainer">
+                                        <table border="0" cellpadding="0" cellspacing="0" width="100%" class="mcnFollowContentItem" style="border-collapse: collapse;mso-table-lspace: 0pt;mso-table-rspace: 0pt;-ms-text-size-adjust: 100%;-webkit-text-size-adjust: 100%;">
+                                            <tbody>
+                                                <tr>
+                                                    <td align="left" valign="middle" style="padding-top: 5px;padding-right: 10px;padding-bottom: 5px;padding-left: 9px;mso-line-height-rule: exactly;-ms-text-size-adjust: 100%;-webkit-text-size-adjust: 100%;">
+                                                        <table align="left" border="0" cellpadding="0" cellspacing="0" width="" style="border-collapse: collapse;mso-table-lspace: 0pt;mso-table-rspace: 0pt;-ms-text-size-adjust: 100%;-webkit-text-size-adjust: 100%;">
+                                                            <tbody>
+                                                                <tr>
+
+                                                                    <td align="center" valign="middle" width="24" class="mcnFollowIconContent" style="mso-line-height-rule: exactly;-ms-text-size-adjust: 100%;-webkit-text-size-adjust: 100%;">
+                                                                        <a href="www.atlaskpi.com" target="_blank" style="mso-line-height-rule: exactly;-ms-text-size-adjust: 100%;-webkit-text-size-adjust: 100%;">
+                                                                            <img src="https://cdn-images.mailchimp.com/icons/social-block-v2/color-link-48.png"
+                                                                                style="display: block;border: 0;height: auto;outline: none;text-decoration: none;-ms-interpolation-mode: bicubic;"
+                                                                                height="24" width="24" class="">
+                                                                        </a>
+                                                                    </td>
+
+
+                                                                </tr>
+                                                            </tbody>
+                                                        </table>
+                                                    </td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+
+                        <!--[if mso]>
+                        </td>
+                        <![endif]-->
+
+                        <!--[if mso]>
+                    </tr>
+                    </table>
+                    <![endif]-->
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+
+
+        <div class="footer">
+            <em>Copyright © 2017 AtlasKPI, All rights reserved.</em>
+        </div>
+
+    </div>
+
+</body>
+
+</html>

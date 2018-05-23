@@ -11,6 +11,7 @@ import { KPI } from '../../app_modules/kpis/kpis.types';
 import { AppConnection } from '../../domain/app/app.connection';
 import { Charts } from '../../domain/app/charts/chart.model';
 import { Dashboards } from '../../domain/app/dashboards/dashboard.model';
+import { Appointments } from '../../domain/app/appointments/appointment-model';
 import { Expenses } from '../../domain/app/expenses/expense.model';
 import { KPIs } from '../../domain/app/kpis/kpi.model';
 import { Sales } from '../../domain/app/sales/sale.model';
@@ -22,6 +23,7 @@ import {Widgets} from '../../domain/app/widgets/widget.model';
 
 
 interface ISeedModels {
+    Appointment: Appointments;
     Expense: Expenses;
     Sale: Sales;
     Inventory: Inventory;
@@ -39,6 +41,7 @@ export class SeedService {
 
     constructor(@inject(AppConnection.name) appConnection: AppConnection) {
         this._models = {
+            Appointment: new Appointments(appConnection),
             Expense: new Expenses(appConnection),
             Sale: new Sales(appConnection),
             WorkLog: new Worklogs(appConnection),
@@ -53,6 +56,10 @@ export class SeedService {
 
     seedApp() {
         let dataFiles = [{
+                model: 'Appointment',
+                filename: 'appointments.json'
+            },
+            {
                 model: 'Expense',
                 filename: 'expenses.json'
             },
