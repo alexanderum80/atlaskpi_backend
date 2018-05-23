@@ -1,6 +1,7 @@
 import * as Bluebird from 'bluebird';
 import { inject, injectable } from 'inversify';
 import * as moment from 'moment';
+import { clone } from 'lodash';
 
 import { IGetDataOptions, IKpiBase } from '../app_modules/kpis/queries/kpi-base';
 import { KpiFactory } from '../app_modules/kpis/queries/kpi.factory';
@@ -17,7 +18,8 @@ import {
     IDateRange,
     parsePredefinedTargetDateRanges,
     parsePredifinedDate,
-    PredefinedDateRanges,
+PredefinedDateRanges,
+IChartDateRange,
 } from '../domain/common/date-range';
 import { FrequencyEnum, FrequencyTable } from '../domain/common/frequency-enum';
 import { field } from '../framework/decorators/field.decorator';
@@ -84,64 +86,151 @@ export class TargetService {
                 @inject(PnsService.name) private _pnsService: PnsService
     ) { }
 
-    getTargets(chartId: string, userId: string): Promise<ITargetDocument[]> {
-        const that = this;
-
-        return new Promise<ITargetDocument[]>((resolve, reject) => {
-            this._targets.model.findUserVisibleTargets(chartId, userId)
-                .then((targets: ITargetDocument[]) => {
-                    that.frequentlyUpdateTargets(targets).then((updatedTargets: ITargetDocument[]) => {
-                        resolve(updatedTargets);
-                        return;
-                    }).catch(err => {
-                        reject(err);
-                        return;
-                    });
-                }).catch((err) => {
-                    reject({ success: false, errors: [ {field: 'target', errors: [err] } ] });
-                    return;
-                });
-        });
+    async getTargets(chartId: string, userId: string): Promise<ITargetDocument[]> {
+        try {
+            const visibleTargets: ITargetDocument[] = await this._targets.model.findUserVisibleTargets(chartId, userId);
+            return await this.frequentlyUpdateTargets(visibleTargets);
+        } catch (err) {
+            return ({
+                success: false,
+                errors: [ { field: 'target', errors: [err] }]
+            }) as any;
+        }
     }
 
-    frequentlyUpdateTargets(targets: ITargetDocument[]): Promise<ITargetDocument[]> {
-        const that = this;
-
-        return new Promise<ITargetDocument[]>((resolve, reject) => {
+    async frequentlyUpdateTargets(targets: ITargetDocument[]): Promise<ITargetDocument[]> {
+        try {
             if (!targets || !targets.length) {
-                resolve(targets);
-                return;
+                return targets;
             }
 
-            Bluebird.map(targets, (target: ITargetDocument) => that.updateTarget(target))
-                .then((updatedTargets: ITargetDocument[]) => {
-                    resolve(updatedTargets);
-                    return;
-                })
-                .catch((err) => {
-                    reject(err);
-                });
-        });
+            const updatedListTargets: ITargetDocument[] = await Bluebird.map(
+                                        targets,
+                                        (target: ITargetDocument) => this.updateTarget(target)
+                                    );
+            return updatedListTargets;
+        } catch (err) {
+            throw new Error('unable to update all targets');
+        }
     }
 
-    updateTarget(target: ITargetDocument): Promise<ITargetDocument> {
-        const that = this;
 
-        return new Promise<ITargetDocument>((resolve, reject) => {
+    async updateTarget(target: ITargetDocument): Promise<ITargetDocument> {
+        try {
             const id: string = target.id;
             const inputData: ITarget = Object.assign({}, target.toObject() as ITarget);
 
-            that.caculateFormat(inputData).then((targetAmount: number) => {
-                inputData.target = targetAmount;
-                inputData.timestamp = new Date();
+            const targetAmount: number = await this.getTargetValue(inputData);
+            inputData.target = targetAmount;
+            inputData.timestamp = new Date();
 
-                that._targets.model.updateTarget(id, inputData).then((updatedTarget: ITargetDocument) => {
-                    resolve(updatedTarget);
-                }).catch(err => {
-                    reject(err);
+            const updatedTarget: ITargetDocument = await this._targets.model.updateTarget(id, inputData);
+
+            const targetProgress: number = await this.targetProgressValue(updatedTarget);
+            updatedTarget.percentageCompletion = (targetProgress / updatedTarget.target) * 100;
+
+            return updatedTarget;
+        } catch (err) {
+            throw new Error('unable to update target');
+        }
+    }
+
+    async targetProgressValue(data: ITargetDocument): Promise<number> {
+        try {
+            const chart: IChartDocument = await this._charts.model.findById(data.chart[0])
+                                                .populate({ path: 'kpis' });
+            const kpi: IKpiBase = await this._kpiFactory.getInstance(chart.kpis[0]);
+
+            const groupings: string[] = (chart.groupings && chart.groupings[0]) ? chart.groupings : [];
+            const stackName: string = data.stackName ? data.stackName : data.nonStackName;
+            const isStackNameEqualToAll: boolean = stackName.toLowerCase() === 'all';
+
+            const dateRange: IDateRange[] = this._getTargetProgressDateRange(chart.frequency, data.datepicker, chart.dateRange);
+            const options: IGetDataOptions = {
+                filter: chart.filter
+            };
+
+            if (!groupings || !groupings.length || !groupings) {
+                Object.assign(options, {
+                    filter: chart.filter
                 });
-            });
-        });
+            } else {
+                if (!isStackNameEqualToAll) {
+                    Object.assign(options, {
+                        groupings: groupings,
+                        stackName: this.getStackName(chart, stackName).name || null
+                    });
+                }
+            }
+
+            const response = await kpi.getData(dateRange, options);
+            const totalProgress = response ? response.find(r => r.value) : { value : data.amount };
+            const amount: number = totalProgress ? totalProgress.value : 0;
+
+            return amount;
+        } catch (err) {
+            throw new Error('error getting target progress');
+        }
+    }
+
+    async createUpdateTarget(data: ITarget, id?: string): Promise<ITargetDocument> {
+        try {
+            // target value
+            data.target = await this.getTargetValue(data);
+            const chart = await this._charts.model.findById(data.chart[0]);
+
+            if (!id) {
+                // create target
+                return await this._targets.model.createTarget(data);
+            } else {
+                // update target
+                return await this._targets.model.updateTarget(id, data);
+            }
+
+        } catch (err) {
+            throw new Error('unable to modify target');
+        }
+    }
+
+    async getTargetValue(data: ITargetCalculateData): Promise<number> {
+        try {
+            const response = await this.getBaseValue(data);
+            const dataAmount: number = parseFloat(data.amount.toString());
+            const findValue = response ? response.find(r => r.value) : { value: data.amount };
+
+            const responseValue: number = findValue ? findValue.value : 0;
+
+            switch (data.vary) {
+
+                case 'fixed':
+                    return dataAmount;
+
+                case 'increase':
+                    switch (data.amountBy) {
+                        case 'percent':
+                            const increasePercentResult: number = responseValue + (responseValue * (dataAmount / 100) );
+                            return increasePercentResult;
+
+                        case 'dollar':
+                            const increaseDollarResult: number = responseValue + dataAmount;
+                            return increaseDollarResult;
+
+                    }
+                case 'decrease':
+                    switch (data.amountBy) {
+                        case 'percent':
+                            const decreasePercentResult: number = responseValue - (responseValue * (dataAmount / 100) );
+                            return decreasePercentResult;
+
+                        case 'dollar':
+                            const descreaseDollarResult: number = responseValue - dataAmount;
+                            return descreaseDollarResult;
+
+                    }
+            }
+        } catch (err) {
+            throw new Error('unable to calcuate target amount');
+        }
     }
 
     async getBaseValue(data: ITargetCalculateData): Promise<any> {
@@ -149,8 +238,7 @@ export class TargetService {
             .populate({ path: 'kpis' });
         const kpi: IKpiBase = await this._kpiFactory.getInstance(chart.kpis[0]);
         const groupings: string[] = chart.groupings || [];
-        const chartDateRange: string = chart.dateRange ? chart.dateRange[0].predefined : '';
-        const targetDateRange: IDateRange = this.getDate(data.period, data.datepicker, chart.frequency, chartDateRange);
+        const targetDateRange: IDateRange[] = this.getDate(data.period, data.datepicker, chart.frequency, chart.dateRange);
         let getDataOptions: IGetDataOptions;
 
         if (!data.period) {
@@ -161,7 +249,7 @@ export class TargetService {
             getDataOptions = {
                 filter: chart.filter,
                 groupings: groupings,
-                stackName: this.getComparisonStackName(chart, data).name || null
+                stackName: this.getStackName(chart, data).name || null
             };
         } else if (Array.isArray(groupings) && !groupings[0]) {
             getDataOptions = { filter: chart.filter };
@@ -169,56 +257,13 @@ export class TargetService {
             getDataOptions = { filter: chart.filter };
 
             if (data.nonStackName.toLocaleLowerCase() !== 'all') {
-                getDataOptions.stackName = this.getComparisonStackName(chart, data).name;
+                getDataOptions.stackName = this.getStackName(chart, data).name;
                 getDataOptions.groupings = groupings;
             }
         }
 
-        return await kpi.getData([targetDateRange], getDataOptions);
+        return await kpi.getData(targetDateRange, getDataOptions);
     }
-
-    caculateFormat(data: ITargetCalculateData): Promise<number> {
-
-        return new Promise<number>((resolve, reject) => {
-            this.getBaseValue(data)
-                .then((response: any) => {
-                    const dataAmount: number = parseFloat(data.amount.toString());
-                    const findValue = response ? response.find(r => r.value) : { value: data.amount };
-
-                    const responseValue: number = findValue ? findValue.value : 0;
-
-                    switch (data.vary) {
-
-                        case 'fixed':
-                            return resolve(dataAmount);
-
-                        case 'increase':
-                            switch (data.amountBy) {
-                                case 'percent':
-                                    const increasePercentResult: number = responseValue + (responseValue * (dataAmount / 100) );
-                                    return resolve(increasePercentResult);
-
-                                case 'dollar':
-                                    const increaseDollarResult: number = responseValue + dataAmount;
-                                    return resolve(increaseDollarResult);
-
-                            }
-                        case 'decrease':
-                            switch (data.amountBy) {
-                                case 'percent':
-                                    const decreasePercentResult: number = responseValue - (responseValue * (dataAmount / 100) );
-                                    return resolve(decreasePercentResult);
-
-                                case 'dollar':
-                                    const descreaseDollarResult: number = responseValue - dataAmount;
-                                    return resolve(descreaseDollarResult);
-
-                            }
-                    }
-                });
-        });
-    }
-
 
     async getTargetMet(input: ITargetMet) {
         const that = this;
@@ -264,7 +309,7 @@ export class TargetService {
         } else if (!isStackNameEqualToAll) {
             Object.assign(options, {
                 groupings: groupings,
-                stackName: stackName
+                stackName: this.getStackName(chart, stackName).name || null
             });
         }
 
@@ -320,8 +365,16 @@ export class TargetService {
     }
 
     // return object with 'from' and 'to' property
-    getDate(period: string, dueDate: string, chartFrequency: string, alternateDatePeriod: string): IDateRange {
-        return parsePredefinedTargetDateRanges(period, dueDate, chartFrequency) || parsePredifinedDate(alternateDatePeriod);
+    getDate(period: string, dueDate: string, chartFrequency: string, chartDateRange: IChartDateRange[]): IDateRange[] {
+        return [parsePredefinedTargetDateRanges(period, dueDate, chartFrequency)] ||
+               chartDateRange.map(dateRange => {
+                   return dateRange.custom && dateRange.custom.from ?
+                   {
+                        from: moment(dateRange.custom.from).startOf('day').toDate(),
+                        to: moment(dateRange.custom.to).startOf('day').toDate()
+                   }
+                   : parsePredifinedDate(dateRange.predefined);
+               });
     }
 
     isComparison(chart: IChartDocument): boolean {
@@ -329,6 +382,12 @@ export class TargetService {
         return (chart.comparison && chart.comparison.length) ? true : false;
     }
 
+    /**
+     * check if current time is past dueDate
+     * @param chartFrequency
+     * @param datepicker
+     * @param notificationDate
+     */
     isTargetReachZero(chartFrequency: string, datepicker: string, notificationDate: string): any {
         const now = moment();
         const dueDate = moment(datepicker, 'MM/DD/YYYY');
@@ -366,7 +425,7 @@ export class TargetService {
         return false;
     }
 
-    getComparisonStackName(chart: IChartDocument, data: any): IGetComparisonStackName {
+    getStackName(chart: IChartDocument, data: any): IGetComparisonStackName {
         const targetName: string = data.stackName || data.nonStackName;
 
         if (!targetName || !this.isComparison(chart)) {
@@ -454,6 +513,46 @@ export class TargetService {
 
     }
 
+    private _getTargetProgressDateRange(chartFrequency: string, dueDate: string, chartDateRange: IChartDateRange[]): IDateRange[] {
+        const to = moment(dueDate).toDate();
+        let from: Date;
+
+        const frequency = FrequencyTable[chartFrequency];
+
+        switch (frequency) {
+            case FrequencyEnum.Daily:
+                from = moment(dueDate).startOf('day').toDate();
+                break;
+            case FrequencyEnum.Weekly:
+                from = moment(dueDate).startOf('week').toDate();
+                break;
+            case FrequencyEnum.Monthly:
+                from = moment(dueDate).startOf('month').toDate();
+                break;
+            case FrequencyEnum.Quartely:
+                from = moment(dueDate).startOf('quarter').toDate();
+                break;
+            case FrequencyEnum.Yearly:
+                from = moment(dueDate).startOf('year').toDate();
+                break;
+        }
+
+        if (!from) {
+            return chartDateRange.map(dateRange => {
+                return dateRange.custom && dateRange.custom.from ?
+                {
+                  from: moment(dateRange.custom.from).startOf('day').toDate(),
+                  to: moment(dateRange.custom.to).startOf('day').toDate()
+                }
+                : parsePredifinedDate(dateRange.predefined);
+            });
+        }
+        return [{
+            from: from,
+            to: to
+        }];
+    }
+    
     private _formatNotificationValue(chartDefinition: any, amount: number): string {
         if (!chartDefinition || !chartDefinition.tooltip || !chartDefinition.tooltip.custom) {
             return amount.toString();

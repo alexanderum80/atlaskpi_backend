@@ -34,6 +34,7 @@ export interface ITarget {
     target?: number;
     targetMet?: number;
     timestamp?: Date;
+    percentageCompletion?: any;
 }
 
 export interface ITargetDocument extends ITarget, mongoose.Document {}
