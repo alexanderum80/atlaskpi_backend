@@ -82,6 +82,9 @@ export interface IUserPreference {
     notification?: IUserNotifications;
     avatarAddress?: string;
     helpCenter?: boolean;
+    showAppointmentCancelled?: boolean;
+    providers?: string[];
+    calendarTimeZone?: string;
 }
 
 
