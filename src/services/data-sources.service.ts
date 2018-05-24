@@ -1,9 +1,10 @@
-import { DataSourceResponse } from '../app_modules/data-sources/data-sources.types';
+import { DataSourceField, DataSourceResponse } from '../app_modules/data-sources/data-sources.types';
 import { injectable, inject, Container } from 'inversify';
 import { VirtualSources } from '../domain/app/virtual-sources/virtual-source.model';
 import { sortBy } from 'lodash';
 import { Logger } from '../domain/app/logger';
 import { KPIFilterHelper } from '../domain/app/kpis/kpi-filter.helper';
+import * as Bluebird from 'bluebird';
 
 @injectable()
 export class DataSourcesService {
@@ -14,7 +15,8 @@ export class DataSourcesService {
         @inject(VirtualSources.name) private _virtualDatasources: VirtualSources) { }
 
     async get(): Promise<DataSourceResponse[]> {
-        const virtualSources = await this._virtualDatasources.model.getDataSources();
+        let virtualSources = await this._virtualDatasources.model.getDataSources();
+        virtualSources = await Bluebird.map(virtualSources, (virtualSource: DataSourceResponse) => this._getCollectionSources(virtualSource));
         return sortBy(virtualSources, 'name');
     }
 
@@ -36,5 +38,13 @@ export class DataSourcesService {
             this._logger.error('There was an error retrieving the distinct values', e);
             return [];
         }
+    }
+
+    private async _getCollectionSources(virtualSource: DataSourceResponse): Promise<DataSourceResponse> {
+        const fields: DataSourceField[] = virtualSource.fields;
+        const model = virtualSource.dataSource;
+
+
+        return virtualSource;
     }
 }
