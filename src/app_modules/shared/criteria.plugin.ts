@@ -18,9 +18,9 @@ export function criteriaPlugin(schema: mongoose.Schema): void {
     schema.statics.findCriteria = findCriteria;
 }
 
-function findCriteria(field: string, aggregate: any[], limit?: number, filter?: string): Promise<string[]> {
+function findCriteria(field: string, aggregate: any[], limit?: number, filter?: string, collectionSource?: string): Promise<string[]> {
     const that = this;
-    let aggregateOptions = aggregate.concat(criteriaAggregation({ field, limit, filter }));
+    let aggregateOptions = aggregate.concat(criteriaAggregation({ field, limit, filter, collectionSource }));
 
     return new Promise<string[]>((resolve, reject) => {
         that.aggregate(aggregateOptions).then(res => {
@@ -35,7 +35,7 @@ function findCriteria(field: string, aggregate: any[], limit?: number, filter?: 
     });
 }
 
-function criteriaAggregation(input: {field: string, limit?: number, filter?: string}): ICriteriaAggregate[] {
+function criteriaAggregation(input: {field: string, limit?: number, filter?: string, collectionSource?: string}): ICriteriaAggregate[] {
     const unwindField = input.field.split('.')[0];
 
     let aggregate: ICriteriaAggregate[] = [{
@@ -73,6 +73,10 @@ function criteriaAggregation(input: {field: string, limit?: number, filter?: str
     Object.assign(matchStage.$match[input.field], {
         $regex: reg
     });
+
+    if (input.collectionSource) {
+        matchStage.$match['source'] = input.collectionSource;
+    }
 
     return aggregate;
 }

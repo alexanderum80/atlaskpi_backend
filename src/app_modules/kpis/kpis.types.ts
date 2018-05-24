@@ -47,7 +47,7 @@ export class KPIAttributesInput  {
 
     @field({ type: GraphQLTypesMap.String, isArray: true })
     tags: string[];
-    
+
     @field({ type: GraphQLTypesMap.String })
     source: string;
 
@@ -69,6 +69,9 @@ export class KPIFilterCriteria {
 
     @field({ type: GraphQLTypesMap.String })
     filter: string;
+
+    @field({ type: GraphQLTypesMap.String })
+    collectionSource?: string;
 }
 
 @type()

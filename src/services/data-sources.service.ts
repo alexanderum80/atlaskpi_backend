@@ -7,6 +7,9 @@ import { KPIFilterHelper } from '../domain/app/kpis/kpi-filter.helper';
 import * as Bluebird from 'bluebird';
 import { isObject } from 'lodash';
 
+const COLLECTION_SOURCE_MAX_LIMIT = 20;
+const COLLECTION_SOURCE_FIELD_NAME = 'source';
+
 @injectable()
 export class DataSourcesService {
 
@@ -17,14 +20,26 @@ export class DataSourcesService {
 
     async get(): Promise<DataSourceResponse[]> {
         let virtualSources = await this._virtualDatasources.model.getDataSources();
-        // virtualSources = await Bluebird.map(
-        //                             virtualSources,
-        //                             (virtualSource: DataSourceResponse) => this._getCollectionSources(virtualSource)
-        //                         );
+        virtualSources = await Bluebird.map(
+                                    virtualSources,
+                                    (virtualSource: DataSourceResponse) => this.getCollectionSource(virtualSource));
         return sortBy(virtualSources, 'name');
     }
 
-    async getDistinctValues(name: string, source: string, field: string, limit: number, filter: string): Promise<string[]> {
+    async getCollectionSource(virtualSource: DataSourceResponse): Promise<DataSourceResponse> {
+
+        const distinctValues: string[] = await this.getDistinctValues(
+            virtualSource.name,
+            virtualSource.dataSource,
+            COLLECTION_SOURCE_FIELD_NAME,
+            COLLECTION_SOURCE_MAX_LIMIT,
+            ''
+        );
+        virtualSource.sources = distinctValues;
+        return virtualSource;
+    }
+
+    async getDistinctValues(name: string, source: string, field: string, limit: number, filter: string, collectionSource?: string): Promise<string[]> {
         try {
             const vs = await this._virtualDatasources.model.findOne({ name: { $regex: new RegExp(name, 'i') }  });
             const model = (this._container.get(source) as any).model;
@@ -37,7 +52,7 @@ export class DataSourcesService {
                 });
             }
 
-            return await (model as any).findCriteria(field, aggregate, limit, filter);
+            return await (model as any).findCriteria(field, aggregate, limit, filter, collectionSource);
         } catch (e) {
             this._logger.error('There was an error retrieving the distinct values', e);
             return [];

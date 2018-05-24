@@ -66,6 +66,9 @@ export class DataSourceResponse  {
 
     @field({ type: DataTypeFilters })
     filterOperators: DataTypeFilters;
+
+    @field({ type: GraphQLTypesMap.String, isArray: true})
+    sources?: string[];
 }
 
 @type()
