@@ -27,7 +27,6 @@ export class DataSourcesService {
     }
 
     async getCollectionSource(virtualSource: DataSourceResponse): Promise<DataSourceResponse> {
-
         const distinctValues: string[] = await this.getDistinctValues(
             virtualSource.name,
             virtualSource.dataSource,
@@ -35,7 +34,10 @@ export class DataSourcesService {
             COLLECTION_SOURCE_MAX_LIMIT,
             ''
         );
+
         virtualSource.sources = distinctValues;
+        virtualSource.fields = await this._filterFieldsWithoutData(virtualSource);
+
         return virtualSource;
     }
 
@@ -59,14 +61,12 @@ export class DataSourcesService {
         }
     }
 
-    private async _getCollectionSources(virtualSource: DataSourceResponse): Promise<DataSourceResponse> {
+    private async _filterFieldsWithoutData(virtualSource: DataSourceResponse): Promise<DataSourceField[]> {
         const fields: DataSourceField[] = virtualSource.fields;
         const dataSource: string = virtualSource.dataSource;
 
         const sources: string[] = await this._getFieldsWithData(dataSource, fields);
-        virtualSource.fields = virtualSource.fields.filter((f: DataSourceField) => sources.indexOf(f.name) !== -1);
-
-        return virtualSource;
+        return virtualSource.fields.filter((f: DataSourceField) => sources.indexOf(f.name) !== -1);
     }
 
     private async _getFieldsWithData(dataSource: string, fields: DataSourceField[]): Promise<string[]> {
@@ -104,7 +104,6 @@ export class DataSourcesService {
 
             return fieldsWithData;
         }
-
         return fieldsWithData;
     }
 
