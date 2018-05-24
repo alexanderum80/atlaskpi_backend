@@ -44,8 +44,7 @@ export class GetKpisCriteriaQuery implements IQuery<KPICriteriaResult> {
                 input.source,
                 input.field,
                 input.limit,
-                input.filter,
-                input.collectionSource
+                input.filter
             );
             return {
                 criteriaValue: criteria.sort()

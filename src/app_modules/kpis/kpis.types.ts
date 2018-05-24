@@ -69,9 +69,6 @@ export class KPIFilterCriteria {
 
     @field({ type: GraphQLTypesMap.String })
     filter: string;
-
-    @field({ type: GraphQLTypesMap.String })
-    collectionSource?: string;
 }
 
 @type()

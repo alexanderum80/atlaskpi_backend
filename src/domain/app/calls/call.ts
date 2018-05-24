@@ -65,5 +65,5 @@ export interface ICall {
 export interface ICallDocument extends ICall, mongoose.Document {}
 
 export interface ICallModel extends mongoose.Model<ICallDocument> {
-    findCriteria(field: string, aggregate: any[], limit?: number, filter?: string, collectionSource?: string): Promise<string[]>;
+    findCriteria(field: string, aggregate: any[], limit?: number, filter?: string): Promise<string[]>;
 }
