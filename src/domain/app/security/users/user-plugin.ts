@@ -133,7 +133,11 @@ export function userPlugin(schema: mongoose.Schema, options: any) {
         helpCenter: { type: Boolean, default: true },
         notification: UserNotificationsSchema,
         avatarAddress: String,
-        showAppointmentCancelled: { type: Boolean, default: false }
+        showAppointmentCancelled: { type: Boolean, default: false },
+        providers: [{
+            type: String
+        }],
+        calendarTimeZone: String
     };
 
     schema.add({
