@@ -27,18 +27,34 @@ export class DataSourcesService {
     }
 
     async getCollectionSource(virtualSource: DataSourceResponse): Promise<DataSourceResponse> {
+        const filter = '';
         const distinctValues: string[] = await this.getDistinctValues(
             virtualSource.name,
             virtualSource.dataSource,
             COLLECTION_SOURCE_FIELD_NAME,
             COLLECTION_SOURCE_MAX_LIMIT,
-            ''
+            filter
         );
 
         virtualSource.sources = distinctValues;
         virtualSource.fields = await this._filterFieldsWithoutData(virtualSource);
 
         return virtualSource;
+    }
+
+    /**
+     * i.e. dataSource = 'established_customers_sales'
+     * @param data
+     */
+    async getFilterFieldsWithData(dataSource: string, collectionSource: string[], fields: DataSourceField[]): Promise<DataSourceField[]> {
+        if (!dataSource && !collectionSource) {
+            return [];
+        }
+
+        let virtualSource = await this._virtualDatasources.model.findOne({ name: { $regex: new RegExp(dataSource, 'i')} });
+        const fieldsWithData: string[] = await this._getFieldsWithData(virtualSource.source, fields, collectionSource);
+
+        return fields.filter((f: DataSourceField) => fieldsWithData.indexOf(f.name) !== -1);
     }
 
     async getDistinctValues(name: string, source: string, field: string, limit: number, filter: string): Promise<string[]> {
@@ -61,15 +77,16 @@ export class DataSourcesService {
         }
     }
 
-    private async _filterFieldsWithoutData(virtualSource: DataSourceResponse): Promise<DataSourceField[]> {
+    private async _filterFieldsWithoutData(virtualSource: DataSourceResponse, collectionSource?: string[]): Promise<DataSourceField[]> {
         const fields: DataSourceField[] = virtualSource.fields;
+        // i.e. Sales
         const dataSource: string = virtualSource.dataSource;
 
-        const sources: string[] = await this._getFieldsWithData(dataSource, fields);
+        const sources: string[] = await this._getFieldsWithData(dataSource, fields, collectionSource);
         return virtualSource.fields.filter((f: DataSourceField) => sources.indexOf(f.name) !== -1);
     }
 
-    private async _getFieldsWithData(dataSource: string, fields: DataSourceField[]): Promise<string[]> {
+    private async _getFieldsWithData(dataSource: string, fields: DataSourceField[], collectionSource?: string[]): Promise<string[]> {
         const collectionQuery = [];
         const model = (this._container.get(dataSource) as any).model;
         let fieldsWithData: string[] = [];
@@ -79,13 +96,26 @@ export class DataSourcesService {
             const fieldPath: string = field.path;
             // i.e. Referral
             const fieldName: string = field.name;
+            let matchStage = {
+                $match: {
+                    [fieldPath]: {
+                        $nin: ['', null, 'null', 'undefined']
+                    }
+                }
+            };
+
+            if (Array.isArray(collectionSource) && collectionSource.length) {
+                Object.assign(matchStage.$match, {
+                    source: {
+                        $in: collectionSource
+                    }
+                });
+            }
 
             collectionQuery.push(
-                model.aggregate([{
-                    $match: {
-                        [fieldPath]: { $exists: true }
-                    }
-                }, {
+                model.aggregate([
+                    matchStage
+                    , {
                     $project: {
                         _id: 0,
                         // Referral: 'referral.name'
