@@ -555,11 +555,11 @@ export class UIChartBase {
 
             categories.forEach(cat => {
                 let dataItem = cat.id !== NULL_CATEGORY_REPLACEMENT
-                               ? data.find((item: any) => item._id[matchField] === cat.id)
-                               : data.find((item: any) => (
-                                   item._id[matchField] === null ||
-                                   item._id[matchField] === NULL_CATEGORY_REPLACEMENT ||
-                                   !Object.keys(item._id).length
+                                ? data.find((item: any) => item._id[matchField] === cat.id)
+                                : data.find((item: any) => (
+                                    item._id[matchField] === null ||
+                                    item._id[matchField] === NULL_CATEGORY_REPLACEMENT ||
+                                    !Object.keys(item._id).length
                                 ));
 
                 const chartType = this.chart.chartDefinition.chart.type;
@@ -593,7 +593,7 @@ export class UIChartBase {
         let series: IChartSerie[] = [];
         let matchField: string;
 
-        if (meta.xAxisSource === FREQUENCY_GROUPING_NAME) {
+        if (meta.xAxisSource === FREQUENCY_GROUPING_NAME && meta.frequency !== null) {
             matchField = getFrequencyPropName(meta.frequency);
         } else {
             matchField = camelCase(meta.groupings[0]);
@@ -613,7 +613,7 @@ export class UIChartBase {
 
             categories.forEach(cat => {
                 let dataItem = groupedData[serieName].find((item: any) => {
-                    return item._id[matchField] === cat.id;
+                    return item._id[matchField] === (cat.id !== NULL_CATEGORY_REPLACEMENT ? cat.id : serieName);
                 });
 
                 const chartType = this.chart.chartDefinition.chart.type;
