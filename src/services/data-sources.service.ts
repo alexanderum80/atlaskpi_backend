@@ -5,6 +5,7 @@ import { sortBy } from 'lodash';
 import { Logger } from '../domain/app/logger';
 import { KPIFilterHelper } from '../domain/app/kpis/kpi-filter.helper';
 import * as Bluebird from 'bluebird';
+import { isObject } from 'lodash';
 
 @injectable()
 export class DataSourcesService {
@@ -16,7 +17,10 @@ export class DataSourcesService {
 
     async get(): Promise<DataSourceResponse[]> {
         let virtualSources = await this._virtualDatasources.model.getDataSources();
-        virtualSources = await Bluebird.map(virtualSources, (virtualSource: DataSourceResponse) => this._getCollectionSources(virtualSource));
+        // virtualSources = await Bluebird.map(
+        //                             virtualSources,
+        //                             (virtualSource: DataSourceResponse) => this._getCollectionSources(virtualSource)
+        //                         );
         return sortBy(virtualSources, 'name');
     }
 
@@ -42,9 +46,67 @@ export class DataSourcesService {
 
     private async _getCollectionSources(virtualSource: DataSourceResponse): Promise<DataSourceResponse> {
         const fields: DataSourceField[] = virtualSource.fields;
-        const model = virtualSource.dataSource;
+        const dataSource: string = virtualSource.dataSource;
 
+        const sources: string[] = await this._getFieldsWithData(dataSource, fields);
+        virtualSource.fields = virtualSource.fields.filter((f: DataSourceField) => sources.indexOf(f.name) !== -1);
 
         return virtualSource;
+    }
+
+    private async _getFieldsWithData(dataSource: string, fields: DataSourceField[]): Promise<string[]> {
+        const collectionQuery = [];
+        const model = (this._container.get(dataSource) as any).model;
+        let fieldsWithData: string[] = [];
+
+        fields.forEach((field: DataSourceField) => {
+            // referral.name
+            const fieldPath: string = field.path;
+            // i.e. Referral
+            const fieldName: string = field.name;
+
+            collectionQuery.push(
+                model.aggregate([{
+                    $match: {
+                        [fieldPath]: { $exists: true }
+                    }
+                }, {
+                    $project: {
+                        _id: 0,
+                        // Referral: 'referral.name'
+                        [fieldName]: fieldPath
+                    }
+                }, {
+                    $limit: 1
+                }])
+            );
+        });
+
+        const fieldsExists: any[] = await Bluebird.all(collectionQuery);
+        if (fieldsExists) {
+            const formatToObject = this._transformToObject(fieldsExists);
+            fieldsWithData = Object.keys(formatToObject);
+
+            return fieldsWithData;
+        }
+
+        return fieldsWithData;
+    }
+
+    private _transformToObject(arr: any[]): any {
+        if (!arr) { return; }
+        const newObject = {};
+
+        arr.forEach(singleArray => {
+            if (singleArray && Array.isArray(singleArray)) {
+                singleArray.forEach(obj => {
+                    if (isObject(obj)) {
+                        Object.assign(newObject, obj);
+                    }
+                });
+            }
+        });
+
+        return newObject;
     }
 }
