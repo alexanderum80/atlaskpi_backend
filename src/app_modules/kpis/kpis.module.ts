@@ -9,6 +9,7 @@ import { KpiQuery } from './queries/kpi.query';
 import { KpisQuery } from './queries/kpis.query';
 import { ExecuteKpiQuery } from './queries/execute.kpi';
 import {GetKpiFilterFields} from './queries/get-kpi-filter-fields.query';
+import {GetKpiNumericFieldsQuery} from './queries/get-kpi-numeric-fields.query';
 
 @AppModule({
     mutations: [
@@ -23,7 +24,8 @@ import {GetKpiFilterFields} from './queries/get-kpi-filter-fields.query';
         KpiByNameQuery,
         GetKpisCriteriaQuery,
         ExecuteKpiQuery,
-        GetKpiFilterFields
+        GetKpiFilterFields,
+        GetKpiNumericFieldsQuery
     ]
 })
 export class KpisModule extends ModuleBase { }

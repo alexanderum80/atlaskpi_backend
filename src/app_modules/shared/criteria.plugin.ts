@@ -41,7 +41,7 @@ function criteriaAggregation(input: {field: string, limit?: number, filter?: str
     let aggregate: ICriteriaAggregate[] = [{
         '$unwind': `$${unwindField}`
     }, {
-        '$match': { [input.field]: { '$nin': ['', null] } }
+        '$match': { [input.field]: { '$nin': ['', null, 'null', 'undefined'] } }
     }, {
         '$group': {
             _id: {

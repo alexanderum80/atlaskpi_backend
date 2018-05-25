@@ -1,14 +1,15 @@
+import { IObject } from '../../../app_modules/shared/criteria.plugin';
 import { inject, injectable } from 'inversify';
 import * as mongoose from 'mongoose';
 import * as logger from 'winston';
-import { isObject } from 'lodash';
+import { isObject, isEmpty } from 'lodash';
 
 import { input } from '../../../framework/decorators/input.decorator';
 import { ModelBase } from '../../../type-mongo/model-base';
 import { AppConnection } from '../app.connection';
 import { tagsPlugin } from '../tags/tag.plugin';
 import { IVirtualSourceModel, IVirtualSourceDocument, IFilterOperator } from '../virtual-sources/virtual-source';
-import { DataSourceResponse } from '../../../app_modules/data-sources/data-sources.types';
+import { DataSourceField, DataSourceResponse } from '../../../app_modules/data-sources/data-sources.types';
 import { IIdName } from '../../common/id-name';
 import { IValueName } from '../../common/value-name';
 
@@ -49,12 +50,14 @@ const VirtualSourceSchema = new mongoose.Schema({
 
 // STATIC
 VirtualSourceSchema.statics.getDataSources = getDataSources;
+VirtualSourceSchema.statics.getDataSourceByName = getDataSourceByName;
 
 // METHODS
 VirtualSourceSchema.methods.getGroupingFieldPaths = getGroupingFieldPaths;
 VirtualSourceSchema.methods.findByNames = findByNames;
 VirtualSourceSchema.methods.getFieldDefinition = getFieldDefinition;
 VirtualSourceSchema.methods.getDataTypeOperator = getDataTypeOperator;
+VirtualSourceSchema.methods.getDataSourceFieldsMap = mapDataSourceFields;
 // VirtualSourceSchema.methods.containsPath = containsPath;
 
 @injectable()
@@ -72,14 +75,8 @@ async function getDataSources(names?: string[]): Promise<DataSourceResponse[]> {
         const query = names ? { name: { $in: names } } : { };
         const virtualSources = await model.find(query);
         const dataSources: DataSourceResponse[] = virtualSources.map(ds => {
-            // with the new feature to filter kpi by sources we do not need to send the "source" field anymore
-            const fieldNames = Object.keys(ds.fieldsMap).filter(k => k.toLowerCase() !== 'source').sort();
-            const fields = fieldNames.map(f => ({
-                name: f,
-                path: ds.fieldsMap[f].path,
-                type: ds.fieldsMap[f].dataType,
-                allowGrouping: ds.fieldsMap[f].allowGrouping
-            }));
+        const fields = mapDataSourceFields(ds);
+
             return {
                 name: ds.name.toLocaleLowerCase(),
                 description: ds.description,
@@ -95,6 +92,32 @@ async function getDataSources(names?: string[]): Promise<DataSourceResponse[]> {
         console.error('Error getting virtual sources');
         return [];
     }
+}
+
+async function getDataSourceByName(name: string): Promise<IVirtualSourceDocument> {
+    const model = this as IVirtualSourceModel;
+
+    try {
+        const regexName: RegExp = new RegExp(name, 'i');
+        const query: IObject = { name: { $regex: regexName } };
+        return await model.findOne(query);
+    } catch (e) {
+        console.log('Error getting virtual source fields');
+        return {} as any;
+    }
+}
+
+function mapDataSourceFields(virtualSource: IVirtualSourceDocument): DataSourceField[] {
+    // with the new feature to filter kpi by sources we do not need to send the "source" field anymore
+    const fieldsMap = virtualSource.fieldsMap;
+    const fieldNames = Object.keys(virtualSource.fieldsMap).filter(k => k.toLowerCase() !== 'source').sort();
+
+    return fieldNames.map(key => ({
+        name: key,
+        path: fieldsMap[key].path,
+        type: fieldsMap[key].dataType,
+        allowGrouping: fieldsMap[key].allowGrouping
+    }));
 }
 
 function getGroupingFieldPaths(): IValueName[] {

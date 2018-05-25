@@ -1,3 +1,4 @@
+import { IVirtualSourceDocument } from '../domain/app/virtual-sources/virtual-source';
 import { DataSourceField, DataSourceResponse } from '../app_modules/data-sources/data-sources.types';
 import { injectable, inject, Container } from 'inversify';
 import { VirtualSources } from '../domain/app/virtual-sources/virtual-source.model';
@@ -6,6 +7,7 @@ import { Logger } from '../domain/app/logger';
 import { KPIFilterHelper } from '../domain/app/kpis/kpi-filter.helper';
 import * as Bluebird from 'bluebird';
 import { isObject } from 'lodash';
+import {KPIExpressionFieldInput} from '../app_modules/kpis/kpis.types';
 
 const COLLECTION_SOURCE_MAX_LIMIT = 20;
 const COLLECTION_SOURCE_FIELD_NAME = 'source';
@@ -37,7 +39,7 @@ export class DataSourcesService {
         );
 
         virtualSource.sources = distinctValues;
-        virtualSource.fields = await this._filterFieldsWithoutData(virtualSource);
+        virtualSource.fields = await this.filterFieldsWithoutData(virtualSource);
 
         return virtualSource;
     }
@@ -46,13 +48,13 @@ export class DataSourcesService {
      * i.e. dataSource = 'established_customers_sales'
      * @param data
      */
-    async getFilterFieldsWithData(dataSource: string, collectionSource: string[], fields: DataSourceField[]): Promise<DataSourceField[]> {
+    async getKPIFilterFieldsWithData(dataSource: string, collectionSource: string[], fields: DataSourceField[]): Promise<DataSourceField[]> {
         if (!dataSource && !collectionSource) {
             return [];
         }
 
-        let virtualSource = await this._virtualDatasources.model.findOne({ name: { $regex: new RegExp(dataSource, 'i')} });
-        const fieldsWithData: string[] = await this._getFieldsWithData(virtualSource.source, fields, collectionSource);
+        const virtualSource = await this._virtualDatasources.model.findOne({ name: { $regex: new RegExp(dataSource, 'i')} });
+        const fieldsWithData: string[] = await this.getFieldsWithData(virtualSource.source, fields, collectionSource);
 
         return fields.filter((f: DataSourceField) => fieldsWithData.indexOf(f.name) !== -1);
     }
@@ -77,16 +79,32 @@ export class DataSourcesService {
         }
     }
 
-    private async _filterFieldsWithoutData(virtualSource: DataSourceResponse, collectionSource?: string[]): Promise<DataSourceField[]> {
+    async getNumericFieldsWithData(input: KPIExpressionFieldInput): Promise<DataSourceField[]> {
+        // i.e. 'nextech'
+        const collectionSource: string[] = input.collectionSource;
+        // i.e. 'established_customer'
+        const dataSource: string = input.dataSource;
+        const virtualSource: IVirtualSourceDocument = await this._virtualDatasources.model.getDataSourceByName(dataSource);
+
+        const numericFields: DataSourceField[] = virtualSource
+                                                .mapDataSourceFields(virtualSource)
+                                                .filter((field: DataSourceField) => field.type !== 'Number');
+
+        const fieldsWithData: string[] = await this.getFieldsWithData(virtualSource.source, numericFields, collectionSource);
+        return numericFields.filter((n: DataSourceField) => fieldsWithData.indexOf(n.name) !== -1);
+    }
+
+    async filterFieldsWithoutData(virtualSource: DataSourceResponse, collectionSource?: string[]): Promise<DataSourceField[]> {
         const fields: DataSourceField[] = virtualSource.fields;
         // i.e. Sales
         const dataSource: string = virtualSource.dataSource;
 
-        const sources: string[] = await this._getFieldsWithData(dataSource, fields, collectionSource);
+        // i.e ['APS Nextech ( nextech )']
+        const sources: string[] = await this.getFieldsWithData(dataSource, fields, collectionSource);
         return virtualSource.fields.filter((f: DataSourceField) => sources.indexOf(f.name) !== -1);
     }
 
-    private async _getFieldsWithData(dataSource: string, fields: DataSourceField[], collectionSource?: string[]): Promise<string[]> {
+    async getFieldsWithData(dataSource: string, fields: DataSourceField[], collectionSource?: string[]): Promise<string[]> {
         const collectionQuery = [];
         const model = (this._container.get(dataSource) as any).model;
         let fieldsWithData: string[] = [];

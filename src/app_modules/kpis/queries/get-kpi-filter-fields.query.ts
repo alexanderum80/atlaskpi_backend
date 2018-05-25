@@ -29,7 +29,7 @@ export class GetKpiFilterFields implements IQuery<DataSourceField[]> {
 
         const input: DataSourceFilterFieldsInput = data.input;
 
-        return await this._dataSourceSvc.getFilterFieldsWithData(
+        return await this._dataSourceSvc.getKPIFilterFieldsWithData(
             input.dataSource,
             input.collectionSource,
             input.fields
