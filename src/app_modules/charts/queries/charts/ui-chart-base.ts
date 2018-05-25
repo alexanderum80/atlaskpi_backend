@@ -56,6 +56,8 @@ export interface IComparisonSerieObject {
     data?: string[];
     type?: string;
     stack?: string;
+    targetId?: string;
+    percentageCompletion?: number;
 }
 
 export interface ICategoriesWithValues {
@@ -64,6 +66,7 @@ export interface ICategoriesWithValues {
     serieValue?: number|object;
     type?: string;
     targetId?: any;
+    percentageCompletion?: number;
 }
 
 export interface IComparsionDefObjectData {
@@ -552,11 +555,11 @@ export class UIChartBase {
 
             categories.forEach(cat => {
                 let dataItem = cat.id !== NULL_CATEGORY_REPLACEMENT
-                               ? data.find((item: any) => item._id[matchField] === cat.id)
-                               : data.find((item: any) => (
-                                   item._id[matchField] === null ||
-                                   item._id[matchField] === NULL_CATEGORY_REPLACEMENT ||
-                                   !Object.keys(item._id).length
+                                ? data.find((item: any) => item._id[matchField] === cat.id)
+                                : data.find((item: any) => (
+                                    item._id[matchField] === null ||
+                                    item._id[matchField] === NULL_CATEGORY_REPLACEMENT ||
+                                    !Object.keys(item._id).length
                                 ));
 
                 const chartType = this.chart.chartDefinition.chart.type;
@@ -590,7 +593,7 @@ export class UIChartBase {
         let series: IChartSerie[] = [];
         let matchField: string;
 
-        if (meta.xAxisSource === FREQUENCY_GROUPING_NAME) {
+        if (meta.xAxisSource === FREQUENCY_GROUPING_NAME && meta.frequency !== null) {
             matchField = getFrequencyPropName(meta.frequency);
         } else {
             matchField = camelCase(meta.groupings[0]);
@@ -610,7 +613,7 @@ export class UIChartBase {
 
             categories.forEach(cat => {
                 let dataItem = groupedData[serieName].find((item: any) => {
-                    return item._id[matchField] === cat.id;
+                    return item._id[matchField] === (cat.id !== NULL_CATEGORY_REPLACEMENT ? cat.id : serieName);
                 });
 
                 const chartType = this.chart.chartDefinition.chart.type;
@@ -674,7 +677,8 @@ export class UIChartBase {
                         targetId: v._id
                     },
                     value: (<any>v).target,
-                    targetId: v._id
+                    targetId: v._id,
+                    percentageCompletion: v.percentageCompletion
                 } : {
                     _id: {
                         frequency: TargetService.formatFrequency(metadata.frequency, v.datepicker),
@@ -682,7 +686,8 @@ export class UIChartBase {
                         targetId: v._id
                     },
                     value: (<any>v).target,
-                    targetId: v._id
+                    targetId: v._id,
+                    percentageCompletion: v.percentageCompletion
                 };
             });
             this.frequencyHelper.decomposeFrequencyInfo(this.targetData, metadata.frequency);
@@ -712,7 +717,8 @@ export class UIChartBase {
                         name: d._id['noFrequencyName'],
                         type: 'spline',
                         data: [].concat(d.value),
-                        targetId: d.targetId
+                        targetId: d.targetId,
+                        percentageCompletion: d.percentageCompletion
                     }));
                 }
             case 1:
@@ -808,6 +814,7 @@ export class UIChartBase {
 
             serie['type'] = 'spline';
             serie['targetId'] = groupedData[serieName][0].targetId;
+            serie['percentageCompletion'] = groupedData[serieName][0].percentageCompletion;
 
             categories.forEach(cat => {
                 let dataItem = groupedData[serieName].find((item: any) => {
@@ -961,6 +968,7 @@ export class UIChartBase {
                     if (serie.type && serie.targetId) {
                         categoriesWithValues.type = serie.type;
                         categoriesWithValues.targetId = serie.targetId;
+                        categoriesWithValues.percentageCompletion = serie.percentageCompletion;
                     }
 
                     defObject['data'][keys[i]].push(categoriesWithValues);
@@ -1001,9 +1009,24 @@ export class UIChartBase {
                     objData.serieName = groupKey;
                 }
 
-                const dateRangeId: string = getDateRangeIdFromString(that.chart.dateRange[0].predefined);
-                const comparisonString: string = (stack === 'main') ?
-                            that.chart.dateRange[0].predefined : PredefinedComparisonDateRanges[dateRangeId][stack];
+                let dateRangeId: string = '';
+                if (that.chart && Array.isArray(that.chart.dateRange)) {
+                    if (that.chart.dateRange[0].predefined) {
+                        dateRangeId = getDateRangeIdFromString(that.chart.dateRange[0].predefined);
+                    } else {
+                        dateRangeId = 'custom';
+                    }
+                }
+                let comparisonString: string = '';
+                if (stack === 'main') {
+                    if (that.chart && Array.isArray(that.chart.dateRange)) {
+                        comparisonString = that.chart.dateRange[0].predefined;
+                    }
+                } else {
+                    if (dateRangeId && stack) {
+                        comparisonString = PredefinedComparisonDateRanges[dateRangeId][stack];
+                    }
+                }
 
                 let serieObject: IComparisonSerieObject;
 
@@ -1015,7 +1038,9 @@ export class UIChartBase {
                             name: objData.serieName,
                             data: serieData,
                             stack: stack,
-                            type: 'spline'
+                            type: 'spline',
+                            targetId: hasTarget.targetId,
+                            percentageCompletion: hasTarget.percentageCompletion
                         };
                     }
                 } else {

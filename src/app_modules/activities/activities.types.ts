@@ -143,6 +143,21 @@ export class SalesAmount {
 }
 
 @type()
+export class MonthAvgSalesAmountId {
+    @field({ type: GraphQLTypesMap.String })
+    source: string;
+}
+
+@type()
+export class MonthAvgSalesAmount {
+    @field({ type: MonthAvgSalesAmountId })
+    _id: MonthAvgSalesAmountId;
+
+    @field({ type: GraphQLTypesMap.Float })
+    amount: number;
+}
+
+@type()
 export class ExpensesConcept {
     @field({ type: GraphQLTypesMap.String })
     concept: string;
@@ -156,6 +171,9 @@ export class ExpensesConcept {
 export class ExpensesAmount {
     @field({ type: GraphQLTypesMap.String })
     _id: string;
+
+    @field({ type: GraphQLTypesMap.Float })
+    amount: number;
 
     @field({ type: ExpensesConcept, isArray: true })
     expenses: ExpensesConcept[];

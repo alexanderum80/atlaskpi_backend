@@ -1,6 +1,16 @@
 import * as mongoose from 'mongoose';
 import * as Promise from 'bluebird';
 
+export interface INotificationData {
+    targetName: string;
+    targetAmount: string;
+    targetMet: string;
+    targetDate: string;
+    dashboardName: string;
+    chartName: string;
+    businessUnitName: string;
+}
+
 export interface INotify {
     users: string[];
     notification?: Date;
@@ -24,6 +34,7 @@ export interface ITarget {
     target?: number;
     targetMet?: number;
     timestamp?: Date;
+    percentageCompletion?: any;
 }
 
 export interface ITargetDocument extends ITarget, mongoose.Document {}

@@ -102,7 +102,7 @@ DashboardSchema.statics.deleteDashboard = function(id: string):
         });
     };
 
-DashboardSchema.statics.findDashboardByChartId = function(id): Promise<any> {
+DashboardSchema.statics.findDashboardByChartId = function(id): Promise<string> {
     const DashboardModel = (<IDashboardModel>this);
     return new Promise<any>((resolve, reject) => {
         DashboardModel.findOne({ charts: { $in: [id] } }).distinct('name').then(dashboard => {
