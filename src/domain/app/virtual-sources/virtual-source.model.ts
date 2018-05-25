@@ -57,7 +57,7 @@ VirtualSourceSchema.methods.getGroupingFieldPaths = getGroupingFieldPaths;
 VirtualSourceSchema.methods.findByNames = findByNames;
 VirtualSourceSchema.methods.getFieldDefinition = getFieldDefinition;
 VirtualSourceSchema.methods.getDataTypeOperator = getDataTypeOperator;
-VirtualSourceSchema.methods.getDataSourceFieldsMap = mapDataSourceFields;
+VirtualSourceSchema.methods.mapDataSourceFields = mapDataSourceFields;
 // VirtualSourceSchema.methods.containsPath = containsPath;
 
 @injectable()
