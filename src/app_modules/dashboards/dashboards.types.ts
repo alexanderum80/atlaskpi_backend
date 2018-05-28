@@ -35,6 +35,9 @@ export class DashboardInput  {
 
     @field({ type: GraphQLTypesMap.String, isArray: true})
     users: string[];
+
+    @field({ type: GraphQLTypesMap.Boolean })
+    visible?: boolean;
 }
 
 @type()
@@ -59,6 +62,9 @@ export class Dashboard  {
 
     @field({ type: GraphQLTypesMap.String, isArray: true })
     users: string[];
+
+    @field({ type: GraphQLTypesMap.Boolean })
+    visible?: boolean;
 }
 
 

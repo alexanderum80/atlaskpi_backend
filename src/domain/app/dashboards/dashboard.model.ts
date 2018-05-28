@@ -37,6 +37,7 @@ let DashboardSchema = new Schema({
         type: Schema.Types.String,
         ref: 'User'
     }],
+    visible: Boolean,
 });
 
 // add tags capabilities
@@ -62,17 +63,16 @@ DashboardSchema.statics.createDashboard = function(input: IDashboardInput):
         });
     };
 
-DashboardSchema.statics.updateDashboard = function(id: string, input: IDashboardInput):
+DashboardSchema.statics.updateVisibleDashboard = function(id: string, input: Boolean):
     Promise < IDashboardDocument > {
 
         const that = < IDashboardModel > this;
 
         return new Promise < IDashboardDocument > ((resolve, reject) => {
-            if (!id || !input.name) {
+            if (!id) {
                 return reject('Information not valid');
             }
-
-            that.findByIdAndUpdate(id, input).then(dashboard => {
+            that.update({ _id: id }, {$set: { visible: input } }).then(dashboard => {
                 resolve(dashboard);
                 return;
             }).catch(err => {
