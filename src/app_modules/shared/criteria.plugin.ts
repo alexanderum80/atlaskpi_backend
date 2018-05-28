@@ -24,7 +24,10 @@ function findCriteria(field: string, aggregate: any[], limit?: number, filter?: 
     let aggregateOptions = aggregate.concat(criteriaAggregation({ field, limit, filter }));
 
     return new Promise<string[]>((resolve, reject) => {
-        that.aggregate(aggregateOptions).then(res => {
+        const agg = that.aggregate(aggregateOptions);
+        agg.options = { allowDiskUse: true };
+        
+        agg.then(res => {
             const results = mapResults(res);
 
             resolve(results);
