@@ -45,6 +45,9 @@ export class DataSourceField  {
 
     @field({ type: GraphQLTypesMap.Boolean })
     allowGrouping: boolean;
+
+    @field({ type: GraphQLTypesMap.Boolean })
+    available?: boolean;
 }
 
 @type()

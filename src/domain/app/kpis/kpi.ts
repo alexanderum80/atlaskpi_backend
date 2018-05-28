@@ -75,6 +75,13 @@ export interface IKPISimpleDefinition {
     value?: string;
 }
 
+export class IKPISelectionItem {
+    id?: number | string;
+    title?: string;
+    selected?: boolean;
+    disabled?: boolean;
+}
+
 export interface IKPI {
     code: string;
     name: string;

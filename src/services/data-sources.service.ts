@@ -6,7 +6,7 @@ import { sortBy } from 'lodash';
 import { Logger } from '../domain/app/logger';
 import { KPIFilterHelper } from '../domain/app/kpis/kpi-filter.helper';
 import * as Bluebird from 'bluebird';
-import { isObject } from 'lodash';
+import { isObject, isEmpty } from 'lodash';
 import {KPIExpressionFieldInput} from '../app_modules/kpis/kpis.types';
 
 const COLLECTION_SOURCE_MAX_LIMIT = 20;
@@ -56,7 +56,12 @@ export class DataSourcesService {
         const virtualSource = await this._virtualDatasources.model.findOne({ name: { $regex: new RegExp(dataSource, 'i')} });
         const fieldsWithData: string[] = await this.getFieldsWithData(virtualSource.source, fields, collectionSource);
 
-        return fields.filter((f: DataSourceField) => fieldsWithData.indexOf(f.name) !== -1);
+        fields.forEach((f: DataSourceField) => {
+            f.available = fieldsWithData.indexOf(f.name) !== -1;
+        });
+
+        return fields;
+        // return fields.filter((f: DataSourceField) => fieldsWithData.indexOf(f.name) !== -1);
     }
 
     async getDistinctValues(name: string, source: string, field: string, limit: number, filter: string): Promise<string[]> {
@@ -88,10 +93,16 @@ export class DataSourcesService {
 
         const numericFields: DataSourceField[] = virtualSource
                                                 .mapDataSourceFields(virtualSource)
-                                                .filter((field: DataSourceField) => field.type !== 'Number');
+                                                .filter((field: DataSourceField) => field.type === 'Number');
 
         const fieldsWithData: string[] = await this.getFieldsWithData(virtualSource.source, numericFields, collectionSource);
-        return numericFields.filter((n: DataSourceField) => fieldsWithData.indexOf(n.name) !== -1);
+
+        numericFields.forEach((n: DataSourceField) => {
+            n.available = fieldsWithData.indexOf(n.name) !== -1;
+        });
+
+        return numericFields;
+        // return numericFields.filter((n: DataSourceField) => fieldsWithData.indexOf(n.name) !== -1);
     }
 
     async filterFieldsWithoutData(virtualSource: DataSourceResponse, collectionSource?: string[]): Promise<DataSourceField[]> {
@@ -101,7 +112,12 @@ export class DataSourcesService {
 
         // i.e ['APS Nextech ( nextech )']
         const sources: string[] = await this.getFieldsWithData(dataSource, fields, collectionSource);
-        return virtualSource.fields.filter((f: DataSourceField) => sources.indexOf(f.name) !== -1);
+
+        virtualSource.fields.forEach((f: DataSourceField) => {
+            f.available = isEmpty(sources) || sources.indexOf(f.name) !== -1;
+        });
+        return virtualSource.fields;
+        // return virtualSource.fields.filter((f: DataSourceField) => sources.indexOf(f.name) !== -1);
     }
 
     async getFieldsWithData(dataSource: string, fields: DataSourceField[], collectionSource?: string[]): Promise<string[]> {
