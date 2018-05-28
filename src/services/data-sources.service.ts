@@ -39,8 +39,6 @@ export class DataSourcesService {
         );
 
         virtualSource.sources = distinctValues;
-        virtualSource.fields = await this.filterFieldsWithoutData(virtualSource);
-
         return virtualSource;
     }
 
@@ -61,7 +59,6 @@ export class DataSourcesService {
         });
 
         return fields;
-        // return fields.filter((f: DataSourceField) => fieldsWithData.indexOf(f.name) !== -1);
     }
 
     async getDistinctValues(name: string, source: string, field: string, limit: number, filter: string): Promise<string[]> {
@@ -102,7 +99,6 @@ export class DataSourcesService {
         });
 
         return numericFields;
-        // return numericFields.filter((n: DataSourceField) => fieldsWithData.indexOf(n.name) !== -1);
     }
 
     async filterFieldsWithoutData(virtualSource: DataSourceResponse, collectionSource?: string[]): Promise<DataSourceField[]> {
@@ -117,7 +113,6 @@ export class DataSourcesService {
             f.available = isEmpty(sources) || sources.indexOf(f.name) !== -1;
         });
         return virtualSource.fields;
-        // return virtualSource.fields.filter((f: DataSourceField) => sources.indexOf(f.name) !== -1);
     }
 
     async getFieldsWithData(dataSource: string, fields: DataSourceField[], collectionSource?: string[]): Promise<string[]> {

@@ -155,7 +155,7 @@ export class KPIFilterHelper {
 
             if (!isArray(value) && !isDate(value) && isObject(value)) {
                 value = KPIFilterHelper._serializer(value, operation);
-            } else if (!isDate(value) && isArray(value)) {
+            } else if (!isDate(value) && isArrayObject(value)) {
                 for (let i = 0; i < value.length; i++) {
                     value[i] = this._serializer(value[i], operation);
                 }
