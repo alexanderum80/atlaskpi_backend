@@ -16,6 +16,7 @@ export interface IDashboard {
     widgets: IWidget[];
     owner: IUser;
     users: IUser[];
+    visible?: boolean;
 }
 
 export interface IDashboardInput {
@@ -25,6 +26,7 @@ export interface IDashboardInput {
     widgets: string[];
     owner: string;
     users: string[];
+    visible?: boolean;
 }
 
 export interface IDashboardDocument extends IDashboard, mongoose.Document {
@@ -39,6 +41,7 @@ export interface IDashboardDocument extends IDashboard, mongoose.Document {
 export interface IDashboardModel extends mongoose.Model<IDashboardDocument>, ISearchableModel {
     createDashboard(input: IDashboardInput): Promise<IDashboardDocument>;
     updateDashboard(id: string, input: IDashboardInput): Promise<IDashboardDocument>;
+    updateVisibleDashboard(id: string, input: Boolean): Promise<IDashboardDocument>;
     deleteDashboard(id: string): Promise<IDashboardDocument>;
     findDashboardByChartId(id: string): Promise<string>;
     deleteWidget(dashboardId: string, widgetId: string): Promise<IDashboardDocument>;
