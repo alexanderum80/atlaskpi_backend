@@ -8,6 +8,7 @@ import { KPIFilterHelper } from '../domain/app/kpis/kpi-filter.helper';
 import * as Bluebird from 'bluebird';
 import { isObject, isEmpty } from 'lodash';
 import {KPIExpressionFieldInput} from '../app_modules/kpis/kpis.types';
+import {getFieldsWithData} from '../domain/common/fields-with-data';
 
 const COLLECTION_SOURCE_MAX_LIMIT = 20;
 const COLLECTION_SOURCE_FIELD_NAME = 'source';
@@ -52,7 +53,7 @@ export class DataSourcesService {
         }
 
         const virtualSource = await this._virtualDatasources.model.findOne({ name: { $regex: new RegExp(dataSource, 'i')} });
-        const fieldsWithData: string[] = await this.getFieldsWithData(virtualSource.source, fields, collectionSource);
+        const fieldsWithData: string[] = await getFieldsWithData(this._container, virtualSource.source, fields, collectionSource);
 
         fields.forEach((f: DataSourceField) => {
             f.available = fieldsWithData.indexOf(f.name) !== -1;
@@ -92,7 +93,7 @@ export class DataSourcesService {
                                                 .mapDataSourceFields(virtualSource)
                                                 .filter((field: DataSourceField) => field.type === 'Number');
 
-        const fieldsWithData: string[] = await this.getFieldsWithData(virtualSource.source, numericFields, collectionSource);
+        const fieldsWithData: string[] = await getFieldsWithData(this._container, virtualSource.source, numericFields, collectionSource);
 
         numericFields.forEach((n: DataSourceField) => {
             n.available = fieldsWithData.indexOf(n.name) !== -1;
@@ -107,79 +108,11 @@ export class DataSourcesService {
         const dataSource: string = virtualSource.dataSource;
 
         // i.e ['APS Nextech ( nextech )']
-        const sources: string[] = await this.getFieldsWithData(dataSource, fields, collectionSource);
+        const sources: string[] = await getFieldsWithData(this._container, dataSource, fields, collectionSource);
 
         virtualSource.fields.forEach((f: DataSourceField) => {
             f.available = isEmpty(sources) || sources.indexOf(f.name) !== -1;
         });
         return virtualSource.fields;
-    }
-
-    async getFieldsWithData(dataSource: string, fields: DataSourceField[], collectionSource?: string[]): Promise<string[]> {
-        const collectionQuery = [];
-        const model = (this._container.get(dataSource) as any).model;
-        let fieldsWithData: string[] = [];
-
-        fields.forEach((field: DataSourceField) => {
-            // referral.name
-            const fieldPath: string = field.path;
-            // i.e. Referral
-            const fieldName: string = field.name;
-            let matchStage = {
-                $match: {
-                    [fieldPath]: {
-                        $nin: ['', null, 'null', 'undefined']
-                    }
-                }
-            };
-
-            if (Array.isArray(collectionSource) && collectionSource.length) {
-                Object.assign(matchStage.$match, {
-                    source: {
-                        $in: collectionSource
-                    }
-                });
-            }
-
-            collectionQuery.push(
-                model.aggregate([
-                    matchStage
-                    , {
-                    $project: {
-                        _id: 0,
-                        // Referral: 'referral.name'
-                        [fieldName]: fieldPath
-                    }
-                }, {
-                    $limit: 1
-                }])
-            );
-        });
-
-        const fieldsExists: any[] = await Bluebird.all(collectionQuery);
-        if (fieldsExists) {
-            const formatToObject = this._transformToObject(fieldsExists);
-            fieldsWithData = Object.keys(formatToObject);
-
-            return fieldsWithData;
-        }
-        return fieldsWithData;
-    }
-
-    private _transformToObject(arr: any[]): any {
-        if (!arr) { return; }
-        const newObject = {};
-
-        arr.forEach(singleArray => {
-            if (singleArray && Array.isArray(singleArray)) {
-                singleArray.forEach(obj => {
-                    if (isObject(obj)) {
-                        Object.assign(newObject, obj);
-                    }
-                });
-            }
-        });
-
-        return newObject;
     }
 }
