@@ -75,4 +75,6 @@ export function transformToObject(arr: any[]): any {
             });
         }
     });
+
+    return newObject;
 }
