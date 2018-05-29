@@ -88,7 +88,7 @@ export class DataSourcesService {
         const collectionSource: string[] = input.collectionSource;
         // i.e. 'established_customer'
         const dataSource: string = input.dataSource;
-        const virtualSource: IVirtualSourceDocument = await this._virtualDatasources.model.getDataSourceByName(dataSource);
+        const virtualSource: IVirtualSourceDocument = await this._virtualDatasources.getDataSourceByName(dataSource);
 
         const numericFields: DataSourceField[] = mapDataSourceFields(virtualSource)
                                                 .filter((field: DataSourceField) => field.type === 'Number');
