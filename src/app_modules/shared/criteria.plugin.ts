@@ -1,6 +1,6 @@
 import * as mongoose from 'mongoose';
 import * as Promise from 'bluebird';
-
+import { isEmpty } from 'lodash';
 
 export interface IObject {
     [key: string]: any;
@@ -44,7 +44,7 @@ function criteriaAggregation(input: {field: string, limit?: number, filter?: str
     let aggregate: ICriteriaAggregate[] = [{
         '$unwind': `$${unwindField}`
     }, {
-        '$match': { [input.field]: { '$nin': ['', null] } }
+        '$match': { [input.field]: { '$nin': ['', null, 'null', 'undefined'] } }
     }, {
         '$group': {
             _id: {
@@ -57,11 +57,6 @@ function criteriaAggregation(input: {field: string, limit?: number, filter?: str
         $limit: input.limit
     });
 
-
-    if (!input.filter) {
-        return aggregate;
-    }
-
     // get the $match object
     let matchStage: ICriteriaAggregate = findStage(aggregate, '$match');
 
@@ -73,9 +68,14 @@ function criteriaAggregation(input: {field: string, limit?: number, filter?: str
         matchStage.$match = {};
     }
 
-    Object.assign(matchStage.$match[input.field], {
-        $regex: reg
-    });
+    if (!isEmpty(input.filter)) {
+        // contain regular expression that is case insensitive
+        const reg: RegExp = new RegExp(input.filter, 'i');
+        // i.e. match: { [field]: { $regex: reg } }
+        Object.assign(matchStage.$match[input.field], {
+            $regex: reg
+        });
+    }
 
     return aggregate;
 }
