@@ -16,6 +16,10 @@ export async function getFieldsWithData(container: Container, dataSource: string
     const model = (container.get(dataSource) as any).model;
     let fieldsWithData: string[] = [];
 
+    if (!model) {
+        return [];
+    }
+
     fields.forEach((field: DataSourceField|IValueName) => {
         // i.e referrable.name
         const fieldPath: string = (field as DataSourceField).path || (field as IValueName).value;

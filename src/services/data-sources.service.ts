@@ -103,16 +103,21 @@ export class DataSourcesService {
     }
 
     async filterFieldsWithoutData(virtualSource: DataSourceResponse, collectionSource?: string[]): Promise<DataSourceField[]> {
-        const fields: DataSourceField[] = virtualSource.fields;
-        // i.e. Sales
-        const dataSource: string = virtualSource.dataSource;
+        try {
+            const fields: DataSourceField[] = virtualSource.fields;
+            // i.e. Sales
+            const dataSource: string = virtualSource.dataSource;
 
-        // i.e ['APS Nextech ( nextech )']
-        const sources: string[] = await getFieldsWithData(this._container, dataSource, fields, collectionSource);
+            // i.e ['APS Nextech ( nextech )']
+            const sources: string[] = await getFieldsWithData(this._container, dataSource, fields, collectionSource);
 
-        virtualSource.fields.forEach((f: DataSourceField) => {
-            f.available = isEmpty(sources) || sources.indexOf(f.name) !== -1;
-        });
-        return virtualSource.fields;
+            virtualSource.fields.forEach((f: DataSourceField) => {
+                f.available = isEmpty(sources) || sources.indexOf(f.name) !== -1;
+            });
+            return virtualSource.fields;
+        } catch (err) {
+            console.error('error filtering fields without data', err);
+            return [];
+        }
     }
 }
