@@ -17,7 +17,9 @@ export async function getFieldsWithData(container: Container, dataSource: string
     let fieldsWithData: string[] = [];
 
     fields.forEach((field: DataSourceField|IValueName) => {
+        // i.e referrable.name
         const fieldPath: string = (field as DataSourceField).path || (field as IValueName).value;
+        // Referral
         const fieldName: string = field.name;
 
         let matchStage = {
@@ -44,6 +46,7 @@ export async function getFieldsWithData(container: Container, dataSource: string
                 {
                     $project: {
                         _id: 0,
+                        // i.e. Referral: referral.name
                         [fieldName]: fieldPath
                     }
                 }
