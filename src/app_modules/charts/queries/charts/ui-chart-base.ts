@@ -1,14 +1,13 @@
+import { ValueFormatHelper } from './../../../../domain/app/widgets/value-format.helper';
 import { EnumChartTop, IChartTop } from '../../../../domain/common/top-n-record';
 import 'datejs';
 
 import { from } from 'apollo-link/lib';
 import * as Bluebird from 'bluebird';
 import * as console from 'console';
-import {
-    cloneDeep, difference, flatten, groupBy,
+import { filter, sortBy, find, sumBy, cloneDeep, difference, flatten, groupBy,
     isEmpty, isNull, isUndefined, map, pick,
-    union, uniq, uniqBy, orderBy, isNumber, isString
-} from 'lodash';
+    union, uniq, uniqBy, orderBy, isNumber, isString, toString } from 'lodash';
 import * as moment from 'moment';
 import * as logger from 'winston';
 import { camelCase } from 'change-case';
@@ -57,6 +56,8 @@ export interface IComparisonSerieObject {
     data?: string[];
     type?: string;
     stack?: string;
+    targetId?: string;
+    percentageCompletion?: number;
 }
 
 export interface ICategoriesWithValues {
@@ -65,6 +66,7 @@ export interface ICategoriesWithValues {
     serieValue?: number|object;
     type?: string;
     targetId?: any;
+    percentageCompletion?: number;
 }
 
 export interface IComparsionDefObjectData {
@@ -77,6 +79,18 @@ export interface IComparsionDefObject {
     data?: IComparsionDefObjectData;
     uniqCategories?: string[];
 }
+export enum SortingCriteriaEnum {
+    Values = 'values',
+    Frequency = 'frequency',
+    Categories = 'categories',
+    Groupings = 'groupingAlphabetically',
+    Totals = 'valuesTotal'
+ }
+
+ export enum SortingOrderEnum {
+    Ascending = 'ascending',
+    Descending = 'descending'
+ }
 
 // export interface IXAxisConfig {
 //     fieldName: string;
@@ -92,6 +106,8 @@ export class UIChartBase {
     protected data: any[];
     protected dateRange: IChartDateRange[];
     protected groupings: string[];
+    protected sortingCriteria: string;
+    protected sortingOrder: string;
     protected categories: IXAxisCategory[];
     protected series: any[];
     protected targets: any;
@@ -132,6 +148,8 @@ export class UIChartBase {
         this.dateRange = this._getDateRange(metadata.dateRange);
         this.drilldown = metadata.isDrillDown;
         this.futureTarget = metadata.isFutureTarget;
+        this.sortingCriteria = metadata.sortingCriteria;
+        this.sortingOrder = metadata.sortingOrder;
 
         return that.getKPIData(kpi, metadata).then(data => {
             // logger.debug('data received, for chart: ' + this.constructor.name + ' - kpi: ' + kpi.constructor.name);
@@ -141,6 +159,9 @@ export class UIChartBase {
                 return;
             }
 
+            let groupingField = (metadata.groupings && metadata.groupings.length) ? camelCase(metadata.groupings[0]) : null;
+
+            data = this._sortingData(metadata, data);
             // must transform data first to apply top n
             // will return data if top n input is not given
             data = ApplyTopNChart.applyTopNToData(data, metadata);
@@ -250,6 +271,62 @@ export class UIChartBase {
      * Understand how to convert a chart data range interface into a simple date range
      * @param chartDateRange data range that includes a predefined or a custom data range
      */
+    private _sortingData(metadata: IChartMetadata, data: any): any {
+
+        let groupingField = (metadata.groupings && metadata.groupings.length) ? camelCase(metadata.groupings[0]) : null;
+
+        if (metadata.sortingCriteria && metadata.sortingCriteria === SortingCriteriaEnum.Values) {
+            if (metadata.sortingOrder) data = orderBy( data , 'value', metadata.sortingOrder === SortingOrderEnum.Ascending ? 'asc' : 'desc');
+        } else if (groupingField && data.find(e => e._id[groupingField] === metadata.sortingCriteria)) {
+            // First of all filter the selected serie data
+            let datafiltered = data.filter(x => x._id[groupingField] === metadata.sortingCriteria);
+            // Now sorting per value
+            if (metadata.sortingOrder) {
+                datafiltered = orderBy( datafiltered , 'value', metadata.sortingOrder === SortingOrderEnum.Ascending ? 'asc' : 'desc');
+            }
+
+            // Here the data is sorted by value of the selected groupingField
+            // NOW foreach datafiltered record, filtering the original data by frecuency
+            // and adding in datasemifinal
+            // finally assign the data again
+            const datasemifinal = [];
+            datafiltered.forEach(element => {
+                let dataTemp = data.filter(x => x._id.frequency === element._id.frequency);
+                dataTemp.forEach(z => { datasemifinal.push(z); });
+            });
+            data = datasemifinal;
+        } else if (groupingField && metadata.sortingCriteria && (metadata.sortingCriteria === SortingCriteriaEnum.Categories || metadata.sortingCriteria === SortingCriteriaEnum.Groupings)) {
+            if (this.sortingOrder) data = orderBy(data, '_id[' + groupingField + ']', metadata.sortingOrder === SortingOrderEnum.Ascending ? 'asc' : 'desc');
+        }
+        else if (metadata.sortingCriteria && metadata.sortingCriteria === SortingCriteriaEnum.Totals) {
+            let dataTemp = [];
+            let dataSorted = [];
+            // Here I most group by frequency,  then sum the values
+            let groupedData1 = groupBy(data, '_id.frequency');
+            for (let serieName in groupedData1) {
+                dataTemp.push({
+                    name: serieName,
+                    totalValue: sumBy(groupedData1[serieName], 'value')
+                });
+            }
+
+            if (metadata.sortingOrder) dataSorted = orderBy(dataTemp, 'totalValue', metadata.sortingOrder === SortingOrderEnum.Ascending ? 'asc' : 'desc');
+
+            // Here is sorting by totalValue
+            // forEach dataSorted, filter original data by frecuency & adding in new data
+            // finally assign to data again
+            const datasemifinal = [];
+            dataSorted.forEach(element => {
+                let datafilt = data.filter(x => x._id.frequency.toString() === element.name);
+                datafilt.forEach(z => {
+                    datasemifinal.push(z);
+                });
+            });
+            data = datasemifinal;
+        }
+        return data;
+    }
+
     private _processChartDateRange(chartDateRange: IChartDateRange): IDateRange {
         return chartDateRange.custom && chartDateRange.custom.from ?
                 {
@@ -280,21 +357,29 @@ export class UIChartBase {
      * @param metadata chart metadata
      */
     private _createCategories(data: any, metadata: IChartMetadata): IXAxisCategory[] {
+
+        let groupingField = (metadata.groupings && metadata.groupings.length) ? camelCase(metadata.groupings[0]) : null;
+        if (metadata.sortingCriteria) {
+            if (metadata.sortingCriteria === SortingCriteriaEnum.Values && metadata.sortingOrder) {
+                data = orderBy(data, 'value', metadata.sortingOrder === SortingOrderEnum.Ascending ? 'asc' : 'desc');
+            } else if (groupingField && (metadata.sortingCriteria === SortingCriteriaEnum.Categories || metadata.sortingCriteria === SortingCriteriaEnum.Groupings) && metadata.sortingOrder && metadata.sortingOrder === SortingOrderEnum.Ascending) {
+                data = orderBy(data, '_id[' + groupingField + ']', metadata.sortingOrder === SortingOrderEnum.Ascending ? 'asc' : 'desc');
+            }
+        }
         if (metadata.xAxisSource === 'frequency') {
             let categoryHelper;
             let noGrouping = !metadata.groupings || !metadata.groupings.length || !metadata.groupings[0];
             if (noGrouping && this.chart.chartDefinition.chart.type !== ChartType.Pie && metadata.frequency !== FrequencyEnum.Yearly) {
                 let dateRange = metadata.dateRange || this.dateRange;
-                categoryHelper = this._noGroupingsCategoryHelper(dateRange, metadata.frequency);
+                categoryHelper = this._noGroupingsCategoryHelper(data, metadata , dateRange, metadata.frequency, metadata.sortingCriteria, metadata.sortingOrder);
                 if (categoryHelper && categoryHelper.length && !metadata.top && !(metadata.top.predefined || metadata.top.custom)) {
                     return categoryHelper;
                 }
             }
-            return this.frequencyHelper.getCategories(metadata.frequency);
+            return this.frequencyHelper.getCategories(data, metadata.frequency, noGrouping ? null : camelCase(metadata.groupings[0]), metadata.sortingCriteria , metadata.sortingOrder);
         }
 
-        const getXaxisSource: any = this._getXaxisSource(data, metadata);
-        const xAxisSource: string = isString(getXaxisSource) ? camelCase(getXaxisSource) : getXaxisSource;
+        const xAxisSource: any = this._getXaxisSource(data, metadata);
 
         const uniqueCategories = <string[]> orderBy(uniq(data.map(item => {
             let val = JSON.stringify(item._id[xAxisSource]);
@@ -363,31 +448,17 @@ export class UIChartBase {
      * @param frequency used for frequency enum value
      */
 
-    private _noGroupingsCategoryHelper(dateRange: IChartDateRange[], frequency: number): any[] {
+    private _noGroupingsCategoryHelper(data: any, metadata: any , dateRange: IChartDateRange[], frequency: number, sortingCriteria, sortingOrder): any[] {
         const predefined = dateRange[0].predefined;
         let duplicateCategories: any[] = [];
-
-        switch (predefined) {
-            case PredefinedDateRanges.last2Years:
-                [1, 2].forEach(iterator => {
-                    duplicateCategories.push(this.frequencyHelper.getCategories(frequency));
-                });
-                break;
-            case PredefinedDateRanges.last3Years:
-                [1, 2, 3].forEach(iterator => {
-                    duplicateCategories.push(this.frequencyHelper.getCategories(frequency));
-                });
-                break;
-            case PredefinedDateRanges.last4Years:
-                [1, 2, 3, 4].forEach(iterator => {
-                    duplicateCategories.push(this.frequencyHelper.getCategories(frequency));
-                });
-                break;
-            case PredefinedDateRanges.last5Years:
-                [1, 2, 3, 4, 5].forEach(iterator => {
-                    duplicateCategories.push(this.frequencyHelper.getCategories(frequency));
-                });
-                break;
+        let groupingField = (metadata.groupings && metadata.groupings.length) ? camelCase(metadata.groupings[0]) : null;
+        let dateRangesMap = {};
+        dateRangesMap[PredefinedDateRanges.last2Years] = 2;
+        dateRangesMap[PredefinedDateRanges.last3Years] = 3;
+        dateRangesMap[PredefinedDateRanges.last4Years] = 4;
+        dateRangesMap[PredefinedDateRanges.last5Years] = 5;
+        for (let i = 1; i <= dateRangesMap[predefined]; i++) {
+            duplicateCategories.push(this.frequencyHelper.getCategories(data, frequency, groupingField , sortingCriteria, sortingOrder));
         }
         if (duplicateCategories.length) {
             duplicateCategories = flatten(duplicateCategories);
@@ -407,7 +478,6 @@ export class UIChartBase {
             console.log('you have to call getData() before getting the series');
             return null;
         }
-
         /**
          *  Not all charts come with frequency so the processing may be a little different
          *  when frequency is present I need to group the results by year
@@ -423,6 +493,7 @@ export class UIChartBase {
          *  At this point I already know which field is going to be used for the xAxis
          *  so I need to get a list of the rest of the grouping fields so I can build the series
          */
+
         const chartGroupings = this._getXaxisSource(data, meta, groupings);
         const availableGroupingsForSeries = difference(chartGroupings, [meta.xAxisSource]);
 
@@ -484,12 +555,17 @@ export class UIChartBase {
 
             categories.forEach(cat => {
                 let dataItem = cat.id !== NULL_CATEGORY_REPLACEMENT
-                               ? data.find((item: any) => item._id[matchField] === cat.id)
-                               : data.find((item: any) => (
-                                   item._id[matchField] === null ||
-                                   item._id[matchField] === NULL_CATEGORY_REPLACEMENT ||
-                                   !Object.keys(item._id).length
+                                ? data.find((item: any) => item._id[matchField] === cat.id)
+                                : data.find((item: any) => (
+                                    item._id[matchField] === null ||
+                                    item._id[matchField] === NULL_CATEGORY_REPLACEMENT ||
+                                    !Object.keys(item._id).length
                                 ));
+
+                const chartType = this.chart.chartDefinition.chart.type;
+                if ((chartType === 'column' || chartType === 'bar') && dataItem && dataItem.value === 0) {
+                    dataItem.value = null;
+                }
 
                 serieObject.data.push(dataItem ? dataItem.value : null);
             });
@@ -517,16 +593,16 @@ export class UIChartBase {
         let series: IChartSerie[] = [];
         let matchField: string;
 
-        if (meta.xAxisSource === FREQUENCY_GROUPING_NAME) {
+        if (meta.xAxisSource === FREQUENCY_GROUPING_NAME && meta.frequency !== null) {
             matchField = getFrequencyPropName(meta.frequency);
         } else {
             matchField = camelCase(meta.groupings[0]);
         }
 
-        return this._createSeriesFromgroupedData(groupedData, categories, matchField);
+        return this._createSeriesFromgroupedData(groupedData, categories, matchField, meta.sortingCriteria, meta.sortingOrder);
     }
 
-    private _createSeriesFromgroupedData(groupedData: Dictionary<any>, categories: IXAxisCategory[], matchField: string): IChartSerie[] {
+    private _createSeriesFromgroupedData(groupedData: Dictionary<any>, categories: IXAxisCategory[], matchField: string, sortingCriteria: string, sortingOrder: string): IChartSerie[] {
         let series: IChartSerie[] = [];
 
         for (let serieName in groupedData) {
@@ -537,15 +613,23 @@ export class UIChartBase {
 
             categories.forEach(cat => {
                 let dataItem = groupedData[serieName].find((item: any) => {
-                    return item._id[matchField] === cat.id;
+                    return item._id[matchField] === (cat.id !== NULL_CATEGORY_REPLACEMENT ? cat.id : serieName);
                 });
+
+                const chartType = this.chart.chartDefinition.chart.type;
+                if ((chartType === 'column' || chartType === 'bar') && dataItem && dataItem.value === 0) {
+                    dataItem.value = null;
+                }
 
                 serie.data.push( dataItem ? dataItem.value : null );
             });
 
             series.push(serie);
         }
-
+        // sorting values by data.value/
+        if (sortingCriteria && sortingCriteria === SortingCriteriaEnum.Values && (!sortingOrder || (sortingOrder && sortingOrder === SortingOrderEnum.Ascending))) {
+            series = orderBy(series, 'data.value', 'asc');
+        }
         return series;
     }
 
@@ -593,7 +677,8 @@ export class UIChartBase {
                         targetId: v._id
                     },
                     value: (<any>v).target,
-                    targetId: v._id
+                    targetId: v._id,
+                    percentageCompletion: v.percentageCompletion
                 } : {
                     _id: {
                         frequency: TargetService.formatFrequency(metadata.frequency, v.datepicker),
@@ -601,7 +686,8 @@ export class UIChartBase {
                         targetId: v._id
                     },
                     value: (<any>v).target,
-                    targetId: v._id
+                    targetId: v._id,
+                    percentageCompletion: v.percentageCompletion
                 };
             });
             this.frequencyHelper.decomposeFrequencyInfo(this.targetData, metadata.frequency);
@@ -631,7 +717,8 @@ export class UIChartBase {
                         name: d._id['noFrequencyName'],
                         type: 'spline',
                         data: [].concat(d.value),
-                        targetId: d.targetId
+                        targetId: d.targetId,
+                        percentageCompletion: d.percentageCompletion
                     }));
                 }
             case 1:
@@ -727,6 +814,7 @@ export class UIChartBase {
 
             serie['type'] = 'spline';
             serie['targetId'] = groupedData[serieName][0].targetId;
+            serie['percentageCompletion'] = groupedData[serieName][0].percentageCompletion;
 
             categories.forEach(cat => {
                 let dataItem = groupedData[serieName].find((item: any) => {
@@ -745,8 +833,9 @@ export class UIChartBase {
     }
 
     private _dummyData(data: any[], metadata: any, target: any[]) {
+        let groupingField = (metadata.groupings && metadata.groupings.length) ? camelCase(metadata.groupings[0]) : null;
         if (!data || !data.length) {
-            let tempData = getFrequencySequence(metadata.frequency);
+            let tempData = getFrequencySequence(data, metadata.frequency, groupingField , metadata.sortingCriteria, metadata.sortingOrder);
             if (!this.commonField || !this.commonField.length) {
                 this.commonField = this.chart.groupings;
             }
@@ -879,6 +968,7 @@ export class UIChartBase {
                     if (serie.type && serie.targetId) {
                         categoriesWithValues.type = serie.type;
                         categoriesWithValues.targetId = serie.targetId;
+                        categoriesWithValues.percentageCompletion = serie.percentageCompletion;
                     }
 
                     defObject['data'][keys[i]].push(categoriesWithValues);
@@ -919,9 +1009,24 @@ export class UIChartBase {
                     objData.serieName = groupKey;
                 }
 
-                const dateRangeId: string = getDateRangeIdFromString(that.chart.dateRange[0].predefined);
-                const comparisonString: string = (stack === 'main') ?
-                            that.chart.dateRange[0].predefined : PredefinedComparisonDateRanges[dateRangeId][stack];
+                let dateRangeId: string = '';
+                if (that.chart && Array.isArray(that.chart.dateRange)) {
+                    if (that.chart.dateRange[0].predefined) {
+                        dateRangeId = getDateRangeIdFromString(that.chart.dateRange[0].predefined);
+                    } else {
+                        dateRangeId = 'custom';
+                    }
+                }
+                let comparisonString: string = '';
+                if (stack === 'main') {
+                    if (that.chart && Array.isArray(that.chart.dateRange)) {
+                        comparisonString = that.chart.dateRange[0].predefined;
+                    }
+                } else {
+                    if (dateRangeId && stack) {
+                        comparisonString = PredefinedComparisonDateRanges[dateRangeId][stack];
+                    }
+                }
 
                 let serieObject: IComparisonSerieObject;
 
@@ -933,7 +1038,9 @@ export class UIChartBase {
                             name: objData.serieName,
                             data: serieData,
                             stack: stack,
-                            type: 'spline'
+                            type: 'spline',
+                            targetId: hasTarget.targetId,
+                            percentageCompletion: hasTarget.percentageCompletion
                         };
                     }
                 } else {

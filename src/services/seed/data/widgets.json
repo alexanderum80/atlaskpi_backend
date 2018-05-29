@@ -1,0 +1,150 @@
+[{
+        "_id": "5a62b52d7f7a030001a47cb0",
+        "order": 4,
+        "name": "Total Expenses YTD",
+        "description": "All Expenses Year to Date",
+        "type": "numeric",
+        "size": "big",
+        "color": "white",
+        "numericWidgetAttributes": {
+            "format": "dollar",
+            "comparison": [
+                "lastYear"
+            ],
+            "dateRange": {
+                "custom": null,
+                "predefined": "this year to date"
+            },
+            "kpi": "59c3bdd43da88e92a1703fd7"
+        }
+    },
+    {
+        "_id": "5a1d93c221b9ae0001b41f6e",
+        "order": 2,
+        "name": "Revenue YTD",
+        "description": "Revenue Year to Date",
+        "type": "numeric",
+        "size": "big",
+        "color": "orange",
+        "numericWidgetAttributes": {
+            "format": "dollar",
+            "comparisonArrowDirection": "up",
+            "comparison": [
+                "lastYear"
+            ],
+            "dateRange": {
+                "custom": null,
+                "predefined": "this year to date"
+            },
+            "kpi": "59c3bd0c3da88e92a1703fd6"
+        }
+    },
+    {
+        "_id": "5a5ea5a6b425d60001c4276c",
+        "order": 4,
+        "name": "Website Visits (this month)",
+        "description": "Total visits on the website",
+        "type": "numeric",
+        "size": "small",
+        "color": "sei-green",
+        "numericWidgetAttributes": {
+            "format": null,
+            "comparisonArrowDirection": "up",
+            "comparison": [
+                "lastMonth"
+            ],
+            "dateRange": {
+                "custom": null,
+                "predefined": "this month to date"
+            },
+            "kpi": "5a5ea4b7b425d60001c42751"
+        }
+    },
+    {
+        "_id": "5a69fdd9b10537000185c44b",
+        "order": 4,
+        "name": "Website Visits Trend (this month)",
+        "description": "Show the website visits trend over last 90 Days",
+        "type": "chart",
+        "size": "big",
+        "color": "white",
+        "tags": [
+
+        ],
+        "chartWidgetAttributes": {
+            "chart": "5a69fd93bd164f0001c26968"
+        },
+        "numericWidgetAttributes": {
+            "comparison": [
+
+            ]
+        }
+    },
+    {
+        "_id": "5a2adb6c21b9ae0001b679de",
+        "order": 4,
+        "name": "Revenue MTD",
+        "description": "Total Revenue Month to Date",
+        "type": "numeric",
+        "size": "big",
+        "color": "purple",
+        "numericWidgetAttributes": {
+            "format": "dollar",
+            "comparisonArrowDirection": "up",
+            "comparison": [
+                "lastMonth"
+            ],
+            "dateRange": {
+                "custom": null,
+                "predefined": "this month"
+            },
+            "kpi": "59c3bd0c3da88e92a1703fd6"
+        }
+    },
+    {
+        "_id": "5ae0ec404ce592613127460f",
+        "order": 4,
+        "name": "Rev/Hour MTD",
+        "description": "Revenue by hour month to date",
+        "type": "numeric",
+        "size": "small",
+        "color": "blue",
+        "tags": [
+
+        ],
+        "numericWidgetAttributes": {
+            "kpi": "5ae0eaac913248818cd8234e",
+            "comparisonArrowDirection": "up",
+            "format": "dollar",
+            "comparison": [
+                "lastMonth"
+            ],
+            "dateRange": {
+                "predefined": "this month to date"
+            }
+        }
+    },
+    {
+        "_id": "5ae3e67b3a29e923e6e5450e",
+        "order": 4,
+        "name": "Website Visits",
+        "description": "Here goes the description",
+        "type": "numeric",
+        "size": "small",
+        "color": "white",
+        "tags": [
+
+        ],
+        "numericWidgetAttributes": {
+            "kpi": "5a5ea4b7b425d60001c42751",
+            "comparisonArrowDirection": "up",
+            "format": null,
+            "comparison": [
+                "lastMonth"
+            ],
+            "dateRange": {
+                "predefined": "this week"
+            }
+        }
+    }
+]

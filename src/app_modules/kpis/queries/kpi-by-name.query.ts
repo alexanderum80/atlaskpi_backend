@@ -23,7 +23,6 @@ export class KpiByNameQuery implements IQuery<IKPIDocument> {
     constructor(@inject(KPIs.name) private _kpis: KPIs) { }
 
     run(data: { name: string }): Promise<IKPIDocument> {
-        console.log(data);
         const that = this;
         return new Promise<IKPIDocument>((resolve, reject) => {
             that._kpis.model

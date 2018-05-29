@@ -1,8 +1,6 @@
 import { ITarget } from '../../../domain/app/targets/target';
-import * as Promise from 'bluebird';
 import { inject, injectable } from 'inversify';
 
-import { Targets } from '../../../domain/app/targets/target.model';
 import { field } from '../../../framework/decorators/field.decorator';
 import { mutation } from '../../../framework/decorators/mutation.decorator';
 import { MutationBase } from '../../../framework/mutations/mutation-base';
@@ -23,31 +21,27 @@ import { TargetInput, TargetResult } from '../targets.types';
 })
 export class UpdateTargetMutation extends MutationBase<IMutationResponse> {
     constructor(
-        @inject(Targets.name) private _targets: Targets,
         @inject(TargetService.name) private _targetService: TargetService
     ) {
         super();
     }
 
-    run(data: { id: string, data: ITarget}): Promise<IMutationResponse> {
+    async run(data: { id: string, data: ITarget}): Promise<IMutationResponse> {
         const that = this;
-        let mutationData = data.data;
+        const mutationData = data.data;
 
-        return new Promise<IMutationResponse>((resolve, reject) => {
+        try {
+            const targetDoc = await this._targetService.createUpdateTarget(mutationData, data.id);
+            return ({
+                success: true,
+                entity: targetDoc
+            });
+        } catch (err) {
+            return ({
+                success: false,
+                errors: [ { field: 'target', errors: [err] }]
+            });
+        }
 
-            // TODO: Refactor!!
-            that._targetService.caculateFormat(mutationData)
-                .then((dataTarget) => {
-                    mutationData.target = dataTarget;
-                    that._targets.model.updateTarget(data.id, mutationData)
-                        .then((theTarget) => {
-                            resolve({ success: true, entity: theTarget });
-                            return;
-                        }).catch((err) => {
-                            resolve({ success: false, errors: [ {field: 'target', errors: [err]} ] });
-                            return;
-                        });
-                });
-        });
     }
 }

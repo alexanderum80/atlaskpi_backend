@@ -1,8 +1,7 @@
+import * as Bluebird from 'bluebird';
 import { inject, injectable } from 'inversify';
 import { isObject } from 'lodash';
 import { DocumentQuery } from 'mongoose';
-import { intersectionBy } from 'lodash';
-import * as Bluebird from 'bluebird';
 
 import { IChartDocument } from '../domain/app/charts/chart';
 import { Charts } from '../domain/app/charts/chart.model';
@@ -20,11 +19,10 @@ import { IVirtualSourceDocument } from '../domain/app/virtual-sources/virtual-so
 import { VirtualSources } from '../domain/app/virtual-sources/virtual-source.model';
 import { IWidgetDocument } from '../domain/app/widgets/widget';
 import { Widgets } from '../domain/app/widgets/widget.model';
-import { IMutationResponse } from '../framework/mutations/mutation-response';
-import { IIdName } from '../domain/common/id-name';
 import { IValueName } from '../domain/common/value-name';
-import { Connectors } from '../domain/master/connectors/connector.model';
 import { IConnectorDocument } from '../domain/master/connectors/connector';
+import { Connectors } from '../domain/master/connectors/connector.model';
+import { IMutationResponse } from '../framework/mutations/mutation-response';
 
 const codeMapper = {
     'Revenue': 'sales',
@@ -57,10 +55,6 @@ export class KpiService {
 
         // process available groupings
         kpis.forEach(k => {
-            if (k.code === 'Google Analytics') {
-                console.log('google analytics');
-            }
-
             const kpiSources: string[] = this._getKpiSources(k, kpis, connectors);
             // find common field paths on the sources
             k.groupingInfo = this._getCommonSourcePaths(kpiSources, virtualSources);
@@ -86,6 +80,8 @@ export class KpiService {
             input.filter = KPIFilterHelper.ComposeFilter(kpiType, virtualSources, input.expression, input.filter);
         }
 
+        delete(input.source);
+
         if (kpiType === KPITypeEnum.Simple || KPITypeEnum.ExternalSource) {
             input.expression = KPIExpressionHelper.ComposeExpression(kpiType, input.expression);
         }
@@ -98,6 +94,9 @@ export class KpiService {
         const virtualSources = await this._virtualSources.model.find({});
 
         input.filter = KPIFilterHelper.ComposeFilter(kpiType, virtualSources, input.expression, input.filter);
+
+        delete(input.source);
+
         input.expression = KPIExpressionHelper.ComposeExpression(kpiType, input.expression);
 
         return await this._kpis.model.updateKPI(id, input);
@@ -182,9 +181,7 @@ export class KpiService {
             // return sources from complex kpi
             return this._getComplexKpiExpressionSources(kpi.expression, kpis, connectors);
         }
-
-       
-
+        
         return [];
     }
 

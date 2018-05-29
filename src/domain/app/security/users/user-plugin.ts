@@ -1,4 +1,4 @@
-import * as bcrypt from 'bcryptjs';
+import * as bcryptjs from 'bcryptjs';
 import * as Promise from 'bluebird';
 import * as jwt from 'jsonwebtoken';
 import { isEmpty } from 'lodash';
@@ -133,7 +133,11 @@ export function userPlugin(schema: mongoose.Schema, options: any) {
         helpCenter: { type: Boolean, default: true },
         notification: UserNotificationsSchema,
         avatarAddress: String,
-        showAppointmentCancelled: { type: Boolean, default: false }
+        showAppointmentCancelled: { type: Boolean, default: false },
+        providers: [{
+            type: String
+        }],
+        calendarTimeZone: String
     };
 
     schema.add({
@@ -166,11 +170,11 @@ export function userPlugin(schema: mongoose.Schema, options: any) {
         if (!user.isModified('password')) return next();
 
         // generate a salt
-        bcrypt.genSalt(SALT_WORK_FACTOR, function(err, salt) {
+        bcryptjs.genSalt(SALT_WORK_FACTOR, function(err, salt) {
             if (err) return next(err);
 
             // hash the password using our new salt
-            bcrypt.hash(user.password, salt, function(err, hash) {
+            bcryptjs.hash(user.password, salt, function(err, hash) {
                 if (err) return next(err);
 
                 // override the cleartext password with the hashed one
@@ -185,7 +189,7 @@ export function userPlugin(schema: mongoose.Schema, options: any) {
      */
 
     schema.methods.comparePassword = function(candidatePassword): boolean {
-        return bcrypt.compareSync(candidatePassword, this.password);
+        return bcryptjs.compareSync(candidatePassword, this.password);
     };
 
     schema.methods.hasEmail = function(email: string): Boolean {
@@ -642,10 +646,8 @@ export function userPlugin(schema: mongoose.Schema, options: any) {
                 if (user) {
                     console.dir(user._id);
                     if (user._id.toString().toLowerCase() !==  userId.toLowerCase()) {
-                        console.log('different user');
                         throw({ name: 'duplicated', message: 'Another user is using this email address' });
                     } else {
-                        console.log('same user');
                         throw({ name: 'exist', message: 'This email was already assigned to this user' });
                     }
                 } else {

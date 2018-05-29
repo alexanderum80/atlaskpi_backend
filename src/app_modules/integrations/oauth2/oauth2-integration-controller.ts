@@ -161,7 +161,7 @@ export class IntegrationController {
             })
             .catch(err => {
                 const error = isObject(err) ? JSON.stringify(err) : err;
-                console.log('error getting token...' + error);
+                console.error('error getting token...' + error);
                 reject(err);
                 return;
             });
@@ -174,7 +174,7 @@ export class IntegrationController {
         if (!companies || !companies.length) {
             const flowResult: IExecutionFlowResult = {
                 success: false,
-                error: 'LinkedIn account does not contains companies'
+                error: 'Your LinkedIn Account is not admin of any page'
             };
             return Promise.resolve(flowResult);
         }
@@ -272,7 +272,7 @@ export class IntegrationController {
                           console.log('metrics updated for facebook integration');
                         })
                         .catch(err => {
-                            console.log('could not update all metrics for facebook integration' + err);
+                            console.error('could not update all metrics for facebook integration' + err);
                             return;
                         });
                 // I'm not waiting this promises on purpose, the code between the comments is just for getting the facebook app approval
