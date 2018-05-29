@@ -43,11 +43,11 @@ export interface IVirtualSourceDocument extends IVirtualSource, mongoose.Documen
     getGroupingFieldPaths(): IValueName[];
     getFieldDefinition(fieldName: string);
     getDataTypeOperator(dataType: string, filterName: string): IFilterOperator;
-    getDataSourceByName(name: string): Promise<IVirtualSourceDocument>;
     // containsPath(path: string): boolean;
 }
 
 export interface IVirtualSourceModel extends mongoose.Model<IVirtualSourceDocument> {
     getDataSources(names?: string[]): Promise<DataSourceResponse[]>;
+    getDataSourceByName(name: string): Promise<IVirtualSourceDocument>;
     findByNames(names: string): Promise<IVirtualSourceDocument[]>;
 }
