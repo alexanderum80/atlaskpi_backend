@@ -1,9 +1,17 @@
-import { DataSourceResponse } from '../app_modules/data-sources/data-sources.types';
+import { IVirtualSourceDocument } from '../domain/app/virtual-sources/virtual-source';
+import { DataSourceField, DataSourceResponse } from '../app_modules/data-sources/data-sources.types';
 import { injectable, inject, Container } from 'inversify';
-import { VirtualSources } from '../domain/app/virtual-sources/virtual-source.model';
-import { sortBy } from 'lodash';
+import {VirtualSources, mapDataSourceFields} from '../domain/app/virtual-sources/virtual-source.model';
+import {sortBy} from 'lodash';
 import { Logger } from '../domain/app/logger';
 import { KPIFilterHelper } from '../domain/app/kpis/kpi-filter.helper';
+import * as Bluebird from 'bluebird';
+import { isObject, isEmpty } from 'lodash';
+import {KPIExpressionFieldInput} from '../app_modules/kpis/kpis.types';
+import {getFieldsWithData} from '../domain/common/fields-with-data';
+
+const COLLECTION_SOURCE_MAX_LIMIT = 20;
+const COLLECTION_SOURCE_FIELD_NAME = 'source';
 
 @injectable()
 export class DataSourcesService {
@@ -14,8 +22,45 @@ export class DataSourcesService {
         @inject(VirtualSources.name) private _virtualDatasources: VirtualSources) { }
 
     async get(): Promise<DataSourceResponse[]> {
-        const virtualSources = await this._virtualDatasources.model.getDataSources();
+        let virtualSources = await this._virtualDatasources.model.getDataSources();
+        virtualSources = await Bluebird.map(
+                                    virtualSources,
+                                    (virtualSource: DataSourceResponse) => this.getCollectionSource(virtualSource));
         return sortBy(virtualSources, 'name');
+    }
+
+    async getCollectionSource(virtualSource: DataSourceResponse): Promise<DataSourceResponse> {
+        const filter = '';
+        const distinctValues: string[] = await this.getDistinctValues(
+            virtualSource.name,
+            virtualSource.dataSource,
+            COLLECTION_SOURCE_FIELD_NAME,
+            COLLECTION_SOURCE_MAX_LIMIT,
+            filter
+        );
+
+        virtualSource.sources = distinctValues;
+        virtualSource.fields = await this.filterFieldsWithoutData(virtualSource);
+        return virtualSource;
+    }
+
+    /**
+     * i.e. dataSource = 'established_customers_sales'
+     * @param data
+     */
+    async getKPIFilterFieldsWithData(dataSource: string, collectionSource: string[], fields: DataSourceField[]): Promise<DataSourceField[]> {
+        if (!dataSource && !collectionSource) {
+            return [];
+        }
+
+        const virtualSource = await this._virtualDatasources.model.findOne({ name: { $regex: new RegExp(dataSource, 'i')} });
+        const fieldsWithData: string[] = await getFieldsWithData(this._container, virtualSource.source, fields, collectionSource);
+
+        fields.forEach((f: DataSourceField) => {
+            f.available = fieldsWithData.indexOf(f.name) !== -1;
+        });
+
+        return fields;
     }
 
     async getDistinctValues(name: string, source: string, field: string, limit: number, filter: string): Promise<string[]> {
@@ -36,5 +81,38 @@ export class DataSourcesService {
             this._logger.error('There was an error retrieving the distinct values', e);
             return [];
         }
+    }
+
+    async getNumericFieldsWithData(input: KPIExpressionFieldInput): Promise<DataSourceField[]> {
+        // i.e. 'nextech'
+        const collectionSource: string[] = input.collectionSource;
+        // i.e. 'established_customer'
+        const dataSource: string = input.dataSource;
+        const virtualSource: IVirtualSourceDocument = await this._virtualDatasources.model.getDataSourceByName(dataSource);
+
+        const numericFields: DataSourceField[] = mapDataSourceFields(virtualSource)
+                                                .filter((field: DataSourceField) => field.type === 'Number');
+
+        const fieldsWithData: string[] = await getFieldsWithData(this._container, virtualSource.source, numericFields, collectionSource);
+
+        numericFields.forEach((n: DataSourceField) => {
+            n.available = fieldsWithData.indexOf(n.name) !== -1;
+        });
+
+        return numericFields;
+    }
+
+    async filterFieldsWithoutData(virtualSource: DataSourceResponse, collectionSource?: string[]): Promise<DataSourceField[]> {
+        const fields: DataSourceField[] = virtualSource.fields;
+        // i.e. Sales
+        const dataSource: string = virtualSource.dataSource;
+
+        // i.e ['APS Nextech ( nextech )']
+        const sources: string[] = await getFieldsWithData(this._container, dataSource, fields, collectionSource);
+
+        virtualSource.fields.forEach((f: DataSourceField) => {
+            f.available = isEmpty(sources) || sources.indexOf(f.name) !== -1;
+        });
+        return virtualSource.fields;
     }
 }

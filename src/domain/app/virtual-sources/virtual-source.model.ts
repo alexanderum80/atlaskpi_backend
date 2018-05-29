@@ -8,9 +8,10 @@ import { ModelBase } from '../../../type-mongo/model-base';
 import { AppConnection } from '../app.connection';
 import { tagsPlugin } from '../tags/tag.plugin';
 import { IVirtualSourceModel, IVirtualSourceDocument, IFilterOperator } from '../virtual-sources/virtual-source';
-import { DataSourceResponse } from '../../../app_modules/data-sources/data-sources.types';
-import { IIdName } from '../../common/id-name';
+import {DataSourceResponse, DataSourceField} from '../../../app_modules/data-sources/data-sources.types';
+import {IIdName} from '../../common/id-name';
 import { IValueName } from '../../common/value-name';
+import {IObject} from '../../../app_modules/shared/criteria.plugin';
 
 const Schema = mongoose.Schema;
 
@@ -49,6 +50,7 @@ const VirtualSourceSchema = new mongoose.Schema({
 
 // STATIC
 VirtualSourceSchema.statics.getDataSources = getDataSources;
+VirtualSourceSchema.statics.getDataSourceByName = getDataSourceByName;
 
 // METHODS
 VirtualSourceSchema.methods.getGroupingFieldPaths = getGroupingFieldPaths;
@@ -95,6 +97,33 @@ async function getDataSources(names?: string[]): Promise<DataSourceResponse[]> {
         console.error('Error getting virtual sources');
         return [];
     }
+}
+
+async function getDataSourceByName(name: string): Promise<IVirtualSourceDocument> {
+    const model = this as IVirtualSourceModel;
+
+    try {
+        const regexName: RegExp = new RegExp(name, 'i');
+        const query: IObject = { name: { $regex: regexName } };
+        return await model.findOne(query);
+    } catch (e) {
+        console.log('Error getting virtual source fields');
+        return {} as any;
+    }
+}
+
+
+export function mapDataSourceFields(virtualSource: IVirtualSourceDocument): DataSourceField[] {
+    // with the new feature to filter kpi by sources we do not need to send the "source" field anymore
+    const fieldsMap = virtualSource.fieldsMap;
+    const fieldNames = Object.keys(virtualSource.fieldsMap).filter(k => k.toLowerCase() !== 'source').sort();
+
+    return fieldNames.map(key => ({
+        name: key,
+        path: fieldsMap[key].path,
+        type: fieldsMap[key].dataType,
+        allowGrouping: fieldsMap[key].allowGrouping
+    }));
 }
 
 function getGroupingFieldPaths(): IValueName[] {
