@@ -61,7 +61,7 @@ export class DashboardsQuery implements IQuery<IDashboard[]> {
                 })
                 .populate({
                     path: 'owner',
-                    select: ['_id', 'username']
+                    select: ['_id', 'username', 'visible']
                 })
                 .then(dashboards => {
                     resolve(dashboards);
