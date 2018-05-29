@@ -226,7 +226,6 @@ export class KpiService {
 
             if (fieldPaths.length === 1) {
                 return await this._fieldsWithData(sources, fieldPaths[0]);
-                // return fieldPaths[0];
             }
 
             fieldPaths[0].forEach(f => {
@@ -246,8 +245,6 @@ export class KpiService {
                 }
             });
 
-            // fieldsWithData = await this._fieldsWithData(sources, commonFields);
-            // return commonFields;
             return await this._fieldsWithData(sources, commonFields);
         } catch (err) {
             console.error('error gettin common source paths', err);
