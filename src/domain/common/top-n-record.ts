@@ -55,7 +55,7 @@ export function chartTopMomentFormat(frequency?: number): string {
     }
 }
 
-export function isNestedArray(item: string[]): boolean {
+export function isNestedArray(item: (string|string[])[]): boolean {
     const booleanMap: boolean[] = item.map(v => Array.isArray(v));
     return reduce(booleanMap, (sum: any, k: any) => {
         return !!(sum | k);

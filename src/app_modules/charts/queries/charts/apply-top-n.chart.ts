@@ -27,7 +27,7 @@ export class ApplyTopNChart {
         return data;
     }
 
-    private static _applyTopWithGroupings(data: any[], groupings: string[], includeTopGroupingValues: string[]): any[] {
+    private static _applyTopWithGroupings(data: any[], groupings: string[], includeTopGroupingValues: (string|string[])[]): any[] {
         if (!data || !data.length) { return data; }
         if (!groupings || !groupings.length) { return data; }
         if (!includeTopGroupingValues || !includeTopGroupingValues.length) { return data; }
@@ -46,9 +46,9 @@ export class ApplyTopNChart {
             }
 
             // check if the grouping value exist in the top n
-            const topNotExist = this._doesTopNExist(item, groupField, includeTopGroupingValues);
+            const notTopN = this._isNotInTopN(item, groupField, includeTopGroupingValues);
 
-            if (topNotExist) {
+            if (notTopN) {
                 item._id[groupField] = 'Others';
                 // i.e. Others-2018-01
                 return `${item._id[groupField]}-${item._id.frequency}`;
@@ -57,7 +57,7 @@ export class ApplyTopNChart {
             return `${item._id[groupField]}`;
         });
 
-        data = this._reduceOthersAndTop(groupedData, includeTopGroupingValues);
+        data = this._reduceOthersAndTopN(groupedData, includeTopGroupingValues);
 
         return data;
     }
@@ -68,41 +68,44 @@ export class ApplyTopNChart {
      * @param groupField
      * @param includeTopGroupingValues
      */
-    private static _doesTopNExist(item: any, groupField: string, includeTopGroupingValues: string[]): boolean {
+    private static _isNotInTopN(item: any, groupField: string, includeTopGroupingValues: (string|string[])[]): boolean {
         if (isEmpty(item)) {
             return false;
         }
 
         // i.e. (return value) null, ['procedure','reason'], ['procedure']
         const itemGroupByField = item._id[groupField];
-        let isTopN: boolean;
+        let isNotTopN: boolean;
 
         if (item._id) {
             if (Array.isArray(itemGroupByField)) {
-                const notInTopGroupings = includeTopGroupingValues.find(groupingValues => {
-                        const intersect = intersectionWith(groupingValues, itemGroupByField, isEqual);
+                const notInTopGroupings = includeTopGroupingValues.find((groupingValues: string|string[]) => {
+                        const intersect: any[] = intersectionWith(groupingValues, itemGroupByField, isEqual);
+                        // i.e. ['procedure','reason'], ['procedure']
+                        // example above will intersect, but not have same length
                         return intersect.length > 0 && (groupingValues.length === itemGroupByField.length);
                 });
 
-                isTopN = notInTopGroupings === undefined;
+                isNotTopN = notInTopGroupings === undefined;
             } else {
-                isTopN = includeTopGroupingValues.indexOf(item._id[groupField]) === -1;
+                isNotTopN = includeTopGroupingValues.indexOf(item._id[groupField]) === -1;
             }
         } else {
-            isTopN = false;
+            isNotTopN = false;
         }
 
-        return isTopN;
+        return isNotTopN;
     }
 
-    private static _reduceOthersAndTop(groupedData: any, includeTopGroupingValues: string[]): any[] {
+    private static _reduceOthersAndTopN(groupedData: any, includeTopGroupingValues: (string|string[])[]): any[] {
         for (let i in groupedData) {
-            const existInTopGroupings = includeTopGroupingValues.find(g => {
-                if (Array.isArray(g)) {
-                    return g.join(',') === i;
-                }
-                return g === i;
-            });
+            let existInTopGroupings;
+
+            if (isNestedArray(includeTopGroupingValues)) {
+                existInTopGroupings = includeTopGroupingValues.find((g: string[]) => g.join(',') === i);
+            } else {
+                existInTopGroupings = includeTopGroupingValues.indexOf(i) === -1;
+            }
 
             if (!existInTopGroupings) {
                 // get the total of 'Other' grouping
