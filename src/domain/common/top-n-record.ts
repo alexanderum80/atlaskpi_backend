@@ -1,4 +1,4 @@
-import { isNumber } from 'lodash';
+import { isNumber, reduce } from 'lodash';
 import {FrequencyEnum} from './frequency-enum';
 
 export enum EnumChartTop {
@@ -53,4 +53,11 @@ export function chartTopMomentFormat(frequency?: number): string {
         default:
             return '';
     }
+}
+
+export function isNestedArray(item: string[]): boolean {
+    const booleanMap: boolean[] = item.map(v => Array.isArray(v));
+    return reduce(booleanMap, (sum: any, k: any) => {
+        return !!(sum | k);
+    });
 }
