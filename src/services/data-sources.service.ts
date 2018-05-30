@@ -40,6 +40,7 @@ export class DataSourcesService {
         );
 
         virtualSource.sources = distinctValues;
+        virtualSource.fields = await this.filterFieldsWithoutData(virtualSource);
         return virtualSource;
     }
 
