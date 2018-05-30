@@ -3,67 +3,87 @@ import {DataSourceField} from '../../app_modules/data-sources/data-sources.types
 import {IValueName} from './value-name';
 import { Container } from 'inversify';
 import { isEmpty } from 'lodash';
-import * as Bluebird from 'bluebird';
+import {IObject} from '../../app_modules/shared/criteria.plugin';
 
 export const blackListDataSource = ['GoogleAnalytics'];
 
+interface IAggregateMatchQuery {
+    $or: any[];
+}
+
+interface IAggregateProjectQuery extends IObject {
+    _id: number;
+}
+
+interface IAggregateQuery {
+    $match?: IAggregateMatchQuery;
+    $project?: IAggregateProjectQuery;
+    $limit?: number;
+}
+
 export async function getFieldsWithData(container: Container, dataSource: string, fields: (DataSourceField|IValueName)[], collectionSource?: string[]): Promise <string[]> {
-    if (!container || !dataSource || isEmpty(fields)) {
-        return [];
-    }
-
-    const collectionQuery = [];
-    const model = (container.get(dataSource) as any).model;
-    let fieldsWithData: string[] = [];
-
-    fields.forEach((field: DataSourceField|IValueName) => {
-        // i.e referrable.name
-        const fieldPath: string = (field as DataSourceField).path || (field as IValueName).value;
-        // Referral
-        const fieldName: string = field.name;
-
-        let matchStage = {
-            $match: {
-                [fieldPath]: {
-                    $nin: ['', null, 'null', 'undefined']
-                }
-            }
-        };
-
-        if (Array.isArray(collectionSource) && collectionSource.length) {
-            Object.assign(
-                matchStage.$match, {
-                    source: {
-                        $in: collectionSource
-                    }
-                }
-            );
+    try {
+        if (!container || !dataSource || isEmpty(fields)) {
+            return [];
         }
 
-        collectionQuery.push(
-            model.aggregate([
-                matchStage,
-                {
-                    $project: {
-                        _id: 0,
-                        // i.e. Referral: referral.name
-                        [fieldName]: fieldPath
-                    }
-                }
-            ])
-        );
-    });
+        const model = (container.get(dataSource) as any).model;
+        let fieldsWithData: string[] = [];
+        const aggregateQuery: IAggregateQuery[] = [
+            {
+                '$match': { $or: [] }
+            }, {
+                '$project': { _id: 0 }
+            }, {
+                '$limit': 1
+        }];
+        let notIn = { '$nin': ['', null, 'null', 'undefined'] };
 
-    const fieldsExists: any[] = await Bluebird.all(collectionQuery);
-    if (fieldsExists) {
-        const formatToObject = transformToObject(fieldsExists);
-        fieldsWithData = Object.keys(formatToObject);
+        if (!model) {
+            return [];
+        }
+
+        let matchStage = findStage(aggregateQuery, '$match');
+
+        if (collectionSource) {
+            Object.assign(matchStage.$match, {
+                source: {
+                    '$in': collectionSource
+                }
+            });
+        }
+
+        fields.forEach((field: DataSourceField|IValueName) => {
+            // i.e referrable.name
+            const fieldPath: string = (field as DataSourceField).path || (field as IValueName).value;
+            // Referral
+            const fieldName: string = field.name;
+
+            matchStage.$match.$or.push({
+                [fieldPath]: notIn
+            });
+
+            let projectStage = findStage(aggregateQuery, '$project');
+            Object.assign(projectStage.$project, {
+                [fieldName]: fieldPath
+            });
+
+        });
+
+        const fieldsExists: any[] = await model.aggregate(aggregateQuery).exec();
+        if (fieldsExists) {
+            const formatToObject = transformToObject(fieldsExists);
+            fieldsWithData = Object.keys(formatToObject);
+
+            return fieldsWithData;
+        }
 
         return fieldsWithData;
+    } catch (err) {
+        throw new Error('error geting fields with data');
     }
-
-    return fieldsWithData;
 }
+
 
 export function transformToObject(arr: any[]): any {
     if (!arr) { return; }
@@ -80,4 +100,8 @@ export function transformToObject(arr: any[]): any {
     });
 
     return newObject;
+}
+
+function findStage(aggregate: IAggregateQuery[], field: string): IAggregateQuery {
+    return aggregate.find(agg => agg[field] !== undefined);
 }
