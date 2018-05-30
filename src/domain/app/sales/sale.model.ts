@@ -236,8 +236,9 @@ SalesSchema.statics.salesBy = function(type: TypeMap, input?: IMapMarkerInput): 
 
                         let aggregateUnwind = aggregate.find(agg => agg.$unwind !== undefined);
                         if (aggregateUnwind) {
-                            const schemaFieldType = (SalesModel.schema as any).paths[groupFieldName].instance;
-                            if (schemaFieldType === 'Array') {
+                            const saleSchema = (SalesModel.schema as any);
+                            const schemaFieldType = saleSchema.paths[input.grouping] || saleSchema.paths[groupFieldName];
+                            if (schemaFieldType && schemaFieldType.instance === 'Array') {
                                 aggregateUnwind.$unwind = {
                                     path: `$${groupFieldName}`,
                                     preserveNullAndEmptyArrays: true
