@@ -99,15 +99,15 @@ export class ApplyTopNChart {
 
     private static _reduceOthersAndTopN(groupedData: any, includeTopGroupingValues: (string|string[])[]): any[] {
         for (let i in groupedData) {
-            let existInTopGroupings;
+            let notExistInTopN;
 
             if (isNestedArray(includeTopGroupingValues)) {
-                existInTopGroupings = includeTopGroupingValues.find((g: string[]) => g.join(',') === i);
+                notExistInTopN = includeTopGroupingValues.find((g: string[]) => g.join(',') !== i);
             } else {
-                existInTopGroupings = includeTopGroupingValues.indexOf(i) === -1;
+                notExistInTopN = includeTopGroupingValues.indexOf(i) === -1;
             }
 
-            if (!existInTopGroupings) {
+            if (notExistInTopN) {
                 // get the total of 'Other' grouping
                 const othersTotal = reduce(groupedData[i], (result: any, item: any) => {
                     return {
