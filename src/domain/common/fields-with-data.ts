@@ -89,13 +89,17 @@ export function transformToObject(arr: any[]): any {
     if (!arr) { return; }
     const newObject = {};
 
-    arr.forEach(singleArray => {
-        if (singleArray && Array.isArray(singleArray)) {
-            singleArray.forEach(obj => {
+    arr.forEach(item => {
+        if (item && Array.isArray(item)) {
+            item.forEach(obj => {
                 if (isObject(obj)) {
                     Object.assign(newObject, obj);
                 }
             });
+        } else {
+            if (isObject(item)) {
+                Object.assign(newObject, item);
+            }
         }
     });
 
