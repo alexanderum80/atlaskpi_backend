@@ -3,7 +3,6 @@ import {DataSourceField} from '../../app_modules/data-sources/data-sources.types
 import {IValueName} from './value-name';
 import { Container } from 'inversify';
 import { isEmpty } from 'lodash';
-import * as Bluebird from 'bluebird';
 import {IObject} from '../../app_modules/shared/criteria.plugin';
 
 export const blackListDataSource = ['GoogleAnalytics'];
@@ -28,7 +27,6 @@ export async function getFieldsWithData(container: Container, dataSource: string
             return [];
         }
 
-        const collectionQuery = [];
         const model = (container.get(dataSource) as any).model;
         let fieldsWithData: string[] = [];
         const aggregateQuery: IAggregateQuery[] = [
