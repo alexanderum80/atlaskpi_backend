@@ -130,24 +130,15 @@ export enum MarkerColorEnum {
 }
 
 export const SalesColorMap = {
-    yellow: { min: 0, max: 50000 },
-    blue: { min: 50001, max: 250000 },
-    green: { min: 250001, max: 500000 },
-    navy: { min: 500001, max: 1000000 },
-    red: { min: 1000001, max: 5000000 },
-    purple: { min: 5000001, max: 5000000000 },
+    yellow: { min: 0, max: 5000 },
+    lightBlue: { min: 5001, max: 25000 },
+    orange: { min: 25001, max: 50000 },
+    green: { min: 50001, max: 250000 },
+    darkBlue: { min: 250001, max: 500000 },
+    red: { min: 500001, max: 1000000 },
+    purple: { min: 1000001, max: 5000000 },
+    black: { min: 5000001, max: 5000000000 }
 };
-
-// export const SalesColorMap = {
-//     yellow: { min: 0, max: 5000 },
-//     one: { min: 5001, max: 25000 },
-//     two: { min: 25001, max: 50000 },
-//     blue: { min: 50001, max: 250000 },
-//     green: { min: 250001, max: 500000 },
-//     navy: { min: 500001, max: 1000000 },
-//     red: { min: 1000001, max: 5000000 },
-//     purple: { min: 5000001, max: 5000000000 }
-// };
 
 
 function getMarkerColor(sales: number): MarkerColorEnum {
