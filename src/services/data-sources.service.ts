@@ -82,24 +82,23 @@ export class DataSourcesService {
         }
     }
 
-    async getNumericFieldsWithData(input: KPIExpressionFieldInput): Promise<DataSourceField[]> {
+    async getExpressionFieldsWithData(input: KPIExpressionFieldInput): Promise<DataSourceField[]> {
         // i.e. 'nextech'
         const collectionSource: string[] = input.collectionSource;
         // i.e. 'established_customer'
         const dataSource: string = input.dataSource;
         const virtualSource: IVirtualSourceDocument = await this._virtualDatasources.model.getDataSourceByName(dataSource);
 
-        const numericFields: DataSourceField[] = virtualSource
-                                                .mapDataSourceFields(virtualSource)
-                                                .filter((field: DataSourceField) => field.type === 'Number');
+        const expressionFields: DataSourceField[] = virtualSource
+                                                .mapDataSourceFields(virtualSource);
 
-        const fieldsWithData: string[] = await getFieldsWithData(this._container, virtualSource.source, numericFields, collectionSource);
+        const fieldsWithData: string[] = await getFieldsWithData(this._container, virtualSource.source, expressionFields, collectionSource);
 
-        numericFields.forEach((n: DataSourceField) => {
+        expressionFields.forEach((n: DataSourceField) => {
             n.available = fieldsWithData.indexOf(n.name) !== -1;
         });
 
-        return numericFields;
+        return expressionFields;
     }
 
     async filterFieldsWithoutData(virtualSource: DataSourceResponse, collectionSource?: string[]): Promise<DataSourceField[]> {
