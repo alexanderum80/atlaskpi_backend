@@ -4,6 +4,7 @@ import {IValueName} from './value-name';
 import { Container } from 'inversify';
 import { isEmpty } from 'lodash';
 import {IObject} from '../../app_modules/shared/criteria.plugin';
+import {Aggregate} from 'mongoose';
 
 export const blackListDataSource = ['GoogleAnalytics'];
 
@@ -45,7 +46,7 @@ export async function getFieldsWithData(container: Container, dataSource: string
 
         let matchStage = findStage(aggregateQuery, '$match');
 
-        if (!isEmpty(collectionSource)) {
+        if (collectionSource) {
             Object.assign(matchStage.$match, {
                 source: {
                     '$in': collectionSource
@@ -65,12 +66,12 @@ export async function getFieldsWithData(container: Container, dataSource: string
 
             let projectStage = findStage(aggregateQuery, '$project');
             Object.assign(projectStage.$project, {
-                [fieldName]: fieldPath
+                [fieldName]: `$${fieldPath}`
             });
 
         });
 
-        const fieldsExists: any[] = await model.aggregate(aggregateQuery).exec();
+        const fieldsExists = await aggregateResponse(model.aggregate(aggregateQuery));
         if (fieldsExists) {
             const formatToObject = transformToObject(fieldsExists);
             fieldsWithData = Object.keys(formatToObject);
@@ -82,6 +83,21 @@ export async function getFieldsWithData(container: Container, dataSource: string
     } catch (err) {
         throw new Error('error geting fields with data');
     }
+}
+
+function aggregateResponse(aggregate): Promise<Aggregate<Object[]>> {
+    return new Promise<any>((resolve, reject) => {
+        if (!aggregate || !aggregate.exec) {
+            resolve([]);
+            return;
+        }
+        aggregate.exec((err, data) => {
+            resolve(data);
+            return;
+        }, (e) => {
+            reject(e);
+        });
+    });
 }
 
 

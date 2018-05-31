@@ -12,6 +12,7 @@ import {getFieldsWithData} from '../domain/common/fields-with-data';
 
 const COLLECTION_SOURCE_MAX_LIMIT = 20;
 const COLLECTION_SOURCE_FIELD_NAME = 'source';
+const GOOGLE_ANALYTICS = 'GoogleAnalytics';
 
 @injectable()
 export class DataSourcesService {
@@ -25,7 +26,7 @@ export class DataSourcesService {
         let virtualSources = await this._virtualDatasources.model.getDataSources();
         virtualSources = await Bluebird.map(
                                     virtualSources,
-                                    (virtualSource: DataSourceResponse) => this.getCollectionSource(virtualSource));
+                                    async (virtualSource: DataSourceResponse) => await this.getCollectionSource(virtualSource));
         return sortBy(virtualSources, 'name');
     }
 
@@ -92,6 +93,10 @@ export class DataSourcesService {
 
         const expressionFields: DataSourceField[] = virtualSource
                                                 .mapDataSourceFields(virtualSource);
+        if (this._isGoogleAnalytics(virtualSource.source)) {
+            return this._getGoogleAnalyticsFields(expressionFields);
+        }
+
 
         const fieldsWithData: string[] = await getFieldsWithData(this._container, virtualSource.source, expressionFields, collectionSource);
 
@@ -107,6 +112,9 @@ export class DataSourcesService {
             const fields: DataSourceField[] = virtualSource.fields;
             // i.e. Sales
             const dataSource: string = virtualSource.dataSource;
+            if (this._isGoogleAnalytics(dataSource)) {
+                return this._getGoogleAnalyticsFields(fields);
+            }
 
             // i.e ['APS Nextech ( nextech )']
             const sources: string[] = await getFieldsWithData(this._container, dataSource, fields, collectionSource);
@@ -119,5 +127,17 @@ export class DataSourcesService {
             console.error('error filtering fields without data', err);
             return [];
         }
+    }
+
+    private _isGoogleAnalytics(dataSource: string): boolean {
+        return dataSource === GOOGLE_ANALYTICS;
+    }
+
+    private _getGoogleAnalyticsFields(fields: DataSourceField[]): DataSourceField[] {
+        fields.forEach(f => {
+            f.available = true;
+        });
+
+        return fields;
     }
 }
