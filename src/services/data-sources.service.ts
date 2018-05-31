@@ -1,8 +1,8 @@
 import { IVirtualSourceDocument } from '../domain/app/virtual-sources/virtual-source';
 import { DataSourceField, DataSourceResponse } from '../app_modules/data-sources/data-sources.types';
 import { injectable, inject, Container } from 'inversify';
-import { VirtualSources } from '../domain/app/virtual-sources/virtual-source.model';
-import { sortBy } from 'lodash';
+import {VirtualSources, mapDataSourceFields} from '../domain/app/virtual-sources/virtual-source.model';
+import {sortBy} from 'lodash';
 import { Logger } from '../domain/app/logger';
 import { KPIFilterHelper } from '../domain/app/kpis/kpi-filter.helper';
 import * as Bluebird from 'bluebird';
@@ -91,8 +91,7 @@ export class DataSourcesService {
         const dataSource: string = input.dataSource;
         const virtualSource: IVirtualSourceDocument = await this._virtualDatasources.model.getDataSourceByName(dataSource);
 
-        const expressionFields: DataSourceField[] = virtualSource
-                                                .mapDataSourceFields(virtualSource);
+        const expressionFields: DataSourceField[] = mapDataSourceFields(virtualSource);
         if (this._isGoogleAnalytics(virtualSource.source)) {
             return this._getGoogleAnalyticsFields(expressionFields);
         }
