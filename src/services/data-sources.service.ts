@@ -49,7 +49,7 @@ export class DataSourcesService {
      * @param data
      */
     async getKPIFilterFieldsWithData(dataSource: string, collectionSource: string[], fields: DataSourceField[]): Promise<DataSourceField[]> {
-        if (!dataSource && !collectionSource) {
+        if (!dataSource) {
             return [];
         }
 
