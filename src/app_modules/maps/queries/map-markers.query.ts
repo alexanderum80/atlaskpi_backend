@@ -130,7 +130,7 @@ export enum MarkerColorEnum {
 }
 
 export const SalesColorMap = {
-    yellow: { min: 0, max: 5000 },
+    yellow: { min: 0.01, max: 5000 },
     lightBlue: { min: 5001, max: 25000 },
     orange: { min: 25001, max: 50000 },
     green: { min: 50001, max: 250000 },
