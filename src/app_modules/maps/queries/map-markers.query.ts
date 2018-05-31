@@ -120,21 +120,24 @@ export class MapMarkersQuery implements IQuery < IMapMarker[] > {
 }
 
 export enum MarkerColorEnum {
-    // Black = 'black',
+    Black = 'black',
     Purple = 'purple',
     Red = 'red',
     Blue = 'blue',
     Green = 'green',
     Yellow = 'yellow',
-    Navy = 'navy'
+    Navy = 'navy',
+    LightBlue = 'lightblue',
+    Pink = 'pink',
+    DarkBlue = 'darkblue'
 }
 
 export const SalesColorMap = {
     yellow: { min: 0.01, max: 5000 },
-    lightBlue: { min: 5001, max: 25000 },
-    orange: { min: 25001, max: 50000 },
+    lightblue: { min: 5001, max: 25000 },
+    pink: { min: 25001, max: 50000 },
     green: { min: 50001, max: 250000 },
-    darkBlue: { min: 250001, max: 500000 },
+    darkblue: { min: 250001, max: 500000 },
     red: { min: 500001, max: 1000000 },
     purple: { min: 1000001, max: 5000000 },
     black: { min: 5000001, max: 5000000000 }
