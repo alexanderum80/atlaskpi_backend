@@ -38,7 +38,7 @@ export async function getFieldsWithData(container: Container, dataSource: string
             }, {
                 '$limit': 1
         }];
-        let notIn = { '$nin': ['', null, 'null', 'undefined'] };
+        let notIn = { '$nin': ['', null, 'null', undefined, 'undefined'] };
 
         if (!model) {
             return [];
