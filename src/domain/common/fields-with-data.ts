@@ -46,7 +46,7 @@ export async function getFieldsWithData(container: Container, dataSource: string
 
         let matchStage = findStage(aggregateQuery, '$match');
 
-        if (collectionSource) {
+        if (!isEmpty(collectionSource)) {
             Object.assign(matchStage.$match, {
                 source: {
                     '$in': collectionSource
