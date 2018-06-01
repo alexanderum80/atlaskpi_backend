@@ -2,7 +2,7 @@ import { isObject } from 'lodash';
 import {DataSourceField} from '../../app_modules/data-sources/data-sources.types';
 import {IValueName} from './value-name';
 import { Container } from 'inversify';
-import { isEmpty } from 'lodash';
+import { isEmpty, isNull } from 'lodash';
 import {IObject} from '../../app_modules/shared/criteria.plugin';
 import {Aggregate} from 'mongoose';
 
@@ -38,7 +38,7 @@ export async function getFieldsWithData(container: Container, dataSource: string
             }, {
                 '$limit': 1
         }];
-        let notIn = { '$nin': ['', null, 'null', undefined, 'undefined'] };
+        let notIn = { '$nin': ['', null, 'null', 'undefined'] };
 
         if (!model) {
             return [];
@@ -106,17 +106,17 @@ export function transformToObject(arr: any[]): any {
     const newObject = {};
 
     arr.forEach(item => {
-        if (item && Array.isArray(item)) {
-            item.forEach(obj => {
-                if (isObject(obj)) {
-                    Object.assign(newObject, obj);
+        if (isObject(item)) {
+            const temp = {};
+            Object.keys(item).forEach(key => {
+                const value = item[key];
+                if (!isNull(value)) {
+                    temp[key] = value;
                 }
             });
-        } else {
-            if (isObject(item)) {
-                Object.assign(newObject, item);
-            }
+            Object.assign(newObject, temp);
         }
+
     });
 
     return newObject;
