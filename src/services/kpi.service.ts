@@ -257,7 +257,7 @@ export class KpiService {
 
         try {
             const existingFields: IValueName[][] = await Bluebird.map(sources, async (source: IVirtualSourceDocument) => {
-                if (blackListDataSource.indexOf(source.source)) {
+                if (blackListDataSource.indexOf(source.source) !== -1) {
                     return fields;
                 }
 
