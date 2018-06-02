@@ -181,7 +181,7 @@ export class KpiService {
             // return sources from complex kpi
             return this._getComplexKpiExpressionSources(kpi.expression, kpis, connectors);
         }
-        
+
         return [];
     }
 
