@@ -63,14 +63,17 @@ export class MapMarkersQuery implements IQuery < IMapMarker[] > {
         const salesObject: Dictionary<ISaleByZip> = keyBy(salesByZip, '_id.customerZip');
 
         return zipList.map(zip => {
-            return {
-                name: zip.zipCode,
-                lat: zip.lat,
-                lng: zip.lng,
-                color: getMarkerColor(salesObject[zip.zipCode].sales),
-                value: salesObject[zip.zipCode].sales,
-                groupingName: salesObject[zip.zipCode]._id['grouping']
-            };
+            const value = salesObject[zip.zipCode].sales;
+            if (value >= SalesColorMap[MarkerColorEnum.Yellow].min) {
+                return {
+                    name: zip.zipCode,
+                    lat: zip.lat,
+                    lng: zip.lng,
+                    color: getMarkerColor(salesObject[zip.zipCode].sales),
+                    value: value,
+                    groupingName: salesObject[zip.zipCode]._id['grouping']
+                };
+            }
         });
     }
 
