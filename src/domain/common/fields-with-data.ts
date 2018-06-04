@@ -5,6 +5,7 @@ import { Container } from 'inversify';
 import { isEmpty, isNull } from 'lodash';
 import {IObject} from '../../app_modules/shared/criteria.plugin';
 import {Aggregate} from 'mongoose';
+import * as Bluebird from 'bluebird';
 
 export const blackListDataSource = ['GoogleAnalytics'];
 
@@ -17,7 +18,7 @@ interface IAggregateProjectQuery extends IObject {
 }
 
 interface IAggregateQuery {
-    $match?: IAggregateMatchQuery;
+    $match?: any;
     $project?: IAggregateProjectQuery;
     $limit?: number;
 }
@@ -30,53 +31,36 @@ export async function getFieldsWithData(container: Container, dataSource: string
 
         const model = (container.get(dataSource) as any).model;
         let fieldsWithData: string[] = [];
-        const aggregateQuery: IAggregateQuery[] = [
-            {
-                '$match': { $or: [] }
-            }, {
-                '$project': { _id: 0 }
-            }, {
-                '$limit': 1
-        }];
+        const collectionQuery = [];
         let notIn = { '$nin': ['', null, 'null', 'undefined'] };
 
         if (!model) {
             return [];
         }
 
-        let matchStage = findStage(aggregateQuery, '$match');
-
-        if (!isEmpty(collectionSource)) {
-            Object.assign(matchStage.$match, {
-                source: {
-                    '$in': collectionSource
-                }
-            });
-        }
-
-        fields.forEach((field: DataSourceField|IValueName) => {
-            // i.e referrable.name
+        fields.forEach(field => {
             const fieldPath: string = (field as DataSourceField).path || (field as IValueName).value;
-            // Referral
             const fieldName: string = field.name;
 
-            matchStage.$match.$or.push({
-                [fieldPath]: notIn
-            });
-
-            let projectStage = findStage(aggregateQuery, '$project');
-            Object.assign(projectStage.$project, {
-                [fieldName]: `$${fieldPath}`
-            });
-
+            collectionQuery.push(
+                model.aggregate([{
+                    '$match': {
+                        [fieldPath]: notIn
+                    }
+                }, {
+                    '$project': {
+                        [fieldName]: fieldPath
+                    }
+                }, {
+                    '$limit': 1
+                }])
+            );
         });
 
-        const fieldsExists = await aggregateResponse(model.aggregate(aggregateQuery));
-        if (fieldsExists) {
-            const formatToObject = transformToObject(fieldsExists);
+        fieldsWithData = await Bluebird.all(collectionQuery);
+        if (fieldsWithData) {
+            const formatToObject = transformToObject(fieldsWithData);
             fieldsWithData = Object.keys(formatToObject);
-
-            return fieldsWithData;
         }
 
         return fieldsWithData;
@@ -105,23 +89,14 @@ export function transformToObject(arr: any[]): any {
     if (!arr) { return; }
     const newObject = {};
 
-    arr.forEach(item => {
-        if (isObject(item)) {
-            const temp = {};
-            Object.keys(item).forEach(key => {
-                const value = item[key];
-                if (!isNull(value)) {
-                    temp[key] = value;
+    arr.forEach((singleArray) => {
+        if (singleArray && Array.isArray(singleArray)) {
+            singleArray.forEach(obj => {
+                if (isObject(obj)) {
+                    Object.assign(newObject, obj);
                 }
             });
-            Object.assign(newObject, temp);
         }
-
     });
-
     return newObject;
-}
-
-function findStage(aggregate: IAggregateQuery[], field: string): IAggregateQuery {
-    return aggregate.find(agg => agg[field] !== undefined);
 }
