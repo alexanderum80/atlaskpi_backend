@@ -110,7 +110,8 @@ export class MapMarkersQuery implements IQuery < IMapMarker[] > {
                             }
                         }
 
-                        if (key && zipCodes[key]) {
+                        const canReturnMapMarker = this._canReturnMapMarker(key, zipCodes, total);
+                        if (canReturnMapMarker) {
                             return {
                                 name: key,
                                 lat: zipCodes[key].lat,
@@ -125,6 +126,14 @@ export class MapMarkersQuery implements IQuery < IMapMarker[] > {
                         return !isEmpty(items);
                     })
                     .value();
+    }
+
+    private _canReturnMapMarker(key: string, zipCodes: Dictionary<IZipToMapDocument>, total: number): boolean {
+        return key && zipCodes[key] && this._isTotalGreaterThanMininumValue(total);
+    }
+
+    private _isTotalGreaterThanMininumValue(total: number): boolean {
+        return total > SalesColorMap[MarkerColorEnum.Yellow].min;
     }
 
     private _getGroupName(value: ISaleByZip[], index: number, groupByField?: string): string {
@@ -150,7 +159,7 @@ export class MapMarkersQuery implements IQuery < IMapMarker[] > {
         return grouping;
     }
 
-    private _canGetGroupByFieldSplitValue(reg: RegExp, groupByField: string) {
+    private _canGetGroupByFieldSplitValue(reg: RegExp, groupByField: string): boolean {
         if (!reg) {
             return false;
         }
