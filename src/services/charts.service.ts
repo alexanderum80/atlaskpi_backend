@@ -13,8 +13,8 @@ import { IObject } from '../app_modules/shared/criteria.plugin';
 import { CurrentUser } from '../domain/app/current-user';
 import { Logger } from '../domain/app/logger';
 import { VirtualSources } from '../domain/app/virtual-sources/virtual-source.model';
-import { chartTopLimit, IChartTop } from '../domain/common/top-n-record';
-import { ChartAttributesInput } from './../app_modules/charts/charts.types';
+import {chartTopLimit, IChartTop, isNestedArray} from '../domain/common/top-n-record';
+import {ChartAttributesInput} from './../app_modules/charts/charts.types';
 import { ChartFactory } from './../app_modules/charts/queries/charts/chart-factory';
 import { IUIChart, NULL_CATEGORY_REPLACEMENT } from './../app_modules/charts/queries/charts/ui-chart-base';
 import { DateRangeHelper } from './../app_modules/date-ranges/queries/date-range.helper';
@@ -119,7 +119,15 @@ export class ChartsService {
                     const topNData: any[] = await this._getTopByGrouping(meta, kpi);
 
                     const groupByField: string = camelCase(meta.groupings[0]);
-                    meta.includeTopGroupingValues = topNData.map(d => d._id[groupByField] || NULL_CATEGORY_REPLACEMENT);
+                    const checkTopGroupings = topNData.map(d => d._id[groupByField] || NULL_CATEGORY_REPLACEMENT);
+
+                    meta.includeTopGroupingValues = topNData.map(d => {
+                        return d._id[groupByField] ||
+                              (
+                                  isNestedArray(checkTopGroupings) ?
+                                  [NULL_CATEGORY_REPLACEMENT] : NULL_CATEGORY_REPLACEMENT
+                              );
+                    });
 
                     if (!meta.isDrillDown && options && options.chartId) {
                         return this._renderRegularDefinition(options.chartId, kpi, uiChart, meta);

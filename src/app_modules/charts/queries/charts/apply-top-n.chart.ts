@@ -1,11 +1,15 @@
 import { dataSortDesc } from '../../../../helpers/number.helpers';
-import { groupBy, reduce, pick, flatten, sortBy } from 'lodash';
+import {
+    groupBy, reduce, pick, flatten,
+    sortBy, intersectionWith, isEqual, isEmpty,
+    every
+} from 'lodash';
 import { camelCase } from 'change-case';
 import { NULL_CATEGORY_REPLACEMENT } from './ui-chart-base';
 import * as moment from 'moment';
 
-import { chartTopMomentFormat, chartTopLimit, IChartTop } from '../../../../domain/common/top-n-record';
-import { IGetDataOptions } from '../../../kpis/queries/kpi-base';
+import {chartTopMomentFormat, chartTopLimit, IChartTop, isNestedArray} from '../../../../domain/common/top-n-record';
+import {IGetDataOptions} from '../../../kpis/queries/kpi-base';
 
 export class ApplyTopNChart {
 
@@ -23,7 +27,7 @@ export class ApplyTopNChart {
         return data;
     }
 
-    private static _applyTopWithGroupings(data: any[], groupings: string[], includeTopGroupingValues: string[]): any[] {
+    private static _applyTopWithGroupings(data: any[], groupings: string[], includeTopGroupingValues: (string|string[])[]): any[] {
         if (!data || !data.length) { return data; }
         if (!groupings || !groupings.length) { return data; }
         if (!includeTopGroupingValues || !includeTopGroupingValues.length) { return data; }
@@ -33,19 +37,18 @@ export class ApplyTopNChart {
          * else return same object
          */
         const groupedData = groupBy(data, (item) => {
-            const groupField = camelCase(groupings[0]);
+            const groupField: string = camelCase(groupings[0]);
 
             // assign NULL_CATEGORY_REPLACEMENT if object does not contain grouping field
             if (!item._id[groupField]) {
-                item._id[groupField] = NULL_CATEGORY_REPLACEMENT;
+                item._id[groupField] = isNestedArray(includeTopGroupingValues) ?
+                                       [NULL_CATEGORY_REPLACEMENT] : NULL_CATEGORY_REPLACEMENT;
             }
 
             // check if the grouping value exist in the top n
-            const topNotExist = item._id ?
-                              includeTopGroupingValues.indexOf(item._id[groupField]) === -1 :
-                              false;
+            const notTopN = this._isNotInTopN(item, groupField, includeTopGroupingValues);
 
-            if (topNotExist) {
+            if (notTopN) {
                 item._id[groupField] = 'Others';
                 // i.e. Others-2018-01
                 return `${item._id[groupField]}-${item._id.frequency}`;
@@ -54,14 +57,57 @@ export class ApplyTopNChart {
             return `${item._id[groupField]}`;
         });
 
-        data = this._reduceOthersAndTop(groupedData, includeTopGroupingValues);
+        data = this._reduceOthersAndTopN(groupedData, includeTopGroupingValues);
 
         return data;
     }
 
-    private static _reduceOthersAndTop(groupedData: any, includeTopGroupingValues: string[]): any[] {
+    /**
+     * includeTopGroupingValues: i.e. (return value) "procedure", ["procedure"], ["procedure", "reason"]
+     * @param item
+     * @param groupField
+     * @param includeTopGroupingValues
+     */
+    private static _isNotInTopN(item: any, groupField: string, includeTopGroupingValues: (string|string[])[]): boolean {
+        if (isEmpty(item)) {
+            return false;
+        }
+
+        // i.e. (return value) null, ['procedure','reason'], ['procedure']
+        const itemGroupByField = item._id[groupField];
+        let isNotTopN: boolean;
+
+        if (item._id) {
+            if (Array.isArray(itemGroupByField)) {
+                const notInTopGroupings = includeTopGroupingValues.find((groupingValues: string|string[]) => {
+                        const intersect: any[] = intersectionWith(groupingValues, itemGroupByField, isEqual);
+                        // i.e. ['procedure','reason'], ['procedure']
+                        // example above will intersect, but not have same length
+                        return intersect.length > 0 && (groupingValues.length === itemGroupByField.length);
+                });
+
+                isNotTopN = notInTopGroupings === undefined;
+            } else {
+                isNotTopN = includeTopGroupingValues.indexOf(item._id[groupField]) === -1;
+            }
+        } else {
+            isNotTopN = false;
+        }
+
+        return isNotTopN;
+    }
+
+    private static _reduceOthersAndTopN(groupedData: any, includeTopGroupingValues: (string|string[])[]): any[] {
         for (let i in groupedData) {
-            if (includeTopGroupingValues.indexOf(i) === -1) {
+            let notExistInTopN;
+
+            if (isNestedArray(includeTopGroupingValues)) {
+                notExistInTopN = includeTopGroupingValues.find((g: string[]) => g.join(',') !== i);
+            } else {
+                notExistInTopN = includeTopGroupingValues.indexOf(i) === -1;
+            }
+
+            if (notExistInTopN) {
                 // get the total of 'Other' grouping
                 const othersTotal = reduce(groupedData[i], (result: any, item: any) => {
                     return {
