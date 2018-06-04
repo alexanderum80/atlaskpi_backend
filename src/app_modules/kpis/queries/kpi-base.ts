@@ -33,7 +33,7 @@ export interface IKPIResult {
 export interface IGetDataOptions {
     dateRange?: [IChartDateRange];
     top?: IChartTop;
-    includeTopGroupingValues?: string[];
+    includeTopGroupingValues?: (string|string[])[];
     limit?: number;
     filter?: any;
     frequency?: FrequencyEnum;
