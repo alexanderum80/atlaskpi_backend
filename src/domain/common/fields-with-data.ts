@@ -39,7 +39,7 @@ export async function getFieldsWithData(container: Container, dataSource: string
                     [fieldPath]: notIn
                 }
             };
-            if (collectionSource) {
+            if (!isEmpty(collectionSource)) {
                 Object.assign(matchOptions.$match, {
                     source: {
                         '$in': collectionSource
