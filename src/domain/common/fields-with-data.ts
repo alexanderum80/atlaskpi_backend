@@ -33,11 +33,22 @@ export async function getFieldsWithData(container: Container, dataSource: string
             const fieldPath: string = (field as DataSourceField).path || (field as IValueName).value;
             const fieldName: string = field.name;
 
-            const modelAggregate: ICollectionAggregation[] = [{
-                    '$match': {
-                        [fieldPath]: notIn
+
+            const matchOptions = {
+                '$match': {
+                    [fieldPath]: notIn
+                }
+            };
+            if (collectionSource) {
+                Object.assign(matchOptions.$match, {
+                    source: {
+                        '$in': collectionSource
                     }
-                }, {
+                });
+            }
+            const modelAggregate: ICollectionAggregation[] = [
+                matchOptions
+                , {
                     '$project': {
                         [fieldName]: fieldPath
                     }
