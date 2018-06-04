@@ -21,7 +21,7 @@ export interface IMapMarker {
 }
 
 // i.e. referral.name = `${name}:${description}
-const semiColonCheckList: string[] = ['expense.concept', 'referral.name'];
+const groupingFieldTransformList: string[] = ['expense.concept', 'referral.name'];
 
 @injectable()
 @query({
@@ -131,28 +131,31 @@ export class MapMarkersQuery implements IQuery < IMapMarker[] > {
         const item: ISaleByZipGrouping = value[index]._id;
         let grouping: string;
 
-        if (isEmpty(item)) {
+        if (isEmpty(item) || isEmpty(item.grouping)) {
             grouping = NULL_CATEGORY_REPLACEMENT;
         }
 
         grouping = item.grouping;
-
-        // grouping i.e (field doesn't exists), null, ''
-        if (isEmpty(grouping)) {
-            grouping = NULL_CATEGORY_REPLACEMENT;
-        }
 
         // return grouping if groupByField not pass in parameter
         if (isEmpty(groupByField)) {
             return grouping;
         }
 
-        if (semiColonCheckList.indexOf(groupByField)) {
-            const reg: RegExp = /\:/;
+        const reg: RegExp = /\:/;
+        if (this._canGetGroupByFieldSplitValue(reg, groupByField)) {
             grouping = grouping.split(reg)[0];
         }
 
         return grouping;
+    }
+
+    private _canGetGroupByFieldSplitValue(reg: RegExp, groupByField: string) {
+        if (!reg) {
+            return false;
+        }
+        return groupingFieldTransformList.indexOf(groupByField) !== -1 &&
+               reg.test(groupByField);
     }
 }
 
