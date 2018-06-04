@@ -100,7 +100,3 @@ export function transformToObject(arr: any[]): any {
     });
     return newObject;
 }
-
-function findStage(aggregate: IAggregateQuery[], field: string): IAggregateQuery {
-    return aggregate.find(agg => agg[field] !== undefined);
-}
