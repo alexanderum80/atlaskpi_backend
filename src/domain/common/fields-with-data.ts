@@ -109,8 +109,14 @@ export function transformToObject(arr: any[]): any {
         if (isObject(item)) {
             const temp = {};
             Object.keys(item).forEach(key => {
-                const value = item[key];
+                let value = item[key];
                 if (!isNull(value)) {
+                    if (value.match(/\:/)) {
+                        const tempValue = value.split(/\:/);
+                        if (Array.isArray(tempValue) && !isEmpty(tempValue[0])) {
+                            value = tempValue[0];
+                        }
+                    }
                     temp[key] = value;
                 }
             });
