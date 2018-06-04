@@ -1,25 +1,15 @@
-import { isObject } from 'lodash';
-import {DataSourceField} from '../../app_modules/data-sources/data-sources.types';
-import {IValueName} from './value-name';
+import { DataSourceField } from '../../app_modules/data-sources/data-sources.types';
+import { IValueName } from './value-name';
 import { Container } from 'inversify';
-import { isEmpty, isNull } from 'lodash';
+import { isObject, isEmpty, isNull } from 'lodash';
 import {IObject} from '../../app_modules/shared/criteria.plugin';
-import {Aggregate} from 'mongoose';
 import * as Bluebird from 'bluebird';
 
 export const blackListDataSource = ['GoogleAnalytics'];
 
-interface IAggregateMatchQuery {
-    $or: any[];
-}
-
-interface IAggregateProjectQuery extends IObject {
-    _id: number;
-}
-
-interface IAggregateQuery {
-    $match?: any;
-    $project?: IAggregateProjectQuery;
+interface ICollectionAggregation {
+    $match?: IObject;
+    $project?: IObject;
     $limit?: number;
 }
 
@@ -31,7 +21,8 @@ export async function getFieldsWithData(container: Container, dataSource: string
 
         const model = (container.get(dataSource) as any).model;
         let fieldsWithData: string[] = [];
-        const collectionQuery = [];
+
+        const collectionAggregations = [];
         let notIn = { '$nin': ['', null, 'null', 'undefined'] };
 
         if (!model) {
@@ -42,8 +33,7 @@ export async function getFieldsWithData(container: Container, dataSource: string
             const fieldPath: string = (field as DataSourceField).path || (field as IValueName).value;
             const fieldName: string = field.name;
 
-            collectionQuery.push(
-                model.aggregate([{
+            const modelAggregate: ICollectionAggregation[] = [{
                     '$match': {
                         [fieldPath]: notIn
                     }
@@ -53,11 +43,14 @@ export async function getFieldsWithData(container: Container, dataSource: string
                     }
                 }, {
                     '$limit': 1
-                }])
+                }];
+
+            collectionAggregations.push(
+                model.aggregate(modelAggregate)
             );
         });
 
-        fieldsWithData = await Bluebird.all(collectionQuery);
+        fieldsWithData = await Bluebird.all(collectionAggregations);
         if (fieldsWithData) {
             const formatToObject = transformToObject(fieldsWithData);
             fieldsWithData = Object.keys(formatToObject);
@@ -69,22 +62,7 @@ export async function getFieldsWithData(container: Container, dataSource: string
     }
 }
 
-function aggregateResponse(aggregate): Promise<Aggregate<Object[]>> {
-    return new Promise<any>((resolve, reject) => {
-        if (!aggregate || !aggregate.exec) {
-            resolve([]);
-            return;
-        }
-        aggregate.exec((err, data) => {
-            resolve(data);
-            return;
-        }, (e) => {
-            reject(e);
-        });
-    });
-}
-
-
+// i.e [ [], [{ [key: string]: any}] ]
 export function transformToObject(arr: any[]): any {
     if (!arr) { return; }
     const newObject = {};
