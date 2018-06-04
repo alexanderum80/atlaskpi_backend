@@ -110,7 +110,7 @@ export class MapMarkersQuery implements IQuery < IMapMarker[] > {
                             }
                         }
 
-                        const canReturnMapMarker = this._canReturnMapMarker(key, zipCodes, total);
+                        const canReturnMapMarker: boolean = this._canReturnMapMarker(key, zipCodes, total);
                         if (canReturnMapMarker) {
                             return {
                                 name: key,
@@ -151,18 +151,16 @@ export class MapMarkersQuery implements IQuery < IMapMarker[] > {
             return grouping;
         }
 
-        const reg: RegExp = /\:/;
-        if (this._canGetGroupByFieldSplitValue(reg, groupByField)) {
-            grouping = grouping.split(reg)[0];
+        if (this._canGetGroupByFieldSplitValue(groupByField)) {
+            const splitReg: RegExp = /\./;
+            grouping = grouping.split(splitReg)[0];
         }
 
         return grouping;
     }
 
-    private _canGetGroupByFieldSplitValue(reg: RegExp, groupByField: string): boolean {
-        if (!reg) {
-            return false;
-        }
+    private _canGetGroupByFieldSplitValue(groupByField: string): boolean {
+        const reg: RegExp = /\:/;
         return groupingFieldTransformList.indexOf(groupByField) !== -1 &&
                reg.test(groupByField);
     }
