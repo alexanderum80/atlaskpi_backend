@@ -1,7 +1,7 @@
 import { inject, injectable } from 'inversify';
 import { chain, Dictionary, isEmpty, keyBy } from 'lodash';
 
-import { ISaleByZip, TypeMap } from '../../../domain/app/sales/sale';
+import { ISaleByZip, ISaleByZipGrouping, TypeMap } from '../../../domain/app/sales/sale';
 import { Sales } from '../../../domain/app/sales/sale.model';
 import { IZipToMapDocument } from '../../../domain/master/zip-to-map/zip-to-map';
 import { ZipsToMap } from '../../../domain/master/zip-to-map/zip-to-map.model';
@@ -19,6 +19,9 @@ export interface IMapMarker {
     color: string;
     value: number;
 }
+
+// i.e. referral.name = `${name}:${description}
+const semiColonCheckList: string[] = ['expense.concept', 'referral.name'];
 
 @injectable()
 @query({
@@ -47,8 +50,9 @@ export class MapMarkersQuery implements IQuery < IMapMarker[] > {
         let markers;
 
         if (data.input) {
-            if (data.input['grouping']) {
-                markers = this._groupingMarkersFormatted(salesByZip, zipList);
+            const groupByField = data.input['grouping'];
+            if (groupByField) {
+                markers = this._groupingMarkersFormatted(salesByZip, zipList, groupByField);
             } else {
                 markers = this._noGroupingsMarkersFormatted(salesByZip, zipList);
             }
@@ -77,7 +81,10 @@ export class MapMarkersQuery implements IQuery < IMapMarker[] > {
         });
     }
 
-    private _groupingMarkersFormatted(salesByZip: ISaleByZip[], zipList: IZipToMapDocument[]): MapMarker[] {
+    private _groupingMarkersFormatted(salesByZip: ISaleByZip[], zipList: IZipToMapDocument[], groupByField?: string): MapMarker[] {
+        if (isEmpty(salesByZip)) {
+            return [];
+        }
         const zipCodes: Dictionary<IZipToMapDocument> = keyBy(zipList, 'zipCode');
 
         return chain(salesByZip)
@@ -89,8 +96,7 @@ export class MapMarkersQuery implements IQuery < IMapMarker[] > {
 
                         for (let i = 0; i < value.length; i++) {
                             if (value[i]) {
-                                const groupName: string = (value[i]._id as any).grouping ||
-                                                          NULL_CATEGORY_REPLACEMENT;
+                                const groupName: string = this._getGroupName(value, i, groupByField);
                                 const amount: number = value[i].sales;
 
                                 total += amount;
@@ -121,7 +127,33 @@ export class MapMarkersQuery implements IQuery < IMapMarker[] > {
                     .value();
     }
 
+    private _getGroupName(value: ISaleByZip[], index: number, groupByField?: string): string {
+        const item: ISaleByZipGrouping = value[index]._id;
+        let grouping: string;
 
+        if (isEmpty(item)) {
+            grouping = NULL_CATEGORY_REPLACEMENT;
+        }
+
+        grouping = item.grouping;
+
+        // grouping i.e (field doesn't exists), null, ''
+        if (isEmpty(grouping)) {
+            grouping = NULL_CATEGORY_REPLACEMENT;
+        }
+
+        // return grouping if groupByField not pass in parameter
+        if (isEmpty(groupByField)) {
+            return grouping;
+        }
+
+        if (semiColonCheckList.indexOf(groupByField)) {
+            const reg: RegExp = /\:/;
+            grouping = grouping.split(reg)[0];
+        }
+
+        return grouping;
+    }
 }
 
 export enum MarkerColorEnum {

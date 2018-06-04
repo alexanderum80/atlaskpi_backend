@@ -92,6 +92,7 @@ export enum TypeMap {
 
 export interface ISaleByZipGrouping {
     customerZip: string;
+    grouping?: string;
 }
 
 export interface ISaleByZip {
