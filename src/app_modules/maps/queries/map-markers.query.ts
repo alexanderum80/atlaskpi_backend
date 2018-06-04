@@ -95,10 +95,12 @@ export class MapMarkersQuery implements IQuery < IMapMarker[] > {
 
                                 total += amount;
 
-                                itemList.push({
-                                    amount: amount, // 50000
-                                    groupName: groupName // i.e. Knoxville
-                                });
+                                if (amount >= SalesColorMap[MarkerColorEnum.Yellow].min) {
+                                    itemList.push({
+                                        amount: amount, // 50000
+                                        groupName: groupName // i.e. Knoxville
+                                    });
+                                }
                             }
                         }
 
