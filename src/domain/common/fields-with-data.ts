@@ -1,10 +1,8 @@
-import { isObject } from 'lodash';
-import {DataSourceField} from '../../app_modules/data-sources/data-sources.types';
-import {IValueName} from './value-name';
+import { DataSourceField } from '../../app_modules/data-sources/data-sources.types';
+import { IValueName } from './value-name';
 import { Container } from 'inversify';
-import { isEmpty, isNull } from 'lodash';
+import { isObject, isEmpty, isNull } from 'lodash';
 import {IObject} from '../../app_modules/shared/criteria.plugin';
-import {Aggregate} from 'mongoose';
 import * as Bluebird from 'bluebird';
 
 export const blackListDataSource = ['GoogleAnalytics'];
@@ -64,6 +62,7 @@ export async function getFieldsWithData(container: Container, dataSource: string
     }
 }
 
+// i.e [ [], [{ [key: string]: any}] ]
 export function transformToObject(arr: any[]): any {
     if (!arr) { return; }
     const newObject = {};
