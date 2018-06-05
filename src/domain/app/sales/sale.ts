@@ -114,5 +114,5 @@ export interface ISaleModel extends mongoose.Model<ISaleDocument> {
     salesEmployeeByDateRange(predefinedDateRange: string): Promise<Object>;
     monthsAvgSales(date: string): Promise<Object>;
     findCriteria(field: string, aggregate: any[], limit?: number, filter?: string): Promise<string[]>;
-    salesBy(type: TypeMap, input?: IMapMarkerInput): Promise<ISaleByZip[]>;
+    salesBy(aggregate: any[]): Promise<ISaleByZip[]>;
 }

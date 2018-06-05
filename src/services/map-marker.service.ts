@@ -1,0 +1,389 @@
+import { parsePredifinedDate } from '../domain/common/date-range';
+import { VirtualSources } from '../domain/app/virtual-sources/virtual-source.model';
+import { injectable, inject } from 'inversify';
+import { chain, Dictionary, isEmpty, keyBy, isString, isObject, filter, sortBy } from 'lodash';
+import {Sales} from '../domain/app/sales/sale.model';
+import {ZipsToMap} from '../domain/master/zip-to-map/zip-to-map.model';
+import {ISaleByZip, ISaleByZipGrouping, TypeMap} from '../domain/app/sales/sale';
+import {NULL_CATEGORY_REPLACEMENT} from '../app_modules/charts/queries/charts/ui-chart-base';
+import {MapMarkerItemList, MapMarker, MapMarkerGroupingInput} from '../app_modules/maps/map.types';
+import {IZipToMapDocument} from '../domain/master/zip-to-map/zip-to-map';
+import {IVirtualSourceDocument} from '../domain/app/virtual-sources/virtual-source';
+import {IObject} from '../app_modules/shared/criteria.plugin';
+import {KPIFilterHelper} from '../domain/app/kpis/kpi-filter.helper';
+import * as moment from 'moment';
+import {getProjectOptions, findStage, sortByProject} from '../domain/common/fields-with-data';
+import { lowerCaseFirst } from 'change-case';
+
+export interface IMapMarker {
+    name: string;
+    lat: number;
+    lng: number;
+    color: string;
+    value: number;
+}
+
+const REVENUE_BY_REFERRALS = 'revenue_by_referrals';
+
+@injectable()
+export class MapMarkerService {
+    constructor(
+        @inject(Sales.name) private _sales: Sales,
+        @inject(ZipsToMap.name) private _ZipToMaps: ZipsToMap,
+        @inject(VirtualSources.name) private _virtualSources: VirtualSources) { }
+
+
+    async getMapMarkers(dataTypeMap: TypeMap, input: MapMarkerGroupingInput): Promise<IMapMarker[]> {
+        // i.e. input.grouping = 'Referral', fieldsMap name, not fieldsMap path
+        const aggregate = await this._getAggregateObject(dataTypeMap, input);
+
+        if (isEmpty(aggregate)) {
+            return [];
+        }
+
+        const salesByZip = await this._sales.model.salesBy(aggregate);
+        // get the zip codes related
+        const zipList = await this._ZipToMaps.model.find({
+                            zipCode: {
+                                $in: salesByZip.map(d => d._id.customerZip)
+                            }});
+
+        // convert array to object
+        let markers;
+
+        if (input) {
+            const groupByField = input['grouping'];
+            if (groupByField) {
+                markers = this._groupingMarkersFormatted(salesByZip, zipList, groupByField);
+            } else {
+                markers = this._noGroupingsMarkersFormatted(salesByZip, zipList);
+            }
+        } else {
+            markers = this._noGroupingsMarkersFormatted(salesByZip, zipList);
+        }
+
+        return markers;
+    }
+
+    private async _getAggregateObject(type: TypeMap, input: MapMarkerGroupingInput): Promise<any> {
+        let aggregate = [];
+        switch (type) {
+            case TypeMap.customerAndZip:
+                aggregate.push(
+                    { '$match': { 'product.amount': { '$gte': 0 } }},
+                    { '$project': { product: 1, _id: 0, customer: 1 }},
+                    { '$unwind': {} },
+                    { '$group': {
+                        _id: { customerZip: '$customer.zip' },
+                        sales: { '$sum': '$product.amount' }
+                    }}
+                );
+                if (input && isObject(input)) {
+                    const vs = await this._virtualSources.model.findOne({
+                        name: REVENUE_BY_REFERRALS,
+                    });
+
+                    const virtualSourceField = this._virtualSourceField(vs, input.grouping);
+                    this._updateAggregate(aggregate, input, virtualSourceField);
+
+                    if (this._sortByUnwind(aggregate, virtualSourceField)) {
+                        aggregate = this._getSortedAggregate(aggregate);
+                    }
+                }
+
+                aggregate = this._filterEmptyUnwindPipe(aggregate);
+            case TypeMap.productAndZip:
+                break;
+        }
+        return aggregate;
+    }
+
+    private _sortByUnwind(aggregate, virtualSourceField): boolean {
+        const projectStage = findStage(aggregate, '$project');
+        if (!projectStage || !projectStage.$project) {
+            return false;
+        }
+        const pipline = projectStage.$project;
+        const pipelineKeys = Object.keys(pipline);
+
+        return pipelineKeys.indexOf(virtualSourceField.field.path) !== -1;
+    }
+
+    private _getSortedAggregate(aggregate): any {
+        let agg = sortBy(aggregate, '$project');
+        const unwindStage = findStage(aggregate, '$unwind');
+        agg = agg.filter(a => !a.$unwind);
+        agg.unshift(unwindStage);
+
+        return agg;
+    }
+
+    private _filterEmptyUnwindPipe(aggregate: any[]): any[] {
+        let findStage = aggregate.find((agg) => agg.$unwind !== undefined);
+
+        if (isEmpty(findStage.$unwind)) {
+            delete findStage.$unwind;
+        }
+
+        return filter(aggregate, (agg) => !isEmpty(agg));
+    }
+
+    private _virtualSourceField(virtualSource: IVirtualSourceDocument, groupByField: string): any {
+        if (isEmpty(virtualSource) || !groupByField) {
+            return {};
+        }
+        const fieldsMap = virtualSource.fieldsMap;
+        const field = fieldsMap[groupByField];
+        let aggregate = [];
+
+        if (virtualSource.aggregate) {
+            aggregate = virtualSource.aggregate.map(a => {
+                return KPIFilterHelper.CleanObjectKeys(a);
+            });
+        }
+
+        if (!field) {
+            return {};
+        }
+
+        const dataType = this._getDataType(field, aggregate);
+
+        return {
+            field: {
+                name: groupByField,
+                path: field.path,
+                type: dataType
+            },
+            aggregate: aggregate
+        };
+    }
+
+    private _updateAggregate(aggregate, input: MapMarkerGroupingInput, virtualSourceField): void {
+        if (isEmpty(aggregate)) {
+            return aggregate;
+        }
+        if (input.dateRange) {
+            this._updateMatchAggregatePipeline(aggregate, input);
+        }
+
+        if (input.grouping) {
+            this._updateGroupingPipeline(aggregate, input, virtualSourceField);
+        }
+
+        const projectStage = findStage(aggregate, '$project');
+        if (projectStage && projectStage.$project) {
+            const project = this._getProjectPipeline(aggregate, input, virtualSourceField);
+            if (project && !isEmpty(project.$project)) {
+                Object.assign(projectStage.$project, project.$project);
+            }
+        }
+
+        this._updateUnwindPipeline(aggregate, input, virtualSourceField);
+    }
+
+    private _updateMatchAggregatePipeline(aggregate, input: MapMarkerGroupingInput): void {
+        const matchStage = findStage(aggregate, '$match');
+        const dateRange = parsePredifinedDate(input.dateRange);
+
+        if (matchStage && moment(dateRange.from).isValid()) {
+            matchStage.$match['product.from'] = {
+                $gte: dateRange.from,
+                $lt: dateRange.to
+            };
+        }
+    }
+
+    private _updateGroupingPipeline(aggregate, input: MapMarkerGroupingInput, virtualSourceField): void {
+        const groupStage = findStage(aggregate, '$group');
+        if (groupStage) {
+            if (!groupStage.$group._id) {
+                groupStage.$group._id = {};
+            }
+            const grouping = virtualSourceField.field.type === 'Array' ? virtualSourceField.field.path : input.grouping;
+            groupStage.$group._id['grouping'] = '$' + grouping;
+        }
+    }
+
+    private _updateUnwindPipeline(aggregate, input: MapMarkerGroupingInput, virtualSourceField): void {
+        const unwindStage = findStage(aggregate, '$unwind');
+        if (unwindStage && unwindStage.$unwind) {
+            const path = virtualSourceField.field.type === 'Array' ? lowerCaseFirst(virtualSourceField.field.name) : input.grouping;
+            unwindStage.$unwind = {
+                path: `$${path}`,
+                preserveNullAndEmptyArrays: true
+            };
+        }
+    }
+
+    private _getProjectPipeline(aggregate, input: MapMarkerGroupingInput, virtualSourceField) {
+        const vsAggregate = virtualSourceField.aggregate;
+        return getProjectOptions(virtualSourceField.field.name, virtualSourceField.field.path, vsAggregate);
+    }
+
+    private _getDataType(field, aggregate): string {
+        if (isEmpty(aggregate)) {
+            return field.type;
+        }
+
+        const projectStage = findStage(aggregate, '$project');
+
+        if (!projectStage || !projectStage.$project) {
+            return field.type;
+        }
+
+        const projectPipeline = projectStage.$project;
+
+        // i.e. '$project['referralMain']
+        const projectSubDoc = projectPipeline[field.path];
+        if (isEmpty(projectSubDoc) || !isObject(projectSubDoc)) {
+            return field.type;
+        }
+
+        // i.e ['$arrayElemAt']
+        const subDocKeys = Object.keys(projectSubDoc);
+
+        const isArrayType = subDocKeys.find(k => k === '$arrayElemAt');
+        return isArrayType ? 'Array' : field.type;
+    }
+
+    private _noGroupingsMarkersFormatted(salesByZip: ISaleByZip[], zipList: IZipToMapDocument[]): MapMarker[] {
+        const salesObject: Dictionary<ISaleByZip> = keyBy(salesByZip, '_id.customerZip');
+
+        return zipList.map(zip => {
+            const value = salesObject[zip.zipCode].sales;
+            if (value >= SalesColorMap[MarkerColorEnum.Yellow].min) {
+                return {
+                    name: zip.zipCode,
+                    lat: zip.lat,
+                    lng: zip.lng,
+                    color: getMarkerColor(salesObject[zip.zipCode].sales),
+                    value: value,
+                    groupingName: salesObject[zip.zipCode]._id['grouping']
+                };
+            }
+        });
+    }
+
+    private _groupingMarkersFormatted(salesByZip: ISaleByZip[], zipList: IZipToMapDocument[], groupByField?: string): MapMarker[] {
+        if (isEmpty(salesByZip)) {
+            return [];
+        }
+        const zipCodes: Dictionary<IZipToMapDocument> = keyBy(zipList, 'zipCode');
+
+        return chain(salesByZip)
+                    .groupBy('_id.customerZip')
+                    // key = zipCode => i.e. 37703
+                    .map((value: ISaleByZip[], key: string) => {
+                        let itemList: MapMarkerItemList[] = [];
+                        let total: number = 0;
+
+                        for (let i = 0; i < value.length; i++) {
+                            if (value[i]) {
+                                const groupName: string = this._getGroupName(value, i, groupByField);
+                                const amount: number = value[i].sales;
+
+                                total += amount;
+
+                                if (amount >= SalesColorMap[MarkerColorEnum.Yellow].min) {
+                                    itemList.push({
+                                        amount: amount, // 50000
+                                        groupName: groupName // i.e. Knoxville
+                                    });
+                                }
+                            }
+                        }
+
+                        const canReturnMapMarker: boolean = this._canReturnMapMarker(key, zipCodes, total);
+                        if (canReturnMapMarker) {
+                            return {
+                                name: key,
+                                lat: zipCodes[key].lat,
+                                lng: zipCodes[key].lng,
+                                color: getMarkerColor(total),
+                                value: total,
+                                itemList: itemList
+                            };
+                        }
+                    })
+                    .filter(items => {
+                        return !isEmpty(items);
+                    })
+                    .value();
+    }
+
+    // check if not empty for key, zipCodes[key], and total is greater than 0.01
+    // in order to return object whose type is MapMarker
+    private _canReturnMapMarker(key: string, zipCodes: Dictionary<IZipToMapDocument>, total: number): boolean {
+        return key && zipCodes[key] && this._isTotalGreaterThanMininumValue(total);
+    }
+
+    // check if total is greater than 0.01
+    private _isTotalGreaterThanMininumValue(total: number): boolean {
+        return total > SalesColorMap[MarkerColorEnum.Yellow].min;
+    }
+
+    private _getGroupName(value: ISaleByZip[], index: number, groupByField?: string): string {
+        const item: ISaleByZipGrouping = value[index]._id;
+        let grouping: string;
+
+        // return 'Uncategorized*' if have no grouping value (i.e. Knoxville)
+        if (isEmpty(item) || isEmpty(item.grouping)) {
+            return NULL_CATEGORY_REPLACEMENT;
+        }
+
+        grouping = item.grouping;
+
+        // return grouping if groupByField not pass in parameter
+        if (isEmpty(groupByField)) {
+            return grouping;
+        }
+
+        // specific cases for referral.name, get category without comments
+        if (this._canGetGroupByFieldSplitValue(groupByField, grouping)) {
+            const splitReg: RegExp = /\:/;
+            grouping = grouping.split(splitReg)[0];
+        }
+
+        return grouping;
+    }
+
+    // check if can split grouping by colon(:), to get value from first position
+    // grouping.split
+    private _canGetGroupByFieldSplitValue(groupByField: string, grouping: string): boolean {
+        const reg: RegExp = /\./;
+        const referralMain: string = 'referralMain';
+
+        return referralMain === groupByField &&
+               reg.test(groupByField) && isString(grouping);
+    }
+}
+
+export enum MarkerColorEnum {
+    Black = 'black',
+    Purple = 'purple',
+    Red = 'red',
+    Blue = 'blue',
+    Green = 'green',
+    Yellow = 'yellow',
+    Navy = 'navy',
+    LightBlue = 'lightblue',
+    Pink = 'pink',
+    DarkBlue = 'darkblue'
+}
+
+export const SalesColorMap = {
+    yellow: { min: 0.01, max: 5000 },
+    lightblue: { min: 5001, max: 25000 },
+    pink: { min: 25001, max: 50000 },
+    green: { min: 50001, max: 250000 },
+    darkblue: { min: 250001, max: 500000 },
+    red: { min: 500001, max: 1000000 },
+    purple: { min: 1000001, max: 5000000 },
+    black: { min: 5000001, max: 5000000000 }
+};
+
+
+function getMarkerColor(sales: number): MarkerColorEnum {
+    const colors = Object.keys(SalesColorMap);
+    return colors.find(c => sales >= SalesColorMap[c].min && sales <= SalesColorMap[c].max) as MarkerColorEnum;
+}

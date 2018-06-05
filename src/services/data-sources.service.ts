@@ -26,7 +26,9 @@ export class DataSourcesService {
         let virtualSources = await this._virtualDatasources.model.getDataSources();
         virtualSources = await Bluebird.map(
                                     virtualSources,
-                                    async (virtualSource: DataSourceResponse) => await this.getCollectionSource(virtualSource));
+                                    async (virtualSource: DataSourceResponse) => await this.getCollectionSource(virtualSource), {
+                                        concurrency: 1
+                                    });
         return sortBy(virtualSources, 'name');
     }
 
@@ -67,6 +69,10 @@ export class DataSourcesService {
     async getDistinctValues(name: string, source: string, field: string, limit: number, filter: string): Promise<string[]> {
         try {
             const vs = await this._virtualDatasources.model.findOne({ name: { $regex: new RegExp(`^${name}$`, 'i') }  });
+            if (this._isGoogleAnalytics(vs.source)) {
+                return [];
+            }
+
             const model = (this._container.get(source) as any).model;
 
             let aggregate = [];
@@ -125,10 +131,13 @@ export class DataSourcesService {
             }
 
             // i.e ['APS Nextech ( nextech )']
-            const sources: string[] = await getFieldsWithData(this._container, dataSource, fields, collectionSource, aggregate);
+            let sources: string[] = await getFieldsWithData(this._container, dataSource, fields, collectionSource, aggregate) || [];
+            sources = sources.map(s => s.toLowerCase());
+
 
             virtualSource.fields.forEach((f: DataSourceField) => {
-                f.available = isEmpty(sources) ? false : sources.indexOf(f.name) !== -1;
+                f.available = isEmpty(sources) ? false :
+                              (sources.indexOf(f.name.toLowerCase()) !== -1 || sources.indexOf(f.path.toLowerCase()) !== -1);
             });
             return virtualSource.fields;
         } catch (err) {

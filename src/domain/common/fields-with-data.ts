@@ -1,7 +1,7 @@
 import { DataSourceField } from '../../app_modules/data-sources/data-sources.types';
 import { IValueName } from './value-name';
 import { Container } from 'inversify';
-import { isObject, isEmpty, isNull, pick, isNumber } from 'lodash';
+import { isObject, isEmpty, isNull, pick, isNumber, sortBy } from 'lodash';
 import {IObject} from '../../app_modules/shared/criteria.plugin';
 import * as Bluebird from 'bluebird';
 import { dotCase, camelCase } from 'change-case';
@@ -24,52 +24,18 @@ export async function getFieldsWithData(
 
         const model = (container.get(dataSource) as any).model;
         let fieldsWithData: string[] = [];
-
-        const collectionAggregations = [];
         let notIn = { '$nin': ['', null, 'null', 'undefined'] };
 
         if (!model) {
             return [];
         }
 
-        fields.forEach((field) => {
-            const fieldPath: string = (field as DataSourceField).path || (field as IValueName).value;
-            const fieldName: string = field.name;
-
-
-            const matchOptions = {
-                '$match': {
-                    [fieldPath]: notIn
-                }
-            };
-
-            const projectOptions = getProjectOptions(fieldName, fieldPath, aggregate);
-
-            if (!isEmpty(collectionSource)) {
-                Object.assign(matchOptions.$match, {
-                    source: {
-                        '$in': collectionSource
-                    }
-                });
-            }
-
-            let modelAggregate: ICollectionAggregation[] = [
-                projectOptions,
-                matchOptions, {
-                    '$limit': 1
-            }];
-
-            const unwindStage = findStage(aggregate, '$unwind');
-            if (!isEmpty(unwindStage)) {
-                modelAggregate.unshift(unwindStage);
-            }
-
-            collectionAggregations.push(
-                model.aggregate(modelAggregate)
-            );
-        });
-
-        fieldsWithData = await Bluebird.all(collectionAggregations);
+        fieldsWithData = await Bluebird.map(fields,
+                                async(field) => await getResult(field, model, notIn, aggregate, collectionSource)
+                                // , {
+                                //     concurrency: 1
+                                // }
+                                );
         if (fieldsWithData) {
             const formatToObject = transformToObject(fieldsWithData);
             fieldsWithData = Object.keys(formatToObject);
@@ -81,7 +47,73 @@ export async function getFieldsWithData(
     }
 }
 
-function getProjectOptions(fieldName: string, fieldPath: string, aggregate: any[]): IObject {
+async function getResult(field: DataSourceField|IValueName, model: any, notIn: IObject, aggregate: IObject[], collectionSource: string[]): Promise<any> {
+    const fieldPath: string = (field as DataSourceField).path || (field as IValueName).value;
+    const fieldName: string = field.name;
+
+    const matchOptions = {
+        '$match': {
+            [fieldPath]: notIn
+        }
+    };
+
+    const projectOptions = getProjectOptions(fieldName, fieldPath, aggregate);
+
+    if (!isEmpty(collectionSource)) {
+        Object.assign(matchOptions.$match, {
+            source: {
+                '$in': collectionSource
+            }
+        });
+    }
+
+    let modelAggregate: ICollectionAggregation[] = [
+        matchOptions,
+        projectOptions, {
+            '$limit': 1
+    }];
+
+    const unwindStage = findStage(aggregate, '$unwind');
+    if (!isEmpty(unwindStage)) {
+        if (sortByProject(modelAggregate, aggregate)) {
+            modelAggregate = sortBy(modelAggregate, '$project');
+        }
+        modelAggregate.unshift(unwindStage);
+    }
+
+    return await getAggregateResult(model, modelAggregate);
+}
+
+function getAggregateResult(model: any, aggObject: IObject[]): Promise<any> {
+    return new Promise<any>((resolve, reject) => {
+        model.aggregate(aggObject).exec((err, data) => {
+            resolve(data);
+        }, (e) => {
+            reject(e);
+        });
+    });
+}
+
+export function sortByProject(modelAggregate: any[], aggregate: any[]): boolean {
+    const matchStage = findStage(modelAggregate, '$match');
+    const projectStage = findStage(aggregate, '$project');
+
+    if (!hasMatchStage(matchStage) || !hasProjectStage(projectStage)) {
+        return false;
+    }
+
+    const modelKey: string = Object.keys(matchStage.$match)[0];
+    const projectKeys: any[] = Object.keys(projectStage.$project);
+
+    const found: number = projectKeys.findIndex(k => k === modelKey);
+
+    if (found !== -1) {
+        return true;
+    }
+    return false;
+}
+
+export function getProjectOptions(fieldName: string, fieldPath: string, aggregate: any[]): IObject {
     const defaultProjectOptions = {
         '$project': {
             [fieldName]: `$${fieldPath}`
@@ -129,6 +161,15 @@ export function transformToObject(arr: any[]): any {
 }
 
 
-function findStage(aggregate: any[], field: string) {
+function hasMatchStage(matchStage): boolean {
+    return matchStage && matchStage.$match;
+}
+
+function hasProjectStage(projectStage): boolean {
+    return projectStage && projectStage.$project;
+}
+
+
+export function findStage(aggregate: any[], field: string) {
     return aggregate.find(agg => agg[field] !== undefined);
 }
