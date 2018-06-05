@@ -71,6 +71,15 @@ export class KPIFilterCriteria {
     filter: string;
 }
 
+@input()
+export class KPIExpressionFieldInput {
+    @field({ type: GraphQLTypesMap.String })
+    dataSource: string;
+
+    @field({ type: GraphQLTypesMap.String, isArray: true })
+    collectionSource: string[];
+}
+
 @type()
 export class KPI  {
     @field({ type: GraphQLTypesMap.String })
