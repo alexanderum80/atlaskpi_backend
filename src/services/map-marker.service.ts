@@ -31,8 +31,11 @@ export interface IMapMarkerAggregate {
 }
 
 interface IVirtualSourceInfoFields {
+    // i.e. Referral
     name: string;
+    // i.e. referralMain
     path: string;
+    // Array|String
     type: string;
 }
 
