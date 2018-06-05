@@ -20,7 +20,7 @@ export class DataSourcesService {
 
     async getDistinctValues(name: string, source: string, field: string, limit: number, filter: string): Promise<string[]> {
         try {
-            const vs = await this._virtualDatasources.model.findOne({ name: { $regex: new RegExp(name, 'i') }  });
+            const vs = await this._virtualDatasources.model.findOne({ name: { $regex: new RegExp(`^${name}$`, 'i') }  });
             const model = (this._container.get(source) as any).model;
 
             let aggregate = [];
