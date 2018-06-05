@@ -1,5 +1,5 @@
 import { inject, injectable } from 'inversify';
-import { chain, Dictionary, isEmpty, keyBy } from 'lodash';
+import { chain, Dictionary, isEmpty, keyBy, isString } from 'lodash';
 
 import { ISaleByZip, ISaleByZipGrouping, TypeMap } from '../../../domain/app/sales/sale';
 import { Sales } from '../../../domain/app/sales/sale.model';
@@ -141,7 +141,7 @@ export class MapMarkersQuery implements IQuery < IMapMarker[] > {
         let grouping: string;
 
         if (isEmpty(item) || isEmpty(item.grouping)) {
-            grouping = NULL_CATEGORY_REPLACEMENT;
+            return NULL_CATEGORY_REPLACEMENT;
         }
 
         grouping = item.grouping;
@@ -151,18 +151,18 @@ export class MapMarkersQuery implements IQuery < IMapMarker[] > {
             return grouping;
         }
 
-        if (this._canGetGroupByFieldSplitValue(groupByField)) {
-            const splitReg: RegExp = /\./;
+        if (this._canGetGroupByFieldSplitValue(groupByField, grouping)) {
+            const splitReg: RegExp = /\:/;
             grouping = grouping.split(splitReg)[0];
         }
 
         return grouping;
     }
 
-    private _canGetGroupByFieldSplitValue(groupByField: string): boolean {
-        const reg: RegExp = /\:/;
+    private _canGetGroupByFieldSplitValue(groupByField: string, grouping: string): boolean {
+        const reg: RegExp = /\./;
         return groupingFieldTransformList.indexOf(groupByField) !== -1 &&
-               reg.test(groupByField);
+               reg.test(groupByField) && isString(grouping);
     }
 }
 
