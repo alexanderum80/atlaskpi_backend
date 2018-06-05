@@ -50,7 +50,7 @@ export async function getFieldsWithData(container: Container, dataSource: string
                 matchOptions
                 , {
                     '$project': {
-                        [fieldName]: fieldPath
+                        [fieldName]: `$${fieldPath}`
                     }
                 }, {
                     '$limit': 1
