@@ -115,8 +115,17 @@ export class DataSourcesService {
                 return this._getGoogleAnalyticsFields(fields);
             }
 
+            const name = virtualSource.name;
+            const vs = await this._virtualDatasources.model.findOne({ name: { $regex: new RegExp(`^${name}$`, 'i') }  });
+            let aggregate = [];
+            if (vs.aggregate) {
+                aggregate = vs.aggregate.map(a => {
+                    return KPIFilterHelper.CleanObjectKeys(a);
+                });
+            }
+
             // i.e ['APS Nextech ( nextech )']
-            const sources: string[] = await getFieldsWithData(this._container, dataSource, fields, collectionSource);
+            const sources: string[] = await getFieldsWithData(this._container, dataSource, fields, collectionSource, aggregate);
 
             virtualSource.fields.forEach((f: DataSourceField) => {
                 f.available = isEmpty(sources) ? false : sources.indexOf(f.name) !== -1;
