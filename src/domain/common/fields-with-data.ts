@@ -89,7 +89,7 @@ function getProjectOptions(fieldName: string, fieldPath: string, aggregate: any[
     }
     return {
         '$project': {
-            [fieldName]: fieldPath
+            [fieldName]: `$${fieldPath}`
         }
     };
 }
