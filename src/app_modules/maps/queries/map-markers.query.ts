@@ -20,9 +20,6 @@ export interface IMapMarker {
     value: number;
 }
 
-// i.e. referral.name = `${name}:${description}
-const groupingFieldTransformList: string[] = ['expense.concept', 'referral.name'];
-
 @injectable()
 @query({
     name: 'mapMarkers',
@@ -128,10 +125,13 @@ export class MapMarkersQuery implements IQuery < IMapMarker[] > {
                     .value();
     }
 
+    // check if not empty for key, zipCodes[key], and total is greater than 0.01
+    // in order to return object whose type is MapMarker
     private _canReturnMapMarker(key: string, zipCodes: Dictionary<IZipToMapDocument>, total: number): boolean {
         return key && zipCodes[key] && this._isTotalGreaterThanMininumValue(total);
     }
 
+    // check if total is greater than 0.01
     private _isTotalGreaterThanMininumValue(total: number): boolean {
         return total > SalesColorMap[MarkerColorEnum.Yellow].min;
     }
@@ -140,6 +140,7 @@ export class MapMarkersQuery implements IQuery < IMapMarker[] > {
         const item: ISaleByZipGrouping = value[index]._id;
         let grouping: string;
 
+        // return 'Uncategorized*' if have no grouping value (i.e. Knoxville)
         if (isEmpty(item) || isEmpty(item.grouping)) {
             return NULL_CATEGORY_REPLACEMENT;
         }
@@ -151,6 +152,7 @@ export class MapMarkersQuery implements IQuery < IMapMarker[] > {
             return grouping;
         }
 
+        // specific cases for referral.name, get category without comments
         if (this._canGetGroupByFieldSplitValue(groupByField, grouping)) {
             const splitReg: RegExp = /\:/;
             grouping = grouping.split(splitReg)[0];
@@ -159,9 +161,13 @@ export class MapMarkersQuery implements IQuery < IMapMarker[] > {
         return grouping;
     }
 
+    // check if can split grouping by colon(:), to get value from first position
+    // grouping.split
     private _canGetGroupByFieldSplitValue(groupByField: string, grouping: string): boolean {
         const reg: RegExp = /\./;
-        return groupingFieldTransformList.indexOf(groupByField) !== -1 &&
+        const referralMain: string = 'referralMain';
+
+        return referralMain === groupByField &&
                reg.test(groupByField) && isString(grouping);
     }
 }
