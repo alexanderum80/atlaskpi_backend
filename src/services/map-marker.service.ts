@@ -23,6 +23,24 @@ export interface IMapMarker {
     value: number;
 }
 
+export interface IMapMarkerAggregate {
+    $match?: Object;
+    $project?: Object;
+    $unwind?: Object;
+    $group?: Object;
+}
+
+interface IVirtualSourceInfoFields {
+    name: string;
+    path: string;
+    type: string;
+}
+
+interface IVirtualSourceFieldsInfo {
+    field: IVirtualSourceInfoFields;
+    aggregate: any[];
+}
+
 const REVENUE_BY_REFERRALS = 'revenue_by_referrals';
 
 @injectable()
@@ -34,84 +52,95 @@ export class MapMarkerService {
 
 
     async getMapMarkers(dataTypeMap: TypeMap, input: MapMarkerGroupingInput): Promise<IMapMarker[]> {
-        // i.e. input.grouping = 'Referral', fieldsMap name, not fieldsMap path
-        const aggregate = await this._getAggregateObject(dataTypeMap, input);
+        try {
+            // i.e. input.grouping = 'Referral', fieldsMap name, not fieldsMap path
+            const aggregate: IMapMarkerAggregate[] = await this._getAggregateObject(dataTypeMap, input);
 
-        if (isEmpty(aggregate)) {
-            return [];
-        }
+            if (isEmpty(aggregate)) {
+                return [];
+            }
 
-        const salesByZip = await this._sales.model.salesBy(aggregate);
-        // get the zip codes related
-        const zipList = await this._ZipToMaps.model.find({
-                            zipCode: {
-                                $in: salesByZip.map(d => d._id.customerZip)
-                            }});
+            const salesByZip = await this._sales.model.salesBy(aggregate);
+            // get the zip codes related
+            const zipList = await this._ZipToMaps.model.find({
+                                zipCode: {
+                                    $in: salesByZip.map(d => d._id.customerZip)
+                                }});
 
-        // convert array to object
-        let markers;
+            // convert array to object
+            let markers;
 
-        if (input) {
-            const groupByField = input['grouping'];
-            if (groupByField) {
-                markers = this._groupingMarkersFormatted(salesByZip, zipList, groupByField);
+            if (input) {
+                const groupByField = input['grouping'];
+                if (groupByField) {
+                    markers = this._groupingMarkersFormatted(salesByZip, zipList, groupByField);
+                } else {
+                    markers = this._noGroupingsMarkersFormatted(salesByZip, zipList);
+                }
             } else {
                 markers = this._noGroupingsMarkersFormatted(salesByZip, zipList);
             }
-        } else {
-            markers = this._noGroupingsMarkersFormatted(salesByZip, zipList);
-        }
 
-        return markers;
+            return markers;
+        } catch (err) {
+            console.error(err);
+            return [];
+        }
     }
 
-    private async _getAggregateObject(type: TypeMap, input: MapMarkerGroupingInput): Promise<any> {
-        let aggregate = [];
-        switch (type) {
-            case TypeMap.customerAndZip:
-                aggregate.push(
-                    { '$match': { 'product.amount': { '$gte': 0 } }},
-                    { '$project': { product: 1, _id: 0, customer: 1 }},
-                    { '$unwind': {} },
-                    { '$group': {
-                        _id: { customerZip: '$customer.zip' },
-                        sales: { '$sum': '$product.amount' }
-                    }}
-                );
-                if (input && isObject(input)) {
-                    const vs = await this._virtualSources.model.findOne({
-                        name: REVENUE_BY_REFERRALS,
-                    });
+    private async _getAggregateObject(type: TypeMap, input: MapMarkerGroupingInput): Promise<any[]> {
+        try {
+            let aggregate: IMapMarkerAggregate[] = [];
+            switch (type) {
+                case TypeMap.customerAndZip:
+                    aggregate.push(
+                        { '$match': { 'product.amount': { '$gte': 0 } }},
+                        { '$project': { product: 1, _id: 0, customer: 1 }},
+                        { '$unwind': {} },
+                        { '$group': {
+                            _id: { customerZip: '$customer.zip' },
+                            sales: { '$sum': '$product.amount' }
+                        }}
+                    );
+                    if (input && isObject(input)) {
+                        const vs = await this._virtualSources.model.findOne({
+                            name: REVENUE_BY_REFERRALS,
+                        });
 
-                    const virtualSourceField = this._virtualSourceField(vs, input.grouping);
-                    this._updateAggregate(aggregate, input, virtualSourceField);
+                        const vsFieldsInfo: IVirtualSourceFieldsInfo = this._vsFieldsInfo(vs, input.grouping);
+                        this._updateAggregate(aggregate, input, vsFieldsInfo);
 
-                    if (this._sortByUnwind(aggregate, virtualSourceField)) {
-                        aggregate = this._getSortedAggregate(aggregate);
+                        if (this._sortByUnwind(aggregate, vsFieldsInfo)) {
+                            aggregate = this._getSortedAggregate(aggregate);
+                        }
                     }
-                }
 
-                aggregate = this._filterEmptyUnwindPipe(aggregate);
-            case TypeMap.productAndZip:
-                break;
+                    aggregate = this._filterEmptyUnwindPipe(aggregate);
+                case TypeMap.productAndZip:
+                    break;
+            }
+            return aggregate;
+        } catch (err) {
+            console.error(err);
+            throw new Error('error getting aggregate object');
         }
-        return aggregate;
     }
 
-    private _sortByUnwind(aggregate, virtualSourceField): boolean {
+    private _sortByUnwind(aggregate, vsFieldsInfo: IVirtualSourceFieldsInfo): boolean {
         const projectStage = findStage(aggregate, '$project');
         if (!projectStage || !projectStage.$project) {
             return false;
         }
         const pipline = projectStage.$project;
-        const pipelineKeys = Object.keys(pipline);
+        const pipelineKeys: string[] = Object.keys(pipline);
 
-        return pipelineKeys.indexOf(virtualSourceField.field.path) !== -1;
+        return pipelineKeys.indexOf(vsFieldsInfo.field.path) !== -1;
     }
 
-    private _getSortedAggregate(aggregate): any {
+    private _getSortedAggregate(aggregate): any[] {
         let agg = sortBy(aggregate, '$project');
         const unwindStage = findStage(aggregate, '$unwind');
+
         agg = agg.filter(a => !a.$unwind);
         agg.unshift(unwindStage);
 
@@ -119,16 +148,16 @@ export class MapMarkerService {
     }
 
     private _filterEmptyUnwindPipe(aggregate: any[]): any[] {
-        let findStage = aggregate.find((agg) => agg.$unwind !== undefined);
+        const unwindStage = findStage(aggregate, '$unwind');
 
-        if (isEmpty(findStage.$unwind)) {
-            delete findStage.$unwind;
+        if (isEmpty(unwindStage.$unwind)) {
+            delete unwindStage.$unwind;
         }
 
         return filter(aggregate, (agg) => !isEmpty(agg));
     }
 
-    private _virtualSourceField(virtualSource: IVirtualSourceDocument, groupByField: string): any {
+    private _vsFieldsInfo(virtualSource: IVirtualSourceDocument, groupByField: string): any {
         if (isEmpty(virtualSource) || !groupByField) {
             return {};
         }
@@ -158,30 +187,30 @@ export class MapMarkerService {
         };
     }
 
-    private _updateAggregate(aggregate, input: MapMarkerGroupingInput, virtualSourceField): void {
+    private _updateAggregate(aggregate: IMapMarkerAggregate[], input: MapMarkerGroupingInput, vsFieldsInfo: IVirtualSourceFieldsInfo): void {
         if (isEmpty(aggregate)) {
-            return aggregate;
+            return;
         }
         if (input.dateRange) {
             this._updateMatchAggregatePipeline(aggregate, input);
         }
 
         if (input.grouping) {
-            this._updateGroupingPipeline(aggregate, input, virtualSourceField);
+            this._updateGroupingPipeline(aggregate, input, vsFieldsInfo);
         }
 
         const projectStage = findStage(aggregate, '$project');
         if (projectStage && projectStage.$project) {
-            const project = this._getProjectPipeline(aggregate, input, virtualSourceField);
+            const project = this._getProjectPipeline(aggregate, input, vsFieldsInfo);
             if (project && !isEmpty(project.$project)) {
                 Object.assign(projectStage.$project, project.$project);
             }
         }
 
-        this._updateUnwindPipeline(aggregate, input, virtualSourceField);
+        this._updateUnwindPipeline(aggregate, input, vsFieldsInfo);
     }
 
-    private _updateMatchAggregatePipeline(aggregate, input: MapMarkerGroupingInput): void {
+    private _updateMatchAggregatePipeline(aggregate: IMapMarkerAggregate[], input: MapMarkerGroupingInput): void {
         const matchStage = findStage(aggregate, '$match');
         const dateRange = parsePredifinedDate(input.dateRange);
 
@@ -193,21 +222,21 @@ export class MapMarkerService {
         }
     }
 
-    private _updateGroupingPipeline(aggregate, input: MapMarkerGroupingInput, virtualSourceField): void {
+    private _updateGroupingPipeline(aggregate: IMapMarkerAggregate[], input: MapMarkerGroupingInput, vsFieldsInfo: IVirtualSourceFieldsInfo): void {
         const groupStage = findStage(aggregate, '$group');
         if (groupStage) {
             if (!groupStage.$group._id) {
                 groupStage.$group._id = {};
             }
-            const grouping = virtualSourceField.field.type === 'Array' ? virtualSourceField.field.path : input.grouping;
+            const grouping = vsFieldsInfo.field.type === 'Array' ? vsFieldsInfo.field.path : input.grouping;
             groupStage.$group._id['grouping'] = '$' + grouping;
         }
     }
 
-    private _updateUnwindPipeline(aggregate, input: MapMarkerGroupingInput, virtualSourceField): void {
+    private _updateUnwindPipeline(aggregate: IMapMarkerAggregate[], input: MapMarkerGroupingInput, vsFieldsInfo: IVirtualSourceFieldsInfo): void {
         const unwindStage = findStage(aggregate, '$unwind');
         if (unwindStage && unwindStage.$unwind) {
-            const path = virtualSourceField.field.type === 'Array' ? lowerCaseFirst(virtualSourceField.field.name) : input.grouping;
+            const path = vsFieldsInfo.field.type === 'Array' ? lowerCaseFirst(vsFieldsInfo.field.name) : input.grouping;
             unwindStage.$unwind = {
                 path: `$${path}`,
                 preserveNullAndEmptyArrays: true
@@ -215,9 +244,9 @@ export class MapMarkerService {
         }
     }
 
-    private _getProjectPipeline(aggregate, input: MapMarkerGroupingInput, virtualSourceField) {
-        const vsAggregate = virtualSourceField.aggregate;
-        return getProjectOptions(virtualSourceField.field.name, virtualSourceField.field.path, vsAggregate);
+    private _getProjectPipeline(aggregate: IMapMarkerAggregate[], input: MapMarkerGroupingInput, vsFieldsInfo: IVirtualSourceFieldsInfo) {
+        const vsAggregate = vsFieldsInfo.aggregate;
+        return getProjectOptions(vsFieldsInfo.field.name, vsFieldsInfo.field.path, vsAggregate);
     }
 
     private _getDataType(field, aggregate): string {
