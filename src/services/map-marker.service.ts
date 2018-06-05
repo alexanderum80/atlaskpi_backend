@@ -236,10 +236,13 @@ export class MapMarkerService {
                 groupStage.$group._id = {};
             }
 
-            if (!isEmpty(vsFieldsInfo)) {
-                const grouping: string = vsFieldsInfo.field.type === 'Array' ? vsFieldsInfo.field.path : input.grouping;
-                groupStage.$group._id['grouping'] = '$' + grouping;
+            let grouping: string;
+            if (isEmpty(vsFieldsInfo)) {
+                grouping = lowerCaseFirst(input.grouping);
+            } else {
+                grouping = vsFieldsInfo.field.path;
             }
+            groupStage.$group._id['grouping'] = '$' + grouping;
         }
     }
 
@@ -249,9 +252,9 @@ export class MapMarkerService {
         if (unwindStage && unwindStage.$unwind) {
             let path: string;
             if (!isEmpty(vsFieldsInfo)) {
-                path = input.grouping;
+                path = lowerCaseFirst(input.grouping);
             } else {
-                path = vsFieldsInfo.field.type === 'Array' ? lowerCaseFirst(vsFieldsInfo.field.name) : input.grouping;
+                path = vsFieldsInfo.field.type === 'Array' ? lowerCaseFirst(vsFieldsInfo.field.name) : vsFieldsInfo.field.path;
             }
 
             unwindStage.$unwind = {
