@@ -105,6 +105,7 @@ export class MapMarkerService {
                             sales: { '$sum': '$product.amount' }
                         }}
                     );
+
                     if (input && isObject(input)) {
                         const vs = await this._virtualSources.model.findOne({
                             name: REVENUE_BY_REFERRALS,
