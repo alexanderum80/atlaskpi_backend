@@ -1,13 +1,6 @@
-import { PnsService } from '../../../services/pns.service';
-import { TargetNotification } from '../../../services/notifications/users/target.notification';
-import { IUserDocument } from '../../../domain/app/security/users/user';
-import { IChartDocument } from '../../../domain/app/charts/chart';
-import { Users } from '../../../domain/app/security/users/user.model';
-import { Charts } from '../../../domain/app/charts/chart.model';
-import { Dashboards } from '../../../domain/app/dashboards/dashboard.model';
+import { TargetService } from '../../../services/target.service';
 import { NotificationInput, NotificationResponse } from '../targets.types';
 import { TargetNotificationActivity } from '../activities/target-notification.activity';
-import * as Promise from 'bluebird';
 import { inject, injectable } from 'inversify';
 import { query } from '../../../framework/decorators/query.decorator';
 import { IQuery } from '../../../framework/queries/query';
@@ -24,62 +17,15 @@ import { isNumber } from 'lodash';
 })
 export class TargetNotificationQuery implements IQuery<boolean> {
     constructor(
-        @inject(Charts.name) private _chart: Charts,
-        @inject(Dashboards.name) private _dashboard: Dashboards,
-        @inject(Users.name) private _user: Users,
-        @inject(TargetNotification.name) private _targetNotification: TargetNotification,
-        @inject(PnsService.name) private _pnsService: PnsService
+        @inject(TargetService.name) private _targetSvc: TargetService
     ) {}
 
-    run(data: { input: NotificationInput }): Promise<boolean> {
-        const that = this;
-
-        return new Promise<boolean>((resolve, reject) => {
-            const that = this;
+    async run(data: { input: NotificationInput }): Promise<boolean> {
+        try {
             const input = data.input;
-
-            const chartQuery = that._chart.model.findById(input.chartId);
-            const dashboardQuery = that._dashboard.model.findDashboardByChartId(input.chartId);
-            const userQuery = that._user.model.findUsersById(input.usersId);
-
-            Promise.all([chartQuery, dashboardQuery, userQuery])
-                .spread(( chart: IChartDocument, dashboard: string, users: IUserDocument[]) => {
-                    // pass data to the notification
-                    if (!chart || !dashboard || !users) {
-                        reject({ field: 'target notification', errors: 'inefficient data'});
-                        return;
-                    }
-
-                    if (!isNumber(input.targetAmount)) {
-                        input.targetAmount = parseFloat(input.targetAmount);
-                    }
-
-                    if (!isNumber(input.targetMet)) {
-                        input.targetMet = parseFloat(input.targetMet);
-                    }
-
-                    const notifyData = {
-                        targetName: input.targetName,
-                        targetAmount: input.targetAmount.toFixed(2),
-                        targetMet: input.targetMet.toFixed(2),
-                        targetDate: input.targetDate,
-                        dashboardName: dashboard,
-                        chartName: chart.title,
-                        businessUnitName: input.businessUnit
-                    };
-
-                    const message = `
-                        This is a notification for the target ${notifyData.targetName} you set for ${notifyData.businessUnitName}, 
-                        to date you have reached $${notifyData.targetMet} of your targeted $${notifyData.targetAmount} for 
-                        ${notifyData.targetDate}. You can access this on your ${notifyData.dashboardName} dashboard on the chart called 
-                        ${notifyData.chartName}.
-                    `;
-                    this._pnsService.sendNotifications(users, message);
-
-                    users.forEach(user => that._targetNotification.notify(user, user.username, notifyData));
-                    resolve(true);
-                    return;
-                });
-        });
+            return await this._targetSvc.sendNotification(input);
+        } catch (err) {
+            return ({ field: 'target notification', errors: 'unable to send notifications' }) as any;
+        }
     }
 }

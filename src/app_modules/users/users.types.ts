@@ -5,6 +5,8 @@ import { input } from '../../framework/decorators/input.decorator';
 import { ErrorDetails } from '../../framework/graphql/common.types';
 import { Role } from '../roles/roles.types';
 import { PaginationInfo } from '../shared/shared.types';
+import {resolver} from '../../framework/decorators/resolver.decorator';
+import {IUserPreference} from '../../domain/app/security/users/user';
 
 
 @input()
@@ -112,6 +114,12 @@ export class ITourInput {
 
     @field({ type: GraphQLTypesMap.Boolean })
     showAppointmentCancelled: boolean;
+
+    @field({ type: GraphQLTypesMap.String, isArray: true })
+    providers: string[];
+
+    @field({ type: GraphQLTypesMap.String })
+    calendarTimeZone: string;
 }
 
 @input()
@@ -295,6 +303,15 @@ export class UserPreference {
 
     @field({ type: GraphQLTypesMap.Boolean })
     showAppointmentCancelled: boolean;
+
+    @field({ type: GraphQLTypesMap.String })
+    providers: string;
+
+    @field({ type: GraphQLTypesMap.String })
+    calendarTimeZone: string;
+
+    @resolver({ forField: 'providers' })
+    static resolveProviders = (entity: IUserPreference) => entity.providers.join('|')
 }
 
 @type()

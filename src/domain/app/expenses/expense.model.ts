@@ -23,7 +23,7 @@ let BusinessUnitSchema = {
 
 export const ExpenseSchema = new Schema({
     source: String,
-    externalId: { type: String, unique: true },
+    externalId: { type: String },
     location: IdNameSchema,
     expense: {
         type: { type: String },

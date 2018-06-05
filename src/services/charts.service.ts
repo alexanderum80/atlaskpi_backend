@@ -97,6 +97,8 @@ export class ChartsService {
                 top: (options && options.top) || chart.top,
                 isDrillDown: options && options.isDrillDown || false,
                 isFutureTarget: options && options.isFutureTarget || false,
+                sortingCriteria: chart.sortingCriteria,
+                sortingOrder: chart.sortingOrder
             };
 
             chart.targetExtraPeriodOptions = this._getTargetExtraPeriodOptions(meta.frequency, chart.dateRange);
@@ -170,7 +172,7 @@ export class ChartsService {
                     // update dateRange, frequency, grouping, isDrillDown
                     // use case: change daterange and frequency in chart view of dashboard
                     const chartOptions: PartialDeep<IChartInput> = pick(input,
-                                ['dateRange', 'frequency', 'groupings', 'isDrillDown']
+                                ['dateRange', 'frequency', 'groupings', 'isDrillDown', 'xAxisSource']
                     );
                     Object.assign(chart, chartOptions);
                 }

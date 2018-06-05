@@ -11,6 +11,7 @@ import { KPI } from '../../app_modules/kpis/kpis.types';
 import { AppConnection } from '../../domain/app/app.connection';
 import { Charts } from '../../domain/app/charts/chart.model';
 import { Dashboards } from '../../domain/app/dashboards/dashboard.model';
+import { Appointments } from '../../domain/app/appointments/appointment-model';
 import { Expenses } from '../../domain/app/expenses/expense.model';
 import { KPIs } from '../../domain/app/kpis/kpi.model';
 import { Sales } from '../../domain/app/sales/sale.model';
@@ -18,10 +19,11 @@ import { Inventory } from '../../domain/app/inventory/inventory.model';
 import { WorkLog } from '../../domain/app/work-log/work-log';
 import { Worklogs } from '../../domain/app/work-log/work-log.model';
 import { VirtualSources } from '../../domain/app/virtual-sources/virtual-source.model';
-
+import {Widgets} from '../../domain/app/widgets/widget.model';
 
 
 interface ISeedModels {
+    Appointment: Appointments;
     Expense: Expenses;
     Sale: Sales;
     Inventory: Inventory;
@@ -29,6 +31,7 @@ interface ISeedModels {
     KPI: KPIs;
     Chart: Charts;
     Dashboard: Dashboards;
+    Widget: Widgets;
     VirtualSource: VirtualSources;
 }
 
@@ -38,6 +41,7 @@ export class SeedService {
 
     constructor(@inject(AppConnection.name) appConnection: AppConnection) {
         this._models = {
+            Appointment: new Appointments(appConnection),
             Expense: new Expenses(appConnection),
             Sale: new Sales(appConnection),
             WorkLog: new Worklogs(appConnection),
@@ -45,12 +49,17 @@ export class SeedService {
             KPI: new KPIs(appConnection),
             Chart: new Charts(appConnection),
             Dashboard: new Dashboards(appConnection),
+            Widget: new Widgets(appConnection),
             VirtualSource: new VirtualSources(appConnection)
         };
     }
 
     seedApp() {
         let dataFiles = [{
+                model: 'Appointment',
+                filename: 'appointments.json'
+            },
+            {
                 model: 'Expense',
                 filename: 'expenses.json'
             },
@@ -77,6 +86,10 @@ export class SeedService {
             {
                 model: 'Dashboard',
                 filename: 'dashboards.json'
+            },
+            {
+                model: 'Widget',
+                filename: 'widgets.json'
             },
             {
                 model: 'VirtualSource',

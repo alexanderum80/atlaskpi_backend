@@ -7,7 +7,7 @@ import { query } from '../../../framework/decorators/query.decorator';
 import { MutationBase } from '../../../framework/mutations/mutation-base';
 import { ISaleDocument } from '../../../domain/app/sales/sale';
 import { Sales } from '../../../domain/app/sales/sale.model';
-import { SalesAmount } from '../activities.types';
+import { MonthAvgSalesAmount } from '../activities.types';
 import { parsePredifinedDate } from '../../../domain/common/date-range';
 import { MonthAvgSalesActivity } from '../activities/month-avg-sales.activity';
 
@@ -18,7 +18,7 @@ import { MonthAvgSalesActivity } from '../activities/month-avg-sales.activity';
     parameters: [
         { name: 'date', type: String, required: true },
     ],
-    output: { type: SalesAmount, isArray: true }
+    output: { type: MonthAvgSalesAmount, isArray: true }
 })
 export class MonthAvgSalesQuery extends MutationBase<Object> {
     constructor(@inject(Sales.name) private _sales: Sales) {

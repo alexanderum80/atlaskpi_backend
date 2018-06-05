@@ -4,5 +4,6 @@
     "typescriptHero.resolver.insertSpaceBeforeAndAfterImportBraces": true,
 
     "git.enabled": true,
-    "typescript.check.workspaceVersion": false
+    "typescript.check.workspaceVersion": false,
+    "git.ignoreLimitWarning": true
 }

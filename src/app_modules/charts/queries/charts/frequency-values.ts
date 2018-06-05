@@ -41,8 +41,8 @@ export class FrequencyHelper {
         };
     }
 
-    getCategories(frequency: FrequencyEnum): IXAxisCategory[] {
-        let sequence = getFrequencySequence(frequency);
+    getCategories(data: any, frequency: FrequencyEnum, groupingField: string , sortingCriteria: string , sortingOrder: string): IXAxisCategory[] {
+        let sequence = getFrequencySequence(data, frequency, groupingField , sortingCriteria , sortingOrder);
 
         switch (frequency) {
             case FrequencyEnum.Daily:
@@ -56,7 +56,7 @@ export class FrequencyHelper {
                 return sequence.map(f => { return { id: f, name: `Q${f}` }; });
 
             case FrequencyEnum.Yearly:
-                return this._years.map(y => { return { id: y, name: String(y) }; });
+                return sequence.map(y => { return { id: y, name: String(y) }; });
         }
 
         return [];

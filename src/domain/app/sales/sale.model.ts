@@ -52,7 +52,7 @@ const SaleReferralSchema = {
 
 let SalesSchema = new Schema ({
     source: String,
-    externalId: { type: String, unique: true },
+    externalId: { type: String },
     billId: String,
     location: (<any>getLocationSchema()),
     customer: (<any>getCustomerSchema()),

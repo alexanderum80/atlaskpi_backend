@@ -1,32 +1,16 @@
-import { IAlert, IAlertDocument, IAlertInfo, IAlertModel } from './alert';
+import { IAlertDocument, IAlertInfo, IAlertModel } from './alert';
 import { input } from '../../../framework/decorators/input.decorator';
 import { ModelBase } from '../../../type-mongo/model-base';
 import { AppConnection } from '../app.connection';
 
 import { inject, injectable } from 'inversify';
-import { isArray, isEqual } from 'lodash';
+import { isArray, isEqual, isBoolean, isEmpty } from 'lodash';
 import * as mongoose from 'mongoose';
 import * as BlueBird from 'bluebird';
 import * as validate from 'validate.js';
 import * as moment from 'moment';
 
 const Schema = mongoose.Schema;
-
-const AlertInfoSchema = {
-    // list of users
-    notify_users: [{
-        // type: Schema.Types.String,
-        type: Schema.Types.ObjectId,
-        ref: 'User',
-        required: true
-    }],
-    // i.e. every business day
-    frequency: { type: String, required: true },
-    // alert is active or inactive
-    active: {type: Boolean, required: true},
-    push_notification: Boolean,
-    email_notified: Boolean
-};
 
 const AlertModelInfoSchema = {
     name: {
@@ -40,8 +24,19 @@ const AlertModelInfoSchema = {
 };
 
 const AlertSchema = new Schema({
-    alertInfo: [AlertInfoSchema],
-    model_alert: {
+    notifyUsers: [{
+        // type: Schema.Types.String,
+        type: Schema.Types.ObjectId,
+        ref: 'User',
+        required: true
+    }],
+    // i.e. every business day
+    frequency: { type: String, required: true },
+    // alert is active or inactive
+    active: {type: Boolean, required: true},
+    pushNotification: Boolean,
+    emailNotified: Boolean,
+    modelAlert: {
         type: AlertModelInfoSchema,
         required: true
     },
@@ -58,12 +53,12 @@ const AlertSchema = new Schema({
 
 
 
-AlertSchema.statics.alertByWidgetId = function(id: string): BlueBird<IAlertDocument> {
+AlertSchema.statics.alertByWidgetId = function(id: string): BlueBird<IAlertDocument[]> {
     const alertModel = (<IAlertModel>this);
 
-    return new BlueBird<IAlertDocument>((resolve, reject) => {
-        alertModel.findOne({ 'model_alert.id': id })
-            .then((result: IAlertDocument) => {
+    return new BlueBird<IAlertDocument[]>((resolve, reject) => {
+        alertModel.find({ 'modelAlert.id': id })
+            .then((result: IAlertDocument[]) => {
                 resolve(result);
                 return;
             })
@@ -78,21 +73,8 @@ AlertSchema.statics.createAlert = function(input: IAlertInfo): BlueBird<IAlertDo
     const alertModel = (<IAlertModel>this);
 
     return new BlueBird<IAlertDocument>((resolve, reject) => {
-        if (!input || !input.alertInfo || !input.alertInfo.length) {
+        if (!input || isEmpty(input)) {
             reject({ name: 'no data provided', message: 'no data provided' });
-            return;
-        }
-
-        let hasNotification: boolean = true;
-        // push_notification or email_notified must have value if active is true
-        input.alertInfo.forEach((info: IAlert) => {
-            if (info.active) {
-                hasNotification = hasNotification && (info.push_notification || info.email_notified);
-            }
-        });
-
-        if (!hasNotification) {
-            reject({name: 'notification required', message: 'push notification or email notified must not be blank'});
             return;
         }
 
@@ -115,21 +97,8 @@ AlertSchema.statics.updateAlert = function(id: string, input: IAlertInfo): BlueB
         if (!id) {
             reject({ name: 'no id', message: 'no id has been provided' });
         }
-        if (!input || !input.alertInfo || !input.alertInfo.length) {
+        if (!input || isEmpty(input)) {
             reject({ name: 'no data provided', message: 'no data provided' });
-            return;
-        }
-
-        let hasNotification: boolean = true;
-        // push_notification or email_notified must have value if active is true
-        input.alertInfo.forEach((info: IAlert) => {
-            if (info.active) {
-                hasNotification = hasNotification && (info.push_notification || info.email_notified);
-            }
-        });
-
-        if (!hasNotification) {
-            reject({name: 'notification required', message: 'push notification or email notified must not be blank'});
             return;
         }
 
@@ -144,6 +113,66 @@ AlertSchema.statics.updateAlert = function(id: string, input: IAlertInfo): BlueB
     });
 };
 
+AlertSchema.statics.updateAlertActiveField = function(id: string, active: boolean): BlueBird<IAlertDocument> {
+    const alertModel = (<IAlertModel>this);
+
+    return new BlueBird<IAlertDocument>((resolve, reject) => {
+        if (!isBoolean(active)) {
+            reject({ name: 'no active value', message: 'no active provided'});
+            return;
+        }
+
+        if (!id) {
+            reject({ name: 'no id', message: 'no id provided'});
+            return;
+        }
+
+        alertModel.findById(id).then(alert => {
+            if (alert) {
+                alert.active = active;
+                alert.save((err, alert: IAlertDocument) => {
+                    if (err) {
+                        reject(err);
+                        return;
+                    }
+
+                    resolve(alert);
+                    return;
+                });
+            }
+        }).catch(err => {
+            reject(err);
+        });
+    });
+};
+
+AlertSchema.statics.removeAlert = function(id: string): BlueBird<IAlertDocument> {
+    const alertModel = (<IAlertModel>this);
+
+    return new BlueBird<IAlertDocument>((resolve, reject) => {
+        if (!id) {
+            reject({ name: 'no id', message: 'no id provided' });
+        }
+
+        alertModel.findById(id).then((alert: IAlertDocument) => {
+            if (!alert) {
+                reject({ name: 'no alert found', message: 'no alert found' });
+                return;
+            }
+
+            alert.remove((err, deletedAlert) => {
+                if (err) {
+                    reject(err);
+                    return;
+                }
+
+                resolve(alert);
+                return;
+            });
+        });
+    });
+};
+
 AlertSchema.statics.removeAlertByModelId = function(id: string): BlueBird<IAlertDocument> {
     const alertModel = (<IAlertModel>this);
 
@@ -153,7 +182,7 @@ AlertSchema.statics.removeAlertByModelId = function(id: string): BlueBird<IAlert
             return;
         }
 
-        alertModel.findOne({ 'model_alert.id': id }).then((alert: IAlertDocument) => {
+        alertModel.findOne({ 'modelAlert.id': id }).then((alert: IAlertDocument) => {
             if (!alert) {
                 resolve(null);
                 return;
@@ -168,6 +197,8 @@ AlertSchema.statics.removeAlertByModelId = function(id: string): BlueBird<IAlert
                 resolve(alert);
                 return;
             });
+        }).catch(err => {
+            reject(err);
         });
     });
 };
@@ -177,7 +208,7 @@ AlertSchema.statics.removeDeleteUser = async function(id: string): Promise<boole
     try {
         const removeUser = await this.update(
             {}, {
-                'alertInfo.$.notify_users': {
+                'notifyUsers': {
                     $in: [id]
                 }
             }, {

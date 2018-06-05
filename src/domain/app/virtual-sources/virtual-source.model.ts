@@ -72,7 +72,8 @@ async function getDataSources(names?: string[]): Promise<DataSourceResponse[]> {
         const query = names ? { name: { $in: names } } : { };
         const virtualSources = await model.find(query);
         const dataSources: DataSourceResponse[] = virtualSources.map(ds => {
-            const fieldNames = Object.keys(ds.fieldsMap);
+            // with the new feature to filter kpi by sources we do not need to send the "source" field anymore
+            const fieldNames = Object.keys(ds.fieldsMap).filter(k => k.toLowerCase() !== 'source').sort();
             const fields = fieldNames.map(f => ({
                 name: f,
                 path: ds.fieldsMap[f].path,

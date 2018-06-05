@@ -1,4 +1,3 @@
-import { Logger } from './../../../domain/app/logger';
 import * as Promise from 'bluebird';
 import { inject, injectable } from 'inversify';
 
@@ -8,11 +7,16 @@ import { IQuery } from '../../../framework/queries/query';
 import { WidgetsService } from '../../../services/widgets.service';
 import { ListWidgetsActivity } from '../activities/list-widgets.activity';
 import { Widget } from '../widgets.types';
+import { Logger } from './../../../domain/app/logger';
+import { GraphQLTypesMap } from './../../../framework/decorators/graphql-types-map';
 
 @injectable()
 @query({
     name: 'listWidgets',
     activity: ListWidgetsActivity,
+    parameters: [
+        { name: 'materialize', type: GraphQLTypesMap.Boolean }
+    ],
     output: { type: Widget, isArray: true }
 })
 export class ListWidgetsQuery implements IQuery<IUIWidget[]> {
@@ -21,11 +25,11 @@ export class ListWidgetsQuery implements IQuery<IUIWidget[]> {
         @inject(Logger.name) private _logger: Logger
     ) { }
 
-    run(data: { id: string }): Promise<IUIWidget[]> {
+    run(data = { materialize: true }): Promise<IUIWidget[]> {
         const that = this;
         return new Promise<IUIWidget[]>((resolve, reject) => {
             that._widgetsService
-                .listWidgets()
+                .listWidgets(data)
                 .then(widgets => {
                     return resolve(widgets); })
                 .catch(err => {
