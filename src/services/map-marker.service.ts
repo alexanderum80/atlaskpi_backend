@@ -1,4 +1,4 @@
-import { parsePredifinedDate } from '../domain/common/date-range';
+import { IDateRange, parsePredifinedDate } from '../domain/common/date-range';
 import { VirtualSources } from '../domain/app/virtual-sources/virtual-source.model';
 import { injectable, inject } from 'inversify';
 import { chain, Dictionary, isEmpty, keyBy, isString, isObject, filter, sortBy } from 'lodash';
@@ -8,7 +8,7 @@ import {ISaleByZip, ISaleByZipGrouping, TypeMap} from '../domain/app/sales/sale'
 import {NULL_CATEGORY_REPLACEMENT} from '../app_modules/charts/queries/charts/ui-chart-base';
 import {MapMarkerItemList, MapMarker, MapMarkerGroupingInput} from '../app_modules/maps/map.types';
 import {IZipToMapDocument} from '../domain/master/zip-to-map/zip-to-map';
-import {IVirtualSourceDocument} from '../domain/app/virtual-sources/virtual-source';
+import { IFieldMetadata, IVirtualSourceDocument, IVirtualSourceFields } from '../domain/app/virtual-sources/virtual-source';
 import {IObject} from '../app_modules/shared/criteria.plugin';
 import {KPIFilterHelper} from '../domain/app/kpis/kpi-filter.helper';
 import * as moment from 'moment';
@@ -56,7 +56,7 @@ export class MapMarkerService {
 
     async getMapMarkers(dataTypeMap: TypeMap, input: MapMarkerGroupingInput): Promise<IMapMarker[]> {
         try {
-            // i.e. input.grouping = 'Referral', fieldsMap name, not fieldsMap path
+            // i.e. input.grouping = 'Referral'
             const aggregate: IMapMarkerAggregate[] = await this._getAggregateObject(dataTypeMap, input);
 
             if (isEmpty(aggregate)) {
@@ -134,15 +134,16 @@ export class MapMarkerService {
         if (!projectStage || !projectStage.$project) {
             return false;
         }
+
         const pipline = projectStage.$project;
         const pipelineKeys: string[] = Object.keys(pipline);
 
         return pipelineKeys.indexOf(vsFieldsInfo.field.path) !== -1;
     }
 
-    private _getSortedAggregate(aggregate): any[] {
-        let agg = sortBy(aggregate, '$project');
-        const unwindStage = findStage(aggregate, '$unwind');
+    private _getSortedAggregate(aggregate: IMapMarkerAggregate[]): IMapMarkerAggregate[] {
+        let agg: IMapMarkerAggregate[] = sortBy(aggregate, '$project');
+        const unwindStage: IMapMarkerAggregate = findStage(aggregate, '$unwind');
 
         agg = agg.filter(a => !a.$unwind);
         agg.unshift(unwindStage);
@@ -151,7 +152,7 @@ export class MapMarkerService {
     }
 
     private _filterEmptyUnwindPipe(aggregate: any[]): any[] {
-        const unwindStage = findStage(aggregate, '$unwind');
+        const unwindStage: IMapMarkerAggregate = findStage(aggregate, '$unwind');
 
         if (isEmpty(unwindStage.$unwind)) {
             delete unwindStage.$unwind;
@@ -160,12 +161,12 @@ export class MapMarkerService {
         return filter(aggregate, (agg) => !isEmpty(agg));
     }
 
-    private _vsFieldsInfo(virtualSource: IVirtualSourceDocument, groupByField: string): any {
+    private _vsFieldsInfo(virtualSource: IVirtualSourceDocument, groupByField: string): IVirtualSourceFieldsInfo {
         if (isEmpty(virtualSource) || !groupByField) {
-            return {};
+            return {} as IVirtualSourceFieldsInfo;
         }
-        const fieldsMap = virtualSource.fieldsMap;
-        const field = fieldsMap[groupByField];
+        const fieldsMap: IVirtualSourceFields = virtualSource.fieldsMap;
+        const fieldMetadata: IFieldMetadata = fieldsMap[groupByField];
         let aggregate = [];
 
         if (virtualSource.aggregate) {
@@ -174,16 +175,16 @@ export class MapMarkerService {
             });
         }
 
-        if (!field) {
-            return {};
+        if (!fieldMetadata) {
+            return {} as IVirtualSourceFieldsInfo;
         }
 
-        const dataType = this._getDataType(field, aggregate);
+        const dataType = this._getDataType(fieldMetadata, aggregate);
 
         return {
             field: {
                 name: groupByField,
-                path: field.path,
+                path: fieldMetadata.path,
                 type: dataType
             },
             aggregate: aggregate
@@ -202,9 +203,10 @@ export class MapMarkerService {
             this._updateGroupingPipeline(aggregate, input, vsFieldsInfo);
         }
 
-        const projectStage = findStage(aggregate, '$project');
+        const projectStage: IMapMarkerAggregate = findStage(aggregate, '$project');
         if (projectStage && projectStage.$project) {
-            const project = this._getProjectPipeline(aggregate, input, vsFieldsInfo);
+            const project: IObject = this._getProjectPipeline(aggregate, input, vsFieldsInfo);
+
             if (project && !isEmpty(project.$project)) {
                 Object.assign(projectStage.$project, project.$project);
             }
@@ -214,8 +216,8 @@ export class MapMarkerService {
     }
 
     private _updateMatchAggregatePipeline(aggregate: IMapMarkerAggregate[], input: MapMarkerGroupingInput): void {
-        const matchStage = findStage(aggregate, '$match');
-        const dateRange = parsePredifinedDate(input.dateRange);
+        const matchStage: IMapMarkerAggregate = findStage(aggregate, '$match');
+        const dateRange: IDateRange = parsePredifinedDate(input.dateRange);
 
         if (matchStage && moment(dateRange.from).isValid()) {
             matchStage.$match['product.from'] = {
@@ -227,19 +229,30 @@ export class MapMarkerService {
 
     private _updateGroupingPipeline(aggregate: IMapMarkerAggregate[], input: MapMarkerGroupingInput, vsFieldsInfo: IVirtualSourceFieldsInfo): void {
         const groupStage = findStage(aggregate, '$group');
+
         if (groupStage) {
             if (!groupStage.$group._id) {
                 groupStage.$group._id = {};
             }
-            const grouping = vsFieldsInfo.field.type === 'Array' ? vsFieldsInfo.field.path : input.grouping;
-            groupStage.$group._id['grouping'] = '$' + grouping;
+
+            if (!isEmpty(vsFieldsInfo)) {
+                const grouping: string = vsFieldsInfo.field.type === 'Array' ? vsFieldsInfo.field.path : input.grouping;
+                groupStage.$group._id['grouping'] = '$' + grouping;
+            }
         }
     }
 
     private _updateUnwindPipeline(aggregate: IMapMarkerAggregate[], input: MapMarkerGroupingInput, vsFieldsInfo: IVirtualSourceFieldsInfo): void {
         const unwindStage = findStage(aggregate, '$unwind');
+
         if (unwindStage && unwindStage.$unwind) {
-            const path = vsFieldsInfo.field.type === 'Array' ? lowerCaseFirst(vsFieldsInfo.field.name) : input.grouping;
+            let path: string;
+            if (!isEmpty(vsFieldsInfo)) {
+                path = input.grouping;
+            } else {
+                path = vsFieldsInfo.field.type === 'Array' ? lowerCaseFirst(vsFieldsInfo.field.name) : input.grouping;
+            }
+
             unwindStage.$unwind = {
                 path: `$${path}`,
                 preserveNullAndEmptyArrays: true
@@ -248,6 +261,10 @@ export class MapMarkerService {
     }
 
     private _getProjectPipeline(aggregate: IMapMarkerAggregate[], input: MapMarkerGroupingInput, vsFieldsInfo: IVirtualSourceFieldsInfo) {
+        if (!isEmpty(vsFieldsInfo)) {
+            return;
+        }
+
         const vsAggregate = vsFieldsInfo.aggregate;
         return getProjectOptions(vsFieldsInfo.field.name, vsFieldsInfo.field.path, vsAggregate);
     }
@@ -257,7 +274,7 @@ export class MapMarkerService {
             return field.type;
         }
 
-        const projectStage = findStage(aggregate, '$project');
+        const projectStage: IMapMarkerAggregate = findStage(aggregate, '$project');
 
         if (!projectStage || !projectStage.$project) {
             return field.type;
