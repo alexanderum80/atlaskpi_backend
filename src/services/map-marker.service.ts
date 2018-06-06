@@ -254,11 +254,17 @@ export class MapMarkerService {
         const unwindStage = findStage(aggregate, '$unwind');
 
         if (unwindStage && unwindStage.$unwind) {
-            let path: string;
+            let path = '';
             if (isEmpty(vsFieldsInfo)) {
-                path = lowerCaseFirst(input.grouping);
+                if (input.grouping) {
+                    path = lowerCaseFirst(input.grouping);
+                }
             } else {
                 path = vsFieldsInfo.field.type === 'Array' ? lowerCaseFirst(vsFieldsInfo.field.name) : vsFieldsInfo.field.nonDotPath;
+            }
+
+            if (!path) {
+                return;
             }
 
             unwindStage.$unwind = {
