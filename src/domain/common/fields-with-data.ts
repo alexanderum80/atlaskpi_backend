@@ -32,9 +32,6 @@ export async function getFieldsWithData(
 
         fieldsWithData = await Bluebird.map(fields,
                                 async(field) => await getResult(field, model, notIn, aggregate, collectionSource)
-                                // , {
-                                //     concurrency: 1
-                                // }
                                 );
         if (fieldsWithData) {
             const formatToObject = transformToObject(fieldsWithData);
