@@ -1,3 +1,4 @@
+import { COGS } from './../../../domain/app/cogs/cogs.model';
 import { Payments } from './../../../domain/app/payments/payment.model';
 import { cloneDeep } from 'lodash';
 
@@ -49,6 +50,7 @@ export class SimpleKPI extends SimpleKPIBase implements IKpiBase {
                                         calls: Calls,
                                         appointments: Appointments,
                                         payments: Payments,
+                                        cogs: COGS,
                                         virtualSources: IVirtualSourceDocument[]
                                     ): SimpleKPI {
 
@@ -87,7 +89,8 @@ export class SimpleKPI extends SimpleKPIBase implements IKpiBase {
             Inventory: inventory.model,
             Call: calls.model,
             Appointment: appointments.model,
-            Payment: payments.model
+            Payment: payments.model,
+            COGS: cogs.model
         };
 
         const model = models[collection.modelName];
