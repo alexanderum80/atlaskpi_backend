@@ -1,3 +1,4 @@
+import { COGS } from './../../../domain/app/cogs/cogs.model';
 import { Payments } from './../../../domain/app/payments/payment.model';
 import { inject, injectable } from 'inversify';
 
@@ -32,7 +33,8 @@ export class KpiFactory {
         @inject(GoogleAnalyticsKPIService.name) private _googleAnalyticsKpiService: GoogleAnalyticsKPIService,
         @inject(Appointments.name) private _appointments: Appointments,
         @inject(VirtualSources.name) private _virtualSources: VirtualSources,
-        @inject(Payments.name) private _payments: Payments
+        @inject(Payments.name) private _payments: Payments,
+        @inject(COGS.name) private _cogs: COGS,
     ) { }
 
     async getInstance(kpiDocument: IKPIDocument): Promise<IKpiBase> {
@@ -56,6 +58,7 @@ export class KpiFactory {
                                 this._calls,
                                 this._appointments,
                                 this._payments,
+                                this._cogs,
                                 virtualSources
                           );
                 case KPITypeEnum.ExternalSource:
