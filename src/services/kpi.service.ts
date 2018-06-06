@@ -1,6 +1,6 @@
 import * as Bluebird from 'bluebird';
-import { inject, injectable } from 'inversify';
-import { isObject } from 'lodash';
+import {inject, injectable, Container} from 'inversify';
+import { isObject, intersectionBy } from 'lodash';
 import { DocumentQuery } from 'mongoose';
 
 import { IChartDocument } from '../domain/app/charts/chart';
@@ -23,6 +23,7 @@ import { IValueName } from '../domain/common/value-name';
 import { IConnectorDocument } from '../domain/master/connectors/connector';
 import { Connectors } from '../domain/master/connectors/connector.model';
 import { IMutationResponse } from '../framework/mutations/mutation-response';
+import {blackListDataSource, getFieldsWithData} from '../domain/common/fields-with-data';
 
 const codeMapper = {
     'Revenue': 'sales',
@@ -45,7 +46,8 @@ export class KpiService {
         @inject(Charts.name) private _chart: Charts,
         @inject(Widgets.name) private _widget: Widgets,
         @inject(VirtualSources.name) private _virtualSources: VirtualSources,
-        @inject(Connectors.name) private _connectors: Connectors
+        @inject(Connectors.name) private _connectors: Connectors,
+        @inject(Container.name) private _container: Container
     ) {}
 
     async getKpis(): Promise<IKPIDocument[]> {
@@ -54,13 +56,16 @@ export class KpiService {
         const connectors = await this._connectors.model.find({});
 
         // process available groupings
-        kpis.forEach(k => {
+        const kpiList = await Bluebird.map(kpis, async (k) => {
             const kpiSources: string[] = this._getKpiSources(k, kpis, connectors);
             // find common field paths on the sources
-            k.groupingInfo = this._getCommonSourcePaths(kpiSources, virtualSources);
+            const groupingInfo = await this._getCommonSourcePaths(kpiSources, virtualSources);
+            k.groupingInfo = groupingInfo || [];
+
+            return k;
         });
 
-        return kpis;
+        return kpiList;
     }
 
     async getKpi(id: string): Promise<IKPIDocument> {
@@ -208,37 +213,75 @@ export class KpiService {
         return sources;
     }
 
-    private _getCommonSourcePaths(sourceNames: string[], virtualSources: IVirtualSourceDocument[]): IValueName[] {
-        const sources = virtualSources.filter(v => sourceNames.indexOf(v.name.toLocaleLowerCase()) !== -1);
-        const fieldPaths = sources.map(s => s.getGroupingFieldPaths());
-        const commonFields = [];
+    private async _getCommonSourcePaths(sourceNames: string[], virtualSources: IVirtualSourceDocument[]): Promise<IValueName[]> {
+        try {
+            const sources = virtualSources.filter(v => sourceNames.indexOf(v.name.toLocaleLowerCase()) !== -1);
+            const fieldPaths = sources.map(s => s.getGroupingFieldPaths());
+            const commonFields = [];
+            let fieldsWithData: string[];
 
-        if (!fieldPaths.length) {
+            if (!fieldPaths.length) {
+                return [];
+            }
+
+            if (fieldPaths.length === 1) {
+                return await this._fieldsWithData(sources, fieldPaths[0]);
+            }
+
+            fieldPaths[0].forEach(f => {
+                let findCount = 1;
+
+                for (let i = 1; i < fieldPaths.length; i++) {
+                    const pathFound = fieldPaths[i].find(field => field.value === f.value);
+
+                    if (pathFound) {
+                        findCount += 1;
+                        continue;
+                    }
+                }
+
+                if (findCount === fieldPaths.length) {
+                    commonFields.push(f);
+                }
+            });
+
+            return await this._fieldsWithData(sources, commonFields);
+        } catch (err) {
+            console.error('error gettin common source paths', err);
             return [];
         }
+    }
 
-        if (fieldPaths.length === 1) {
-            return fieldPaths[0];
-        }
+    private async _fieldsWithData(sources: IVirtualSourceDocument[], fields: IValueName[]): Promise<IValueName[]> {
+        const that = this;
 
-        fieldPaths[0].forEach(f => {
-            let findCount = 1;
-
-            for (let i = 1; i < fieldPaths.length; i++) {
-                const pathFound = fieldPaths[i].find(field => field.value === f.value);
-
-                if (pathFound) {
-                    findCount += 1;
-                    continue;
+        try {
+            const existingFields: IValueName[][] = await Bluebird.map(sources, async (source: IVirtualSourceDocument) => {
+                if (blackListDataSource.indexOf(source.source) !== -1) {
+                    return fields;
                 }
+
+                const fieldsWithData: string[] = await getFieldsWithData(that._container, source.source, fields);
+                return fields.filter(field => fieldsWithData.indexOf(field.name) !== -1);
+            });
+
+            if (!existingFields) {
+                return [];
             }
 
-            if (findCount === fieldPaths.length) {
-                commonFields.push(f);
+            if (existingFields.length === 1) {
+                return existingFields[0];
             }
-        });
-            
-        return commonFields;
+
+            let commonFields = [];
+            existingFields.forEach((f: IValueName[]) => {
+                commonFields = intersectionBy(f, f, 'name');
+            });
+
+            return commonFields;
+        } catch (e) {
+            throw new Error('error getting fields with data');
+        }
     }
 
     private _kpiInUseByModel(id: string): Promise<IDocumentExist> {
