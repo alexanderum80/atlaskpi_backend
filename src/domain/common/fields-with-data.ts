@@ -31,7 +31,7 @@ export async function getFieldsWithData(
         }
 
         fieldsWithData = await Bluebird.map(fields,
-                                async(field) => await getResult(field, model, notIn, aggregate, collectionSource)
+                                async(field) => await getData(field, model, notIn, aggregate, collectionSource)
                                 );
         if (fieldsWithData) {
             const formatToObject = transformToObject(fieldsWithData);
@@ -44,7 +44,7 @@ export async function getFieldsWithData(
     }
 }
 
-async function getResult(field: DataSourceField|IValueName, model: any, notIn: IObject, aggregate: IObject[], collectionSource: string[]): Promise<any> {
+async function getData(field: DataSourceField|IValueName, model: any, notIn: IObject, aggregate: IObject[], collectionSource: string[]): Promise<any> {
     const fieldPath: string = (field as DataSourceField).path || (field as IValueName).value;
     const fieldName: string = field.name;
 
