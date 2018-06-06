@@ -169,5 +169,8 @@ function hasProjectStage(projectStage): boolean {
 
 
 export function findStage(aggregate: any[], field: string) {
+    if (isEmpty(aggregate)) {
+        return;
+    }
     return aggregate.find(agg => agg[field] !== undefined);
 }
