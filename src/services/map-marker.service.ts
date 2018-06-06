@@ -141,6 +141,10 @@ export class MapMarkerService {
         const pipline = projectStage.$project;
         const pipelineKeys: string[] = Object.keys(pipline);
 
+        if (isEmpty(vsFieldsInfo)) {
+            return false;
+        }
+
         return pipelineKeys.indexOf(vsFieldsInfo.field.nonDotPath) !== -1;
     }
 
