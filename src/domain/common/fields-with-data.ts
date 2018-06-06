@@ -113,10 +113,11 @@ export function sortByProject(modelAggregate: any[], aggregate: any[]): boolean 
     return false;
 }
 
-export function getProjectOptions(fieldName: string, fieldPath: string, aggregate: any[]): IObject {
+export function getProjectOptions(fieldName: string, fieldPath: string, aggregate: any[], projectNumber?: boolean): IObject {
+    const fieldPathValue = projectNumber ? 1 : `$${fieldPath}`;
     const defaultProjectOptions = {
         '$project': {
-            [fieldName]: `$${fieldPath}`
+            [fieldName]: fieldPathValue
         }
     };
 

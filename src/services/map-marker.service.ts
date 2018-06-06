@@ -35,6 +35,8 @@ interface IVirtualSourceInfoFields {
     name: string;
     // i.e. referralMain
     path: string;
+    // i.e. category from category.name
+    nonDotPath: string;
     // Array|String
     type: string;
 }
@@ -139,7 +141,7 @@ export class MapMarkerService {
         const pipline = projectStage.$project;
         const pipelineKeys: string[] = Object.keys(pipline);
 
-        return pipelineKeys.indexOf(vsFieldsInfo.field.path) !== -1;
+        return pipelineKeys.indexOf(vsFieldsInfo.field.nonDotPath) !== -1;
     }
 
     private _getSortedAggregate(aggregate: IMapMarkerAggregate[]): IMapMarkerAggregate[] {
@@ -181,11 +183,13 @@ export class MapMarkerService {
         }
 
         const dataType = this._getDataType(fieldMetadata, aggregate);
+        const nonDotPath = fieldMetadata.path.split('.')[0];
 
         return {
             field: {
                 name: groupByField,
                 path: fieldMetadata.path,
+                nonDotPath: nonDotPath,
                 type: dataType
             },
             aggregate: aggregate
@@ -251,10 +255,10 @@ export class MapMarkerService {
 
         if (unwindStage && unwindStage.$unwind) {
             let path: string;
-            if (!isEmpty(vsFieldsInfo)) {
+            if (isEmpty(vsFieldsInfo)) {
                 path = lowerCaseFirst(input.grouping);
             } else {
-                path = vsFieldsInfo.field.type === 'Array' ? lowerCaseFirst(vsFieldsInfo.field.name) : vsFieldsInfo.field.path;
+                path = vsFieldsInfo.field.type === 'Array' ? lowerCaseFirst(vsFieldsInfo.field.name) : vsFieldsInfo.field.nonDotPath;
             }
 
             unwindStage.$unwind = {
@@ -265,12 +269,14 @@ export class MapMarkerService {
     }
 
     private _getProjectPipeline(aggregate: IMapMarkerAggregate[], input: MapMarkerGroupingInput, vsFieldsInfo: IVirtualSourceFieldsInfo) {
-        if (!isEmpty(vsFieldsInfo)) {
+        if (isEmpty(vsFieldsInfo)) {
             return;
         }
 
         const vsAggregate = vsFieldsInfo.aggregate;
-        return getProjectOptions(vsFieldsInfo.field.name, vsFieldsInfo.field.path, vsAggregate);
+        const fieldName = vsFieldsInfo.field.type === 'Array' ?
+                          vsFieldsInfo.field.name : vsFieldsInfo.field.nonDotPath;
+        return getProjectOptions(fieldName, vsFieldsInfo.field.path, vsAggregate, true);
     }
 
     private _getDataType(field, aggregate): string {
