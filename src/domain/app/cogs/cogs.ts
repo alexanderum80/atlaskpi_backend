@@ -22,4 +22,4 @@ export interface ICOGS extends IEntity {
 
 export interface ICOGSDocument extends ICOGS, mongoose.Document { }
 
-export interface ICOGSModel extends mongoose.Model<ICOGSDocument> {
+export interface ICOGSModel extends mongoose.Model<ICOGSDocument> { }
