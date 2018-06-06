@@ -63,14 +63,17 @@ export class MapMarkersQuery implements IQuery < IMapMarker[] > {
         const salesObject: Dictionary<ISaleByZip> = keyBy(salesByZip, '_id.customerZip');
 
         return zipList.map(zip => {
-            return {
-                name: zip.zipCode,
-                lat: zip.lat,
-                lng: zip.lng,
-                color: getMarkerColor(salesObject[zip.zipCode].sales),
-                value: salesObject[zip.zipCode].sales,
-                groupingName: salesObject[zip.zipCode]._id['grouping']
-            };
+            const value = salesObject[zip.zipCode].sales;
+            if (value >= SalesColorMap[MarkerColorEnum.Yellow].min) {
+                return {
+                    name: zip.zipCode,
+                    lat: zip.lat,
+                    lng: zip.lng,
+                    color: getMarkerColor(salesObject[zip.zipCode].sales),
+                    value: value,
+                    groupingName: salesObject[zip.zipCode]._id['grouping']
+                };
+            }
         });
     }
 
@@ -92,10 +95,12 @@ export class MapMarkersQuery implements IQuery < IMapMarker[] > {
 
                                 total += amount;
 
-                                itemList.push({
-                                    amount: amount, // 50000
-                                    groupName: groupName // i.e. Knoxville
-                                });
+                                if (amount >= SalesColorMap[MarkerColorEnum.Yellow].min) {
+                                    itemList.push({
+                                        amount: amount, // 50000
+                                        groupName: groupName // i.e. Knoxville
+                                    });
+                                }
                             }
                         }
 
@@ -120,23 +125,29 @@ export class MapMarkersQuery implements IQuery < IMapMarker[] > {
 }
 
 export enum MarkerColorEnum {
-    // Black = 'black',
+    Black = 'black',
     Purple = 'purple',
     Red = 'red',
     Blue = 'blue',
     Green = 'green',
     Yellow = 'yellow',
-    Navy = 'navy'
+    Navy = 'navy',
+    LightBlue = 'lightblue',
+    Pink = 'pink',
+    DarkBlue = 'darkblue'
 }
 
 export const SalesColorMap = {
-    yellow: { min: 0, max: 50000 },
-    blue: { min: 50001, max: 250000 },
-    green: { min: 250001, max: 500000 },
-    navy: { min: 500001, max: 1000000 },
-    red: { min: 1000001, max: 5000000 },
-    purple: { min: 5000001, max: 5000000000 },
+    yellow: { min: 0.01, max: 5000 },
+    lightblue: { min: 5001, max: 25000 },
+    pink: { min: 25001, max: 50000 },
+    green: { min: 50001, max: 250000 },
+    darkblue: { min: 250001, max: 500000 },
+    red: { min: 500001, max: 1000000 },
+    purple: { min: 1000001, max: 5000000 },
+    black: { min: 5000001, max: 5000000000 }
 };
+
 
 function getMarkerColor(sales: number): MarkerColorEnum {
     const colors = Object.keys(SalesColorMap);

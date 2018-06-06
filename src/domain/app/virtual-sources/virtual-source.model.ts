@@ -9,9 +9,10 @@ import { ModelBase } from '../../../type-mongo/model-base';
 import { AppConnection } from '../app.connection';
 import { tagsPlugin } from '../tags/tag.plugin';
 import { IVirtualSourceModel, IVirtualSourceDocument, IFilterOperator } from '../virtual-sources/virtual-source';
-import { DataSourceField, DataSourceResponse } from '../../../app_modules/data-sources/data-sources.types';
-import { IIdName } from '../../common/id-name';
+import {DataSourceResponse, DataSourceField} from '../../../app_modules/data-sources/data-sources.types';
+import {IIdName} from '../../common/id-name';
 import { IValueName } from '../../common/value-name';
+import {IObject} from '../../../app_modules/shared/criteria.plugin';
 
 const Schema = mongoose.Schema;
 
@@ -105,6 +106,7 @@ async function getDataSourceByName(name: string): Promise<IVirtualSourceDocument
         return {} as any;
     }
 }
+
 
 export function mapDataSourceFields(virtualSource: IVirtualSourceDocument): DataSourceField[] {
     // with the new feature to filter kpi by sources we do not need to send the "source" field anymore

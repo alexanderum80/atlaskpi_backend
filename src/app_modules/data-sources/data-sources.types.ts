@@ -113,4 +113,3 @@ export class ExternalDataSourceResponse extends DataSourceResponse {
     @field({ type: GraphQLTypesMap.String })
     connectorType: string;
 }
-

@@ -1,3 +1,4 @@
+import { COGS } from './cogs/cogs.model';
 import { Payments } from './payments/payment.model';
 import { HelpCenter } from './help-center/help-center.model';
 import { Calls } from './calls/call.model';
@@ -78,7 +79,8 @@ const registrations: any[] = [
     GoogleAnalytics,
     Attachments,
     VirtualSources,
-    Payments
+    Payments,
+    COGS
 ];
 
 export function registerAppModels(container: IBridgeContainer) {

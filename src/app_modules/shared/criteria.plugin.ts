@@ -2,7 +2,6 @@ import * as mongoose from 'mongoose';
 import * as Promise from 'bluebird';
 import { isEmpty } from 'lodash';
 
-
 export interface IObject {
     [key: string]: any;
 }
