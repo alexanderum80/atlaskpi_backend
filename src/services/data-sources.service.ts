@@ -119,62 +119,6 @@ export class DataSourcesService {
             const sources: string[] = await getFieldsWithData(this._container, dataSource, fields, collectionSource);
 
             virtualSource.fields.forEach((f: DataSourceField) => {
-                f.available = isEmpty(sources) || sources.indexOf(f.name) !== -1;
-            });
-            return virtualSource.fields;
-        } catch (err) {
-            console.error('error filtering fields without data', err);
-            return [];
-        }
-    }
-
-    private _isGoogleAnalytics(dataSource: string): boolean {
-        return dataSource === GOOGLE_ANALYTICS;
-    }
-
-    private _getGoogleAnalyticsFields(fields: DataSourceField[]): DataSourceField[] {
-        fields.forEach(f => {
-            f.available = true;
-        });
-
-        return fields;
-    }
-
-    async getExpressionFieldsWithData(input: KPIExpressionFieldInput): Promise<DataSourceField[]> {
-        // i.e. 'nextech'
-        const collectionSource: string[] = input.collectionSource;
-        // i.e. 'established_customer'
-        const dataSource: string = input.dataSource;
-        const virtualSource: IVirtualSourceDocument = await this._virtualDatasources.model.getDataSourceByName(dataSource);
-
-        const expressionFields: DataSourceField[] = mapDataSourceFields(virtualSource);
-        if (this._isGoogleAnalytics(virtualSource.source)) {
-            return this._getGoogleAnalyticsFields(expressionFields);
-        }
-
-
-        const fieldsWithData: string[] = await getFieldsWithData(this._container, virtualSource.source, expressionFields, collectionSource);
-
-        expressionFields.forEach((n: DataSourceField) => {
-            n.available = fieldsWithData.indexOf(n.name) !== -1;
-        });
-
-        return expressionFields;
-    }
-
-    async filterFieldsWithoutData(virtualSource: DataSourceResponse, collectionSource?: string[]): Promise<DataSourceField[]> {
-        try {
-            const fields: DataSourceField[] = virtualSource.fields;
-            // i.e. Sales
-            const dataSource: string = virtualSource.dataSource;
-            if (this._isGoogleAnalytics(dataSource)) {
-                return this._getGoogleAnalyticsFields(fields);
-            }
-
-            // i.e ['APS Nextech ( nextech )']
-            const sources: string[] = await getFieldsWithData(this._container, dataSource, fields, collectionSource);
-
-            virtualSource.fields.forEach((f: DataSourceField) => {
                 f.available = isEmpty(sources) ? false : sources.indexOf(f.name) !== -1;
             });
             return virtualSource.fields;

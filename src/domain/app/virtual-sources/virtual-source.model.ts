@@ -1,4 +1,3 @@
-import { IObject } from '../../../app_modules/shared/criteria.plugin';
 import { inject, injectable } from 'inversify';
 import * as mongoose from 'mongoose';
 import * as logger from 'winston';
