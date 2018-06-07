@@ -2,7 +2,8 @@ import { importData } from './google-sheet.processor';
 import * as Promise from 'bluebird';
 import * as fs from 'fs';
 import * as readline from 'readline';
-import * as google from 'googleapis';
+// import * as google from 'googleapis';
+const google = require('googleapis');
 import * as googleAuth from 'google-auth-library';
 import * as logger from 'winston';
 
