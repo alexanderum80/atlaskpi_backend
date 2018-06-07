@@ -5,6 +5,7 @@ import { IDateRange } from '../../domain/common/date-range';
 import { FrequencyEnum } from '../../domain/common/frequency-enum';
 import * as moment from 'moment';
 import { config } from '../../configuration/config';
+import * as os from 'os';
 
 // let queue = require('kue');
 
@@ -22,12 +23,14 @@ let queue = require('kue-scheduler');
 // let Queue = kue.createQueue();
 
 const _jobs = queue.createQueue({
-    prefix: 'webapp',
+    prefix: os.hostname, // 'webapp',
     redis: {
         port: config.cache.redisPort, // 6379,
         host: config.cache.redisServer, // 'localhost'
     }
 });
+
+console.log('Queue name: ' + os.hostname);
 
 queue.app.listen(4000);
 
