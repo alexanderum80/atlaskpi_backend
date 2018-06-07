@@ -14,7 +14,7 @@ interface ICollectionAggregation {
     $limit?: number;
 }
 
-export async function getFieldsWithData(model, fields: (DataSourceField|IValueName)[], collectionSource?: string[]): Promise <string[]> {
+export async function getFieldsWithData(model, fields: (DataSourceField|IValueName)[], collectionSource?: string[], aggregate?: any[]): Promise <string[]> {
     try {
         if (!model || isEmpty(fields)) {
             return [];

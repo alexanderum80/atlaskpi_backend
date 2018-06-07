@@ -149,7 +149,8 @@ export class DataSourcesService {
             });
         }
 
-        const fieldsWithData: string[] = await getFieldsWithData(this._container, vs.source, fields, collectionSource, aggregate);
+        const model = this._resolver(vs.source).model;
+        const fieldsWithData: string[] = await getFieldsWithData(model, fields, collectionSource, aggregate);
         fields.forEach((n: DataSourceField) => {
             n.available = fieldsWithData.indexOf(n.name) !== -1;
         });
