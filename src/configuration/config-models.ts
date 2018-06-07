@@ -62,4 +62,8 @@ export interface IAppConfig {
     scheduler: ISchedulerConfig;
     integrationRedirectUrl: string;
     aws: IAWSCredentials;
+    cache: {
+        redisServer: string,
+        redisPort: string
+    }
 }
