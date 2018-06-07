@@ -124,7 +124,8 @@ export class DataSourcesService {
             }
 
             // i.e ['APS Nextech ( nextech )']
-            const sources: string[] = await getFieldsWithData(model, fields, collectionSource);
+            let sources: string[] = await getFieldsWithData(model, fields, collectionSource);
+            sources = sources.map(s => s.toLowerCase());
 
             virtualSource.fields.forEach((f: DataSourceField) => {
                 f.available = isEmpty(sources) ? false :
