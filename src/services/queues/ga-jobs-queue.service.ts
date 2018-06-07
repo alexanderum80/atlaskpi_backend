@@ -85,7 +85,7 @@ export class GAJobsQueueService {
         const that = this;
         this._lastTime = moment();
 
-        _jobs.process(JOB_TYPE, function(job, done) {
+        _jobs.process(JOB_TYPE, 4, function(job, done) {
             const data: IGAJobData = job.data;
 
             const dr = data.dateRange && data.dateRange[0];
@@ -105,7 +105,9 @@ export class GAJobsQueueService {
                                 data.filters,
                                 data.groupings)
                     .then(res => {
-                        setTimeout(() => done(null, res), 500);
+                        // setTimeout(() => 
+                        done(null, res);
+                        // , 205);
                     })
                     .catch(err => done(err));
                 });

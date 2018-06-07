@@ -21,7 +21,7 @@ export interface IWebRequestContainerDetails {
 type GenericObject = { [key: string]: any };
 
 export interface IBridgeContainer {
-    __perRequestTypesRegistrations: GenericObject;
+    // __perRequestTypesRegistrations: GenericObject;
 
     register<T extends Newable<any>>(type: T): void;
     registerSingleton<T extends Newable<any>>(type: T): void;
@@ -34,7 +34,7 @@ export interface IBridgeContainer {
 
     get<T>(identifier: string): T;
     getBridgeContainerForWebRequest(req: Request): IWebRequestContainerDetails;
-    cleanup(container: interfaces.Container): void;
+    // cleanup(container: interfaces.Container): void;
 }
 
 export interface IRequestContext {
@@ -43,18 +43,26 @@ export interface IRequestContext {
 
 export class BridgeContainer implements IBridgeContainer {
     private _containerModules: IBridgeContainer[];
-    __perRequestTypesRegistrations: GenericObject;
+    // __perRequestTypesRegistrations: GenericObject;
 
     constructor(private _container: Container) {
-        this.__perRequestTypesRegistrations = {};
+        // this.__perRequestTypesRegistrations = {};
         this._containerModules = [];
     }
 
     register<T extends Newable<any>>(type: T): void {
+        if (this._container.isBound(type.name)) {
+            throw new Error(`Duplicated registration for: ${type.name}`);
+        }
+
         this._container.bind<T>(type.name).to(type);
     }
 
     registerSingleton<T extends Newable<any>>(type: T): void {
+        if (this._container.isBound(type.name)) {
+            throw new Error(`Duplicated registration for: ${type.name}`);
+        }
+
         this._container.bind<T>(type.name).to(type).inSingletonScope();
     }
 
@@ -63,14 +71,22 @@ export class BridgeContainer implements IBridgeContainer {
             throw new Error('A type is required for the registration');
         }
 
-        if (this.__perRequestTypesRegistrations[type.name]) {
+        if (this._container.isBound(type.name)) {
             throw new Error(`Duplicated registration for: ${type.name}`);
         }
 
-        this.__perRequestTypesRegistrations[type.name] = type;
+        // this.__perRequestTypesRegistrations[type.name] = type;
+
+        this._container.bind(type.name).to(type).inRequestScope();
+
+        // _bindPerRequestRegistrations(_container, this.__perRequestTypesRegistrations);
     }
 
     registerConstant<T extends GenericObject>(identifier: string, value: T): void {
+        if (this._container.isBound(identifier)) {
+            throw new Error(`Duplicated registration for: ${identifier}`);
+        }
+
         this._container.bind<T>(identifier).toConstantValue(value);
     }
 
@@ -78,49 +94,51 @@ export class BridgeContainer implements IBridgeContainer {
         this._container.unbind(identifier);
     }
 
-    getSubmodule(): IBridgeContainer {
-        return new BridgeContainer(this._container);
-    }
+    // getSubmodule(): IBridgeContainer {
+    //     return new BridgeContainer(this._container);
+    // }
 
-    addSubmodule(containerModule: IBridgeContainer) {
-        const moduleFound = this._containerModules.find(m => m === containerModule);
+    // addSubmodule(containerModule: IBridgeContainer) {
+    //     const moduleFound = this._containerModules.find(m => m === containerModule);
 
-        if (moduleFound) {
-            throw new Error('The module you are trying to add alredy exist');
-        }
+    //     if (moduleFound) {
+    //         throw new Error('The module you are trying to add alredy exist');
+    //     }
 
-        this._containerModules.push(containerModule);
-    }
+    //     // this._containerModules.push(containerModule);
+
+    //     _bindPerRequestRegistrations(this._container, containerModule.__perRequestTypesRegistrations);
+    // }
 
     get<T>(identifier: string): T {
         return this._container.get(identifier);
     }
 
     getBridgeContainerForWebRequest(req: Request): IWebRequestContainerDetails {
-        const container = new Container({ autoBindInjectable: true });
+        const container = this._container.createChild(); // new Container({ autoBindInjectable: true });
 
         // IMPORTANT: Here we register the containr with the request
         container.bind<Container>('Container').toConstantValue(container);
         container.bind<Request>('Request').toConstantValue(req);
 
         // bind all per web request elements
-        _bindPerRequestRegistrations(container, this.__perRequestTypesRegistrations);
+        // _bindPerRequestRegistrations(container, this.__perRequestTypesRegistrations);
 
-        this._containerModules.forEach(m => _bindPerRequestRegistrations(container, m.__perRequestTypesRegistrations)); 
+        // this._containerModules.forEach(m => _bindPerRequestRegistrations(container, m.__perRequestTypesRegistrations)); 
 
         return {
-            instance: Container.merge(this._container, container),
+            instance: container, // Container.merge(this._container, container),
             bridgeModule: this
         };
     }
 
-    cleanup(container: interfaces.Container): void {
-        container.unbind('Container');
-        container.unbind('Request');
+    // cleanup(container: interfaces.Container): void {
+    //     container.unbind('Container');
+    //     container.unbind('Request');
 
-        _unbindPerRequestRegistrations(container, this.__perRequestTypesRegistrations);
-        this._containerModules.forEach(m => _unbindPerRequestRegistrations(container, m.__perRequestTypesRegistrations));
-    }
+    //     _unbindPerRequestRegistrations(container, this.__perRequestTypesRegistrations);
+    //     this._containerModules.forEach(m => _unbindPerRequestRegistrations(container, m.__perRequestTypesRegistrations));
+    // }
 
 }
 
