@@ -923,7 +923,7 @@ export class UIChartBase {
     private _mergeMultipleChartDefinitions(definitions: any, metadata: IChartMetadata): any {
         const mainDefinition = definitions['main'] || {};
             const comparisonCategoriesWithValues: IComparsionDefObject = this._getComparisonCategoriesWithValues(definitions);
-            const definitionSeries: any[] = this._getComparisonSeries(comparisonCategoriesWithValues);
+            const definitionSeries: any[] = this._getComparisonSeries(comparisonCategoriesWithValues, metadata);
 
             mainDefinition.xAxis.categories = this._getComparisonCategories(definitions, metadata);
             mainDefinition.series = definitionSeries;
@@ -979,7 +979,7 @@ export class UIChartBase {
         return defObject;
     }
 
-    private _getComparisonSeries(obj: IComparsionDefObject): any[] {
+    private _getComparisonSeries(obj: IComparsionDefObject, metadata: IChartMetadata): any[] {
         const allCategories: string[] = obj['uniqCategories'];
         const data: IComparsionDefObjectData = obj['data'];
         const keys: string[] = Object.keys(data);
@@ -1044,6 +1044,9 @@ export class UIChartBase {
                         };
                     }
                 } else {
+                    if (!comparisonString) {
+                        comparisonString = metadata.comparison.find(c => c !== undefined);
+                    }
                     serieObject = {
                         name: objData.serieName + `(${comparisonString})`,
                         data: serieData,
