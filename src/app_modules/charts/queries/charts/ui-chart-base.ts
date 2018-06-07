@@ -1079,7 +1079,7 @@ export class UIChartBase {
                 comparisonString = moment(dateFrom).year().toString();
                 break;
             case FrequencyEnum.Monthly:
-                comparisonString = moment(dateFrom).format('MM YYYY');
+                comparisonString = moment(dateFrom).format('MMMM YYYY');
                 break;
             case FrequencyEnum.Quartely:
                 comparisonString = moment(dateFrom).quarter().toString();
