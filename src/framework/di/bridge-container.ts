@@ -133,7 +133,7 @@ export class BridgeContainer implements IBridgeContainer {
         const container = this._container.createChild(); // new Container({ autoBindInjectable: true });
 
         // IMPORTANT: Here we register the containr with the request
-        container.bind<Container>('Container').toConstantValue(container);
+        // container.bind<Container>('Container').toConstantValue(container);
         container.bind<Request>('Request').toConstantValue(req);
 
         // bind all per web request elements
