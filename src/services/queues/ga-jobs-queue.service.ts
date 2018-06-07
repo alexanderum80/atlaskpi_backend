@@ -19,7 +19,7 @@ export interface IGAJobData {
     groupings: string[];
 }
 
-let queue = require('kue-scheduler');
+let queue = require('kue');
 // let Queue = kue.createQueue();
 
 const _jobs = queue.createQueue({
