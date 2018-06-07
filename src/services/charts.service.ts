@@ -42,6 +42,7 @@ export interface IRenderChartOptions {
     xAxisSource?: string;
     isFutureTarget?: boolean;
     isDrillDown?: boolean;
+    originalFrequency?: string;
 }
 
 
@@ -98,7 +99,8 @@ export class ChartsService {
                 isDrillDown: options && options.isDrillDown || false,
                 isFutureTarget: options && options.isFutureTarget || false,
                 sortingCriteria: chart.sortingCriteria,
-                sortingOrder: chart.sortingOrder
+                sortingOrder: chart.sortingOrder,
+                originalFrequency: options.originalFrequency ? FrequencyTable[options.originalFrequency] : -1
             };
 
             chart.targetExtraPeriodOptions = this._getTargetExtraPeriodOptions(meta.frequency, chart.dateRange);
@@ -176,6 +178,7 @@ export class ChartsService {
         }
         return new Promise<IChart>((resolve, reject) => {
             chartPromise.then(chart => {
+                input.originalFrequency = chart.frequency;
                 if (input && input.dateRange) {
                     // update dateRange, frequency, grouping, isDrillDown
                     // use case: change daterange and frequency in chart view of dashboard

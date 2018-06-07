@@ -1020,7 +1020,11 @@ export class UIChartBase {
                 let comparisonString: string = '';
                 if (stack === 'main') {
                     if (that.chart && Array.isArray(that.chart.dateRange)) {
-                        comparisonString = that.chart.dateRange[0].predefined || 'custom';
+                        comparisonString = that.chart.dateRange[0].predefined;
+                        if (!comparisonString) {
+                            const customFrom = that.chart.dateRange[0].custom.from;
+                            comparisonString = this._getComparisonString(customFrom, metadata.originalFrequency, metadata.frequency);
+                        }
                     }
                 } else {
                     if (dateRangeId && stack) {
@@ -1061,6 +1065,28 @@ export class UIChartBase {
             }
         }
         return series;
+    }
+
+    private _getComparisonString(dateFrom: Date, originalFrequency: FrequencyEnum, frequency: FrequencyEnum): string {
+        let comparisonString = 'custom';
+
+        if (originalFrequency === -1 || originalFrequency === frequency) {
+            return comparisonString;
+        }
+
+        switch (originalFrequency) {
+            case FrequencyEnum.Yearly:
+                comparisonString = moment(dateFrom).year().toString();
+                break;
+            case FrequencyEnum.Monthly:
+                comparisonString = moment(dateFrom).format('MM YYYY');
+                break;
+            case FrequencyEnum.Quartely:
+                comparisonString = moment(dateFrom).quarter().toString();
+                break;
+        }
+
+        return comparisonString;
     }
 
     private _getComparisonCategories(definitions: any, metadata: IChartMetadata): string[] {
