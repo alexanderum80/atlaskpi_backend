@@ -19,7 +19,7 @@ export interface IGAJobData {
     groupings: string[];
 }
 
-let queue = require('kue-scheduler');
+let queue = require('kue');
 // let Queue = kue.createQueue();
 
 const _jobs = queue.createQueue({
@@ -32,7 +32,7 @@ const _jobs = queue.createQueue({
 
 console.log('Queue name: ' + os.hostname);
 
-queue.app.listen(4000);
+// queue.app.listen(4000);
 
 const JOB_TYPE: string = 'ga';
 

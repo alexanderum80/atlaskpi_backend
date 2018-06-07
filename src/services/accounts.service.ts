@@ -273,7 +273,7 @@ function getClusterDbUser(hash: string, databaseName: string): IClusterUser {
                 databaseName: databaseName
             }
         ]
-    };
+    } as any;
 }
 
 

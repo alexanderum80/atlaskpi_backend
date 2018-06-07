@@ -21,9 +21,6 @@ export interface IWebRequestContainerDetails {
 type GenericObject = { [key: string]: any };
 
 export interface IBridgeContainer {
-    // __perRequestTypesRegistrations: GenericObject;
-
-    // container: Container;
     bind<T>(serviceIdentifier: interfaces.ServiceIdentifier<T>): interfaces.BindingToSyntax<T>;
     register<T extends Newable<any>>(type: T): void;
     registerSingleton<T extends Newable<any>>(type: T): void;
@@ -31,12 +28,8 @@ export interface IBridgeContainer {
     registerConstant<T extends GenericObject>(identifier: string, value: T): void;
     deregister<T extends Newable<any>>(identifier: string | T): void;
 
-    // getSubmodule(): IBridgeContainer;
-    // addSubmodule(module: IBridgeContainer);
-
     get<T>(identifier: string): T;
     getBridgeContainerForWebRequest(req: Request): IWebRequestContainerDetails;
-    // cleanup(container: interfaces.Container): void;
 }
 
 export interface IRequestContext {
@@ -45,10 +38,8 @@ export interface IRequestContext {
 
 export class BridgeContainer implements IBridgeContainer {
     private _containerModules: IBridgeContainer[];
-    // __perRequestTypesRegistrations: GenericObject;
 
     constructor(private _container: Container) {
-        // this.__perRequestTypesRegistrations = {};
         this._containerModules = [];
 
         // in the case of criterias for kpis I need to be able to inject
@@ -60,10 +51,6 @@ export class BridgeContainer implements IBridgeContainer {
                 };
             });
     }
-
-    // get container(): Container {
-    //     return this._container;
-    // }
 
     bind<T>(serviceIdentifier: interfaces.ServiceIdentifier<T>): interfaces.BindingToSyntax<T> {
         return this._container.bind<T>(serviceIdentifier);
@@ -109,22 +96,6 @@ export class BridgeContainer implements IBridgeContainer {
         this._container.unbind(identifier);
     }
 
-    // getSubmodule(): IBridgeContainer {
-    //     return new BridgeContainer(this._container);
-    // }
-
-    // addSubmodule(containerModule: IBridgeContainer) {
-    //     const moduleFound = this._containerModules.find(m => m === containerModule);
-
-    //     if (moduleFound) {
-    //         throw new Error('The module you are trying to add alredy exist');
-    //     }
-
-    //     // this._containerModules.push(containerModule);
-
-    //     _bindPerRequestRegistrations(this._container, containerModule.__perRequestTypesRegistrations);
-    // }
-
     get<T>(identifier: string): T {
         return this._container.get(identifier);
     }
@@ -132,29 +103,12 @@ export class BridgeContainer implements IBridgeContainer {
     getBridgeContainerForWebRequest(req: Request): IWebRequestContainerDetails {
         const container = this._container.createChild(); // new Container({ autoBindInjectable: true });
 
-        // IMPORTANT: Here we register the containr with the request
-        // container.bind<Container>('Container').toConstantValue(container);
         container.bind<Request>('Request').toConstantValue(req);
-
-        // bind all per web request elements
-        // _bindPerRequestRegistrations(container, this.__perRequestTypesRegistrations);
-
-        // this._containerModules.forEach(m => _bindPerRequestRegistrations(container, m.__perRequestTypesRegistrations)); 
-
         return {
             instance: container, // Container.merge(this._container, container),
             bridgeModule: this
         };
     }
-
-    // cleanup(container: interfaces.Container): void {
-    //     container.unbind('Container');
-    //     container.unbind('Request');
-
-    //     _unbindPerRequestRegistrations(container, this.__perRequestTypesRegistrations);
-    //     this._containerModules.forEach(m => _unbindPerRequestRegistrations(container, m.__perRequestTypesRegistrations));
-    // }
-
 }
 
 function _bindPerRequestRegistrations(container: Container, registrations: GenericObject) {
