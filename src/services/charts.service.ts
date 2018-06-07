@@ -178,7 +178,6 @@ export class ChartsService {
         }
         return new Promise<IChart>((resolve, reject) => {
             chartPromise.then(chart => {
-                input.originalFrequency = chart.frequency;
                 if (input && input.dateRange) {
                     // update dateRange, frequency, grouping, isDrillDown
                     // use case: change daterange and frequency in chart view of dashboard
