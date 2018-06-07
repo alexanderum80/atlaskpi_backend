@@ -23,14 +23,16 @@ type GenericObject = { [key: string]: any };
 export interface IBridgeContainer {
     // __perRequestTypesRegistrations: GenericObject;
 
+    // container: Container;
+    bind<T>(serviceIdentifier: interfaces.ServiceIdentifier<T>): interfaces.BindingToSyntax<T>;
     register<T extends Newable<any>>(type: T): void;
     registerSingleton<T extends Newable<any>>(type: T): void;
     registerPerWebRequest<T extends Newable<any>>(type: T): void;
     registerConstant<T extends GenericObject>(identifier: string, value: T): void;
     deregister<T extends Newable<any>>(identifier: string | T): void;
 
-    getSubmodule(): IBridgeContainer;
-    addSubmodule(module: IBridgeContainer);
+    // getSubmodule(): IBridgeContainer;
+    // addSubmodule(module: IBridgeContainer);
 
     get<T>(identifier: string): T;
     getBridgeContainerForWebRequest(req: Request): IWebRequestContainerDetails;
@@ -48,6 +50,14 @@ export class BridgeContainer implements IBridgeContainer {
     constructor(private _container: Container) {
         // this.__perRequestTypesRegistrations = {};
         this._containerModules = [];
+    }
+
+    // get container(): Container {
+    //     return this._container;
+    // }
+
+    bind<T>(serviceIdentifier: interfaces.ServiceIdentifier<T>): interfaces.BindingToSyntax<T> {
+        return this._container.bind<T>(serviceIdentifier);
     }
 
     register<T extends Newable<any>>(type: T): void {
@@ -75,11 +85,7 @@ export class BridgeContainer implements IBridgeContainer {
             throw new Error(`Duplicated registration for: ${type.name}`);
         }
 
-        // this.__perRequestTypesRegistrations[type.name] = type;
-
         this._container.bind(type.name).to(type).inRequestScope();
-
-        // _bindPerRequestRegistrations(_container, this.__perRequestTypesRegistrations);
     }
 
     registerConstant<T extends GenericObject>(identifier: string, value: T): void {

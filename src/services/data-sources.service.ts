@@ -9,6 +9,7 @@ import * as Bluebird from 'bluebird';
 import { isObject, isEmpty } from 'lodash';
 import {KPIExpressionFieldInput} from '../app_modules/kpis/kpis.types';
 import {getFieldsWithData} from '../domain/common/fields-with-data';
+import { ICriteriaSearchable } from '../app_modules/shared/criteria.plugin';
 
 const COLLECTION_SOURCE_MAX_LIMIT = 20;
 const COLLECTION_SOURCE_FIELD_NAME = 'source';
@@ -19,7 +20,7 @@ export class DataSourcesService {
 
     constructor(
         @inject(Logger.name) private _logger: Logger,
-        @inject(Container.name) private _container: Container,
+        @inject('CriteriaSearchableFactory') private _factory: (name: string) => any,
         @inject(VirtualSources.name) private _virtualDatasources: VirtualSources) { }
 
     async get(): Promise<DataSourceResponse[]> {
@@ -55,7 +56,8 @@ export class DataSourcesService {
         }
 
         const virtualSource = await this._virtualDatasources.model.findOne({ name: { $regex: new RegExp(dataSource, 'i')} });
-        const fieldsWithData: string[] = await getFieldsWithData(this._container, virtualSource.source, fields, collectionSource);
+        const model = this._factory(virtualSource.source).model;
+        const fieldsWithData: string[] = await getFieldsWithData(model, fields, collectionSource);
 
         fields.forEach((f: DataSourceField) => {
             f.available = fieldsWithData.indexOf(f.name) !== -1;
@@ -67,7 +69,8 @@ export class DataSourcesService {
     async getDistinctValues(name: string, source: string, field: string, limit: number, filter: string): Promise<string[]> {
         try {
             const vs = await this._virtualDatasources.model.findOne({ name: { $regex: new RegExp(`^${name}$`, 'i') }  });
-            const model = (this._container.get(source) as any).model;
+            const model = this._factory(source).model;
+            // const model = (this._container.get(source) as any).model;
 
             let aggregate = [];
 
@@ -90,6 +93,7 @@ export class DataSourcesService {
         // i.e. 'established_customer'
         const dataSource: string = input.dataSource;
         const virtualSource: IVirtualSourceDocument = await this._virtualDatasources.model.getDataSourceByName(dataSource);
+        const model = this._factory(virtualSource.source).model;
 
         const expressionFields: DataSourceField[] = mapDataSourceFields(virtualSource);
         if (this._isGoogleAnalytics(virtualSource.source)) {
@@ -97,7 +101,7 @@ export class DataSourcesService {
         }
 
 
-        const fieldsWithData: string[] = await getFieldsWithData(this._container, virtualSource.source, expressionFields, collectionSource);
+        const fieldsWithData: string[] = await getFieldsWithData(model, expressionFields, collectionSource);
 
         expressionFields.forEach((n: DataSourceField) => {
             n.available = fieldsWithData.indexOf(n.name) !== -1;
@@ -111,12 +115,14 @@ export class DataSourcesService {
             const fields: DataSourceField[] = virtualSource.fields;
             // i.e. Sales
             const dataSource: string = virtualSource.dataSource;
+            const model = this._factory(dataSource).model;
+
             if (this._isGoogleAnalytics(dataSource)) {
                 return this._getGoogleAnalyticsFields(fields);
             }
 
             // i.e ['APS Nextech ( nextech )']
-            const sources: string[] = await getFieldsWithData(this._container, dataSource, fields, collectionSource);
+            const sources: string[] = await getFieldsWithData(model, fields, collectionSource);
 
             virtualSource.fields.forEach((f: DataSourceField) => {
                 f.available = isEmpty(sources) ? false : sources.indexOf(f.name) !== -1;

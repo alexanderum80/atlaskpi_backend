@@ -14,6 +14,10 @@ export interface ICriteriaAggregate {
     $group?: IObject;
 }
 
+export interface ICriteriaSearchable {
+    findCriteria(field: string, aggregate: any[], limit?: number, filter?: string): Promise<string[]>;
+}
+
 export function criteriaPlugin(schema: mongoose.Schema): void {
     schema.statics.findCriteria = findCriteria;
 }
@@ -25,7 +29,7 @@ function findCriteria(field: string, aggregate: any[], limit?: number, filter?: 
     return new Promise<string[]>((resolve, reject) => {
         const agg = that.aggregate(aggregateOptions);
         agg.options = { allowDiskUse: true };
-        
+
         agg.then(res => {
             const results = mapResults(res);
 

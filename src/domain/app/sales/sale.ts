@@ -1,6 +1,7 @@
 import * as Promise from 'bluebird';
 import * as mongoose from 'mongoose';
 import { IDateRange } from '../../common/date-range';
+import { ICriteriaSearchable } from '../../../app_modules/shared/criteria.plugin';
 
 export interface IEntity {
     externalId: string | number;
@@ -107,11 +108,10 @@ export interface IMapMarkerInput {
 
 export interface ISaleDocument extends ISales, mongoose.Document { }
 
-export interface ISaleModel extends mongoose.Model<ISaleDocument> {
+export interface ISaleModel extends mongoose.Model<ISaleDocument>, ICriteriaSearchable {
     findByPredefinedDateRange(predefinedDateRange: string): Promise<ISaleDocument[]>;
     amountByDateRange(from: string, to: string): Promise<Object>;
     salesEmployeeByDateRange(predefinedDateRange: string): Promise<Object>;
     monthsAvgSales(date: string): Promise<Object>;
-    findCriteria(field: string, aggregate: any[], limit?: number, filter?: string): Promise<string[]>;
     salesBy(type: TypeMap, input?: IMapMarkerInput): Promise<ISaleByZip[]>;
 }

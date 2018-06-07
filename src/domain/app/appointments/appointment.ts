@@ -6,6 +6,7 @@ import { SearchAppointmentCriteriaInput } from './../../../app_modules/appointme
 import { BaseModel } from './../../common/base.model';
 import { IIdName } from './../../common/id-name';
 import { IEntity } from './../sales/sale';
+import { ICriteriaSearchable } from '../../../app_modules/shared/criteria.plugin';
 
 export interface IAppointmentEvent extends IEntity {
     code: string;
@@ -78,7 +79,7 @@ export interface IAppointmentDocument extends IAppointment, mongoose.Document {
 
 }
 
-export interface IAppointmentModel extends mongoose.Model<IAppointmentDocument>, ISearchableModel {
+export interface IAppointmentModel extends mongoose.Model<IAppointmentDocument>, ISearchableModel, ICriteriaSearchable {
     createNew(input: IAppointment): Promise<IAppointmentDocument>;
     updateAppointment(id: string, input: IAppointment): Promise<IAppointmentDocument>;
     appointments(start: string, end: string): Promise<IAppointmentDocument[]>;
@@ -89,5 +90,4 @@ export interface IAppointmentModel extends mongoose.Model<IAppointmentDocument>,
 
     search(criteria: SearchAppointmentCriteriaInput): Promise<IAppointment[]>;
     providersList(): Promise<IIdName[]>;
-    findCriteria(field: string, aggregate: any[], limit?: number, filter?: string): Promise<string[]>;
 }

@@ -2,6 +2,7 @@ import * as Promise from 'bluebird';
 import * as mongoose from 'mongoose';
 
 import { IIdName } from '../../common/id-name';
+import { ICriteriaSearchable } from '../../../app_modules/shared/criteria.plugin';
 
 export interface IExpenseLine {
     concept: string;
@@ -29,9 +30,8 @@ export interface IExpense {
 
 export interface IExpenseDocument extends IExpense, mongoose.Document { }
 
-export interface IExpenseModel extends mongoose.Model<IExpenseDocument> {
+export interface IExpenseModel extends mongoose.Model<IExpenseDocument>, ICriteriaSearchable {
     findByPredefinedDateRange(predefinedDateRange: string): Promise<IExpenseDocument[]>;
     amountByDateRange(fromDate: string, toDate: string): Promise<Object>;
     monthsAvgExpense(date: string): Promise<Object>;
-    findCriteria(field: string, aggregate: any[], limit?: number, filter?: string): Promise<string[]>;
 }

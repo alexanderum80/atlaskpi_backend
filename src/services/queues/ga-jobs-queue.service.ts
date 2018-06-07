@@ -65,6 +65,7 @@ export class GAJobsQueueService {
                 // VERY IMPORTANT
                 // add delay of 100 milliseconds between google analytics queries
                 // .delay(this._lastTime.date())
+                // .attempts(3)
                 .save(function(err: any, data: any) {
                     if (err) {
                         console.error('There was an error creating job');

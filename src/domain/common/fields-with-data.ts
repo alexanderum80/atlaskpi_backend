@@ -13,13 +13,12 @@ interface ICollectionAggregation {
     $limit?: number;
 }
 
-export async function getFieldsWithData(container: Container, dataSource: string, fields: (DataSourceField|IValueName)[], collectionSource?: string[]): Promise <string[]> {
+export async function getFieldsWithData(model, fields: (DataSourceField|IValueName)[], collectionSource?: string[]): Promise <string[]> {
     try {
-        if (!container || !dataSource || isEmpty(fields)) {
+        if (!model || isEmpty(fields)) {
             return [];
         }
 
-        const model = (container.get(dataSource) as any).model;
         let fieldsWithData: string[] = [];
 
         const collectionAggregations = [];
