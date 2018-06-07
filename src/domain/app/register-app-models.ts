@@ -37,6 +37,8 @@ import { GoogleAnalytics } from './google-analytics/google-analytics.model';
 import { Tags } from './tags/tag.model';
 import { Attachments } from './attachments/attachment-model';
 import { VirtualSources } from './virtual-sources/virtual-source.model';
+import { ICriteriaSearchable } from '../../app_modules/shared/criteria.plugin';
+import { interfaces } from 'inversify';
 
 // import { ChartFormats } from './chart-formats/chart-format.model';
 interface IRegistrationInfo {

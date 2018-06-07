@@ -9,6 +9,7 @@ import * as Bluebird from 'bluebird';
 import { isObject, isEmpty } from 'lodash';
 import {KPIExpressionFieldInput} from '../app_modules/kpis/kpis.types';
 import {getFieldsWithData} from '../domain/common/fields-with-data';
+import { ICriteriaSearchable } from '../app_modules/shared/criteria.plugin';
 
 const COLLECTION_SOURCE_MAX_LIMIT = 20;
 const COLLECTION_SOURCE_FIELD_NAME = 'source';
@@ -19,7 +20,7 @@ export class DataSourcesService {
 
     constructor(
         @inject(Logger.name) private _logger: Logger,
-        @inject(Container.name) private _container: Container,
+        @inject('resolver') private _resolver: (name: string) => any,
         @inject(VirtualSources.name) private _virtualDatasources: VirtualSources) { }
 
     async get(): Promise<DataSourceResponse[]> {
@@ -57,17 +58,21 @@ export class DataSourcesService {
         }
 
         const virtualSource = await this._virtualDatasources.model.findOne({ name: { $regex: new RegExp(dataSource, 'i')} });
-        return await this._getDataSourceFields(virtualSource, fields, collectionSource);
+        const model = this._resolver(virtualSource.source).model;
+        const fieldsWithData: string[] = await getFieldsWithData(model, fields, collectionSource);
+
+        fields.forEach((f: DataSourceField) => {
+            f.available = fieldsWithData.indexOf(f.name) !== -1;
+        });
+
+        return fields;
     }
 
     async getDistinctValues(name: string, source: string, field: string, limit: number, filter: string): Promise<string[]> {
         try {
             const vs = await this._virtualDatasources.model.findOne({ name: { $regex: new RegExp(`^${name}$`, 'i') }  });
-            if (this._isGoogleAnalytics(vs.source)) {
-                return [];
-            }
-
-            const model = (this._container.get(source) as any).model;
+            const model = this._resolver(source).model;
+            // const model = (this._container.get(source) as any).model;
 
             let aggregate = [];
 
@@ -90,9 +95,21 @@ export class DataSourcesService {
         // i.e. 'established_customer'
         const dataSource: string = input.dataSource;
         const virtualSource: IVirtualSourceDocument = await this._virtualDatasources.model.getDataSourceByName(dataSource);
+        const model = this._resolver(virtualSource.source).model;
 
         const expressionFields: DataSourceField[] = mapDataSourceFields(virtualSource);
-        return await this._getDataSourceFields(virtualSource, expressionFields, collectionSource);
+        if (this._isGoogleAnalytics(virtualSource.source)) {
+            return this._getGoogleAnalyticsFields(expressionFields);
+        }
+
+
+        const fieldsWithData: string[] = await getFieldsWithData(model, expressionFields, collectionSource);
+
+        expressionFields.forEach((n: DataSourceField) => {
+            n.available = fieldsWithData.indexOf(n.name) !== -1;
+        });
+
+        return expressionFields;
     }
 
     async filterFieldsWithoutData(virtualSource: DataSourceResponse, collectionSource?: string[]): Promise<DataSourceField[]> {
@@ -100,23 +117,14 @@ export class DataSourcesService {
             const fields: DataSourceField[] = virtualSource.fields;
             // i.e. Sales
             const dataSource: string = virtualSource.dataSource;
+            const model = this._resolver(dataSource).model;
+
             if (this._isGoogleAnalytics(dataSource)) {
                 return this._getGoogleAnalyticsFields(fields);
             }
 
-            const name = virtualSource.name;
-            const vs = await this._virtualDatasources.model.findOne({ name: { $regex: new RegExp(`^${name}$`, 'i') }  });
-            let aggregate = [];
-            if (vs.aggregate) {
-                aggregate = vs.aggregate.map(a => {
-                    return KPIFilterHelper.CleanObjectKeys(a);
-                });
-            }
-
             // i.e ['APS Nextech ( nextech )']
-            let sources: string[] = await getFieldsWithData(this._container, dataSource, fields, collectionSource, aggregate) || [];
-            sources = sources.map(s => s.toLowerCase());
-
+            const sources: string[] = await getFieldsWithData(model, fields, collectionSource);
 
             virtualSource.fields.forEach((f: DataSourceField) => {
                 f.available = isEmpty(sources) ? false :

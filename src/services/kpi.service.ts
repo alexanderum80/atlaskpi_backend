@@ -47,7 +47,7 @@ export class KpiService {
         @inject(Widgets.name) private _widget: Widgets,
         @inject(VirtualSources.name) private _virtualSources: VirtualSources,
         @inject(Connectors.name) private _connectors: Connectors,
-        @inject(Container.name) private _container: Container
+        @inject('resolver') private _resolver: (name: string) => any,
     ) {}
 
     async getKpis(): Promise<IKPIDocument[]> {
@@ -261,7 +261,8 @@ export class KpiService {
                     return fields;
                 }
 
-                const fieldsWithData: string[] = await getFieldsWithData(that._container, source.source, fields);
+                const model = this._resolver(source.source).model;
+                const fieldsWithData: string[] = await getFieldsWithData(model, fields);
                 return fields.filter(field => fieldsWithData.indexOf(field.name) !== -1);
             });
 
