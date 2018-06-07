@@ -20,7 +20,7 @@ export class DataSourcesService {
 
     constructor(
         @inject(Logger.name) private _logger: Logger,
-        @inject('CriteriaSearchableFactory') private _factory: (name: string) => any,
+        @inject('resolver') private _resolver: (name: string) => any,
         @inject(VirtualSources.name) private _virtualDatasources: VirtualSources) { }
 
     async get(): Promise<DataSourceResponse[]> {
@@ -56,7 +56,7 @@ export class DataSourcesService {
         }
 
         const virtualSource = await this._virtualDatasources.model.findOne({ name: { $regex: new RegExp(dataSource, 'i')} });
-        const model = this._factory(virtualSource.source).model;
+        const model = this._resolver(virtualSource.source).model;
         const fieldsWithData: string[] = await getFieldsWithData(model, fields, collectionSource);
 
         fields.forEach((f: DataSourceField) => {
@@ -69,7 +69,7 @@ export class DataSourcesService {
     async getDistinctValues(name: string, source: string, field: string, limit: number, filter: string): Promise<string[]> {
         try {
             const vs = await this._virtualDatasources.model.findOne({ name: { $regex: new RegExp(`^${name}$`, 'i') }  });
-            const model = this._factory(source).model;
+            const model = this._resolver(source).model;
             // const model = (this._container.get(source) as any).model;
 
             let aggregate = [];
@@ -93,7 +93,7 @@ export class DataSourcesService {
         // i.e. 'established_customer'
         const dataSource: string = input.dataSource;
         const virtualSource: IVirtualSourceDocument = await this._virtualDatasources.model.getDataSourceByName(dataSource);
-        const model = this._factory(virtualSource.source).model;
+        const model = this._resolver(virtualSource.source).model;
 
         const expressionFields: DataSourceField[] = mapDataSourceFields(virtualSource);
         if (this._isGoogleAnalytics(virtualSource.source)) {
@@ -115,7 +115,7 @@ export class DataSourcesService {
             const fields: DataSourceField[] = virtualSource.fields;
             // i.e. Sales
             const dataSource: string = virtualSource.dataSource;
-            const model = this._factory(dataSource).model;
+            const model = this._resolver(dataSource).model;
 
             if (this._isGoogleAnalytics(dataSource)) {
                 return this._getGoogleAnalyticsFields(fields);

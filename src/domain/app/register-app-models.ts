@@ -94,13 +94,4 @@ export function registerAppModels(container: IBridgeContainer) {
     container.registerPerWebRequest(Logger);
     container.registerPerWebRequest(CurrentUser);
     container.registerPerWebRequest(CurrentAccount);
-
-    // in the case of criterias for kpis I need to be able to inject
-    // dynamic models that is what this factory is used for
-    container.bind<ICriteriaSearchable>('CriteriaSearchableFactory')
-        .toFactory<ICriteriaSearchable>((context: interfaces.Context) => {
-            return (name: string) => {
-                return context.container.get<ICriteriaSearchable>(name);
-            };
-        });
 }

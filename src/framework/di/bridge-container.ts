@@ -50,6 +50,15 @@ export class BridgeContainer implements IBridgeContainer {
     constructor(private _container: Container) {
         // this.__perRequestTypesRegistrations = {};
         this._containerModules = [];
+
+        // in the case of criterias for kpis I need to be able to inject
+        // dynamic models that is what this factory is used for
+        this._container.bind<any>('resolver')
+            .toFactory<any>((context: interfaces.Context) => {
+                return (name: string) => {
+                    return context.container.get<any>(name);
+                };
+            });
     }
 
     // get container(): Container {
