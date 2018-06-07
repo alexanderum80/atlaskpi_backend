@@ -1020,7 +1020,7 @@ export class UIChartBase {
                 let comparisonString: string = '';
                 if (stack === 'main') {
                     if (that.chart && Array.isArray(that.chart.dateRange)) {
-                        comparisonString = that.chart.dateRange[0].predefined;
+                        comparisonString = that.chart.dateRange[0].predefined || 'custom';
                     }
                 } else {
                     if (dateRangeId && stack) {
