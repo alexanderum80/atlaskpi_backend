@@ -1082,7 +1082,8 @@ export class UIChartBase {
                 comparisonString = moment(dateFrom).format('MMMM YYYY');
                 break;
             case FrequencyEnum.Quartely:
-                comparisonString = moment(dateFrom).quarter().toString();
+                const qtr = moment(dateFrom).quarter().toString();
+                comparisonString = `Q${qtr}`;
                 break;
         }
 
