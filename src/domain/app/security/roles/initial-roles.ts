@@ -93,7 +93,9 @@ export const initialRoles  = {
             { action: 'Create', subject: 'User' },
             { action: 'View', subject: 'User' },
             { action: 'Modify', subject: 'User' },
-            { action: 'Delete', subject: 'User' }
+            { action: 'Delete', subject: 'User' },
+            // smart bar
+            { action: 'View', subject: 'SmartBar' }
         ],
         semiAdmin: [
             // chart
@@ -182,7 +184,9 @@ export const initialRoles  = {
             { action: 'Create', subject: 'User' },
             { action: 'View', subject: 'User' },
             { action: 'Modify', subject: 'User' },
-            { action: 'Delete', subject: 'User' }
+            { action: 'Delete', subject: 'User' },
+            // smart bar
+            { action: 'View', subject: 'SmartBar' }
         ],
         manager: [
             // chart
@@ -251,7 +255,9 @@ export const initialRoles  = {
             // users
             { action: 'Create', subject: 'User' },
             { action: 'View', subject: 'User' },
-            { action: 'Modify', subject: 'User' }
+            { action: 'Modify', subject: 'User' },
+            // smart bar
+            { action: 'View', subject: 'SmartBar' }
         ],
         supervisor: [
             // chart
@@ -305,7 +311,9 @@ export const initialRoles  = {
             { action: 'View', subject: 'Slideshow' },
             // users
             { action: 'View', subject: 'User' },
-            { action: 'Modify', subject: 'User' }
+            { action: 'Modify', subject: 'User' },
+            // smart bar
+            { action: 'View', subject: 'SmartBar' }
         ],
         externalUser: [
           // chart
@@ -658,5 +666,10 @@ export const allPermissions = [
   {
     'action': 'Delete',
     'subject': 'User'
+  },
+  // Smart bar
+  {
+    'action': 'View',
+    'subject': 'SmartBar'
   }
 ];
