@@ -4,6 +4,7 @@ import { GoogleAnalyticsKPIService } from '../kpis/google-analytics-kpi/google-a
 import { IDateRange } from '../../domain/common/date-range';
 import { FrequencyEnum } from '../../domain/common/frequency-enum';
 import * as moment from 'moment';
+import { config } from '../../configuration/config';
 
 // let queue = require('kue');
 
@@ -23,8 +24,8 @@ let queue = require('kue-scheduler');
 const _jobs = queue.createQueue({
     prefix: 'webapp',
     redis: {
-        port: 6379,
-        host: 'localhost'
+        port: config.cache.redisPort, // 6379,
+        host: config.cache.redisServer, // 'localhost'
     }
 });
 
