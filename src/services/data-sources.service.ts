@@ -72,7 +72,10 @@ export class DataSourcesService {
         try {
             const vs = await this._virtualDatasources.model.findOne({ name: { $regex: new RegExp(`^${name}$`, 'i') }  });
             const model = this._resolver(source).model;
-            // const model = (this._container.get(source) as any).model;
+            
+            if (!model || !model.findCriteria) {
+                return [];
+            }
 
             let aggregate = [];
 
