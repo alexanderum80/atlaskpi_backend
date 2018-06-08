@@ -1,17 +1,18 @@
-import { IBatchProperties } from './../../../services/kpis/google-analytics-kpi/google-analytics.helper';
-import { cloneDeep, uniq } from 'lodash';
+import { cloneDeep } from 'lodash';
 import * as moment from 'moment';
-import * as mongoose from 'mongoose';
 
 import { GoogleAnalytics } from '../../../domain/app/google-analytics/google-analytics.model';
-import { IKPIDocument, IKPISimpleDefinition, KPITypeEnum, IKPI } from '../../../domain/app/kpis/kpi';
-import { IDateRange } from '../../../domain/common/date-range';
-import { KPIExpressionHelper } from './../../../domain/app/kpis/kpi-expression.helper';
-import { AggregateStage } from './aggregate';
-import { IGetDataOptions, IKpiBase, KpiBase, ICollection } from './kpi-base';
-import { GoogleAnalyticsKPIService } from '../../../services/kpis/google-analytics-kpi/google-analytics-kpi.service';
-import { SimpleKPIBase } from './simple-kpi-base';
+import { IKPI, IKPIDocument, IKPISimpleDefinition, KPITypeEnum } from '../../../domain/app/kpis/kpi';
 import { IVirtualSourceDocument } from '../../../domain/app/virtual-sources/virtual-source';
+import { IDateRange } from '../../../domain/common/date-range';
+import { GoogleAnalyticsKPIService } from '../../../services/kpis/google-analytics-kpi/google-analytics-kpi.service';
+import { KPIExpressionHelper } from './../../../domain/app/kpis/kpi-expression.helper';
+import { IBatchProperties } from './../../../services/kpis/google-analytics-kpi/google-analytics.helper';
+import { AggregateStage } from './aggregate';
+import { IGetDataOptions, IKpiBase } from './kpi-base';
+import { SimpleKPIBase } from './simple-kpi-base';
+import { GAJobsQueueService } from '../../../services/queues/ga-jobs-queue.service';
+import { CurrentAccount } from '../../../domain/master/current-account';
 
 export class GoogleAnalyticsKpi extends SimpleKPIBase implements IKpiBase {
 
@@ -20,6 +21,8 @@ export class GoogleAnalyticsKpi extends SimpleKPIBase implements IKpiBase {
     public static CreateFromExpression( kpi: IKPIDocument,
                                         googleAnalytics: GoogleAnalytics,
                                         googleAnalyticsKpiService: GoogleAnalyticsKPIService,
+                                        queueService: GAJobsQueueService,
+                                        currentAccount: CurrentAccount,
                                         virtualSources: IVirtualSourceDocument[]): GoogleAnalyticsKpi {
 
         const kpiDefinition: IKPISimpleDefinition = KPIExpressionHelper.DecomposeExpression(KPITypeEnum.ExternalSource, kpi.expression);
@@ -57,7 +60,15 @@ export class GoogleAnalyticsKpi extends SimpleKPIBase implements IKpiBase {
         kpiDefinition.dataSource = kpiDefinition.dataSource.replace('$', '');
         const gaVirtualSource = virtualSources.find(vs => vs.name === 'google_analytics');
 
-        return new GoogleAnalyticsKpi(googleAnalytics.model, aggregateSkeleton, kpiDefinition, kpi, googleAnalyticsKpiService, gaVirtualSource);
+        return new GoogleAnalyticsKpi(
+            googleAnalytics.model,
+            aggregateSkeleton,
+            kpiDefinition,
+            kpi,
+            googleAnalyticsKpiService,
+            queueService,
+            currentAccount,
+            gaVirtualSource);
     }
 
 
@@ -66,34 +77,22 @@ export class GoogleAnalyticsKpi extends SimpleKPIBase implements IKpiBase {
                         private _definition: IKPISimpleDefinition,
                         private _kpi: IKPI,
                         private _googleAnalyticsKpiService: GoogleAnalyticsKPIService,
+                        private _queueService: GAJobsQueueService,
+                        private _currentAccount: CurrentAccount,
                         private _virtualSource: IVirtualSourceDocument) {
         super(model, _baseAggregate);
 
         this.collection = { modelName: 'GoogleAnalytics', timestampField: 'date' };
 
-        // if (this._kpi && this._kpi.filter)
-        //     this._deserializedFilter = this._cleanFilter(this._kpi.filter);
-
-        // if (this._deserializedFilter)
-        //     this._injectPreGroupStageFilters({}, _definition.field);
-
         this._injectFieldToProjection(_definition.field);
         this._injectAcumulatorFunctionAndArgs(_definition);
-
-        // if (this._deserializedFilter)
-        //     this._injectPostGroupStageFilters(this._deserializedFilter, _definition.field);
-    }
+   }
 
     getData(dateRange?: IDateRange[], options?: IGetDataOptions): Promise<any> {
-        const firstDateRange = dateRange && dateRange[0];
-
-        const startDate = moment(firstDateRange.from).format('YYYY-MM-DD');
-        const endDate = moment(firstDateRange.to).format('YYYY-MM-DD');
-
         // the way to deal with and cases for google analytics its a little bit different
         if (this._kpi.filter) {
-            var andOptions = this._kpi.filter['__dollar__and'];
-        
+            let andOptions = this._kpi.filter['__dollar__and'];
+
             if (andOptions) {
                 const f = {};
 
@@ -105,7 +104,6 @@ export class GoogleAnalyticsKpi extends SimpleKPIBase implements IKpiBase {
                 this._kpi.filter = f;
             }
         }
-        
 
         const preparedFilters = this._getFilterString(this._kpi.filter);
         let filterGroupings = null;
@@ -116,6 +114,7 @@ export class GoogleAnalyticsKpi extends SimpleKPIBase implements IKpiBase {
         }
 
         const that = this;
+
         return this._cacheData(dateRange, preparedFilters, options, filterGroupings)
                     .then(batch => {
                         that._injectPreGroupStageFilters({ _batchId: batch._batchId }, that._definition.field);
@@ -163,37 +162,35 @@ export class GoogleAnalyticsKpi extends SimpleKPIBase implements IKpiBase {
         return filterString;
     }
 
-    private _cacheData(dateRange?: IDateRange[],  filters?: string, options?: IGetDataOptions, filterGroupungs?: string[]): Promise<IBatchProperties> {
-        const firstDateRange = dateRange && dateRange[0];
-
-        const startDate = moment(firstDateRange.from).format('YYYY-MM-DD');
-        const endDate = moment(firstDateRange.to).format('YYYY-MM-DD');
-
+    private async _cacheData(dateRange?: IDateRange[],  filters?: string, options?: IGetDataOptions, filterGroupings?: string[]): Promise<IBatchProperties> {
         // get the groupings
         // options groupings have precedence over kpi groupings
         let groupings = options.groupings  && options.groupings.length  && options.groupings  ||
                           this._kpi.groupings && this._kpi.groupings.length && this._kpi.groupings.map(g => g.value) ||
                           [];
 
-        if (filterGroupungs) {
-            groupings = groupings.concat(filterGroupungs);
+        if (filterGroupings) {
+            groupings = groupings.concat(filterGroupings);
         }
 
-        // groupings = [...groupings, ...filterGroupungs];
+        // queue GA job
+        const job = await this._queueService.addGAJob(
+            this._currentAccount.get.name,
+            this._definition.dataSource,
+            dateRange,
+            this._definition.field,
+            options.frequency,
+            filters,
+            groupings);
 
-        const that = this;
-        return this ._googleAnalyticsKpiService
-                    .initializeConnection(this._definition.dataSource)
-                    .then((res) => {
-                        return that._googleAnalyticsKpiService
-                                    .cacheData( res.analytics,
-                                                res.authClient,
-                                                startDate,
-                                                endDate,
-                                                this._definition.field,
-                                                options.frequency,
-                                                filters,
-                                                groupings);
-                    });
+        return new Promise<IBatchProperties>((resolve, reject) => {
+            job.on('complete', function(result) {
+                console.log('Job completed with data ', result);
+                resolve(result);
+            }).on('failed', function(errorMessage) {
+                console.log('Job failed');
+                reject(errorMessage);
+            });
+        });
     }
 }

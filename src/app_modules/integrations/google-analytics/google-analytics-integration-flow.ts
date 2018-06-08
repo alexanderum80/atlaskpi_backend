@@ -1,5 +1,6 @@
 import * as Promise from 'bluebird';
-import * as googleapis from 'googleapis';
+// import * as googleapis from 'googleapis';
+const googleapis = require('googleapis');
 
 import { IOAuthConnector } from '../models/connector-base';
 import { getConnectorTypeId } from '../models/connector-type';

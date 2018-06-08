@@ -24,6 +24,7 @@ import { LeadReceivedNotification } from './notifications/users/lead-received.no
 import { BaseAttachmentsService } from './attachments/base-attachments.service';
 import { UserAttachmentsService } from './attachments/user-attachments.service';
 import { DataSourcesService } from './data-sources.service';
+import { GAJobsQueueService } from './queues/ga-jobs-queue.service';
 
 export function registerServices(container: IBridgeContainer) {
     container.registerSingleton(AccountsService);
@@ -32,6 +33,7 @@ export function registerServices(container: IBridgeContainer) {
     // container.registerSingleton(BaseAttachmentsService);
     container.registerSingleton(UserAttachmentsService);
     container.registerSingleton(DataSourcesService);
+    container.registerSingleton(GAJobsQueueService);
 
     // notifications
     container.registerSingleton(TargetNotification);
@@ -56,4 +58,5 @@ export function registerServices(container: IBridgeContainer) {
     container.registerPerWebRequest(GoogleAnalyticsKPIService);
     container.registerPerWebRequest(ExternalDataSourcesService);
     container.registerPerWebRequest(UserPasswordService);
+    
 }

@@ -1,4 +1,5 @@
-import * as googleapis from 'googleapis';
+// import * as googleapis from 'googleapis';
+const googleapis = require('googleapis');
 
 import { IConnectorDocument } from '../../../domain/master/connectors/connector';
 
