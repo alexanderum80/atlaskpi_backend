@@ -68,6 +68,27 @@ export class KpiService {
         return kpiList;
     }
 
+    async getKpisAndFieldsWithData(): Promise<IKPIDocument[]> {
+        const kpis = await this._kpis.model.find({});
+        const virtualSources = await this._virtualSources.model.find({});
+        const connectors = await this._connectors.model.find({});
+
+        // process available groupings
+        const kpiList = await Bluebird.map(kpis, async (k) => {
+            const kpiSources: string[] = this._getKpiSources(k, kpis, connectors);
+            // find common field paths on the sources
+            const groupingInfo = await this._getCommonSourcePaths(kpiSources, virtualSources);
+            const sources = virtualSources.filter(v => kpiSources.indexOf(v.name.toLocaleLowerCase()) !== -1);
+
+            const fieldsWithData = await this._fieldsWithData(sources, groupingInfo);
+            k.groupingInfo = fieldsWithData || [];
+
+            return k;
+        });
+
+        return kpiList;
+    }
+
     async getKpi(id: string): Promise<IKPIDocument> {
         const doc = await this._kpis.model.findOne({ _id: id });
         const virtualSources = await this._virtualSources.model.find({});
@@ -225,7 +246,7 @@ export class KpiService {
             }
 
             if (fieldPaths.length === 1) {
-                return await this._fieldsWithData(sources, fieldPaths[0]);
+                return fieldPaths[0];
             }
 
             fieldPaths[0].forEach(f => {
@@ -245,7 +266,7 @@ export class KpiService {
                 }
             });
 
-            return await this._fieldsWithData(sources, commonFields);
+            return commonFields;
         } catch (err) {
             console.error('error gettin common source paths', err);
             return [];
@@ -261,9 +282,18 @@ export class KpiService {
                     return fields;
                 }
 
+                let aggregate = [];
+                if (source.aggregate) {
+                    aggregate = source.aggregate.map(a => {
+                        return KPIFilterHelper.CleanObjectKeys(a);
+                    });
+                }
                 const model = this._resolver(source.source).model;
-                const fieldsWithData: string[] = await getFieldsWithData(model, fields);
-                return fields.filter(field => fieldsWithData.indexOf(field.name) !== -1);
+                const fieldsWithData: string[] = await getFieldsWithData(model, fields, [], aggregate);
+                return fields.filter(field => {
+                    return fieldsWithData.indexOf(field.name) !== -1 ||
+                           fieldsWithData.indexOf(field.value) !== -1;
+                });
             });
 
             if (!existingFields) {

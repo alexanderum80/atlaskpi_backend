@@ -5,6 +5,7 @@ import { isObject, isEmpty, isNull, pick, isNumber, sortBy } from 'lodash';
 import {IObject} from '../../app_modules/shared/criteria.plugin';
 import * as Bluebird from 'bluebird';
 import { dotCase, camelCase } from 'change-case';
+import * as mongoose from 'mongoose';
 
 export const blackListDataSource = ['GoogleAnalytics'];
 
@@ -80,6 +81,7 @@ async function getData(field: DataSourceField|IValueName, model: any, notIn: IOb
 
 function getAggregateResult(model: any, aggObject: IObject[]): Promise<any> {
     return new Promise<any>((resolve, reject) => {
+        mongoose.set('debug', true);
         model.aggregate(aggObject).exec((err, data) => {
             resolve(data);
         }, (e) => {

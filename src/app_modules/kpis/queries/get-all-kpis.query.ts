@@ -1,4 +1,3 @@
-import * as Promise from 'bluebird';
 import { inject, injectable } from 'inversify';
 
 import { KPIs } from '../../../domain/app/kpis/kpi.model';
@@ -10,6 +9,9 @@ import { KPIPagedQueryResult } from '../kpis.types';
 
 import { IPaginationDetails, IPagedQueryResult } from '../../../framework/queries/pagination';
 import { IKPI } from '../../../domain/app/kpis/kpi';
+import {KpiService} from '../../../services/kpi.service';
+import { KPI } from '../kpis.types';
+import { IKPIDocument } from '../../../domain/app/kpis/kpi';
 
 @injectable()
 @query({
@@ -18,13 +20,13 @@ import { IKPI } from '../../../domain/app/kpis/kpi';
     parameters: [
         { name: 'details', type: PaginationDetails },
     ],
-    output: { type: KPIPagedQueryResult }
+    output: { type: KPI, isArray: true }
 })
-export class GetAllKpIsQuery implements IQuery<IPagedQueryResult<IKPI>> {
+export class GetAllKpIsQuery implements IQuery<IKPIDocument[]> {
 
-    constructor(@inject('KPIs') private _kpis: KPIs) { }
+    constructor(@inject(KpiService.name) private _kpiSvc: KpiService) { }
 
-    run(data: IPaginationDetails): Promise<IPagedQueryResult<IKPI>> {
-        return this._kpis.model.getAllKPIs(data);
+    async run(data: any): Promise<IKPIDocument[]> {
+        return await this._kpiSvc.getKpisAndFieldsWithData();
     }
 }
