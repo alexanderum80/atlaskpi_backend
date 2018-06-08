@@ -885,6 +885,10 @@ export class UIChartBase {
     protected _getComparisonDateRanges(dateRange: IChartDateRange[], comparisonOptions: string[]): IDateRange[] {
        if (!dateRange || !comparisonOptions) return;
 
+       if (Array.isArray(comparisonOptions) && isEmpty(comparisonOptions[0])) {
+           return;
+       }
+
        return comparisonOptions.map(c => {
             if (isEmpty(c)) return;
             return parseComparisonDateRange(this._processChartDateRange(dateRange[0]), c);
