@@ -72,7 +72,7 @@ export class DataSourcesService {
         try {
             const vs = await this._virtualDatasources.model.findOne({ name: { $regex: new RegExp(`^${name}$`, 'i') }  });
             const model = this._resolver(source).model;
-            
+
             if (!model || !model.findCriteria) {
                 return [];
             }
