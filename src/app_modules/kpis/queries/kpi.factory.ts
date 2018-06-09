@@ -82,7 +82,7 @@ export class KpiFactory {
             case 'Revenue':
                 return new Revenue(this._sales.model);
             case 'Expenses':
-                return new ExpensesKPI(this._expenses.model);
+                return new ExpensesKPI(this._expenses.model, virtualSources);
             default:
                 return null;
         }
