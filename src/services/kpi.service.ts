@@ -71,7 +71,7 @@ export class KpiService {
             if (filterFieldsWithoutData) {
                 const sources = virtualSources.filter(v => kpiSources.indexOf(v.name.toLocaleLowerCase()) !== -1);
 
-                // i.e nextech
+                // i.e [criteria: nextech]
                 const kpiFilter: any = KPIFilterHelper.PrepareFilterField(k.type, k.filter);
                 const fieldsWithData = await this._fieldsWithData(sources, groupingInfo, kpiFilter);
 
