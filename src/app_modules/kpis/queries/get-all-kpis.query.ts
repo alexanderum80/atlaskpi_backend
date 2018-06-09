@@ -27,6 +27,6 @@ export class GetAllKpIsQuery implements IQuery<IKPIDocument[]> {
     constructor(@inject(KpiService.name) private _kpiSvc: KpiService) { }
 
     async run(data: any): Promise<IKPIDocument[]> {
-        return await this._kpiSvc.getKpisAndFieldsWithData();
+        return await this._kpiSvc.getKpis(true);
     }
 }

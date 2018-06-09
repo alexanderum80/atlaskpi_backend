@@ -1,6 +1,6 @@
 import * as Bluebird from 'bluebird';
 import {inject, injectable, Container} from 'inversify';
-import { isObject, intersectionBy } from 'lodash';
+import { isObject, intersectionBy, cloneDeep, isEmpty } from 'lodash';
 import { DocumentQuery } from 'mongoose';
 
 import { IChartDocument } from '../domain/app/charts/chart';
@@ -9,8 +9,15 @@ import { IExpenseModel } from '../domain/app/expenses/expense';
 import { Expenses } from '../domain/app/expenses/expense.model';
 import { IInventoryModel } from '../domain/app/inventory/inventory';
 import { Inventory } from '../domain/app/inventory/inventory.model';
-import { IDocumentExist, IKPI, IKPIDocument, KPITypeEnum, KPITypeMap } from '../domain/app/kpis/kpi';
-import { KPIExpressionHelper } from '../domain/app/kpis/kpi-expression.helper';
+import {
+    IDocumentExist,
+    IKPI,
+    IKPIDocument,
+    KPITypeEnum,
+    KPITypeMap,
+    IKPIFilter
+} from '../domain/app/kpis/kpi';
+import {KPIExpressionHelper} from '../domain/app/kpis/kpi-expression.helper';
 import { KPIFilterHelper } from '../domain/app/kpis/kpi-filter.helper';
 import { KPIs } from '../domain/app/kpis/kpi.model';
 import { ISaleModel } from '../domain/app/sales/sale';
@@ -50,7 +57,7 @@ export class KpiService {
         @inject('resolver') private _resolver: (name: string) => any,
     ) {}
 
-    async getKpis(): Promise<IKPIDocument[]> {
+    async getKpis(filterFieldsWithoutData?: boolean): Promise<IKPIDocument[]> {
         const kpis = await this._kpis.model.find({});
         const virtualSources = await this._virtualSources.model.find({});
         const connectors = await this._connectors.model.find({});
@@ -60,28 +67,18 @@ export class KpiService {
             const kpiSources: string[] = this._getKpiSources(k, kpis, connectors);
             // find common field paths on the sources
             const groupingInfo = await this._getCommonSourcePaths(kpiSources, virtualSources);
-            k.groupingInfo = groupingInfo || [];
 
-            return k;
-        });
+            if (filterFieldsWithoutData) {
+                const sources = virtualSources.filter(v => kpiSources.indexOf(v.name.toLocaleLowerCase()) !== -1);
 
-        return kpiList;
-    }
+                // i.e nextech
+                const kpiFilter: any = KPIFilterHelper.PrepareFilterField(k.type, k.filter);
+                const fieldsWithData = await this._fieldsWithData(sources, groupingInfo, kpiFilter);
 
-    async getKpisAndFieldsWithData(): Promise<IKPIDocument[]> {
-        const kpis = await this._kpis.model.find({});
-        const virtualSources = await this._virtualSources.model.find({});
-        const connectors = await this._connectors.model.find({});
-
-        // process available groupings
-        const kpiList = await Bluebird.map(kpis, async (k) => {
-            const kpiSources: string[] = this._getKpiSources(k, kpis, connectors);
-            // find common field paths on the sources
-            const groupingInfo = await this._getCommonSourcePaths(kpiSources, virtualSources);
-            const sources = virtualSources.filter(v => kpiSources.indexOf(v.name.toLocaleLowerCase()) !== -1);
-
-            const fieldsWithData = await this._fieldsWithData(sources, groupingInfo);
-            k.groupingInfo = fieldsWithData || [];
+                k.groupingInfo = fieldsWithData || [];
+            } else {
+                k.groupingInfo = groupingInfo || [];
+            }
 
             return k;
         });
@@ -273,7 +270,7 @@ export class KpiService {
         }
     }
 
-    private async _fieldsWithData(sources: IVirtualSourceDocument[], fields: IValueName[]): Promise<IValueName[]> {
+    private async _fieldsWithData(sources: IVirtualSourceDocument[], fields: IValueName[], kpiFilter?: IKPIFilter[]): Promise<IValueName[]> {
         const that = this;
 
         try {
@@ -289,7 +286,9 @@ export class KpiService {
                     });
                 }
                 const model = this._resolver(source.source).model;
-                const fieldsWithData: string[] = await getFieldsWithData(model, fields, [], aggregate);
+                const collectionSource: string[] = this._getCollectionSource(kpiFilter);
+                const fieldsWithData: string[] = await getFieldsWithData(model, fields, collectionSource, aggregate);
+
                 return fields.filter(field => {
                     return fieldsWithData.indexOf(field.name) !== -1 ||
                            fieldsWithData.indexOf(field.value) !== -1;
@@ -313,6 +312,21 @@ export class KpiService {
         } catch (e) {
             throw new Error('error getting fields with data');
         }
+    }
+
+    private _getCollectionSource(kpiFilter: IKPIFilter[]): string [] {
+        if (!Array.isArray(kpiFilter) || isEmpty(kpiFilter)) {
+            return [];
+        }
+
+        const cloneKpiFilter: IKPIFilter[] = cloneDeep(kpiFilter);
+
+        const source: IKPIFilter = cloneKpiFilter.find(k => k.criteria === 'source');
+        if (!source) {
+            return [];
+        }
+
+        return source.criteria.split('|');
     }
 
     private _kpiInUseByModel(id: string): Promise<IDocumentExist> {
