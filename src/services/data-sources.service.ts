@@ -27,7 +27,9 @@ export class DataSourcesService {
         let virtualSources = await this._virtualDatasources.model.getDataSources();
         virtualSources = await Bluebird.map(
                                     virtualSources,
-                                    async (virtualSource: DataSourceResponse) => await this.getCollectionSource(virtualSource));
+                                    async (virtualSource: DataSourceResponse) => await this.getCollectionSource(virtualSource), {
+                                        concurrency: 1
+                                    });
         return sortBy(virtualSources, 'name');
     }
 
@@ -51,7 +53,7 @@ export class DataSourcesService {
      * @param data
      */
     async getKPIFilterFieldsWithData(dataSource: string, collectionSource: string[], fields: DataSourceField[]): Promise<DataSourceField[]> {
-        if (!dataSource && !collectionSource) {
+        if (!dataSource) {
             return [];
         }
 
@@ -70,7 +72,10 @@ export class DataSourcesService {
         try {
             const vs = await this._virtualDatasources.model.findOne({ name: { $regex: new RegExp(`^${name}$`, 'i') }  });
             const model = this._resolver(source).model;
-            // const model = (this._container.get(source) as any).model;
+            
+            if (!model || !model.findCriteria) {
+                return [];
+            }
 
             let aggregate = [];
 
@@ -122,16 +127,39 @@ export class DataSourcesService {
             }
 
             // i.e ['APS Nextech ( nextech )']
-            const sources: string[] = await getFieldsWithData(model, fields, collectionSource);
+            let sources: string[] = await getFieldsWithData(model, fields, collectionSource);
+            sources = sources.map(s => s.toLowerCase());
 
             virtualSource.fields.forEach((f: DataSourceField) => {
-                f.available = isEmpty(sources) ? false : sources.indexOf(f.name) !== -1;
+                f.available = isEmpty(sources) ? false :
+                              (sources.indexOf(f.name.toLowerCase()) !== -1 || sources.indexOf(f.path.toLowerCase()) !== -1);
             });
             return virtualSource.fields;
         } catch (err) {
             console.error('error filtering fields without data', err);
             return [];
         }
+    }
+
+    private async _getDataSourceFields(vs: IVirtualSourceDocument, fields: DataSourceField[], collectionSource: string[]): Promise<DataSourceField[]> {
+        if (this._isGoogleAnalytics(vs.source)) {
+            return this._getGoogleAnalyticsFields(fields);
+        }
+
+        let aggregate = [];
+        if (vs.aggregate) {
+            aggregate = vs.aggregate.map(a => {
+                return KPIFilterHelper.CleanObjectKeys(a);
+            });
+        }
+
+        const model = this._resolver(vs.source).model;
+        const fieldsWithData: string[] = await getFieldsWithData(model, fields, collectionSource, aggregate);
+        fields.forEach((n: DataSourceField) => {
+            n.available = fieldsWithData.indexOf(n.name) !== -1;
+        });
+
+        return fields;
     }
 
     private _isGoogleAnalytics(dataSource: string): boolean {

@@ -64,10 +64,6 @@ function criteriaAggregation(input: {field: string, limit?: number, filter?: str
     // get the $match object
     let matchStage: ICriteriaAggregate = findStage(aggregate, '$match');
 
-    // contain regular expression that is case insensitive
-    const reg: RegExp = new RegExp(input.filter, 'i');
-    // i.e. match: { [field]: { $regex: reg } }
-
     if (!matchStage.$match) {
         matchStage.$match = {};
     }
