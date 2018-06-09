@@ -91,7 +91,7 @@ function getAggregateResult(model: any, aggObject: IObject[]): Promise<any> {
             resolve(data);
         }, (e) => {
             reject(e);
-    });
+        });
     });
 }
 
