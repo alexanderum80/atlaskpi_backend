@@ -1,5 +1,6 @@
 import * as mongoose from 'mongoose';
 import * as Promise from 'bluebird';
+import { ICriteriaSearchable } from '../../../app_modules/shared/criteria.plugin';
 
 export interface ICompany {
     externalId: string;
@@ -64,6 +65,5 @@ export interface ICall {
 
 export interface ICallDocument extends ICall, mongoose.Document {}
 
-export interface ICallModel extends mongoose.Model<ICallDocument> {
-    findCriteria(field: string, aggregate: any[], limit?: number, filter?: string): Promise<string[]>;
+export interface ICallModel extends mongoose.Model<ICallDocument>, ICriteriaSearchable {
 }

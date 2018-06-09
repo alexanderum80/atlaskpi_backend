@@ -1,4 +1,5 @@
-import * as google from 'googleapis';
+// import * as google from 'googleapis';
+const google = require('googleapis');
 import * as logger from 'winston';
 import importSpreadSheetData from './kpibi-importer';
 import * as Promise from 'bluebird';

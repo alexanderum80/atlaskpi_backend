@@ -82,5 +82,9 @@ export const config: IAppConfig = {
     aws: {
         accessKeyId: process.env.AKPI_AWS_ACCESSKEY_ID || 'AKIAIFEP6XNL3HGHDRCQ',
         secretAccessKey: process.env.AKPI_AWS_SECRET_ACCESS_KEY || '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'
+    },
+    cache: {
+        redisServer: process.env.AKPI_REDIS_SERVER || '35.172.178.73',
+        redisPort: process.env.AKPI_REDIS_PORT || '6379'
     }
 };

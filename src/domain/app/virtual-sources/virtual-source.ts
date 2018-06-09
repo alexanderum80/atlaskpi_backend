@@ -1,6 +1,6 @@
 
 import * as mongoose from 'mongoose';
-import { DataSourceResponse } from '../../../app_modules/data-sources/data-sources.types';
+import { DataSourceField, DataSourceResponse } from '../../../app_modules/data-sources/data-sources.types';
 import { IValueName } from '../../common/value-name';
 
 export interface IFieldMetadata {
@@ -43,6 +43,7 @@ export interface IVirtualSourceDocument extends IVirtualSource, mongoose.Documen
     getGroupingFieldPaths(): IValueName[];
     getFieldDefinition(fieldName: string);
     getDataTypeOperator(dataType: string, filterName: string): IFilterOperator;
+    mapDataSourceFields(virtualSource: IVirtualSourceDocument): DataSourceField[];
     // containsPath(path: string): boolean;
 }
 

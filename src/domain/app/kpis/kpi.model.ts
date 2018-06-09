@@ -25,6 +25,7 @@ let ChartDateRangeSchema = {
     }
 };
 
+
 let KPISchema = new Schema({
     code: String,
     name: { type: String, unique: true, required: true },

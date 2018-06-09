@@ -1,5 +1,6 @@
 import * as mongoose from 'mongoose';
 import { IIdName } from '../../common/id-name';
+import { ICriteriaSearchable } from '../../../app_modules/shared/criteria.plugin';
 
 export interface IInventoryProduct {
     externalId: string;
@@ -20,6 +21,5 @@ export interface IInventory {
 
 export interface IInventoryDocument extends mongoose.Document { }
 
-export interface IInventoryModel extends mongoose.Model<IInventoryDocument> {
-    findCriteria(field: string, aggregate: any[], limit?: number, filter?: string): Promise<string[]>;
+export interface IInventoryModel extends mongoose.Model<IInventoryDocument>, ICriteriaSearchable {
 }

@@ -885,6 +885,10 @@ export class UIChartBase {
     protected _getComparisonDateRanges(dateRange: IChartDateRange[], comparisonOptions: string[]): IDateRange[] {
        if (!dateRange || !comparisonOptions) return;
 
+       if (Array.isArray(comparisonOptions) && isEmpty(comparisonOptions[0])) {
+           return;
+       }
+
        return comparisonOptions.map(c => {
             if (isEmpty(c)) return;
             return parseComparisonDateRange(this._processChartDateRange(dateRange[0]), c);
@@ -923,7 +927,7 @@ export class UIChartBase {
     private _mergeMultipleChartDefinitions(definitions: any, metadata: IChartMetadata): any {
         const mainDefinition = definitions['main'] || {};
             const comparisonCategoriesWithValues: IComparsionDefObject = this._getComparisonCategoriesWithValues(definitions);
-            const definitionSeries: any[] = this._getComparisonSeries(comparisonCategoriesWithValues);
+            const definitionSeries: any[] = this._getComparisonSeries(comparisonCategoriesWithValues, metadata);
 
             mainDefinition.xAxis.categories = this._getComparisonCategories(definitions, metadata);
             mainDefinition.series = definitionSeries;
@@ -979,7 +983,7 @@ export class UIChartBase {
         return defObject;
     }
 
-    private _getComparisonSeries(obj: IComparsionDefObject): any[] {
+    private _getComparisonSeries(obj: IComparsionDefObject, metadata: IChartMetadata): any[] {
         const allCategories: string[] = obj['uniqCategories'];
         const data: IComparsionDefObjectData = obj['data'];
         const keys: string[] = Object.keys(data);
@@ -1021,6 +1025,10 @@ export class UIChartBase {
                 if (stack === 'main') {
                     if (that.chart && Array.isArray(that.chart.dateRange)) {
                         comparisonString = that.chart.dateRange[0].predefined;
+                        if (!comparisonString) {
+                            const customFrom = that.chart.dateRange[0].custom.from;
+                            comparisonString = this._getComparisonString(customFrom, metadata.originalFrequency, metadata.frequency);
+                        }
                     }
                 } else {
                     if (dateRangeId && stack) {
@@ -1044,6 +1052,9 @@ export class UIChartBase {
                         };
                     }
                 } else {
+                    if (!comparisonString) {
+                        comparisonString = metadata.comparison.find(c => c !== undefined);
+                    }
                     serieObject = {
                         name: objData.serieName + `(${comparisonString})`,
                         data: serieData,
@@ -1058,6 +1069,29 @@ export class UIChartBase {
             }
         }
         return series;
+    }
+
+    private _getComparisonString(dateFrom: Date, originalFrequency: FrequencyEnum, frequency: FrequencyEnum): string {
+        let comparisonString = 'custom';
+
+        if (originalFrequency === -1 || originalFrequency === frequency) {
+            return comparisonString;
+        }
+
+        switch (originalFrequency) {
+            case FrequencyEnum.Yearly:
+                comparisonString = moment(dateFrom).year().toString();
+                break;
+            case FrequencyEnum.Monthly:
+                comparisonString = moment(dateFrom).format('MMMM');
+                break;
+            case FrequencyEnum.Quartely:
+                const qtr = moment(dateFrom).quarter().toString();
+                comparisonString = `Q${qtr}`;
+                break;
+        }
+
+        return comparisonString;
     }
 
     private _getComparisonCategories(definitions: any, metadata: IChartMetadata): string[] {

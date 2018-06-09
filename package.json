@@ -61,11 +61,12 @@
         "sinon-chai": "^2.8.0",
         "ts-node": "^1.7.0",
         "tslint": "^5.4.3",
-        "typescript": "2.6.1"
+        "typescript": "^2.9.1"
     },
     "dependencies": {
         "@types/aws-sdk": "^2.7.0",
         "@types/axios": "^0.14.0",
+        "@types/kue": "^0.11.9",
         "@types/sharp": "^0.17.7",
         "adaptjs": "^1.0.3",
         "apollo-link": "^1.0.0",
@@ -94,6 +95,7 @@
         "inversify": "^4.5.2",
         "jsep": "0.3.2",
         "jsonwebtoken": "^7.1.9",
+        "kue": "^0.11.6",
         "lodash": "^4.17.2",
         "mathjs": "^3.14.2",
         "moment": "^2.17.1",

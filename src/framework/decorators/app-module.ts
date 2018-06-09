@@ -108,24 +108,24 @@ function _getModuleMetadata(target, instance, options: IModuleOptions): IModuleM
 function _processDependencyInjection(moduleName: string,
     moduleMetadata: IModuleMetadata,
     instance: any,
-    container: IBridgeContainer,
+    bridgeContainer: IBridgeContainer,
     options: IModuleOptions): void {
     // create container module to group registrations
-    const diModule = container.getSubmodule();
+    // const diModule = bridgeContainer.getSubmodule();
 
     // auto register queries and mutations with the dependency injector container
     [MetadataType.Queries, MetadataType.Mutations].forEach(queryOrMutation => {
         if (moduleMetadata[queryOrMutation]) {
             Object.keys(moduleMetadata[queryOrMutation]).forEach(metadata => {
                 const a: IArtifactDetails = moduleMetadata[queryOrMutation][metadata];
-                diModule.registerPerWebRequest(a.activity);
-                diModule.registerPerWebRequest(a.constructor);
+                bridgeContainer.registerPerWebRequest(a.activity);
+                bridgeContainer.registerPerWebRequest(a.constructor);
                 // bind(a.constructor.name).to(a.constructor);
             });
         }
     });
 
-    container.addSubmodule(diModule);
+    // bridgeContainer.addSubmodule(diModule);
 }
 
 function _injectResolvers(moduleMetadata: IModuleMetadata): void {

@@ -83,7 +83,7 @@ export class Bridge {
         this._server = express();
 
         // middlewares
-        this._server.use(cleanup);
+        // this._server.use(cleanup);
         this._server.use(setBridgeContainer);
         this._server.use('*', cors());
         this._server.use(bodyParser.urlencoded({ extended: false, limit: this._options.bodyParserLimit }));
@@ -133,9 +133,9 @@ function setBridgeContainer(req: IBridgeRequest, res: express.Response, next) {
 function cleanup(req: IExtendedRequest, res: express.Response, next) {
     res.on('finish', function() {
       // perform your cleanups...
-      const containerDetails = req.Container;
-      containerDetails.bridgeModule.cleanup(containerDetails.instance);
-      delete(req.Container);
+    //   const containerDetails = req.Container;
+    //   containerDetails.bridgeModule.cleanup(containerDetails.instance);
+    //   delete(req.Container);
     });
 
     next();

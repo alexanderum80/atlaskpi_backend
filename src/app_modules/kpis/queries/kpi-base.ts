@@ -12,6 +12,7 @@ import { field } from '../../../framework/decorators/field.decorator';
 import { isArrayObject } from '../../../helpers/express.helpers';
 import { NULL_CATEGORY_REPLACEMENT } from '../../charts/queries/charts/ui-chart-base';
 import { AggregateStage } from './aggregate';
+import * as mongoose from 'mongoose';
 
 export interface ICollection {
     modelName: string;
@@ -44,6 +45,7 @@ export interface IGetDataOptions {
     isDrillDown?: boolean;
     isFutureTarget?: boolean;
     comparison?: string[];
+    originalFrequency?: FrequencyEnum;
 }
 
 export interface IKpiBase {
@@ -204,7 +206,7 @@ export class KpiBase {
 
             if (!isArray(value) && !isDate(value) && isObject(value)) {
                 newFilter[key] = this._cleanFilter(value);
-            } else if (!isDate(value) && isArrayObject(value)) {
+            } else if (!isDate(value) && isArray(value)) {
                 for (let i = 0; i < value.length; i++) {
                     value[i] = this._cleanFilter(value[i]);
                 }
