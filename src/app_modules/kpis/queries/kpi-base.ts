@@ -45,6 +45,7 @@ export interface IGetDataOptions {
     isDrillDown?: boolean;
     isFutureTarget?: boolean;
     comparison?: string[];
+    originalFrequency?: FrequencyEnum;
 }
 
 export interface IKpiBase {
