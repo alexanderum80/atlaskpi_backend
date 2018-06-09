@@ -68,11 +68,18 @@ async function getData(field: DataSourceField|IValueName, model: any, notIn: IOb
             '$limit': 1
     }];
 
+    if (sortByProject(modelAggregate, aggregate)) {
+        modelAggregate = sortBy(modelAggregate, '$project');
+    } else {
+        const addFieldStage = findStage(aggregate, '$addFields');
+        if (sortByAddFields(aggregate, fieldPath) && addFieldStage) {
+            modelAggregate = modelAggregate.filter(m => !m['$project']);
+            modelAggregate.unshift(addFieldStage);
+        }
+    }
+
     const unwindStage = findStage(aggregate, '$unwind');
     if (!isEmpty(unwindStage)) {
-        if (sortByProject(modelAggregate, aggregate)) {
-            modelAggregate = sortBy(modelAggregate, '$project');
-        }
         modelAggregate.unshift(unwindStage);
     }
 
@@ -107,6 +114,17 @@ export function sortByProject(modelAggregate: any[], aggregate: any[]): boolean 
         return true;
     }
     return false;
+}
+
+export function sortByAddFields(aggregate: any[], fieldPath: string): boolean {
+    const addFieldStage = findStage(aggregate, '$addFields');
+
+    if (!hasAddFieldStage(addFieldStage)) {
+        return false;
+    }
+
+    const addFieldKeys: string[] = Object.keys(addFieldStage.$addFields);
+    return addFieldKeys.indexOf(fieldPath) !== -1;
 }
 
 export function getProjectOptions(fieldName: string, fieldPath: string, aggregate: any[], projectNumber?: boolean): IObject {
@@ -164,6 +182,10 @@ function hasMatchStage(matchStage): boolean {
 
 function hasProjectStage(projectStage): boolean {
     return projectStage && projectStage.$project;
+}
+
+function hasAddFieldStage(addFieldStage): boolean {
+    return addFieldStage && addFieldStage.$addFields;
 }
 
 
