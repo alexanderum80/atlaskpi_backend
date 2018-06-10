@@ -1,11 +1,12 @@
-import { injectable, inject } from 'inversify';
-import { Queue, Job } from 'kue';
-import { GoogleAnalyticsKPIService } from '../kpis/google-analytics-kpi/google-analytics-kpi.service';
+import { inject, injectable } from 'inversify';
+import { Job } from 'kue';
+import * as moment from 'moment';
+import * as os from 'os';
+
+import { config } from '../../configuration/config';
 import { IDateRange } from '../../domain/common/date-range';
 import { FrequencyEnum } from '../../domain/common/frequency-enum';
-import * as moment from 'moment';
-import { config } from '../../configuration/config';
-import * as os from 'os';
+import { GoogleAnalyticsKPIService } from '../kpis/google-analytics-kpi/google-analytics-kpi.service';
 
 // let queue = require('kue');
 
@@ -86,7 +87,7 @@ export class GAJobsQueueService {
         const that = this;
         this._lastTime = moment();
 
-        _jobs.process(JOB_TYPE, 4, function(job, done) {
+        _jobs.process(JOB_TYPE, function(job, done) {
             const data: IGAJobData = job.data;
 
             const dr = data.dateRange && data.dateRange[0];
