@@ -27,6 +27,7 @@ import { WidgetsService } from './widgets.service';
 
 export function registerServices(container: IBridgeContainer) {
     container.registerSingleton(PnsService);
+    container.registerSingleton(GAJobsQueueService);
 
     // notifications
     container.registerSingleton(TargetNotification);
@@ -36,7 +37,6 @@ export function registerServices(container: IBridgeContainer) {
     container.registerPerWebRequest(AccountCreatedNotification);
     container.registerPerWebRequest(UserForgotPasswordNotification);
     container.registerPerWebRequest(EnrollmentNotification);
-    container.registerPerWebRequest(GAJobsQueueService);
     container.registerPerWebRequest(DataSourcesService);
     container.registerPerWebRequest(UserAttachmentsService);
     container.registerPerWebRequest(AccountsService);
