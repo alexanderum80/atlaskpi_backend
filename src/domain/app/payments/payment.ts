@@ -49,6 +49,8 @@ export interface IPayment {
     amount: number;
     paymentTotalAmount: number;
     description: string;
+    prePayment: boolean;
+    chargeId: string;
 }
 
 export interface IPaymentDocument extends IPayment, mongoose.Document { }

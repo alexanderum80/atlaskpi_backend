@@ -37,7 +37,9 @@ export const PaymentSchema = new mongoose.Schema({
     percentaje: Number,
     amount: Number,
     paymentTotalAmount: Number,
-    description: String
+    description: String,
+    prePayment: Boolean,
+    chargeId: String
 });
 
 // INDEXES
