@@ -20,7 +20,6 @@ export class GoogleAnalyticsKpi extends SimpleKPIBase implements IKpiBase {
 
     public static CreateFromExpression( kpi: IKPIDocument,
                                         googleAnalytics: GoogleAnalytics,
-                                        googleAnalyticsKpiService: GoogleAnalyticsKPIService,
                                         queueService: GAJobsQueueService,
                                         currentAccount: CurrentAccount,
                                         virtualSources: IVirtualSourceDocument[]): GoogleAnalyticsKpi {
@@ -65,7 +64,6 @@ export class GoogleAnalyticsKpi extends SimpleKPIBase implements IKpiBase {
             aggregateSkeleton,
             kpiDefinition,
             kpi,
-            googleAnalyticsKpiService,
             queueService,
             currentAccount,
             gaVirtualSource);
@@ -76,7 +74,6 @@ export class GoogleAnalyticsKpi extends SimpleKPIBase implements IKpiBase {
                         private _baseAggregate: any,
                         private _definition: IKPISimpleDefinition,
                         private _kpi: IKPI,
-                        private _googleAnalyticsKpiService: GoogleAnalyticsKPIService,
                         private _queueService: GAJobsQueueService,
                         private _currentAccount: CurrentAccount,
                         private _virtualSource: IVirtualSourceDocument) {
@@ -88,7 +85,7 @@ export class GoogleAnalyticsKpi extends SimpleKPIBase implements IKpiBase {
         this._injectAcumulatorFunctionAndArgs(_definition);
    }
 
-    getData(dateRange?: IDateRange[], options?: IGetDataOptions): Promise<any> {
+    async getData(dateRange?: IDateRange[], options?: IGetDataOptions): Promise<any> {
         // the way to deal with and cases for google analytics its a little bit different
         if (this._kpi.filter) {
             let andOptions = this._kpi.filter['__dollar__and'];
@@ -113,14 +110,11 @@ export class GoogleAnalyticsKpi extends SimpleKPIBase implements IKpiBase {
             filterGroupings = Object.keys(this._kpi.filter).filter(k => k !== this._definition.field);
         }
 
-        const that = this;
+        const batch = await this._cacheData(dateRange, preparedFilters, options, filterGroupings);
 
-        return this._cacheData(dateRange, preparedFilters, options, filterGroupings)
-                    .then(batch => {
-                        that._injectPreGroupStageFilters({ _batchId: batch._batchId }, that._definition.field);
-                        that.pristineAggregate = cloneDeep(that._baseAggregate);
-                        return that.executeQuery(this.collection.timestampField, dateRange, options);
-                    });
+        this._injectPreGroupStageFilters({ _batchId: batch._batchId }, this._definition.field);
+        this.pristineAggregate = cloneDeep(this._baseAggregate);
+        return this.executeQuery(this.collection.timestampField, dateRange, options);
     }
 
     private _getFilterString(filterObj: any): string {
@@ -174,7 +168,7 @@ export class GoogleAnalyticsKpi extends SimpleKPIBase implements IKpiBase {
         }
 
         // queue GA job
-        const job = await this._queueService.addGAJob(
+        const job = this._queueService.addGAJob(
             this._currentAccount.get.name,
             this._definition.dataSource,
             dateRange,
@@ -186,6 +180,7 @@ export class GoogleAnalyticsKpi extends SimpleKPIBase implements IKpiBase {
         return new Promise<IBatchProperties>((resolve, reject) => {
             job.on('complete', function(result) {
                 console.log('Job completed with data ', result);
+                const j = job;
                 resolve(result);
             }).on('failed', function(errorMessage) {
                 console.log('Job failed');
