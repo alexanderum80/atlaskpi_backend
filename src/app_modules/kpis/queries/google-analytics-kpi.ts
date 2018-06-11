@@ -20,6 +20,7 @@ export class GoogleAnalyticsKpi extends SimpleKPIBase implements IKpiBase {
 
     public static CreateFromExpression( kpi: IKPIDocument,
                                         googleAnalytics: GoogleAnalytics,
+                                        googleAnalyticsKpiService: GoogleAnalyticsKPIService,
                                         queueService: GAJobsQueueService,
                                         currentAccount: CurrentAccount,
                                         virtualSources: IVirtualSourceDocument[]): GoogleAnalyticsKpi {
@@ -64,6 +65,7 @@ export class GoogleAnalyticsKpi extends SimpleKPIBase implements IKpiBase {
             aggregateSkeleton,
             kpiDefinition,
             kpi,
+            googleAnalyticsKpiService,
             queueService,
             currentAccount,
             gaVirtualSource);
@@ -74,6 +76,7 @@ export class GoogleAnalyticsKpi extends SimpleKPIBase implements IKpiBase {
                         private _baseAggregate: any,
                         private _definition: IKPISimpleDefinition,
                         private _kpi: IKPI,
+                        private _googleAnalyticsKpiService: GoogleAnalyticsKPIService,
                         private _queueService: GAJobsQueueService,
                         private _currentAccount: CurrentAccount,
                         private _virtualSource: IVirtualSourceDocument) {
@@ -170,6 +173,7 @@ export class GoogleAnalyticsKpi extends SimpleKPIBase implements IKpiBase {
         // queue GA job
         const job = this._queueService.addGAJob(
             this._currentAccount.get.name,
+            this._currentAccount.get.database.uri,
             this._definition.dataSource,
             dateRange,
             this._definition.field,

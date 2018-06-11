@@ -7,11 +7,16 @@ import { config } from '../../configuration/config';
 import { IDateRange } from '../../domain/common/date-range';
 import { FrequencyEnum } from '../../domain/common/frequency-enum';
 import { GoogleAnalyticsKPIService } from '../kpis/google-analytics-kpi/google-analytics-kpi.service';
+import { AppConnectionPool } from '../../middlewares/app-connection-pool';
+import { AppConnection } from '../../domain/app/app.connection';
+import { GoogleAnalytics } from '../../domain/app/google-analytics/google-analytics.model';
+import { Connectors } from '../../domain/master/connectors/connector.model';
 
 // let queue = require('kue');
 
 export interface IGAJobData {
     accountName: string;
+    dbUri: string;
     dataSource: string;
     dateRange: IDateRange[];
     metric: string;
@@ -41,12 +46,17 @@ const JOB_TYPE: string = 'ga';
 export class GAJobsQueueService {
     private _lastTime: moment.Moment;
 
-    constructor(@inject(GoogleAnalyticsKPIService.name) private _gaKpiService: GoogleAnalyticsKPIService) {
+    constructor(
+        @inject(Connectors.name) private _connectors: Connectors,
+        @inject(AppConnectionPool.name) private _connPool: AppConnectionPool
+        // @inject(GoogleAnalyticsKPIService.name) private _gaKpiService: GoogleAnalyticsKPIService
+    ) {
         this._startProcessingJobs();
     }
 
     addGAJob(
         accountName: string,
+        dbUri: string,
         dataSource: string,
         dateRange: IDateRange[],
         metric: string,
@@ -57,7 +67,7 @@ export class GAJobsQueueService {
 
             const jobData = {
                 title: `Google Analytics Query for:${accountName}, date range: ${JSON.stringify(dateRange)}`,
-                dataSource, dateRange, metric, frequency, filters, groupings };
+                accountName, dbUri, dataSource, dateRange, metric, frequency, filters, groupings };
 
                 const job = _jobs.createJob(JOB_TYPE, jobData);
 
@@ -84,12 +94,18 @@ export class GAJobsQueueService {
             const data: IGAJobData = job.data;
 
             try {
+                // get the instances that we need
+                const conn = await that._connPool.getConnection(job.data.dbUri);
+                const appConnection = new AppConnection({ appConnection: conn } as any);
+                const ga = new GoogleAnalytics(appConnection);
+                const gaKpiService = new GoogleAnalyticsKPIService(ga, that._connectors);
+
                 const dr = data.dateRange && data.dateRange[0];
                 const startDate = moment(dr.from).format('YYYY-MM-DD');
                 const endDate = moment(dr.to).format('YYYY-MM-DD');
-                const gaRes = await that._gaKpiService.initializeConnection(data.dataSource);
+                const gaRes = await gaKpiService.initializeConnection(data.dataSource);
                 const jobId = `${job.id}.${moment().unix()}`;
-                const result = await that._gaKpiService.cacheData(
+                const result = await gaKpiService.cacheData(
                                     jobId,
                                     gaRes.analytics,
                                     gaRes.authClient,
