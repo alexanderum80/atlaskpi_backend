@@ -1,3 +1,4 @@
+import { SettingsOnFlyKpisQuery } from './queries/settings-on-fly-kpis.query';
 import { KpiByNameQuery } from './queries/kpi-by-name.query';
 import { GetKpisCriteriaQuery } from './queries/get-kpi-criteria.query';
 import { AppModule, ModuleBase } from '../../framework/decorators/app-module';
@@ -10,7 +11,6 @@ import { KpisQuery } from './queries/kpis.query';
 import { ExecuteKpiQuery } from './queries/execute.kpi';
 import {GetKpiFilterFields} from './queries/get-kpi-filter-fields.query';
 import {GetKpiExpressionFieldsQuery} from './queries/get-kpi-expression-fields.query';
-import {KpisGroupinInfoQuery} from './queries/kpis-groupings.query';
 
 @AppModule({
     mutations: [
@@ -24,7 +24,7 @@ import {KpisGroupinInfoQuery} from './queries/kpis-groupings.query';
         KpisQuery,
         KpiByNameQuery,
         GetKpisCriteriaQuery,
-        KpisGroupinInfoQuery,
+        SettingsOnFlyKpisQuery,
         ExecuteKpiQuery,
         GetKpiFilterFields,
         GetKpiExpressionFieldsQuery
