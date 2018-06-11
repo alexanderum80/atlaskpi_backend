@@ -5,17 +5,17 @@ import { KPIs } from '../../../domain/app/kpis/kpi.model';
 import { query } from '../../../framework/decorators/query.decorator';
 import { IQuery } from '../../../framework/queries/query';
 import { KpiService } from '../../../services/kpi.service';
-import { GetKpisGroupingInfoActivity } from '../activities/get-kpis-grouping-info.activity';
+import { SettingsOnFlyKpisActivity } from '../activities/settings-on-fly-kpis.activity';
 import { KPI } from '../kpis.types';
 
 
 @injectable()
 @query({
-    name: 'kpisGroupingInfo',
-    activity: GetKpisGroupingInfoActivity,
+    name: 'settingOnFlyKpis',
+    activity: SettingsOnFlyKpisActivity,
     output: { type: KPI, isArray: true }
 })
-export class KpisGroupinInfoQuery implements IQuery<IKPIDocument[]> {
+export class SettingsOnFlyKpisQuery implements IQuery<IKPIDocument[]> {
     constructor(
         @inject(KpiService.name) private _kpiService: KpiService) { }
 
