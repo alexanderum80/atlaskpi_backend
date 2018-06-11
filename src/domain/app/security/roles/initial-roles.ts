@@ -9,6 +9,11 @@ export const initialRoles  = {
             { action: 'Modify', subject: 'Chart' },
             { action: 'Create', subject: 'Chart' },
             { action: 'Clone', subject: 'Chart' },
+            // chart options
+            { action: 'Download', subject: 'Chart'},
+            { action: 'CompareOnFly', subject: 'Chart' },
+            { action: 'SeeInfo', subject: 'Chart' },
+            { action: 'ChangeSettingsOnFly', subject: 'Chart' },
             // kpi
             { action: 'Delete', subject: 'KPI' },
             { action: 'Share', subject: 'KPI' },
@@ -106,6 +111,11 @@ export const initialRoles  = {
             { action: 'Modify', subject: 'Chart' },
             { action: 'Create', subject: 'Chart' },
             { action: 'Clone', subject: 'Chart' },
+            // chart options
+            { action: 'Download', subject: 'Chart'},
+            { action: 'CompareOnFly', subject: 'Chart' },
+            { action: 'SeeInfo', subject: 'Chart' },
+            { action: 'ChangeSettingsOnFly', subject: 'Chart' },
             // kpi
             { action: 'Create', subject: 'KPI' },
             { action: 'View', subject: 'KPI' },
@@ -196,6 +206,11 @@ export const initialRoles  = {
             { action: 'Modify', subject: 'Chart' },
             { action: 'Create', subject: 'Chart' },
             { action: 'Clone', subject: 'Chart' },
+            // chart options
+            { action: 'Download', subject: 'Chart'},
+            { action: 'CompareOnFly', subject: 'Chart' },
+            { action: 'SeeInfo', subject: 'Chart' },
+            { action: 'ChangeSettingsOnFly', subject: 'Chart' },
             // kpi
             { action: 'Create', subject: 'KPI' },
             { action: 'View', subject: 'KPI' },
@@ -266,6 +281,11 @@ export const initialRoles  = {
             { action: 'Add Comment on', subject: 'Chart' },
             { action: 'Create', subject: 'Chart' },
             { action: 'Clone', subject: 'Chart' },
+            // chart options
+            { action: 'Download', subject: 'Chart'},
+            { action: 'CompareOnFly', subject: 'Chart' },
+            { action: 'SeeInfo', subject: 'Chart' },
+            { action: 'ChangeSettingsOnFly', subject: 'Chart' },
             // kpi
             { action: 'Create', subject: 'KPI' },
             { action: 'Clone', subject: 'KPI' },
@@ -671,5 +691,22 @@ export const allPermissions = [
   {
     'action': 'View',
     'subject': 'SmartBar'
+  },
+  // chart options
+  {
+    'action': 'Download',
+    'subject': 'Chart'
+  },
+  {
+    'action': 'CompareOnFly',
+    'subject': 'Chart'
+  },
+  {
+    'action': 'SeeInfo',
+    'subject': 'Chart'
+  },
+  {
+    'action': 'ChangeSettingsOnFly',
+    'subject': 'Chart'
   }
 ];
