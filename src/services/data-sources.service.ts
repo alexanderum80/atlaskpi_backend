@@ -136,7 +136,7 @@ export class DataSourcesService {
             }
 
             // i.e ['APS Nextech ( nextech )']
-            let sources: string[] = await getFieldsWithData(model, fields, collectionSource);
+            let sources: string[] = await getFieldsWithData(model, fields, collectionSource, aggregate);
             sources = sources.map(s => s.toLowerCase());
 
 
