@@ -32,7 +32,6 @@ export class KpiFactory {
         @inject(Inventory.name) private _inventory: Inventory,
         @inject(Calls.name) private _calls: Calls,
         @inject(GoogleAnalytics.name) private _googleAnalytics: GoogleAnalytics,
-        @inject(GoogleAnalyticsKPIService.name) private _googleAnalyticsKpiService: GoogleAnalyticsKPIService,
         @inject(Appointments.name) private _appointments: Appointments,
         @inject(VirtualSources.name) private _virtualSources: VirtualSources,
         @inject(Payments.name) private _payments: Payments,
@@ -68,7 +67,6 @@ export class KpiFactory {
                 case KPITypeEnum.ExternalSource:
                     return GoogleAnalyticsKpi.CreateFromExpression( kpiDocument,
                                                                     this._googleAnalytics,
-                                                                    this._googleAnalyticsKpiService,
                                                                     this._queueService,
                                                                     this._currentAccount,
                                                                     virtualSources);

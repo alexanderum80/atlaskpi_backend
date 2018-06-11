@@ -100,7 +100,7 @@ export class ChartsService {
                 isFutureTarget: options && options.isFutureTarget || false,
                 sortingCriteria: chart.sortingCriteria,
                 sortingOrder: chart.sortingOrder,
-                originalFrequency: options.originalFrequency ? FrequencyTable[options.originalFrequency] : -1
+                originalFrequency: (options && options.originalFrequency) ? FrequencyTable[options.originalFrequency] : -1
             };
 
             chart.targetExtraPeriodOptions = this._getTargetExtraPeriodOptions(meta.frequency, chart.dateRange);

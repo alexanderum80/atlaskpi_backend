@@ -1,4 +1,5 @@
 import { inject, injectable } from 'inversify';
+import * as moment from 'moment';
 
 import { loadIntegrationConfig } from '../../../app_modules/integrations/models/load-integration-controller';
 import { GoogleAnalytics } from '../../../domain/app/google-analytics/google-analytics.model';
@@ -30,9 +31,7 @@ export class GoogleAnalyticsKPIService {
 
     constructor(
         @inject(GoogleAnalytics.name) private _googleAnalyticsModel: GoogleAnalytics,
-        @inject(Connectors.name) private _connectors: Connectors,
-        @inject(CurrentAccount.name) private _currentAccount: CurrentAccount,
-        @inject(Logger.name) private _logger: Logger
+        @inject(Connectors.name) private _connectors: Connectors
     ) { }
 
     public initializeConnection(connectorId: string): Promise<{ analytics: any, authClient: any }> {
@@ -77,7 +76,8 @@ export class GoogleAnalyticsKPIService {
         });
     }
 
-    public cacheData(   analytics: any,     // analytics instance object
+    public cacheData(   jobId: string,
+                        analytics: any,     // analytics instance object
                         authClient: any,   // authClient instance object
                         startDate: string,
                         endDate: string,
@@ -104,7 +104,11 @@ export class GoogleAnalyticsKPIService {
         })
         .then(rawData => {
             // get batch properties
-            const batchProps = generateBatchProperties(that._connector.id, that._connector.config.view.id);
+            // const batchProps = generateBatchProperties(that._connector.id, that._connector.config.view.id);
+            const batchProps = {
+                _batchId: jobId,
+                _batchTimestamp: moment().toDate()
+            };
             const analyticsData = that._mapToIGoogleAnalytics(rawData, batchProps, that._connector.config.view.timezone);
             return that._googleAnalyticsModel.model.batchUpsert(analyticsData, startDate, batchProps);
         });

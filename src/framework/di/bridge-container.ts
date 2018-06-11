@@ -61,7 +61,7 @@ export class BridgeContainer implements IBridgeContainer {
             throw new Error(`Duplicated registration for: ${type.name}`);
         }
 
-        this._container.bind<T>(type.name).to(type);
+        this._container.bind<T>(type.name).to(type).inTransientScope();
     }
 
     registerSingleton<T extends Newable<any>>(type: T): void {
