@@ -30,6 +30,9 @@ export class GetChartInput  {
 
     @field({ type: GraphQLTypesMap.Boolean })
     isFutureTarget: boolean;
+
+    @field({ type: GraphQLTypesMap.String})
+    originalFrequency?: string;
 }
 
 @input()

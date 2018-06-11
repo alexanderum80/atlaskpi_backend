@@ -30,9 +30,7 @@ export class GoogleAnalyticsKPIService {
 
     constructor(
         @inject(GoogleAnalytics.name) private _googleAnalyticsModel: GoogleAnalytics,
-        @inject(Connectors.name) private _connectors: Connectors,
-        @inject(CurrentAccount.name) private _currentAccount: CurrentAccount,
-        @inject(Logger.name) private _logger: Logger
+        @inject(Connectors.name) private _connectors: Connectors
     ) { }
 
     public initializeConnection(connectorId: string): Promise<{ analytics: any, authClient: any }> {

@@ -1,15 +1,11 @@
-import * as Bluebird from 'bluebird';
 import { camelCase } from 'change-case';
-import { cloneDeep, groupBy, isArray, isDate, isNumber, isObject } from 'lodash';
-import * as moment from 'moment';
+import { cloneDeep, isArray, isDate, isObject, isString } from 'lodash';
 import * as logger from 'winston';
 
 import { IKPI } from '../../../domain/app/kpis/kpi';
 import { IChartDateRange, IDateRange } from '../../../domain/common/date-range';
 import { FrequencyEnum } from '../../../domain/common/frequency-enum';
 import { IChartTop } from '../../../domain/common/top-n-record';
-import { field } from '../../../framework/decorators/field.decorator';
-import { isArrayObject } from '../../../helpers/express.helpers';
 import { NULL_CATEGORY_REPLACEMENT } from '../../charts/queries/charts/ui-chart-base';
 import { AggregateStage } from './aggregate';
 
@@ -44,6 +40,7 @@ export interface IGetDataOptions {
     isDrillDown?: boolean;
     isFutureTarget?: boolean;
     comparison?: string[];
+    originalFrequency?: FrequencyEnum;
 }
 
 export interface IKpiBase {
@@ -196,6 +193,10 @@ export class KpiBase {
     protected _cleanFilter(filter: any): any {
         let newFilter = {};
 
+        if (isString(filter)) {
+            return filter;
+        }
+
         Object.keys(filter).forEach(filterKey => {
 
             let key = filterKey;
@@ -204,7 +205,7 @@ export class KpiBase {
 
             if (!isArray(value) && !isDate(value) && isObject(value)) {
                 newFilter[key] = this._cleanFilter(value);
-            } else if (!isDate(value) && isArrayObject(value)) {
+            } else if (!isDate(value) && isArray(value)) {
                 for (let i = 0; i < value.length; i++) {
                     value[i] = this._cleanFilter(value[i]);
                 }

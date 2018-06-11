@@ -601,6 +601,9 @@ export function parseComparisonDateRange(dateRange: IDateRange, comparisonString
         case 'lastMonth':
             return backInTime(dateRange, 1, 'month');
 
+        case '2YearsAgo':
+            return backInTime(dateRange, 2, 'year');
+
         case '3YearsAgo':
             return backInTime(dateRange, 3, 'year');
 

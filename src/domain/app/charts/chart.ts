@@ -55,6 +55,7 @@ export interface IChartInput {
     dashboards?: string[];
     isFutureTarget?: boolean;
     isDrillDown?: boolean;
+    originalFrequency?: string;
 }
 
 export interface IGetChartInput {

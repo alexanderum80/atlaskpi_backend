@@ -31,7 +31,7 @@ export class AuthService {
         @inject(Roles.name) private _roles: Roles,
         @inject('Logger') private _logger: Logger ) { }
 
-    authenticateUser(input: IUserAuthenticationData, createAccount= false): Promise < IUserToken > {
+    authenticateUser(input: IUserAuthenticationData): Promise < IUserToken > {
         let that = this;
 
         return new Promise <IUserToken> ((resolve, reject) => {

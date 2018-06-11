@@ -25,7 +25,7 @@ export class DataSourceFilterFieldsInput {
     dataSource: string;
 
     @field({ type: GraphQLTypesMap.String, isArray: true })
-    collectionSource: string[];
+    collectionSource?: string[];
 
     @field({ type: DataSourceFieldInput, isArray: true })
     fields: DataSourceFieldInput[];

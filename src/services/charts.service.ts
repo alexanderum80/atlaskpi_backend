@@ -42,6 +42,7 @@ export interface IRenderChartOptions {
     xAxisSource?: string;
     isFutureTarget?: boolean;
     isDrillDown?: boolean;
+    originalFrequency?: string;
 }
 
 
@@ -98,7 +99,8 @@ export class ChartsService {
                 isDrillDown: options && options.isDrillDown || false,
                 isFutureTarget: options && options.isFutureTarget || false,
                 sortingCriteria: chart.sortingCriteria,
-                sortingOrder: chart.sortingOrder
+                sortingOrder: chart.sortingOrder,
+                originalFrequency: (options && options.originalFrequency) ? FrequencyTable[options.originalFrequency] : -1
             };
 
             chart.targetExtraPeriodOptions = this._getTargetExtraPeriodOptions(meta.frequency, chart.dateRange);
