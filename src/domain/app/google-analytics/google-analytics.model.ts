@@ -333,6 +333,7 @@ GoogleAnalyticsSchema.statics.batchUpsert = async function(data: IGoogleAnalytic
             console.log('error removing cached google data');
             return;
         }
+    });
 
     const docs = await model.insertMany(data, { continueOnError: true });
     return batchProps;
