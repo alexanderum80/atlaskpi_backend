@@ -402,12 +402,15 @@ export class UIChartBase {
 
     private _getXaxisSource(data: any[], metadata: IChartMetadata, groupings?: string[]) {
         if (!metadata || !metadata.xAxisSource) { return ''; }
-        if (!data || !data.length) { return metadata.xAxisSource; }
+
+        const metaXAxisSource = camelCase(metadata.xAxisSource);
+
+        if (!data || !data.length) { return metaXAxisSource; }
         if (metadata.xAxisSource === 'frequency' && groupings && groupings.length) { return groupings; }
 
         let findXaxisSource;
         let xAxisSource = '';
-        findXaxisSource = data.filter(item => item._id[metadata.xAxisSource]);
+        findXaxisSource = data.filter(item => item._id[metaXAxisSource]);
         let obj = {
             index: -1,
             field: null
@@ -420,7 +423,7 @@ export class UIChartBase {
             }
 
             for (let i = 0; i < dataKeys.length; i++) {
-                const findIndex = dataKeys[i].indexOf(metadata.xAxisSource);
+                const findIndex = dataKeys[i].indexOf(metaXAxisSource);
                 if (findIndex !== -1) {
                     obj = {
                         index: findIndex,
@@ -431,11 +434,11 @@ export class UIChartBase {
             }
         }
 
-        xAxisSource = (obj.index !== -1) ? obj.field : metadata.xAxisSource;
+        xAxisSource = (obj.index !== -1) ? obj.field : metaXAxisSource;
 
         if (groupings && groupings.length) {
             const frequency = groupings.filter(g => g === 'frequency');
-            frequency.push(metadata.xAxisSource);
+            frequency.push(metaXAxisSource);
             return frequency;
         }
         return xAxisSource;
