@@ -159,6 +159,8 @@ export class UIChartBase {
                 return;
             }
 
+            metadata.xAxisSource = camelCase(metadata.xAxisSource);
+
             let groupingField = (metadata.groupings && metadata.groupings.length) ? camelCase(metadata.groupings[0]) : null;
 
             data = this._sortingData(metadata, data);
@@ -403,14 +405,12 @@ export class UIChartBase {
     private _getXaxisSource(data: any[], metadata: IChartMetadata, groupings?: string[]) {
         if (!metadata || !metadata.xAxisSource) { return ''; }
 
-        const metaXAxisSource = camelCase(metadata.xAxisSource);
-
-        if (!data || !data.length) { return metaXAxisSource; }
+        if (!data || !data.length) { return metadata.xAxisSource; }
         if (metadata.xAxisSource === 'frequency' && groupings && groupings.length) { return groupings; }
 
         let findXaxisSource;
         let xAxisSource = '';
-        findXaxisSource = data.filter(item => item._id[metaXAxisSource]);
+        findXaxisSource = data.filter(item => item._id[metadata.xAxisSource]);
         let obj = {
             index: -1,
             field: null
@@ -423,7 +423,7 @@ export class UIChartBase {
             }
 
             for (let i = 0; i < dataKeys.length; i++) {
-                const findIndex = dataKeys[i].indexOf(metaXAxisSource);
+                const findIndex = dataKeys[i].indexOf(metadata.xAxisSource);
                 if (findIndex !== -1) {
                     obj = {
                         index: findIndex,
@@ -434,11 +434,11 @@ export class UIChartBase {
             }
         }
 
-        xAxisSource = (obj.index !== -1) ? obj.field : metaXAxisSource;
+        xAxisSource = (obj.index !== -1) ? obj.field : metadata.xAxisSource;
 
         if (groupings && groupings.length) {
             const frequency = groupings.filter(g => g === 'frequency');
-            frequency.push(metaXAxisSource);
+            frequency.push(metadata.xAxisSource);
             return frequency;
         }
         return xAxisSource;
