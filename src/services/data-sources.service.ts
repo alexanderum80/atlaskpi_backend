@@ -72,7 +72,7 @@ export class DataSourcesService {
         try {
             const vs = await this._virtualDatasources.model.findOne({ name: { $regex: new RegExp(`^${name}$`, 'i') }  });
             const model = this._resolver(source).model;
-            
+
             if (!model || !model.findCriteria) {
                 return [];
             }
@@ -126,9 +126,19 @@ export class DataSourcesService {
                 return this._getGoogleAnalyticsFields(fields);
             }
 
+            const name = virtualSource.name;
+            const vs = await this._virtualDatasources.model.findOne({ name: { $regex: new RegExp(`^${name}$`, 'i') }  });
+            let aggregate = [];
+            if (vs.aggregate) {
+                aggregate = vs.aggregate.map(a => {
+                    return KPIFilterHelper.CleanObjectKeys(a);
+                });
+            }
+
             // i.e ['APS Nextech ( nextech )']
-            let sources: string[] = await getFieldsWithData(model, fields, collectionSource);
+            let sources: string[] = await getFieldsWithData(model, fields, collectionSource, aggregate);
             sources = sources.map(s => s.toLowerCase());
+
 
             virtualSource.fields.forEach((f: DataSourceField) => {
                 f.available = isEmpty(sources) ? false :

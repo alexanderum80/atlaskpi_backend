@@ -1,4 +1,4 @@
-import * as Promise from 'bluebird';
+import * as Bluebird from 'bluebird';
 import { inject, injectable } from 'inversify';
 import { isObject, filter, isEmpty } from 'lodash';
 import * as moment from 'moment';
@@ -83,16 +83,6 @@ SaleSchema.index({ 'product.from': 1, 'category.name': 1 });
 SaleSchema.index({ 'product.from': 1, 'category.service': 1 });
 
 SaleSchema.plugin(criteriaPlugin);
-
-function filterEmptyUnwindPipe(aggregate: any[]): any[] {
-    let findStage = aggregate.find((agg) => agg.$unwind !== undefined);
-
-    if (isEmpty(findStage.$unwind)) {
-        delete findStage.$unwind;
-    }
-
-    return filter(aggregate, (agg) => !isEmpty(agg));
-}
 
 // SaleSchema.methods.
 
@@ -187,89 +177,12 @@ SalesSchema.statics.salesEmployeeByDateRange = function(predefinedDateRange: str
 // TODO: // I need to fix UI maps because I removed GroupMap that was being used in findBy on the sales model.
 // I need to change the ui so show the right group fields and also send the backend the group path ready to use
 
-SalesSchema.statics.salesBy = function(type: TypeMap, input?: IMapMarkerInput): Promise<ISaleByZip[]> {
-    const SalesModel = (<ISaleModel>this);
-    let aggregate = [];
-
-    return new Promise<ISaleByZip[]>((resolve, reject) => {
-        switch (type) {
-            case TypeMap.customerAndZip:
-                aggregate.push(
-                    { $match: { 'product.amount': { $gte: 0 } } },
-                    { $project: { product: 1, _id: 0, customer: 1 } },
-                    { $unwind: {} },
-                    { $group: {
-                        _id: { customerZip: '$customer.zip' },
-                        sales: { $sum: '$product.amount' }
-                        }
-                    }
-                );
-                // check if input have value and is an object
-                if (input && isObject(input)) {
-                    // check if daterange has value
-                    if (input.dateRange) {
-                        let aggregateMatch = aggregate.find(agg => agg.$match !== undefined);
-                        const dateRange = parsePredifinedDate(input.dateRange);
-
-                        // check if i get object that has $match key and daterange is valid
-                        if (aggregateMatch && moment(dateRange.from).isValid()) {
-                            aggregateMatch.$match['product.from'] = {
-                                $gte: dateRange.from,
-                                $lt: dateRange.to
-                            };
-                        }
-                    }
-
-                    if (input.grouping) {
-                        let groupFieldName = input.grouping.split('.')[0];
-                        let aggregateGrouping = aggregate.find(agg => agg.$group !== undefined);
-                        // get the field name for the sales document
-
-                        if (aggregateGrouping) {
-                            // assign empty object if $group._id is undefined
-                            if (!aggregateGrouping.$group._id) {
-                                aggregateGrouping.$group._id = {};
-                            }
-                            // i.e. $location.name, $product.itemDescription
-                            aggregateGrouping.$group._id['grouping'] = '$' + input.grouping;
-                        }
-
-                        let aggregateUnwind = aggregate.find(agg => agg.$unwind !== undefined);
-                        if (aggregateUnwind) {
-                            const saleSchema = (SalesModel.schema as any);
-                            const schemaFieldType = saleSchema.paths[input.grouping] || saleSchema.paths[groupFieldName];
-                            if (schemaFieldType && schemaFieldType.instance === 'Array') {
-                                aggregateUnwind.$unwind = {
-                                    path: `$${groupFieldName}`,
-                                    preserveNullAndEmptyArrays: true
-                                };
-                            }
-                        }
-
-                        // project the group field
-                        let aggregateProject = aggregate.find(agg => agg.$project !== undefined);
-                        if (aggregateProject) {
-                            let projectFieldByGroup = groupFieldName;
-
-                            aggregateProject.$project[projectFieldByGroup] = 1;
-                        }
-                    }
-                }
-                break;
-            case TypeMap.productAndZip:
-                break;
-        }
-
-        aggregate = filterEmptyUnwindPipe(aggregate);
-        SalesModel.aggregate(aggregate).then(res => {
-            if (!res) {
-                resolve([]);
-            }
-
-            resolve(res as ISaleByZip[]);
-        })
-        .catch(err => reject(err));
-    });
+SalesSchema.statics.salesBy = async function(aggregate: any[]): Promise<ISaleByZip[]> {
+    try {
+        return await this.aggregate(aggregate);
+    } catch (err) {
+        throw new Error('error getting salesByZip');
+    }
 };
 
 @injectable()
