@@ -1,5 +1,5 @@
 import { getYesterdayDate } from '../../common/date-range';
-import * as Promise from 'bluebird';
+import * as Bluebird from 'bluebird';
 import { inject, injectable } from 'inversify';
 import * as mongoose from 'mongoose';
 import * as validate from 'validate.js';
@@ -194,20 +194,8 @@ TargetSchema.statics.findTargetById = function(id: string): Promise<ITargetDocum
     });
 };
 
-TargetSchema.statics.findTargetByName = function(name: string): Promise<ITargetDocument> {
-    const that = this;
-    return new Promise<ITargetDocument>((resolve, reject) => {
-      (<ITargetModel>this).findOne({name: name})
-            .then((target) => {
-                if (target) {
-                    resolve(target);
-                    return;
-                }
-                resolve(<any>{ errors: [ { field: 'target', errors: ['Not found'] } ], data: null });
-            }).catch((err) => {
-                resolve(<any>{ errors: [ { field: 'target', errors: ['Not found'] } ], data: null });
-            });
-    });
+TargetSchema.statics.findTargetByName = async function(name: string): Promise<ITargetDocument> {
+    return await this.findOne({ name: name });
 };
 
 TargetSchema.statics.findTargetByDate = function(date: string): Promise<ITargetDocument[]> {
