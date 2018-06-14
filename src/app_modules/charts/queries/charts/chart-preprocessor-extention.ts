@@ -27,7 +27,7 @@ export class ChartPreProcessorExtention {
             case FrequencyEnum.Monthly:
                  return this._getMonthlyFrequencies(res);
 
-            case FrequencyEnum.Quartely:
+            case FrequencyEnum.Quarterly:
                  return this._getQuartersInData(res.data);
 
             case FrequencyEnum.Yearly:
@@ -53,7 +53,7 @@ export class ChartPreProcessorExtention {
             case FrequencyEnum.Monthly:
                 return this._getSeriesByMonth(res);
 
-            case FrequencyEnum.Quartely:
+            case FrequencyEnum.Quarterly:
                 //  return this._getQuarterlySeries(res.data);
 
             case FrequencyEnum.Yearly:

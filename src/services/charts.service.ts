@@ -498,7 +498,7 @@ export class ChartsService {
                 return PredefinedTargetPeriod.weekly;
             case FrequencyEnum.Monthly:
                 return PredefinedTargetPeriod.monthly;
-            case FrequencyEnum.Quartely:
+            case FrequencyEnum.Quarterly:
                 return PredefinedTargetPeriod.quarterly;
             case FrequencyEnum.Yearly:
                 return PredefinedTargetPeriod.yearly;

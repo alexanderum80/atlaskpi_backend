@@ -852,7 +852,7 @@ export class UIChartBase {
                 case FrequencyEnum.Monthly:
                     frequencyFormat = moment(getDate.datepicker).add(1, 'month').format('YYYY-MM');
                     break;
-                case FrequencyEnum.Quartely:
+                case FrequencyEnum.Quarterly:
                     frequencyFormat = moment(getDate.datepicker).format('YYYY') + '-Q' + moment().add(1, 'quarter').format('Q');
                     break;
                 case FrequencyEnum.Yearly:
@@ -1085,7 +1085,7 @@ export class UIChartBase {
             case FrequencyEnum.Monthly:
                 comparisonString = moment(dateFrom).format('MMMM');
                 break;
-            case FrequencyEnum.Quartely:
+            case FrequencyEnum.Quarterly:
                 const qtr = moment(dateFrom).quarter().toString();
                 comparisonString = `Q${qtr}`;
                 break;

@@ -6,7 +6,7 @@ export enum FrequencyEnum {
     Daily,
     Weekly,
     Monthly,
-    Quartely,
+    Quarterly,
     Yearly
 }
 
@@ -27,7 +27,7 @@ export const FrequencyTable = {
     daily: FrequencyEnum.Daily,
     weekly: FrequencyEnum.Weekly,
     monthly: FrequencyEnum.Monthly,
-    quartely: FrequencyEnum.Quartely,
+    quarterly: FrequencyEnum.Quarterly,
     yearly: FrequencyEnum.Yearly,
 };
 
@@ -39,7 +39,7 @@ export function getFrequencyPropName(frequency: FrequencyEnum) {
             return 'week';
         case FrequencyEnum.Monthly:
             return 'month';
-        case FrequencyEnum.Quartely:
+        case FrequencyEnum.Quarterly:
             return 'quarter';
         case FrequencyEnum.Yearly:
             return 'year';
@@ -89,7 +89,7 @@ export function getFrequencySequence(data: any, frequency: FrequencyEnum, groupi
             } else {
                 return [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
             }
-        case FrequencyEnum.Quartely:
+        case FrequencyEnum.Quarterly:
             if (sortingCriteria) {
                 if (sortingCriteria !== SortingCriteriaEnum.Frequency) {
                     data.forEach(element => {

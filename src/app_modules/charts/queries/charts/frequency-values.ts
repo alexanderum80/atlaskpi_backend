@@ -52,7 +52,7 @@ export class FrequencyHelper {
             case FrequencyEnum.Monthly:
                 return sequence.map(f => { return { id: f, name: moment().month(f - 1).format('MMM') }; });
 
-            case FrequencyEnum.Quartely:
+            case FrequencyEnum.Quarterly:
                 return sequence.map(f => { return { id: f, name: `Q${f}` }; });
 
             case FrequencyEnum.Yearly:
@@ -102,7 +102,7 @@ export class FrequencyHelper {
                     m.push(freqInfo.month);
                 });
                 break;
-            case FrequencyEnum.Quartely:
+            case FrequencyEnum.Quarterly:
                 data.forEach(item => {
                     let tokens = item._id.frequency.split('-');
                     let freqInfo: IFrequencyInfo = {

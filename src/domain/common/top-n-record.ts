@@ -46,7 +46,7 @@ export function chartTopMomentFormat(frequency?: number): string {
             return 'D';
         case FrequencyEnum.Monthly:
             return 'YYYY-DD';
-        case FrequencyEnum.Quartely:
+        case FrequencyEnum.Quarterly:
             return 'Q';
         case FrequencyEnum.Yearly:
             return 'YYYY';

@@ -506,7 +506,7 @@ export function parsePredefinedTargetDateRanges (predefinedDate: string, dueDate
                         from: moment(dueDate, momentFormat).subtract(1, 'year').startOf('month').toDate(),
                         to: moment(dueDate, momentFormat).subtract(1, 'year').endOf('day').toDate()
                     };
-                case FrequencyEnum.Quartely:
+                case FrequencyEnum.Quarterly:
                     return {
                         from: moment(dueDate, momentFormat).subtract(1, 'year').startOf('quarter').toDate(),
                         to: moment(dueDate, momentFormat).subtract(1, 'year').endOf('day').toDate()
@@ -529,7 +529,7 @@ export function parsePredefinedTargetDateRanges (predefinedDate: string, dueDate
                         from: moment(dueDate, momentFormat).subtract(2, 'year').startOf('month').toDate(),
                         to: moment(dueDate, momentFormat).subtract(2, 'year').endOf('day').toDate()
                     };
-                case FrequencyEnum.Quartely:
+                case FrequencyEnum.Quarterly:
                     return {
                         from: moment(dueDate, momentFormat).subtract(2, 'year').startOf('quarter').toDate(),
                         to: moment(dueDate, momentFormat).subtract(2, 'year').endOf('day').toDate()
