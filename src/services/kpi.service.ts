@@ -321,7 +321,7 @@ export class KpiService {
 
         const cloneKpiFilter: IKPIFilter[] = cloneDeep(kpiFilter);
 
-        const source: IKPIFilter = cloneKpiFilter.find(k => k.criteria === 'source');
+        const source: IKPIFilter = cloneKpiFilter.find(k => k.field === 'source');
         if (!source) {
             return [];
         }
