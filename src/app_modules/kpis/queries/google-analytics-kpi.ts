@@ -181,6 +181,10 @@ export class GoogleAnalyticsKpi extends SimpleKPIBase implements IKpiBase {
             filters,
             groupings);
 
+        if (!job) {
+            return Promise.reject('no job created for this ga request');
+        }
+
         return new Promise<IBatchProperties>((resolve, reject) => {
             job.on('complete', function(result) {
                 console.log('Job completed with data ', result);
