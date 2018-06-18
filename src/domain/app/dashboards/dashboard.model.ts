@@ -1,3 +1,4 @@
+import { AddUserDashboardMutation } from './../../../app_modules/dashboards/mutations/adduser-dashboard.mutation';
 import * as Promise from 'bluebird';
 import { inject, injectable } from 'inversify';
 import * as mongoose from 'mongoose';
@@ -93,6 +94,26 @@ DashboardSchema.statics.updateVisibleDashboard = function(id: string, input: Boo
                 return reject('Information not valid');
             }
             that.update({ _id: id }, {$set: { visible: input } }).then(dashboard => {
+                resolve(dashboard);
+                return;
+            }).catch(err => {
+                logger.error(err);
+                return reject('There was an error updating the dashboard');
+            });
+        });
+    };
+
+    DashboardSchema.statics.adduserDashboard = function(id: string, input: string):
+    Promise < IDashboardDocument > {
+
+        const that = < IDashboardModel > this;
+
+        return new Promise < IDashboardDocument > ((resolve, reject) => {
+            if (!id) {
+                return reject('Information not valid');
+            }
+            const idArr = id.split('|');
+            that.update({_id: { $in: idArr}}, { $push: { users: input }}, { multi: true }).then(dashboard => {
                 resolve(dashboard);
                 return;
             }).catch(err => {

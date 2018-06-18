@@ -42,6 +42,7 @@ export interface IDashboardModel extends mongoose.Model<IDashboardDocument>, ISe
     createDashboard(input: IDashboardInput): Promise<IDashboardDocument>;
     updateDashboard(id: string, input: IDashboardInput): Promise<IDashboardDocument>;
     updateVisibleDashboard(id: string, input: Boolean): Promise<IDashboardDocument>;
+    adduserDashboard(id: string, input: String): Promise<IDashboardDocument>;
     deleteDashboard(id: string): Promise<IDashboardDocument>;
     findDashboardByChartId(id: string): Promise<string>;
     deleteWidget(dashboardId: string, widgetId: string): Promise<IDashboardDocument>;
