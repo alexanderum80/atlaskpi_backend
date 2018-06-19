@@ -347,8 +347,7 @@ export class KpiService {
                 }
 
                 const collectionSource: string[] = this._getCollectionSource(kpiFilter);
-                const testField = fields.filter(f => f.value === 'referralMain');
-                const fieldsWithData: string[] = await getFieldsWithData(model, testField, collectionSource, aggregate, kpiDateRange);
+                const fieldsWithData: string[] = await getFieldsWithData(model, fields, collectionSource, aggregate, kpiDateRange);
 
                 return fields.filter(field => {
                     return fieldsWithData.indexOf(field.name) !== -1 ||
