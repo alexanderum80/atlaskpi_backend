@@ -66,6 +66,7 @@ async function getData(field: DataSourceField|IValueName, model: any, notIn: IOb
         '$limit': 1
     };
 
+    // check if dateRangePipeline exists
     if (!isEmpty(dateRangePipeline)) {
         let dateRange;
 
@@ -86,10 +87,12 @@ async function getData(field: DataSourceField|IValueName, model: any, notIn: IOb
     }
 
     const projectOptions = getProjectOptions(fieldName, fieldPath, aggregate);
-    let sortOptions = {};
 
+    // assign sortOptions if dateRangePipeline timestampfield and dateRange exists
+    let sortOptions = {};
     if (addDateRange && dateRangePipeline.timestampField) {
         const projectTimeStampField = dateRangePipeline.timestampField;
+
         Object.assign(projectOptions.$project, {
             [projectTimeStampField]: 1
         });
@@ -110,6 +113,7 @@ async function getData(field: DataSourceField|IValueName, model: any, notIn: IOb
         projectOptions
     ];
 
+    // push sortOptions before limitOptions if sortOptions is not empty
     if (!isEmpty(sortOptions)) {
         modelAggregate.push(sortOptions, limitOptions);
     } else {
