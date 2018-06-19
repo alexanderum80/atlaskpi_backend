@@ -24,7 +24,7 @@ export interface IFieldsWithDataDatePipeline {
 
 export async function getFieldsWithData(
     model: any, fields: (DataSourceField|IValueName)[], collectionSource?: string[],
-    aggregate?: any[], dateRangePipeline?: IFieldsWithDataDatePipeline): Promise <string[]> {
+    aggregate?: any[], dateRangePipeline?: IFieldsWithDataDatePipeline, filter?: any): Promise <string[]> {
     try {
         if (!model || isEmpty(fields)) {
             return [];
@@ -38,7 +38,7 @@ export async function getFieldsWithData(
         }
 
         fieldsWithData = await Bluebird.map(fields,
-                                async(field) => await getData(field, model, notIn, aggregate, collectionSource, dateRangePipeline)
+                                async(field) => await getData(field, model, notIn, aggregate, collectionSource, dateRangePipeline, filter)
                                 );
         if (fieldsWithData) {
             const formatToObject = transformToObject(fieldsWithData);
@@ -51,7 +51,7 @@ export async function getFieldsWithData(
     }
 }
 
-async function getData(field: DataSourceField|IValueName, model: any, notIn: IObject, aggregate: IObject[], collectionSource: string[], dateRangePipeline?: IFieldsWithDataDatePipeline): Promise<any> {
+async function getData(field: DataSourceField|IValueName, model: any, notIn: IObject, aggregate: IObject[], collectionSource: string[], dateRangePipeline?: IFieldsWithDataDatePipeline, filter?: any): Promise<any> {
     const fieldPath: string = (field as DataSourceField).path || (field as IValueName).value;
     const fieldName: string = field.name;
     let addDateRange = false;
@@ -106,6 +106,10 @@ async function getData(field: DataSourceField|IValueName, model: any, notIn: IOb
                 '$in': collectionSource
             }
         });
+    }
+
+    if (!isEmpty(filter)) {
+        Object.assign(matchOptions.$match, filter);
     }
 
     let modelAggregate: ICollectionAggregation[] = [
