@@ -101,18 +101,25 @@ export class KpiService {
     }
 
     async getGroupingsWithData(input: KpiGroupingsInput): Promise<IValueName[]> {
-        const kpi = await this.getKpi(input.id);
-        const allKpis = await this._kpis.model.find({});
-        const connectors = await this._connectors.model.find({});
+        try {
+            const allKpis = await this._kpis.model.find({});
+            const cloneKpis = cloneDeep(allKpis);
+            const kpi = cloneKpis.find(k => k.id === input.id);
 
-        const vs = await this._virtualSources.model.find({});
-        const kpiSources: string[] = this._getKpiSources(kpi, allKpis, connectors);
+            const connectors = await this._connectors.model.find({});
 
-        const sources = vs.filter(v => kpiSources.indexOf(v.name.toLocaleLowerCase()) !== -1);
-        const groupingInfo = await this._getCommonSourcePaths(kpiSources, vs);
+            const vs = await this._virtualSources.model.find({});
+            const kpiSources: string[] = this._getKpiSources(kpi, allKpis, connectors);
 
-        const kpiFilter: any = KPIFilterHelper.PrepareFilterField(kpi.type, kpi.filter);
-        return await this._fieldsWithData(sources, groupingInfo, input.dateRange, kpiFilter);
+            const sources = vs.filter(v => kpiSources.indexOf(v.name.toLocaleLowerCase()) !== -1);
+            const groupingInfo = await this._getCommonSourcePaths(kpiSources, vs);
+
+            const kpiFilter: any = KPIFilterHelper.PrepareFilterField(kpi.type, kpi.filter);
+            return await this._fieldsWithData(sources, groupingInfo, input.dateRange, kpiFilter);
+        } catch (err) {
+            console.error('error getting grouping data', err);
+            return [];
+        }
     }
 
     async createKpi(input: IKPI): Promise<IKPIDocument> {

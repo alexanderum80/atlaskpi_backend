@@ -64,7 +64,7 @@ async function getData(field: DataSourceField|IValueName, model: any, notIn: IOb
         let addDateRange = false;
         let dateRange;
 
-        if (dateRangePipeline.timestampField && !Array.isArray(dateRangePipeline.dateRange)) {
+        if (dateRangePipeline.timestampField && Array.isArray(dateRangePipeline.dateRange)) {
             dateRange = dateRangePipeline.dateRange[0];
 
             if (dateRange.$gte && dateRange.$lt) {
