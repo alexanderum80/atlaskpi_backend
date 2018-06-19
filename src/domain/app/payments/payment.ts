@@ -1,6 +1,4 @@
-import * as Promise from 'bluebird';
 import * as mongoose from 'mongoose';
-import { IDateRange } from '../../common/date-range';
 
 export interface IEntity {
     externalId: string | number;
