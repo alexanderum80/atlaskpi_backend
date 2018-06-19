@@ -102,19 +102,21 @@ export class KpiService {
 
     async getGroupingsWithData(input: KpiGroupingsInput): Promise<IValueName[]> {
         try {
-            const allKpis = await this._kpis.model.find({});
-            const cloneKpis = cloneDeep(allKpis);
-            const kpi = cloneKpis.find(k => k.id === input.id);
+            const allKpis: IKPIDocument[] = await this._kpis.model.find({});
+            const cloneKpis: IKPIDocument[] = cloneDeep(allKpis);
+            const kpi: IKPIDocument = cloneKpis.find((k: IKPIDocument) => k.id === input.id);
 
-            const connectors = await this._connectors.model.find({});
+            const connectors: IConnectorDocument[] = await this._connectors.model.find({});
 
-            const vs = await this._virtualSources.model.find({});
+            const vs: IVirtualSourceDocument[] = await this._virtualSources.model.find({});
             const kpiSources: string[] = this._getKpiSources(kpi, allKpis, connectors);
 
-            const sources = vs.filter(v => kpiSources.indexOf(v.name.toLocaleLowerCase()) !== -1);
-            const groupingInfo = await this._getCommonSourcePaths(kpiSources, vs);
-
+            const sources: IVirtualSourceDocument[] = vs.filter((v: IVirtualSourceDocument) => {
+                return kpiSources.indexOf(v.name.toLocaleLowerCase()) !== -1;
+            });
+            const groupingInfo: IValueName[] = await this._getCommonSourcePaths(kpiSources, vs);
             const kpiFilter: any = KPIFilterHelper.PrepareFilterField(kpi.type, kpi.filter);
+
             return await this._fieldsWithData(sources, groupingInfo, input.dateRange, kpiFilter);
         } catch (err) {
             console.error('error getting grouping data', err);
@@ -336,11 +338,11 @@ export class KpiService {
                 const model = this._resolver(source.source).model;
 
                 const collectionMappingKey: string = source.source.toLowerCase();
-                const mapModel = CollectionsMapping[collectionMappingKey];
+                const mappingModel = CollectionsMapping[collectionMappingKey];
                 let kpiDateRange: IFieldsWithDataDatePipeline;
 
-                if (mapModel && mapModel.timestampField) {
-                    const timestampField = mapModel.timestampField;
+                if (mappingModel && mappingModel.timestampField) {
+                    const timestampField = mappingModel.timestampField;
                     kpiDateRange = { timestampField: timestampField, dateRange: this.getDateRange(dateRange) };
                 } else {
                     kpiDateRange = { timestampField: null, dateRange: null };
