@@ -5,6 +5,7 @@ import { isObject, isEmpty, isNull, pick, isNumber, sortBy } from 'lodash';
 import {IObject} from '../../app_modules/shared/criteria.plugin';
 import * as Bluebird from 'bluebird';
 import { dotCase, camelCase } from 'change-case';
+import {IDateRange} from './date-range';
 
 export const blackListDataSource = ['GoogleAnalytics'];
 
@@ -14,7 +15,15 @@ interface ICollectionAggregation {
     $limit?: number;
 }
 
-export async function getFieldsWithData(model, fields: (DataSourceField|IValueName)[], collectionSource?: string[], aggregate?: any[]): Promise <string[]> {
+
+export interface IFieldsWithDataDatePipeline {
+    timestampField: string;
+    dateRange: IDateRange[];
+}
+
+export async function getFieldsWithData(
+    model: any, fields: (DataSourceField|IValueName)[], collectionSource?: string[],
+    aggregate?: any[], dateRangePipeline?: IFieldsWithDataDatePipeline): Promise <string[]> {
     try {
         if (!model || isEmpty(fields)) {
             return [];
@@ -28,7 +37,7 @@ export async function getFieldsWithData(model, fields: (DataSourceField|IValueNa
         }
 
         fieldsWithData = await Bluebird.map(fields,
-                                async(field) => await getData(field, model, notIn, aggregate, collectionSource)
+                                async(field) => await getData(field, model, notIn, aggregate, collectionSource, dateRangePipeline)
                                 );
         if (fieldsWithData) {
             const formatToObject = transformToObject(fieldsWithData);
@@ -41,7 +50,7 @@ export async function getFieldsWithData(model, fields: (DataSourceField|IValueNa
     }
 }
 
-async function getData(field: DataSourceField|IValueName, model: any, notIn: IObject, aggregate: IObject[], collectionSource: string[]): Promise<any> {
+async function getData(field: DataSourceField|IValueName, model: any, notIn: IObject, aggregate: IObject[], collectionSource: string[], dateRangePipeline?: IFieldsWithDataDatePipeline): Promise<any> {
     const fieldPath: string = (field as DataSourceField).path || (field as IValueName).value;
     const fieldName: string = field.name;
 
@@ -50,6 +59,26 @@ async function getData(field: DataSourceField|IValueName, model: any, notIn: IOb
             [fieldPath]: notIn
         }
     };
+
+    if (!isEmpty(dateRangePipeline)) {
+        let addDateRange = false;
+        let dateRange;
+
+        if (dateRangePipeline.timestampField && !Array.isArray(dateRangePipeline.dateRange)) {
+            dateRange = dateRangePipeline.dateRange[0];
+
+            if (dateRange.$gte && dateRange.$lt) {
+                addDateRange = true;
+            }
+        }
+
+        if (addDateRange) {
+            const timestampField = dateRangePipeline.timestampField;
+            Object.assign(matchOptions.$match, {
+                [timestampField]: dateRange
+            });
+        }
+    }
 
     const projectOptions = getProjectOptions(fieldName, fieldPath, aggregate);
 

@@ -144,6 +144,15 @@ export class KPI  {
     source: string;
 }
 
+@input()
+export class KpiGroupingsInput {
+    @field({ type: GraphQLTypesMap.String, required: true })
+    id: string;
+
+    @field({ type: ChartDateRangeInput, required: true, isArray: true })
+    dateRange: ChartDateRangeInput[];
+}
+
 
 @type()
 export class KPIEntityResponse {

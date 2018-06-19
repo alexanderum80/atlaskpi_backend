@@ -2,6 +2,7 @@ import * as Bluebird from 'bluebird';
 import {inject, injectable, Container} from 'inversify';
 import { isObject, intersectionBy, cloneDeep, isEmpty } from 'lodash';
 import { DocumentQuery } from 'mongoose';
+import * as moment from 'moment';
 
 import { IChartDocument } from '../domain/app/charts/chart';
 import { Charts } from '../domain/app/charts/chart.model';
@@ -31,6 +32,10 @@ import { IConnectorDocument } from '../domain/master/connectors/connector';
 import { Connectors } from '../domain/master/connectors/connector.model';
 import { IMutationResponse } from '../framework/mutations/mutation-response';
 import {blackListDataSource, getFieldsWithData} from '../domain/common/fields-with-data';
+import {KpiGroupingsInput} from '../app_modules/kpis/kpis.types';
+import {parsePredifinedDate, IChartDateRange} from '../domain/common/date-range';
+import {ChartDateRangeInput, ChartDateRange} from '../app_modules/shared/shared.types';
+import {CollectionsMapping} from '../app_modules/kpis/queries/simple-kpi';
 
 const codeMapper = {
     'Revenue': 'sales',
@@ -95,6 +100,21 @@ export class KpiService {
         return doc;
     }
 
+    async getGroupingsWithData(input: KpiGroupingsInput): Promise<IValueName[]> {
+        const kpi = await this.getKpi(input.id);
+        const allKpis = await this._kpis.model.find({});
+        const connectors = await this._connectors.model.find({});
+
+        const vs = await this._virtualSources.model.find({});
+        const kpiSources: string[] = this._getKpiSources(kpi, allKpis, connectors);
+
+        const sources = vs.filter(v => kpiSources.indexOf(v.name.toLocaleLowerCase()) !== -1);
+        const groupingInfo = await this._getCommonSourcePaths(kpiSources, vs);
+
+        const kpiFilter: any = KPIFilterHelper.PrepareFilterField(kpi.type, kpi.filter);
+        return await this._fieldsWithData(sources, groupingInfo, input.dateRange, kpiFilter);
+    }
+
     async createKpi(input: IKPI): Promise<IKPIDocument> {
         const kpiType = KPITypeMap[input.type];
         const virtualSources = await this._virtualSources.model.find({});
@@ -153,6 +173,27 @@ export class KpiService {
                 return;
             });
         });
+    }
+
+    getDateRange(chartDateRange: ChartDateRangeInput[]): any[] {
+        return (Array.isArray(chartDateRange) && chartDateRange.length) ?
+            chartDateRange.map(d => {
+                const dateRange = this.processChartDateRange(d);
+
+                return {
+                    '$gte': dateRange.from,
+                    '$lt': dateRange.to
+                };
+            }) : [];
+    }
+
+    processChartDateRange(chartDateRange: ChartDateRangeInput): any {
+        return chartDateRange.custom && chartDateRange.custom.from ?
+                {
+                    from: moment(chartDateRange.custom.from).startOf('day').toDate(),
+                    to: moment(chartDateRange.custom.to).endOf('day').toDate()
+                }
+                : parsePredifinedDate(chartDateRange.predefined);
     }
 
     private _getKpiSources(kpi: IKPIDocument, kpis: IKPIDocument[], connectors: IConnectorDocument[]): string[] {
@@ -270,7 +311,7 @@ export class KpiService {
         }
     }
 
-    private async _fieldsWithData(sources: IVirtualSourceDocument[], fields: IValueName[], kpiFilter?: IKPIFilter[]): Promise<IValueName[]> {
+    private async _fieldsWithData(sources: IVirtualSourceDocument[], fields: IValueName[], dateRange: ChartDateRangeInput[], kpiFilter?: IKPIFilter[]): Promise<IValueName[]> {
         const that = this;
 
         try {
@@ -286,8 +327,20 @@ export class KpiService {
                     });
                 }
                 const model = this._resolver(source.source).model;
+
+                const collectionMappingKey = source.source.toLowerCase();
+                const mapModel = CollectionsMapping[collectionMappingKey];
+
+                let kpiDateRange;
+                if (mapModel && mapModel.timestampField) {
+                    const timestampField = mapModel.timestampField;
+                    kpiDateRange = { timestampField: timestampField, dateRange: this.getDateRange(dateRange) };
+                } else {
+                    kpiDateRange = { timestampField: null, dateRange: null };
+                }
+
                 const collectionSource: string[] = this._getCollectionSource(kpiFilter);
-                const fieldsWithData: string[] = await getFieldsWithData(model, fields, collectionSource, aggregate);
+                const fieldsWithData: string[] = await getFieldsWithData(model, fields, collectionSource, aggregate, kpiDateRange);
 
                 return fields.filter(field => {
                     return fieldsWithData.indexOf(field.name) !== -1 ||

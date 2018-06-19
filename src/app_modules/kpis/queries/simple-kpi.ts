@@ -17,7 +17,7 @@ import { AggregateStage } from './aggregate';
 import { ICollection, IGetDataOptions, IKpiBase } from './kpi-base';
 import { SimpleKPIBase } from './simple-kpi-base';
 
-const CollectionsMapping = {
+export const CollectionsMapping = {
     sales: {
         modelName: 'Sale',
         timestampField: 'product.from'
