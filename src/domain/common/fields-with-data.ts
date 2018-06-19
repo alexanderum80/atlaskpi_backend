@@ -13,6 +13,7 @@ interface ICollectionAggregation {
     $match?: IObject;
     $project?: IObject;
     $limit?: number;
+    $sort?: IObject;
 }
 
 
@@ -53,6 +54,7 @@ export async function getFieldsWithData(
 async function getData(field: DataSourceField|IValueName, model: any, notIn: IObject, aggregate: IObject[], collectionSource: string[], dateRangePipeline?: IFieldsWithDataDatePipeline): Promise<any> {
     const fieldPath: string = (field as DataSourceField).path || (field as IValueName).value;
     const fieldName: string = field.name;
+    let addDateRange = false;
 
     const matchOptions = {
         '$match': {
@@ -60,8 +62,11 @@ async function getData(field: DataSourceField|IValueName, model: any, notIn: IOb
         }
     };
 
+    const limitOptions = {
+        '$limit': 1
+    };
+
     if (!isEmpty(dateRangePipeline)) {
-        let addDateRange = false;
         let dateRange;
 
         if (dateRangePipeline.timestampField && Array.isArray(dateRangePipeline.dateRange)) {
@@ -81,6 +86,16 @@ async function getData(field: DataSourceField|IValueName, model: any, notIn: IOb
     }
 
     const projectOptions = getProjectOptions(fieldName, fieldPath, aggregate);
+    let sortOptions = {};
+
+    if (addDateRange && dateRangePipeline.timestampField) {
+        const projectTimeStampField = dateRangePipeline.timestampField;
+        Object.assign(projectOptions.$project, {
+            [projectTimeStampField]: 1
+        });
+
+        sortOptions = { '$sort': { [projectTimeStampField]: -1 } };
+    }
 
     if (!isEmpty(collectionSource)) {
         Object.assign(matchOptions.$match, {
@@ -92,9 +107,14 @@ async function getData(field: DataSourceField|IValueName, model: any, notIn: IOb
 
     let modelAggregate: ICollectionAggregation[] = [
         matchOptions,
-        projectOptions, {
-            '$limit': 1
-    }];
+        projectOptions
+    ];
+
+    if (!isEmpty(sortOptions)) {
+        modelAggregate.push(sortOptions, limitOptions);
+    } else {
+        modelAggregate.push(limitOptions);
+    }
 
     if (sortByProject(modelAggregate, aggregate)) {
         modelAggregate = sortBy(modelAggregate, '$project');
@@ -118,8 +138,10 @@ function getAggregateResult(model: any, aggObject: IObject[]): Promise<any> {
     return new Promise<any>((resolve, reject) => {
         model.aggregate(aggObject).exec((err, data) => {
             resolve(data);
+            return;
         }, (e) => {
             reject(e);
+            return;
         });
     });
 }
