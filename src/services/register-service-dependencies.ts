@@ -1,3 +1,4 @@
+import { MapMarkerService } from './map-marker.service';
 import { IBridgeContainer } from '../framework/di/bridge-container';
 import { AccountsService } from './accounts.service';
 import { UserAttachmentsService } from './attachments/user-attachments.service';
@@ -47,6 +48,7 @@ export function registerServices(container: IBridgeContainer) {
     container.registerPerWebRequest(WidgetsService);
     container.registerPerWebRequest(ChartsService);
     container.registerPerWebRequest(KpiService);
+    container.registerPerWebRequest(MapMarkerService);
     container.registerPerWebRequest(UserService);
     container.registerPerWebRequest(MilestoneService);
     container.registerPerWebRequest(SocialWidgetsService);

@@ -93,6 +93,7 @@ export enum TypeMap {
 
 export interface ISaleByZipGrouping {
     customerZip: string;
+    grouping?: string;
 }
 
 export interface ISaleByZip {
@@ -113,5 +114,5 @@ export interface ISaleModel extends mongoose.Model<ISaleDocument>, ICriteriaSear
     amountByDateRange(from: string, to: string): Promise<Object>;
     salesEmployeeByDateRange(predefinedDateRange: string): Promise<Object>;
     monthsAvgSales(date: string): Promise<Object>;
-    salesBy(type: TypeMap, input?: IMapMarkerInput): Promise<ISaleByZip[]>;
+    salesBy(aggregate: any[]): Promise<ISaleByZip[]>;
 }

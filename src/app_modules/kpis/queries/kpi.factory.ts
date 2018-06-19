@@ -32,11 +32,11 @@ export class KpiFactory {
         @inject(Inventory.name) private _inventory: Inventory,
         @inject(Calls.name) private _calls: Calls,
         @inject(GoogleAnalytics.name) private _googleAnalytics: GoogleAnalytics,
-        @inject(GoogleAnalyticsKPIService.name) private _googleAnalyticsKpiService: GoogleAnalyticsKPIService,
         @inject(Appointments.name) private _appointments: Appointments,
         @inject(VirtualSources.name) private _virtualSources: VirtualSources,
         @inject(Payments.name) private _payments: Payments,
         @inject(COGS.name) private _cogs: COGS,
+        @inject(GoogleAnalyticsKPIService.name) private _googleAnalyticsKpiService: GoogleAnalyticsKPIService,
         @inject(GAJobsQueueService.name) private _queueService: GAJobsQueueService,
         @inject(CurrentAccount.name) private _currentAccount: CurrentAccount,
     ) { }
