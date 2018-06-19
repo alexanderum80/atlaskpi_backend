@@ -31,7 +31,7 @@ import { IValueName } from '../domain/common/value-name';
 import { IConnectorDocument } from '../domain/master/connectors/connector';
 import { Connectors } from '../domain/master/connectors/connector.model';
 import { IMutationResponse } from '../framework/mutations/mutation-response';
-import {blackListDataSource, getFieldsWithData} from '../domain/common/fields-with-data';
+import {blackListDataSource, getFieldsWithData, IFieldsWithDataDatePipeline} from '../domain/common/fields-with-data';
 import {KpiGroupingsInput} from '../app_modules/kpis/kpis.types';
 import {parsePredifinedDate, IChartDateRange} from '../domain/common/date-range';
 import {ChartDateRangeInput, ChartDateRange} from '../app_modules/shared/shared.types';
@@ -335,10 +335,10 @@ export class KpiService {
                 }
                 const model = this._resolver(source.source).model;
 
-                const collectionMappingKey = source.source.toLowerCase();
+                const collectionMappingKey: string = source.source.toLowerCase();
                 const mapModel = CollectionsMapping[collectionMappingKey];
+                let kpiDateRange: IFieldsWithDataDatePipeline;
 
-                let kpiDateRange;
                 if (mapModel && mapModel.timestampField) {
                     const timestampField = mapModel.timestampField;
                     kpiDateRange = { timestampField: timestampField, dateRange: this.getDateRange(dateRange) };

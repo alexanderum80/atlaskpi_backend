@@ -18,8 +18,8 @@ interface ICollectionAggregation {
 
 
 export interface IFieldsWithDataDatePipeline {
-    timestampField: string;
-    dateRange: IDateRange[];
+    timestampField?: string;
+    dateRange?: IDateRange[];
 }
 
 export async function getFieldsWithData(
