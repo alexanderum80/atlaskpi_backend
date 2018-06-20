@@ -96,6 +96,10 @@
             hyphens: auto;
         }
 
+        .text-center {
+            text-align: center;
+        }
+
         .footer {
             margin-top: 10px;
             border-top: 1px solid lightgray;
@@ -127,9 +131,12 @@
 
                 <p class="alternative">If that does not work, copy and paste the following link in your browser:</p>
 
-                <a class="dont-break-out plain-link" href="http://{{host}}.{{subdomain}}/#/users/verify-enrollment/{{resetToken}}">
-                    http://{{host}}.{{subdomain}}/#/users/verify-enrollment/{{resetToken}}
-                </a>
+                
+                <div class="text-center">
+                    <a class="dont-break-out plain-link" href="http://{{host}}.{{subdomain}}/#/users/verify-enrollment/{{resetToken}}">
+                        http://{{host}}.{{subdomain}}/#/users/verify-enrollment/{{resetToken}}
+                    </a>
+                </div>
 
                 <p class="alternative">
                     Get in touch if you have any questions regarding our new product. Feel free to contact us at info@atlaskpi.com. We are here
