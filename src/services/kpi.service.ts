@@ -121,7 +121,7 @@ export class KpiService {
 
             const groupingInfo: IValueName[] = await this._getCommonSourcePaths(kpiSources, vs);
             const kpiFilterSource: any = KPIFilterHelper.PrepareFilterField(kpi.type, kpi.filter);
-            const kpiFilter = this._cleanFilter(kpi.filter);
+            const kpiFilter = this._cleanFilter(kpi.filter || {});
 
             return await this._fieldsWithData(sources, groupingInfo, input.dateRange, kpiFilterSource, kpiFilter);
         } catch (err) {
