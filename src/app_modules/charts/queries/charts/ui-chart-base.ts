@@ -84,7 +84,9 @@ export enum SortingCriteriaEnum {
     Frequency = 'frequency',
     Categories = 'categories',
     Groupings = 'groupingAlphabetically',
-    Totals = 'valuesTotal'
+    Totals = 'valuesTotal',
+    TotalsMain = 'valuesTotalMain',
+    TotalsPrevious = 'valuesTotalPrevious'
  }
 
  export enum SortingOrderEnum {
@@ -161,10 +163,11 @@ export class UIChartBase {
 
             let groupingField = (metadata.groupings && metadata.groupings.length) ? camelCase(metadata.groupings[0]) : null;
 
-            data = this._sortingData(metadata, data);
             // must transform data first to apply top n
             // will return data if top n input is not given
             data = ApplyTopNChart.applyTopNToData(data, metadata);
+
+            data = this._sortingData(metadata, data);
 
             that.groupings = that._getGroupingFields(data);
 
@@ -298,7 +301,7 @@ export class UIChartBase {
         } else if (groupingField && metadata.sortingCriteria && (metadata.sortingCriteria === SortingCriteriaEnum.Categories || metadata.sortingCriteria === SortingCriteriaEnum.Groupings)) {
             if (this.sortingOrder) data = orderBy(data, '_id[' + groupingField + ']', metadata.sortingOrder === SortingOrderEnum.Ascending ? 'asc' : 'desc');
         }
-        else if (metadata.sortingCriteria && metadata.sortingCriteria === SortingCriteriaEnum.Totals) {
+        else if (!metadata.comparison && metadata.sortingCriteria && metadata.sortingCriteria === SortingCriteriaEnum.Totals) {
             let dataTemp = [];
             let dataSorted = [];
             // Here I most group by frequency,  then sum the values
@@ -311,7 +314,6 @@ export class UIChartBase {
             }
 
             if (metadata.sortingOrder) dataSorted = orderBy(dataTemp, 'totalValue', metadata.sortingOrder === SortingOrderEnum.Ascending ? 'asc' : 'desc');
-
             // Here is sorting by totalValue
             // forEach dataSorted, filter original data by frecuency & adding in new data
             // finally assign to data again
@@ -523,8 +525,6 @@ export class UIChartBase {
 
         }
     }
-
-
     private _getSeriesForFirstLevelGrouping(data: any[], categories: IXAxisCategory[], meta: IChartMetadata): IChartSerie[] {
         let serieObject;
         if (this.chart.chartDefinition.chart.type === ChartType.Pie) {
@@ -925,16 +925,85 @@ export class UIChartBase {
     }
 
     private _mergeMultipleChartDefinitions(definitions: any, metadata: IChartMetadata): any {
-        const mainDefinition = definitions['main'] || {};
-            const comparisonCategoriesWithValues: IComparsionDefObject = this._getComparisonCategoriesWithValues(definitions);
-            const definitionSeries: any[] = this._getComparisonSeries(comparisonCategoriesWithValues, metadata);
+        let mainDefinition = definitions['main'] || {};
+        const comparisonCategoriesWithValues: IComparsionDefObject = this._getComparisonCategoriesWithValues(definitions);
+        const definitionSeries: any[] = this._getComparisonSeries(comparisonCategoriesWithValues, metadata);
 
-            mainDefinition.xAxis.categories = this._getComparisonCategories(definitions, metadata);
-            mainDefinition.series = definitionSeries;
-
-            return mainDefinition;
+        mainDefinition.xAxis.categories = this._getComparisonCategories(definitions, metadata);
+        mainDefinition.series = definitionSeries;
+        // here i must sort comparison series
+        mainDefinition = this._sortingDataWithComparison(metadata, mainDefinition);
+        return mainDefinition;
     }
+    private _sortingDataWithComparison(metadata: IChartMetadata, definition: any): any {
 
+        if (!metadata.sortingCriteria ||  !metadata.sortingOrder) { return definition; }
+
+        let series = definition.series;
+        let seriesTMP = [];
+        let categories = definition.xAxis.categories;
+        let categoriesTMP = [];
+        let seriesSorted = [];
+        let groupedData = [];
+        let total = 0;
+        let tobeSorted = true;
+
+        switch (metadata.sortingCriteria) {
+            case SortingCriteriaEnum.Totals:
+                seriesTMP = series;
+                break;
+            case SortingCriteriaEnum.TotalsMain:
+                seriesTMP = series.filter(s => s.stack === 'main');
+                break;
+            case SortingCriteriaEnum.TotalsPrevious:
+                seriesTMP = series.filter(s => s.stack !== 'main');
+                break;
+            case SortingCriteriaEnum.Groupings:
+                series = orderBy(series, 'name', metadata.sortingOrder === SortingOrderEnum.Ascending ? 'asc' : 'desc');
+                tobeSorted = false;
+                break;
+            case SortingCriteriaEnum.Frequency:
+                tobeSorted = false;
+                break;
+            default:
+                if (series.find(s => s.name === metadata.sortingCriteria)) {
+                    seriesTMP = series.filter(s => s.name === metadata.sortingCriteria);
+                }
+                break;
+            }
+        if (tobeSorted) {
+            // Here I most sum by index of array
+            // to get the final order
+            let indexT = seriesTMP[0].data.length;
+            for (let index = 0; index < indexT; index++) {
+                total = 0;
+                seriesTMP.map(s => {
+                    total += s.data[index];
+                });
+                groupedData.push({
+                    order: index,
+                    totalValue: total
+                });
+            }
+            seriesSorted = orderBy(groupedData, 'totalValue', metadata.sortingOrder === SortingOrderEnum.Ascending ? 'asc' : 'desc');
+            // Here is order by totalValue
+            // forEach seriesSorted, sort original data by order & adding in new data
+            // finally assign to series again
+            series.map(ser => {
+                let dataTemp = [];
+                seriesSorted.map(o => {
+                    dataTemp.push(ser.data[o.order]);
+                });
+                ser.data = dataTemp;
+            });
+            seriesSorted.map(o => {
+                categoriesTMP.push(categories[o.order]);
+            });
+            definition.xAxis.categories = categoriesTMP;
+        }
+        definition.series = series;
+        return definition;
+    }
     private _getComparisonCategoriesWithValues(definitions: any): any {
         const defObject: IComparsionDefObject = {};
         defObject['uniqCategories'] = [];

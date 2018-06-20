@@ -27,16 +27,23 @@ export interface IGAJobData {
 
 let queue = require('kue');
 // let Queue = kue.createQueue();
+let _jobs: Queue;
 
-const _jobs: Queue = queue.createQueue({
-    prefix: os.hostname, // 'webapp',
-    redis: {
-        port: config.cache.redisPort, // 6379,
-        host: config.cache.redisServer, // 'localhost'
-    }
-});
+try {
+    _jobs = queue.createQueue({
+        prefix: os.hostname, // 'webapp',
+        redis: {
+            port: config.cache.redisPort, // 6379,
+            host: config.cache.redisServer, // 'localhost'
+        }
+    });
 
-console.log('Queue name: ' + os.hostname);
+    console.log('Queue name: ' + os.hostname);
+} catch (e) {
+    console.error('There was an error connecting to Redis Server');
+}
+
+
 
 // queue.app.listen(4000);
 
@@ -64,6 +71,10 @@ export class GAJobsQueueService {
         filters: string,
         groupings: string[]): Job {
             // this._lastTime = this._lastTime.add(10, 'seconds');
+            if (!_jobs) {
+                console.log('Job queue is not ready to receive new jobs');
+                return;
+            }
 
             const jobData = {
                 title: `Google Analytics Query for:${accountName}, date range: ${JSON.stringify(dateRange)}`,
@@ -89,6 +100,11 @@ export class GAJobsQueueService {
     private _startProcessingJobs() {
         const that = this;
         this._lastTime = moment();
+
+        if (!_jobs) {
+            console.log('Job queue is not ready to proccess new jobs');
+            return;
+        }
 
         _jobs.process(JOB_TYPE, async function(job: Job, done) {
             const data: IGAJobData = job.data;

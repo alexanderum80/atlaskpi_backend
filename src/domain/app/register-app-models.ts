@@ -1,3 +1,4 @@
+import { FinancialActivities } from './financial-activities/financial-activity.model';
 import { COGS } from './cogs/cogs.model';
 import { Payments } from './payments/payment.model';
 import { HelpCenter } from './help-center/help-center.model';
@@ -82,7 +83,8 @@ const registrations: any[] = [
     Attachments,
     VirtualSources,
     Payments,
-    COGS
+    COGS,
+    FinancialActivities
 ];
 
 export function registerAppModels(container: IBridgeContainer) {

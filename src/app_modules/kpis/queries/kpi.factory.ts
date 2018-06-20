@@ -1,3 +1,4 @@
+import { FinancialActivities } from './../../../domain/app/financial-activities/financial-activity.model';
 import { COGS } from './../../../domain/app/cogs/cogs.model';
 import { Payments } from './../../../domain/app/payments/payment.model';
 import { inject, injectable } from 'inversify';
@@ -36,6 +37,7 @@ export class KpiFactory {
         @inject(VirtualSources.name) private _virtualSources: VirtualSources,
         @inject(Payments.name) private _payments: Payments,
         @inject(COGS.name) private _cogs: COGS,
+        @inject(FinancialActivities.name) private _financialActivities: FinancialActivities,
         @inject(GoogleAnalyticsKPIService.name) private _googleAnalyticsKpiService: GoogleAnalyticsKPIService,
         @inject(GAJobsQueueService.name) private _queueService: GAJobsQueueService,
         @inject(CurrentAccount.name) private _currentAccount: CurrentAccount,
@@ -63,6 +65,7 @@ export class KpiFactory {
                                 this._appointments,
                                 this._payments,
                                 this._cogs,
+                                this._financialActivities,
                                 virtualSources
                           );
                 case KPITypeEnum.ExternalSource:
