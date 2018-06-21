@@ -188,8 +188,12 @@ export class ChartsService {
                 }
                 let seriesDefinition = chart.chartDefinition.series;
                 that.renderDefinition(chart, input).then(definition => {
+<<<<<<< HEAD
                     // chart.chartDefinition = definition;
                     chart.chartDefinition = this._setSeriesVisibility(seriesDefinition, definition);
+=======
+                    chart.chartDefinition = this._addSerieColorToDefinition(chart.chartDefinition.series, definition);
+>>>>>>> origin/development
                     resolve(chart);
                     return;
                 });
@@ -553,6 +557,7 @@ export class ChartsService {
         return true;
     }
 
+<<<<<<< HEAD
     private _setSeriesVisibility(chartSeries, chartData) {
          if (chartData.chart.type !== 'pie') {
              chartSeries.map(s => {
@@ -583,3 +588,29 @@ export class ChartsService {
 
 }
 
+=======
+    private _addSerieColorToDefinition(definitionSeries, chartData) {
+        if (chartData.chart.type === 'pie') {
+            definitionSeries[0].data.map(d => {
+                if (d.color && d.color !== '') {
+                    const serieData = chartData.series[0].data.find(c => c.name === d.name);
+                    if (serieData) {
+                        serieData.color = d.color;
+                    }
+                }
+            });
+        } else {
+            definitionSeries.map(d => {
+                if (d.color && d.color !== '') {
+                    const serieData = chartData.series.find(c => c.name === d.name);
+                    if (serieData) {
+                        serieData.color = d.color;
+                    }
+                }
+            });
+        }
+        return chartData;
+    }
+
+}
+>>>>>>> origin/development
