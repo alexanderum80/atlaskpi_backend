@@ -186,10 +186,10 @@ export class ChartsService {
                     );
                     Object.assign(chart, chartOptions);
                 }
-
+                let seriesDefinition = chart.chartDefinition.series;
                 that.renderDefinition(chart, input).then(definition => {
                     // chart.chartDefinition = definition;
-                    chart.chartDefinition = this._setSeriesVisibility(chart.chartDefinition.series, definition);
+                    chart.chartDefinition = this._setSeriesVisibility(seriesDefinition, definition);
                     resolve(chart);
                     return;
                 });
