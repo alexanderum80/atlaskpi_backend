@@ -123,11 +123,6 @@ export class KpiService {
             const kpiFilterSource: any = KPIFilterHelper.PrepareFilterField(kpi.type, kpi.filter);
             const kpiFilter = this._cleanFilter(kpi.filter || {});
 
-            const isExternalSource = kpi ? (kpi.type === 'externalsource') : false;
-            if (isExternalSource) {
-                return groupingInfo;
-            }
-
             return await this._fieldsWithData(sources, groupingInfo, input.dateRange, kpiFilterSource, kpiFilter);
         } catch (err) {
             console.error('error getting grouping data', err);
