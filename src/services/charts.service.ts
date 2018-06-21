@@ -264,6 +264,7 @@ export class ChartsService {
             chart.kpis[0] = kpi;
             const definition = await this.renderDefinition(chart);
             // chart.chartDefinition = definition;
+
             chart.chartDefinition = this._setSeriesVisibility(chart.chartDefinition.series, definition);
 
             return chart;
