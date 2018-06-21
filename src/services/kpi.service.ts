@@ -467,7 +467,7 @@ export class KpiService {
             } else {
                 // apply filter
                 let filterValue = filter[filterKey];
-                const operatorName = filterKey.replace(/__dot__|__dollar__/g, '');
+                const operatorName = filterKey.replace(/__dot__|__dollar__|\$/g, '');
 
                 if (this._isRegExpOperator(operatorName)) {
                     // process filter value
