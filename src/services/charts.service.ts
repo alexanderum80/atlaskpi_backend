@@ -186,10 +186,9 @@ export class ChartsService {
                     );
                     Object.assign(chart, chartOptions);
                 }
-                let seriesDefinition = chart.chartDefinition.series;
                 that.renderDefinition(chart, input).then(definition => {
                     // chart.chartDefinition = definition;
-                    chart.chartDefinition = this._setSeriesVisibility(seriesDefinition, definition);
+                    chart.chartDefinition = this._setSeriesVisibility(chart.chartDefinition.series, definition);
                     chart.chartDefinition = this._addSerieColorToDefinition(chart.chartDefinition.series, definition);
                     resolve(chart);
                     return;
@@ -261,9 +260,8 @@ export class ChartsService {
             chart.kpis[0] = kpi;
             const definition = await this.renderDefinition(chart);
             // chart.chartDefinition = definition;
-
             chart.chartDefinition = this._setSeriesVisibility(chart.chartDefinition.series, definition);
-
+            chart.chartDefinition = this._addSerieColorToDefinition(chart.chartDefinition.series, definition);
             return chart;
         } catch (e) {
             this._logger.error('There was an error previewing a chart', e);
