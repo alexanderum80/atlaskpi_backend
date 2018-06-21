@@ -188,12 +188,9 @@ export class ChartsService {
                 }
                 let seriesDefinition = chart.chartDefinition.series;
                 that.renderDefinition(chart, input).then(definition => {
-<<<<<<< HEAD
                     // chart.chartDefinition = definition;
                     chart.chartDefinition = this._setSeriesVisibility(seriesDefinition, definition);
-=======
                     chart.chartDefinition = this._addSerieColorToDefinition(chart.chartDefinition.series, definition);
->>>>>>> origin/development
                     resolve(chart);
                     return;
                 });
@@ -558,38 +555,36 @@ export class ChartsService {
         return true;
     }
 
-<<<<<<< HEAD
     private _setSeriesVisibility(chartSeries, chartData) {
-         if (chartData.chart.type !== 'pie') {
-             chartSeries.map(s => {
-                 if (s.visible !== undefined) {
-                     let serieDefinition = chartData.series.find(f => f.name === s.name);
-                     if (serieDefinition) {
+        if (chartData.chart.type !== 'pie') {
+            chartSeries.map(s => {
+                if (s.visible !== undefined) {
+                    let serieDefinition = chartData.series.find(f => f.name === s.name);
+                    if (serieDefinition) {
                          // serieDefinition = Object.assign(serieDefinition, { visible: false });
+                        serieDefinition.visible = s.visible;
+                    }
+                }
+            });
+        }
+        else {
+            chartSeries[0].data.map(s => {
+                if (s.visible !== undefined) {
+                    let serieDefinition = chartData.series[0].data.find(f => f.name === s.name);
+                    if (serieDefinition) {
                          serieDefinition.visible = s.visible;
-                     }
-                 }
-             });
-         }
-         else {
-             chartSeries[0].data.map(s => {
-                 if (s.visible !== undefined) {
-                     let serieDefinition = chartData.series[0].data.find(f => f.name === s.name);
-                     if (serieDefinition) {
-                         serieDefinition.visible = s.visible;
-                     }
-                 }
-             });
-         }
+                    }
+                }
+            });
+        }
 
-         return chartData;
-     }
+        return chartData;
+    }
 
 
 
-}
 
-=======
+
     private _addSerieColorToDefinition(definitionSeries, chartData) {
         if (chartData.chart.type === 'pie') {
             definitionSeries[0].data.map(d => {
@@ -614,4 +609,3 @@ export class ChartsService {
     }
 
 }
->>>>>>> origin/development
