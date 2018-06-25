@@ -1,7 +1,8 @@
 import * as Bluebird from 'bluebird';
 import {inject, injectable, Container} from 'inversify';
-import { isObject, intersectionBy, cloneDeep, isEmpty } from 'lodash';
+import { isObject, intersectionBy, cloneDeep, isEmpty, isString, isArray, isDate, pickBy } from 'lodash';
 import { DocumentQuery } from 'mongoose';
+import * as moment from 'moment';
 
 import { IChartDocument } from '../domain/app/charts/chart';
 import { Charts } from '../domain/app/charts/chart.model';
@@ -30,7 +31,11 @@ import { IValueName } from '../domain/common/value-name';
 import { IConnectorDocument } from '../domain/master/connectors/connector';
 import { Connectors } from '../domain/master/connectors/connector.model';
 import { IMutationResponse } from '../framework/mutations/mutation-response';
-import {blackListDataSource, getFieldsWithData} from '../domain/common/fields-with-data';
+import {blackListDataSource, getFieldsWithData, IFieldsWithDataDatePipeline} from '../domain/common/fields-with-data';
+import {KpiGroupingsInput} from '../app_modules/kpis/kpis.types';
+import {parsePredifinedDate, IChartDateRange} from '../domain/common/date-range';
+import {ChartDateRangeInput, ChartDateRange} from '../app_modules/shared/shared.types';
+import {CollectionsMapping} from '../app_modules/kpis/queries/simple-kpi';
 
 const codeMapper = {
     'Revenue': 'sales',
@@ -45,6 +50,11 @@ export interface IGroupingsModel {
 
 @injectable()
 export class KpiService {
+    private replacementString = [
+        { key: '__dot__', value: '.' },
+        { key: '__dollar__', value: '$' }
+    ];
+
     constructor(
         @inject(Sales.name) private _saleModel: Sales,
         @inject(Expenses.name) private _expenseModel: Expenses,
@@ -93,6 +103,31 @@ export class KpiService {
         doc.expression = KPIExpressionHelper.PrepareExpressionField(doc.type, doc.expression);
 
         return doc;
+    }
+
+    async getGroupingsWithData(input: KpiGroupingsInput): Promise<IValueName[]> {
+        try {
+            const allKpis: IKPIDocument[] = await this._kpis.model.find({});
+            const cloneKpis: IKPIDocument[] = cloneDeep(allKpis);
+            const kpi: IKPIDocument = cloneKpis.find((k: IKPIDocument) => k.id === input.id);
+
+            const connectors: IConnectorDocument[] = await this._connectors.model.find({});
+
+            const vs: IVirtualSourceDocument[] = await this._virtualSources.model.find({});
+            const kpiSources: string[] = this._getKpiSources(kpi, allKpis, connectors);
+            const sources: IVirtualSourceDocument[] = vs.filter((v: IVirtualSourceDocument) => {
+                return kpiSources.indexOf(v.name.toLocaleLowerCase()) !== -1;
+            });
+
+            const groupingInfo: IValueName[] = await this._getCommonSourcePaths(kpiSources, vs);
+            const kpiFilterSource: any = KPIFilterHelper.PrepareFilterField(kpi.type, kpi.filter);
+            const kpiFilter = this._cleanFilter(kpi.filter || {});
+
+            return await this._fieldsWithData(sources, groupingInfo, input.dateRange, kpiFilterSource, kpiFilter);
+        } catch (err) {
+            console.error('error getting grouping data', err);
+            return [];
+        }
     }
 
     async createKpi(input: IKPI): Promise<IKPIDocument> {
@@ -153,6 +188,27 @@ export class KpiService {
                 return;
             });
         });
+    }
+
+    getDateRange(chartDateRange: ChartDateRangeInput[]): any[] {
+        return (Array.isArray(chartDateRange) && chartDateRange.length) ?
+            chartDateRange.map(d => {
+                const dateRange = this.processChartDateRange(d);
+
+                return {
+                    '$gte': dateRange.from,
+                    '$lt': dateRange.to
+                };
+            }) : [];
+    }
+
+    processChartDateRange(chartDateRange: ChartDateRangeInput): any {
+        return chartDateRange.custom && chartDateRange.custom.from ?
+                {
+                    from: moment(chartDateRange.custom.from).startOf('day').toDate(),
+                    to: moment(chartDateRange.custom.to).endOf('day').toDate()
+                }
+                : parsePredifinedDate(chartDateRange.predefined);
     }
 
     private _getKpiSources(kpi: IKPIDocument, kpis: IKPIDocument[], connectors: IConnectorDocument[]): string[] {
@@ -270,7 +326,7 @@ export class KpiService {
         }
     }
 
-    private async _fieldsWithData(sources: IVirtualSourceDocument[], fields: IValueName[], kpiFilter?: IKPIFilter[]): Promise<IValueName[]> {
+    private async _fieldsWithData(sources: IVirtualSourceDocument[], fields: IValueName[], dateRange: ChartDateRangeInput[], kpiFilterSource?: IKPIFilter[], kpiFilter?: any): Promise<IValueName[]> {
         const that = this;
 
         try {
@@ -286,8 +342,22 @@ export class KpiService {
                     });
                 }
                 const model = this._resolver(source.source).model;
-                const collectionSource: string[] = this._getCollectionSource(kpiFilter);
-                const fieldsWithData: string[] = await getFieldsWithData(model, fields, collectionSource, aggregate);
+
+                const collectionMappingKey: string = source.source.toLowerCase();
+                const mappingModel = CollectionsMapping[collectionMappingKey];
+                let kpiDateRange: IFieldsWithDataDatePipeline;
+
+                if (mappingModel && mappingModel.timestampField) {
+                    const timestampField = mappingModel.timestampField;
+                    kpiDateRange = { timestampField: timestampField, dateRange: this.getDateRange(dateRange) };
+                } else {
+                    kpiDateRange = { timestampField: null, dateRange: null };
+                }
+
+                const collectionSource: string[] = this._getCollectionSource(kpiFilterSource);
+                const filter = pickBy(kpiFilter, (item, k) => k !== 'source');
+
+                const fieldsWithData: string[] = await getFieldsWithData(model, fields, collectionSource, aggregate, kpiDateRange, filter);
 
                 return fields.filter(field => {
                     return fieldsWithData.indexOf(field.name) !== -1 ||
@@ -321,7 +391,7 @@ export class KpiService {
 
         const cloneKpiFilter: IKPIFilter[] = cloneDeep(kpiFilter);
 
-        const source: IKPIFilter = cloneKpiFilter.find(k => k.criteria === 'source');
+        const source: IKPIFilter = cloneKpiFilter.find(k => k.field === 'source');
         if (!source) {
             return [];
         }
@@ -374,18 +444,61 @@ export class KpiService {
         });
     }
 
-    private _getObjects(arr: any[]): any {
-        if (!arr) { return; }
-        const newObject = {};
-        arr.forEach(singleArray => {
-            if (singleArray && Array.isArray(singleArray)) {
-                singleArray.forEach(obj => {
-                    if (isObject) {
-                        Object.assign(newObject, obj);
+    private _cleanFilter(filter: any): any {
+        let newFilter = {};
+
+        if (isString(filter)) {
+            return filter;
+        }
+
+        Object.keys(filter).forEach(filterKey => {
+
+            let key = filterKey;
+            this.replacementString.forEach(r => key = key.replace(r.key, r.value));
+            let value = filter[filterKey];
+
+            if (!isArray(value) && !isDate(value) && isObject(value)) {
+                newFilter[key] = this._cleanFilter(value);
+            } else if (!isDate(value) && isArray(value)) {
+                for (let i = 0; i < value.length; i++) {
+                    value[i] = this._cleanFilter(value[i]);
+                }
+                newFilter[key] = value;
+            } else {
+                // apply filter
+                let filterValue = filter[filterKey];
+                const operatorName = filterKey.replace(/__dot__|__dollar__|\$/g, '');
+
+                if (this._isRegExpOperator(operatorName)) {
+                    // process filter value
+                    if (operatorName.indexOf('start') !== -1) {
+                        filterValue = '^' + filterValue;
                     }
-                });
+
+                    if (operatorName.indexOf('end') !== -1) {
+                        filterValue = filterValue + '$';
+                    }
+
+                    key = '$regex';
+                    if (operatorName === 'regex') {
+                        value = new RegExp(filterValue);
+                    } else {
+                        value = new RegExp(filterValue, 'i');
+                    }
+                } else {
+                    value = filterValue;
+                }
+
+                newFilter[key] = value;
             }
         });
-        return newObject;
+
+        return newFilter;
+    }
+
+    private _isRegExpOperator(operator: string): boolean {
+        const regexStrings = ['startWith', 'endWith', 'contains', 'regex'];
+
+        return regexStrings.indexOf(operator) !== -1;
     }
 }
