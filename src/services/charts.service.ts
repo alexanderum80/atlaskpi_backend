@@ -255,13 +255,14 @@ export class ChartsService {
         try {
             const kpi = await this._kpis.model.findOne({ _id: input.kpis[0]});
             const chart = <any>{ ... input };
+            const rawDefinition = JSON.parse(input.chartDefinition);
 
-            chart.chartDefinition = JSON.parse(input.chartDefinition);
+            chart.chartDefinition = rawDefinition;
             chart.kpis[0] = kpi;
             const definition = await this.renderDefinition(chart);
             // chart.chartDefinition = definition;
             chart.chartDefinition = this._setSeriesVisibility(chart.chartDefinition.series, definition);
-            chart.chartDefinition = this._addSerieColorToDefinition(chart.chartDefinition.series, definition);
+            chart.chartDefinition = this._addSerieColorToDefinition(rawDefinition.series, definition);
             return chart;
         } catch (e) {
             this._logger.error('There was an error previewing a chart', e);
@@ -585,23 +586,34 @@ export class ChartsService {
 
     private _addSerieColorToDefinition(definitionSeries, chartData) {
         if (chartData.chart.type === 'pie') {
-            definitionSeries[0].data.map(d => {
-                if (d.color && d.color !== '') {
-                    const serieData = chartData.series[0].data.find(c => c.name === d.name);
-                    if (serieData) {
-                        serieData.color = d.color;
+            // check if data exist in definitionSeries[0]
+            const definitionSeriesDataExist: boolean = Array.isArray(definitionSeries) &&
+                                                       !isEmpty(definitionSeries) &&
+                                                       Array.isArray(definitionSeries[0].data);
+
+            if (definitionSeriesDataExist) {
+                definitionSeries[0].data.map(d => {
+                    if (!isEmpty(d) && !isEmpty(d.color)) {
+                        const serieData = chartData.series[0].data.find(c => c.name === d.name);
+                        if (serieData) {
+                            serieData.color = d.color;
+                        }
                     }
-                }
-            });
+                });
+            }
         } else {
-            definitionSeries.map(d => {
-                if (d.color && d.color !== '') {
-                    const serieData = chartData.series.find(c => c.name === d.name);
-                    if (serieData) {
-                        serieData.color = d.color;
+            const canMapDefinitionSeries: boolean = Array.isArray(definitionSeries) && definitionSeries.length > 0;
+
+            if (canMapDefinitionSeries) {
+                definitionSeries.map(d => {
+                    if (!isEmpty(d) && !isEmpty(d.color)) {
+                        const serieData = chartData.series.find(c => c.name === d.name);
+                        if (serieData) {
+                            serieData.color = d.color;
+                        }
                     }
-                }
-            });
+                });
+            }
         }
         return chartData;
     }
