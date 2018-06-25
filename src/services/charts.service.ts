@@ -257,14 +257,15 @@ export class ChartsService {
         try {
             const kpi = await this._kpis.model.findOne({ _id: input.kpis[0]});
             const chart = <any>{ ... input };
-            const rawDefinition = JSON.parse(input.chartDefinition);
+            const parseDefinition = JSON.parse(input.chartDefinition);
+            const originalDefinitionSeries = cloneDeep(parseDefinition.series);
 
-            chart.chartDefinition = rawDefinition;
+            chart.chartDefinition = parseDefinition;
             chart.kpis[0] = kpi;
             const definition = await this.renderDefinition(chart);
             // chart.chartDefinition = definition;
-            chart.chartDefinition = this._setSeriesVisibility(chart.chartDefinition.series, definition);
-            chart.chartDefinition = this._addSerieColorToDefinition(rawDefinition.series, definition);
+            chart.chartDefinition = this._setSeriesVisibility(originalDefinitionSeries, definition);
+            chart.chartDefinition = this._addSerieColorToDefinition(originalDefinitionSeries, definition);
             return chart;
         } catch (e) {
             this._logger.error('There was an error previewing a chart', e);
