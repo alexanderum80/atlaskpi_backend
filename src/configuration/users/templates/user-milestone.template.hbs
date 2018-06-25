@@ -16,6 +16,12 @@
                     background-color: white;
                     border: 1px solid whitesmoke;
                 }
+
+                @media only screen and (max-width: 768px) {
+                    .card {
+                        width: initial !important;
+                    }
+                }
         
                 .card .header {
                     text-align: center;
@@ -32,6 +38,12 @@
                 .logo {
                     height: 50px;
                     margin-top: 20px;
+                }
+
+                @media only screen and (max-width: 1024px) and (orientation: landscape) {
+                    .logo {
+                        width: 43%;
+                    }
                 }
         
                 .title {
