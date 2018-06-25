@@ -555,26 +555,36 @@ export class ChartsService {
     }
 
     private _setSeriesVisibility(chartSeries, chartData) {
+        const chartSeriesExist: boolean = Array.isArray(chartSeries);
+
         if (chartData.chart.type !== 'pie') {
-            chartSeries.map(s => {
-                if (s.visible !== undefined) {
-                    let serieDefinition = chartData.series.find(f => f.name === s.name);
-                    if (serieDefinition) {
-                         // serieDefinition = Object.assign(serieDefinition, { visible: false });
-                        serieDefinition.visible = s.visible;
+            if (chartSeriesExist) {
+                chartSeries.map(s => {
+                    if (s.visible !== undefined) {
+                        let serieDefinition = chartData.series.find(f => f.name === s.name);
+                        if (serieDefinition) {
+                            // serieDefinition = Object.assign(serieDefinition, { visible: false });
+                            serieDefinition.visible = s.visible;
+                        }
                     }
-                }
-            });
+                });
+            }
         }
         else {
-            chartSeries[0].data.map(s => {
-                if (s.visible !== undefined) {
-                    let serieDefinition = chartData.series[0].data.find(f => f.name === s.name);
-                    if (serieDefinition) {
-                         serieDefinition.visible = s.visible;
+            const chartSeriesDataExist: boolean = Array.isArray(chartSeries) &&
+                                         !isEmpty(chartSeries) &&
+                                         Array.isArray(chartSeries[0].data);
+
+            if (chartSeriesDataExist) {
+                chartSeries[0].data.map(s => {
+                    if (s.visible !== undefined) {
+                        let serieDefinition = chartData.series[0].data.find(f => f.name === s.name);
+                        if (serieDefinition) {
+                            serieDefinition.visible = s.visible;
+                        }
                     }
-                }
-            });
+                });
+            }
         }
 
         return chartData;
@@ -595,6 +605,7 @@ export class ChartsService {
                 definitionSeries[0].data.map(d => {
                     if (!isEmpty(d) && !isEmpty(d.color)) {
                         const serieData = chartData.series[0].data.find(c => c.name === d.name);
+                        // update the color on the new chart only
                         if (serieData) {
                             serieData.color = d.color;
                         }
@@ -608,6 +619,7 @@ export class ChartsService {
                 definitionSeries.map(d => {
                     if (!isEmpty(d) && !isEmpty(d.color)) {
                         const serieData = chartData.series.find(c => c.name === d.name);
+                        // update the color on new chart only
                         if (serieData) {
                             serieData.color = d.color;
                         }
