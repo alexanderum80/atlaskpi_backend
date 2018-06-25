@@ -1,5 +1,5 @@
-import * as Promise from 'bluebird';
 import { inject, injectable } from 'inversify';
+import { isEmpty } from 'lodash';
 
 import { ITargetDocument } from '../../../domain/app/targets/target';
 import { Targets } from '../../../domain/app/targets/target.model';
@@ -21,18 +21,20 @@ import { FindTargetByNameActivity } from '../activities/find-target-by-name.acti
 export class FindTargetByNameQuery implements IQuery<ITargetDocument> {
     constructor(@inject(Targets.name) private _targets: Targets) { }
 
-    run(data: { name: string }): Promise<ITargetDocument> {
-        const that = this;
+    async run(data: { name: string }): Promise<ITargetDocument> {
+        try {
+            if (!data.name) {
+                return null;
+            }
 
-        return new Promise<ITargetDocument>((resolve, reject) => {
-            that._targets.model.findTargetByName(data.name)
-                .then((target) => {
-                    resolve(target);
-                    return;
-                }).catch((err) => {
-                    reject({ success: false, errors: [ {field: 'target', errors: [err] } ] });
-                    return;
-                });
-        });
+            const targetByName = await this._targets.model.findTargetByName(data.name);
+            if (isEmpty(targetByName)) {
+                return null;
+            }
+
+            return targetByName;
+        } catch (err) {
+            throw new Error('error finding target by name');
+        }
     }
 }
