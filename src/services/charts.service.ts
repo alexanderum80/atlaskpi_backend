@@ -186,8 +186,9 @@ export class ChartsService {
                     );
                     Object.assign(chart, chartOptions);
                 }
-
                 that.renderDefinition(chart, input).then(definition => {
+                    // chart.chartDefinition = definition;
+                    chart.chartDefinition = this._setSeriesVisibility(chart.chartDefinition.series, definition);
                     chart.chartDefinition = this._addSerieColorToDefinition(chart.chartDefinition.series, definition);
                     resolve(chart);
                     return;
@@ -258,8 +259,9 @@ export class ChartsService {
             chart.chartDefinition = JSON.parse(input.chartDefinition);
             chart.kpis[0] = kpi;
             const definition = await this.renderDefinition(chart);
+            // chart.chartDefinition = definition;
+            chart.chartDefinition = this._setSeriesVisibility(chart.chartDefinition.series, definition);
             chart.chartDefinition = this._addSerieColorToDefinition(chart.chartDefinition.series, definition);
-
             return chart;
         } catch (e) {
             this._logger.error('There was an error previewing a chart', e);
@@ -550,6 +552,36 @@ export class ChartsService {
         }
         return true;
     }
+
+    private _setSeriesVisibility(chartSeries, chartData) {
+        if (chartData.chart.type !== 'pie') {
+            chartSeries.map(s => {
+                if (s.visible !== undefined) {
+                    let serieDefinition = chartData.series.find(f => f.name === s.name);
+                    if (serieDefinition) {
+                         // serieDefinition = Object.assign(serieDefinition, { visible: false });
+                        serieDefinition.visible = s.visible;
+                    }
+                }
+            });
+        }
+        else {
+            chartSeries[0].data.map(s => {
+                if (s.visible !== undefined) {
+                    let serieDefinition = chartData.series[0].data.find(f => f.name === s.name);
+                    if (serieDefinition) {
+                         serieDefinition.visible = s.visible;
+                    }
+                }
+            });
+        }
+
+        return chartData;
+    }
+
+
+
+
 
     private _addSerieColorToDefinition(definitionSeries, chartData) {
         if (chartData.chart.type === 'pie') {
