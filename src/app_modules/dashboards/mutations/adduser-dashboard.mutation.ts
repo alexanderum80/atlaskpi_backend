@@ -1,6 +1,6 @@
 import * as Promise from 'bluebird';
 import { inject, injectable } from 'inversify';
-
+import { detachUserFromAllDashboards } from './common';
 import { Dashboards } from '../../../domain/app/dashboards/dashboard.model';
 import { mutation } from '../../../framework/decorators/mutation.decorator';
 import { MutationBase } from '../../../framework/mutations/mutation-base';
@@ -33,15 +33,19 @@ export class AddUserDashboardMutation extends MutationBase<IMutationResponse> {
             const lastname = userDetails[1];
             that._users.model.findByFullName(firstname, lastname)
             .then(user => {
-                that._dashboards.model.adduserDashboard(data.id, user.id).then(dashboard => {
-                    resolve({
-                        success: true
+                detachUserFromAllDashboards(that._dashboards.model, user._id)
+                .then(() => {
+                    that._dashboards.model.adduserDashboard(data.id, user.id).then(dashboard => {
+                        resolve({
+                            success: true
+                        });
+                    }).catch(err => {
+                        resolve({
+                            success: false
+                        });
                     });
-                }).catch(err => {
-                    resolve({
-                        success: false
-                    });
-                });
+                })
+                .catch(err => reject(err));
             });
         });
     }

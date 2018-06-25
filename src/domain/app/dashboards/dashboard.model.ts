@@ -1,4 +1,3 @@
-import { AddUserDashboardMutation } from './../../../app_modules/dashboards/mutations/adduser-dashboard.mutation';
 import * as Promise from 'bluebird';
 import { inject, injectable } from 'inversify';
 import * as mongoose from 'mongoose';
