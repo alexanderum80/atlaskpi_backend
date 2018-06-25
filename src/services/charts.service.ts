@@ -1,6 +1,6 @@
 import { camelCase } from 'change-case';
 import { inject, injectable } from 'inversify';
-import {difference, isNumber, isString, pick, PartialDeep, orderBy, isEmpty, omit }  from 'lodash';
+import {difference, isNumber, isString, pick, PartialDeep, cloneDeep, isEmpty, omit }  from 'lodash';
 import * as moment from 'moment';
 
 import { IChartMetadata } from '../app_modules/charts/queries/charts/chart-metadata';
@@ -188,8 +188,10 @@ export class ChartsService {
                 }
                 that.renderDefinition(chart, input).then(definition => {
                     // chart.chartDefinition = definition;
-                    chart.chartDefinition = this._setSeriesVisibility(chart.chartDefinition.series, definition);
-                    chart.chartDefinition = this._addSerieColorToDefinition(chart.chartDefinition.series, definition);
+                    const rawChartDefinitionSeries = cloneDeep(chart.chartDefinition.series);
+
+                    chart.chartDefinition = this._setSeriesVisibility(rawChartDefinitionSeries, definition);
+                    chart.chartDefinition = this._addSerieColorToDefinition(rawChartDefinitionSeries, definition);
                     resolve(chart);
                     return;
                 });
