@@ -31,14 +31,14 @@ export interface IMomentFrequencyTable {
     daily: string;
     weekly: string;
     monthly: string;
-    quartely: string;
+    quarterly: string;
     yearly: string;
 }
 const MomentFrequencyTable: IMomentFrequencyTable = {
     daily: 'day',
     weekly: 'week',
     monthly: 'month',
-    quartely: 'quarter',
+    quarterly: 'quarter',
     yearly: 'year',
 };
 
@@ -407,7 +407,7 @@ export class TargetService {
                 const monthlyDate = moment(dueDate).month();
                 diff = monthlyDate - monthly;
                 break;
-            case 'quartely':
+            case 'quarterly':
                 const quarter = moment().quarter();
                 const quarterDate = moment(dueDate).quarter();
                 diff = quarterDate - quarter;
@@ -460,7 +460,7 @@ export class TargetService {
                 return moment(targetDate).format('YYYY-MM');
             case FrequencyEnum.Yearly:
                 return moment(targetDate).format('YYYY');
-            case FrequencyEnum.Quartely:
+            case FrequencyEnum.Quarterly:
                 return moment(targetDate).format('YYYY') + '-Q' + moment(targetDate).format('Q');
             case FrequencyEnum.Daily:
                 return moment(targetDate).format('YYYY-MM-DD');
@@ -500,7 +500,7 @@ export class TargetService {
                 return parsePredifinedDate(PredefinedDateRanges.thisWeekToDate);
             case FrequencyTable.monthly:
                 return parsePredifinedDate(PredefinedDateRanges.thisMonthToDate);
-            case FrequencyTable.quartely:
+            case FrequencyTable.quarterly:
                 return parsePredifinedDate(PredefinedDateRanges.thisQuarterToDate);
             case FrequencyTable.yearly:
                 return parsePredifinedDate(PredefinedDateRanges.thisYearToDate);
@@ -529,7 +529,7 @@ export class TargetService {
             case FrequencyEnum.Monthly:
                 from = moment(dueDate).startOf('month').toDate();
                 break;
-            case FrequencyEnum.Quartely:
+            case FrequencyEnum.Quarterly:
                 from = moment(dueDate).startOf('quarter').toDate();
                 break;
             case FrequencyEnum.Yearly:
