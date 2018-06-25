@@ -188,10 +188,10 @@ export class ChartsService {
                 }
                 that.renderDefinition(chart, input).then(definition => {
                     // chart.chartDefinition = definition;
-                    const rawChartDefinitionSeries = cloneDeep(chart.chartDefinition.series);
+                    const originalDefinitionSeries = cloneDeep(chart.chartDefinition.series);
 
-                    chart.chartDefinition = this._setSeriesVisibility(rawChartDefinitionSeries, definition);
-                    chart.chartDefinition = this._addSerieColorToDefinition(rawChartDefinitionSeries, definition);
+                    chart.chartDefinition = this._setSeriesVisibility(originalDefinitionSeries, definition);
+                    chart.chartDefinition = this._addSerieColorToDefinition(originalDefinitionSeries, definition);
                     resolve(chart);
                     return;
                 });
