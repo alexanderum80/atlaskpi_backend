@@ -1,5 +1,6 @@
 import * as Bluebird from 'bluebird';
 import { cloneDeep } from 'lodash';
+import * as moment from 'moment';
 
 import { IKpiBase } from '../../../app_modules/kpis/queries/kpi-base';
 import { KpiFactory } from '../../../app_modules/kpis/queries/kpi.factory';
@@ -20,7 +21,6 @@ import {
     IWidget,
     IWidgetMaterializedFields,
 } from './widget';
-import { VirtualSources } from '../virtual-sources/virtual-source.model';
 import { IVirtualSourceDocument } from '../virtual-sources/virtual-source';
 
 
@@ -93,7 +93,10 @@ export class NumericWidget extends UIWidgetBase implements IUIWidget {
 
     private _processChartDateRange(chartDateRange: IChartDateRange): IDateRange {
         return chartDateRange.custom && chartDateRange.custom.from ?
-                { from: new Date(chartDateRange.custom.from), to: new Date(chartDateRange.custom.to) }
+                {
+                    from: moment(chartDateRange.custom.from).startOf('day').toDate(),
+                    to: moment(chartDateRange.custom.to).endOf('day').toDate()
+                }
                 : parsePredifinedDate(chartDateRange.predefined);
     }
 
