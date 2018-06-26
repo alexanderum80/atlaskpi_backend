@@ -49,7 +49,13 @@ export class NumericWidget extends UIWidgetBase implements IUIWidget {
         const that = this;
 
         const dateRange = this._processChartDateRange(this.numericWidgetAttributes.dateRange);
-        const comparison = getComparisonDateRanges([this.numericWidgetAttributes.dateRange], this.numericWidgetAttributes.comparison);
+        const dateRangeFrom = (dateRange && dateRange.from) ? dateRange.from : null;
+
+        const comparison = getComparisonDateRanges(
+            [this.numericWidgetAttributes.dateRange],
+            this.numericWidgetAttributes.comparison,
+            dateRangeFrom
+        );
 
         return new Promise<IUIWidget>((resolve, reject) => {
             that._resolveKpi().then((resolvedKpi) => {
