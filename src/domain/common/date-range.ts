@@ -560,7 +560,7 @@ export function previousPeriod(dateRange: IDateRange): IDateRange {
     if (isSameDate) {
         return {
             from: start.subtract(1, 'day').startOf('day').toDate(),
-            to: end.endOf('day').toDate()
+            to: end.startOf('day').toDate()
         };
     }
 
