@@ -556,9 +556,17 @@ export function previousPeriod(dateRange: IDateRange): IDateRange {
     const end = moment(dateRange.to);
     const duration = end.diff(start);
 
+    const isSameDate = end.diff(start, 'days') === 0;
+    if (isSameDate) {
+        return {
+            from: start.subtract(1, 'day').startOf('day').toDate(),
+            to: end.endOf('day').toDate()
+        };
+    }
+
     return {
         from: start.subtract(duration).startOf('day').toDate(),
-        to: end.subtract(duration).endOf('day').toDate()
+        to: end.subtract(duration).startOf('day').toDate()
     };
 }
 
