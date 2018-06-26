@@ -92,10 +92,12 @@ export class NumericWidget extends UIWidgetBase implements IUIWidget {
     }
 
     private _processChartDateRange(chartDateRange: IChartDateRange): IDateRange {
+        const momentFormat: string = 'MM/DD/YYYY';
+
         return chartDateRange.custom && chartDateRange.custom.from ?
                 {
-                    from: moment(chartDateRange.custom.from).startOf('day').toDate(),
-                    to: moment(chartDateRange.custom.to).endOf('day').toDate()
+                    from: moment(chartDateRange.custom.from, momentFormat).startOf('day').toDate(),
+                    to: moment(chartDateRange.custom.to, momentFormat).endOf('day').toDate()
                 }
                 : parsePredifinedDate(chartDateRange.predefined);
     }
