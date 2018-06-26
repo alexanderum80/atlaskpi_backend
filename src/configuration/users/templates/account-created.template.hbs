@@ -116,20 +116,34 @@
             <div class="header">
                 <img class="logo" alt="Logo" src="https://bi.atlaskpi.com/assets/img/logos/white-logo.png"/>
                 <div class="title">
-                    <span>Account Created</span>
+                    <span>User Created</span>
                 </div>
+            </div>
+            <div class="greetings">
+                <p>Hello {{fullName}},</p>
             </div>
             <div class="content">
                 <p>
-                    We are excited to have you get started. First you need to confirm your account and set your password. Just Press the button
-                    below.
+                    You are receiving this email because your User Account was recently created to access the AtlasKPI Practice 
+                    Management Dashboard, and now requires a password. This simple process will only take a couple minutes, and 
+                    will immediately bring you to the login screen.
+                </p>
+
+                <p>
+                    Secure and easy to use, AtlasKPI helps you "manage by the numbers" from any computer - anytime, anywhere. With 
+                    your AtlasKPI dashboard, you'll be able to view the key performance indicators (KPIs) assigned to your role 
+                    with the dashboard.
+                </p>
+
+                <p>
+                    To complete your User Registeration and create your password, please click the button below:
                 </p>
 
                 <div class="confirm-container">
                     <a class="confirm" href="http://{{host}}.{{subdomain}}/#/users/verify-enrollment/{{resetToken}}">Confirm</a>
                 </div>
 
-                <p class="alternative">If that does not work, copy and paste the following link in your browser:</p>
+                <p class="alternative">If clicking the button does not work, please copy and paste this link into your browser:</p>
 
                 
                 <div class="text-center">
@@ -138,13 +152,8 @@
                     </a>
                 </div>
 
-                <p class="alternative">
-                    Get in touch if you have any questions regarding our new product. Feel free to contact us at info@atlaskpi.com. We are here
-                    to help!
-                </p>
-
                 <p>
-                    All the best, AtlasKPI Team
+                    Welcome to AtlasKPI!
                 </p>
 
             </div>
