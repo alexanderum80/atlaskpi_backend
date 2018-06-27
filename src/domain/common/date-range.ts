@@ -547,7 +547,7 @@ export function parsePredefinedTargetDateRanges (predefinedDate: string, dueDate
 export function backInTime(dateRange: IDateRange, amount: any, timespan: string, mainDateRangeFrom?: Date): IDateRange {
     const format: string = 'MM/DD/YYYY';
     const fromDate: Date = moment(dateRange.from).subtract(amount, timespan).toDate();
-    let toDate: Date = moment(dateRange.to).subtract(amount, timespan).toDate();
+    let toDate: Date = moment(dateRange.to).subtract(amount, timespan).endOf('day').toDate();
 
     if (mainDateRangeFrom) {
         const dateRangeFrom: string = moment(mainDateRangeFrom, format).format(format);
