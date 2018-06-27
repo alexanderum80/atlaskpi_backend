@@ -88,7 +88,7 @@ export class SocialWidgetsService {
         return new Promise<ISocialNetworkDocument>((resolve, reject)  => {
             return that ._socialNetworks.model
                         .findOne({
-                                    // refId: connectorId,
+                                    refId: connectorId,
                                     date: { '$gte': startOfDay, '$lte': endOfDay }
                         })
                         .sort({ date: -1 })
