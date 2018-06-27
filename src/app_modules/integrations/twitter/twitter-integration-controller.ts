@@ -53,7 +53,6 @@ export class TwitterIntegrationController {
         return new Promise<any>((resolve, reject) => {
             that._twitter.getRequestToken((err, requestToken, requestSecret) => {
                 if (err) {
-                    // res.status(500).send(err);
                     reject(err);
                     return;
                 } else {
@@ -74,7 +73,6 @@ export class TwitterIntegrationController {
 
             that._twitter.getAccessToken(requestToken, that._requestSecret, verifier, (err, accessToken, accessSecret) => {
                 if (err) {
-                    // res.status(500).send(err);
                     reject(err);
                     return;
                 }

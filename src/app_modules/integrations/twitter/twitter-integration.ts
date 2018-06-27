@@ -62,33 +62,16 @@ export function handleTwitterAccessToken(req: IExtendedRequest, res: Response) {
                         success: true,
                         connector: connObj
                     };
-                    // res.send(`
-                    // <!DOCTYPE html>
-                    // <html>
-                    // <head>
-                    //     <script>
-                    //         window.opener.postMessage({messageSource: 'atlasKPIIntegrations', connectorName: '${flowResult.connector.name}', success: true }, '*');
-                    //         window.close();
-                    //     </script>
-                    // </head>
-                    // <body>
-                    // </body>
-                    // </html>`);
-                    // return;
                     return res.send(integrationSuccessPage({ connectorName: JsSafeString(flowResult.connector.name) }));
                 })
                 .catch(err => {
                     logger.error(err);
-                    // res.status(500).send(err);
-                    // return;
                     const error = isObject(err) ? JSON.stringify(err) : err;
                     return res.status(200).send(genericErrorPage({ error: error }));
                 });
             })
             .catch(err => {
                 logger.error(err);
-                // res.status(500).send(err);
-                // return;
                 const error = isObject(err) ? JSON.stringify(err) : err;
                 return res.status(200).send(genericErrorPage({ error: error }));
             });
