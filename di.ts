@@ -17,9 +17,9 @@ export function registerDependencies(container: IBridgeContainer) {
     container.registerSingleton(AppConnectionPool);
 
     // Integration Registration, in a future move to its own project
-    container.registerSingleton(IntegrationController);
-    container.registerSingleton(TwitterIntegrationController);
-    container.registerSingleton(IntegrationConnectorFactory);
+    container.registerPerWebRequest(IntegrationConnectorFactory);
+    container.registerPerWebRequest(IntegrationController);
+    container.registerPerWebRequest(TwitterIntegrationController);
 
     // Factories
     container.registerPerWebRequest(KpiFactory);
