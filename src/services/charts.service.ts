@@ -1,6 +1,6 @@
 import { camelCase } from 'change-case';
 import { inject, injectable } from 'inversify';
-import {difference, isNumber, isString, pick, PartialDeep, orderBy, isEmpty, omit }  from 'lodash';
+import {difference, isNumber, isString, pick, PartialDeep, cloneDeep, isEmpty, omit }  from 'lodash';
 import * as moment from 'moment';
 
 import { IChartMetadata } from '../app_modules/charts/queries/charts/chart-metadata';
@@ -186,9 +186,12 @@ export class ChartsService {
                     );
                     Object.assign(chart, chartOptions);
                 }
-
                 that.renderDefinition(chart, input).then(definition => {
-                    chart.chartDefinition = this._addSerieColorToDefinition(chart.chartDefinition.series, definition);
+                    // chart.chartDefinition = definition;
+                    const originalDefinitionSeries = cloneDeep(chart.chartDefinition.series);
+
+                    chart.chartDefinition = this._setSeriesVisibility(originalDefinitionSeries, definition);
+                    chart.chartDefinition = this._addSerieColorToDefinition(originalDefinitionSeries, definition);
                     resolve(chart);
                     return;
                 });
@@ -254,12 +257,15 @@ export class ChartsService {
         try {
             const kpi = await this._kpis.model.findOne({ _id: input.kpis[0]});
             const chart = <any>{ ... input };
+            const parseDefinition = JSON.parse(input.chartDefinition);
+            const originalDefinitionSeries = cloneDeep(parseDefinition.series);
 
-            chart.chartDefinition = JSON.parse(input.chartDefinition);
+            chart.chartDefinition = parseDefinition;
             chart.kpis[0] = kpi;
             const definition = await this.renderDefinition(chart);
-            chart.chartDefinition = this._addSerieColorToDefinition(chart.chartDefinition.series, definition);
-
+            // chart.chartDefinition = definition;
+            chart.chartDefinition = this._setSeriesVisibility(originalDefinitionSeries, definition);
+            chart.chartDefinition = this._addSerieColorToDefinition(originalDefinitionSeries, definition);
             return chart;
         } catch (e) {
             this._logger.error('There was an error previewing a chart', e);
@@ -498,7 +504,7 @@ export class ChartsService {
                 return PredefinedTargetPeriod.weekly;
             case FrequencyEnum.Monthly:
                 return PredefinedTargetPeriod.monthly;
-            case FrequencyEnum.Quartely:
+            case FrequencyEnum.Quarterly:
                 return PredefinedTargetPeriod.quarterly;
             case FrequencyEnum.Yearly:
                 return PredefinedTargetPeriod.yearly;
@@ -551,25 +557,78 @@ export class ChartsService {
         return true;
     }
 
+    private _setSeriesVisibility(chartSeries, chartData) {
+        const chartSeriesExist: boolean = Array.isArray(chartSeries);
+
+        if (chartData.chart.type !== 'pie') {
+            if (chartSeriesExist) {
+                chartSeries.map(s => {
+                    if (s.visible !== undefined) {
+                        let serieDefinition = chartData.series.find(f => f.name === s.name);
+                        if (serieDefinition) {
+                            // serieDefinition = Object.assign(serieDefinition, { visible: false });
+                            serieDefinition.visible = s.visible;
+                        }
+                    }
+                });
+            }
+        }
+        else {
+            const chartSeriesDataExist: boolean = Array.isArray(chartSeries) &&
+                                         !isEmpty(chartSeries) &&
+                                         Array.isArray(chartSeries[0].data);
+
+            if (chartSeriesDataExist) {
+                chartSeries[0].data.map(s => {
+                    if (s.visible !== undefined) {
+                        let serieDefinition = chartData.series[0].data.find(f => f.name === s.name);
+                        if (serieDefinition) {
+                            serieDefinition.visible = s.visible;
+                        }
+                    }
+                });
+            }
+        }
+
+        return chartData;
+    }
+
+
+
+
+
     private _addSerieColorToDefinition(definitionSeries, chartData) {
         if (chartData.chart.type === 'pie') {
-            definitionSeries[0].data.map(d => {
-                if (d.color && d.color !== '') {
-                    const serieData = chartData.series[0].data.find(c => c.name === d.name);
-                    if (serieData) {
-                        serieData.color = d.color;
+            // check if data exist in definitionSeries[0]
+            const definitionSeriesDataExist: boolean = Array.isArray(definitionSeries) &&
+                                                       !isEmpty(definitionSeries) &&
+                                                       Array.isArray(definitionSeries[0].data);
+
+            if (definitionSeriesDataExist) {
+                definitionSeries[0].data.map(d => {
+                    if (!isEmpty(d) && !isEmpty(d.color)) {
+                        const serieData = chartData.series[0].data.find(c => c.name === d.name);
+                        // update the color on the new chart only
+                        if (serieData) {
+                            serieData.color = d.color;
+                        }
                     }
-                }
-            });
+                });
+            }
         } else {
-            definitionSeries.map(d => {
-                if (d.color && d.color !== '') {
-                    const serieData = chartData.series.find(c => c.name === d.name);
-                    if (serieData) {
-                        serieData.color = d.color;
+            const canMapDefinitionSeries: boolean = Array.isArray(definitionSeries) && definitionSeries.length > 0;
+
+            if (canMapDefinitionSeries) {
+                definitionSeries.map(d => {
+                    if (!isEmpty(d) && !isEmpty(d.color)) {
+                        const serieData = chartData.series.find(c => c.name === d.name);
+                        // update the color on new chart only
+                        if (serieData) {
+                            serieData.color = d.color;
+                        }
                     }
-                }
-            });
+                });
+            }
         }
         return chartData;
     }

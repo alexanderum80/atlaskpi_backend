@@ -330,7 +330,7 @@ export class KpiBase {
                 currentGrouping = groupStage.$group._id;
                 groupStage.$group._id = { frequency: '$frequency' };
                 break;
-            case FrequencyEnum.Quartely:
+            case FrequencyEnum.Quarterly:
                 // I need to add a projection if it does not exist
                 if (!projectStage.$project) projectStage.$project = {};
 
