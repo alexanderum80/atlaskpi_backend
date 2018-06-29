@@ -8,7 +8,7 @@ import {
     uniqBy, orderBy, isNumber, isString, sortBy} from 'lodash';
 import * as moment from 'moment';
 import * as logger from 'winston';
-import { camelCase, sentenceCase, lowerCase } from 'change-case';
+import { camelCase } from 'change-case';
 import { IChart } from '../../../../domain/app/charts/chart';
 import { ITargetDocument } from '../../../../domain/app/targets/target';
 import {
@@ -925,7 +925,7 @@ export class UIChartBase {
         const comparisonCategoriesWithValues: IComparsionDefObject = this._getComparisonCategoriesWithValues(definitions);
         const definitionSeries: any[] = this._getComparisonSeries(comparisonCategoriesWithValues, metadata);
 
-        mainDefinition.xAxis.categories = this._getComparisonCategories(definitions, metadata);
+        mainDefinition.xAxis.categories = this._getComparisonCategories(definitions);
         mainDefinition.series = definitionSeries;
         // here i must sort comparison series
         mainDefinition = this._sortingDataWithComparison(metadata, mainDefinition);
@@ -1144,37 +1144,46 @@ export class UIChartBase {
                                     Array.isArray(metadata.comparison) &&
                                     !isEmpty(metadata.comparison[0]);
         let comparisonKey: string;
+        let predefinedDateString: string;
 
         // return series if metadata.comparison[0] is empty
         if (!haveComparisonValue) {
             return series;
         } else {
             comparisonKey = metadata.comparison[0];
+            const chartDateRange: IChartDateRange = metadata.dateRange.find(d => !isEmpty(d.predefined));
+            predefinedDateString = chartDateRange ? camelCase(chartDateRange.predefined) : null;
         }
 
-        return this._sortComparisonSeriesByName(comparisonKey, series);
+        return this._sortComparisonSeriesByName(comparisonKey, series, predefinedDateString);
     }
 
     /**
      * series => [{ name: 'botox(this year), data: [5, null] }]
      * comparisonKey => 'previousPeriod'
      */
-    private _sortComparisonSeriesByName(comparisonKey: string, series: any[]): any[] {
+    private _sortComparisonSeriesByName(comparisonKey: string, series: any[], predefinedDateString: string): any[] {
         // check if the parameters passed exist first
         const seriesExists: boolean = Array.isArray(series) && (series.length > 0);
-        if (isEmpty(comparisonKey) || !seriesExists) {
+        if (isEmpty(comparisonKey) || !seriesExists || !predefinedDateString) {
             return series;
         }
 
         // filter for main series to merge the comparison series later
         const mainSeries: any[] = series.filter(s => s.stack === 'main');
 
+        const comparisonDateRanges: Object = PredefinedComparisonDateRanges[predefinedDateString];
+        if (isEmpty(comparisonDateRanges)) {
+            return series;
+        }
+
         // i.e previousPeriod => previous period
-        const comparisonString: string = lowerCase(sentenceCase(comparisonKey));
+        const comparisonString = comparisonDateRanges[comparisonKey];
         // get the series name from main to sortBy
         // replace the comparison string for main serie name
         // for the comparisonKey to utilize in sortBy function
-        const mainSeriesName: string[] = mainSeries.map(f => f.name.replace(/\([a-z]+\)/, comparisonString));
+        const replaceReg: RegExp = /\([a-z]+\s{1,1}[a-z]+\)/; // /\([a-z]+\s?[a-z]+\)/
+        const mainSeriesName: string[] = mainSeries.map(f => f.name.replace(replaceReg, `(${comparisonString})`));
 
         // get the comparison series by filtering using the comparisonKey (i.e. 'previousPeriod')
         // i.e. stack: 'previousPeriod'
@@ -1182,7 +1191,10 @@ export class UIChartBase {
 
         // sort the comparison series
         const sortComparisonSeries: any[] = sortBy(filterForComparisonSeries, (item) => {
-            return mainSeriesName.indexOf(item.name);
+            const index: number = mainSeriesName.indexOf(item.name);
+            if (index !== -1) {
+                return index;
+            }
         });
 
         // return merged series
@@ -1212,7 +1224,7 @@ export class UIChartBase {
         return comparisonString;
     }
 
-    private _getComparisonCategories(definitions: any, metadata: IChartMetadata): string[] {
+    private _getComparisonCategories(definitions: any): string[] {
         let listCategories: string[] = [];
 
         // i.e. key = 'main', key = 'lastYear'
