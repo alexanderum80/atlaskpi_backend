@@ -1152,7 +1152,14 @@ export class UIChartBase {
         } else {
             comparisonKey = metadata.comparison[0];
             const chartDateRange: IChartDateRange = metadata.dateRange.find(d => !isEmpty(d.predefined));
-            predefinedDateString = chartDateRange ? camelCase(chartDateRange.predefined) : null;
+            predefinedDateString = chartDateRange ? chartDateRange.predefined : null;
+            if (predefinedDateString) {
+                Object.keys(PredefinedDateRanges).forEach(key => {
+                    if (PredefinedDateRanges[key] === predefinedDateString) {
+                        predefinedDateString = key;
+                    }
+                });
+            }
         }
 
         return this._sortComparisonSeriesByName(comparisonKey, series, predefinedDateString);
@@ -1182,8 +1189,8 @@ export class UIChartBase {
         // get the series name from main to sortBy
         // replace the comparison string for main serie name
         // for the comparisonKey to utilize in sortBy function
-        const replaceReg: RegExp = /\([a-z]+\s{1,1}[a-z]+\)/; // /\([a-z]+\s?[a-z]+\)/
-        const mainSeriesName: string[] = mainSeries.map(f => f.name.replace(replaceReg, `(${comparisonString})`));
+        const searchReg: RegExp = /\(.+\)/;
+        const mainSeriesName: string[] = mainSeries.map(f => f.name.replace(searchReg, `(${comparisonString})`));
 
         // get the comparison series by filtering using the comparisonKey (i.e. 'previousPeriod')
         // i.e. stack: 'previousPeriod'
