@@ -1173,16 +1173,13 @@ export class UIChartBase {
             return series;
         }
 
-        // filter for main series to merge the comparison series later
-        // const mainSeries: any[] = series.filter(s => s.stack === 'main');
-
         const comparisonDateRanges: Object = PredefinedComparisonDateRanges[predefinedDateString];
         if (isEmpty(comparisonDateRanges)) {
             return series;
         }
 
-        let cloneSeries: any[] = cloneDeep(series);
-        const isFrequency = !xAxisSource || xAxisSource === 'frequency';
+        const cloneSeries: any[] = cloneDeep(series);
+        const isFrequency: boolean = !xAxisSource || xAxisSource === 'frequency';
 
 
         cloneSeries.forEach(c => {
@@ -1191,7 +1188,6 @@ export class UIChartBase {
 
         const mainSeries: any[] = cloneSeries.filter(s => s.stack === 'main');
         const mainSeriesName: string[] = mainSeries.map(m => m.name);
-        // const mainCategoriesExist: boolean = Array.isArray(mainCategories) && !isEmpty(mainCategories);
 
         const sortSeries: any[] = sortBy(cloneSeries, (item) => {
             if (isFrequency) {
