@@ -57,6 +57,7 @@ export interface IComparisonSerieObject {
     targetId?: string;
     percentageCompletion?: number;
     comparisonString?: string;
+    category?: string;
 }
 
 export interface ICategoriesWithValues {
@@ -1057,6 +1058,7 @@ export class UIChartBase {
 
         let serieData = [];
         let hasTarget: ICategoriesWithValues;
+        const mainCategories: string[] = uniq(data['main'].map(d => d.category));
 
         const series = [];
         let objData: any = {};
@@ -1131,7 +1133,8 @@ export class UIChartBase {
                         name: objData.serieName + `(${comparisonString})`,
                         data: serieData,
                         stack: stack,
-                        comparisonString: `(${comparisonString})`
+                        comparisonString: `(${comparisonString})`,
+                        category: allCategories[k]
                     };
                 }
 
@@ -1156,14 +1159,14 @@ export class UIChartBase {
             });
         }
 
-        return this._sortComparisonSeriesByName(comparisonKey, series, predefinedDateString);
+        return this._sortComparisonSeriesByName(comparisonKey, series, predefinedDateString, metadata.xAxisSource, mainCategories);
     }
 
     /**
      * series => [{ name: 'botox(this year), data: [5, null] }]
      * comparisonKey => 'previousPeriod'
      */
-    private _sortComparisonSeriesByName(comparisonKey: string, series: any[], predefinedDateString: string): any[] {
+    private _sortComparisonSeriesByName(comparisonKey: string, series: any[], predefinedDateString: string, xAxisSource: string, mainCategories: string[]): any[] {
         // check if the parameters passed exist first
         const seriesExists: boolean = Array.isArray(series) && (series.length > 0);
         if (isEmpty(comparisonKey) || !seriesExists || !predefinedDateString) {
@@ -1179,23 +1182,35 @@ export class UIChartBase {
         }
 
         let cloneSeries: any[] = cloneDeep(series);
+        const isFrequency = !xAxisSource || xAxisSource === 'frequency';
+
+
         cloneSeries.forEach(c => {
             c.name = c.name.replace(c.comparisonString, '');
         });
 
         const mainSeries: any[] = cloneSeries.filter(s => s.stack === 'main');
         const mainSeriesName: string[] = mainSeries.map(m => m.name);
+        // const mainCategoriesExist: boolean = Array.isArray(mainCategories) && !isEmpty(mainCategories);
 
         const sortSeries: any[] = sortBy(cloneSeries, (item) => {
-            const index: number = mainSeriesName.indexOf(item.name);
-            if (index !== -1) {
-                return index;
+            if (isFrequency) {
+                const indexBySerieName: number = mainSeriesName.indexOf(item.name);
+                if (indexBySerieName !== -1) {
+                    return indexBySerieName;
+                }
+            } else {
+                const indexByCategory: number = mainCategories.indexOf(item.category);
+                if (indexByCategory !== -1) {
+                    return indexByCategory;
+                }
             }
         });
 
         sortSeries.forEach(s => {
             s.name = `${s.name}${s.comparisonString}`;
             delete s.comparisonString;
+            delete s.category;
         });
 
         return sortSeries;
