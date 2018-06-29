@@ -25,29 +25,29 @@ export interface IGAJobData {
     groupings: string[];
 }
 
-let queue = require('kue');
-// let Queue = kue.createQueue();
-let _jobs: Queue;
+// let queue = require('kue');
+// // let Queue = kue.createQueue();
+// let _jobs: Queue;
 
-try {
-    _jobs = queue.createQueue({
-        prefix: os.hostname, // 'webapp',
-        redis: {
-            port: config.cache.redisPort, // 6379,
-            host: config.cache.redisServer, // 'localhost'
-        }
-    });
+// try {
+//     _jobs = queue.createQueue({
+//         prefix: os.hostname, // 'webapp',
+//         redis: {
+//             port: config.cache.redisPort, // 6379,
+//             host: config.cache.redisServer, // 'localhost'
+//         }
+//     });
 
-    console.log('Queue name: ' + os.hostname);
-} catch (e) {
-    console.error('There was an error connecting to Redis Server');
-}
+//     console.log('Queue name: ' + os.hostname);
+// } catch (e) {
+//     console.error('There was an error connecting to Redis Server');
+// }
 
 
 
-// queue.app.listen(4000);
+// // queue.app.listen(4000);
 
-const JOB_TYPE: string = 'ga';
+// const JOB_TYPE: string = 'ga';
 
 @injectable()
 export class GAJobsQueueService {
