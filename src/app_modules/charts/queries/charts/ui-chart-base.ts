@@ -1178,7 +1178,7 @@ export class UIChartBase {
             return series;
         }
 
-        let cloneSeries = cloneDeep(series);
+        let cloneSeries: any[] = cloneDeep(series);
         cloneSeries.forEach(c => {
             c.name = c.name.replace(c.comparisonString, '');
         });
@@ -1186,7 +1186,7 @@ export class UIChartBase {
         const mainSeries: any[] = cloneSeries.filter(s => s.stack === 'main');
         const mainSeriesName: string[] = mainSeries.map(m => m.name);
 
-        const sortSeries = sortBy(cloneSeries, (item) => {
+        const sortSeries: any[] = sortBy(cloneSeries, (item) => {
             const index: number = mainSeriesName.indexOf(item.name);
             if (index !== -1) {
                 return index;
