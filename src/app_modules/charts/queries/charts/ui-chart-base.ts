@@ -56,6 +56,7 @@ export interface IComparisonSerieObject {
     stack?: string;
     targetId?: string;
     percentageCompletion?: number;
+    comparisonString?: string;
 }
 
 export interface ICategoriesWithValues {
@@ -1129,7 +1130,8 @@ export class UIChartBase {
                     serieObject = {
                         name: objData.serieName + `(${comparisonString})`,
                         data: serieData,
-                        stack: stack
+                        stack: stack,
+                        comparisonString: `(${comparisonString})`
                     };
                 }
 
@@ -1140,26 +1142,18 @@ export class UIChartBase {
             }
         }
 
-        const haveComparisonValue: boolean = !isEmpty(metadata) &&
-                                    Array.isArray(metadata.comparison) &&
-                                    !isEmpty(metadata.comparison[0]);
-        let comparisonKey: string;
+        const comparisonKey: string = metadata.comparison[0];
         let predefinedDateString: string;
 
-        // return series if metadata.comparison[0] is empty
-        if (!haveComparisonValue) {
-            return series;
-        } else {
-            comparisonKey = metadata.comparison[0];
-            const chartDateRange: IChartDateRange = metadata.dateRange.find(d => !isEmpty(d.predefined));
-            predefinedDateString = chartDateRange ? chartDateRange.predefined : null;
-            if (predefinedDateString) {
-                Object.keys(PredefinedDateRanges).forEach(key => {
-                    if (PredefinedDateRanges[key] === predefinedDateString) {
-                        predefinedDateString = key;
-                    }
-                });
-            }
+        const chartDateRange: IChartDateRange = metadata.dateRange.find(d => !isEmpty(d.predefined));
+        predefinedDateString = chartDateRange ? chartDateRange.predefined : null;
+
+        if (predefinedDateString) {
+            Object.keys(PredefinedDateRanges).forEach(key => {
+                if (PredefinedDateRanges[key] === predefinedDateString) {
+                    predefinedDateString = key;
+                }
+            });
         }
 
         return this._sortComparisonSeriesByName(comparisonKey, series, predefinedDateString);
@@ -1177,35 +1171,34 @@ export class UIChartBase {
         }
 
         // filter for main series to merge the comparison series later
-        const mainSeries: any[] = series.filter(s => s.stack === 'main');
+        // const mainSeries: any[] = series.filter(s => s.stack === 'main');
 
         const comparisonDateRanges: Object = PredefinedComparisonDateRanges[predefinedDateString];
         if (isEmpty(comparisonDateRanges)) {
             return series;
         }
 
-        // i.e previousPeriod => previous period
-        const comparisonString = comparisonDateRanges[comparisonKey];
-        // get the series name from main to sortBy
-        // replace the comparison string for main serie name
-        // for the comparisonKey to utilize in sortBy function
-        const searchReg: RegExp = /\(.+\)/;
-        const mainSeriesName: string[] = mainSeries.map(f => f.name.replace(searchReg, `(${comparisonString})`));
+        let cloneSeries = cloneDeep(series);
+        cloneSeries.forEach(c => {
+            c.name = c.name.replace(c.comparisonString, '');
+        });
 
-        // get the comparison series by filtering using the comparisonKey (i.e. 'previousPeriod')
-        // i.e. stack: 'previousPeriod'
-        const filterForComparisonSeries: any[] = series.filter(c => c.stack === comparisonKey);
+        const mainSeries: any[] = cloneSeries.filter(s => s.stack === 'main');
+        const mainSeriesName: string[] = mainSeries.map(m => m.name);
 
-        // sort the comparison series
-        const sortComparisonSeries: any[] = sortBy(filterForComparisonSeries, (item) => {
+        const sortSeries = sortBy(cloneSeries, (item) => {
             const index: number = mainSeriesName.indexOf(item.name);
             if (index !== -1) {
                 return index;
             }
         });
 
-        // return merged series
-        return [].concat(mainSeries, sortComparisonSeries);
+        sortSeries.forEach(s => {
+            s.name = `${s.name}${s.comparisonString}`;
+            delete s.comparisonString;
+        });
+
+        return sortSeries;
     }
 
     private _getComparisonString(dateFrom: Date, originalFrequency: FrequencyEnum, frequency: FrequencyEnum): string {
