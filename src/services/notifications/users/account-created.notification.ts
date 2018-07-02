@@ -40,7 +40,7 @@ export class AccountCreatedNotification implements IAccountCreatedNotifier {
         dataSource.fullName = this._getFullName(user);
 
         const emailContent = createAccountTemplate(dataSource);
-        return sendEmail(email, `${this._config.usersService.app.name}: User Created`, emailContent);
+        return sendEmail(email, `AtlasKPI Secure: User Activation`, emailContent);
     }
 
     private _getFullName(user: IUserDocument): string {
