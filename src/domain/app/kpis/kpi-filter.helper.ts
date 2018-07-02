@@ -1,6 +1,6 @@
 import { VALUE_SEPARATOR } from '../../../helpers/string.helpers';
 import { CallSchema } from '../calls/call.model';
-import { isArray, isObject, isDate } from 'lodash';
+import { isArray, isObject, isDate, isNumber, isString } from 'lodash';
 
 import { isArrayObject } from '../../../helpers/express.helpers';
 import { readMongooseSchema } from '../../../helpers/mongodb.helpers';
@@ -96,7 +96,7 @@ export class KPIFilterHelper {
     }
 
     static CleanObjectKeys(filter: any): any {
-        return KPIFilterHelper._deserializeFilter(filter);
+        return KPIFilterHelper._cleanAggregateObject(filter);
     }
 
     private static _composeSimpleFilter(virtualSources: IVirtualSourceDocument[], datasource: string, filterArray: IKPIFilter[]): string {
@@ -171,6 +171,44 @@ export class KPIFilterHelper {
 
             return newKey;
         });
+    }
+
+    private static _cleanAggregateObject(filter: any): any {
+        if (isNumber(filter)) {
+            return filter;
+        }
+
+        if (isString(filter)) {
+            return KPIFilterHelper._getCleanString(filter);
+        }
+
+        let newFilter = {};
+        Object.keys(filter).forEach(filterKey => {
+            let newKey = KPIFilterHelper._getCleanString(filterKey);
+            let value = filter[filterKey];
+
+            if (!isArray(value) && !isDate(value) && isObject(value)) {
+                value = KPIFilterHelper._cleanAggregateObject(value);
+            } else if (!isDate(value) && isArray(value)) {
+                for (let i = 0; i < value.length; i++) {
+                    value[i] = this._cleanAggregateObject(value[i]);
+                }
+            }
+
+            newFilter[newKey] = value;
+        });
+        return newFilter;
+    }
+
+    private static _getCleanString(text: string) {
+        let result: string = text;
+        const keys: string[] = Object.keys(keyMap);
+
+        for (const k of keys) {
+            result = result.replace(k, keyMap[k]);
+        }
+
+        return result;
     }
 
     private static _getFieldsetForDatasource(datasource: string) {
