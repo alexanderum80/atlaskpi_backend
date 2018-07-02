@@ -96,7 +96,7 @@ export class KPIFilterHelper {
     }
 
     static CleanObjectKeys(filter: any): any {
-        return KPIFilterHelper._cleanAggregateObject(filter);
+        return KPIFilterHelper._deserializedAggregate(filter, 'deserialize');
     }
 
     private static _composeSimpleFilter(virtualSources: IVirtualSourceDocument[], datasource: string, filterArray: IKPIFilter[]): string {
@@ -173,25 +173,25 @@ export class KPIFilterHelper {
         });
     }
 
-    private static _cleanAggregateObject(filter: any): any {
+    private static _deserializedAggregate(filter: any, operation= 'serialize'): any {
         if (isNumber(filter)) {
             return filter;
         }
 
         if (isString(filter)) {
-            return KPIFilterHelper._getCleanString(filter);
+            return KPIFilterHelper._getCleanString(filter, operation);
         }
 
         let newFilter = {};
         Object.keys(filter).forEach(filterKey => {
-            let newKey = KPIFilterHelper._getCleanString(filterKey);
+            let newKey = KPIFilterHelper._getCleanString(filterKey, operation);
             let value = filter[filterKey];
 
             if (!isArray(value) && !isDate(value) && isObject(value)) {
-                value = KPIFilterHelper._cleanAggregateObject(value);
+                value = KPIFilterHelper._deserializedAggregate(value);
             } else if (!isDate(value) && isArray(value)) {
                 for (let i = 0; i < value.length; i++) {
-                    value[i] = this._cleanAggregateObject(value[i]);
+                    value[i] = this._deserializedAggregate(value[i]);
                 }
             }
 
@@ -200,12 +200,17 @@ export class KPIFilterHelper {
         return newFilter;
     }
 
-    private static _getCleanString(text: string) {
+    private static _getCleanString(text: string, operation: string): string {
         let result: string = text;
         const keys: string[] = Object.keys(keyMap);
 
         for (const k of keys) {
-            result = result.replace(k, keyMap[k]);
+            if (operation === 'deserialize') {
+                result = result.replace(k, keyMap[k]);
+            }
+            else if (operation === 'serialize') {
+                result = result.replace(keyMap[k], k);
+            }
         }
 
         return result;
