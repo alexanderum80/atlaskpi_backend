@@ -147,7 +147,8 @@ export class KPIFilterHelper {
 
             for (const k of Object.keys(keyMap)) {
                 if (key.indexOf(k) !== -1) {
-                    newKey = newKey.replace(k, keyMap[k]);
+                    const keyMapValue: string = keyMap[k];
+                    newKey = newKey.replace(k, keyMapValue);
                 }
             }
 
