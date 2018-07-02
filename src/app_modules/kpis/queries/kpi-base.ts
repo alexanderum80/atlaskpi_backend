@@ -10,8 +10,6 @@ import { NULL_CATEGORY_REPLACEMENT } from '../../charts/queries/charts/ui-chart-
 import { AggregateStage } from './aggregate';
 import * as moment from 'moment-timezone';
 
-const isValidTimezone = (tz: string): boolean => !!moment.tz.zone(tz);
-
 export interface ICollection {
     modelName: string;
     timestampField: string;
@@ -57,6 +55,7 @@ export class KpiBase {
     protected kpi: IKPI;
     protected collection: ICollection;
     protected pristineAggregate: AggregateStage[];
+    protected timezone: string;
 
     constructor(public model: any, public aggregate: AggregateStage[]) {
         // for multimple executeQuery iterations in the same instance we need to preserve the aggregate
@@ -76,13 +75,13 @@ export class KpiBase {
 
         return new Promise<any>((resolve, reject) => {
             if (dateRange && dateRange.length)
-                that._injectDataRange(dateRange, dateField, 'America/Los_Angeles');
+                that._injectDataRange(dateRange, dateField);
             if (options.filter)
                 that._injectFilter(options.filter);
             if (options.stackName)
                 that._injectTargetStackFilter(options.groupings, options.stackName);
             if (options.frequency >= 0)
-                that._injectFrequency(options.frequency, dateField, 'America/Los_Angeles');
+                that._injectFrequency(options.frequency, dateField);
             if (options.groupings)
                 that._injectGroupings(options.groupings);
 
@@ -129,22 +128,21 @@ export class KpiBase {
         return operator;
     }
 
-    private _injectDataRange(dateRange: IDateRange[], field: string, timezone = 'Etc/Universal') {
-
-        // Take a default value
-        // TODO: throw an exception
-        // const tz = isValidTimezone(timezone) ? timezone : 'Etc/Universal';
-
-        const serverTz = 'Etc/UTC';
-
+    private _injectDataRange(dateRange: IDateRange[], field: string) {
         // const matchDateRange = { $match: {} } as any;
         let matchDateRange = this.findStage('filter', '$match');
 
+        const dateFormat = 'YYYY-MM-DD HH:mm:ss';
+
+        const tz = this.timezone;
+
         if (dateRange && dateRange.length) {
+            const localTimeFrom = moment.tz(moment(dateRange[0].from).format(dateFormat), tz).toDate();
+            const localTimeTo = moment.tz(moment(dateRange[0].to).format(dateFormat), tz).toDate();
             if (dateRange.length === 1) {
                 matchDateRange.$match[field] = {
-                    '$gte':  new Date(moment.tz(dateRange[0].from, serverTz).format()),
-                    '$lt':  new Date(moment.tz(dateRange[0].to, serverTz).format())
+                    '$gte':  localTimeFrom,
+                    '$lt':   localTimeTo
                 };
             } else {
                 if (!matchDateRange['$match']) {
@@ -155,13 +153,17 @@ export class KpiBase {
                     matchDateRange.$match.$or = {};
                 }
 
-                matchDateRange.$match.$or = dateRange.map((dateParams: IDateRange) => ({
-                    // field => i.e. 'product.from', timestamp
-                    [field]: {
-                        '$gte':  moment.tz(moment(dateParams.from).format(), tz).toDate(),
-                        '$lt':  moment.tz(moment(dateParams.to).format(), tz).toDate()
-                    }
-                }));
+                matchDateRange.$match.$or = dateRange.map((dateParams: IDateRange) => {
+                    const localTimeFrom = moment.tz(moment(dateParams.from).format(dateFormat), tz).toDate();
+                    const localTimeTo = moment.tz(moment(dateParams.to).format(dateFormat), tz).toDate();
+                    return {
+                        // field => i.e. 'product.from', timestamp
+                        [field]: {
+                            '$gte':  localTimeFrom,
+                            '$lt':   localTimeTo,
+                        }
+                    };
+                });
             }
         }
 
@@ -261,11 +263,8 @@ export class KpiBase {
         return regexStrings.indexOf(operator) !== -1;
     }
 
-    private _injectFrequency(frequency: FrequencyEnum, field: string, timezone = 'Etc/Universal') {
-
-        // Take a default value
-        // TODO: throw an exception
-        const tz = isValidTimezone(timezone) ? timezone : 'Etc/Universal';
+    private _injectFrequency(frequency: FrequencyEnum, field: string) {
+        const tz = this.timezone;
 
         // console.log(typeof frequency);
         if (frequency < 0) return;

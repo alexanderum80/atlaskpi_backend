@@ -1,5 +1,5 @@
 import { FrequencyEnum, FrequencyTable } from './frequency-enum';
-import * as moment from 'moment';
+import * as moment from 'moment-timezone';
 import { isEmpty } from 'lodash';
 
 /**
@@ -649,3 +649,5 @@ export function getYesterdayDate(): IDateRange {
         to: moment().utc().startOf('day').toDate()
     };
 }
+
+export const isValidTimezone = (tz: string): boolean => !!moment.tz.zone(tz);
