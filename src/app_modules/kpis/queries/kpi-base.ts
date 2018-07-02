@@ -264,7 +264,7 @@ export class KpiBase {
     }
 
     private _injectFrequency(frequency: FrequencyEnum, field: string) {
-        const tz = this.timezone;
+        const tz = this.timezone; // || 'Etc/Universal';
 
         // console.log(typeof frequency);
         if (frequency < 0) return;
