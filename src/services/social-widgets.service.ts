@@ -87,7 +87,8 @@ export class SocialWidgetsService {
         const endOfDay = moment(date).utc().endOf('day');
         return new Promise<ISocialNetworkDocument>((resolve, reject)  => {
             return that ._socialNetworks.model
-                        .findOne({  refId: connectorId,
+                        .findOne({
+                                    refId: connectorId,
                                     date: { '$gte': startOfDay, '$lte': endOfDay }
                         })
                         .sort({ date: -1 })
