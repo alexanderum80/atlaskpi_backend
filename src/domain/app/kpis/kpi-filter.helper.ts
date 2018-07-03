@@ -188,10 +188,10 @@ export class KPIFilterHelper {
             let value = filter[filterKey];
 
             if (!isArray(value) && !isDate(value) && isObject(value)) {
-                value = KPIFilterHelper._deserializedAggregate(value);
+                value = KPIFilterHelper._deserializedAggregate(value, operation);
             } else if (!isDate(value) && isArray(value)) {
                 for (let i = 0; i < value.length; i++) {
-                    value[i] = this._deserializedAggregate(value[i]);
+                    value[i] = this._deserializedAggregate(value[i], operation);
                 }
             }
 
