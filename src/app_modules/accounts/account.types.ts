@@ -11,6 +11,9 @@ export class PersonalInfoDetails {
 
     @field({ type: GraphQLTypesMap.String })
     email: string;
+
+    @field({ type: GraphQLTypesMap.String })
+    timezone: string;
 }
 
 @input()
@@ -36,6 +39,9 @@ export class PersonalInfo {
 
     @field({ type: GraphQLTypesMap.String, required: true })
     email: string;
+
+    @field({ type: GraphQLTypesMap.String, required: true })
+    timezone: string;
 }
 
 @type()
