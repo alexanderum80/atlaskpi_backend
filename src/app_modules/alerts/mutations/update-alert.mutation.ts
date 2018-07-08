@@ -1,15 +1,13 @@
-import { UpdateAlertActivity } from '../activities/update-alert.activity';
-import { IMutationResponse } from '../../../framework/mutations/mutation-response';
-import { IAlertDocument, IAlertInfo } from '../../../domain/app/alerts/alert';
-import { Alerts } from '../../../domain/app/alerts/alert.model';
-import { AlertInput, AlertMutationResponse } from '../alerts.types';
-import { CreateAlertActivity } from '../activities/create-alert.activity';
 import { inject, injectable } from 'inversify';
-import { field } from '../../../framework/decorators/field.decorator';
+
+import { IAlertInfo } from '../../../domain/app/alerts/alert';
+import { GraphQLTypesMap } from '../../../framework/decorators/graphql-types-map';
 import { mutation } from '../../../framework/decorators/mutation.decorator';
 import { MutationBase } from '../../../framework/mutations/mutation-base';
-import { GraphQLTypesMap } from '../../../framework/decorators/graphql-types-map';
-import * as Promise from 'bluebird';
+import { IMutationResponse } from '../../../framework/mutations/mutation-response';
+import { ScheduleJobService } from '../../../services/schedule-jobs/schedule-job.service';
+import { UpdateAlertActivity } from '../activities/update-alert.activity';
+import { AlertInput, AlertMutationResponse } from '../alerts.types';
 
 @injectable()
 @mutation({
@@ -22,23 +20,27 @@ import * as Promise from 'bluebird';
     output: { type: AlertMutationResponse }
 })
 export class UpdateAlertMutation extends MutationBase<IMutationResponse> {
-    constructor(@inject(Alerts.name) private _alert: Alerts) {
+    constructor(
+        @inject(ScheduleJobService.name)
+        private _scheduleJobService: ScheduleJobService
+    ) {
         super();
     }
 
-    run(data: { id: string, input: IAlertInfo }): Promise<IMutationResponse> {
-        const that = this;
+    async run(data: { id: string, input: IAlertInfo }): Promise<IMutationResponse> {
+        return await this._scheduleJobService.update(data.id, data.input);
+        // const that = this;
 
-        return new Promise<IMutationResponse>((resolve, reject) => {
-            that._alert.model.updateAlert(data.id, data.input)
-                .then((response: IAlertDocument) => {
-                    resolve({ success: true, entity: response });
-                    return;
-                })
-                .catch(err => {
-                    reject({ success: false, errors: [{ field: 'alert', errors: err }] });
-                    return;
-                });
-        });
+        // return new Promise<IMutationResponse>((resolve, reject) => {
+        //     that._alert.model.updateAlert(data.id, data.input)
+        //         .then((response: IAlertDocument) => {
+        //             resolve({ success: true, entity: response });
+        //             return;
+        //         })
+        //         .catch(err => {
+        //             reject({ success: false, errors: [{ field: 'alert', errors: err }] });
+        //             return;
+        //         });
+        // });
     }
 }

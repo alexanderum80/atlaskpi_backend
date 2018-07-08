@@ -25,6 +25,7 @@ import { TargetService } from './target.service';
 import { UserPasswordService } from './user-password.service';
 import { UserService } from './user.service';
 import { WidgetsService } from './widgets.service';
+import { ScheduleJobService } from './schedule-jobs/schedule-job.service';
 
 export function registerServices(container: IBridgeContainer) {
     container.registerSingleton(PnsService);
@@ -56,4 +57,5 @@ export function registerServices(container: IBridgeContainer) {
     container.registerPerWebRequest(GoogleAnalyticsKPIService);
     container.registerPerWebRequest(ExternalDataSourcesService);
     container.registerPerWebRequest(UserPasswordService);
+    container.registerPerWebRequest(ScheduleJobService);
 }
