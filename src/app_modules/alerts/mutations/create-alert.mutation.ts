@@ -1,13 +1,13 @@
-import { IMutationResponse } from '../../../framework/mutations/mutation-response';
+import { inject, injectable } from 'inversify';
+
 import { IAlertDocument, IAlertInfo } from '../../../domain/app/alerts/alert';
 import { Alerts } from '../../../domain/app/alerts/alert.model';
-import { AlertInput, AlertMutationResponse } from '../alerts.types';
-import { CreateAlertActivity } from '../activities/create-alert.activity';
-import { inject, injectable } from 'inversify';
-import { field } from '../../../framework/decorators/field.decorator';
 import { mutation } from '../../../framework/decorators/mutation.decorator';
 import { MutationBase } from '../../../framework/mutations/mutation-base';
-import * as Promise from 'bluebird';
+import { IMutationResponse } from '../../../framework/mutations/mutation-response';
+import { ScheduleJobService } from '../../../services/schedule-jobs/schedule-job.service';
+import { CreateAlertActivity } from '../activities/create-alert.activity';
+import { AlertInput, AlertMutationResponse } from '../alerts.types';
 
 @injectable()
 @mutation({
@@ -19,23 +19,27 @@ import * as Promise from 'bluebird';
     output: { type: AlertMutationResponse }
 })
 export class CreateAlertMutation extends MutationBase<IMutationResponse> {
-    constructor(@inject(Alerts.name) private _alert: Alerts) {
+    constructor(
+        @inject(ScheduleJobService.name)
+        private _scheduleJobService: ScheduleJobService) {
         super();
     }
 
-    run(data: {input: IAlertInfo }): Promise<IMutationResponse> {
-        const that = this;
+    async run(data: {input: IAlertInfo }): Promise<IMutationResponse> {
+        return await this._scheduleJobService.addWidgetJob(data.input);
 
-        return new Promise<IMutationResponse>((resolve, reject) => {
-            that._alert.model.createAlert(data.input)
-                .then((response: IAlertDocument) => {
-                    resolve({ success: true, entity: response });
-                    return;
-                }).catch(err => {
-                    reject({ success: false, errors: [{ field: 'alert', errors: err }] });
-                    return;
-                });
+        // const that = this;
 
-        });
+        // return new Promise<IMutationResponse>((resolve, reject) => {
+        //     that._alert.model.createAlert(data.input)
+        //         .then((response: IAlertDocument) => {
+        //             resolve({ success: true, entity: response });
+        //             return;
+        //         }).catch(err => {
+        //             reject({ success: false, errors: [{ field: 'alert', errors: err }] });
+        //             return;
+        //         });
+
+        // });
     }
 }

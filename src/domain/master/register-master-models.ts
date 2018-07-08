@@ -7,6 +7,8 @@ import { Industries } from './industries/industry.model';
 import { Leads } from './leads/lead.model';
 import { MasterConnection } from './master.connection';
 import { ZipsToMap } from './zip-to-map/zip-to-map.model';
+import { Notifications } from './notification/notification.model';
+import { Templates } from './template/template.model';
 
 
 export function registerMasterModels(container: IBridgeContainer) {
@@ -17,6 +19,8 @@ export function registerMasterModels(container: IBridgeContainer) {
     container.registerPerWebRequest(States);
     container.registerPerWebRequest(Connectors);
     container.registerPerWebRequest(ZipsToMap);
+    container.registerPerWebRequest(Notifications);
+    container.registerPerWebRequest(Templates);
 
     container.registerPerWebRequest(MasterConnection);
 }
