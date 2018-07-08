@@ -5,15 +5,15 @@ import { IAlertInfo, IAlertDocument } from '../../domain/app/alerts/alert';
 import { IMutationResponse } from '../../framework/mutations/mutation-response';
 import { IScheduleJob } from '../../domain/app/schedule-job/schedule-job';
 import { CurrentUser } from '../../domain/app/current-user';
-import { NotificationTypeEnum } from '../../domain/master/notification/notification';
+import { NotificationTypeEnum, NotificationSourceEnum } from '../../domain/master/notification/notification';
 import { Templates } from '../../domain/master/template/template.model';
 
 const frequencyAlertItems: { name: string, cron: string }[] = [
-    { name: 'every day', cron: '0 19 * * *' },
-    { name: 'every business day', cron: '0 19 * * 1,2,3,4,5' },
-    { name: 'every end of week', cron: '0 19 * * 5' },
-    { name: 'monthly on this day', cron: '0 19 {day} * *' },
-    { name: 'yearly, on this date', cron: '0 19 {day} {month} *' }
+    { name: 'every day', cron: '0 19 * * * *' },
+    { name: 'every business day', cron: '0 19 * * 1,2,3,4,5 *' },
+    { name: 'every end of week', cron: '0 19 * * 5 *' },
+    { name: 'monthly on this day', cron: '0 19 {day} * * *' },
+    { name: 'yearly, on this date', cron: '0 19 {day} {month} * *' }
     // { name: `weekly on ${this.dayInString}`, cron: `Weekly on ${this.dayInString}` },
     // { name: 'every end of month', cron: 'Every end of month' },
 ];
@@ -124,7 +124,7 @@ export class ScheduleJobService {
         const scheduleJob: IScheduleJob = {
             active: true,
             timezone: this.currentUser.get().profile.timezone,
-            type: NotificationTypeEnum.scheduledNotification,
+            type: NotificationSourceEnum.widgetNotification,
             cronSchedule: [getCron(info.frequency)],
             data: {
                 identifier: info.modelAlert.id,

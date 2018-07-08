@@ -1,9 +1,9 @@
 import * as mongoose from 'mongoose';
 
-import { NotificationTypeEnum } from '../../master/notification/notification';
+import { NotificationSourceEnum } from '../../master/notification/notification';
 
 export interface IScheduleJob {
-    type: NotificationTypeEnum;
+    type: NotificationSourceEnum;
     active: boolean;
     timezone: string;
     cronSchedule?: string[];
