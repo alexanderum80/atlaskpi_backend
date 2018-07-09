@@ -594,7 +594,7 @@ export class ChartsService {
                                                 isArray(chartData.series[0].data);
 
                         if (isChartDataSeriesDataExist) {
-                            const serieDefinition = (chartData.series) ? chartData.series[0].data.find(c => c.name === d.name) : null;
+                            const serieDefinition = (chartData.series) ? chartData.series[0].data.find(c => c.name === s.name) : null;
                             if (serieDefinition) {
                                 serieDefinition.visible = s.visible;
                             }
