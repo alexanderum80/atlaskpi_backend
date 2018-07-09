@@ -314,5 +314,5 @@ export interface IGoogleAnalyticsDocument extends IGoogleAnalytics, mongoose.Doc
 }
 
 export interface IGoogleAnalyticsModel extends mongoose.Model<IGoogleAnalyticsDocument> {
-    batchUpsert(data: any[], startDate: string, batchProps: IBatchProperties): Promise<IBatchProperties>;
+    batchUpsert(data: any[], batchProps: IBatchProperties): Promise<IBatchProperties>;
 }

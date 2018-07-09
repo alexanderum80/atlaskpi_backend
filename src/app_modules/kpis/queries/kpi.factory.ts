@@ -1,3 +1,4 @@
+import { isValidTimezone } from './../../../domain/common/date-range';
 import { FinancialActivities } from './../../../domain/app/financial-activities/financial-activity.model';
 import { COGS } from './../../../domain/app/cogs/cogs.model';
 import { Payments } from './../../../domain/app/payments/payment.model';
@@ -22,6 +23,7 @@ import { Revenue } from './revenue.kpi';
 import { SimpleKPI } from './simple-kpi';
 import { GAJobsQueueService } from '../../../services/queues/ga-jobs-queue.service';
 import { CurrentAccount } from '../../../domain/master/current-account';
+import { CurrentUser } from '../../../domain/app/current-user';
 
 @injectable()
 export class KpiFactory {
@@ -41,10 +43,15 @@ export class KpiFactory {
         @inject(GoogleAnalyticsKPIService.name) private _googleAnalyticsKpiService: GoogleAnalyticsKPIService,
         @inject(GAJobsQueueService.name) private _queueService: GAJobsQueueService,
         @inject(CurrentAccount.name) private _currentAccount: CurrentAccount,
+        @inject(CurrentUser.name) private _currentUser: CurrentUser,
     ) { }
 
     async getInstance(kpiDocument: IKPIDocument): Promise<IKpiBase> {
         const virtualSources: IVirtualSourceDocument[] = await this._virtualSources.model.find({});
+
+        const tz = this._currentUser.get().profile.timezone;
+
+        if (!isValidTimezone(tz)) throw new Error('Invalid user timezone');
 
         if (!kpiDocument) { return null; }
 
@@ -66,7 +73,8 @@ export class KpiFactory {
                                 this._payments,
                                 this._cogs,
                                 this._financialActivities,
-                                virtualSources
+                                virtualSources,
+                                tz
                           );
                 case KPITypeEnum.ExternalSource:
                     return GoogleAnalyticsKpi.CreateFromExpression( kpiDocument,

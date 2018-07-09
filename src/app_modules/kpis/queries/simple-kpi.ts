@@ -52,7 +52,8 @@ export class SimpleKPI extends SimpleKPIBase implements IKpiBase {
                                         payments: Payments,
                                         cogs: COGS,
                                         financialActivities: FinancialActivities,
-                                        virtualSources: IVirtualSourceDocument[]
+                                        virtualSources: IVirtualSourceDocument[],
+                                        timezone: string
                                     ): SimpleKPI {
 
         const simpleKPIDefinition: IKPISimpleDefinition = KPIExpressionHelper.DecomposeExpression(KPITypeEnum.Simple, kpi.expression);
@@ -129,12 +130,13 @@ export class SimpleKPI extends SimpleKPIBase implements IKpiBase {
             aggregateSkeleton = baseAggregate.concat(aggregateSkeleton);
         }
 
-        return new SimpleKPI(model, aggregateSkeleton, simpleKPIDefinition, kpi, collection);
+        return new SimpleKPI(model, aggregateSkeleton, simpleKPIDefinition, kpi, collection, timezone);
     }
 
-    private constructor(model: any, baseAggregate: any, definition: IKPISimpleDefinition, kpi: IKPI, collection: ICollection) {
+    private constructor(model: any, baseAggregate: any, definition: IKPISimpleDefinition, kpi: IKPI, collection: ICollection, timezone: string) {
         super(model, baseAggregate);
 
+        this.timezone = timezone;
         this.kpi = kpi;
         this.collection = collection;
 
