@@ -611,6 +611,10 @@ export class ChartsService {
 
 
     private _addSerieColorToDefinition(definitionSeries, chartData) {
+        if (!chartData || !chartData.chart) {
+            return chartData;
+        }
+
         if (chartData.chart.type === 'pie') {
             // check if data exist in definitionSeries[0]
             const definitionSeriesDataExist: boolean = Array.isArray(definitionSeries) &&
