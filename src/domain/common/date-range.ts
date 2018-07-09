@@ -558,7 +558,7 @@ export function previousPeriod(dateRange: IDateRange): IDateRange {
 
     return {
         from: start.subtract(duration).startOf('day').toDate(),
-        to: end.subtract(duration).endOf('day').toDate()
+        to: end.subtract(duration).startOf('day').toDate()
     };
 }
 
