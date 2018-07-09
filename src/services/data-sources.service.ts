@@ -68,7 +68,7 @@ export class DataSourcesService {
         return fields;
     }
 
-    async getDistinctValues(name: string, source: string, field: string, limit: number, filter: string): Promise<string[]> {
+    async getDistinctValues(name: string, source: string, field: string, limit: number, filter: string, collectionSource?: string[]): Promise<string[]> {
         try {
             const vs = await this._virtualDatasources.model.findOne({ name: { $regex: new RegExp(`^${name}$`, 'i') }  });
             const model = this._resolver(source).model;
@@ -85,7 +85,7 @@ export class DataSourcesService {
                 });
             }
 
-            return await (model as any).findCriteria(field, aggregate, limit, filter);
+            return await (model as any).findCriteria(field, aggregate, limit, filter, collectionSource);
         } catch (e) {
             this._logger.error('There was an error retrieving the distinct values', e);
             return [];
