@@ -25,7 +25,7 @@ export class AccountCreatedNotification implements IAccountCreatedNotifier {
         const createAccountTemplate =
             Handlebars.compile(this._config.usersService.services.createUser.emailTemplate);
 
-        let dataSource: IAccountCreatedDataSource = user.toObject();
+        const dataSource: IAccountCreatedDataSource = user.toObject();
         if (!dataSource.host) {
             dataSource.host = this._currentAccount.get.database.name;
         }
@@ -35,8 +35,10 @@ export class AccountCreatedNotification implements IAccountCreatedNotifier {
         if (!dataSource.resetToken) {
             dataSource.resetToken = user.services.email.enrollment[0].token;
         }
-        let emailContent = createAccountTemplate(dataSource);
 
-        return sendEmail(email, `${this._config.usersService.app.name}: Account Created`, emailContent);
+        const emailContent = createAccountTemplate(dataSource);
+        const ccEmail: string = this._config.supportEmail;
+
+        return sendEmail(email, `${this._config.usersService.app.name}: Account Created`, emailContent, ccEmail);
     }
 }
