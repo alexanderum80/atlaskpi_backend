@@ -191,6 +191,7 @@ export class ChartsService {
                     const originalDefinitionSeries = cloneDeep(chart.chartDefinition.series);
 
                     chart.chartDefinition = this._setSeriesVisibility(originalDefinitionSeries, definition);
+                    console.log('TITLEEEE ' + chart.title);
                     chart.chartDefinition = this._addSerieColorToDefinition(originalDefinitionSeries, definition);
                     resolve(chart);
                     return;
@@ -266,6 +267,7 @@ export class ChartsService {
             // chart.chartDefinition = definition;
             chart.chartDefinition = this._setSeriesVisibility(originalDefinitionSeries, definition);
             chart.chartDefinition = this._addSerieColorToDefinition(originalDefinitionSeries, definition);
+
             return chart;
         } catch (e) {
             this._logger.error('There was an error previewing a chart', e);
@@ -564,7 +566,7 @@ export class ChartsService {
             if (chartSeriesExist) {
                 chartSeries.map(s => {
                     if (s.visible !== undefined) {
-                        let serieDefinition = chartData.series.find(f => f.name === s.name);
+                        let serieDefinition = (chartData.series) ? chartData.series.find(f => f.name === s.name) : null;
                         if (serieDefinition) {
                             // serieDefinition = Object.assign(serieDefinition, { visible: false });
                             serieDefinition.visible = s.visible;
@@ -607,7 +609,7 @@ export class ChartsService {
             if (definitionSeriesDataExist) {
                 definitionSeries[0].data.map(d => {
                     if (!isEmpty(d) && !isEmpty(d.color)) {
-                        const serieData = chartData.series[0].data.find(c => c.name === d.name);
+                        const serieData = (chartData.series) ? chartData.series[0].data.find(c => c.name === d.name) : null;
                         // update the color on the new chart only
                         if (serieData) {
                             serieData.color = d.color;
