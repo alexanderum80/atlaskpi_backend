@@ -14,7 +14,6 @@ import {
     cleanHeaders,
     constructDimensionsArray,
     fieldMetricsMap,
-    generateBatchProperties,
     getAnalyticsData,
     IBatchProperties,
     mapMetricDimensionRow,
