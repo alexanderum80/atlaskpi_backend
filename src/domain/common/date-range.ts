@@ -544,10 +544,24 @@ export function parsePredefinedTargetDateRanges (predefinedDate: string, dueDate
 }
 
 
-export function backInTime(dateRange: IDateRange, amount: any, timespan: string): IDateRange {
+export function backInTime(dateRange: IDateRange, amount: any, timespan: string, mainDateRangeFrom?: Date): IDateRange {
+    const format: string = 'MM/DD/YYYY';
+    const fromDate: Date = moment(dateRange.from).subtract(amount, timespan).toDate();
+    let toDate: Date = moment(dateRange.to).subtract(amount, timespan).endOf('day').toDate();
+
+    if (mainDateRangeFrom) {
+        const dateRangeFrom: string = moment(mainDateRangeFrom, format).format(format);
+        const comparisonToDate: string = moment(dateRange.to).subtract(amount, timespan).format(format);
+
+        const isSameDate: boolean = dateRangeFrom === comparisonToDate;
+        if (isSameDate) {
+            toDate = moment(dateRange.to).subtract(amount, timespan).startOf('day').toDate();
+        }
+    }
+
     return {
-        from: moment(dateRange.from).subtract(amount, timespan).toDate(),
-        to: moment(dateRange.to).subtract(amount, timespan).toDate()
+        from: fromDate,
+        to: toDate
     };
 }
 
@@ -555,6 +569,14 @@ export function previousPeriod(dateRange: IDateRange): IDateRange {
     const start = moment(dateRange.from);
     const end = moment(dateRange.to);
     const duration = end.diff(start);
+
+    const isSameDate = end.diff(start, 'days') === 0;
+    if (isSameDate) {
+        return {
+            from: start.subtract(1, 'day').startOf('day').toDate(),
+            to: end.startOf('day').toDate()
+        };
+    }
 
     return {
         from: start.subtract(duration).startOf('day').toDate(),
@@ -587,38 +609,38 @@ export function getDateRangeIdFromString(text: string): string {
 }
 
 
-export function parseComparisonDateRange(dateRange: IDateRange, comparisonString: string): IDateRange {
+export function parseComparisonDateRange(dateRange: IDateRange, comparisonString: string, mainDateRangeFrom?: Date): IDateRange {
 
     switch (comparisonString) {
 
         // today cases
         case 'yesterday':
-            return backInTime(dateRange, 1, 'day');
+            return backInTime(dateRange, 1, 'day', mainDateRangeFrom);
 
         case 'lastWeek':
-            return backInTime(dateRange, 1, 'week');
+            return backInTime(dateRange, 1, 'week', mainDateRangeFrom);
 
         case 'lastMonth':
-            return backInTime(dateRange, 1, 'month');
+            return backInTime(dateRange, 1, 'month', mainDateRangeFrom);
 
         case '2YearsAgo':
-            return backInTime(dateRange, 2, 'year');
+            return backInTime(dateRange, 2, 'year', mainDateRangeFrom);
 
         case '3YearsAgo':
-            return backInTime(dateRange, 3, 'year');
+            return backInTime(dateRange, 3, 'year', mainDateRangeFrom);
 
         case 'lastYear':
-            return backInTime(dateRange, 1, 'year');
+            return backInTime(dateRange, 1, 'year', mainDateRangeFrom);
 
         case 'twoYearsAgo':
-            return backInTime(dateRange, 2, 'year');
+            return backInTime(dateRange, 2, 'year', mainDateRangeFrom);
 
         case 'threeYearsAgo':
-            return backInTime(dateRange, 3, 'year');
+            return backInTime(dateRange, 3, 'year', mainDateRangeFrom);
 
         case 'lastQuarter':
             // TODO: we have to calculate the previous Q, just back in time 90 days for now
-            return backInTime(dateRange, 90, 'days');
+            return backInTime(dateRange, 90, 'days', mainDateRangeFrom);
 
         case 'previousPeriod':
             return previousPeriod(dateRange);
@@ -628,12 +650,12 @@ export function parseComparisonDateRange(dateRange: IDateRange, comparisonString
     return null;
 }
 
-export function getComparisonDateRanges(dateRange: IChartDateRange[], comparisonOptions: string[]): IDateRange[] {
+export function getComparisonDateRanges(dateRange: IChartDateRange[], comparisonOptions: string[], mainDateRangeFrom: Date): IDateRange[] {
     if (!dateRange || !comparisonOptions) return [];
 
     return comparisonOptions.map(c => {
          if (isEmpty(c)) return;
-         return parseComparisonDateRange(processChartDateRange(dateRange[0]), c);
+         return parseComparisonDateRange(processChartDateRange(dateRange[0]), c, mainDateRangeFrom);
     });
 }
 
