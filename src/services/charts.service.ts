@@ -571,8 +571,7 @@ export class ChartsService {
                 chartSeries.map(s => {
                     if (s && s.visible !== undefined) {
                         let serieDefinition = (chartData.series) ? chartData.series.find(f => f.name === s.name) : null;
-                        if (chartDataSeriesExist) {
-                            const serieDefinition = chartData.series.find(f => f.name === s.name);
+                        if (serieDefinition) {
                             if (serieDefinition) {
                                 serieDefinition.visible = s.visible;
                             }
@@ -595,7 +594,7 @@ export class ChartsService {
                                                 isArray(chartData.series[0].data);
 
                         if (isChartDataSeriesDataExist) {
-                            const serieDefinition = chartData.series[0].data.find(f => f.name === s.name);
+                            const serieDefinition = (chartData.series) ? chartData.series[0].data.find(c => c.name === d.name) : null;
                             if (serieDefinition) {
                                 serieDefinition.visible = s.visible;
                             }
@@ -640,7 +639,7 @@ export class ChartsService {
             if (canMapDefinitionSeries) {
                 definitionSeries.map(d => {
                     if (!isEmpty(d) && !isEmpty(d.color)) {
-                        const serieData = chartData.series.find(c => c.name === d.name);
+                        const serieData = chartData.series ? chartData.series.find(c => c.name === d.name) : null;
                         // update the color on new chart only
                         if (serieData) {
                             serieData.color = d.color;
