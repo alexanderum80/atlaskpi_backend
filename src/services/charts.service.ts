@@ -1,6 +1,6 @@
 import { camelCase } from 'change-case';
 import { inject, injectable } from 'inversify';
-import {difference, isNumber, isString, pick, PartialDeep, cloneDeep, isEmpty, omit }  from 'lodash';
+import {difference, isNumber, isString, pick, PartialDeep, cloneDeep, isEmpty, isArray, omit }  from 'lodash';
 import * as moment from 'moment';
 
 import { IChartMetadata } from '../app_modules/charts/queries/charts/chart-metadata';
@@ -558,32 +558,45 @@ export class ChartsService {
     }
 
     private _setSeriesVisibility(chartSeries, chartData) {
+        if (!chartData || !chartData.chart) {
+            return chartData;
+        }
+
         const chartSeriesExist: boolean = Array.isArray(chartSeries);
 
         if (chartData.chart.type !== 'pie') {
             if (chartSeriesExist) {
                 chartSeries.map(s => {
-                    if (s.visible !== undefined) {
-                        let serieDefinition = chartData.series.find(f => f.name === s.name);
-                        if (serieDefinition) {
-                            // serieDefinition = Object.assign(serieDefinition, { visible: false });
-                            serieDefinition.visible = s.visible;
+                    if (s && s.visible !== undefined) {
+                        const chartDataSeriesExist: boolean = !isEmpty(chartData) && isArray(chartData.series);
+                        if (chartDataSeriesExist) {
+                            const serieDefinition = chartData.series.find(f => f.name === s.name);
+                            if (serieDefinition) {
+                                serieDefinition.visible = s.visible;
+                            }
                         }
                     }
                 });
             }
         }
         else {
-            const chartSeriesDataExist: boolean = Array.isArray(chartSeries) &&
+            const chartSeriesDataExist: boolean = isArray(chartSeries) &&
                                          !isEmpty(chartSeries) &&
-                                         Array.isArray(chartSeries[0].data);
+                                         isArray(chartSeries[0].data);
 
             if (chartSeriesDataExist) {
                 chartSeries[0].data.map(s => {
-                    if (s.visible !== undefined) {
-                        let serieDefinition = chartData.series[0].data.find(f => f.name === s.name);
-                        if (serieDefinition) {
-                            serieDefinition.visible = s.visible;
+                    if (s && s.visible !== undefined) {
+                        const isChartDataSeriesDataExist: boolean = !isEmpty(chartData) &&
+                                                isArray(chartData.series) &&
+                                                !isEmpty(chartData.series[0]) &&
+                                                isArray(chartData.series[0].data);
+
+                        if (isChartDataSeriesDataExist) {
+                            const serieDefinition = chartData.series[0].data.find(f => f.name === s.name);
+                            if (serieDefinition) {
+                                serieDefinition.visible = s.visible;
+                            }
                         }
                     }
                 });
