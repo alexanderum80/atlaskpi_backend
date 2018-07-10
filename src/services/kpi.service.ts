@@ -67,7 +67,7 @@ export class KpiService {
         @inject('resolver') private _resolver: (name: string) => any,
     ) {}
 
-    async getKpis(filterFieldsWithoutData?: boolean): Promise<IKPIDocument[]> {
+    async getKpis(): Promise<IKPIDocument[]> {
         const kpis = await this._kpis.model.find({});
         const virtualSources = await this._virtualSources.model.find({});
         const connectors = await this._connectors.model.find({});
@@ -77,18 +77,7 @@ export class KpiService {
             const kpiSources: string[] = this._getKpiSources(k, kpis, connectors);
             // find common field paths on the sources
             const groupingInfo = await this._getCommonSourcePaths(kpiSources, virtualSources);
-
-            if (filterFieldsWithoutData) {
-                const sources = virtualSources.filter(v => kpiSources.indexOf(v.name.toLocaleLowerCase()) !== -1);
-
-                // i.e [criteria: nextech]
-                const kpiFilter: any = KPIFilterHelper.PrepareFilterField(k.type, k.filter);
-                const fieldsWithData = await this._fieldsWithData(sources, groupingInfo, kpiFilter);
-
-                k.groupingInfo = fieldsWithData || [];
-            } else {
-                k.groupingInfo = groupingInfo || [];
-            }
+            k.groupingInfo = groupingInfo || [];
 
             return k;
         });

@@ -3506,7 +3506,21 @@
             "path" : "description", 
             "dataType" : "String", 
             "allowGrouping" : true
+        },
+        "Category" : {
+            "path" : "category.name", 
+            "dataType" : "String", 
+            "allowGrouping" : true
         }, 
+        "Category's type of service" : {
+            "path" : "category.service", 
+            "dataType" : "Number", 
+            "allowGrouping" : true
+        }, 
+        "Category's External Id" : {
+            "path" : "category.externalId", 
+            "dataType" : "String"
+        },  
         "Seller's External Id" : {
             "path" : "seller.externalId", 
             "dataType" : "String"

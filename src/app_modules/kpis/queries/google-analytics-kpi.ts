@@ -113,7 +113,9 @@ export class GoogleAnalyticsKpi extends SimpleKPIBase implements IKpiBase {
             filterGroupings = Object.keys(this._kpi.filter).filter(k => k !== this._definition.field);
         }
 
+        // the batch contains the view timezone
         const batch = await this._cacheData(dateRange, preparedFilters, options, filterGroupings);
+        this.timezone = batch.viewTimezone;
 
         this._injectPreGroupStageFilters({ _batchId: batch._batchId }, this._definition.field);
         this.pristineAggregate = cloneDeep(this._baseAggregate);
