@@ -104,6 +104,9 @@ export class Appointment  {
     _id: string;
 
     @field({ type: GraphQLTypesMap.String })
+    appointmentType: string;
+
+    @field({ type: GraphQLTypesMap.String })
     externalId: string;
 
     @field({ type: GraphQLTypesMap.String })
