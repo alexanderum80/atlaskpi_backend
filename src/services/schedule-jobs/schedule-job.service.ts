@@ -81,12 +81,18 @@ export class ScheduleJobService {
     }
 
     async update(id: string, info: IAlertInfo): Promise<IMutationResponse> {
-        const job = await this.scheduleJobs.model.findById(id).exec();
+        try {
+            const job = await this.scheduleJobs.model.findById(id).exec();
 
-        if (!job) return { success: false };
+            if (!job) return { success: false };
 
-        const scheduleJob = await this.buildScheduleJob(info);
-        await this.scheduleJobs.model.update({ _id: id }, scheduleJob).exec();
+            const scheduleJob = await this.buildScheduleJob(info);
+            await this.scheduleJobs.model.update({ _id: id }, scheduleJob).exec();
+
+            return { success: true };
+        } catch (e) {
+            return { success: false };
+        }
     }
 
     async removeJob(id: string): Promise<IMutationResponse> {
