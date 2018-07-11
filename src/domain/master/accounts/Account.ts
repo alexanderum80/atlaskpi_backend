@@ -20,6 +20,7 @@ export interface IAccountDBUser {
 export interface IPersonalInfo {
     fullname: string;
     email: string;
+    timezone: string;
 }
 
 export interface IBusinessInfo {

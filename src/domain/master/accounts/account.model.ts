@@ -20,6 +20,7 @@ let accountSchema = new mongoose.Schema({
     personalInfo: {
         fullname: String,
         email: { type: String, index: true, required: true },
+        timezone: String,
     },
     businessInfo: {
         numberOfLocations: Number,
