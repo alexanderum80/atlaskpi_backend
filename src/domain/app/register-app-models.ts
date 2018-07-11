@@ -40,6 +40,7 @@ import { Attachments } from './attachments/attachment-model';
 import { VirtualSources } from './virtual-sources/virtual-source.model';
 import { ICriteriaSearchable } from '../../app_modules/shared/criteria.plugin';
 import { interfaces } from 'inversify';
+import { ScheduleJobs } from './schedule-job/schedule-job.model';
 
 // import { ChartFormats } from './chart-formats/chart-format.model';
 interface IRegistrationInfo {
@@ -84,7 +85,8 @@ const registrations: any[] = [
     VirtualSources,
     Payments,
     COGS,
-    FinancialActivities
+    FinancialActivities,
+    ScheduleJobs
 ];
 
 export function registerAppModels(container: IBridgeContainer) {

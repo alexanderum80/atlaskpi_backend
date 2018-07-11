@@ -38,7 +38,7 @@ export class TwitterIntegrationController {
                 that._twitter = new Twitter({
                     consumerKey: this._config.consumerKey,
                     consumerSecret: this._config.consumerSecret,
-                    callback: this._config.callbackUrl + this._companyName + '/access-token'
+                    callback: this._config.callbackUrl + `access-token/?company_name=${this._companyName}`
                 });
 
                 resolve();
@@ -53,7 +53,6 @@ export class TwitterIntegrationController {
         return new Promise<any>((resolve, reject) => {
             that._twitter.getRequestToken((err, requestToken, requestSecret) => {
                 if (err) {
-                    res.status(500).send(err);
                     reject(err);
                     return;
                 } else {
@@ -74,9 +73,8 @@ export class TwitterIntegrationController {
 
             that._twitter.getAccessToken(requestToken, that._requestSecret, verifier, (err, accessToken, accessSecret) => {
                 if (err) {
-                res.status(500).send(err);
-                reject(err);
-                return;
+                    reject(err);
+                    return;
                 }
 
                 resolve({

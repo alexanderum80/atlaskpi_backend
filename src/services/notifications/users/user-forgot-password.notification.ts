@@ -26,7 +26,7 @@ export class UserForgotPasswordNotification implements IEmailNotifier {
         const forgotPasswordTemplate =
             Handlebars.compile(this._config.usersService.services.forgotPassword.emailTemplate);
 
-        let dataSource: IUserForgotPasswordDataSource = user.toObject();
+        const dataSource: IUserForgotPasswordDataSource = user.toObject();
 
         if (!user.profile.firstName || !user.profile.lastName) {
             dataSource.fullName = user.username;
@@ -45,8 +45,9 @@ export class UserForgotPasswordNotification implements IEmailNotifier {
 
         dataSource.resetToken = user.services.password.reset.token;
 
-        let emailContent = forgotPasswordTemplate(dataSource);
+        const emailContent = forgotPasswordTemplate(dataSource);
+        const ccEmail: string = this._config.supportEmail;
 
-        return sendEmail(email, `${this._config.usersService.app.name}: Forgot Password`, emailContent);
+        return sendEmail(email, `${this._config.usersService.app.name}: Forgot Password`, emailContent, ccEmail);
     }
 }

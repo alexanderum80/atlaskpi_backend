@@ -1,6 +1,6 @@
 import { VALUE_SEPARATOR } from '../../../helpers/string.helpers';
 import { CallSchema } from '../calls/call.model';
-import { isArray, isObject, isDate } from 'lodash';
+import { isArray, isObject, isDate, isNumber, isString } from 'lodash';
 
 import { isArrayObject } from '../../../helpers/express.helpers';
 import { readMongooseSchema } from '../../../helpers/mongodb.helpers';
@@ -12,7 +12,9 @@ import { GoogleAnalyticsSchema } from './../google-analytics/google-analytics.mo
 import { IKPIFilter, KPITypeEnum, IKPISimpleDefinition } from './kpi';
 import { AppointmentSchema } from '../appointments/appointment-model';
 import { IVirtualSourceDocument } from '../virtual-sources/virtual-source';
-import { isString, isNumber } from 'util';
+
+
+const deepRenameKeys = require('deep-rename-keys');
 
 
 const Schemas = [
@@ -33,10 +35,10 @@ const datasourceSchemaMap = {
     'appointments': AppointmentSchema
 };
 
-const replacementStrings = [
-    { key: '__dot__', value: '.' },
-    { key: '__dollar__', value: '$' }
-];
+const keyMap = {
+    __dollar__: '$',
+    __dot__: '.'
+};
 
 export class KPIFilterHelper {
     static ComposeFilter(
@@ -94,7 +96,7 @@ export class KPIFilterHelper {
     }
 
     static CleanObjectKeys(filter: any): any {
-        return KPIFilterHelper._deserializeFilter(filter);
+        return KPIFilterHelper._deserializedAggregate(filter, 'deserialize');
     }
 
     private static _composeSimpleFilter(virtualSources: IVirtualSourceDocument[], datasource: string, filterArray: IKPIFilter[]): string {
@@ -132,14 +134,46 @@ export class KPIFilterHelper {
     }
 
     private static _deserializeFilter(filter: any): any {
-        return KPIFilterHelper._serializer(filter, 'deserialize');
+        return KPIFilterHelper._deserialize(filter);
     }
 
     private static _serializeFilter(filter: any): any {
-        return KPIFilterHelper._serializer(filter, 'serialize');
+        return KPIFilterHelper._serializer(filter);
     }
 
-    private static _serializer(filter: any, operation = 'serialize'): any {
+    private static _deserialize(filter: any): any {
+        return deepRenameKeys(filter, (key: string) => {
+            let newKey = key;
+
+            for (const k of Object.keys(keyMap)) {
+                if (key.indexOf(k) !== -1) {
+                    const keyMapValue: string = keyMap[k];
+                    newKey = newKey.replace(k, keyMapValue);
+                }
+            }
+
+            return newKey;
+        });
+    }
+
+    private static _serializer(filter: any): any {
+        return deepRenameKeys(filter, (key: string) => {
+            let newKey = key;
+
+            for (const k of Object.keys(keyMap)) {
+                // i.e. $
+                const keyMapValue: string = keyMap[k];
+                // i.e. key => source, $in, customer.state
+                if (key.indexOf(keyMapValue) !== -1) {
+                    newKey = newKey.replace(keyMapValue, k);
+                }
+            }
+
+            return newKey;
+        });
+    }
+
+    private static _deserializedAggregate(filter: any, operation= 'serialize'): any {
         if (isNumber(filter)) {
             return filter;
         }
@@ -154,10 +188,10 @@ export class KPIFilterHelper {
             let value = filter[filterKey];
 
             if (!isArray(value) && !isDate(value) && isObject(value)) {
-                value = KPIFilterHelper._serializer(value, operation);
+                value = KPIFilterHelper._deserializedAggregate(value, operation);
             } else if (!isDate(value) && isArray(value)) {
                 for (let i = 0; i < value.length; i++) {
-                    value[i] = this._serializer(value[i], operation);
+                    value[i] = this._deserializedAggregate(value[i], operation);
                 }
             }
 
@@ -166,32 +200,20 @@ export class KPIFilterHelper {
         return newFilter;
     }
 
-    private static _getCleanString(text: string, operation: string) {
+    private static _getCleanString(text: string, operation: string): string {
         let result: string = text;
+        const keys: string[] = Object.keys(keyMap);
 
-        replacementStrings.forEach(replacement => {
-            if (operation === 'serialize') {
-                result = result.replace(replacement.value, replacement.key);
-            } else if (operation === 'deserialize') {
-                result = result.replace(replacement.key, replacement.value);
+        for (const k of keys) {
+            if (operation === 'deserialize') {
+                result = result.replace(k, keyMap[k]);
             }
-        });
+            else if (operation === 'serialize') {
+                result = result.replace(keyMap[k], k);
+            }
+        }
 
         return result;
-    }
-
-    private static _allSchemasFieldSet() {
-        let fieldset = [];
-
-        Schemas.forEach(s => {
-            const objectifiedSchema = readMongooseSchema(s);
-            const flattenedSchema = flatten(objectifiedSchema);
-            Object.keys(flattenedSchema).forEach(k => {
-                fieldset[k] = flattenedSchema[k];
-            });
-        });
-
-        return fieldset;
     }
 
     private static _getFieldsetForDatasource(datasource: string) {

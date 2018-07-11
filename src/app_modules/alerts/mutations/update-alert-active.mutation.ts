@@ -8,6 +8,7 @@ import { MutationBase } from '../../../framework/mutations/mutation-base';
 import { IMutationResponse } from '../../../framework/mutations/mutation-response';
 import { GraphQLTypesMap } from '../../../framework/decorators/graphql-types-map';
 import { UpdateAlertActiveActivity } from '../activities/update-alert-active.activity';
+import { ScheduleJobService } from '../../../services/schedule-jobs/schedule-job.service';
 
 @injectable()
 @mutation({
@@ -20,18 +21,22 @@ import { UpdateAlertActiveActivity } from '../activities/update-alert-active.act
     output: { type: AlertMutationResponse }
 })
 export class UpdateAlertActiveMutation extends MutationBase<IMutationResponse> {
-    constructor(@inject(Alerts.name) private _alert: Alerts) {
+    constructor(
+        @inject(ScheduleJobService.name)
+        private _scheduleJobService: ScheduleJobService
+    ) {
         super();
     }
 
     async run(data: { id: string, active: boolean}): Promise<IMutationResponse> {
-        try {
-            const updateAlert = await this._alert.model.updateAlertActiveField(data.id, data.active);
-            return { success: true, entity: updateAlert };
-        } catch (err) {
-            return {
-                errors: [{ field: '', errors: ['There was error updating the alert active field'] }]
-            };
-        }
+        return await this._scheduleJobService.setActive(data.id, data.active);
+        // try {
+        //     const updateAlert = await this._alert.model.updateAlertActiveField(data.id, data.active);
+        //     return { success: true, entity: updateAlert };
+        // } catch (err) {
+        //     return {
+        //         errors: [{ field: '', errors: ['There was error updating the alert active field'] }]
+        //     };
+        // }
     }
 }
