@@ -12,7 +12,7 @@ const frequencyAlertItems: { name: string, cron: string }[] = [
     { name: 'every day', cron: '0 0 19 * * *' },
     { name: 'every business day', cron: '0 0 19 * * 1,2,3,4,5' },
     { name: 'every end of week', cron: '0 0 19 * * 5' },
-    { name: 'Monthly, on the 1st', cron: '0 0 8 1 1,2,3,4,5,6,7,8,9,10,11,12 *' },
+    { name: 'monthly on the 1st', cron: '0 0 8 1 1,2,3,4,5,6,7,8,9,10,11,12 *' },
     { name: 'yearly on Jan 1st', cron: '0 0 8 1 1 *' }
 ];
 
