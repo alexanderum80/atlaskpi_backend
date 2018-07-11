@@ -5,9 +5,10 @@ import { inject, injectable } from 'inversify';
 import * as nodemailer from 'nodemailer';
 
 import { IAppConfig } from '../../../configuration/config-models';
-import { IAccountCreatedDataSource, IUserDocument } from '../../../domain/app/security/users/user';
+import { IAccountCreatedDataSource, IUserDocument, IUserProfile } from '../../../domain/app/security/users/user';
 import { IEmailNotifier } from '../email-notifier';
 import { CurrentAccount } from '../../../domain/master/current-account';
+import { isEmpty } from 'lodash';
 
 
 export interface IAccountCreatedNotifier extends IEmailNotifier {
@@ -36,9 +37,22 @@ export class AccountCreatedNotification implements IAccountCreatedNotifier {
             dataSource.resetToken = user.services.email.enrollment[0].token;
         }
 
-        const emailContent = createAccountTemplate(dataSource);
-        const ccEmail: string = this._config.supportEmail;
+        dataSource.fullName = this._getFullName(user);
 
-        return sendEmail(email, `${this._config.usersService.app.name}: Account Created`, emailContent, ccEmail);
+        const emailContent = createAccountTemplate(dataSource);
+        return sendEmail(email, `AtlasKPI Secure: User Activation`, emailContent);
+    }
+
+    private _getFullName(user: IUserDocument): string {
+        let fullName: string;
+
+        if (!isEmpty(user.profile) && user.profile.firstName) {
+            const userProfile: IUserProfile = user.profile;
+            fullName = `${userProfile.firstName} ${userProfile.lastName}`;
+        } else {
+            fullName = user.username;
+        }
+
+        return fullName;
     }
 }
