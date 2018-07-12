@@ -53,6 +53,7 @@ export interface IAccount {
     seedData?: boolean;
     demoMode?: boolean;
     authorizationCode?: string;
+    timezone: string;
 }
 
 // declare interface to mix account and mongo docuemnt properties/methods

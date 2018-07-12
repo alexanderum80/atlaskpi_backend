@@ -174,7 +174,7 @@ export class AccountsService {
                     const hash = generateUniqueHash();
                     const accountDbUser: IClusterUser = getClusterDbUser(hash, accountDatabaseName);
                     const fullName: IFullName = getFullName(input.account.personalInfo.fullname);
-                    const firstUserInfo = getFirstUserInfo(hash, input.account.personalInfo.email, fullName);
+                    const firstUserInfo = getFirstUserInfo(hash, input.account.personalInfo.email, fullName, input.account.personalInfo.timezone);
                     input.account.database = generateDBObject(that._config.newAccountDbUriFormat, accountDatabaseName, accountDbUser.user, accountDbUser.pwd);
 
                     that._accounts.model.create(input.account, (err, newAccount: IAccountDocument) => {
