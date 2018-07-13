@@ -61,7 +61,7 @@ export class SimpleKPI extends SimpleKPIBase implements IKpiBase {
         let baseAggregate: any;
 
         if (virtualSources) {
-            const virtualSource = virtualSources.find(s => s.name.toLocaleLowerCase() === simpleKPIDefinition.dataSource);
+            const virtualSource = virtualSources.find(s => s.name.toLocaleLowerCase() === simpleKPIDefinition.dataSource.toLowerCase());
 
             if (virtualSource) {
                 collection = {
