@@ -43,6 +43,7 @@ export interface IAudit {
 
 export interface IAccount {
     name: string;
+    subdomain: string;
     personalInfo: IPersonalInfo;
     businessInfo?: IBusinessInfo;
     database?: IDatabaseInfo;
