@@ -49,7 +49,6 @@ export interface IAccount {
     database?: IDatabaseInfo;
     audit?: IAudit;
     businessUnits?: IBusinessUnit[];
-    subdomain: string;
     initialToken?: IUserToken;
     seedData?: boolean;
     demoMode?: boolean;
