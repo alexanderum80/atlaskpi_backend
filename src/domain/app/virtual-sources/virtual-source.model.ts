@@ -53,6 +53,7 @@ VirtualSourceSchema.methods.getGroupingFieldPaths = getGroupingFieldPaths;
 VirtualSourceSchema.methods.findByNames = findByNames;
 VirtualSourceSchema.methods.getFieldDefinition = getFieldDefinition;
 VirtualSourceSchema.methods.getDataTypeOperator = getDataTypeOperator;
+VirtualSourceSchema.methods.getDistinctValues = getDistinctValues;
 // VirtualSourceSchema.methods.containsPath = containsPath;
 
 @injectable()
@@ -128,15 +129,11 @@ async function getDistinctValues(
     try {
         let model: mongoose.Model<any>;
 
-        try {
-            model = vs.db.model(vs.modelIdentifier);
-        } catch {
-            model = vs.db.model(
-                vs.modelIdentifier,
-                new mongoose.Schema({}, { strict: false }),
-                vs.source
-            );
-        }
+        model = vs.db.model(
+            vs.modelIdentifier,
+            new mongoose.Schema({}, { strict: false }),
+            vs.source
+        );
 
         (model as any).findCriteria = findCriteria;
 

@@ -52,21 +52,7 @@ export class DataSourcesService {
     async getDistinctValues(name: string, source: string, field: string, limit: number, filter: string, collectionSource?: string[]): Promise<string[]> {
         try {
             const vs = await this._virtualDatasources.model.findOne({ name: { $regex: new RegExp(`^${name}$`, 'i') }  });
-            const model = this._resolver(source).model;
-
-            if (!model || !model.findCriteria) {
-                return [];
-            }
-
-            let aggregate = [];
-
-            if (vs.aggregate) {
-                aggregate = vs.aggregate.map(a => {
-                    return KPIFilterHelper.CleanObjectKeys(a);
-                });
-            }
-
-            return await (model as any).findCriteria(field, aggregate, limit, filter, collectionSource);
+            return await vs.getDistinctValues(vs, field, limit, filter, collectionSource);
         } catch (e) {
             this._logger.error('There was an error retrieving the distinct values', e);
             return [];
