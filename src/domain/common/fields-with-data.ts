@@ -6,6 +6,8 @@ import {IObject} from '../../app_modules/shared/criteria.plugin';
 import * as Bluebird from 'bluebird';
 import { dotCase, camelCase } from 'change-case';
 import {IDateRange} from './date-range';
+import { IVirtualSourceDocument, IVirtualSource } from '../app/virtual-sources/virtual-source';
+import { Model, Connection, Schema } from 'mongoose';
 
 export const blackListDataSource = ['GoogleAnalytics'];
 
@@ -23,23 +25,27 @@ export interface IFieldsWithDataDatePipeline {
 }
 
 export async function getFieldsWithData(
-    model: any, fields: (DataSourceField|IValueName)[], collectionSource?: string[],
-    aggregate?: any[], dateRangePipeline?: IFieldsWithDataDatePipeline, filter?: any): Promise <string[]> {
+    vs: IVirtualSourceDocument,
+    fields: (DataSourceField|IValueName)[],
+    collectionSource?: string[],
+    aggregate?: any[],
+    dateRangePipeline?: IFieldsWithDataDatePipeline,
+    filter?: any
+): Promise <string[]> {
+
     try {
-        if (!model || isEmpty(fields)) {
+        if (!vs || isEmpty(fields)) {
             return [];
         }
 
         let fieldsWithData: string[] = [];
         let notIn = { '$nin': ['', null, 'null', 'undefined'] };
 
-        if (!model) {
-            return [];
-        }
-
         fieldsWithData = await Bluebird.map(fields,
-                                async(field) => await getData(field, model, notIn, aggregate, collectionSource, dateRangePipeline, filter)
-                                );
+            async(field) => await
+                getData(field, vs, notIn, aggregate, collectionSource, dateRangePipeline, filter)
+            );
+
         if (fieldsWithData) {
             const formatToObject = transformToObject(fieldsWithData);
             fieldsWithData = Object.keys(formatToObject);
@@ -51,7 +57,16 @@ export async function getFieldsWithData(
     }
 }
 
-async function getData(field: DataSourceField|IValueName, model: any, notIn: IObject, aggregate: IObject[], collectionSource: string[], dateRangePipeline?: IFieldsWithDataDatePipeline, filter?: any): Promise<any> {
+async function getData(
+    field: DataSourceField|IValueName,
+    vs: IVirtualSourceDocument,
+    notIn: IObject,
+    aggregate: IObject[],
+    collectionSource: string[],
+    dateRangePipeline?: IFieldsWithDataDatePipeline,
+    filter?: any
+): Promise<any> {
+
     const fieldPath: string = (field as DataSourceField).path || (field as IValueName).value;
     const fieldName: string = field.name;
     let addDateRange = false;
@@ -139,19 +154,25 @@ async function getData(field: DataSourceField|IValueName, model: any, notIn: IOb
         modelAggregate.unshift(unwindStage);
     }
 
-    return await getAggregateResult(model, modelAggregate);
+    return await getAggregateResult(vs, modelAggregate);
 }
 
-function getAggregateResult(model: any, aggObject: IObject[]): Promise<any> {
-    return new Promise<any>((resolve, reject) => {
-        model.aggregate(aggObject).exec((err, data) => {
-            resolve(data);
-            return;
-        }, (e) => {
-            reject(e);
-            return;
-        });
-    });
+async function getAggregateResult(vs: IVirtualSourceDocument, aggObject: IObject[]): Promise<any> {
+    try {
+        const model = getGenericModel(vs.db, vs.modelIdentifier, vs.source);
+
+        return await model.aggregate(aggObject).exec();
+    } catch (e) {
+        console.error(e);
+    }
+}
+
+export function getGenericModel(conn: Connection, name: string, collection: string): Model<any> {
+    try {
+        return conn.model(name, new Schema({}, { strict: false }), collection);
+    } catch (e) {
+        console.error(e);
+    }
 }
 
 export function sortByProject(modelAggregate: any[], aggregate: any[]): boolean {

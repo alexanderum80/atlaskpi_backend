@@ -8,11 +8,9 @@ import { KPIFilterHelper } from '../domain/app/kpis/kpi-filter.helper';
 import * as Bluebird from 'bluebird';
 import { isObject, isEmpty } from 'lodash';
 import {KPIExpressionFieldInput} from '../app_modules/kpis/kpis.types';
-import {getFieldsWithData} from '../domain/common/fields-with-data';
+import {getFieldsWithData, getGenericModel} from '../domain/common/fields-with-data';
 import { ICriteriaSearchable } from '../app_modules/shared/criteria.plugin';
 
-const COLLECTION_SOURCE_MAX_LIMIT = 20;
-const COLLECTION_SOURCE_FIELD_NAME = 'source';
 const GOOGLE_ANALYTICS = 'GoogleAnalytics';
 
 @injectable()
@@ -24,28 +22,12 @@ export class DataSourcesService {
         @inject(VirtualSources.name) private _virtualDatasources: VirtualSources) { }
 
     async get(): Promise<DataSourceResponse[]> {
-        let virtualSources = await this._virtualDatasources.model.getDataSources();
-        virtualSources = await Bluebird.map(
-                                    virtualSources,
-                                    async (virtualSource: DataSourceResponse) => await this.getCollectionSource(virtualSource), {
-                                        concurrency: 1
-                                    });
-        return sortBy(virtualSources, 'name');
-    }
-
-    async getCollectionSource(virtualSource: DataSourceResponse): Promise<DataSourceResponse> {
-        const filter = '';
-        const distinctValues: string[] = await this.getDistinctValues(
-            virtualSource.name,
-            virtualSource.dataSource,
-            COLLECTION_SOURCE_FIELD_NAME,
-            COLLECTION_SOURCE_MAX_LIMIT,
-            filter
-        );
-
-        virtualSource.sources = distinctValues;
-        virtualSource.fields = await this.filterFieldsWithoutData(virtualSource);
-        return virtualSource;
+        return await this._virtualDatasources.model.getDataSources();
+        // virtualDataSources = await Bluebird.map(
+        //     virtualDataSources,
+        //     async (vs: DataSourceResponse) => await this.getCollectionSource(vs),
+        //     { concurrency: 10 });
+        // return sortBy(virtualDataSources, 'name');
     }
 
     /**
@@ -57,9 +39,8 @@ export class DataSourcesService {
             return [];
         }
 
-        const virtualSource = await this._virtualDatasources.model.findOne({ name: { $regex: new RegExp(dataSource, 'i')} });
-        const model = this._resolver(virtualSource.source).model;
-        const fieldsWithData: string[] = await getFieldsWithData(model, fields, collectionSource);
+        const vs = await this._virtualDatasources.model.findOne({ name: { $regex: new RegExp(dataSource, 'i')} });
+        const fieldsWithData: string[] = await getFieldsWithData(vs, fields, collectionSource);
 
         fields.forEach((f: DataSourceField) => {
             f.available = fieldsWithData.indexOf(f.name) !== -1;
@@ -98,7 +79,7 @@ export class DataSourcesService {
         // i.e. 'established_customer'
         const dataSource: string = input.dataSource;
         const virtualSource: IVirtualSourceDocument = await this._virtualDatasources.model.getDataSourceByName(dataSource);
-        const model = this._resolver(virtualSource.source).model;
+        // const model = this._resolver(virtualSource.modelIdentifier).model;
 
         const expressionFields: DataSourceField[] = mapDataSourceFields(virtualSource);
         if (this._isGoogleAnalytics(virtualSource.source)) {
@@ -106,7 +87,7 @@ export class DataSourcesService {
         }
 
 
-        const fieldsWithData: string[] = await getFieldsWithData(model, expressionFields, collectionSource);
+        const fieldsWithData: string[] = await getFieldsWithData(virtualSource, expressionFields, collectionSource);
 
         expressionFields.forEach((n: DataSourceField) => {
             n.available = fieldsWithData.indexOf(n.name) !== -1;
