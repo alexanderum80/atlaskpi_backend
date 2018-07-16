@@ -1,24 +1,10 @@
 import { inject, injectable } from 'inversify';
 
-import { Calls } from '../../../domain/app/calls/call.model';
-import { Expenses } from '../../../domain/app/expenses/expense.model';
-import { Sales } from '../../../domain/app/sales/sale.model';
 import { query } from '../../../framework/decorators/query.decorator';
 import { IQuery } from '../../../framework/queries/query';
 import { DataSourcesService } from '../../../services/data-sources.service';
 import { GetKpiCriteriaActivity } from '../activities/get-kpi-criteria.activity';
 import { KPICriteriaResult, KPIFilterCriteria } from '../kpis.types';
-import { Appointments } from './../../../domain/app/appointments/appointment-model';
-import { Inventory } from './../../../domain/app/inventory/inventory.model';
-
-// import * as Promise from 'bluebird';
-export interface IKPIMapper {
- sales: Sales;
- expenses: Expenses;
- inventory: Inventory;
- calls: Calls;
- appointments: Appointments;
-}
 
 
 @injectable()

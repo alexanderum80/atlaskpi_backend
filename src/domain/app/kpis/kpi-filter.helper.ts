@@ -1,39 +1,10 @@
+import { isArray, isDate, isNumber, isObject, isString } from 'lodash';
+
 import { VALUE_SEPARATOR } from '../../../helpers/string.helpers';
-import { CallSchema } from '../calls/call.model';
-import { isArray, isObject, isDate, isNumber, isString } from 'lodash';
-
-import { isArrayObject } from '../../../helpers/express.helpers';
-import { readMongooseSchema } from '../../../helpers/mongodb.helpers';
-import { flatten } from '../../../helpers/object.helpers';
-import { ExpenseSchema } from '../expenses/expense.model';
-import { InventorySchema } from '../inventory/inventory.model';
-import { SaleSchema } from '../sales/sale.model';
-import { GoogleAnalyticsSchema } from './../google-analytics/google-analytics.model';
-import { IKPIFilter, KPITypeEnum, IKPISimpleDefinition } from './kpi';
-import { AppointmentSchema } from '../appointments/appointment-model';
 import { IVirtualSourceDocument } from '../virtual-sources/virtual-source';
-
+import { IKPIFilter, IKPISimpleDefinition, KPITypeEnum } from './kpi';
 
 const deepRenameKeys = require('deep-rename-keys');
-
-
-const Schemas = [
-      SaleSchema,
-      ExpenseSchema,
-      InventorySchema,
-      GoogleAnalyticsSchema,
-      CallSchema,
-      AppointmentSchema
-];
-
-const datasourceSchemaMap = {
-    'sales': SaleSchema,
-    'expenses': ExpenseSchema,
-    'inventory': InventorySchema,
-    'googleanalytics': GoogleAnalyticsSchema,
-    'calls': CallSchema,
-    'appointments': AppointmentSchema
-};
 
 const keyMap = {
     __dollar__: '$',
@@ -106,13 +77,9 @@ export class KPIFilterHelper {
         const virtualSource = virtualSources.find(v => v.name.toLowerCase() === cleanDatasource.toLowerCase());
         let fieldset: any;
 
-        if (virtualSource) {
-            fieldset = {};
-            const map = virtualSource.fieldsMap;
-            Object.keys(virtualSource.fieldsMap).forEach(k => fieldset[map[k].path] = map[k].dataType);
-        } else {
-            fieldset = this._getFieldsetForDatasource(cleanDatasource);
-        }
+        fieldset = {};
+        const map = virtualSource.fieldsMap;
+        Object.keys(virtualSource.fieldsMap).forEach(k => fieldset[map[k].path] = map[k].dataType);
 
         const mongoDbFilterArray = filterArray.map(f => KPIFilterHelper._transform2MongoFilter(f, fieldset));
 
@@ -214,18 +181,6 @@ export class KPIFilterHelper {
         }
 
         return result;
-    }
-
-    private static _getFieldsetForDatasource(datasource: string) {
-        let fieldset = [];
-        let schema = datasourceSchemaMap[datasource];
-        const objectifiedSchema = readMongooseSchema(schema);
-        const flattenedSchema = flatten(objectifiedSchema);
-        Object.keys(flattenedSchema).forEach(k => {
-            fieldset[k] = flattenedSchema[k];
-        });
-
-        return fieldset;
     }
 
     private static _transform2MongoFilter(f: IKPIFilter, fieldSet): any {
