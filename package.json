@@ -78,6 +78,7 @@
         "body-parser": "^1.15.2",
         "casual": "^1.5.8",
         "change-case": "^3.0.1",
+        "connect-timeout": "^1.9.0",
         "cors": "^2.8.1",
         "datejs": "^1.0.0-rc3",
         "debug": "^2.3.3",
