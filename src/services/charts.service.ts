@@ -191,7 +191,6 @@ export class ChartsService {
                     const originalDefinitionSeries = cloneDeep(chart.chartDefinition.series);
 
                     chart.chartDefinition = this._setSeriesVisibility(originalDefinitionSeries, definition);
-                    console.log('TITLEEEE ' + chart.title);
                     chart.chartDefinition = this._addSerieColorToDefinition(originalDefinitionSeries, definition);
                     resolve(chart);
                     return;
