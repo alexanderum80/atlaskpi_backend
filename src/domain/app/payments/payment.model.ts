@@ -1,6 +1,6 @@
 import { inject, injectable } from 'inversify';
 import * as mongoose from 'mongoose';
-
+import * as logger from 'winston';
 import { criteriaPlugin } from '../../../app_modules/shared/criteria.plugin';
 import { getCustomerSchema } from '../../common/customer.schema';
 import { getLocationSchema } from '../../common/location.schema';
@@ -54,6 +54,27 @@ PaymentSchema.index({ 'timestamp': 1, 'paymentType.name': 1 });
 PaymentSchema.index({ 'timestamp': 1, 'paymentMethod.name': 1 });
 
 PaymentSchema.plugin(criteriaPlugin);
+
+PaymentSchema.statics.paymentOldestDate = function(collectionName: string): Promise<Object> {
+    const PaymentModel = (<IPaymentModel>this);
+
+    return new Promise<Object>((resolve, reject) => {
+        PaymentModel.aggregate({ '$match': { 'timestamp': { '$exists': true }}},
+                    { '$sort': { 'timestamp': 1 }},
+                    { '$group': { '_id': null, 'oldestDate': { '$first': '$timestamp' }}})
+            .then(result => {
+                const searchResult = {
+                    name: collectionName,
+                    data: result
+                };
+                resolve(searchResult);
+        })
+        .catch(err => {
+            logger.error('There was an error retrieving payment oldest Date', err);
+            reject(err);
+        });
+    });
+};
 
 @injectable()
 export class Payments extends ModelBase<IPaymentModel> {

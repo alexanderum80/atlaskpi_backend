@@ -36,6 +36,7 @@ import { IChartSerie } from './chart-serie';
 import { ChartType } from './chart-type';
 import { FrequencyHelper } from './frequency-values';
 import {ApplyTopNChart} from './apply-top-n.chart';
+import { camelize } from 'tslint/lib/utils';
 
 export const NULL_CATEGORY_REPLACEMENT = 'Uncategorized*';
 
@@ -1105,6 +1106,7 @@ export class UIChartBase {
                 } else {
                     if (dateRangeId && stack) {
                         comparisonString = PredefinedComparisonDateRanges[dateRangeId][stack];
+                        if (!comparisonString) { comparisonString = stack.substr(0, 1) + ' years ago'; }
                     }
                 }
 

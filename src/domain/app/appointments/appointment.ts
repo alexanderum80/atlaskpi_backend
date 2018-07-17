@@ -1,5 +1,4 @@
 import { ISearchableModel } from '../global-search/global-search';
-import * as Promise from 'bluebird';
 import * as mongoose from 'mongoose';
 
 import { SearchAppointmentCriteriaInput } from './../../../app_modules/appointments/appointments.types';
@@ -90,4 +89,5 @@ export interface IAppointmentModel extends mongoose.Model<IAppointmentDocument>,
 
     search(criteria: SearchAppointmentCriteriaInput): Promise<IAppointment[]>;
     providersList(): Promise<IIdName[]>;
+    appointmentsOldestDate(collectionName: string): Promise<Object>;
 }

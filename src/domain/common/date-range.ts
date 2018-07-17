@@ -607,6 +607,26 @@ export function parseComparisonDateRange(dateRange: IDateRange, comparisonString
         case '3YearsAgo':
             return backInTime(dateRange, 3, 'year');
 
+        case '4YearsAgo':
+            return backInTime(dateRange, 4, 'year');
+
+        case '5YearsAgo':
+            return backInTime(dateRange, 5, 'year');
+
+        case '6YearsAgo':
+            return backInTime(dateRange, 6, 'year');
+
+        case '7YearsAgo':
+            return backInTime(dateRange, 7, 'year');
+        case '8YearsAgo':
+            return backInTime(dateRange, 8, 'year');
+
+        case '9YearsAgo':
+            return backInTime(dateRange, 9, 'year');
+
+        case '10YearsAgo':
+            return backInTime(dateRange, 10, 'year');
+
         case 'lastYear':
             return backInTime(dateRange, 1, 'year');
 

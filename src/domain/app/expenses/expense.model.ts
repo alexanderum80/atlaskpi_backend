@@ -110,6 +110,27 @@ ExpenseSchema.statics.monthsAvgExpense = function(date: string): Promise<Object>
     });
 };
 
+ExpenseSchema.statics.expensesOldestDate = function(collectionName: string): Promise<Object> {
+    const ExpenseModel = (<IExpenseModel>this);
+
+    return new Promise<Object>((resolve, reject) => {
+        ExpenseModel.aggregate({ '$match': { 'timestamp': { '$exists': true }}},
+                    { '$sort': { 'timestamp': 1 }},
+                    { '$group': { '_id': null, 'oldestDate': { '$first': '$timestamp' }}})
+            .then(result => {
+                const searchResult = {
+                    name: collectionName,
+                    data: result
+                };
+                resolve(searchResult);
+        })
+        .catch(err => {
+            logger.error('There was an error retrieving expenses oldest Date', err);
+            reject(err);
+        });
+    });
+};
+
 @injectable()
 export class Expenses extends ModelBase<IExpenseModel> {
     constructor(@inject(AppConnection.name) appConnection: AppConnection) {

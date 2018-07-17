@@ -211,7 +211,7 @@ export class KpiService {
                 : parsePredifinedDate(chartDateRange.predefined);
     }
 
-    private _getKpiSources(kpi: IKPIDocument, kpis: IKPIDocument[], connectors: IConnectorDocument[]): string[] {
+    public _getKpiSources(kpi: IKPIDocument, kpis: IKPIDocument[], connectors: IConnectorDocument[]): string[] {
         if (kpi.baseKpi) {
             // return fields for base kpi Revenue or Expenses
             switch (kpi.baseKpi) {
