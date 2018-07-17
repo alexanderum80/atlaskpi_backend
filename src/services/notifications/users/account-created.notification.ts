@@ -28,7 +28,7 @@ export class AccountCreatedNotification implements IAccountCreatedNotifier {
 
         const dataSource: IAccountCreatedDataSource = user.toObject();
         if (!dataSource.host) {
-            dataSource.host = this._currentAccount.get.database.name;
+            dataSource.host = this._currentAccount.get.subdomain;
         }
         if (!dataSource.subdomain) {
             dataSource.subdomain = this._config.subdomain;
