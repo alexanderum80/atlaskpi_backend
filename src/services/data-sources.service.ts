@@ -34,13 +34,25 @@ export class DataSourcesService {
      * i.e. dataSource = 'established_customers_sales'
      * @param data
      */
-    async getKPIFilterFieldsWithData(dataSource: string, collectionSource: string[], fields: DataSourceField[]): Promise<DataSourceField[]> {
+    async getKPIFilterFieldsWithData(dataSource: string, collectionSource?: string[], fields?: DataSourceField[]): Promise<DataSourceField[]> {
         if (!dataSource) {
             return [];
         }
 
-        const vs = await this._virtualDatasources.model.findOne({ name: { $regex: new RegExp(dataSource, 'i')} });
+        const vs = await this._virtualDatasources.model.findOne({
+            name: { $regex: new RegExp(dataSource, 'i')}
+        });
+
         const fieldsWithData: string[] = await getFieldsWithData(vs, fields, collectionSource);
+
+        if (!fields) {
+            // fields = Object.keys(vs.fieldsMap).map(f => {
+            //     const r = vs.fieldsMap[f];
+            //     (r as any).name = f;
+            //     return r;
+            // });
+            fields = mapDataSourceFields(vs);
+        }
 
         fields.forEach((f: DataSourceField) => {
             f.available = fieldsWithData.indexOf(f.name) !== -1;

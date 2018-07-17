@@ -26,7 +26,7 @@ export interface IFieldsWithDataDatePipeline {
 
 export async function getFieldsWithData(
     vs: IVirtualSourceDocument,
-    fields: (DataSourceField|IValueName)[],
+    fields?: (DataSourceField|IValueName)[],
     collectionSource?: string[],
     aggregate?: any[],
     dateRangePipeline?: IFieldsWithDataDatePipeline,
@@ -34,8 +34,19 @@ export async function getFieldsWithData(
 ): Promise <string[]> {
 
     try {
-        if (!vs || isEmpty(fields)) {
+        if (!vs) {
             return [];
+        }
+
+        if (!fields) {
+            fields = Object.keys(vs.fieldsMap)
+                .map(k => {
+                    const f = vs.fieldsMap[k];
+                    return {
+                        name: k,
+                        value: f.path,
+                    };
+                });
         }
 
         let fieldsWithData: string[] = [];
