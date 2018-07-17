@@ -31,7 +31,7 @@ let _jobs: Queue;
 
 try {
     _jobs = queue.createQueue({
-        prefix: os.hostname, // 'webapp',
+        prefix: os.hostname(), // 'webapp',
         redis: {
             port: config.cache.redisPort, // 6379,
             host: config.cache.redisServer, // 'localhost'

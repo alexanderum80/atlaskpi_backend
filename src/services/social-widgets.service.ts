@@ -27,7 +27,7 @@ export class SocialWidgetsService {
         const that = this;
         return new Promise<ISocialWidget[]>((resolve, reject) => {
             that._connectors.model.find({
-                databaseName: that._currentAccount.get.database.name,
+                databaseName: that._currentAccount.get.subdomain,
                 // this need to be changed... its only for retrieving implemented social networks
                 type: { $in: [ 'twitter', 'linkedin', 'facebook', 'instagram' ] }
             })
