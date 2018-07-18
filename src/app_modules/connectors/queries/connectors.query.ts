@@ -34,7 +34,7 @@ export class ConnectorsQuery implements IQuery<IConnector[]> {
         const that = this;
         return new Promise<IConnector[]>((resolve, reject) => {
             that    ._connectorsService
-                    .findConnectorsByDatabaseName(that._currentAccount.get.subdomain)
+                    .findConnectorsBySubdomain(that._currentAccount.get.subdomain)
                     .then(connectors => {
                         return resolve(connectors);
                     })

@@ -11,6 +11,7 @@ import { runTask } from '../helpers/run-task.helper';
 import { ConnectorTypeEnum, getConnectorTypeId } from '../models/connector-type';
 import { IExecutionFlowResult } from '../models/execution-flow';
 import { TwitterIntegrationController } from './twitter-integration-controller';
+import { CurrentAccount } from '../../../domain/master/current-account';
 
 const genericErrorPage = Handlebars.compile(fs.readFileSync(__dirname + '/../oauth2/templates/generic-integration-error.hbs', 'utf8'));
 const integrationSuccessPage = Handlebars.compile(fs.readFileSync(__dirname + '/../oauth2/templates/integration-success.hbs', 'utf8'));
@@ -35,6 +36,7 @@ export function handleTwitterAccessToken(req: IExtendedRequest, res: Response) {
     const logger = req.logger;
     logger.debug('processing a twitter integration... ');
     const twitterInt = req.Container.instance.get<TwitterIntegrationController>(TwitterIntegrationController.name);
+    const currentAccount = req.Container.instance.get<CurrentAccount>(CurrentAccount.name);
 
     twitterInt.initialize(req.query.company_name).then(() => {
         twitterInt.getAccessToken(req, res).then(tokenResponse => {
@@ -43,7 +45,8 @@ export function handleTwitterAccessToken(req: IExtendedRequest, res: Response) {
                     name: user.name,
                     active: true,
                     config: { token: tokenResponse, userId: user.id },
-                    databaseName: req.query.company_name,
+                    databaseName: currentAccount.get.database.name,
+                    subdomain: req.query.company_name, // company name parameter is the hostname aka subdomain
                     type: getConnectorTypeId(ConnectorTypeEnum.Twitter),
                     createdBy: 'backend',
                     createdOn: new Date(Date.now()),

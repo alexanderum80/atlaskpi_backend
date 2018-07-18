@@ -11,6 +11,7 @@ const Schema = mongoose.Schema;
 const ConnectorSchema = new Schema({
     name: String!,
     databaseName: String!,
+    subdomain: String!,
     type: String!,
     virtualSource: String,
     active: Boolean,
@@ -19,9 +20,9 @@ const ConnectorSchema = new Schema({
     ... userAuditSchema
 });
 
-ConnectorSchema.statics.addConnector = addConnector; 
-ConnectorSchema.statics.updateConnector = updateConnector; 
-ConnectorSchema.statics.removeConnector = removeConnector; 
+ConnectorSchema.statics.addConnector = addConnector;
+ConnectorSchema.statics.updateConnector = updateConnector;
+ConnectorSchema.statics.removeConnector = removeConnector;
 ConnectorSchema.statics.getReportingConnectors = getReportingConnectors;
 
 
@@ -34,7 +35,7 @@ function addConnector(data: IConnector): Promise<IConnectorDocument> {
         const query = {
             'type': data.type,
             [data.uniqueKeyValue.key]: data.uniqueKeyValue.value,
-            databaseName: data.databaseName
+            subdomain: data.subdomain
         };
 
         that.findOne(query).then((connector: IConnectorDocument) => {
@@ -102,9 +103,9 @@ function removeConnector(id: string): Promise<IConnectorDocument> {
     });
 };
 
-function getReportingConnectors(databaseName: string): Promise<IConnectorDocument[]> {
+function getReportingConnectors(subdomain: string): Promise<IConnectorDocument[]> {
     return this.find({
-        databaseName: databaseName,
+        subdomain: subdomain,
         virtualSource: { $ne: null }
     });
 }

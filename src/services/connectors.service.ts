@@ -30,6 +30,19 @@ export class ConnectorsService {
         });
     }
 
+    findConnectorsBySubdomain(subdomain: string): Promise<IConnectorDocument[]> {
+        const that = this;
+        return new Promise<IConnectorDocument[]>((resolve, reject) => {
+            that._connectors.model.find({ subdomain: subdomain })
+            .then(connectors => {
+                return resolve(connectors);
+            })
+            .catch(err => {
+                return reject(err);
+            });
+        });
+    }
+
     removeConnector(id: string): Promise<IConnectorDocument> {
         const that = this;
         return new Promise<IConnectorDocument>((resolve, reject) => {
