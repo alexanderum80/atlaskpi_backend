@@ -59,6 +59,9 @@ export class KpiBase {
 
     constructor(public model: any, public aggregate: AggregateStage[]) {
         // for multimple executeQuery iterations in the same instance we need to preserve the aggregate
+        if (!model) {
+            console.error('no model');
+        }
         this.pristineAggregate = cloneDeep(aggregate);
     }
 

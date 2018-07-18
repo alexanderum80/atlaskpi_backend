@@ -83,7 +83,6 @@ export class ChartsService {
                 throw new Error('missing parameter');
             }
 
-            const virtualSources = await this._virtualSources.model.find({});
             const uiChart = this._chartFactory.getInstance(chart);
             const groupings = this._prepareGroupings(chart, options);
             const kpi = await this._kpiFactory.getInstance(chart.kpis[0]);
@@ -191,7 +190,6 @@ export class ChartsService {
                     const originalDefinitionSeries = cloneDeep(chart.chartDefinition.series);
 
                     chart.chartDefinition = this._setSeriesVisibility(originalDefinitionSeries, definition);
-                    console.log('TITLEEEE ' + chart.title);
                     chart.chartDefinition = this._addSerieColorToDefinition(originalDefinitionSeries, definition);
                     resolve(chart);
                     return;
