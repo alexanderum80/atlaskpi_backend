@@ -10,7 +10,8 @@ import { IConnectorDocument } from './../../../domain/master/connectors/connecto
 export function getGoogleAnalyticsConnectors(
     oAuthConnector: IOAuthConnector,
     integrationConfig: IConnectorDocument,
-    companyName: string
+    databaseName: string,
+    subdomain: string
 ): Promise <any[]> {
 
     if (!oAuthConnector.token()) {
@@ -22,7 +23,7 @@ export function getGoogleAnalyticsConnectors(
 
     const that = this;
     return new Promise < any[] > ((resolve, reject) => {
-        const analytics = _getAnalyticsObject(integrationConfig.config, oAuthConnector.token());
+        const analytics = _getAnalyticsObject(integrationConfig.config, oAuthConnector.token(), subdomain);
         getAnalyticsAccountList(analytics)
         .then(accounts => {
             console.log('found ' + accounts.items.length + ' analytics accounts...');
@@ -36,7 +37,7 @@ export function getGoogleAnalyticsConnectors(
         .then(profiles => {
             console.log(`found : ${profiles.length} profiles...`);
             const newConnectors = getConnectors(profiles, integrationConfig.config, oAuthConnector,
-                                                accountsCollection, webPropertiesCollection, companyName);
+                                                accountsCollection, webPropertiesCollection, databaseName, subdomain);
             resolve(newConnectors);
             return;
         })
@@ -50,7 +51,7 @@ export function getGoogleAnalyticsConnectors(
 
 function getConnectors( profiles: any[], config: any, oAuthConnector: IOAuthConnector,
                         accountsCollection: any[], webPropertiesCollection: any[],
-                        companyName: string): any[] {
+                        databaseName: string, subdomain: string): any[] {
     const connectors = [];
     const connectorConfig = oAuthConnector.getConfiguration();
     const type = getConnectorTypeId(oAuthConnector.getType());
@@ -70,7 +71,8 @@ function getConnectors( profiles: any[], config: any, oAuthConnector: IOAuthConn
             name: `${accountElement.name}(${propElement.name})`,
             active: true,
             config: { ... connectorConfig },
-            databaseName: companyName,
+            databaseName: databaseName,
+            subdomain: subdomain,
             type: type,
             virtualSource: 'google_analytics',
             createdBy: 'backend',
@@ -84,24 +86,26 @@ function getConnectors( profiles: any[], config: any, oAuthConnector: IOAuthConn
 }
 
 function getProfiles(analytics: any, webProperties: any[], webPropertiesCollection: any[]): Promise<any> {
-    const tasks = [];
+    const profileRequests = [];
     webProperties.forEach(prop => {
         prop.items.forEach(item => {
             webPropertiesCollection.push(item);
             console.log('webproperty: ' + item.name);
-            tasks.push((<any>Promise.promisify<any>(analytics.management.profiles.list))({
-                    accountId: item.accountId,
-                    webPropertyId: item.id
-            }));
+            profileRequests.push({ accountId: item.accountId, webPropertyId: item.id});
         });
     });
 
-    return Promise.all(tasks);
+    // concurrency 1 because analytics api only allow 10 req/seg
+    return Promise .map(profileRequests,
+                        p => Promise.delay(100, (<any>Promise.promisify<any>(analytics.management.profiles.list))( p )),
+                        { concurrency: 1 });
 }
 
 function getWebProperties(analytics: any, accounts: any): Promise<any> {
+    // concurrency 1 because analytics api only allow 10 req/seg
     return Promise .map(accounts.items,
-                        a => (<any>Promise.promisify<any>(analytics.management.webproperties.list))({ accountId: (<any>a).id }));
+                        a => Promise.delay(100, (<any>Promise.promisify<any>(analytics.management.webproperties.list))({ accountId: (<any>a).id })),
+                        { concurrency: 1 });
 }
 
 function getAnalyticsAccountList(analytics: any): Promise<any> {
@@ -109,7 +113,7 @@ function getAnalyticsAccountList(analytics: any): Promise<any> {
 }
 
 
-function _getAnalyticsObject(config: any, token: IOAuth2Token): any {
+function _getAnalyticsObject(config: any, token: IOAuth2Token, quotaUser?: string): any {
     if (!config || !token) {
         throw('missing arguments');
     }
@@ -121,7 +125,8 @@ function _getAnalyticsObject(config: any, token: IOAuth2Token): any {
 
     oauth2Client.credentials = token;
     googleapis.options({
-        auth: oauth2Client
+        auth: oauth2Client,
+        quotaUser: quotaUser
     });
 
     return googleapis.analytics('v3');

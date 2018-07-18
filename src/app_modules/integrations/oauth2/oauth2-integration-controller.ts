@@ -1,3 +1,4 @@
+import { CurrentAccount } from './../../../domain/master/current-account';
 import * as Promise from 'bluebird';
 import { inject, injectable } from 'inversify';
 import { isObject } from 'util';
@@ -25,7 +26,7 @@ import { runTask } from '../helpers/run-task.helper';
 export class IntegrationController {
 
     private _connector: IOAuthConnector;
-    private _companyName: string;
+    private _companySubdomain: string;
     private stateTokens: string[];
     private _integrationConfig: IConnectorDocument;
     private _query: any;
@@ -34,6 +35,7 @@ export class IntegrationController {
                 @inject(IntegrationConnectorFactory.name) private _integrationConnectorFactory: IntegrationConnectorFactory,
                 @inject(SocialNetwork.name) private _socialNetworkModel: SocialNetwork,
                 @inject('Request') private req: IExtendedRequest,
+                @inject(CurrentAccount.name) private _currentAccount: CurrentAccount,
                 @inject(Logger.name) private _logger: Logger) {
 
         this._query = req.query;
@@ -60,7 +62,7 @@ export class IntegrationController {
                 }
 
                 that._connector = connector;
-                that._companyName = this.stateTokens[1];
+                that._companySubdomain = this.stateTokens[1];
 
                 resolve();
                 return;
@@ -133,7 +135,8 @@ export class IntegrationController {
                     name: that._connector.getName(),
                     active: true,
                     config: connectorConfig,
-                    databaseName: that._companyName,
+                    databaseName: that._currentAccount.get.database.name,
+                    subdomain: that._companySubdomain,
                     type: getConnectorTypeId(that._connector.getType()),
                     createdBy: 'backend',
                     createdOn: new Date(Date.now()),
@@ -193,7 +196,8 @@ export class IntegrationController {
                 name: c.name,
                 active: true,
                 config: { ... connectorConfig },
-                databaseName: that._companyName,
+                databaseName: that._currentAccount.get.database.name,
+                subdomain: that._companySubdomain,
                 type: type,
                 createdBy: 'backend',
                 createdOn: new Date(Date.now()),
@@ -250,7 +254,8 @@ export class IntegrationController {
                 name: c.name,
                 active: true,
                 config: { ... connectorConfig },
-                databaseName: that._companyName,
+                databaseName: that._currentAccount.get.database.name,
+                subdomain: that._companySubdomain,
                 type: type,
                 createdBy: 'backend',
                 createdOn: new Date(Date.now()),
@@ -327,7 +332,7 @@ export class IntegrationController {
 
         const that = this;
         return new Promise<IExecutionFlowResult>((resolve, reject) => {
-            getGoogleAnalyticsConnectors(that._connector, that._integrationConfig, that._companyName)
+            getGoogleAnalyticsConnectors(that._connector, that._integrationConfig, that._currentAccount.get.database.name, that._companySubdomain)
             .then(connectors => {
                 Promise .map(connectors, c => that._connectorModel.model.addConnector(c))
                         .then(() => {

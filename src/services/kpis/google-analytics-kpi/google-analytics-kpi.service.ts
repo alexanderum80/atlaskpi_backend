@@ -98,7 +98,8 @@ export class GoogleAnalyticsKPIService {
             filters: filters,
             dimensions: constructDimensionsArray(groupings, frequency),
             extraOpts: {
-                'include-empty-rows': false
+                'include-empty-rows': false,
+                'quotaUser': this._connector.subdomain
             }
         })
         .then(rawData => {
