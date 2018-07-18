@@ -1,3 +1,4 @@
+import { GAJobsQueueService } from './../../../services/queues/ga-jobs-queue.service';
 import * as Promise from 'bluebird';
 // import * as googleapis from 'googleapis';
 const googleapis = require('googleapis');
@@ -11,7 +12,8 @@ export function getGoogleAnalyticsConnectors(
     oAuthConnector: IOAuthConnector,
     integrationConfig: IConnectorDocument,
     databaseName: string,
-    subdomain: string
+    subdomain: string,
+    queueService: GAJobsQueueService
 ): Promise <any[]> {
 
     if (!oAuthConnector.token()) {
@@ -23,16 +25,21 @@ export function getGoogleAnalyticsConnectors(
 
     const that = this;
     return new Promise < any[] > ((resolve, reject) => {
-        const analytics = _getAnalyticsObject(integrationConfig.config, oAuthConnector.token(), subdomain);
-        getAnalyticsAccountList(analytics)
+        const analyticsParams =  {
+            analyticsConfig: integrationConfig.config,
+            authToken: oAuthConnector.token(),
+            subdomain: subdomain
+        };
+
+        getAnalyticsAccountList(queueService, analyticsParams)
         .then(accounts => {
             console.log('found ' + accounts.items.length + ' analytics accounts...');
             accountsCollection = accounts.items;
-            return getWebProperties(analytics, accounts);
+            return getWebProperties(queueService, analyticsParams, accounts);
         })
         .then(webProperties => {
             console.log(`found : ${webProperties.length} webproperties...`);
-            return getProfiles(analytics, webProperties, webPropertiesCollection);
+            return getProfiles(queueService, analyticsParams, webProperties, webPropertiesCollection);
         })
         .then(profiles => {
             console.log(`found : ${profiles.length} profiles...`);
@@ -85,7 +92,7 @@ function getConnectors( profiles: any[], config: any, oAuthConnector: IOAuthConn
     return connectors;
 }
 
-function getProfiles(analytics: any, webProperties: any[], webPropertiesCollection: any[]): Promise<any> {
+function getProfiles(queueService: GAJobsQueueService, analyticsParams: any, webProperties: any[], webPropertiesCollection: any[]): Promise<any> {
     const profileRequests = [];
     webProperties.forEach(prop => {
         prop.items.forEach(item => {
@@ -95,27 +102,37 @@ function getProfiles(analytics: any, webProperties: any[], webPropertiesCollecti
         });
     });
 
-    // concurrency 1 because analytics api only allow 10 req/seg
     return Promise .map(profileRequests,
-                        p => Promise.delay(100, (<any>Promise.promisify<any>(analytics.management.profiles.list))( p )),
-                        { concurrency: 1 });
+                        p => queueService.queuedGARequest({
+                                ...analyticsParams,
+                                analyticsFn: 'management.profiles.list',
+                                payload: p
+                            })
+                        );
 }
 
-function getWebProperties(analytics: any, accounts: any): Promise<any> {
-    // concurrency 1 because analytics api only allow 10 req/seg
+function getWebProperties(queueService: GAJobsQueueService, analyticsParams: any, accounts: any): Promise<any> {
     return Promise .map(accounts.items,
-                        a => Promise.delay(100, (<any>Promise.promisify<any>(analytics.management.webproperties.list))({ accountId: (<any>a).id })),
-                        { concurrency: 1 });
+                        i => queueService.queuedGARequest({
+                                ...analyticsParams,
+                                analyticsFn: 'management.webproperties.list',
+                                payload: { accountId: (<any>i).id }
+                            })
+                        );
 }
 
-function getAnalyticsAccountList(analytics: any): Promise<any> {
-    return Promise.promisify<any>(analytics.management.accounts.list)();
+function getAnalyticsAccountList(queueService: GAJobsQueueService, analyticsParams: any): Promise<any> {
+    return <any>queueService.queuedGARequest({
+        ...analyticsParams,
+        analyticsFn: 'management.accounts.list',
+        payload: null
+    });
 }
 
 
 function _getAnalyticsObject(config: any, token: IOAuth2Token, quotaUser?: string): any {
     if (!config || !token) {
-        throw('missing arguments');
+        throw new Error('missing arguments');
     }
     const oauth2Client = new googleapis.auth.OAuth2(
         config.clientId,
