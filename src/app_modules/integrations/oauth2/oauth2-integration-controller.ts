@@ -1,3 +1,4 @@
+import { GAJobsQueueService } from './../../../services/queues/ga-jobs-queue.service';
 import { CurrentAccount } from './../../../domain/master/current-account';
 import * as Promise from 'bluebird';
 import { inject, injectable } from 'inversify';
@@ -13,7 +14,6 @@ import { getGoogleAnalyticsConnectors } from '../google-analytics/google-analyti
 import { IOAuthConnector } from '../models/connector-base';
 import { getConnectorTypeId } from '../models/connector-type';
 import { loadIntegrationConfig } from '../models/load-integration-controller';
-import { IAppConfig } from './../../../configuration/config-models';
 import { SocialNetwork } from './../../../domain/app/social-networks/social-network.model';
 import { Connectors } from './../../../domain/master/connectors/connector.model';
 import { GoogleAnalyticsConnector } from './../google-analytics/google-analytics-connector';
@@ -36,7 +36,8 @@ export class IntegrationController {
                 @inject(SocialNetwork.name) private _socialNetworkModel: SocialNetwork,
                 @inject('Request') private req: IExtendedRequest,
                 @inject(CurrentAccount.name) private _currentAccount: CurrentAccount,
-                @inject(Logger.name) private _logger: Logger) {
+                @inject(Logger.name) private _logger: Logger,
+                @inject(GAJobsQueueService.name) private _queueService: GAJobsQueueService) {
 
         this._query = req.query;
 
@@ -332,7 +333,12 @@ export class IntegrationController {
 
         const that = this;
         return new Promise<IExecutionFlowResult>((resolve, reject) => {
-            getGoogleAnalyticsConnectors(that._connector, that._integrationConfig, that._currentAccount.get.database.name, that._companySubdomain)
+            getGoogleAnalyticsConnectors(
+                that._connector,
+                that._integrationConfig,
+                that._currentAccount.get.database.name,
+                that._companySubdomain,
+                that._queueService)
             .then(connectors => {
                 Promise .map(connectors, c => that._connectorModel.model.addConnector(c))
                         .then(() => {
