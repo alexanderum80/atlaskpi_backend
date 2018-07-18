@@ -288,7 +288,7 @@ export class KpiService {
 
             return commonFields;
         } catch (err) {
-            console.error('error gettin common source paths', err);
+            console.error('error getting common source paths', err);
             return [];
         }
     }

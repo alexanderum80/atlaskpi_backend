@@ -83,7 +83,6 @@ export class ChartsService {
                 throw new Error('missing parameter');
             }
 
-            const virtualSources = await this._virtualSources.model.find({});
             const uiChart = this._chartFactory.getInstance(chart);
             const groupings = this._prepareGroupings(chart, options);
             const kpi = await this._kpiFactory.getInstance(chart.kpis[0]);
