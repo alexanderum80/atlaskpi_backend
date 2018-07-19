@@ -86,7 +86,13 @@ export class KpiService {
                 return kpiSources.indexOf(v.name.toLocaleLowerCase()) !== -1;
             });
 
+            const anyExternalSource = sources.filter(s => s.externalSource).length > 0;
             const groupingInfo: IValueName[] = await this._getCommonSourcePaths(kpiSources, vs);
+
+            if (anyExternalSource) {
+                return groupingInfo;
+            }
+
             const kpiFilterSource: any = KPIFilterHelper.PrepareFilterField(kpi.type, kpi.filter);
             const kpiFilter = this._cleanFilter(kpi.filter || {});
 

@@ -74,7 +74,7 @@ export class KPIFilterHelper {
         if (filterArray.length < 1) { return null; }
 
         const cleanDatasource = datasource.split('$')[0];
-        const virtualSource = virtualSources.find(v => v.name.toLowerCase() === cleanDatasource.toLowerCase());
+        const virtualSource = virtualSources.find(v => v.source.toLowerCase() === cleanDatasource.toLowerCase());
         let fieldset: any;
 
         fieldset = {};

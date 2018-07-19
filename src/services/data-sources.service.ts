@@ -43,16 +43,16 @@ export class DataSourcesService {
             name: { $regex: new RegExp(dataSource, 'i')}
         });
 
-        const fieldsWithData: string[] = await getFieldsWithData(vs, fields, collectionSource);
-
         if (!fields) {
-            // fields = Object.keys(vs.fieldsMap).map(f => {
-            //     const r = vs.fieldsMap[f];
-            //     (r as any).name = f;
-            //     return r;
-            // });
             fields = mapDataSourceFields(vs);
         }
+
+        if (vs.externalSource) {
+            fields.forEach(f => f.available = true);
+            return fields;
+        }
+
+        const fieldsWithData: string[] = await getFieldsWithData(vs, fields, collectionSource);
 
         fields.forEach((f: DataSourceField) => {
             f.available = fieldsWithData.indexOf(f.name) !== -1;
