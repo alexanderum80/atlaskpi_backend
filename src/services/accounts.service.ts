@@ -99,6 +99,7 @@ export class AccountsService {
             const fullName: IFullName = getFullName(input.account.personalInfo.fullname);
             const firstUserInfo = getFirstUserInfo(hash, input.account.personalInfo.email, fullName,  input.account.personalInfo.timezone);
             input.account.database = generateDBObject(that._config.newAccountDbUriFormat, accountDatabaseName, accountDbUser.user, accountDbUser.pwd);
+            input.account.subdomain = input.account.database.name;
             that._accounts.model.create(input.account, (err, newAccount: IAccountDocument) => {
                 if (err) {
                     resolve({
