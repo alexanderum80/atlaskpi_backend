@@ -1,4 +1,3 @@
-import { DataSourceResponse } from './../../../app_modules/data-sources/data-sources.types';
 import * as Bluebird from 'bluebird';
 import { inject, injectable } from 'inversify';
 import { sortBy, isEmpty } from 'lodash';

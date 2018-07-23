@@ -186,36 +186,36 @@ export class KpiService {
                 : parsePredifinedDate(chartDateRange.predefined);
     }
 
-    async getGroupingsWithDataOld(input: KpiGroupingsInput): Promise<IValueName[]> {
-        try {
-            const allKpis: IKPIDocument[] = await this._kpis.model.find({});
-            const cloneKpis: IKPIDocument[] = cloneDeep(allKpis);
-            const kpi: IKPIDocument = cloneKpis.find((k: IKPIDocument) => k.id === input.id);
+    // async getGroupingsWithDataOld(input: KpiGroupingsInput): Promise<IValueName[]> {
+    //     try {
+    //         const allKpis: IKPIDocument[] = await this._kpis.model.find({});
+    //         const cloneKpis: IKPIDocument[] = cloneDeep(allKpis);
+    //         const kpi: IKPIDocument = cloneKpis.find((k: IKPIDocument) => k.id === input.id);
 
-            const connectors: IConnectorDocument[] = await this._connectors.model.find({});
+    //         const connectors: IConnectorDocument[] = await this._connectors.model.find({});
 
-            const vs: IVirtualSourceDocument[] = await this._virtualSources.model.find({});
-            const kpiSources: string[] = this._getKpiSources(kpi, allKpis, connectors);
-            const sources: IVirtualSourceDocument[] = vs.filter((v: IVirtualSourceDocument) => {
-                return kpiSources.indexOf(v.name.toLocaleLowerCase()) !== -1;
-            });
+    //         const vs: IVirtualSourceDocument[] = await this._virtualSources.model.find({});
+    //         const kpiSources: string[] = this._getKpiSources(kpi, allKpis, connectors);
+    //         const sources: IVirtualSourceDocument[] = vs.filter((v: IVirtualSourceDocument) => {
+    //             return kpiSources.indexOf(v.name.toLocaleLowerCase()) !== -1;
+    //         });
 
-            const anyExternalSource = sources.filter(s => s.externalSource).length > 0;
-            const groupingInfo: IValueName[] = await this._getCommonSourcePaths(kpiSources, vs);
+    //         const anyExternalSource = sources.filter(s => s.externalSource).length > 0;
+    //         const groupingInfo: IValueName[] = await this._getCommonSourcePaths(kpiSources, vs);
 
-            if (anyExternalSource) {
-                return groupingInfo;
-            }
+    //         if (anyExternalSource) {
+    //             return groupingInfo;
+    //         }
 
-            const kpiFilterSource: any = KPIFilterHelper.PrepareFilterField(kpi.type, kpi.filter);
-            const kpiFilter = this._cleanFilter(kpi.filter || {});
+    //         const kpiFilterSource: any = KPIFilterHelper.PrepareFilterField(kpi.type, kpi.filter);
+    //         const kpiFilter = this._cleanFilter(kpi.filter || {});
 
-            return await this._groupingsWithData(sources, groupingInfo, input.dateRange, kpiFilterSource, kpiFilter);
-        } catch (err) {
-            console.error('error getting grouping data', err);
-            return [];
-        }
-    }
+    //         return await this._groupingsWithData(sources, groupingInfo, input.dateRange, kpiFilterSource, kpiFilter);
+    //     } catch (err) {
+    //         console.error('error getting grouping data', err);
+    //         return [];
+    //     }
+    // }
 
     private _getKpiSources(kpi: IKPIDocument, kpis: IKPIDocument[], connectors: IConnectorDocument[]): string[] {
         if (kpi.baseKpi) {
