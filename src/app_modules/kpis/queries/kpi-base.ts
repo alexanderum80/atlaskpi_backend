@@ -119,7 +119,7 @@ export class KpiBase {
         let operator: any;
         let operators = [
             '$match', '$project', '$group', '$sort', '$redact', '$limit', '$skip', '$unwind', '$sample',
-            '$geoNear', '$lookup', '$out', '$sortByCount', '$addFields', '$count'];
+            '$geoNear', '$lookup', '$out', '$sortByCount', '$addFields', '$count', '$facet', '$replaceRoot'];
 
         Object.keys(stage).forEach(k => {
             if ((operators.indexOf(k) !== -1)) {
