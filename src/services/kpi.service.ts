@@ -1,6 +1,6 @@
 import * as Bluebird from 'bluebird';
 import { inject, injectable } from 'inversify';
-import { cloneDeep, intersectionBy, isArray, isDate, isEmpty, isObject, isString, pickBy } from 'lodash';
+import { cloneDeep, intersectionBy, isArray, isDate, isEmpty, isObject, isString, pickBy, uniqBy } from 'lodash';
 import * as moment from 'moment';
 import { DocumentQuery } from 'mongoose';
 
@@ -25,6 +25,7 @@ import { IValueName } from '../domain/common/value-name';
 import { IConnectorDocument } from '../domain/master/connectors/connector';
 import { Connectors } from '../domain/master/connectors/connector.model';
 import { IMutationResponse } from '../framework/mutations/mutation-response';
+import { DataSourcesService } from './data-sources.service';
 
 export interface IGroupingsModel {
     sales: ISaleModel;
@@ -45,6 +46,7 @@ export class KpiService {
         @inject(Widgets.name) private _widget: Widgets,
         @inject(VirtualSources.name) private _virtualSources: VirtualSources,
         @inject(Connectors.name) private _connectors: Connectors,
+        @inject(DataSourcesService.name) private _dataSourcesService: DataSourcesService
     ) {}
 
     async getKpis(): Promise<IKPIDocument[]> {
@@ -86,17 +88,17 @@ export class KpiService {
                 return kpiSources.indexOf(v.name.toLocaleLowerCase()) !== -1;
             });
 
-            const anyExternalSource = sources.filter(s => s.externalSource).length > 0;
-            const groupingInfo: IValueName[] = await this._getCommonSourcePaths(kpiSources, vs);
+            // const anyExternalSource = sources.filter(s => s.externalSource).length > 0;
+            // const groupingInfo: IValueName[] = await this._getCommonSourcePaths(kpiSources, vs);
 
-            if (anyExternalSource) {
-                return groupingInfo;
-            }
+            // if (anyExternalSource) {
+            //     return groupingInfo;
+            // }
 
-            const kpiFilterSource: any = KPIFilterHelper.PrepareFilterField(kpi.type, kpi.filter);
+            // const kpiFilterSource: any = KPIFilterHelper.PrepareFilterField(kpi.type, kpi.filter);
             const kpiFilter = this._cleanFilter(kpi.filter || {});
 
-            return await this._fieldsWithData(sources, groupingInfo, input.dateRange, kpiFilterSource, kpiFilter);
+            return await this._groupingsWithData(sources, input.dateRange, kpiFilter);
         } catch (err) {
             console.error('error getting grouping data', err);
             return [];
@@ -182,6 +184,37 @@ export class KpiService {
                     to: moment(chartDateRange.custom.to).endOf('day').toDate()
                 }
                 : parsePredifinedDate(chartDateRange.predefined);
+    }
+
+    async getGroupingsWithDataOld(input: KpiGroupingsInput): Promise<IValueName[]> {
+        try {
+            const allKpis: IKPIDocument[] = await this._kpis.model.find({});
+            const cloneKpis: IKPIDocument[] = cloneDeep(allKpis);
+            const kpi: IKPIDocument = cloneKpis.find((k: IKPIDocument) => k.id === input.id);
+
+            const connectors: IConnectorDocument[] = await this._connectors.model.find({});
+
+            const vs: IVirtualSourceDocument[] = await this._virtualSources.model.find({});
+            const kpiSources: string[] = this._getKpiSources(kpi, allKpis, connectors);
+            const sources: IVirtualSourceDocument[] = vs.filter((v: IVirtualSourceDocument) => {
+                return kpiSources.indexOf(v.name.toLocaleLowerCase()) !== -1;
+            });
+
+            const anyExternalSource = sources.filter(s => s.externalSource).length > 0;
+            const groupingInfo: IValueName[] = await this._getCommonSourcePaths(kpiSources, vs);
+
+            if (anyExternalSource) {
+                return groupingInfo;
+            }
+
+            const kpiFilterSource: any = KPIFilterHelper.PrepareFilterField(kpi.type, kpi.filter);
+            const kpiFilter = this._cleanFilter(kpi.filter || {});
+
+            return await this._groupingsWithData(sources, groupingInfo, input.dateRange, kpiFilterSource, kpiFilter);
+        } catch (err) {
+            console.error('error getting grouping data', err);
+            return [];
+        }
     }
 
     private _getKpiSources(kpi: IKPIDocument, kpis: IKPIDocument[], connectors: IConnectorDocument[]): string[] {
@@ -299,7 +332,7 @@ export class KpiService {
         }
     }
 
-    private async _fieldsWithData(sources: IVirtualSourceDocument[], fields: IValueName[], dateRange: ChartDateRangeInput[], kpiFilterSource?: IKPIFilter[], kpiFilter?: any): Promise<IValueName[]> {
+    private async _fieldsWithDataOld(sources: IVirtualSourceDocument[], fields: IValueName[], dateRange: ChartDateRangeInput[], kpiFilterSource?: IKPIFilter[], kpiFilter?: any): Promise<IValueName[]> {
         try {
             const existingFields: IValueName[][] = await Bluebird.map(sources, async (source: IVirtualSourceDocument) => {
                 if (blackListDataSource.indexOf(source.source) !== -1) {
@@ -358,6 +391,63 @@ export class KpiService {
         } catch (e) {
             throw new Error('error getting fields with data');
         }
+    }
+
+    private async _groupingsWithData(virtualSources: IVirtualSourceDocument[], dateRange: ChartDateRangeInput[],
+                                  kpiFilter?: any): Promise<IValueName[]> {
+        try {
+            const existingGroupings: Array<IValueName[]> =
+                await Bluebird.map(
+                    virtualSources,
+                    async (vs: IVirtualSourceDocument) =>
+                        this._getAvailableGroupingForOptions(
+                            vs, dateRange, kpiFilter
+                        )
+                );
+
+            if (!existingGroupings) {
+                return [];
+            }
+
+            if (existingGroupings.length === 1) {
+                return existingGroupings[0];
+            }
+
+            // let commonFields = [];
+            // existingFields.forEach((f: IValueName[]) => {
+            //     commonFields = intersectionBy(f, f, 'name');
+            // });
+            const uniqList =
+               uniqBy([].concat(...existingGroupings), 'value');
+
+            const commonGroupings = existingGroupings.reduce(
+                (acc, arr) => intersectionBy(acc, arr, 'value'),
+                uniqList
+            );
+
+
+            return commonGroupings;
+        } catch (e) {
+            throw new Error('error getting fields with data');
+        }
+    }
+
+    private async _getAvailableGroupingForOptions(vs: IVirtualSourceDocument, dateRange: ChartDateRangeInput[],
+                                                  filters: any): Promise<IValueName[]> {
+        const dateRangeFilter = this._getDateRangeAsFilter(dateRange);
+
+        const availableFields = await this._dataSourcesService.getAvailableFields(
+            vs,
+            [],
+            { dateRangeFilter, filters }
+        );
+
+        const availableGroupings =
+            availableFields
+                .filter(f => f.available && f.allowGrouping)
+                .map(f => { return { name: f.name, value: f.path}; });
+
+        return availableGroupings;
     }
 
     private _getCollectionSource(kpiFilter: IKPIFilter[]): string [] {
@@ -476,5 +566,11 @@ export class KpiService {
         const regexStrings = ['startWith', 'endWith', 'contains', 'regex'];
 
         return regexStrings.indexOf(operator) !== -1;
+    }
+
+    private _getDateRangeAsFilter(dr: ChartDateRangeInput[]): any {
+        // if it is an array let's get the first element
+        const drFilter = this.getDateRange(dr);
+        return Array.isArray(drFilter) ? drFilter[0] : drFilter;
     }
 }

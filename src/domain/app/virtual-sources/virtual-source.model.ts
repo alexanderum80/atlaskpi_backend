@@ -1,3 +1,4 @@
+import { DataSourceResponse } from './../../../app_modules/data-sources/data-sources.types';
 import * as Bluebird from 'bluebird';
 import { inject, injectable } from 'inversify';
 import { sortBy, isEmpty } from 'lodash';
@@ -8,8 +9,11 @@ import { IObject, ICriteriaAggregate } from '../../../app_modules/shared/criteri
 import { ModelBase } from '../../../type-mongo/model-base';
 import { IValueName } from '../../common/value-name';
 import { AppConnection } from '../app.connection';
-import { IFilterOperator, IVirtualSourceDocument, IVirtualSourceModel } from '../virtual-sources/virtual-source';
+import { IFilterOperator, IVirtualSourceDocument, IVirtualSourceModel, IVirtualSource } from '../virtual-sources/virtual-source';
 import { KPIFilterHelper } from '../kpis/kpi-filter.helper';
+
+const COLLECTION_SOURCE_MAX_LIMIT = 20;
+const COLLECTION_SOURCE_FIELD_NAME = 'source';
 
 const FilterOperator = new mongoose.Schema({
     description: String,
@@ -70,27 +74,50 @@ async function getDataSources(names?: string[]): Promise<DataSourceResponse[]> {
     try {
         const query = names ? { name: { $in: names } } : { };
         const virtualSources = await model.find(query);
-        let dataSources: DataSourceResponse[] = virtualSources.map(ds => {
-            const fields = mapDataSourceFields(ds);
+        // let dataSources: DataSourceResponse[] = virtualSources.map(ds => {
+        //     const fields = mapDataSourceFields(ds);
 
-            return {
-                name: ds.name.toLowerCase(),
-                description: ds.description,
-                dataSource: ds.source,
-                fields: fields,
-                externalSource: ds.externalSource,
-                filterOperators: ds.filterOperators as any
-            };
-        });
+        //     return {
+        //         name: ds.name.toLowerCase(),
+        //         description: ds.description,
+        //         dataSource: ds.source,
+        //         fields: fields,
+        //         externalSource: ds.externalSource,
+        //         filterOperators: ds.filterOperators as any
+        //     };
+        // });
 
-        dataSources = await Bluebird.map(
-            dataSources,
-            async (ds: DataSourceResponse) =>
-                await filterSourceAndFieldsWithData(
-                    ds,
-                    virtualSources.find(vs => vs.name.toLowerCase() === ds.name.toLowerCase())),
+        const dataSources = await Bluebird.map(
+            virtualSources,
+            async(vs) => {
+                const dataSource: any = {
+                    name: vs.name.toLowerCase(),
+                    description: vs.description,
+                    dataSource: vs.source,
+                    fields: mapDataSourceFields(vs),
+                    externalSource: vs.externalSource,
+                    filterOperators: vs.filterOperators as any
+                };
+                dataSource.sources = await getDistinctSourceValues(vs);
+                return dataSource;
+            },
             { concurrency: 10 }
         );
+
+        // (let virtualSource of virtualSources) {
+        //     const dataSource = virtualSource.toObject() as DataSourceResponse;
+        //     dataSource.name = dataSource.name.toLowerCase();
+        //     dataSource.sources = await getDistinctSourceValues(virtualSource);
+        // }
+
+        // dataSources = await Bluebird.map(
+        //     dataSources,
+        //     async (ds: DataSourceResponse) =>
+        //         await filterSourceAndFieldsWithData(
+        //             ds,
+        //             virtualSources.find(vs => vs.name.toLowerCase() === ds.name.toLowerCase())),
+        //     { concurrency: 10 }
+        // );
 
         return sortBy(dataSources, 'name');
     } catch (e) {
@@ -99,8 +126,7 @@ async function getDataSources(names?: string[]): Promise<DataSourceResponse[]> {
     }
 }
 
-const COLLECTION_SOURCE_MAX_LIMIT = 20;
-const COLLECTION_SOURCE_FIELD_NAME = 'source';
+
 
 async function filterSourceAndFieldsWithData(ds: DataSourceResponse, vs: IVirtualSourceDocument): Promise<DataSourceResponse> {
     try {
@@ -300,3 +326,20 @@ async function findByNames(names: string): Promise<IVirtualSourceDocument[]> {
     return this.find({ name: { $in: names } });
 }
 
+
+async function getDistinctSourceValues(vs: IVirtualSourceDocument): Promise<string[]> {
+    try {
+        let model: mongoose.Model<any>;
+
+        model = vs.db.model(
+            vs.modelIdentifier,
+            new mongoose.Schema({}, { strict: false }),
+            vs.source
+        );
+
+        return model.distinct(COLLECTION_SOURCE_FIELD_NAME);
+    } catch (e) {
+        console.error(e);
+        return [];
+    }
+}
