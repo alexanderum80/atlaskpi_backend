@@ -28,7 +28,18 @@ export class DataSourcesService {
         @inject(VirtualSources.name) private _virtualDatasources: VirtualSources) { }
 
     async get(): Promise<DataSourceResponse[]> {
-        return await this._virtualDatasources.model.getDataSources();
+        const dataSources = await this._virtualDatasources.model.getDataSources();
+
+        await Bluebird.map(
+            dataSources,
+            async(ds: DataSourceResponse) => {
+                const vs: IVirtualSourceDocument = await this._virtualDatasources.model.getDataSourceByName(ds.name);
+                ds.fields = await this.getAvailableFields(vs, []);
+            },
+            { concurrency: 10 }
+        );
+
+        return dataSources;
         // virtualDataSources = await Bluebird.map(
         //     virtualDataSources,
         //     async (vs: DataSourceResponse) => await this.getCollectionSource(vs),
@@ -260,6 +271,7 @@ export class DataSourcesService {
 
         // execute the new aggregate
         const aggResult = await getAggregateResult(vs, aggregate) as any[];
+        console.dir(aggResult);
 
         const expresionFields = mapDataSourceFields(vs);
 
