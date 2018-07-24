@@ -1,6 +1,6 @@
 import { camelCase } from 'change-case';
 import { inject, injectable } from 'inversify';
-import {difference, isNumber, isString, pick, PartialDeep, cloneDeep, isEmpty, omit }  from 'lodash';
+import {difference, isNumber, isString, pick, PartialDeep, cloneDeep, isEmpty, isArray, omit }  from 'lodash';
 import * as moment from 'moment';
 
 import { IChartMetadata } from '../app_modules/charts/queries/charts/chart-metadata';
@@ -83,7 +83,6 @@ export class ChartsService {
                 throw new Error('missing parameter');
             }
 
-            const virtualSources = await this._virtualSources.model.find({});
             const uiChart = this._chartFactory.getInstance(chart);
             const groupings = this._prepareGroupings(chart, options);
             const kpi = await this._kpiFactory.getInstance(chart.kpis[0]);
@@ -266,6 +265,7 @@ export class ChartsService {
             // chart.chartDefinition = definition;
             chart.chartDefinition = this._setSeriesVisibility(originalDefinitionSeries, definition);
             chart.chartDefinition = this._addSerieColorToDefinition(originalDefinitionSeries, definition);
+
             return chart;
         } catch (e) {
             this._logger.error('There was an error previewing a chart', e);
@@ -559,33 +559,44 @@ export class ChartsService {
     }
 
     private _setSeriesVisibility(chartSeries, chartData) {
+        if (!chartData || !chartData.chart) {
+            return chartData;
+        }
 
         const chartSeriesExist: boolean = Array.isArray(chartSeries);
         if (!chartData) return chartData;
         if (chartData.chart.type !== 'pie') {
             if (chartSeriesExist) {
                 chartSeries.map(s => {
-                    if (s.visible !== undefined) {
-                        let serieDefinition = chartData.series.find(f => f.name === s.name);
+                    if (s && s.visible !== undefined) {
+                        let serieDefinition = (chartData.series) ? chartData.series.find(f => f.name === s.name) : null;
                         if (serieDefinition) {
-                            // serieDefinition = Object.assign(serieDefinition, { visible: false });
-                            serieDefinition.visible = s.visible;
+                            if (serieDefinition) {
+                                serieDefinition.visible = s.visible;
+                            }
                         }
                     }
                 });
             }
         }
         else {
-            const chartSeriesDataExist: boolean = Array.isArray(chartSeries) &&
+            const chartSeriesDataExist: boolean = isArray(chartSeries) &&
                                          !isEmpty(chartSeries) &&
-                                         Array.isArray(chartSeries[0].data);
+                                         isArray(chartSeries[0].data);
 
             if (chartSeriesDataExist) {
                 chartSeries[0].data.map(s => {
-                    if (s.visible !== undefined) {
-                        let serieDefinition = chartData.series[0].data.find(f => f.name === s.name);
-                        if (serieDefinition) {
-                            serieDefinition.visible = s.visible;
+                    if (s && s.visible !== undefined) {
+                        const isChartDataSeriesDataExist: boolean = !isEmpty(chartData) &&
+                                                isArray(chartData.series) &&
+                                                !isEmpty(chartData.series[0]) &&
+                                                isArray(chartData.series[0].data);
+
+                        if (isChartDataSeriesDataExist) {
+                            const serieDefinition = (chartData.series) ? chartData.series[0].data.find(c => c.name === s.name) : null;
+                            if (serieDefinition) {
+                                serieDefinition.visible = s.visible;
+                            }
                         }
                     }
                 });
@@ -595,7 +606,14 @@ export class ChartsService {
         return chartData;
     }
     private _addSerieColorToDefinition(definitionSeries, chartData) {
+<<<<<<< HEAD
         if (!chartData) { return chartData; }
+=======
+        if (!chartData || !chartData.chart) {
+            return chartData;
+        }
+
+>>>>>>> origin/development
         if (chartData.chart.type === 'pie') {
             // check if data exist in definitionSeries[0]
             const definitionSeriesDataExist: boolean = Array.isArray(definitionSeries) &&
@@ -605,7 +623,7 @@ export class ChartsService {
             if (definitionSeriesDataExist) {
                 definitionSeries[0].data.map(d => {
                     if (!isEmpty(d) && !isEmpty(d.color)) {
-                        const serieData = chartData.series[0].data.find(c => c.name === d.name);
+                        const serieData = (chartData.series) ? chartData.series[0].data.find(c => c.name === d.name) : null;
                         // update the color on the new chart only
                         if (serieData) {
                             serieData.color = d.color;
@@ -619,7 +637,7 @@ export class ChartsService {
             if (canMapDefinitionSeries) {
                 definitionSeries.map(d => {
                     if (!isEmpty(d) && !isEmpty(d.color)) {
-                        const serieData = chartData.series.find(c => c.name === d.name);
+                        const serieData = chartData.series ? chartData.series.find(c => c.name === d.name) : null;
                         // update the color on new chart only
                         if (serieData) {
                             serieData.color = d.color;

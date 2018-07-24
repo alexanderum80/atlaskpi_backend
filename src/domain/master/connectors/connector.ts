@@ -30,6 +30,7 @@ export interface IConnectorTaskDefinition {
 export interface IConnector extends IUserAudit {
     name: string;
     databaseName: string;
+    subdomain: string;
     type: string;
     virtualSource?: string;
     active: boolean;

@@ -1,19 +1,15 @@
+import * as Bluebird from 'bluebird';
 import { inject, injectable } from 'inversify';
+import { sortBy, isEmpty } from 'lodash';
 import * as mongoose from 'mongoose';
-import * as logger from 'winston';
-import { isObject, isEmpty } from 'lodash';
 
-import { input } from '../../../framework/decorators/input.decorator';
+import { DataSourceField, DataSourceResponse } from '../../../app_modules/data-sources/data-sources.types';
+import { IObject, ICriteriaAggregate } from '../../../app_modules/shared/criteria.plugin';
 import { ModelBase } from '../../../type-mongo/model-base';
-import { AppConnection } from '../app.connection';
-import { tagsPlugin } from '../tags/tag.plugin';
-import { IVirtualSourceModel, IVirtualSourceDocument, IFilterOperator } from '../virtual-sources/virtual-source';
-import {DataSourceResponse, DataSourceField} from '../../../app_modules/data-sources/data-sources.types';
-import {IIdName} from '../../common/id-name';
 import { IValueName } from '../../common/value-name';
-import {IObject} from '../../../app_modules/shared/criteria.plugin';
-
-const Schema = mongoose.Schema;
+import { AppConnection } from '../app.connection';
+import { IFilterOperator, IVirtualSourceDocument, IVirtualSourceModel } from '../virtual-sources/virtual-source';
+import { KPIFilterHelper } from '../kpis/kpi-filter.helper';
 
 const FilterOperator = new mongoose.Schema({
     description: String,
@@ -57,6 +53,7 @@ VirtualSourceSchema.methods.getGroupingFieldPaths = getGroupingFieldPaths;
 VirtualSourceSchema.methods.findByNames = findByNames;
 VirtualSourceSchema.methods.getFieldDefinition = getFieldDefinition;
 VirtualSourceSchema.methods.getDataTypeOperator = getDataTypeOperator;
+VirtualSourceSchema.methods.getDistinctValues = getDistinctValues;
 // VirtualSourceSchema.methods.containsPath = containsPath;
 
 @injectable()
@@ -73,11 +70,11 @@ async function getDataSources(names?: string[]): Promise<DataSourceResponse[]> {
     try {
         const query = names ? { name: { $in: names } } : { };
         const virtualSources = await model.find(query);
-        const dataSources: DataSourceResponse[] = virtualSources.map(ds => {
-        const fields = mapDataSourceFields(ds);
+        let dataSources: DataSourceResponse[] = virtualSources.map(ds => {
+            const fields = mapDataSourceFields(ds);
 
             return {
-                name: ds.name.toLocaleLowerCase(),
+                name: ds.name.toLowerCase(),
                 description: ds.description,
                 dataSource: ds.source,
                 fields: fields,
@@ -86,9 +83,71 @@ async function getDataSources(names?: string[]): Promise<DataSourceResponse[]> {
             };
         });
 
-        return dataSources;
+        dataSources = await Bluebird.map(
+            dataSources,
+            async (ds: DataSourceResponse) =>
+                await filterSourceAndFieldsWithData(
+                    ds,
+                    virtualSources.find(vs => vs.name.toLowerCase() === ds.name.toLowerCase())),
+            { concurrency: 10 }
+        );
+
+        return sortBy(dataSources, 'name');
     } catch (e) {
         console.error('Error getting virtual sources');
+        return [];
+    }
+}
+
+const COLLECTION_SOURCE_MAX_LIMIT = 20;
+const COLLECTION_SOURCE_FIELD_NAME = 'source';
+
+async function filterSourceAndFieldsWithData(ds: DataSourceResponse, vs: IVirtualSourceDocument): Promise<DataSourceResponse> {
+    try {
+        const filter = '';
+        const distinctValues: string[] = await getDistinctValues(
+            vs,
+            COLLECTION_SOURCE_FIELD_NAME,
+            COLLECTION_SOURCE_MAX_LIMIT,
+            filter
+        );
+
+        ds.sources = distinctValues;
+        // ds.fields = await this.filterFieldsWithoutData(ds);
+        return ds;
+    } catch (e) {
+        console.error(e);
+    }
+}
+
+async function getDistinctValues(
+    vs: IVirtualSourceDocument,
+    fieldName: string,
+    limit: number,
+    filter: string,
+    collectionSource?: string[]): Promise<string[]> {
+    try {
+        let model: mongoose.Model<any>;
+
+        model = vs.db.model(
+            vs.modelIdentifier,
+            new mongoose.Schema({}, { strict: false }),
+            vs.source
+        );
+
+        (model as any).findCriteria = findCriteria;
+
+        let aggregate = [];
+
+        if (vs.aggregate) {
+            aggregate = vs.aggregate.map(a => {
+                return KPIFilterHelper.CleanObjectKeys(a);
+            });
+        }
+
+        return await (model as any).findCriteria(fieldName, aggregate, limit, filter, collectionSource);
+    } catch (e) {
+        console.error(e);
         return [];
     }
 }
@@ -158,6 +217,83 @@ function getDataTypeOperator(dataType: string, filterName: string): IFilterOpera
     const typeOperators = doc.filterOperators[dataType];
 
     return typeOperators.find(o => o.name === filterName);
+}
+
+function findCriteria(field: string, aggregate: any[], limit?: number, filter?: string, collectionSource?: string[]): Promise<string[]> {
+    const that = this;
+    let aggregateOptions = aggregate.concat(criteriaAggregation({ field, limit, filter, collectionSource }));
+
+    return new Promise<string[]>((resolve, reject) => {
+        const agg = that.aggregate(aggregateOptions);
+        agg.options = { allowDiskUse: true };
+
+        agg.then(res => {
+            const results = mapResults(res);
+
+            resolve(results);
+            return;
+        }).catch(err => {
+            reject(err);
+            return;
+        });
+    });
+}
+
+function criteriaAggregation(input: { field: string, limit?: number, filter?: string, collectionSource?: string[] }): ICriteriaAggregate[] {
+    const unwindField = input.field.split('.')[0];
+
+    let aggregate: ICriteriaAggregate[] = [{
+        '$unwind': `$${unwindField}`
+    }, {
+        '$match': { [input.field]: { '$nin': ['', null, 'null', 'undefined'] } }
+    }, {
+        '$group': {
+            _id: {
+                'field': `$${input.field}`
+            }
+        }
+    }];
+
+    aggregate = aggregate.concat({
+        $limit: input.limit
+    });
+
+    // get the $match object
+    let matchStage: ICriteriaAggregate = findStage(aggregate, '$match');
+
+    if (!matchStage.$match) {
+        matchStage.$match = {};
+    }
+
+    if (!isEmpty(input.filter)) {
+        // contain regular expression that is case insensitive
+        const reg: RegExp = new RegExp(input.filter, 'i');
+        // i.e. match: { [field]: { $regex: reg } }
+        Object.assign(matchStage.$match[input.field], {
+            $regex: reg
+        });
+    }
+
+    const collectionSource = input.collectionSource;
+    if (Array.isArray(collectionSource) && collectionSource.length) {
+        Object.assign(matchStage.$match, {
+            source: {
+                '$in': collectionSource
+            }
+        });
+    }
+
+    return aggregate;
+}
+
+function findStage(aggregate: ICriteriaAggregate[], field: string): ICriteriaAggregate {
+    // i.e. return value => undefined, or { [key]: value }
+    return aggregate.find(a => a[field] !== undefined);
+}
+
+function mapResults(res: any[]): string[] {
+    if (!res || !res.length) { return []; }
+    return res.map(r => r._id.field);
 }
 
 async function findByNames(names: string): Promise<IVirtualSourceDocument[]> {

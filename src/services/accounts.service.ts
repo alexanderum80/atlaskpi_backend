@@ -97,8 +97,9 @@ export class AccountsService {
             const hash = generateUniqueHash();
             const accountDbUser: IClusterUser = getClusterDbUser(hash, accountDatabaseName);
             const fullName: IFullName = getFullName(input.account.personalInfo.fullname);
-            const firstUserInfo = getFirstUserInfo(hash, input.account.personalInfo.email, fullName);
+            const firstUserInfo = getFirstUserInfo(hash, input.account.personalInfo.email, fullName,  input.account.personalInfo.timezone);
             input.account.database = generateDBObject(that._config.newAccountDbUriFormat, accountDatabaseName, accountDbUser.user, accountDbUser.pwd);
+            input.account.subdomain = input.account.database.name;
             that._accounts.model.create(input.account, (err, newAccount: IAccountDocument) => {
                 if (err) {
                     resolve({
@@ -174,8 +175,9 @@ export class AccountsService {
                     const hash = generateUniqueHash();
                     const accountDbUser: IClusterUser = getClusterDbUser(hash, accountDatabaseName);
                     const fullName: IFullName = getFullName(input.account.personalInfo.fullname);
-                    const firstUserInfo = getFirstUserInfo(hash, input.account.personalInfo.email, fullName);
+                    const firstUserInfo = getFirstUserInfo(hash, input.account.personalInfo.email, fullName, input.account.personalInfo.timezone);
                     input.account.database = generateDBObject(that._config.newAccountDbUriFormat, accountDatabaseName, accountDbUser.user, accountDbUser.pwd);
+                    input.account.subdomain = input.account.database.name;
 
                     that._accounts.model.create(input.account, (err, newAccount: IAccountDocument) => {
                         if (err) {
@@ -246,10 +248,11 @@ function getFullName(rawFullName: string): IFullName {
     return null;
 }
 
-function getFirstUserInfo(hash: string, email: string, fullName: IFullName): ICreateUserDetails {
+function getFirstUserInfo(hash: string, email: string, fullName: IFullName, timezone: string): ICreateUserDetails {
     let firstUser: ICreateUserDetails = {
         email: email,
-        password: hash.substr(hash.length - 10, hash.length)
+        password: hash.substr(hash.length - 10, hash.length),
+        timezone: timezone
     };
 
     if (fullName) {

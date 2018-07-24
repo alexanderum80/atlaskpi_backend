@@ -314,18 +314,20 @@ export const GoogleAnalyticsSchema = new mongoose.Schema({
     _batchTimestamp: Date
 });
 
-GoogleAnalyticsSchema.statics.batchUpsert = async function(data: IGoogleAnalytics[], startDate: string, batchProps: IBatchProperties): Promise<IBatchProperties> {
+GoogleAnalyticsSchema.statics.batchUpsert = async function(data: IGoogleAnalytics[],
+                                                        //    startDate: string,
+                                                           batchProps: IBatchProperties): Promise<IBatchProperties> {
     if (!data || !data.length) {
         return Promise.resolve(batchProps);
     }
 
     const model = this as IGoogleAnalyticsModel;
-    const hasDate = data[0] && data[0].date;
+    // const hasDate = data[0] && data[0].date;
 
-    // if no date was requested to analytics lest use the start date
-    if (!hasDate) {
-        data.forEach(d => d.date = moment(startDate).toDate());
-    }
+    // // if no date was requested to analytics lest use the start date
+    // if (!hasDate) {
+    //     data.forEach(d => d.date = moment(startDate).toDate());
+    // }
 
     // TODO: I may need to come back to something like this
     this.remove({ _batchTimestamp: { $lt: moment().subtract(1, 'day') }}, (err) => {

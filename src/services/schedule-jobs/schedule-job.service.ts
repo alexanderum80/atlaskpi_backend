@@ -1,21 +1,19 @@
 import { inject, injectable } from 'inversify';
 
-import { ScheduleJobs } from '../../domain/app/schedule-job/schedule-job.model';
-import { IAlertInfo, IAlertDocument } from '../../domain/app/alerts/alert';
-import { IMutationResponse } from '../../framework/mutations/mutation-response';
-import { IScheduleJob } from '../../domain/app/schedule-job/schedule-job';
+import { IAlertDocument, IAlertInfo } from '../../domain/app/alerts/alert';
 import { CurrentUser } from '../../domain/app/current-user';
-import { NotificationTypeEnum, NotificationSourceEnum } from '../../domain/master/notification/notification';
+import { IScheduleJob } from '../../domain/app/schedule-job/schedule-job';
+import { ScheduleJobs } from '../../domain/app/schedule-job/schedule-job.model';
+import { NotificationSourceEnum } from '../../domain/master/notification/notification';
 import { Templates } from '../../domain/master/template/template.model';
+import { IMutationResponse } from '../../framework/mutations/mutation-response';
 
 const frequencyAlertItems: { name: string, cron: string }[] = [
-    { name: 'every day', cron: '0 19 * * * *' },
-    { name: 'every business day', cron: '0 19 * * 1,2,3,4,5 *' },
-    { name: 'every end of week', cron: '0 19 * * 5 *' },
-    { name: 'monthly on this day', cron: '0 19 {day} * * *' },
-    { name: 'yearly, on this date', cron: '0 19 {day} {month} * *' }
-    // { name: `weekly on ${this.dayInString}`, cron: `Weekly on ${this.dayInString}` },
-    // { name: 'every end of month', cron: 'Every end of month' },
+    { name: 'every day', cron: '0 0 19 * * *' },
+    { name: 'every business day', cron: '0 0 19 * * 1,2,3,4,5' },
+    { name: 'every end of week', cron: '0 0 19 * * 5' },
+    { name: 'monthly on the 1st', cron: '0 0 8 1 1,2,3,4,5,6,7,8,9,10,11,12 *' },
+    { name: 'yearly on Jan 1st', cron: '0 0 8 1 1 *' }
 ];
 
 function getCron(frequency: string) {
@@ -52,6 +50,7 @@ export class ScheduleJobService {
 
         const docs = jobs.map(j => {
             return {
+                _id: j.id!.toString(),
                 active: j.active,
                 pushNotification: j.data.template.push !== null,
                 emailNotified: j.data.template.email !== null,
@@ -82,12 +81,18 @@ export class ScheduleJobService {
     }
 
     async update(id: string, info: IAlertInfo): Promise<IMutationResponse> {
-        const job = await this.scheduleJobs.model.findById(id).exec();
+        try {
+            const job = await this.scheduleJobs.model.findById(id).exec();
 
-        if (!job) return { success: false };
+            if (!job) return { success: false };
 
-        const scheduleJob = await this.buildScheduleJob(info);
-        await this.scheduleJobs.model.update({ _id: id }, scheduleJob).exec();
+            const scheduleJob = await this.buildScheduleJob(info);
+            await this.scheduleJobs.model.update({ _id: id }, scheduleJob).exec();
+
+            return { success: true };
+        } catch (e) {
+            return { success: false };
+        }
     }
 
     async removeJob(id: string): Promise<IMutationResponse> {

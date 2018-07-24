@@ -15,7 +15,7 @@ export class ExternalDataSourcesService {
     ) { }
 
     async get(): Promise<ExternalDataSourceResponse[]> {
-        const reportingConnectors =  await this._connectors.model.getReportingConnectors(this._currentAccount.get.database.name);
+        const reportingConnectors =  await this._connectors.model.getReportingConnectors(this._currentAccount.get.subdomain);
 
         if (!reportingConnectors) {
             return [];

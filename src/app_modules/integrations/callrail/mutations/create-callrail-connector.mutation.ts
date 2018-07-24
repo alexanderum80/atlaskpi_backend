@@ -59,6 +59,7 @@ export class CreateCallRailConnectorMutation extends MutationBase<IMutationRespo
                                     }
                                 },
                                 databaseName: that._currentAccount.get.database.name, // local database name
+                                subdomain: that._currentAccount.get.subdomain, // subdomain
                                 type: getConnectorTypeId(ConnectorTypeEnum.CallRail),
                                 createdBy: 'backend',
                                 createdOn: new Date(Date.now()),

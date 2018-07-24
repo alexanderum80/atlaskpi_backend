@@ -72,15 +72,16 @@ export interface IGetAnalyticsOptions {
 export interface IBatchProperties {
     _batchId: string;
     _batchTimestamp: Date;
+    viewTimezone: string;
 }
 
-export function generateBatchProperties(connectorId: string, viewId: string): IBatchProperties {
-    const timestamp = moment();
-    return {
-        _batchId: `${timestamp.unix()}.${connectorId}.${viewId}.${randomInteger(10)}`,
-        _batchTimestamp: timestamp.toDate()
-    };
-}
+// export function generateBatchProperties(connectorId: string, viewId: string): IBatchProperties {
+//     const timestamp = moment();
+//     return {
+//         _batchId: `${timestamp.unix()}.${connectorId}.${viewId}.${randomInteger(10)}`,
+//         _batchTimestamp: timestamp.toDate()
+//     };
+// }
 
 /**
  * All google analytics query should go thru this function

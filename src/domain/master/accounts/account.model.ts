@@ -17,9 +17,11 @@ import { IAccountDBUser, IAccountDocument, IAccountModel } from './Account';
 // define mongo schema
 let accountSchema = new mongoose.Schema({
     name: { type: String, index: true, required: true },
+    subdomain: { type: String, required: true },
     personalInfo: {
         fullname: String,
         email: { type: String, index: true, required: true },
+        timezone: String,
     },
     businessInfo: {
         numberOfLocations: Number,
@@ -66,7 +68,7 @@ accountSchema.statics.findAccountByHostname = function(hostname: string): Promis
             name = <any>hostname;
         }
 
-        that.findOne({ 'database.name': name }, (err, account) => {
+        that.findOne({ 'subdomain': name }, (err, account) => {
             if (err) {
                 reject(err);
                 return;
