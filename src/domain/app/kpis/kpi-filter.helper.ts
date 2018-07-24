@@ -70,11 +70,11 @@ export class KPIFilterHelper {
         return KPIFilterHelper._deserializedAggregate(filter, 'deserialize');
     }
 
-    private static _composeSimpleFilter(virtualSources: IVirtualSourceDocument[], datasource: string, filterArray: IKPIFilter[]): string {
+    private static _composeSimpleFilter(virtualSources: IVirtualSourceDocument[], vsName: string, filterArray: IKPIFilter[]): string {
         if (filterArray.length < 1) { return null; }
 
-        const cleanDatasource = datasource.split('$')[0];
-        const virtualSource = virtualSources.find(v => v.source.toLowerCase() === cleanDatasource.toLowerCase());
+        const cleanVsName = vsName.split('$')[0];
+        const virtualSource = virtualSources.find(v => v.name.toLowerCase() === cleanVsName.toLowerCase());
         let fieldset: any;
 
         fieldset = {};

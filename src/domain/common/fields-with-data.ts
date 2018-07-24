@@ -168,7 +168,7 @@ async function getData(
     return await getAggregateResult(vs, modelAggregate);
 }
 
-async function getAggregateResult(vs: IVirtualSourceDocument, aggObject: IObject[]): Promise<any> {
+export async function getAggregateResult(vs: IVirtualSourceDocument, aggObject: IObject[]): Promise<any> {
     try {
         const model = getGenericModel(vs.db, vs.modelIdentifier, vs.source);
 

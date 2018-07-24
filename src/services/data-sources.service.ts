@@ -1,4 +1,5 @@
-import { IVirtualSourceDocument } from '../domain/app/virtual-sources/virtual-source';
+import { IDateRange } from './../domain/common/date-range';
+import { IVirtualSourceDocument, IVirtualSource } from '../domain/app/virtual-sources/virtual-source';
 import { DataSourceField, DataSourceResponse } from '../app_modules/data-sources/data-sources.types';
 import { injectable, inject, Container } from 'inversify';
 import {VirtualSources, mapDataSourceFields} from '../domain/app/virtual-sources/virtual-source.model';
@@ -8,10 +9,15 @@ import { KPIFilterHelper } from '../domain/app/kpis/kpi-filter.helper';
 import * as Bluebird from 'bluebird';
 import { isObject, isEmpty } from 'lodash';
 import {KPIExpressionFieldInput} from '../app_modules/kpis/kpis.types';
-import {getFieldsWithData, getGenericModel} from '../domain/common/fields-with-data';
+import {getFieldsWithData, getGenericModel, getAggregateResult} from '../domain/common/fields-with-data';
 import { ICriteriaSearchable } from '../app_modules/shared/criteria.plugin';
 
 const GOOGLE_ANALYTICS = 'GoogleAnalytics';
+
+export interface IFieldAvailabilityOptions {
+    dateRangeFilter?: { $gte: Date, $lt: Date };
+    filters?: any;
+}
 
 @injectable()
 export class DataSourcesService {
@@ -23,6 +29,18 @@ export class DataSourcesService {
 
     async get(): Promise<DataSourceResponse[]> {
         return await this._virtualDatasources.model.getDataSources();
+        // const dataSources = await this._virtualDatasources.model.getDataSources();
+
+        // await Bluebird.map(
+        //     dataSources,
+        //     async(ds: DataSourceResponse) => {
+        //         const vs: IVirtualSourceDocument = await this._virtualDatasources.model.getDataSourceByName(ds.name);
+        //         ds.fields = await this.getAvailableFields(vs, []);
+        //     },
+        //     { concurrency: 10 }
+        // );
+
+        // return dataSources;
         // virtualDataSources = await Bluebird.map(
         //     virtualDataSources,
         //     async (vs: DataSourceResponse) => await this.getCollectionSource(vs),
@@ -34,7 +52,7 @@ export class DataSourcesService {
      * i.e. dataSource = 'established_customers_sales'
      * @param data
      */
-    async getKPIFilterFieldsWithData(dataSource: string, collectionSource?: string[], fields?: DataSourceField[]): Promise<DataSourceField[]> {
+    async getKPIFilterFieldsWithDataOld(dataSource: string, collectionSource?: string[], fields?: DataSourceField[]): Promise<DataSourceField[]> {
         if (!dataSource) {
             return [];
         }
@@ -72,6 +90,22 @@ export class DataSourcesService {
     }
 
     async getExpressionFieldsWithData(input: KPIExpressionFieldInput): Promise<DataSourceField[]> {
+        const dataSource: string = input.dataSource;
+        const virtualSource: IVirtualSourceDocument = await this._virtualDatasources.model.getDataSourceByName(dataSource);
+
+        let expressionFields: DataSourceField[];
+
+        if (virtualSource.externalSource) {
+            expressionFields = mapDataSourceFields(virtualSource);
+            expressionFields.forEach(f => f.available = true);
+        } else {
+            expressionFields = await this.getAvailableFields(virtualSource, input.collectionSource);
+        }
+
+        return expressionFields;
+    }
+
+    async getExpressionFieldsWithDataOld(input: KPIExpressionFieldInput): Promise<DataSourceField[]> {
         // i.e. 'nextech'
         const collectionSource: string[] = input.collectionSource;
         // i.e. 'established_customer'
@@ -80,10 +114,10 @@ export class DataSourcesService {
         // const model = this._resolver(virtualSource.modelIdentifier).model;
 
         const expressionFields: DataSourceField[] = mapDataSourceFields(virtualSource);
+
         if (this._isGoogleAnalytics(virtualSource.source)) {
             return this._getGoogleAnalyticsFields(expressionFields);
         }
-
 
         const fieldsWithData: string[] = await getFieldsWithData(virtualSource, expressionFields, collectionSource);
 
@@ -158,6 +192,120 @@ export class DataSourcesService {
     private _getGoogleAnalyticsFields(fields: DataSourceField[]): DataSourceField[] {
         fields.forEach(f => {
             f.available = true;
+        });
+
+        return fields;
+    }
+
+    /**
+    // To get the availability of the fields we are going to use the following mehthod/aggegation stage
+    // to count the number of records with value in each field
+    //
+    //
+    // Stage:
+    // { $group: {
+    //     "_id" : null,
+    //     "customer": { $sum: {$cond: [{$gte: ['$customer', null]}, 1, 0] } },
+    //     "field_no_value": { $sum: {$cond: [{$gte: ['$field_no_value', null]}, 1, 0] } },
+    //    }
+    // }
+    //
+    // Output:
+    // {
+    //     "_id" : null,
+    //     "customer" : 544.0,
+    //     "field_no_value" : 0.0
+    // }
+    */
+    async getAvailableFields(vs: IVirtualSourceDocument, sourceFieldCriterias: string[],
+                                      options: IFieldAvailabilityOptions = {}): Promise<DataSourceField[]> {
+        if (!vs) return [];
+
+        const { dateRangeFilter, filters } = options;
+
+        const aggregate = [];
+
+        const fields =
+            Object.keys(vs.fieldsMap)
+                  .map(k => { return { name: k, value: vs.fieldsMap[k].path }; });
+
+        // construct match stage
+        if (sourceFieldCriterias && sourceFieldCriterias.length) {
+            const match = { $match : { source: { $in: sourceFieldCriterias } } };
+            aggregate.push(match);
+        }
+
+        // original aggregate
+        if (vs.aggregate) {
+            const originalAgg =
+                (vs.toObject() as IVirtualSource)
+                    .aggregate
+                    .map(stage => KPIFilterHelper.CleanObjectKeys(stage));
+            aggregate.push(...originalAgg);
+        }
+
+        // after original aggregate stage
+        const afterMatch = { $match: { } };
+
+        // if daterange add it to a match stage after the original aggregate
+        // this could be optimiezed to detect if the daterange field goes before of after the original aggregate
+        if (dateRangeFilter && dateRangeFilter) {
+            afterMatch.$match[vs.dateField] = dateRangeFilter;
+        }
+
+        // if daterange add it to a match stage after the original aggregate
+        if (filters) {
+            afterMatch.$match =  Object.assign(afterMatch.$match, filters);
+        }
+
+        // add the stage to the pipeline
+        if (filters || dateRangeFilter) {
+            aggregate.push(afterMatch);
+        }
+
+        // construct the stage for getting value-existance of the fields
+        const existanceStage = { $group: { '_id' : null } };
+        fields.forEach(f =>
+            existanceStage.$group[f.name] = { $sum: {$cond: [{$gte: [`$${f.value}`, null]}, 1, 0] } }
+        );
+        aggregate.push(existanceStage);
+
+        // execute the new aggregate
+        const aggResult = await getAggregateResult(vs, aggregate) as any[];
+        // console.dir(aggResult);
+
+        const expresionFields = mapDataSourceFields(vs);
+
+        // set availablee fields with value gt 0
+        expresionFields.forEach(f => {
+            f.available  = (aggResult[0] || {})[f.name] > 0 ? true : false;
+        });
+
+        return expresionFields;
+    }
+
+    async getKPIFilterFieldsWithData(dataSource: string, collectionSource?: string[], fields?: DataSourceField[]): Promise<DataSourceField[]> {
+        if (!dataSource) {
+            return [];
+        }
+
+        const vs = await this._virtualDatasources.model.findOne({
+            name: { $regex: new RegExp(dataSource, 'i')}
+        });
+
+        if (!fields) {
+            fields = mapDataSourceFields(vs);
+        }
+
+        if (vs.externalSource) {
+            fields.forEach(f => f.available = true);
+            return fields;
+        }
+
+        const fieldsWithData: string[] = await getFieldsWithData(vs, fields, collectionSource);
+
+        fields.forEach((f: DataSourceField) => {
+            f.available = fieldsWithData.indexOf(f.name) !== -1;
         });
 
         return fields;
