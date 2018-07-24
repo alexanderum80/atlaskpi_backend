@@ -541,6 +541,7 @@ export class ChartsService {
     }
 
     private _canAddTarget(dateRange: IChartDateRange[]): boolean {
+        if(!dateRange) { return false; }
         const findDateRange: IChartDateRange = dateRange.find((d: any) => d.predefined);
         if (!findDateRange) {
             return true;
@@ -558,8 +559,9 @@ export class ChartsService {
     }
 
     private _setSeriesVisibility(chartSeries, chartData) {
-        const chartSeriesExist: boolean = Array.isArray(chartSeries);
 
+        const chartSeriesExist: boolean = Array.isArray(chartSeries);
+        if (!chartData) return chartData;
         if (chartData.chart.type !== 'pie') {
             if (chartSeriesExist) {
                 chartSeries.map(s => {
@@ -592,12 +594,8 @@ export class ChartsService {
 
         return chartData;
     }
-
-
-
-
-
     private _addSerieColorToDefinition(definitionSeries, chartData) {
+        if (!chartData) { return chartData; }
         if (chartData.chart.type === 'pie') {
             // check if data exist in definitionSeries[0]
             const definitionSeriesDataExist: boolean = Array.isArray(definitionSeries) &&

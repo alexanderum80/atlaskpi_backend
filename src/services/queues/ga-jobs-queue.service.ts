@@ -25,18 +25,18 @@ export interface IGAJobData {
     groupings: string[];
 }
 
-let queue = require('kue');
+// let queue = require('kue');
 // let Queue = kue.createQueue();
 let _jobs: Queue;
 
 try {
-    _jobs = queue.createQueue({
+    /* _jobs = queue.createQueue({
         prefix: os.hostname, // 'webapp',
         redis: {
             port: config.cache.redisPort, // 6379,
             host: config.cache.redisServer, // 'localhost'
-        }
-    });
+        } */
+    // });
 
     console.log('Queue name: ' + os.hostname);
 } catch (e) {
@@ -58,7 +58,7 @@ export class GAJobsQueueService {
         @inject(AppConnectionPool.name) private _connPool: AppConnectionPool
         // @inject(GoogleAnalyticsKPIService.name) private _gaKpiService: GoogleAnalyticsKPIService
     ) {
-        this._startProcessingJobs();
+        // this._startProcessingJobs();
     }
 
     addGAJob(
