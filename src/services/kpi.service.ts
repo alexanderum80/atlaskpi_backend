@@ -443,10 +443,10 @@ export class KpiService {
             availableFields = await this._dataSourcesService.getAvailableFields(
                 vs,
                 [],
-                { dateRangeFilter, filters }
+                { dateRangeFilter, filters, excludeSourceField: false }
             );
         } else {
-            availableFields = mapDataSourceFields(vs);
+            availableFields = mapDataSourceFields(vs, false);
             availableFields.forEach(f => f.available = true);
         }
 
