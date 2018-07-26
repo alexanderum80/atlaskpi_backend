@@ -1,17 +1,17 @@
 import { inject, injectable } from 'inversify';
 import * as mongoose from 'mongoose';
 import * as logger from 'winston';
-import { isObject, isEmpty } from 'lodash';
 
 import { input } from '../../../framework/decorators/input.decorator';
 import { ModelBase } from '../../../type-mongo/model-base';
 import { AppConnection } from '../app.connection';
 import { tagsPlugin } from '../tags/tag.plugin';
-import { IVirtualSourceModel, IVirtualSourceDocument, IFilterOperator } from '../virtual-sources/virtual-source';
+import { IVirtualSourceModel, IVirtualSourceDocument, IFilterOperator, IVirtualSource } from './virtual-source';
 import {DataSourceResponse, DataSourceField} from '../../../app_modules/data-sources/data-sources.types';
 import {IIdName} from '../../common/id-name';
 import { IValueName } from '../../common/value-name';
 import {IObject} from '../../../app_modules/shared/criteria.plugin';
+import { DataSourcesService } from '../../../services/data-sources.service';
 
 const Schema = mongoose.Schema;
 
@@ -51,6 +51,8 @@ const VirtualSourceSchema = new mongoose.Schema({
 // STATIC
 VirtualSourceSchema.statics.getDataSources = getDataSources;
 VirtualSourceSchema.statics.getDataSourceByName = getDataSourceByName;
+VirtualSourceSchema.statics.addDataSources = addDataSources;
+VirtualSourceSchema.statics.removeDataSources = removeDataSources;
 
 // METHODS
 VirtualSourceSchema.methods.getGroupingFieldPaths = getGroupingFieldPaths;
@@ -74,7 +76,7 @@ async function getDataSources(names?: string[]): Promise<DataSourceResponse[]> {
         const query = names ? { name: { $in: names } } : { };
         const virtualSources = await model.find(query);
         const dataSources: DataSourceResponse[] = virtualSources.map(ds => {
-        const fields = mapDataSourceFields(ds);
+            const fields = mapDataSourceFields(ds);
 
             return {
                 name: ds.name.toLocaleLowerCase(),
@@ -107,7 +109,7 @@ async function getDataSourceByName(name: string): Promise<IVirtualSourceDocument
 }
 
 
-export function mapDataSourceFields(virtualSource: IVirtualSourceDocument): DataSourceField[] {
+function mapDataSourceFields(virtualSource: IVirtualSourceDocument): DataSourceField[] {
     // with the new feature to filter kpi by sources we do not need to send the "source" field anymore
     const fieldsMap = virtualSource.fieldsMap;
     const fieldNames = Object.keys(virtualSource.fieldsMap).filter(k => k.toLowerCase() !== 'source').sort();
@@ -119,6 +121,50 @@ export function mapDataSourceFields(virtualSource: IVirtualSourceDocument): Data
         allowGrouping: fieldsMap[key].allowGrouping
     }));
 }
+
+function addDataSources(data: IVirtualSource): Promise<IVirtualSourceDocument> {
+    // with the new feature to filter kpi by sources we do not need to send the "source" field anymore
+    const that = this;
+    if (!data) { return Promise.reject('cannot add a document with, empty payload'); }
+    return new Promise<IVirtualSourceDocument>((resolve, reject) => {
+
+        return that.create(data)
+            .then((newConnector: IVirtualSourceDocument) => {
+                resolve(newConnector);
+                return;
+            })
+            .catch(err => {
+                reject('cannot create virtual source: ' + err);
+                return;
+            });
+    });
+}
+
+function removeDataSources(name: string): Promise<IVirtualSourceDocument> {
+    // with the new feature to filter kpi by sources we do not need to send the "source" field anymore
+    const that = this;
+    if (!name) { return Promise.reject('cannot remove a document with, empty payload'); }
+    return new Promise<IVirtualSourceDocument>((resolve, reject) => {
+
+        this.getDataSourceByName(name).then(data => {
+            if (!data) {
+                reject('the virtual source ' + name + ' do not exist');
+                return;
+            }
+
+            return data.remove()
+                .then((newConnector: IVirtualSourceDocument) => {
+                    resolve(newConnector);
+                    return;
+                })
+                .catch(err => {
+                    reject('cannot remove virtual source: ' + err);
+                    return;
+                });
+        });
+    });
+}
+
 
 function getGroupingFieldPaths(): IValueName[] {
     const doc = this as IVirtualSourceDocument;

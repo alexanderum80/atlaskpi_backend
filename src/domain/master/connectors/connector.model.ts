@@ -19,9 +19,9 @@ const ConnectorSchema = new Schema({
     ... userAuditSchema
 });
 
-ConnectorSchema.statics.addConnector = addConnector; 
-ConnectorSchema.statics.updateConnector = updateConnector; 
-ConnectorSchema.statics.removeConnector = removeConnector; 
+ConnectorSchema.statics.addConnector = addConnector;
+ConnectorSchema.statics.updateConnector = updateConnector;
+ConnectorSchema.statics.removeConnector = removeConnector;
 ConnectorSchema.statics.getReportingConnectors = getReportingConnectors;
 
 
@@ -33,9 +33,12 @@ function addConnector(data: IConnector): Promise<IConnectorDocument> {
     return new Promise<IConnectorDocument>((resolve, reject) => {
         const query = {
             'type': data.type,
-            [data.uniqueKeyValue.key]: data.uniqueKeyValue.value,
             databaseName: data.databaseName
         };
+
+        if (data.uniqueKeyValue) {
+            query[data.uniqueKeyValue.key] = data.uniqueKeyValue.value;
+        }
 
         that.findOne(query).then((connector: IConnectorDocument) => {
             if (!connector) {
@@ -61,7 +64,7 @@ function addConnector(data: IConnector): Promise<IConnectorDocument> {
         })
         .catch(err => reject(err));
     });
-};
+}
 
 function updateConnector(data: IConnector, token: string): Promise<IConnectorDocument> {
     const that = this;
@@ -79,7 +82,7 @@ function updateConnector(data: IConnector, token: string): Promise<IConnectorDoc
             return resolve(res);
         }).catch(err => reject(err));
     });
-};
+}
 
 function removeConnector(id: string): Promise<IConnectorDocument> {
     const that = this;
@@ -100,7 +103,7 @@ function removeConnector(id: string): Promise<IConnectorDocument> {
                 }
             }).catch(err => resolve(err));
     });
-};
+}
 
 function getReportingConnectors(databaseName: string): Promise<IConnectorDocument[]> {
     return this.find({

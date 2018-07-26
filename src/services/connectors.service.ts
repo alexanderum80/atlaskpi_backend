@@ -1,3 +1,4 @@
+import { DataSourcesService } from './data-sources.service';
 import * as Promise from 'bluebird';
 import { inject, injectable } from 'inversify';
 
@@ -6,6 +7,7 @@ import { loadIntegrationConfig } from '../app_modules/integrations/models/load-i
 import { Logger } from '../domain/app/logger';
 import { IConnectorDocument } from '../domain/master/connectors/connector';
 import { Connectors } from '../domain/master/connectors/connector.model';
+import { VirtualSources } from '../domain/app/virtual-sources/virtual-source.model';
 
 
 @injectable()
@@ -13,6 +15,8 @@ export class ConnectorsService {
 
     constructor(
         @inject(Connectors.name) private _connectors: Connectors,
+        @inject(VirtualSources.name) private _virtualSources: VirtualSources,
+        @inject(DataSourcesService.name) private _dataSourcesService: DataSourcesService,
         @inject(IntegrationConnectorFactory.name) private _integrationConnectorFactory: IntegrationConnectorFactory,
         @inject(Logger.name) private _logger: Logger
     ) { }
@@ -43,6 +47,13 @@ export class ConnectorsService {
                         .catch(err => {
                             that._logger.debug('could not disconnect ' + deletedConnector.name);
                         });
+
+                    if (deletedConnector.type === 'customexcel' || deletedConnector.type === 'customcsv' || deletedConnector.type === 'customtable') {
+                        that._virtualSources.model.removeDataSources(deletedConnector.virtualSource).then(virtualSource => {
+                            that._dataSourcesService.removeVirtualSourceMapCollection(virtualSource.source);
+                        });
+                    }
+
                     resolve(deletedConnector);
                     return;
                 })

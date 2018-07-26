@@ -1,15 +1,20 @@
+import { name } from 'aws-sdk/clients/importexport';
+import { camelCase } from 'change-case';
 import { IVirtualSourceDocument } from '../domain/app/virtual-sources/virtual-source';
 import { DataSourceField, DataSourceResponse } from '../app_modules/data-sources/data-sources.types';
 import { injectable, inject, Container } from 'inversify';
 import {VirtualSources, mapDataSourceFields} from '../domain/app/virtual-sources/virtual-source.model';
-import {sortBy} from 'lodash';
+import { sortBy, concat } from 'lodash';
 import { Logger } from '../domain/app/logger';
 import { KPIFilterHelper } from '../domain/app/kpis/kpi-filter.helper';
 import * as Bluebird from 'bluebird';
 import { isObject, isEmpty } from 'lodash';
 import {KPIExpressionFieldInput} from '../app_modules/kpis/kpis.types';
 import {getFieldsWithData} from '../domain/common/fields-with-data';
-import { ICriteriaSearchable } from '../app_modules/shared/criteria.plugin';
+import { criteriaPlugin } from '../app_modules/shared/criteria.plugin';
+import * as mongoose from 'mongoose';
+import { AppConnection } from '../domain/app/app.connection';
+import * as moment from 'moment';
 
 const COLLECTION_SOURCE_MAX_LIMIT = 20;
 const COLLECTION_SOURCE_FIELD_NAME = 'source';
@@ -21,6 +26,7 @@ export class DataSourcesService {
     constructor(
         @inject(Logger.name) private _logger: Logger,
         @inject('resolver') private _resolver: (name: string) => any,
+        @inject(AppConnection.name) private _appConnection: AppConnection,
         @inject(VirtualSources.name) private _virtualDatasources: VirtualSources) { }
 
     async get(): Promise<DataSourceResponse[]> {
@@ -71,7 +77,12 @@ export class DataSourcesService {
     async getDistinctValues(name: string, source: string, field: string, limit: number, filter: string): Promise<string[]> {
         try {
             const vs = await this._virtualDatasources.model.findOne({ name: { $regex: new RegExp(`^${name}$`, 'i') }  });
-            const model = this._resolver(source).model;
+            const schema = new mongoose.Schema({}, { strict: false });
+            schema.plugin(criteriaPlugin);
+
+            const connection: mongoose.Connection = this._appConnection.get;
+            let model;
+            model = <any>connection.model(source, schema, source.toLowerCase());
 
             if (!model || !model.findCriteria) {
                 return [];
@@ -120,7 +131,12 @@ export class DataSourcesService {
             const fields: DataSourceField[] = virtualSource.fields;
             // i.e. Sales
             const dataSource: string = virtualSource.dataSource;
-            const model = this._resolver(dataSource).model;
+            const schema = new mongoose.Schema({}, { strict: false });
+            schema.plugin(criteriaPlugin);
+
+            const connection: mongoose.Connection = this._appConnection.get;
+            let model;
+            model = <any>connection.model(dataSource, schema, dataSource.toLowerCase());
 
             if (this._isGoogleAnalytics(dataSource)) {
                 return this._getGoogleAnalyticsFields(fields);
@@ -182,5 +198,57 @@ export class DataSourcesService {
         });
 
         return fields;
+    }
+
+    createVirtualSourceMapCollection(data) {
+        const schema = new mongoose.Schema({}, { strict: false });
+
+        const dataCollection = <any>data.input.records;
+        const schemaCollection = data.input.fields;
+
+        dataCollection.map(d => {
+            const collection: any[] = [];
+            for (let i = 0; i < d.length; i++) {
+                const record = d[i];
+                const fieldName = schemaCollection[i].columnName;
+                collection[fieldName] = record;
+            }
+            collection['source'] = 'Manual entry';
+            collection['timestamp'] = moment.utc().toDate();
+
+            const connection: mongoose.Connection = this._appConnection.get;
+            const newCollection = <any>connection.model(camelCase(data.input.inputName), schema);
+            const model = new newCollection(collection);
+            model.save();
+        });
+    }
+
+    getVirtualSourceMapCollection(name) {
+        try {
+            this._virtualDatasources.model.getDataSourceByName(name)
+                .then(dataSource => {
+                    if (!dataSource) {
+                        return null;
+                    }
+                    const dataCollection = dataSource.source;
+
+                    const schema = new mongoose.Schema({}, { strict: false });
+
+                    const connection: mongoose.Connection = this._appConnection.get;
+                    const model = connection.model(dataCollection, schema, dataCollection);
+                    const dataModel = model.find().then(modelData => {
+                        return JSON.stringify(modelData.map(data => {
+                            data['_doc'];
+                        }));
+                    });
+                });
+        } catch (err) {
+            console.log('error getting virtual source collection: ' + err);
+        }
+    }
+
+    removeVirtualSourceMapCollection(source) {
+        const connection: mongoose.Connection = this._appConnection.get;
+        connection.db.dropCollection(source);
     }
 }
