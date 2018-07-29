@@ -184,27 +184,6 @@ SalesSchema.statics.salesBy = async function(aggregate: any[]): Promise<ISaleByZ
     }
 };
 
-SalesSchema.statics.salesOldestDate = function(collectionName: string): Promise<Object> {
-    const SalesModel = (<ISaleModel>this);
-
-    return new Promise<Object>((resolve, reject) => {
-        SalesModel.aggregate({ '$match': { 'product.from': { '$exists': true }}},
-                            { '$sort': { 'product.from': 1 }},
-                            { '$group': { '_id': null, 'oldestDate': { '$first': '$product.from' }}})
-        .then(result => {
-            const searchResult = {
-                name: collectionName,
-                data: result
-            };
-            resolve(searchResult);
-        })
-        .catch(err => {
-            logger.error('There was an error retrieving oldestDate of sales', err);
-            reject(err);
-        });
-    });
-};
-
 @injectable()
 export class Sales extends ModelBase<ISaleModel> {
     constructor(@inject(AppConnection.name) appConnection: AppConnection) {

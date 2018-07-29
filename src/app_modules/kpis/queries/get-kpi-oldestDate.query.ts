@@ -1,14 +1,10 @@
-import { Appointments } from './../../../domain/app/appointments/appointment-model';
+import { AppConnection } from './../../../domain/app/app.connection';
+import * as mongoose from 'mongoose';
 import { VirtualSources } from './../../../domain/app/virtual-sources/virtual-source.model';
 import { IVirtualSourceDocument } from './../../../domain/app/virtual-sources/virtual-source';
 import { Connectors } from './../../../domain/master/connectors/connector.model';
 import { KpiService } from './../../../services/kpi.service';
 import { KPIs } from './../../../domain/app/kpis/kpi.model';
-import { COGS } from './../../../domain/app/cogs/cogs.model';
-import { Expenses } from './../../../domain/app/expenses/expense.model';
-import { Inventory } from './../../../domain/app/inventory/inventory.model';
-import { Payments } from './../../../domain/app/payments/payment.model';
-import { Sales } from './../../../domain/app/sales/sale.model';
 import { inject, injectable } from 'inversify';
 import { query } from '../../../framework/decorators/query.decorator';
 import { IQuery } from '../../../framework/queries/query';
@@ -29,13 +25,8 @@ import * as moment from 'moment';
 export class GetKpiOldestDateQuery implements IQuery<Object> {
 
     constructor(@inject(KPIs.name) private _kpis: KPIs,
+                @inject(AppConnection.name) private _appConnection: AppConnection,
                 @inject(KpiService.name) private _kpiservice: KpiService,
-                @inject(Expenses.name) private _expenses: Expenses,
-                @inject(COGS.name) private _cogs: COGS,
-                @inject(Inventory.name) private _inventory: Inventory,
-                @inject(Payments.name) private _payments: Payments,
-                @inject(Sales.name) private _sales: Sales,
-                @inject(Appointments.name) private _appointments: Appointments,
                 @inject(VirtualSources.name) private _virtualSources: VirtualSources,
                 @inject(Connectors.name) private _connectors: Connectors) { }
 
@@ -49,34 +40,46 @@ export class GetKpiOldestDateQuery implements IQuery<Object> {
         const virtualSources: IVirtualSourceDocument[] = vs.filter((v: IVirtualSourceDocument) => {
             return kpiSources.indexOf(v.name.toLocaleLowerCase()) !== -1;
         });
-        const sources = virtualSources.map( s => {
-            return s.source.toLocaleLowerCase();
+        const searchPromises: Promise<Object>[] = [];
+        virtualSources.map( s => {
+            const theModel = this.getModel(s.source.toLocaleLowerCase());
+            searchPromises.push(this.getOldDestYear(theModel, s.dateField));
         });
         return new Promise<Object>((resolve, reject) => {
-
-            const searchPromises: Promise<Object>[] = [
-                sources.find(s => s === 'expenses') ? this._expenses.model.expensesOldestDate('expenses') : null,
-                sources.find(s => s === 'cogs') ? this._cogs.model.cogsOldestDate('cogs') : null,
-                sources.find(s => s === 'inventory') ? this._inventory.model.inventoryOldestDate('inventory') : null,
-                sources.find(s => s === 'payments') ? this._payments.model.paymentOldestDate('payments') : null,
-                sources.find(s => s === 'sales') ? this._sales.model.salesOldestDate('sales') : null,
-                sources.find(s => s === 'appointments') ? this._appointments.model.appointmentsOldestDate('appointments') : null
-            ];
             Promise.all(searchPromises).then(res => {
-                const result: number[] = [];
+                let result: number[] = [];
                 res.map(r => {
-                    if (r !== null) {
-                        const yearTMP = moment(r.data[0].oldestDate).year();
-                        result.push(yearTMP);
-                    }
+                    const yearTMP = moment(r[0].oldestDate).year();
+                    result.push(yearTMP);
                 });
-                let oldestResult = result[0];
-                result.map(d => {
-                    if (d > oldestResult) {
-                        oldestResult = d;
-                    }
-                });
-                resolve(oldestResult);
+                result = result.sort();
+                let endResult = result[result.length - 1];
+                resolve(endResult);
+            })
+            .catch(err => {
+                reject(err);
+            });
+        });
+    }
+
+    private getModel(source: string): any {
+        const schema = new mongoose.Schema({}, {strict: false});
+        const connection: mongoose.Connection = this._appConnection.get;
+        const model = connection.model(source, schema, source);
+        return model;
+    }
+    private getOldDestYear(model: any, dateField: string): Promise<Object> {
+
+        return new Promise<Object>((resolve, reject) => {
+            const parameters = [];
+            const paramstr = '{"$match":{"' + dateField + '":{"$exists":true}}}';
+            parameters.push(JSON.parse(paramstr));
+            parameters.push({ '$sort': { dateField: 1 }});
+            parameters.push({ '$group': { '_id': null, 'oldestDate': { '$first': '$' + dateField }}});
+            model.aggregate(parameters)
+            .then(result => {
+                resolve(result);
+                return;
             })
             .catch(err => {
                 reject(err);

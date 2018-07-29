@@ -55,27 +55,6 @@ PaymentSchema.index({ 'timestamp': 1, 'paymentMethod.name': 1 });
 
 PaymentSchema.plugin(criteriaPlugin);
 
-PaymentSchema.statics.paymentOldestDate = function(collectionName: string): Promise<Object> {
-    const PaymentModel = (<IPaymentModel>this);
-
-    return new Promise<Object>((resolve, reject) => {
-        PaymentModel.aggregate({ '$match': { 'timestamp': { '$exists': true }}},
-                    { '$sort': { 'timestamp': 1 }},
-                    { '$group': { '_id': null, 'oldestDate': { '$first': '$timestamp' }}})
-            .then(result => {
-                const searchResult = {
-                    name: collectionName,
-                    data: result
-                };
-                resolve(searchResult);
-        })
-        .catch(err => {
-            logger.error('There was an error retrieving payment oldest Date', err);
-            reject(err);
-        });
-    });
-};
-
 @injectable()
 export class Payments extends ModelBase<IPaymentModel> {
     constructor(@inject(AppConnection.name) appConnection: AppConnection) {

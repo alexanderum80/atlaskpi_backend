@@ -320,27 +320,6 @@ AppointmentSchema.statics.providersList = function(): Promise<IIdName[]> {
     });
 };
 
-AppointmentSchema.statics.appointmentsOldestDate = function(collectionName: string): Promise<Object> {
-    const that = (<IAppointmentModel>this);
-
-    return new Promise<Object>((resolve, reject) => {
-        that.aggregate({ '$match': { 'from': { '$exists': true }}},
-                            { '$sort': { 'from': 1 }},
-                            { '$group': { '_id': null, 'oldestDate': { '$first': '$from' }}})
-        .then(result => {
-            const searchResult = {
-                name: collectionName,
-                data: result
-            };
-            resolve(searchResult);
-        })
-        .catch(err => {
-            logger.error('There was an error retrieving oldestDate of appointments', err);
-            reject(err);
-        });
-    });
-};
-
 @injectable()
 export class Appointments extends ModelBase < IAppointmentModel > {
     constructor(@inject(AppConnection.name) appConnection: AppConnection) {

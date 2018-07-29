@@ -32,27 +32,6 @@ export const InventorySchema = new Schema({
 
 InventorySchema.plugin(criteriaPlugin);
 
-InventorySchema.statics.inventoryOldestDate = function(collectionName: string): Promise<Object> {
-    const InventoryModel = (<IInventoryModel>this);
-
-    return new Promise<Object>((resolve, reject) => {
-        InventoryModel.aggregate({ '$match': { 'updatedAt': { '$exists': true }}},
-                    { '$sort': { 'updatedAt': 1 }},
-                    { '$group': { '_id': null, 'oldestDate': { '$first': '$updatedAt' }}})
-            .then(result => {
-                const searchResult = {
-                    name: collectionName,
-                    data: result
-                };
-                resolve(searchResult);
-        })
-        .catch(err => {
-            logger.error('There was an error retrieving inventory oldest Date', err);
-            reject(err);
-        });
-    });
-};
-
 @injectable()
 export class Inventory extends ModelBase<IInventoryModel> {
     constructor(@inject(AppConnection.name) appConnection: AppConnection) {

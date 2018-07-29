@@ -114,5 +114,4 @@ export interface ISaleModel extends mongoose.Model<ISaleDocument>, ICriteriaSear
     salesEmployeeByDateRange(predefinedDateRange: string): Promise<Object>;
     monthsAvgSales(date: string): Promise<Object>;
     salesBy(aggregate: any[]): Promise<ISaleByZip[]>;
-    salesOldestDate(collectionName: string): Promise<Object>;
 }

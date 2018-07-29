@@ -54,5 +54,4 @@ export interface IPayment {
 export interface IPaymentDocument extends IPayment, mongoose.Document { }
 
 export interface IPaymentModel extends mongoose.Model<IPaymentDocument> {
-    paymentOldestDate(collectionName: string): Promise<Object>;
 }

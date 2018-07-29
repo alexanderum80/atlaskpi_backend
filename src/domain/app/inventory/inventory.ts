@@ -22,5 +22,4 @@ export interface IInventory {
 export interface IInventoryDocument extends mongoose.Document { }
 
 export interface IInventoryModel extends mongoose.Model<IInventoryDocument>, ICriteriaSearchable {
-    inventoryOldestDate(collectionName: string): Promise<Object>;
 }
