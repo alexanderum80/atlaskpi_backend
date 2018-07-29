@@ -1,3 +1,8 @@
+import { IMutationResponse } from './../framework/mutations/mutation-response';
+import { CurrentAccount } from './../domain/master/current-account';
+import { camelCase } from 'change-case';
+import { IVirtualSourceFields, IVirtualSource } from './../domain/app/virtual-sources/virtual-source';
+import { IConnector } from './../domain/master/connectors/connector';
 import { DataSourcesService } from './data-sources.service';
 import * as Promise from 'bluebird';
 import { inject, injectable } from 'inversify';
@@ -14,7 +19,9 @@ import { VirtualSources } from '../domain/app/virtual-sources/virtual-source.mod
 export class ConnectorsService {
 
     constructor(
+        @inject(CurrentAccount.name) private _currentAccount: CurrentAccount,
         @inject(Connectors.name) private _connectors: Connectors,
+        @inject(VirtualSources.name) private _virtualSourceModel: VirtualSources,
         @inject(VirtualSources.name) private _virtualSources: VirtualSources,
         @inject(DataSourcesService.name) private _dataSourcesService: DataSourcesService,
         @inject(IntegrationConnectorFactory.name) private _integrationConnectorFactory: IntegrationConnectorFactory,
@@ -30,6 +37,74 @@ export class ConnectorsService {
             })
             .catch(err => {
                 return reject(err);
+            });
+        });
+    }
+
+    createCustomConnector(input, connectorType): Promise<IMutationResponse> {
+        const inputName = input.inputName.split('.')[0];
+        const connObj: IConnector = {
+            name: input.inputName,
+            databaseName: this._currentAccount.get.database.name,
+            type: connectorType,
+            virtualSource: camelCase(inputName).toLowerCase(),
+            config: {},
+            createdBy: 'backend',
+            createdOn: new Date(Date.now()),
+            active: true
+        };
+
+        return new Promise<IMutationResponse> ((resolve, reject) => {
+            this._connectors.model.addConnector(connObj).then(() => {
+                let collectionName = camelCase(inputName);
+                collectionName = collectionName.substr(collectionName.length - 1, 1) !== 's'
+                                    ? collectionName.concat('s') : collectionName;
+
+                const inputDateField = input.fields.find(f => f.dataType === 'Date');
+                let inputFieldsMap: IVirtualSourceFields = {};
+                inputFieldsMap['Source'] = {
+                    path: 'source',
+                    dataType: 'String',
+                    allowGrouping: true
+                };
+
+                input.fields.map(f => {
+                    const field = f.columnName;
+                    const dataType = f.dataType;
+                    inputFieldsMap[field] = {
+                        path: field.toLowerCase().replace(' ', '_'),
+                        dataType: dataType,
+                    };
+                    if (dataType === 'String') {
+                        inputFieldsMap[field].allowGrouping = true;
+                    }
+                });
+
+                const virtualSourceObj: IVirtualSource = {
+                    name: camelCase(inputName).toLowerCase(),
+                    description: input.inputName,
+                    source: collectionName,
+                    modelIdentifier: collectionName,
+                    dateField: inputDateField.columnName.toLowerCase().replace(' ', '_'),
+                    aggregate: [],
+                    fieldsMap: inputFieldsMap
+                };
+
+                this._virtualSourceModel.model.addDataSources(virtualSourceObj).then(newVirtualSource => {
+                    input.inputName = collectionName;
+                    input.records = JSON.parse(input.records);
+
+                    this._dataSourcesService.createVirtualSourceMapCollection(input).then(() => {
+                        resolve({ success: true });
+                        return;
+                    });
+                }).catch(err => {
+                    resolve({ success: false, errors: [{ field: 'dataSource', errors: ['Unable to add data source'] }] });
+                    return;
+                });
+            }).catch(err => {
+                resolve({ success: false, errors: [{ field: 'connectors', errors: ['Unable to add connector'] }] });
+                return;
             });
         });
     }
@@ -50,12 +125,15 @@ export class ConnectorsService {
 
                     if (deletedConnector.type === 'customexcel' || deletedConnector.type === 'customcsv' || deletedConnector.type === 'customtable') {
                         that._virtualSources.model.removeDataSources(deletedConnector.virtualSource).then(virtualSource => {
-                            that._dataSourcesService.removeVirtualSourceMapCollection(virtualSource.source);
+                            that._dataSourcesService.removeVirtualSourceMapCollection(virtualSource.source).then(() => {
+                                resolve(deletedConnector);
+                                return;
+                            });
                         });
+                    } else {
+                        resolve(deletedConnector);
+                        return;
                     }
-
-                    resolve(deletedConnector);
-                    return;
                 })
                 .catch(err => reject(err));
         });

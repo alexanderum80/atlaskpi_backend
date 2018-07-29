@@ -31,38 +31,15 @@ function addConnector(data: IConnector): Promise<IConnectorDocument> {
     if (!data) { return Promise.reject('cannot add a document with, empty payload'); }
     const that = this;
     return new Promise<IConnectorDocument>((resolve, reject) => {
-        const query = {
-            'type': data.type,
-            databaseName: data.databaseName
-        };
-
-        if (data.uniqueKeyValue) {
-            query[data.uniqueKeyValue.key] = data.uniqueKeyValue.value;
-        }
-
-        that.findOne(query).then((connector: IConnectorDocument) => {
-            if (!connector) {
-                return that.create(data)
-                            .then((newConnector: IConnectorDocument) => {
-                                resolve(newConnector);
-                                return;
-                            })
-                            .catch(err => {
-                                reject('cannot create connector: ' + err);
-                                return;
-                            });
-            } else {
-                connector.update(data, (err, raw) => {
-                    if (err) {
-                        reject('error updating connector: ' + err);
-                        return;
-                    }
-                    resolve(connector);
-                    return;
-                });
-            }
-        })
-        .catch(err => reject(err));
+            return that.create(data)
+                        .then((newConnector: IConnectorDocument) => {
+                            resolve(newConnector);
+                            return;
+                        })
+                        .catch(err => {
+                            reject('cannot create connector: ' + err);
+                            return;
+                        });
     });
 }
 

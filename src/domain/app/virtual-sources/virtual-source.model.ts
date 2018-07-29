@@ -60,6 +60,7 @@ VirtualSourceSchema.methods.findByNames = findByNames;
 VirtualSourceSchema.methods.getFieldDefinition = getFieldDefinition;
 VirtualSourceSchema.methods.getDataTypeOperator = getDataTypeOperator;
 // VirtualSourceSchema.methods.containsPath = containsPath;
+VirtualSourceSchema.methods.mapDataSourceFields = mapDataSourceFields;
 
 @injectable()
 export class VirtualSources extends ModelBase<IVirtualSourceModel> {
@@ -99,8 +100,7 @@ async function getDataSourceByName(name: string): Promise<IVirtualSourceDocument
     const model = this as IVirtualSourceModel;
 
     try {
-        const regexName: RegExp = new RegExp(name, 'i');
-        const query: IObject = { name: { $regex: regexName } };
+        const query: IObject = { name: name };
         return await model.findOne(query);
     } catch (e) {
         console.log('Error getting virtual source fields');
@@ -109,7 +109,7 @@ async function getDataSourceByName(name: string): Promise<IVirtualSourceDocument
 }
 
 
-function mapDataSourceFields(virtualSource: IVirtualSourceDocument): DataSourceField[] {
+export function mapDataSourceFields(virtualSource: IVirtualSourceDocument): DataSourceField[] {
     // with the new feature to filter kpi by sources we do not need to send the "source" field anymore
     const fieldsMap = virtualSource.fieldsMap;
     const fieldNames = Object.keys(virtualSource.fieldsMap).filter(k => k.toLowerCase() !== 'source').sort();

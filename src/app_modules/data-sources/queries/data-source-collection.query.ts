@@ -20,7 +20,7 @@ import { DataSourcesService } from '../../../services/data-sources.service';
 export class DataSourceCollectionQuery implements IQuery<String> {
     constructor(@inject(DataSourcesService.name) private _dataSourcesSvc: DataSourcesService) { }
 
-    async run(data: { name: string }): Promise<String> {
-        return this._dataSourcesSvc.getVirtualSourceMapCollection(data.name) as any;
+    async run(data: { name: string }): Promise<string> {
+        return await this._dataSourcesSvc.getVirtualSourceMapCollection(data.name) as any;
     }
 }

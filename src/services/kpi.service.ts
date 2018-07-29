@@ -3,6 +3,7 @@ import {inject, injectable, Container} from 'inversify';
 import { isObject, intersectionBy, cloneDeep, isEmpty, isString, isArray, isDate, pickBy } from 'lodash';
 import { DocumentQuery } from 'mongoose';
 import * as moment from 'moment';
+import * as mongoose from 'mongoose';
 
 import { IChartDocument } from '../domain/app/charts/chart';
 import { Charts } from '../domain/app/charts/chart.model';
@@ -36,6 +37,7 @@ import {KpiGroupingsInput} from '../app_modules/kpis/kpis.types';
 import {parsePredifinedDate, IChartDateRange} from '../domain/common/date-range';
 import {ChartDateRangeInput, ChartDateRange} from '../app_modules/shared/shared.types';
 import {CollectionsMapping} from '../app_modules/kpis/queries/simple-kpi';
+import { AppConnection } from '../domain/app/app.connection';
 
 const codeMapper = {
     'Revenue': 'sales',
@@ -65,6 +67,7 @@ export class KpiService {
         @inject(VirtualSources.name) private _virtualSources: VirtualSources,
         @inject(Connectors.name) private _connectors: Connectors,
         @inject('resolver') private _resolver: (name: string) => any,
+        @inject(AppConnection.name) private _appConnection: AppConnection,
     ) {}
 
     async getKpis(filterFieldsWithoutData?: boolean): Promise<IKPIDocument[]> {
@@ -341,7 +344,11 @@ export class KpiService {
                         return KPIFilterHelper.CleanObjectKeys(a);
                     });
                 }
-                const model = this._resolver(source.source).model;
+                // const model = this._resolver(source.source).model;
+                const schema = new mongoose.Schema({}, { strict: false });
+
+                const connection: mongoose.Connection = this._appConnection.get;
+                const model = <any>connection.model(source.source, schema, source.source.toLowerCase());
 
                 const collectionMappingKey: string = source.source.toLowerCase();
                 const mappingModel = CollectionsMapping[collectionMappingKey];
