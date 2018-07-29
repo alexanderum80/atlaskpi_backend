@@ -87,8 +87,7 @@ export class DataSourcesService {
             schema.plugin(criteriaPlugin);
 
             const connection: mongoose.Connection = this._appConnection.get;
-            let model;
-            model = <any>connection.model(source, schema, camelCase(source));
+            const model = <any>connection.model(source, schema, camelCase(source));
 
             if (!model || !model.findCriteria) {
                 return [];
