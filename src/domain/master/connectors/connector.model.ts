@@ -11,6 +11,7 @@ const Schema = mongoose.Schema;
 const ConnectorSchema = new Schema({
     name: String!,
     databaseName: String!,
+    subdomain: String!,
     type: String!,
     virtualSource: String,
     active: Boolean,
@@ -82,9 +83,9 @@ function removeConnector(id: string): Promise<IConnectorDocument> {
     });
 }
 
-function getReportingConnectors(databaseName: string): Promise<IConnectorDocument[]> {
+function getReportingConnectors(subdomain: string): Promise<IConnectorDocument[]> {
     return this.find({
-        databaseName: databaseName,
+        subdomain: subdomain,
         virtualSource: { $ne: null }
     });
 }

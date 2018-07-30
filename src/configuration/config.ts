@@ -86,5 +86,6 @@ export const config: IAppConfig = {
     cache: {
         redisServer: process.env.AKPI_REDIS_SERVER || '35.172.178.73',
         redisPort: process.env.AKPI_REDIS_PORT || '6379'
-    }
+    },
+    supportEmail: process.env.SUPPORT_EMAIL || 'support@atlaskpi.com'
 };

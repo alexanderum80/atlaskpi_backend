@@ -60,6 +60,12 @@ export interface IVirtualSourceDocument extends IVirtualSource, mongoose.Documen
     getFieldDefinition(fieldName: string);
     getDataTypeOperator(dataType: string, filterName: string): IFilterOperator;
     mapDataSourceFields(virtualSource: IVirtualSourceDocument): DataSourceField[];
+    getDistinctValues(
+        vs: IVirtualSourceDocument,
+        fieldName: string,
+        limit: number,
+        filter: string,
+        collectionSource?: string[]): Promise<string[]>;
     // containsPath(path: string): boolean;
 }
 

@@ -46,6 +46,7 @@ export class ConnectorsService {
         const connObj: IConnector = {
             name: input.inputName,
             databaseName: this._currentAccount.get.database.name,
+            subdomain: this._currentAccount.get.database.name,
             type: connectorType,
             virtualSource: camelCase(inputName).toLowerCase(),
             config: {},
@@ -105,6 +106,19 @@ export class ConnectorsService {
             }).catch(err => {
                 resolve({ success: false, errors: [{ field: 'connectors', errors: ['Unable to add connector'] }] });
                 return;
+            });
+        });
+    }
+
+    findConnectorsBySubdomain(subdomain: string): Promise<IConnectorDocument[]> {
+        const that = this;
+        return new Promise<IConnectorDocument[]>((resolve, reject) => {
+            that._connectors.model.find({ subdomain: subdomain })
+            .then(connectors => {
+                return resolve(connectors);
+            })
+            .catch(err => {
+                return reject(err);
             });
         });
     }

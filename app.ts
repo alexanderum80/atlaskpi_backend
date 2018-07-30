@@ -4,6 +4,7 @@ NODE_ENV="local" AKPI_APP_SUBDOMAIN="d.atlaskpi.com:4200" AKPI_MASTER_DB_URI="mo
 
 // This is a must because inversify uses it
 import 'reflect-metadata';
+const timeout = require('connect-timeout');
 
 import * as fileUpload from 'express-fileupload';
 
@@ -34,6 +35,7 @@ registerDependencies(app.Container);
 registerValidators();
 
 // middlewares
+app.server.use(timeout('10m'));
 app.server.use(healthCheck);
 app.server.use(logger);
 app.server.use(tokenValidator);
