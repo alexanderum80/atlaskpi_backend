@@ -1,3 +1,4 @@
+import { GAJobsQueueService } from './../../../services/queues/ga-jobs-queue.service';
 import * as Promise from 'bluebird';
 // import * as googleapis from 'googleapis';
 const googleapis = require('googleapis');
@@ -10,7 +11,9 @@ import { IConnectorDocument } from './../../../domain/master/connectors/connecto
 export function getGoogleAnalyticsConnectors(
     oAuthConnector: IOAuthConnector,
     integrationConfig: IConnectorDocument,
-    companyName: string
+    databaseName: string,
+    subdomain: string,
+    queueService: GAJobsQueueService
 ): Promise <any[]> {
 
     if (!oAuthConnector.token()) {
@@ -22,21 +25,26 @@ export function getGoogleAnalyticsConnectors(
 
     const that = this;
     return new Promise < any[] > ((resolve, reject) => {
-        const analytics = _getAnalyticsObject(integrationConfig.config, oAuthConnector.token());
-        getAnalyticsAccountList(analytics)
+        const analyticsParams =  {
+            analyticsConfig: integrationConfig.config,
+            authToken: oAuthConnector.token(),
+            subdomain: subdomain
+        };
+
+        getAnalyticsAccountList(queueService, analyticsParams)
         .then(accounts => {
             console.log('found ' + accounts.items.length + ' analytics accounts...');
             accountsCollection = accounts.items;
-            return getWebProperties(analytics, accounts);
+            return getWebProperties(queueService, analyticsParams, accounts);
         })
         .then(webProperties => {
             console.log(`found : ${webProperties.length} webproperties...`);
-            return getProfiles(analytics, webProperties, webPropertiesCollection);
+            return getProfiles(queueService, analyticsParams, webProperties, webPropertiesCollection);
         })
         .then(profiles => {
             console.log(`found : ${profiles.length} profiles...`);
             const newConnectors = getConnectors(profiles, integrationConfig.config, oAuthConnector,
-                                                accountsCollection, webPropertiesCollection, companyName);
+                                                accountsCollection, webPropertiesCollection, databaseName, subdomain);
             resolve(newConnectors);
             return;
         })
@@ -50,7 +58,7 @@ export function getGoogleAnalyticsConnectors(
 
 function getConnectors( profiles: any[], config: any, oAuthConnector: IOAuthConnector,
                         accountsCollection: any[], webPropertiesCollection: any[],
-                        companyName: string): any[] {
+                        databaseName: string, subdomain: string): any[] {
     const connectors = [];
     const connectorConfig = oAuthConnector.getConfiguration();
     const type = getConnectorTypeId(oAuthConnector.getType());
@@ -70,7 +78,8 @@ function getConnectors( profiles: any[], config: any, oAuthConnector: IOAuthConn
             name: `${accountElement.name}(${propElement.name})`,
             active: true,
             config: { ... connectorConfig },
-            databaseName: companyName,
+            databaseName: databaseName,
+            subdomain: subdomain,
             type: type,
             virtualSource: 'google_analytics',
             createdBy: 'backend',
@@ -83,35 +92,47 @@ function getConnectors( profiles: any[], config: any, oAuthConnector: IOAuthConn
     return connectors;
 }
 
-function getProfiles(analytics: any, webProperties: any[], webPropertiesCollection: any[]): Promise<any> {
-    const tasks = [];
+function getProfiles(queueService: GAJobsQueueService, analyticsParams: any, webProperties: any[], webPropertiesCollection: any[]): Promise<any> {
+    const profileRequests = [];
     webProperties.forEach(prop => {
         prop.items.forEach(item => {
             webPropertiesCollection.push(item);
             console.log('webproperty: ' + item.name);
-            tasks.push((<any>Promise.promisify<any>(analytics.management.profiles.list))({
-                    accountId: item.accountId,
-                    webPropertyId: item.id
-            }));
+            profileRequests.push({ accountId: item.accountId, webPropertyId: item.id});
         });
     });
 
-    return Promise.all(tasks);
+    return Promise .map(profileRequests,
+                        p => queueService.queuedGARequest({
+                                ...analyticsParams,
+                                analyticsFn: 'management.profiles.list',
+                                payload: p
+                            })
+                        );
 }
 
-function getWebProperties(analytics: any, accounts: any): Promise<any> {
+function getWebProperties(queueService: GAJobsQueueService, analyticsParams: any, accounts: any): Promise<any> {
     return Promise .map(accounts.items,
-                        a => (<any>Promise.promisify<any>(analytics.management.webproperties.list))({ accountId: (<any>a).id }));
+                        i => queueService.queuedGARequest({
+                                ...analyticsParams,
+                                analyticsFn: 'management.webproperties.list',
+                                payload: { accountId: (<any>i).id }
+                            })
+                        );
 }
 
-function getAnalyticsAccountList(analytics: any): Promise<any> {
-    return Promise.promisify<any>(analytics.management.accounts.list)();
+function getAnalyticsAccountList(queueService: GAJobsQueueService, analyticsParams: any): Promise<any> {
+    return <any>queueService.queuedGARequest({
+        ...analyticsParams,
+        analyticsFn: 'management.accounts.list',
+        payload: null
+    });
 }
 
 
-function _getAnalyticsObject(config: any, token: IOAuth2Token): any {
+function _getAnalyticsObject(config: any, token: IOAuth2Token, quotaUser?: string): any {
     if (!config || !token) {
-        throw('missing arguments');
+        throw new Error('missing arguments');
     }
     const oauth2Client = new googleapis.auth.OAuth2(
         config.clientId,
@@ -121,7 +142,8 @@ function _getAnalyticsObject(config: any, token: IOAuth2Token): any {
 
     oauth2Client.credentials = token;
     googleapis.options({
-        auth: oauth2Client
+        auth: oauth2Client,
+        quotaUser: quotaUser
     });
 
     return googleapis.analytics('v3');

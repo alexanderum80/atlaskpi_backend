@@ -22,7 +22,8 @@ export function getGoogleAnalyticsConnection(integration: any, connector: IConne
 
         // set auth as a global default
         googleapis.options({
-          auth: oauth2Client
+          auth: oauth2Client,
+          quotaUser: connector.subdomain
         });
 
         const analytics = googleapis.analytics('v3');
@@ -30,6 +31,7 @@ export function getGoogleAnalyticsConnection(integration: any, connector: IConne
         // test request
         analytics.data.ga.get({
                     auth: oauth2Client,
+                    quotaUser: connector.subdomain,
                     'ids': `ga:${connector.config.view.id}`,
                     'start-date': 'yesterday',
                     'end-date': 'today',

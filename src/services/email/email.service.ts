@@ -5,15 +5,15 @@ import { config } from '../../configuration/config';
 import { MailgunService } from './mailgun.email.service';
 
 export interface IEmailService {
-    sendEmail(from: string, to: string, subject: string, html: string): Promise<nodemailer.SentMessageInfo>;
+    sendEmail(from: string, to: string, subject: string, html: string, ccEmail?: string): Promise<nodemailer.SentMessageInfo>;
 }
 
 
 // import providers
-export function sendEmail(to: string, subject: string, html: string): Promise<nodemailer.SentMessageInfo> {
+export function sendEmail(to: string, subject: string, html: string, ccEmail?: string): Promise<nodemailer.SentMessageInfo> {
 
     // send email function
-    let sendFunction: (from: string, to: string, subject: string, html: string) => Promise<nodemailer.SentMessageInfo>;
+    let sendFunction: (from: string, to: string, subject: string, html: string, ccEmail?: string) => Promise<nodemailer.SentMessageInfo>;
 
     // send email with right provider
     switch (config.emailService.provider) {
@@ -23,5 +23,5 @@ export function sendEmail(to: string, subject: string, html: string): Promise<no
     }
 
     // send email
-    return sendFunction(config.emailService.from, to, subject, html);
+    return sendFunction(config.emailService.from, to, subject, html, ccEmail);
 }

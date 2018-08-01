@@ -1,18 +1,16 @@
-import { ValueFormatHelper } from './../../../../domain/app/widgets/value-format.helper';
-import { EnumChartTop, IChartTop } from '../../../../domain/common/top-n-record';
 import 'datejs';
 
-import { from } from 'apollo-link/lib';
 import * as Bluebird from 'bluebird';
 import * as console from 'console';
-import { filter, sortBy, find, sumBy, cloneDeep, difference, flatten, groupBy,
-    isEmpty, isNull, isUndefined, map, pick,
-    union, uniq, uniqBy, orderBy, isNumber, isString, toString } from 'lodash';
+import {
+    sumBy, cloneDeep, difference, flatten, groupBy,
+    isEmpty, isNull, isUndefined, map, union, uniq,
+    uniqBy, orderBy, isNumber, isString, sortBy} from 'lodash';
 import * as moment from 'moment';
 import * as logger from 'winston';
 import { camelCase } from 'change-case';
 import { IChart } from '../../../../domain/app/charts/chart';
-import { ITarget, ITargetDocument } from '../../../../domain/app/targets/target';
+import { ITargetDocument } from '../../../../domain/app/targets/target';
 import {
     getDateRangeIdFromString,
     IChartDateRange,
@@ -59,6 +57,8 @@ export interface IComparisonSerieObject {
     stack?: string;
     targetId?: string;
     percentageCompletion?: number;
+    comparisonString?: string;
+    category?: string;
 }
 
 export interface ICategoriesWithValues {
@@ -94,11 +94,6 @@ export enum SortingCriteriaEnum {
     Ascending = 'ascending',
     Descending = 'descending'
  }
-
-// export interface IXAxisConfig {
-//     fieldName: string;
-//     categories: IXAxisCategory[];
-// }
 
 export interface IUIChart {
     getDefinition?(kpiBase: IKpiBase, metadata?: IChartMetadata, target?: ITargetDocument[]): Promise<any>;
@@ -933,7 +928,7 @@ export class UIChartBase {
         const comparisonCategoriesWithValues: IComparsionDefObject = this._getComparisonCategoriesWithValues(definitions);
         const definitionSeries: any[] = this._getComparisonSeries(comparisonCategoriesWithValues, metadata);
 
-        mainDefinition.xAxis.categories = this._getComparisonCategories(definitions, metadata);
+        mainDefinition.xAxis.categories = this._getComparisonCategories(definitions);
         mainDefinition.series = definitionSeries;
         // here i must sort comparison series
         mainDefinition = this._sortingDataWithComparison(metadata, mainDefinition);
@@ -1057,12 +1052,14 @@ export class UIChartBase {
     }
 
     private _getComparisonSeries(obj: IComparsionDefObject, metadata: IChartMetadata): any[] {
+        // allCategories => i.e. ['Jan', 'Feb', 'Mar']
         const allCategories: string[] = obj['uniqCategories'];
         const data: IComparsionDefObjectData = obj['data'];
         const keys: string[] = Object.keys(data);
 
         let serieData = [];
         let hasTarget: ICategoriesWithValues;
+        const mainCategories: string[] = uniq(data['main'].map(d => d.category));
 
         const series = [];
         let objData: any = {};
@@ -1070,19 +1067,24 @@ export class UIChartBase {
 
         for (let i = 0; i < keys.length; i++) {
             const stack: string = keys[i];
-            let bySerieName: Dictionary<any[]> = groupBy(data[stack], 'serieName');
+            // { botox: ICategoriesWithValues }
+            let bySerieName: Dictionary<ICategoriesWithValues[]> = groupBy(data[stack], 'serieName');
+            // ['botox', 'injectables']
             let serieNameKeys: string[] = Object.keys(bySerieName);
 
 
             for (let k = 0; k < serieNameKeys.length; k++) {
                 for (let j = 0; j < allCategories.length; j++) {
+                    // groupKey => i.e. 'botox'
                     const groupKey: string = serieNameKeys[k];
-                    const filteredByCategory = bySerieName[groupKey].filter(obj => obj.category === allCategories[j]);
+                    const filteredByCategory: ICategoriesWithValues[] = bySerieName[groupKey].filter((obj: ICategoriesWithValues) => {
+                        return obj.category === allCategories[j];
+                    });
 
                     serieData = serieData.concat(
                         filteredByCategory.length ? filteredByCategory[0].serieValue : null
                     );
-                    hasTarget = filteredByCategory.find(f => f.type);
+                    hasTarget = filteredByCategory.find((f: ICategoriesWithValues) => !isEmpty(f.type));
                     objData.serieName = groupKey;
                 }
 
@@ -1132,7 +1134,9 @@ export class UIChartBase {
                     serieObject = {
                         name: objData.serieName + `(${comparisonString})`,
                         data: serieData,
-                        stack: stack
+                        stack: stack,
+                        comparisonString: `(${comparisonString})`,
+                        category: allCategories[k]
                     };
                 }
 
@@ -1142,7 +1146,72 @@ export class UIChartBase {
                 serieData = [];
             }
         }
-        return series;
+
+        const comparisonKey: string = metadata.comparison[0];
+        let predefinedDateString: string;
+
+        const chartDateRange: IChartDateRange = metadata.dateRange.find(d => !isEmpty(d.predefined));
+        predefinedDateString = chartDateRange ? chartDateRange.predefined : null;
+
+        if (predefinedDateString) {
+            Object.keys(PredefinedDateRanges).forEach(key => {
+                if (PredefinedDateRanges[key] === predefinedDateString) {
+                    predefinedDateString = key;
+                }
+            });
+        }
+
+        return this._sortComparisonSeriesByName(comparisonKey, series, predefinedDateString, metadata.xAxisSource, mainCategories);
+    }
+
+    /**
+     * series => [{ name: 'botox(this year), data: [5, null] }]
+     * comparisonKey => 'previousPeriod'
+     */
+    private _sortComparisonSeriesByName(comparisonKey: string, series: any[], predefinedDateString: string, xAxisSource: string, mainCategories: string[]): any[] {
+        // check if the parameters passed exist first
+        const seriesExists: boolean = Array.isArray(series) && (series.length > 0);
+        if (isEmpty(comparisonKey) || !seriesExists || !predefinedDateString) {
+            return series;
+        }
+
+        const comparisonDateRanges: Object = PredefinedComparisonDateRanges[predefinedDateString];
+        if (isEmpty(comparisonDateRanges)) {
+            return series;
+        }
+
+        const cloneSeries: any[] = cloneDeep(series);
+        const isFrequency: boolean = !xAxisSource || xAxisSource === 'frequency';
+
+
+        cloneSeries.forEach(c => {
+            c.name = c.name.replace(c.comparisonString, '');
+        });
+
+        const mainSeries: any[] = cloneSeries.filter(s => s.stack === 'main');
+        const mainSeriesName: string[] = mainSeries.map(m => m.name);
+
+        const sortSeries: any[] = sortBy(cloneSeries, (item) => {
+            if (isFrequency) {
+                const indexBySerieName: number = mainSeriesName.indexOf(item.name);
+                if (indexBySerieName !== -1) {
+                    return indexBySerieName;
+                }
+            } else {
+                const indexByCategory: number = mainCategories.indexOf(item.category);
+                if (indexByCategory !== -1) {
+                    return indexByCategory;
+                }
+            }
+        });
+
+        sortSeries.forEach(s => {
+            s.name = `${s.name}${s.comparisonString}`;
+            delete s.comparisonString;
+            delete s.category;
+        });
+
+        return sortSeries;
     }
 
     private _getComparisonString(dateFrom: Date, originalFrequency: FrequencyEnum, frequency: FrequencyEnum): string {
@@ -1168,7 +1237,7 @@ export class UIChartBase {
         return comparisonString;
     }
 
-    private _getComparisonCategories(definitions: any, metadata: IChartMetadata): string[] {
+    private _getComparisonCategories(definitions: any): string[] {
         let listCategories: string[] = [];
 
         // i.e. key = 'main', key = 'lastYear'

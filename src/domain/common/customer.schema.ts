@@ -10,6 +10,9 @@ export function getCustomerSchema() {
                 dob: Date,
                 address: String,
                 fullname: String,
-                firstBillDate: Date
+                firstBillDate: Date,
+                firstPurchase: Boolean,
+                firstProcedure: Boolean,
+                firstProcedureOver500: Boolean
         });
 }

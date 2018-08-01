@@ -27,6 +27,9 @@ export interface ISaleCustomer extends IEntity {
         address: string;
         fullname: string;
         firstBillDate: Date;
+        firstPurchase: boolean;
+        firstProcedure: boolean;
+        firstProcedureOver500: boolean;
 }
 
 

@@ -17,85 +17,40 @@ import { Payments } from './../../../domain/app/payments/payment.model';
 import { AggregateStage } from './aggregate';
 import { ICollection, IGetDataOptions, IKpiBase } from './kpi-base';
 import { SimpleKPIBase } from './simple-kpi-base';
-
-export const CollectionsMapping = {
-    sales: {
-        modelName: 'Sale',
-        timestampField: 'product.from'
-    },
-    expenses: {
-        modelName: 'Expense',
-        timestampField: 'timestamp'
-    },
-    inventory: {
-        modelName: 'Inventory',
-        timestampField: 'updatedAt'
-    },
-    calls: {
-        modelName: 'Call',
-        timestampField: 'created_at'
-    },
-    appointments: {
-        modelName: 'Appointment',
-        timestampField: 'from'
-    }
-};
+import { getGenericModel } from '../../../domain/common/fields-with-data';
 
 export class SimpleKPI extends SimpleKPIBase implements IKpiBase {
 
     public static CreateFromExpression( kpi: IKPIDocument,
-                                        sales: Sales,
-                                        expenses: Expenses,
-                                        inventory: Inventory,
-                                        calls: Calls,
-                                        appointments: Appointments,
-                                        payments: Payments,
-                                        cogs: COGS,
-                                        financialActivities: FinancialActivities,
-                                        virtualSources: IVirtualSourceDocument[]
+                                        virtualSources: IVirtualSourceDocument[],
+                                        timezone: string
                                     ): SimpleKPI {
 
         const simpleKPIDefinition: IKPISimpleDefinition = KPIExpressionHelper.DecomposeExpression(KPITypeEnum.Simple, kpi.expression);
         let collection: ICollection;
         let baseAggregate: any;
 
-        if (virtualSources) {
-            const virtualSource = virtualSources.find(s => s.name.toLocaleLowerCase() === simpleKPIDefinition.dataSource);
+        // if (virtualSources) {
+        const virtualSource = virtualSources.find(s => s.name.toLocaleLowerCase() === simpleKPIDefinition.dataSource.toLocaleLowerCase());
 
-            if (virtualSource) {
-                collection = {
-                    modelName: virtualSource.modelIdentifier,
-                    timestampField: virtualSource.dateField
-                };
+        if (virtualSource) {
+            collection = {
+                modelName: virtualSource.modelIdentifier,
+                timestampField: virtualSource.dateField
+            };
 
-                simpleKPIDefinition.dataSource = virtualSource.source.toLowerCase();
+            simpleKPIDefinition.dataSource = virtualSource.source.toLowerCase();
 
-                if (virtualSource.aggregate) {
-                    baseAggregate = virtualSource.aggregate.map(a => {
-                        return KPIFilterHelper.CleanObjectKeys(a);
-                    });
-                }
+            if (virtualSource.aggregate) {
+                baseAggregate = virtualSource.aggregate.map(a => {
+                    return KPIFilterHelper.CleanObjectKeys(a);
+                });
             }
         }
+        // }
 
-        if (!collection) {
-            collection = CollectionsMapping[simpleKPIDefinition.dataSource];
-        }
+        const model = getGenericModel(virtualSource.db, virtualSource.modelIdentifier, virtualSource.source); //  models[collection.modelName];
 
-        if (!collection) { return null; }
-
-        const models = {
-            Sale: sales.model,
-            Expense: expenses.model,
-            Inventory: inventory.model,
-            Call: calls.model,
-            Appointment: appointments.model,
-            Payment: payments.model,
-            COGS: cogs.model,
-            FinancialActivity: financialActivities.model
-        };
-
-        const model = models[collection.modelName];
         let aggregateSkeleton: AggregateStage[] = [
             {
                 filter: true,
@@ -129,12 +84,13 @@ export class SimpleKPI extends SimpleKPIBase implements IKpiBase {
             aggregateSkeleton = baseAggregate.concat(aggregateSkeleton);
         }
 
-        return new SimpleKPI(model, aggregateSkeleton, simpleKPIDefinition, kpi, collection);
+        return new SimpleKPI(model, aggregateSkeleton, simpleKPIDefinition, kpi, collection, timezone);
     }
 
-    private constructor(model: any, baseAggregate: any, definition: IKPISimpleDefinition, kpi: IKPI, collection: ICollection) {
+    private constructor(model: any, baseAggregate: any, definition: IKPISimpleDefinition, kpi: IKPI, collection: ICollection, timezone: string) {
         super(model, baseAggregate);
 
+        this.timezone = timezone;
         this.kpi = kpi;
         this.collection = collection;
 
