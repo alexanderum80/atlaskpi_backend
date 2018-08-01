@@ -67,4 +67,5 @@ export interface IAppConfig {
         redisPort: string
     };
     supportEmail: string;
+    seedDbName: string;
 }
