@@ -46,7 +46,9 @@ export class GoogleAnalyticsKPIService {
                 }
 
                 configDoc = configDocument;
-                return that._resolveConnector(connectorId.replace('googleanalytics', ''));
+
+                const dsTokens = connectorId.split('$');
+                return that._resolveConnector(dsTokens[1]);
             })
             .then(connectorDocument => {
                 if (!connectorDocument) {

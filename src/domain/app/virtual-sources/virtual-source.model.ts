@@ -191,10 +191,17 @@ async function getDataSourceByName(name: string): Promise<IVirtualSourceDocument
 }
 
 
-export function mapDataSourceFields(virtualSource: IVirtualSourceDocument): DataSourceField[] {
+export function mapDataSourceFields(virtualSource: IVirtualSourceDocument, excludeSourceFiled = true): DataSourceField[] {
     // with the new feature to filter kpi by sources we do not need to send the "source" field anymore
+    // !!!UPDATE: we do need the source in the groupings so we should specify if we do not want to exclude the source field. 
+
     const fieldsMap = virtualSource.fieldsMap;
-    const fieldNames = Object.keys(virtualSource.fieldsMap).filter(k => k.toLowerCase() !== 'source').sort();
+    let fieldNames = Object.keys(virtualSource.fieldsMap)
+                           .sort();
+
+    fieldNames = excludeSourceFiled
+        ? fieldNames.filter(k => k.toLowerCase() !== 'source')
+        : fieldNames;
 
     return fieldNames.map(key => ({
         name: key,
