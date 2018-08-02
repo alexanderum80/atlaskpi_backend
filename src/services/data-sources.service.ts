@@ -17,6 +17,7 @@ const GOOGLE_ANALYTICS = 'GoogleAnalytics';
 export interface IFieldAvailabilityOptions {
     dateRangeFilter?: { $gte: Date, $lt: Date };
     filters?: any;
+    excludeSourceField?: boolean;
 }
 
 @injectable()
@@ -206,8 +207,15 @@ export class DataSourcesService {
     // { $group: {
     //     "_id" : null,
     //     "customer": { $sum: {$cond: [{$gte: ['$customer', null]}, 1, 0] } },
-    //     "field_no_value": { $sum: {$cond: [{$gte: ['$field_no_value', null]}, 1, 0] } },
-    //    }
+    //     "field_no_value": {
+    //          $sum: {
+    //              $cond: [ {
+    //                  '$and': [
+    //                		 {'$gte': ['$field_no_value', null] },
+    //                		 {'$ne': ['$field_no_value', null]  }
+    //                  ]
+    //              } ]
+    //          }
     // }
     //
     // Output:
@@ -218,10 +226,10 @@ export class DataSourcesService {
     // }
     */
     async getAvailableFields(vs: IVirtualSourceDocument, sourceFieldCriterias: string[],
-                                      options: IFieldAvailabilityOptions = {}): Promise<DataSourceField[]> {
+                             options: IFieldAvailabilityOptions = {}): Promise<DataSourceField[]> {
         if (!vs) return [];
 
-        const { dateRangeFilter, filters } = options;
+        const { dateRangeFilter, filters, excludeSourceField } = options;
 
         const aggregate = [];
 
@@ -266,7 +274,20 @@ export class DataSourcesService {
         // construct the stage for getting value-existance of the fields
         const existanceStage = { $group: { '_id' : null } };
         fields.forEach(f =>
-            existanceStage.$group[f.name] = { $sum: {$cond: [{$gte: [`$${f.value}`, null]}, 1, 0] } }
+            existanceStage.$group[f.name] = {
+                $sum: {
+                    $cond: [
+                        {
+                            // $gte: [`$${f.value}`, null]
+                            $and: [
+                                { $gte: [`$${f.value}`, null] },
+                                { $ne:  [`$${f.value}`, null] }
+                            ]
+                        }
+                        , 1, 0
+                    ]
+                }
+            }
         );
         aggregate.push(existanceStage);
 
@@ -274,7 +295,7 @@ export class DataSourcesService {
         const aggResult = await getAggregateResult(vs, aggregate) as any[];
         // console.dir(aggResult);
 
-        const expresionFields = mapDataSourceFields(vs);
+        const expresionFields = mapDataSourceFields(vs, excludeSourceField);
 
         // set availablee fields with value gt 0
         expresionFields.forEach(f => {
