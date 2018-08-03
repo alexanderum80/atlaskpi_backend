@@ -56,7 +56,7 @@ export class KpiFactory {
                 case KPITypeEnum.ExternalSource:
                     return GoogleAnalyticsKpi.CreateFromExpression( kpiDocument,
                                                                     this._googleAnalytics,
-                                                                    this._googleAnalyticsKpiService,
+                                                                    // this._googleAnalyticsKpiService,
                                                                     this._queueService,
                                                                     this._currentAccount,
                                                                     virtualSources);

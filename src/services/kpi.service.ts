@@ -1,3 +1,4 @@
+import { DataSourceField } from './../app_modules/data-sources/data-sources.types';
 import * as Bluebird from 'bluebird';
 import { inject, injectable } from 'inversify';
 import { cloneDeep, intersectionBy, isArray, isDate, isEmpty, isObject, isString, pickBy, uniqBy } from 'lodash';
@@ -16,7 +17,7 @@ import { KPIFilterHelper } from '../domain/app/kpis/kpi-filter.helper';
 import { KPIs } from '../domain/app/kpis/kpi.model';
 import { ISaleModel } from '../domain/app/sales/sale';
 import { IVirtualSourceDocument } from '../domain/app/virtual-sources/virtual-source';
-import { VirtualSources } from '../domain/app/virtual-sources/virtual-source.model';
+import { VirtualSources, mapDataSourceFields } from '../domain/app/virtual-sources/virtual-source.model';
 import { IWidgetDocument } from '../domain/app/widgets/widget';
 import { Widgets } from '../domain/app/widgets/widget.model';
 import { parsePredifinedDate } from '../domain/common/date-range';
@@ -394,7 +395,7 @@ export class KpiService {
     }
 
     private async _groupingsWithData(virtualSources: IVirtualSourceDocument[], dateRange: ChartDateRangeInput[],
-                                  kpiFilter?: any): Promise<IValueName[]> {
+                                     kpiFilter?: any): Promise<IValueName[]> {
         try {
             const existingGroupings: Array<IValueName[]> =
                 await Bluebird.map(
@@ -434,13 +435,20 @@ export class KpiService {
 
     private async _getAvailableGroupingForOptions(vs: IVirtualSourceDocument, dateRange: ChartDateRangeInput[],
                                                   filters: any): Promise<IValueName[]> {
-        const dateRangeFilter = this._getDateRangeAsFilter(dateRange);
+        let availableFields: DataSourceField[];
 
-        const availableFields = await this._dataSourcesService.getAvailableFields(
-            vs,
-            [],
-            { dateRangeFilter, filters }
-        );
+        if (!vs.externalSource) {
+            const dateRangeFilter = this._getDateRangeAsFilter(dateRange);
+
+            availableFields = await this._dataSourcesService.getAvailableFields(
+                vs,
+                [],
+                { dateRangeFilter, filters, excludeSourceField: false }
+            );
+        } else {
+            availableFields = mapDataSourceFields(vs, false);
+            availableFields.forEach(f => f.available = true);
+        }
 
         const availableGroupings =
             availableFields
