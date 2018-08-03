@@ -1108,7 +1108,8 @@ export class UIChartBase {
                 } else {
                     if (dateRangeId && stack) {
                         comparisonString = PredefinedComparisonDateRanges[dateRangeId][stack];
-                        if (!comparisonString) { comparisonString = stack.substr(0, 1) + ' years ago'; }
+                        if (!comparisonString) {
+                            comparisonString = stack.substr(0, stack.indexOf('YearsAgo')) + ' years ago'; }
                     }
                 }
 

@@ -649,7 +649,67 @@ export function parseComparisonDateRange(dateRange: IDateRange, comparisonString
         case '10YearsAgo':
             return backInTime(dateRange, 10, 'year');
 
-        case 'lastYear':
+        case '11YearsAgo':
+            return backInTime(dateRange, 11, 'year');
+
+        case '12YearsAgo':
+            return backInTime(dateRange, 12, 'year');
+
+        case '13YearsAgo':
+            return backInTime(dateRange, 13, 'year');
+
+        case '14YearsAgo':
+            return backInTime(dateRange, 14, 'year');
+
+        case '15YearsAgo':
+            return backInTime(dateRange, 15, 'year');
+
+        case '16YearsAgo':
+            return backInTime(dateRange, 16, 'year');
+
+        case '17YearsAgo':
+            return backInTime(dateRange, 17, 'year');
+
+        case '18YearsAgo':
+            return backInTime(dateRange, 18, 'year');
+
+        case '19YearsAgo':
+            return backInTime(dateRange, 19, 'year');
+
+        case '20YearsAgo':
+            return backInTime(dateRange, 20, 'year');
+
+        case '21YearsAgo':
+            return backInTime(dateRange, 21, 'year');
+
+        case '22YearsAgo':
+            return backInTime(dateRange, 22, 'year');
+
+        case '23YearsAgo':
+            return backInTime(dateRange, 23, 'year');
+
+        case '24YearsAgo':
+            return backInTime(dateRange, 24, 'year');
+
+        case '25YearsAgo':
+            return backInTime(dateRange, 25, 'year');
+
+        case '26YearsAgo':
+            return backInTime(dateRange, 26, 'year');
+
+        case '27YearsAgo':
+            return backInTime(dateRange, 27, 'year');
+
+        case '28YearsAgo':
+            return backInTime(dateRange, 28, 'year');
+
+        case '29YearsAgo':
+            return backInTime(dateRange, 29, 'year');
+
+        case '30YearsAgo':
+            return backInTime(dateRange, 30, 'year');
+
+         case 'lastYear':
             return backInTime(dateRange, 1, 'year', mainDateRangeFrom);
 
         case 'twoYearsAgo':
