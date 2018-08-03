@@ -95,6 +95,6 @@ export const config: IAppConfig = {
         redisPort: process.env.AKPI_REDIS_PORT || '6379'
     },
     supportEmail: process.env.SUPPORT_EMAIL || 'support@atlaskpi.com',
-    seedDbName: process.env.AKPI_SEED_DB_NAME || 'newdemo'
+    seedDbName: process.env.AKPI_SEED_DB_NAME || 'newdemo',
     templateHttpMethod: process.env.AKPI_TEMPLATE_HTTP_METHOD || 'http'
 };
