@@ -51,6 +51,9 @@ import { usersServiceConfig } from './users/users-service-config';
 
             Ex: "newdemo"
 
+        AKPI_TEMPLATE_HTTP_METHOD       -- The http method for links in email templates
+
+            Ex: "http" | "https"
 */
 
 export const config: IAppConfig = {
@@ -93,4 +96,5 @@ export const config: IAppConfig = {
     },
     supportEmail: process.env.SUPPORT_EMAIL || 'support@atlaskpi.com',
     seedDbName: process.env.AKPI_SEED_DB_NAME || 'newdemo'
+    templateHttpMethod: process.env.AKPI_TEMPLATE_HTTP_METHOD || 'http'
 };

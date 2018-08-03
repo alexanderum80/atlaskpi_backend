@@ -68,4 +68,5 @@ export interface IAppConfig {
     };
     supportEmail: string;
     seedDbName: string;
+    templateHttpMethod: string;
 }

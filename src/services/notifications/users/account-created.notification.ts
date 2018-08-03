@@ -27,6 +27,9 @@ export class AccountCreatedNotification implements IAccountCreatedNotifier {
             Handlebars.compile(this._config.usersService.services.createUser.emailTemplate);
 
         const dataSource: IAccountCreatedDataSource = user.toObject();
+
+        dataSource.method = this._config.templateHttpMethod;
+
         if (!dataSource.host) {
             dataSource.host = this._currentAccount.get.subdomain;
         }

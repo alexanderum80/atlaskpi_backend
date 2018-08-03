@@ -111,6 +111,7 @@ export interface IMobileDevice {
 }
 
 export interface IAccountCreatedDataSource {
+    method?: string;
     host?: string;
     subdomain?: string;
     resetToken?: string;
