@@ -90,7 +90,7 @@ export class GoogleAnalyticsKpi extends SimpleKPIBase implements IKpiBase {
         super(model, _baseAggregate);
 
         if (!_virtualSource) {
-            const errStr = 'Virtual source for google analytics not found... ');
+            const errStr = 'Virtual source for google analytics not found... ';
             console.log(errStr);
             throw new Error(errStr);
         }
