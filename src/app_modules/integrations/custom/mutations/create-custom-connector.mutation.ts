@@ -60,7 +60,8 @@ export class CreateCustomConnectorMutation extends MutationBase<IMutationRespons
             const query = {
                 name: data.input.inputName,
                 'type': connectorType,
-                databaseName: that._currentAccount.get.database.name
+                databaseName: that._currentAccount.get.database.name,
+                subdomain: that._currentAccount.get.database.name
             };
 
             that._connectors.model.findOne(query).then((connector: IConnectorDocument) => {

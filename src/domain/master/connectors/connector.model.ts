@@ -23,6 +23,7 @@ const ConnectorSchema = new Schema({
 ConnectorSchema.statics.addConnector = addConnector;
 ConnectorSchema.statics.updateConnector = updateConnector;
 ConnectorSchema.statics.removeConnector = removeConnector;
+ConnectorSchema.statics.getConnectorByName = getConnectorByName;
 ConnectorSchema.statics.getReportingConnectors = getReportingConnectors;
 
 
@@ -86,9 +87,24 @@ function removeConnector(id: string): Promise<IConnectorDocument> {
 function getReportingConnectors(subdomain: string): Promise<IConnectorDocument[]> {
     return this.find({
         subdomain: subdomain,
-        virtualSource: { $ne: null }
+        virtualSource: { $ne: null },
+        type: 'googleanalytics'
     });
 }
+
+async function getConnectorByName(name: string): Promise<IConnectorDocument> {
+    const that = this;
+    return new Promise<IConnectorDocument>((resolve, reject) => {
+        that.findOne({ name: name })
+        .then(connector => {
+            return resolve(connector);
+        })
+        .catch(err => {
+            return reject(err);
+        });
+    });
+}
+
 
 @injectable()
 export class Connectors extends ModelBase<IConnectorModel> {

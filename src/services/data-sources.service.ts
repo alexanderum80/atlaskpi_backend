@@ -4,7 +4,7 @@ import { IVirtualSourceDocument, IVirtualSource } from '../domain/app/virtual-so
 import { DataSourceField, DataSourceResponse } from '../app_modules/data-sources/data-sources.types';
 import { injectable, inject, Container } from 'inversify';
 import {VirtualSources, mapDataSourceFields} from '../domain/app/virtual-sources/virtual-source.model';
-import { sortBy, concat } from 'lodash';
+import { sortBy, concat, isBoolean } from 'lodash';
 import { Logger } from '../domain/app/logger';
 import { KPIFilterHelper } from '../domain/app/kpis/kpi-filter.helper';
 import * as Bluebird from 'bluebird';
@@ -16,6 +16,7 @@ import * as mongoose from 'mongoose';
 import { AppConnection } from '../domain/app/app.connection';
 import * as moment from 'moment';
 import { IMutationResponse } from '../framework/mutations/mutation-response';
+import { Connectors } from '../domain/master/connectors/connector.model';
 
 const GOOGLE_ANALYTICS = 'GoogleAnalytics';
 
@@ -31,6 +32,7 @@ export class DataSourcesService {
         @inject(Logger.name) private _logger: Logger,
         @inject('resolver') private _resolver: (name: string) => any,
         @inject(AppConnection.name) private _appConnection: AppConnection,
+        @inject(Connectors.name) private _connectors: Connectors,
         @inject(VirtualSources.name) private _virtualDatasources: VirtualSources) { }
 
     async get(): Promise<DataSourceResponse[]> {
@@ -222,7 +224,7 @@ export class DataSourcesService {
             dataCollection.map(d => {
                 const collection: any[] = [];
                 for (let i = 0; i < d.length; i++) {
-                    const record = d[i].toString();
+                    const record = d[i];
                     const fieldName = schemaCollection[i].columnName.toLowerCase().replace(' ', '_');
                     collection[fieldName] = this.getValueFromDataType(schemaCollection[i].dataType, record);
                 }
@@ -237,25 +239,27 @@ export class DataSourcesService {
         });
     }
 
-    async getVirtualSourceMapCollection(name): Promise<any> {
+    async getVirtualSourceMapCollection(connectorName): Promise<any> {
         try {
-            const dataSource = await this._virtualDatasources.model.getDataSourceByName(name);
+            const connector = await this._connectors.model.getConnectorByName(connectorName);
+
+            const dataSource = await this._virtualDatasources.model.getDataSourceByName(connector.virtualSource);
 
             if (!dataSource) {
                 return null;
             }
 
             const schema = new mongoose.Schema({}, { strict: false });
-
             const connection: mongoose.Connection = this._appConnection.get;
             const model = connection.model(dataSource.source, schema, dataSource.source);
 
-            const modelData = await model.find();
-            const dataModel = await modelData.map(data => data['_doc']);
+            const dataModel = await model.find();
+            const data = await dataModel.map(data => data['_doc']);
 
             const dataCollection = {
                 'schema': dataSource.fieldsMap,
-                'data': dataModel
+                'data': data,
+                'dataName': connectorName
             };
 
             return JSON.stringify(dataCollection);
@@ -278,18 +282,24 @@ export class DataSourcesService {
         });
     }
 
-    getValueFromDataType(dataType, value) {
+    getValueFromDataType(dataType, inputValue) {
         switch (dataType) {
             case 'Number':
-                if (value.split('.').length > 1) {
-                    return toNumber(value);
+                if (inputValue.toString().split('.').length > 1) {
+                    return toNumber(inputValue);
                 } else {
-                    return toInteger(value);
+                    return toInteger(inputValue);
                 }
             case 'Date':
-                return moment.utc(value).toDate();
+                return moment.utc(inputValue).toDate();
+            case 'Boolean':
+                if (!isBoolean(inputValue)) {
+                    const booleanValue: boolean = inputValue === '1' || inputValue === 'true';
+                    inputValue = booleanValue;
+                }
+                return inputValue as boolean;
             default:
-                return value;
+                return inputValue;
         }
     }
     /**

@@ -185,8 +185,18 @@ async function getDataSourceByName(name: string): Promise<IVirtualSourceDocument
     const model = this as IVirtualSourceModel;
 
     try {
-        const query: IObject = { name: name };
-        return await model.findOne(query);
+        return new Promise<IVirtualSourceDocument>((resolve, reject) => {
+            const query: IObject = { name: name };
+            return model.findOne(query)
+                .then(virtualSource => {
+                    resolve(virtualSource);
+                    return;
+                })
+                .catch(err => {
+                    reject(err);
+                    return;
+                });
+        });
     } catch (e) {
         console.log('Error getting virtual source fields');
         return {} as any;

@@ -62,14 +62,15 @@ export class ConnectorsService {
                                     ? collectionName.concat('s') : collectionName;
 
                 const inputDateField = input.fields.find(f => f.dataType === 'Date');
-                let inputFieldsMap: IVirtualSourceFields = {};
+                let inputFieldsMap = {};
                 inputFieldsMap['Source'] = {
                     path: 'source',
                     dataType: 'String',
                     allowGrouping: true
                 };
 
-                input.fields.map(f => {
+                for (let i = input.fields.length - 1; i >= 0; i--) {
+                    const f = input.fields[i];
                     const field = f.columnName;
                     const dataType = f.dataType;
                     inputFieldsMap[field] = {
@@ -79,7 +80,7 @@ export class ConnectorsService {
                     if (dataType === 'String') {
                         inputFieldsMap[field].allowGrouping = true;
                     }
-                });
+                }
 
                 const virtualSourceObj: IVirtualSource = {
                     name: camelCase(inputName).toLowerCase(),
