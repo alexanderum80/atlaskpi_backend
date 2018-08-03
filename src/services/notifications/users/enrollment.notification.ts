@@ -1,3 +1,4 @@
+import { CurrentAccount } from './../../../domain/master/current-account';
 import { sendEmail } from '../../email/email.service';
 import * as Promise from 'bluebird';
 import * as Handlebars from 'handlebars';
@@ -14,7 +15,8 @@ export interface IEnrollmentNotifier extends IEmailNotifier { }
 @injectable()
 export class EnrollmentNotification implements IEnrollmentNotifier {
 
-    constructor(@inject('Config') private _config: IAppConfig) { }
+    constructor(@inject('Config') private _config: IAppConfig,
+                @inject(CurrentAccount.name) private _currentAccount: CurrentAccount) { }
 
     notify(user: IUserDocument, email: string, hostname: string, data?: any): Promise<nodemailer.SentMessageInfo> {
 
@@ -27,7 +29,8 @@ export class EnrollmentNotification implements IEnrollmentNotifier {
             (<any>dataSource).firstName = user.username;
         }
 
-        (<any>dataSource).host = hostname;
+        (<any>dataSource).method = this._config.templateHttpMethod;
+        (<any>dataSource).host = this._currentAccount.get.subdomain;
         (<any>dataSource).subdomain = this._config.subdomain;
         (<any>dataSource).enrollmentToken = user.services.email.enrollment[0].token;
 

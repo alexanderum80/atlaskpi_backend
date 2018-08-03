@@ -40,6 +40,7 @@ export class UserForgotPasswordNotification implements IEmailNotifier {
             dataSource.companyName = this._currentAccount.get.database.name;
         }
 
+        dataSource.method = this._config.templateHttpMethod;
         dataSource.host = this._currentAccount.get.subdomain; // hostname;
         dataSource.subdomain = this._config.subdomain;
 
