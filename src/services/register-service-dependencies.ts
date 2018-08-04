@@ -19,13 +19,14 @@ import { UserForgotPasswordNotification } from './notifications/users/user-forgo
 import { UserMilestoneNotification } from './notifications/users/user-milestone.notification';
 import { PnsService } from './pns.service';
 import { GAJobsQueueService } from './queues/ga-jobs-queue.service';
-import { SeedService } from './seed/seed.service';
+// import { SeedService } from './seed/seed.service';
 import { SocialWidgetsService } from './social-widgets.service';
 import { TargetService } from './target.service';
 import { UserPasswordService } from './user-password.service';
 import { UserService } from './user.service';
 import { WidgetsService } from './widgets.service';
 import { ScheduleJobService } from './schedule-jobs/schedule-job.service';
+import { NewSeedService } from './seed/seed-service';
 
 export function registerServices(container: IBridgeContainer) {
     container.registerSingleton(PnsService);
@@ -44,7 +45,7 @@ export function registerServices(container: IBridgeContainer) {
     container.registerPerWebRequest(AccountsService);
     container.registerPerWebRequest(AuthService);
     container.registerPerWebRequest(CallRailService);
-    container.registerPerWebRequest(SeedService);
+    // container.registerPerWebRequest(SeedService);
     container.registerPerWebRequest(TargetService);
     container.registerPerWebRequest(WidgetsService);
     container.registerPerWebRequest(ChartsService);
