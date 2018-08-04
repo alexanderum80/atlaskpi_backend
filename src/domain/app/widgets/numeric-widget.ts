@@ -110,8 +110,7 @@ export class NumericWidget extends UIWidgetBase implements IUIWidget {
 
     private async _getKpiData(kpi: IKpiBase, dateRange: IDateRange): Promise<any> {
         try {
-            const kpiClone = cloneDeep(kpi);
-            const result = await kpiClone.getData([dateRange], { filter: null });
+            const result = await kpi.getData([dateRange], { filter: null });
 
             if (result && result.length > 0) {
                 return result[0].value;
