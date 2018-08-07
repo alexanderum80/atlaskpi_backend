@@ -97,7 +97,7 @@ export class KpiBase {
             });
 
             // logger.debug('With aggregate: ' + JSON.stringify(aggregateParameters));
-            const aggregate = that.model.aggregate(...aggregateParameters);
+            const aggregate = this.model.aggregate(...aggregateParameters);
             aggregate.options = { allowDiskUse: true };
             aggregate.exec((err, data) => {
                 resolve(data);

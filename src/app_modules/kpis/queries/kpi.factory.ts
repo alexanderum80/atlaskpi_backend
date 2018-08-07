@@ -17,7 +17,6 @@ import { GoogleAnalyticsKpi } from './google-analytics-kpi';
 import { IKpiBase } from './kpi-base';
 import { Revenue } from './revenue.kpi';
 import { SimpleKPI } from './simple-kpi';
-import { AppConnection } from '../../../domain/app/app.connection';
 
 @injectable()
 export class KpiFactory {
@@ -30,7 +29,6 @@ export class KpiFactory {
         @inject(GAJobsQueueService.name) private _queueService: GAJobsQueueService,
         @inject(CurrentAccount.name) private _currentAccount: CurrentAccount,
         @inject(CurrentUser.name) private _currentUser: CurrentUser,
-        @inject(AppConnection.name) private _appConnection: AppConnection
     ) { }
 
     async getInstance(kpiDocument: IKPIDocument): Promise<IKpiBase> {
@@ -53,7 +51,7 @@ export class KpiFactory {
                     return SimpleKPI.CreateFromExpression(
                                 kpiDocument,
                                 virtualSources,
-                                tz,
+                                tz
                           );
                 case KPITypeEnum.ExternalSource:
                     return GoogleAnalyticsKpi.CreateFromExpression( kpiDocument,

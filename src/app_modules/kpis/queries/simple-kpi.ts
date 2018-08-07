@@ -1,12 +1,19 @@
-import { camelCase } from 'change-case';
-import { cloneDeep } from 'lodash';
+import { FinancialActivities } from './../../../domain/app/financial-activities/financial-activity.model';
+import { cloneDeep, camelCase } from 'lodash';
 
+import { Calls } from '../../../domain/app/calls/call.model';
+import { Expenses } from '../../../domain/app/expenses/expense.model';
+import { Inventory } from '../../../domain/app/inventory/inventory.model';
 import { IKPI, IKPIDocument, IKPISimpleDefinition, KPITypeEnum } from '../../../domain/app/kpis/kpi';
 import { KPIExpressionHelper } from '../../../domain/app/kpis/kpi-expression.helper';
 import { KPIFilterHelper } from '../../../domain/app/kpis/kpi-filter.helper';
+import { Sales } from '../../../domain/app/sales/sale.model';
 import { IVirtualSourceDocument } from '../../../domain/app/virtual-sources/virtual-source';
 import { IDateRange } from '../../../domain/common/date-range';
 import { FrequencyEnum } from '../../../domain/common/frequency-enum';
+import { Appointments } from './../../../domain/app/appointments/appointment-model';
+import { COGS } from './../../../domain/app/cogs/cogs.model';
+import { Payments } from './../../../domain/app/payments/payment.model';
 import { AggregateStage } from './aggregate';
 import { ICollection, IGetDataOptions, IKpiBase } from './kpi-base';
 import { SimpleKPIBase } from './simple-kpi-base';
@@ -16,7 +23,7 @@ export class SimpleKPI extends SimpleKPIBase implements IKpiBase {
 
     public static CreateFromExpression( kpi: IKPIDocument,
                                         virtualSources: IVirtualSourceDocument[],
-                                        timezone: string,
+                                        timezone: string
                                     ): SimpleKPI {
 
         const simpleKPIDefinition: IKPISimpleDefinition = KPIExpressionHelper.DecomposeExpression(KPITypeEnum.Simple, kpi.expression);
@@ -32,7 +39,7 @@ export class SimpleKPI extends SimpleKPIBase implements IKpiBase {
                 timestampField: virtualSource.dateField
             };
 
-                simpleKPIDefinition.dataSource = camelCase(virtualSource.source);
+            simpleKPIDefinition.dataSource = camelCase(virtualSource.source);
 
             if (virtualSource.aggregate) {
                 baseAggregate = virtualSource.aggregate.map(a => {
