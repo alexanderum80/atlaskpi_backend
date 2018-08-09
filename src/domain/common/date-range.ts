@@ -1383,29 +1383,75 @@ export function parseComparisonDateRange(dateRange: IDateRange, comparisonString
         case 'sevenYearsAgo':
         case 'seven years ago':
             return backInTime(dateRange, 7, 'year', mainDateRangeFrom);
-            /* eightYearsAgo: '8 years ago',
-            nineYearsAgo: '9 years ago',
-            tenYearsAgo: '10 years ago',
-            elevenYearsAgo: '11 years ago',
-            twelveYearsAgo: '12 years ago',
-            thirteenYearsAgo: '13 years ago',
-            fourteenYearsAgo: '14 years ago',
-            fifteenYearsAgo: '15 years ago',
-            sixteenYearsAgo: '16 years ago',
-            seventeenYearsAgo: '17 years ago',
-            eighteenYearsAgo: '18 years ago',
-            nineteenYearsAgo: '19 years ago',
-            twentyYearsAgo: '20 years ago',
-            twentyoneYearsAgo: '21 years ago',
-            twentytwoYearsAgo: '22 years ago',
-            twentythreeYearsAgo: '23 years ago',
-            twentyfourYearsAgo: '24 years ago',
-            twentyfiveYearsAgo: '25 years ago',
-            twentysixYearsAgo: '26 years ago',
-            twentysevenYearsAgo: '27 years ago',
-            twentyeightYearsAgo: '28 years ago',
-            twentynineYearsAgo: '29 years ago',
-            thirtyYearsAgo: '30 years ago' */
+        case 'eightYearsAgo':
+        case '8 years ago':
+            return backInTime(dateRange, 8, 'year', mainDateRangeFrom);
+        case 'nineYearsAgo':
+        case '9 years ago':
+            return backInTime(dateRange, 9, 'year', mainDateRangeFrom);
+        case 'tenYearsAgo':
+        case '10 years ago':
+            return backInTime(dateRange, 10, 'year', mainDateRangeFrom);
+        case 'elevenYearsAgo':
+        case '11 years ago':
+            return backInTime(dateRange, 11, 'year', mainDateRangeFrom);
+        case 'twelveYearsAgo':
+        case '12 years ago':
+            return backInTime(dateRange, 12, 'year', mainDateRangeFrom);
+        case 'thirteenYearsAgo':
+        case '13 years ago':
+            return backInTime(dateRange, 13, 'year', mainDateRangeFrom);
+        case 'fourteenYearsAgo':
+        case '14 years ago':
+            return backInTime(dateRange, 14, 'year', mainDateRangeFrom);
+        case 'fifteenYearsAgo':
+        case '15 years ago':
+            return backInTime(dateRange, 15, 'year', mainDateRangeFrom);
+        case 'sixteenYearsAgo':
+        case '16 years ago':
+            return backInTime(dateRange, 16, 'year', mainDateRangeFrom);
+        case 'seventeenYearsAgo':
+        case '17 years ago':
+            return backInTime(dateRange, 17, 'year', mainDateRangeFrom);
+        case 'eighteenYearsAgo':
+        case '18 years ago':
+            return backInTime(dateRange, 18, 'year', mainDateRangeFrom);
+        case 'nineteenYearsAgo':
+        case '19 years ago':
+            return backInTime(dateRange, 19, 'year', mainDateRangeFrom);
+        case 'twentyYearsAgo':
+        case '20 years ago':
+                return backInTime(dateRange, 20, 'year', mainDateRangeFrom);
+        case 'twentyoneYearsAgo':
+        case '21 years ago':
+                return backInTime(dateRange, 21, 'year', mainDateRangeFrom);
+        case 'twentytwoYearsAgo':
+        case '22 years ago':
+                return backInTime(dateRange, 22, 'year', mainDateRangeFrom);
+        case 'twentythreeYearsAgo':
+        case '23 years ago':
+                return backInTime(dateRange, 23, 'year', mainDateRangeFrom);
+        case 'twentyfourYearsAgo':
+        case '24 years ago':
+                return backInTime(dateRange, 24, 'year', mainDateRangeFrom);
+        case 'twentyfiveYearsAgo':
+        case '25 years ago':
+                return backInTime(dateRange, 25, 'year', mainDateRangeFrom);
+        case 'twentysixYearsAgo':
+        case '26 years ago':
+                return backInTime(dateRange, 26, 'year', mainDateRangeFrom);
+        case 'twentysevenYearsAgo':
+        case '27 years ago':
+                return backInTime(dateRange, 27, 'year', mainDateRangeFrom);
+        case 'twentyeightYearsAgo':
+        case '28 years ago':
+                return backInTime(dateRange, 28, 'year', mainDateRangeFrom);
+        case 'twentynineYearsAgo':
+        case '29 years ago':
+                return backInTime(dateRange, 29, 'year', mainDateRangeFrom);
+        case 'thirtyYearsAgo':
+        case '30 years ago':
+                return backInTime(dateRange, 30, 'year', mainDateRangeFrom);
         case 'lastQuarter':
             // TODO: we have to calculate the previous Q, just back in time 90 days for now
             return backInTime(dateRange, 90, 'days', mainDateRangeFrom);
