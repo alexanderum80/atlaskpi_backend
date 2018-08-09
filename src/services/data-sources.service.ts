@@ -286,6 +286,9 @@ export class DataSourcesService {
     getValueFromDataType(dataType, inputValue) {
         switch (dataType) {
             case 'Number':
+                if (inputValue === null || inputValue === '') {
+                    return 0;
+                }
                 if (inputValue.toString().split('.').length > 1) {
                     return toNumber(inputValue);
                 } else {
