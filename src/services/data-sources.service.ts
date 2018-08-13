@@ -1,16 +1,22 @@
+import { camelCase } from 'change-case';
 import { IDateRange } from './../domain/common/date-range';
 import { IVirtualSourceDocument, IVirtualSource } from '../domain/app/virtual-sources/virtual-source';
 import { DataSourceField, DataSourceResponse } from '../app_modules/data-sources/data-sources.types';
 import { injectable, inject, Container } from 'inversify';
 import {VirtualSources, mapDataSourceFields} from '../domain/app/virtual-sources/virtual-source.model';
-import {sortBy} from 'lodash';
+import { sortBy, concat, isBoolean } from 'lodash';
 import { Logger } from '../domain/app/logger';
 import { KPIFilterHelper } from '../domain/app/kpis/kpi-filter.helper';
 import * as Bluebird from 'bluebird';
-import { isObject, isEmpty } from 'lodash';
+import { isObject, isEmpty, toInteger, toNumber } from 'lodash';
 import {KPIExpressionFieldInput} from '../app_modules/kpis/kpis.types';
 import {getFieldsWithData, getGenericModel, getAggregateResult} from '../domain/common/fields-with-data';
 import { ICriteriaSearchable } from '../app_modules/shared/criteria.plugin';
+import * as mongoose from 'mongoose';
+import { AppConnection } from '../domain/app/app.connection';
+import * as moment from 'moment';
+import { IMutationResponse } from '../framework/mutations/mutation-response';
+import { Connectors } from '../domain/master/connectors/connector.model';
 
 const GOOGLE_ANALYTICS = 'GoogleAnalytics';
 
@@ -26,6 +32,8 @@ export class DataSourcesService {
     constructor(
         @inject(Logger.name) private _logger: Logger,
         @inject('resolver') private _resolver: (name: string) => any,
+        @inject(AppConnection.name) private _appConnection: AppConnection,
+        @inject(Connectors.name) private _connectors: Connectors,
         @inject(VirtualSources.name) private _virtualDatasources: VirtualSources) { }
 
     async get(): Promise<DataSourceResponse[]> {
@@ -134,7 +142,10 @@ export class DataSourcesService {
             const fields: DataSourceField[] = virtualSource.fields;
             // i.e. Sales
             const dataSource: string = virtualSource.dataSource;
-            const model = this._resolver(dataSource).model;
+            const schema = new mongoose.Schema({}, { strict: false });
+
+            const connection: mongoose.Connection = this._appConnection.get;
+            const model = <any>connection.model(dataSource, schema, camelCase(dataSource));
 
             if (this._isGoogleAnalytics(dataSource)) {
                 return this._getGoogleAnalyticsFields(fields);
@@ -177,7 +188,11 @@ export class DataSourcesService {
             });
         }
 
-        const model = this._resolver(vs.source).model;
+        // const model = this._resolver(vs.source).model;
+        const schema = new mongoose.Schema({}, { strict: false });
+        const connection: mongoose.Connection = this._appConnection.get;
+        const model = <any>connection.model(vs.source, schema, vs.source.toLowerCase());
+
         const fieldsWithData: string[] = await getFieldsWithData(model, fields, collectionSource, aggregate);
         fields.forEach((n: DataSourceField) => {
             n.available = fieldsWithData.indexOf(n.name) !== -1;
@@ -198,6 +213,99 @@ export class DataSourcesService {
         return fields;
     }
 
+    createVirtualSourceMapCollection(input): Promise<IMutationResponse> {
+        const schema = new mongoose.Schema({}, { strict: false });
+        const connection: mongoose.Connection = this._appConnection.get;
+        const newCollection = <any>connection.model(input.inputName, schema, input.inputName);
+
+        const dataCollection = <any>input.records;
+        const schemaCollection = input.fields;
+
+        return new Promise<IMutationResponse>((resolve, reject) => {
+            dataCollection.map(d => {
+                const collection: any[] = [];
+                for (let i = 0; i < d.length; i++) {
+                    const record = d[i];
+                    const fieldName = schemaCollection[i].columnName.toLowerCase().replace(' ', '_');
+                    collection[fieldName] = this.getValueFromDataType(schemaCollection[i].dataType, record);
+                }
+                collection['source'] = 'Manual entry';
+                collection['timestamp'] = moment.utc().toDate();
+
+                const model = new newCollection(collection);
+                model.save();
+            });
+            resolve({success: true});
+            return;
+        });
+    }
+
+    async getVirtualSourceMapCollection(connectorName): Promise<any> {
+        try {
+            const connector = await this._connectors.model.getConnectorByName(connectorName);
+
+            const dataSource = await this._virtualDatasources.model.getDataSourceByName(connector.virtualSource);
+
+            if (!dataSource) {
+                return null;
+            }
+
+            const schema = new mongoose.Schema({}, { strict: false });
+            const connection: mongoose.Connection = this._appConnection.get;
+            const model = connection.model(dataSource.source, schema, dataSource.source);
+
+            const dataModel = await model.find();
+            const data = await dataModel.map(data => data['_doc']);
+
+            const dataCollection = {
+                'schema': dataSource.fieldsMap,
+                'data': data,
+                'dataName': connectorName
+            };
+
+            return JSON.stringify(dataCollection);
+        } catch (err) {
+            console.log('error getting virtual source collection: ' + err);
+        }
+    }
+
+    removeVirtualSourceMapCollection(source): Promise<any> {
+        return new Promise<IMutationResponse>((resolve, reject) => {
+            try {
+                const connection: mongoose.Connection = this._appConnection.get;
+                connection.db.dropCollection(source);
+                resolve({success: true});
+                return;
+            } catch (err) {
+                console.log(err);
+                resolve({success: false, errors: err});
+            }
+        });
+    }
+
+    getValueFromDataType(dataType, inputValue) {
+        switch (dataType) {
+            case 'Number':
+                if (inputValue === null || inputValue === '') {
+                    return 0;
+                }
+                if (inputValue.toString().split('.').length > 1) {
+                    return toNumber(inputValue);
+                } else {
+                    return toInteger(inputValue);
+                }
+            case 'Date':
+                return moment.utc(inputValue).toDate();
+            case 'Boolean':
+                if (!isBoolean(inputValue)) {
+                    const booleanValue: boolean = inputValue === '1' || inputValue === 'true';
+                    inputValue = booleanValue;
+                }
+                return inputValue as boolean;
+            default:
+                return inputValue;
+        }
+    }
     /**
     // To get the availability of the fields we are going to use the following mehthod/aggegation stage
     // to count the number of records with value in each field
