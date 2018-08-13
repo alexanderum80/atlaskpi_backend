@@ -29,7 +29,7 @@ export class EnrollmentNotification implements IEnrollmentNotifier {
         }
 
         (<any>dataSource).method = this._config.templateHttpMethod;
-        (<any>dataSource).host = this._config.subdomain;
+        (<any>dataSource).host = hostname;
         (<any>dataSource).subdomain = this._config.subdomain;
         (<any>dataSource).enrollmentToken = user.services.email.enrollment[0].token;
 
