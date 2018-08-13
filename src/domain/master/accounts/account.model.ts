@@ -68,7 +68,7 @@ accountSchema.statics.findAccountByHostname = function(hostname: string): Promis
             name = <any>hostname;
         }
 
-        that.findOne({ 'subdomain': name }, (err, account) => {
+        that.findOne({ 'subdomain': name.trim() }, (err, account) => {
             if (err) {
                 reject(err);
                 return;
@@ -89,7 +89,7 @@ accountSchema.statics.accountNameAvailable = function(name: String): Promise<boo
             return resolve(false);
         }
 
-        that.findOne({ 'name': name }, (err, account) => {
+        that.findOne({ 'name': name.trim() }, (err, account) => {
             if (err) {
                 reject(err);
                 return;

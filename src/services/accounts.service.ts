@@ -1,3 +1,4 @@
+import { NewSeedService } from './seed/seed-service';
 import * as Promise from 'bluebird';
 import * as changeCase from 'change-case';
 import * as Handlebars from 'handlebars';
@@ -28,7 +29,7 @@ import { IExtendedRequest } from '../middlewares/extended-request';
 import { AuthService, IUserAuthenticationData } from './auth.service';
 import { EnrollmentNotification } from './notifications/users/enrollment.notification';
 import { LeadReceivedNotification } from './notifications/users/lead-received.notification';
-import { SeedService } from './seed/seed.service';
+// import { SeedService } from './seed/seed.service';
 
 export interface ICreateAccountInfo {
     ip: string;
@@ -338,7 +339,7 @@ function createUserDatabase(
             })
             .then((appConn) => initializeRolesForAccount(roles, permissions))
             .then((rolesCreated) => createAdminUser(users, newAccount.database.name, firstUser, enrollmentNotification))
-            .then(() => new SeedService(appConnection).seedApp())
+            .then(() => new NewSeedService(config).run(newAccount.database.name, true))
             .then(() => generateFirstAccountToken(authService, {
                 hostname: `${newAccount.database.name}.${subdomain}`,
                 username: firstUser.email,

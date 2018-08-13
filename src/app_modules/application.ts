@@ -30,6 +30,7 @@ import { TagModule } from './tags/tags.module';
 import { ActivitiesModule } from './activities/activities.module';
 import { AlertsModule } from './alerts/alerts.module';
 import {HelpCenterModule} from './help-centers/help-center.module';
+import { CustomModule } from './integrations/custom/custom.module';
 
 
 @AppModule({
@@ -64,7 +65,8 @@ import {HelpCenterModule} from './help-centers/help-center.module';
         SocialWidgetsModule,
         TagModule,
         ConnectorsModule,
-        ActivitiesModule
+        ActivitiesModule,
+        CustomModule
     ]
 })
 export class AtlasApp extends ModuleBase { }
