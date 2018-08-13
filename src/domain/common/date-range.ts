@@ -1366,22 +1366,22 @@ export function parseComparisonDateRange(dateRange: IDateRange, comparisonString
         case 'last year':
             return backInTime(dateRange, 1, 'year', mainDateRangeFrom);
         case 'twoYearsAgo':
-        case 'two years ago':
+        case '2 years ago':
             return backInTime(dateRange, 2, 'year', mainDateRangeFrom);
         case 'threeYearsAgo':
-        case 'three years ago':
+        case '3 years ago':
             return backInTime(dateRange, 3, 'year', mainDateRangeFrom);
         case 'fourYearsAgo':
-        case 'four years ago':
+        case '4 years ago':
             return backInTime(dateRange, 4, 'year', mainDateRangeFrom);
         case 'fiveYearsAgo':
-        case 'five years ago':
+        case '5 years ago':
             return backInTime(dateRange, 5, 'year', mainDateRangeFrom);
         case 'sixYearsAgo':
-        case 'six years ago':
+        case '6 years ago':
             return backInTime(dateRange, 6, 'year', mainDateRangeFrom);
         case 'sevenYearsAgo':
-        case 'seven years ago':
+        case '7 years ago':
             return backInTime(dateRange, 7, 'year', mainDateRangeFrom);
         case 'eightYearsAgo':
         case '8 years ago':
