@@ -39,7 +39,7 @@ export interface IGAJobData {
     groupings: string[];
 }
 
-// let queue = require('kue');
+let queue = require('kue');
 // let Queue = kue.createQueue();
 let _jobs: Queue;
 
