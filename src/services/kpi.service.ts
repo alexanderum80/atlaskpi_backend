@@ -3,6 +3,7 @@ import * as Bluebird from 'bluebird';
 import { inject, injectable } from 'inversify';
 import { cloneDeep, intersectionBy, isArray, isDate, isEmpty, isObject, isString, pickBy, uniqBy } from 'lodash';
 import * as moment from 'moment';
+import * as mongoose from 'mongoose';
 import { DocumentQuery } from 'mongoose';
 
 import { KpiGroupingsInput } from '../app_modules/kpis/kpis.types';
