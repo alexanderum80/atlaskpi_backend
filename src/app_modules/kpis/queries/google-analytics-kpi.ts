@@ -20,7 +20,7 @@ export class GoogleAnalyticsKpi extends SimpleKPIBase implements IKpiBase {
 
     public static CreateFromExpression( kpi: IKPIDocument,
                                         googleAnalytics: GoogleAnalytics,
-                                        // googleAnalyticsKpiService: GoogleAnalyticsKPIService,
+                                        googleAnalyticsKpiService: GoogleAnalyticsKPIService,
                                         queueService: GAJobsQueueService,
                                         currentAccount: CurrentAccount,
                                         virtualSources: IVirtualSourceDocument[]): GoogleAnalyticsKpi {
