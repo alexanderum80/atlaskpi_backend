@@ -117,7 +117,27 @@ WidgetSchema.statics.createWidget = function(input: IWidgetInput): Promise<IWidg
 
         console.dir(input);
 
-        that.create(input)
+        const newWidget = {
+            order: input.order,
+            name: input.name,
+            description: input.description,
+            type: input.type,
+            size: input.size,
+            color: input.color,
+            preview: input.preview,
+            tags: input.tags
+        };
+
+        switch (input.type) {
+            case 'numeric':
+                newWidget['numericWidgetAttributes'] = input.numericWidgetAttributes;
+                break;
+            case 'chart':
+                newWidget['chartWidgetAttributes'] = input.chartWidgetAttributes;
+                break;
+        }
+
+        that.create(newWidget)
             .then(widgetDocument => resolve(widgetDocument))
             .catch(err => reject(err));
     });
@@ -215,6 +235,8 @@ WidgetSchema.statics.removeWidget = function(id: string): Promise<IWidgetDocumen
                     reject(err);
                     return;
                 }
+
+                
 
                 resolve(widget);
                 return;
