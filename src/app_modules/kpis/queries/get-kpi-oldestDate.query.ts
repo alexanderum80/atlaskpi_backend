@@ -42,7 +42,7 @@ export class GetKpiOldestDateQuery implements IQuery<Object> {
         });
         const searchPromises: Promise<Object>[] = [];
         virtualSources.map( s => {
-            const theModel = this.getModel(s.source.toLocaleLowerCase());
+            const theModel = this.getModel(s.name, s.source);
             searchPromises.push(this.getOldDestYear(theModel, s.dateField));
         });
         return new Promise<Object>((resolve, reject) => {
@@ -62,10 +62,10 @@ export class GetKpiOldestDateQuery implements IQuery<Object> {
         });
     }
 
-    private getModel(source: string): any {
+    private getModel(modelName: string, source: string): any {
         const schema = new mongoose.Schema({}, {strict: false});
         const connection: mongoose.Connection = this._appConnection.get;
-        const model = connection.model(source, schema, source);
+        const model = connection.model(modelName, schema, source);
         return model;
     }
     private getOldDestYear(model: any, dateField: string): Promise<Object> {
@@ -73,11 +73,14 @@ export class GetKpiOldestDateQuery implements IQuery<Object> {
         return new Promise<Object>((resolve, reject) => {
             const parameters = [];
             const paramstr = '{"$match":{"' + dateField + '":{"$exists":true}}}';
+            const sortstr = '{"$sort":{"' +  dateField + '":1}}';
+            const groupstr = '{"$group":{"_id":null,"oldestDate":{"$first":"$' + dateField + '" }}}';
             parameters.push(JSON.parse(paramstr));
-            parameters.push({ '$sort': { dateField: 1 }});
-            parameters.push({ '$group': { '_id': null, 'oldestDate': { '$first': '$' + dateField }}});
-            model.aggregate(parameters)
-            .then(result => {
+            parameters.push(JSON.parse(sortstr));
+            parameters.push(JSON.parse(groupstr));
+            const agg = model.aggregate(parameters);
+            agg.options = { allowDiskUse: true };
+            agg.then(result => {
                 resolve(result);
                 return;
             })
