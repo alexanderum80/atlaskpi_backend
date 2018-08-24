@@ -1,3 +1,4 @@
+import { difference } from 'lodash';
 import { IDashboardDocument } from './../domain/app/dashboards/dashboard';
 import { IWidgetInput } from './../domain/app/widgets/widget';
 import { Alerts } from '../domain/app/alerts/alert.model';
@@ -16,7 +17,7 @@ import { Widgets } from '../domain/app/widgets/widget.model';
 import { INameType } from './../domain/common/name-type';
 import { attachToDashboards } from '../app_modules/widgets/mutations/common';
 import { Logger } from '../domain/app/logger';
-import { detachFromDashboards } from '../app_modules/dashboards/mutations/common';
+import { detachFromDashboards } from '../app_modules/widgets/mutations/common';
 
 @injectable()
 export class WidgetsService {
@@ -58,23 +59,26 @@ export class WidgetsService {
 
     public async updateWidget(id: string, input: IWidgetInput): Promise<IWidget> {
         try {
-            // resolve dashboards to include the widget
-            const dashboards = await this._dashboards.model.find( {_id: { $in: input.dashboards }});
             const inputDashboards = <any>input.dashboards || [];
+            // resolve dashboards to include the widget
+            const widgetsDashboards = await this._dashboards.model.find( {widgets: { $in: [id] }});
 
-            if (!dashboards || dashboards.length !== inputDashboards.length) {
-                this._logger.error('one or more dashboard not found');
-                throw new Error('one or more dashboards not found');
-            }
-            // create the widget
+            const currentDashboardIds = widgetsDashboards.map(d => String(d._id));
+            const toRemoveDashboardIds = difference(currentDashboardIds, inputDashboards);
+            const toAddDashboardIds = difference(inputDashboards, currentDashboardIds);
+
+            // update the widget
             const widget = await this._widgets.model.updateWidget(id, input);
 
+            // detach widget to dashboard
+            await detachFromDashboards(this._dashboards.model, toRemoveDashboardIds, widget._id);
+
             // attach widget to dashboard
-            await attachToDashboards(this._dashboards.model, inputDashboards, widget._id);
+            await attachToDashboards(this._dashboards.model, toAddDashboardIds, widget._id);
 
             return widget;
         } catch (e) {
-            this._logger.error('There was an error creating a widget', e);
+            this._logger.error('There was an error updating the widget', e);
             return null;
         }
     }
