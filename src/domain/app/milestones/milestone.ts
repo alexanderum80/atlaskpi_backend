@@ -1,5 +1,4 @@
 import { IUserMilestoneNotifier } from '../../../services/notifications/users/user-milestone.notification';
-import { IEmployee } from '../employees/employee';
 import * as mongoose from 'mongoose';
 import * as Promise from 'bluebird';
 import * as nodemailer from 'nodemailer';
@@ -9,7 +8,7 @@ export interface IMilestone {
     task: string;
     dueDate: string;
     status: string;
-    responsible: [IEmployee];
+    responsible: [string];
 }
 
 export interface IMilestoneNotificationInput {
@@ -33,4 +32,6 @@ export interface IMilestoneModel extends mongoose.Model<IMilestoneDocument> {
      * @returns {Promise<nodemailer.SentMessageInfo>}
      */
     milestoneNotifier(input: IMilestoneNotificationInput, user: any, notifier: IUserMilestoneNotifier): Promise<nodemailer.SentMessageInfo>;
+    milestonesByTarget(target: string): Promise<IMilestoneDocument[]>;
+
 }

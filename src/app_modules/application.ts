@@ -31,6 +31,7 @@ import { ActivitiesModule } from './activities/activities.module';
 import { AlertsModule } from './alerts/alerts.module';
 import {HelpCenterModule} from './help-centers/help-center.module';
 import { CustomModule } from './integrations/custom/custom.module';
+import { TargetsNewModule } from './targetsNew/target.module';
 
 
 @AppModule({
@@ -66,7 +67,8 @@ import { CustomModule } from './integrations/custom/custom.module';
         TagModule,
         ConnectorsModule,
         ActivitiesModule,
-        CustomModule
+        CustomModule,
+        TargetsNewModule
     ]
 })
 export class AtlasApp extends ModuleBase { }

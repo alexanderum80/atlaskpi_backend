@@ -19,11 +19,11 @@ export class MilestoneInput {
     @field({ type: GraphQLTypesMap.String, required: true })
     dueDate: string;
 
-    @field({ type: GraphQLTypesMap.String, required: true })
+    @field({ type: GraphQLTypesMap.String })
     status: string;
 
     @field({ type: GraphQLTypesMap.String, isArray: true, required: true})
-    responsible: string[];
+    responsible: [string];
 }
 
 @input()
@@ -58,11 +58,13 @@ export class Milestone {
     @field({ type: GraphQLTypesMap.String })
     status: string;
 
-    @field({ type: User, isArray: true })
-    responsible: User[];
+    @field({ type: GraphQLTypesMap.String, isArray: true })
+    responsible: [string];
 
     @resolver({ forField: 'dueDate'})
     static formatDueDate = (entity: IMilestone) => moment(entity.dueDate).format('MM/DD/YYYY')
+
+   
 }
 
 @type()

@@ -16,11 +16,11 @@ import { inject, injectable } from 'inversify';
 let Schema = mongoose.Schema;
 
 let MilestoneSchema = new Schema({
-    target: { type: Schema.Types.ObjectId, ref: 'Target' },
+    target: { type: String, required: true },
     task: { type: String, required: true },
     dueDate: { type: Date, required: true },
     status: String,
-    responsible: [{ type: Schema.Types.ObjectId, ref: 'User' }]
+    responsible: [{ type: String, required: true }]
 });
 
 MilestoneSchema.statics.createMilestone = function(target: string, task: string, dueDate: string, status: string, responsible: string[]):
@@ -29,7 +29,7 @@ MilestoneSchema.statics.createMilestone = function(target: string, task: string,
     const that = <IMilestoneModel> this;
 
     return new Promise<IMilestoneDocument>((resolve, reject) => {
-        if (!target || !task || !dueDate || !status || !responsible) {
+        if (!target || !task || !dueDate  || !responsible) {
             return reject('Information not valid');
         }
 
@@ -42,7 +42,9 @@ MilestoneSchema.statics.createMilestone = function(target: string, task: string,
         };
 
         that.create(newMilestoneData)
-        .then(milestone => resolve(milestone))
+        .then(milestone => resolve(
+            milestone
+        ))
         .catch(err => {
             logger.error(err);
             reject('There was an error adding the milestone');
@@ -56,7 +58,7 @@ MilestoneSchema.statics.updateMilestone = function(_id: string, target: string, 
     const that = <IMilestoneModel> this;
 
     return new Promise<IMilestoneDocument>((resolve, reject) => {
-        if (!target || !task || !dueDate || !status || !responsible) {
+        if (!target || !task || !dueDate  || !responsible) {
             return reject('Information not valid');
         }
 
@@ -153,10 +155,28 @@ MilestoneSchema.statics.milestoneNotifier = function(input: IMilestoneNotificati
 };
 
 
+MilestoneSchema.statics.milestonesByTarget = function(target: string): Promise<IMilestoneDocument[]> {
+    const that = <IMilestoneModel> this;
+
+    return new Promise<IMilestoneDocument[]>((resolve, reject) => {
+        that.find({target: target}).then(milestones => {
+            resolve(milestones);
+        }).catch(err => {
+            logger.error(err);
+            reject('There was an error retrieving milestones');
+        });
+    });
+};
+
+// MilestoneSchema.statics.milestonesByTarget = function(target: string): Promise<IMilestoneDocument[]> {
+//     return  (this as IMilestoneModel).find({target: target}).exec();
+// };
+
+
 @injectable()
 export class Milestones extends ModelBase<IMilestoneModel> {
     constructor(@inject(AppConnection.name) appConnection: AppConnection) {
         super();
-        this.initializeModel(appConnection.get, 'Milestone', MilestoneSchema, 'milestones');
+        this.initializeModel(appConnection.get, 'Milestones', MilestoneSchema, 'milestones');
     }
 }

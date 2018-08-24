@@ -41,6 +41,7 @@ import { VirtualSources } from './virtual-sources/virtual-source.model';
 import { ICriteriaSearchable } from '../../app_modules/shared/criteria.plugin';
 import { interfaces } from 'inversify';
 import { ScheduleJobs } from './schedule-job/schedule-job.model';
+import { TargetsNew } from './targetsNew/target.model';
 
 // import { ChartFormats } from './chart-formats/chart-format.model';
 interface IRegistrationInfo {
@@ -86,7 +87,8 @@ const registrations: any[] = [
     Payments,
     COGS,
     FinancialActivities,
-    ScheduleJobs
+    ScheduleJobs,
+    TargetsNew
 ];
 
 export function registerAppModels(container: IBridgeContainer) {
