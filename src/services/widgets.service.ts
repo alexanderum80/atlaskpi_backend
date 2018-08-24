@@ -110,7 +110,7 @@ export class WidgetsService {
         }
     }
 
-    async previewWidget(data: IWidget): Promise<IUIWidget> {
+    async previewWidget(data: any): Promise<IUIWidget> {
         try {
             const uiWidget = await this._widgetFactory.getInstance(data);
             return uiWidget.materialize();
