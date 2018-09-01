@@ -15,16 +15,16 @@ export interface ICriteriaAggregate {
 }
 
 export interface ICriteriaSearchable {
-    findCriteria(field: string, aggregate: any[], limit?: number, filter?: string): Promise<string[]>;
+    findCriteria(field: string, aggregate: any[], limit?: number, filter?: string, collectionSource?: string[]): Promise<string[]>;
 }
 
 export function criteriaPlugin(schema: mongoose.Schema): void {
     schema.statics.findCriteria = findCriteria;
 }
 
-function findCriteria(field: string, aggregate: any[], limit?: number, filter?: string): Promise<string[]> {
+function findCriteria(field: string, aggregate: any[], limit?: number, filter?: string, collectionSource?: string[]): Promise<string[]> {
     const that = this;
-    let aggregateOptions = aggregate.concat(criteriaAggregation({ field, limit, filter }));
+    let aggregateOptions = aggregate.concat(criteriaAggregation({ field, limit, filter, collectionSource }));
 
     return new Promise<string[]>((resolve, reject) => {
         const agg = that.aggregate(aggregateOptions);
@@ -42,7 +42,7 @@ function findCriteria(field: string, aggregate: any[], limit?: number, filter?: 
     });
 }
 
-function criteriaAggregation(input: {field: string, limit?: number, filter?: string}): ICriteriaAggregate[] {
+function criteriaAggregation(input: { field: string, limit?: number, filter?: string, collectionSource?: string[] }): ICriteriaAggregate[] {
     const unwindField = input.field.split('.')[0];
 
     let aggregate: ICriteriaAggregate[] = [{
@@ -74,6 +74,15 @@ function criteriaAggregation(input: {field: string, limit?: number, filter?: str
         // i.e. match: { [field]: { $regex: reg } }
         Object.assign(matchStage.$match[input.field], {
             $regex: reg
+        });
+    }
+
+    const collectionSource = input.collectionSource;
+    if (Array.isArray(collectionSource) && collectionSource.length) {
+        Object.assign(matchStage.$match, {
+            source: {
+                '$in': collectionSource
+            }
         });
     }
 

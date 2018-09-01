@@ -1,18 +1,32 @@
+import * as Bluebird from 'bluebird';
 import { inject, injectable } from 'inversify';
 import { Job, Queue } from 'kue';
 import * as moment from 'moment';
 import * as os from 'os';
 
 import { config } from '../../configuration/config';
-import { IDateRange } from '../../domain/common/date-range';
-import { FrequencyEnum } from '../../domain/common/frequency-enum';
-import { GoogleAnalyticsKPIService } from '../kpis/google-analytics-kpi/google-analytics-kpi.service';
-import { AppConnectionPool } from '../../middlewares/app-connection-pool';
 import { AppConnection } from '../../domain/app/app.connection';
 import { GoogleAnalytics } from '../../domain/app/google-analytics/google-analytics.model';
+import { IDateRange } from '../../domain/common/date-range';
+import { FrequencyEnum } from '../../domain/common/frequency-enum';
 import { Connectors } from '../../domain/master/connectors/connector.model';
+import { AppConnectionPool } from '../../middlewares/app-connection-pool';
+import { GoogleAnalyticsKPIService } from '../kpis/google-analytics-kpi/google-analytics-kpi.service';
+import { IOAuth2Token } from './../../domain/common/oauth2-token';
+
+const googleapis = require('googleapis');
+
+const traverse = (obj, keys) => { return keys.split('.').reduce((cur, key) => cur[key], obj); };
 
 // let queue = require('kue');
+
+export interface IGARequestParameters {
+    analyticsConfig: any;
+    authToken: any;
+    subdomain: string;
+    analyticsFn: string;
+    payload?: any;
+}
 
 export interface IGAJobData {
     accountName: string;
@@ -27,7 +41,7 @@ export interface IGAJobData {
 
 // let queue = require('kue');
 // // let Queue = kue.createQueue();
-// let _jobs: Queue;
+let _jobs: Queue;
 
 // try {
 //     _jobs = queue.createQueue({
@@ -43,11 +57,10 @@ export interface IGAJobData {
 //     console.error('There was an error connecting to Redis Server');
 // }
 
-
-
 // queue.app.listen(4000);
 
 const JOB_TYPE: string = 'ga';
+const JOB_TYPE_REQUEST: string = 'ga_request';
 
 @injectable()
 export class GAJobsQueueService {

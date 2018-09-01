@@ -1,6 +1,6 @@
 {
     "name": "atlaskpi-backend",
-    "version": "0.5.118",
+    "version": "0.5.140",
     "description": "",
     "main": "index.ts",
     "scripts": {
@@ -78,9 +78,11 @@
         "body-parser": "^1.15.2",
         "casual": "^1.5.8",
         "change-case": "^3.0.1",
+        "connect-timeout": "^1.9.0",
         "cors": "^2.8.1",
         "datejs": "^1.0.0-rc3",
         "debug": "^2.3.3",
+        "deep-rename-keys": "^0.2.1",
         "express": "4.13.4",
         "express-fileupload": "^0.4.0",
         "fb": "^2.0.0",

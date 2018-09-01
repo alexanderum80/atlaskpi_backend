@@ -65,5 +65,6 @@ export interface IAppConfig {
     cache: {
         redisServer: string,
         redisPort: string
-    }
+    };
+    supportEmail: string;
 }

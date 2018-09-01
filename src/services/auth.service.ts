@@ -54,7 +54,7 @@ export class AuthService {
                 })
                 .then((u: IUserDocument) => {
                     return u.generateToken(
-                        account.database.name,
+                        account.subdomain,
                         input.username,
                         input.password,
                         input.ip,

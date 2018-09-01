@@ -20,6 +20,7 @@ export interface IAccountDBUser {
 export interface IPersonalInfo {
     fullname: string;
     email: string;
+    timezone: string;
 }
 
 export interface IBusinessInfo {
@@ -42,16 +43,17 @@ export interface IAudit {
 
 export interface IAccount {
     name: string;
+    subdomain: string;
     personalInfo: IPersonalInfo;
     businessInfo?: IBusinessInfo;
     database?: IDatabaseInfo;
     audit?: IAudit;
     businessUnits?: IBusinessUnit[];
-    subdomain: string;
     initialToken?: IUserToken;
     seedData?: boolean;
     demoMode?: boolean;
     authorizationCode?: string;
+    timezone: string;
 }
 
 // declare interface to mix account and mongo docuemnt properties/methods
