@@ -57,15 +57,22 @@ export class GoogleAnalyticsKpi extends SimpleKPIBase implements IKpiBase {
         ];
 
         // I can get virtual source here by the name
-        kpiDefinition.dataSource = kpiDefinition.dataSource.replace('$', '');
-        const gaVirtualSource = virtualSources.find(vs => vs.name === 'google_analytics');
+        // kpiDefinition.dataSource = kpiDefinition.dataSource.replace('$', '');
+        // const gaVirtualSource = virtualSources.find(vs => vs.name === 'google_analytics');
+        const dsTokens = kpiDefinition.dataSource.split('$');
+        let gaVirtualSource = virtualSources.find(vs => vs.name === dsTokens[0]);
+
+        // to mantain compatibility, if virtualsource not found lets try to get it by static string. ( Old Method )
+        if (!gaVirtualSource) {
+            gaVirtualSource = virtualSources.find(vs => vs.name === 'google_analytics');
+        }
 
         return new GoogleAnalyticsKpi(
             googleAnalytics.model,
             aggregateSkeleton,
             kpiDefinition,
             kpi,
-            googleAnalyticsKpiService,
+            // googleAnalyticsKpiService,
             queueService,
             currentAccount,
             gaVirtualSource);
@@ -76,13 +83,23 @@ export class GoogleAnalyticsKpi extends SimpleKPIBase implements IKpiBase {
                         private _baseAggregate: any,
                         private _definition: IKPISimpleDefinition,
                         private _kpi: IKPI,
-                        private _googleAnalyticsKpiService: GoogleAnalyticsKPIService,
+                        // private _googleAnalyticsKpiService: GoogleAnalyticsKPIService,
                         private _queueService: GAJobsQueueService,
                         private _currentAccount: CurrentAccount,
                         private _virtualSource: IVirtualSourceDocument) {
         super(model, _baseAggregate);
 
-        this.collection = { modelName: 'GoogleAnalytics', timestampField: 'date' };
+        if (!_virtualSource) {
+            const errStr = 'Virtual source for google analytics not found... ';
+            console.log(errStr);
+            throw new Error(errStr);
+        }
+
+        // this.collection = { modelName: 'GoogleAnalytics', timestampField: 'date' };
+        this.collection = {
+            modelName: _virtualSource.modelIdentifier,
+            timestampField: _virtualSource.dateField
+        };
 
         this._injectFieldToProjection(_definition.field);
         this._injectAcumulatorFunctionAndArgs(_definition);

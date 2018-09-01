@@ -1,7 +1,9 @@
+import { DataSourceField } from './../app_modules/data-sources/data-sources.types';
 import * as Bluebird from 'bluebird';
 import { inject, injectable } from 'inversify';
 import { cloneDeep, intersectionBy, isArray, isDate, isEmpty, isObject, isString, pickBy, uniqBy } from 'lodash';
 import * as moment from 'moment';
+import * as mongoose from 'mongoose';
 import { DocumentQuery } from 'mongoose';
 
 import { KpiGroupingsInput } from '../app_modules/kpis/kpis.types';
@@ -16,7 +18,7 @@ import { KPIFilterHelper } from '../domain/app/kpis/kpi-filter.helper';
 import { KPIs } from '../domain/app/kpis/kpi.model';
 import { ISaleModel } from '../domain/app/sales/sale';
 import { IVirtualSourceDocument } from '../domain/app/virtual-sources/virtual-source';
-import { VirtualSources } from '../domain/app/virtual-sources/virtual-source.model';
+import { VirtualSources, mapDataSourceFields } from '../domain/app/virtual-sources/virtual-source.model';
 import { IWidgetDocument } from '../domain/app/widgets/widget';
 import { Widgets } from '../domain/app/widgets/widget.model';
 import { parsePredifinedDate } from '../domain/common/date-range';
@@ -88,14 +90,6 @@ export class KpiService {
                 return kpiSources.indexOf(v.name.toLocaleLowerCase()) !== -1;
             });
 
-            // const anyExternalSource = sources.filter(s => s.externalSource).length > 0;
-            // const groupingInfo: IValueName[] = await this._getCommonSourcePaths(kpiSources, vs);
-
-            // if (anyExternalSource) {
-            //     return groupingInfo;
-            // }
-
-            // const kpiFilterSource: any = KPIFilterHelper.PrepareFilterField(kpi.type, kpi.filter);
             const kpiFilter = this._cleanFilter(kpi.filter || {});
 
             return await this._groupingsWithData(sources, input.dateRange, kpiFilter);
@@ -186,57 +180,8 @@ export class KpiService {
                 : parsePredifinedDate(chartDateRange.predefined);
     }
 
-    // async getGroupingsWithDataOld(input: KpiGroupingsInput): Promise<IValueName[]> {
-    //     try {
-    //         const allKpis: IKPIDocument[] = await this._kpis.model.find({});
-    //         const cloneKpis: IKPIDocument[] = cloneDeep(allKpis);
-    //         const kpi: IKPIDocument = cloneKpis.find((k: IKPIDocument) => k.id === input.id);
-
-    //         const connectors: IConnectorDocument[] = await this._connectors.model.find({});
-
-    //         const vs: IVirtualSourceDocument[] = await this._virtualSources.model.find({});
-    //         const kpiSources: string[] = this._getKpiSources(kpi, allKpis, connectors);
-    //         const sources: IVirtualSourceDocument[] = vs.filter((v: IVirtualSourceDocument) => {
-    //             return kpiSources.indexOf(v.name.toLocaleLowerCase()) !== -1;
-    //         });
-
-    //         const anyExternalSource = sources.filter(s => s.externalSource).length > 0;
-    //         const groupingInfo: IValueName[] = await this._getCommonSourcePaths(kpiSources, vs);
-
-    //         if (anyExternalSource) {
-    //             return groupingInfo;
-    //         }
-
-    //         const kpiFilterSource: any = KPIFilterHelper.PrepareFilterField(kpi.type, kpi.filter);
-    //         const kpiFilter = this._cleanFilter(kpi.filter || {});
-
-    //         return await this._groupingsWithData(sources, groupingInfo, input.dateRange, kpiFilterSource, kpiFilter);
-    //     } catch (err) {
-    //         console.error('error getting grouping data', err);
-    //         return [];
-    //     }
-    // }
-
     private _getKpiSources(kpi: IKPIDocument, kpis: IKPIDocument[], connectors: IConnectorDocument[]): string[] {
-        if (kpi.baseKpi) {
-            // return fields for base kpi Revenue or Expenses
-            switch (kpi.baseKpi) {
-                case 'Expenses':
-                    return ['expenses'];
-                case 'Revenue':
-                    return ['sales'];
-            }
-        }
-
-        if (['Expenses', 'Revenue'].indexOf(kpi.code) !== -1) {
-            switch (kpi.code) {
-                case 'Expenses':
-                    return ['expenses'];
-                case 'Revenue':
-                    return ['sales'];
-            }
-        }
-
+    
         if (kpi.type === KPITypeEnum.ExternalSource) {
             const expression = KPIExpressionHelper.DecomposeExpression(kpi.type, kpi.expression);
             const sourceTokens = expression.dataSource.split('$');
@@ -394,7 +339,7 @@ export class KpiService {
     }
 
     private async _groupingsWithData(virtualSources: IVirtualSourceDocument[], dateRange: ChartDateRangeInput[],
-                                  kpiFilter?: any): Promise<IValueName[]> {
+                                     kpiFilter?: any): Promise<IValueName[]> {
         try {
             const existingGroupings: Array<IValueName[]> =
                 await Bluebird.map(
@@ -413,10 +358,6 @@ export class KpiService {
                 return existingGroupings[0];
             }
 
-            // let commonFields = [];
-            // existingFields.forEach((f: IValueName[]) => {
-            //     commonFields = intersectionBy(f, f, 'name');
-            // });
             const uniqList =
                uniqBy([].concat(...existingGroupings), 'value');
 
@@ -434,13 +375,20 @@ export class KpiService {
 
     private async _getAvailableGroupingForOptions(vs: IVirtualSourceDocument, dateRange: ChartDateRangeInput[],
                                                   filters: any): Promise<IValueName[]> {
-        const dateRangeFilter = this._getDateRangeAsFilter(dateRange);
+        let availableFields: DataSourceField[];
 
-        const availableFields = await this._dataSourcesService.getAvailableFields(
-            vs,
-            [],
-            { dateRangeFilter, filters }
-        );
+        if (!vs.externalSource) {
+            const dateRangeFilter = this._getDateRangeAsFilter(dateRange);
+
+            availableFields = await this._dataSourcesService.getAvailableFields(
+                vs,
+                [],
+                { dateRangeFilter, filters, excludeSourceField: false }
+            );
+        } else {
+            availableFields = mapDataSourceFields(vs, false);
+            availableFields.forEach(f => f.available = true);
+        }
 
         const availableGroupings =
             availableFields

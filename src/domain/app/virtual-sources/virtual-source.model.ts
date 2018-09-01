@@ -1,3 +1,4 @@
+import { camelCase } from 'change-case';
 import * as Bluebird from 'bluebird';
 import { inject, injectable } from 'inversify';
 import { sortBy, isEmpty } from 'lodash';
@@ -50,6 +51,8 @@ const VirtualSourceSchema = new mongoose.Schema({
 // STATIC
 VirtualSourceSchema.statics.getDataSources = getDataSources;
 VirtualSourceSchema.statics.getDataSourceByName = getDataSourceByName;
+VirtualSourceSchema.statics.addDataSources = addDataSources;
+VirtualSourceSchema.statics.removeDataSources = removeDataSources;
 
 // METHODS
 VirtualSourceSchema.methods.getGroupingFieldPaths = getGroupingFieldPaths;
@@ -58,6 +61,7 @@ VirtualSourceSchema.methods.getFieldDefinition = getFieldDefinition;
 VirtualSourceSchema.methods.getDataTypeOperator = getDataTypeOperator;
 VirtualSourceSchema.methods.getDistinctValues = getDistinctValues;
 // VirtualSourceSchema.methods.containsPath = containsPath;
+VirtualSourceSchema.methods.mapDataSourceFields = mapDataSourceFields;
 
 @injectable()
 export class VirtualSources extends ModelBase<IVirtualSourceModel> {
@@ -191,10 +195,17 @@ async function getDataSourceByName(name: string): Promise<IVirtualSourceDocument
 }
 
 
-export function mapDataSourceFields(virtualSource: IVirtualSourceDocument): DataSourceField[] {
+export function mapDataSourceFields(virtualSource: IVirtualSourceDocument, excludeSourceFiled = true): DataSourceField[] {
     // with the new feature to filter kpi by sources we do not need to send the "source" field anymore
+    // !!!UPDATE: we do need the source in the groupings so we should specify if we do not want to exclude the source field. 
+
     const fieldsMap = virtualSource.fieldsMap;
-    const fieldNames = Object.keys(virtualSource.fieldsMap).filter(k => k.toLowerCase() !== 'source').sort();
+    let fieldNames = Object.keys(virtualSource.fieldsMap)
+                           .sort();
+
+    fieldNames = excludeSourceFiled
+        ? fieldNames.filter(k => k.toLowerCase() !== 'source')
+        : fieldNames;
 
     return fieldNames.map(key => ({
         name: key,
@@ -203,6 +214,50 @@ export function mapDataSourceFields(virtualSource: IVirtualSourceDocument): Data
         allowGrouping: fieldsMap[key].allowGrouping
     }));
 }
+
+function addDataSources(data: IVirtualSource): Promise<IVirtualSourceDocument> {
+    // with the new feature to filter kpi by sources we do not need to send the "source" field anymore
+    const that = this;
+    if (!data) { return Promise.reject('cannot add a document with, empty payload'); }
+    return new Promise<IVirtualSourceDocument>((resolve, reject) => {
+
+        return that.create(data)
+            .then((newConnector: IVirtualSourceDocument) => {
+                resolve(newConnector);
+                return;
+            })
+            .catch(err => {
+                reject('cannot create virtual source: ' + err);
+                return;
+            });
+    });
+}
+
+function removeDataSources(name: string): Promise<IVirtualSourceDocument> {
+    // with the new feature to filter kpi by sources we do not need to send the "source" field anymore
+    const that = this;
+    if (!name) { return Promise.reject('cannot remove a document with, empty payload'); }
+    return new Promise<IVirtualSourceDocument>((resolve, reject) => {
+
+        this.getDataSourceByName(name).then(data => {
+            if (!data) {
+                reject('the virtual source ' + name + ' do not exist');
+                return;
+            }
+
+            return data.remove()
+                .then((newConnector: IVirtualSourceDocument) => {
+                    resolve(newConnector);
+                    return;
+                })
+                .catch(err => {
+                    reject('cannot remove virtual source: ' + err);
+                    return;
+                });
+        });
+    });
+}
+
 
 function getGroupingFieldPaths(): IValueName[] {
     const doc = this as IVirtualSourceDocument;
@@ -333,7 +388,7 @@ async function getDistinctSourceValues(vs: IVirtualSourceDocument): Promise<stri
         model = vs.db.model(
             vs.modelIdentifier,
             new mongoose.Schema({}, { strict: false }),
-            vs.source
+            camelCase(vs.source)
         );
 
         return model.distinct(COLLECTION_SOURCE_FIELD_NAME);

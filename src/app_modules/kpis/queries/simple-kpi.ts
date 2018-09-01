@@ -1,5 +1,5 @@
 import { FinancialActivities } from './../../../domain/app/financial-activities/financial-activity.model';
-import { cloneDeep } from 'lodash';
+import { cloneDeep, camelCase } from 'lodash';
 
 import { Calls } from '../../../domain/app/calls/call.model';
 import { Expenses } from '../../../domain/app/expenses/expense.model';
@@ -39,7 +39,7 @@ export class SimpleKPI extends SimpleKPIBase implements IKpiBase {
                 timestampField: virtualSource.dateField
             };
 
-            simpleKPIDefinition.dataSource = virtualSource.source.toLowerCase();
+            simpleKPIDefinition.dataSource = camelCase(virtualSource.source);
 
             if (virtualSource.aggregate) {
                 baseAggregate = virtualSource.aggregate.map(a => {

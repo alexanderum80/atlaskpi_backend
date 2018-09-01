@@ -1,12 +1,12 @@
-
 import * as mongoose from 'mongoose';
 import { DataSourceField, DataSourceResponse } from '../../../app_modules/data-sources/data-sources.types';
 import { IValueName } from '../../common/value-name';
+import { ErrorDetails } from '../../../framework/graphql/common.types';
 
 export interface IFieldMetadata {
     path: string;
     dataType: string;
-    allowGrouping: boolean;
+    allowGrouping?: boolean;
 }
 
 export interface IVirtualSourceFields {
@@ -39,6 +39,22 @@ export interface IVirtualSource {
     filterOperators?: IDataTypeFilters;
 }
 
+export class IVirtualSourceModelInput {
+    field: string;
+    dataType: string;
+}
+
+export class IVirtualSourceInput {
+    name: string;
+    fields: IVirtualSourceModelInput[];
+    data: any[];
+}
+
+export class IVirtualSourceResponse {
+    success: boolean;
+    error: ErrorDetails;
+}
+
 export interface IVirtualSourceDocument extends IVirtualSource, mongoose.Document {
     getGroupingFieldPaths(): IValueName[];
     getFieldDefinition(fieldName: string);
@@ -54,6 +70,8 @@ export interface IVirtualSourceDocument extends IVirtualSource, mongoose.Documen
 }
 
 export interface IVirtualSourceModel extends mongoose.Model<IVirtualSourceDocument> {
+    addDataSources(data: IVirtualSource): Promise<IVirtualSourceDocument>;
+    removeDataSources(name: string): Promise<IVirtualSourceDocument>;
     getDataSources(names?: string[]): Promise<DataSourceResponse[]>;
     getDataSourceByName(name: string): Promise<IVirtualSourceDocument>;
     findByNames(names: string): Promise<IVirtualSourceDocument[]>;

@@ -1,3 +1,4 @@
+import { CurrentAccount } from './../../../domain/master/current-account';
 import { sendEmail } from '../../email/email.service';
 import * as Promise from 'bluebird';
 import * as Handlebars from 'handlebars';
@@ -27,6 +28,7 @@ export class EnrollmentNotification implements IEnrollmentNotifier {
             (<any>dataSource).firstName = user.username;
         }
 
+        (<any>dataSource).method = this._config.templateHttpMethod;
         (<any>dataSource).host = hostname;
         (<any>dataSource).subdomain = this._config.subdomain;
         (<any>dataSource).enrollmentToken = user.services.email.enrollment[0].token;
