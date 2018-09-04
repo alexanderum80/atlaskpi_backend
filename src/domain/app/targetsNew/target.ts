@@ -48,6 +48,10 @@ export interface ITargetNew {
     owner: string;
     active?: boolean;
     selected?: boolean;
+    target?: number;
+    targetMet?: number;
+    timestamp?: Date;
+    percentageCompletion?: any;
 }
 
 export interface ITargetNewInput {
@@ -64,6 +68,10 @@ export interface ITargetNewInput {
     owner: string;
     active?: boolean;
     selected?: boolean;
+    target?: number;
+    targetMet?: number;
+    timestamp?: Date;
+    percentageCompletion?: any;
 }
 
 export interface ISourceNewInput {

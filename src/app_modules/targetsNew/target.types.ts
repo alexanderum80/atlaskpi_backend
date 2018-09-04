@@ -5,7 +5,7 @@ import { ErrorDetails } from '../../framework/graphql/common.types';
 import { input } from '../../framework/decorators/input.decorator';
 
 
-@type() 
+@type()
 export class DateRangeNew {
     @field({ type: GraphQLTypesMap.String })
     from: { type: string };
@@ -14,13 +14,13 @@ export class DateRangeNew {
     to: { type: string };
 }
 
-@type() 
+@type()
 export class UsersNew {
     @field({ type: GraphQLTypesMap.String })
     id: { type: string, required: true };
 
     @field({ type: GraphQLTypesMap.String, isArray: true })
-    deliveryMethod:[{ type: string, required: true }];
+    deliveryMethod: [{ type: string, required: true }];
 }
 
 @type()
@@ -48,7 +48,7 @@ export class ReportOptionsNew {
 
     @field({ type: GraphQLTypesMap.String })
     filter: { type: string[] };
-} 
+}
 
 @type()
 export class SourceNew {
@@ -67,63 +67,66 @@ export class TargetNew  {
     @field({ type: GraphQLTypesMap.String })
     name: { type: string, required: true };
 
-    @field({ type: SourceNew }) 
+    @field({ type: SourceNew })
     source: SourceNew;
 
     @field({ type: GraphQLTypesMap.String })
-    kpi: { type: string, required: true }
+    kpi: { type: string, required: true };
 
     @field({ type: ReportOptionsNew })
     reportOptions: ReportOptionsNew;
 
     @field({ type: GraphQLTypesMap.String })
-    compareTo: { type: string, required: true }
+    compareTo: { type: string, required: true };
 
     @field({ type: GraphQLTypesMap.String })
-    recurrent: { type: boolean, required: true }
+    recurrent: { type: boolean, required: true };
 
     @field({ type: GraphQLTypesMap.String })
-    type: { type: string, required: true }
+    type: { type: string, required: true };
 
     @field({ type: GraphQLTypesMap.String })
-    value: { type: number, required: true }
+    value: { type: number, required: true };
 
     @field({ type: GraphQLTypesMap.String })
-    unit: { type: string, required: true }
+    unit: { type: string, required: true };
 
     @field({ type: NotificationConfigNew })
     notificationConfig: NotificationConfigNew;
 
     @field({ type: GraphQLTypesMap.String })
-    owner: { type: string, required: true }
+    owner: { type: string, required: true };
 
     @field({ type: GraphQLTypesMap.String })
-    active: { type: boolean }
+    active: { type: boolean };
 
     @field({ type: GraphQLTypesMap.String })
-    selected: { type: boolean }
+    selected: { type: boolean };
+
+    @field({ type: GraphQLTypesMap.Float })
+    target: number;
 
 }
 
 
-@input() 
+@input()
 export class deliveryMethodNewInput {
     @field({ type: GraphQLTypesMap.String })
     email: { type: boolean, required: true };
 
     @field({ type: GraphQLTypesMap.String, isArray: true })
-    push:[{ type: boolean, required: true }];
+    push: [{ type: boolean, required: true }];
 }
 
 
 
-@input() 
+@input()
 export class UsersNewInput {
     @field({ type: GraphQLTypesMap.String })
     id: { type: string, required: true };
 
     @field({ type: GraphQLTypesMap.String, isArray: true })
-    deliveryMethod:[string];
+    deliveryMethod: [string];
 }
 
 
@@ -136,7 +139,7 @@ export class NotificationConfigNewInput {
     users: [UsersNewInput];
 }
 
-@input() 
+@input()
 export class DateRangeNewInput {
     @field({ type: GraphQLTypesMap.String })
     from: { type: string, required: true };
@@ -162,7 +165,7 @@ export class ReportOptionsNewInput {
 
     @field({ type: GraphQLTypesMap.String })
     filter: { type: string[] };
-} 
+}
 
 
 @input()
@@ -180,41 +183,41 @@ export class TargetNewInput  {
     @field({ type: GraphQLTypesMap.String })
     name: { type: string, required: true };
 
-    @field({ type: SourceNewInput }) 
+    @field({ type: SourceNewInput })
     source: SourceNewInput;
 
     @field({ type: GraphQLTypesMap.String })
-    kpi: { type: string, required: true }
+    kpi: { type: string, required: true };
 
     @field({ type: ReportOptionsNewInput })
     reportOptions: ReportOptionsNewInput;
 
     @field({ type: GraphQLTypesMap.String })
-    compareTo: { type: string, required: true }
+    compareTo: { type: string, required: true };
 
     @field({ type: GraphQLTypesMap.String })
-    recurrent: { type: boolean, required: true }
+    recurrent: { type: boolean, required: true };
 
     @field({ type: GraphQLTypesMap.String })
-    type: { type: string, required: true }
+    type: { type: string, required: true };
 
     @field({ type: GraphQLTypesMap.String })
-    value: { type: number, required: true }
+    value: { type: number, required: true };
 
     @field({ type: GraphQLTypesMap.String })
-    unit: { type: string, required: true }
+    unit: { type: string, required: true };
 
     @field({ type: NotificationConfigNewInput })
     notificationConfig: NotificationConfigNewInput;
 
     @field({ type: GraphQLTypesMap.String })
-    owner: { type: string, required: true }
+    owner: { type: string, required: true };
 
     @field({ type: GraphQLTypesMap.String })
-    active: { type: boolean }
+    active: { type: boolean };
 
     @field({ type: GraphQLTypesMap.String })
-    selected: { type: boolean }
+    selected: { type: boolean };
 
 }
 

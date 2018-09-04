@@ -71,7 +71,11 @@ TargetSchema.statics.createNew = function(targetInput: ITargetNewInput): Promise
             notificationConfig : targetInput.notificationConfig,
             owner: targetInput.owner,
             active: targetInput.active,
-            selected: targetInput.selected
+            selected: targetInput.selected,
+            target: 20,
+            timestamp: new Date(),
+            targetMet: 10,
+            percentageCompletion: 90,
         };
 
         that.create(objectTarget)
@@ -110,7 +114,11 @@ TargetSchema.statics.updateTargetNew = function(_id: string, targetInput: ITarge
             notificationConfig : targetInput.notificationConfig,
             owner: targetInput.owner,
             active: targetInput.active,
-            selected: targetInput.selected
+            selected: targetInput.selected,
+            target: 20,
+            timestamp: new Date(),
+            targetMet: 10,
+            percentageCompletion: 90,
         };
 
         that.findByIdAndUpdate(_id, objectTarget)
@@ -175,6 +183,6 @@ TargetSchema.statics.targetByName = function(name: string): Promise<ITargetNewDo
 export class TargetsNew extends ModelBase<ITargetNewModel> {
     constructor(@inject(AppConnection.name) appConnection: AppConnection) {
         super();
-        this.initializeModel(appConnection.get, 'TargetsNew', TargetSchema, 'targets');
+        this.initializeModel(appConnection.get, 'TargetsNew', TargetSchema, 'targets_new');
     }
 }

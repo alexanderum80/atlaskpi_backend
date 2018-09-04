@@ -125,7 +125,7 @@ TargetSchema.statics.updateTarget = function(id: string, data: ITarget): Promise
 TargetSchema.statics.removeTarget = function(id: string): Promise<ITargetDocument> {
     const that = this;
     return new Promise<ITargetDocument>((resolve, reject) => {
-        (<ITargetModel>this).findById(id)
+        (<ITargetModel>this).findByIdAndRemove(id)
             .then((target) => {
                 if (!target) { return; }
                 target.delete = true;
