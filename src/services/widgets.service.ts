@@ -36,14 +36,8 @@ export class WidgetsService {
 
     public async createWidget(input: IWidgetInput): Promise<IWidget> {
         try {
-            // resolve dashboards to include the widget
-            const dashboards = await this._dashboards.model.find( {_id: { $in: input.dashboards }});
             const inputDashboards = <any>input.dashboards || [];
 
-            if (!dashboards || dashboards.length !== inputDashboards.length) {
-                this._logger.error('one or more dashboard not found');
-                throw new Error('one or more dashboards not found');
-            }
             // create the widget
             const widget = await this._widgets.model.createWidget(input);
 

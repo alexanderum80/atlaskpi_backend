@@ -16,7 +16,7 @@ export function detachFromAllDashboards(dashboardModel: IDashboardModel, widgetI
 }
 
 export function detachFromDashboards(dashboardModel: IDashboardModel, dashboardsIds: string[], widgetId: string): Promise<boolean> {
-    if (!dashboardsIds || dashboardsIds.length < 1 ) { return Promise.resolve(true); }
+    if (!dashboardsIds || dashboardsIds.length < 1 || (dashboardsIds[0] === '' && dashboardsIds.length === 1)) { return Promise.resolve(true); }
     return new Promise<boolean>((resolve, reject) => {
         dashboardModel.update({_id: { $in: dashboardsIds}},
                               { $pull: { widgets: widgetId }},
@@ -30,7 +30,7 @@ export function detachFromDashboards(dashboardModel: IDashboardModel, dashboards
 }
 
 export function attachToDashboards(dashboardModel: IDashboardModel, dashboardsIds: string[], widgetId: string): Promise<boolean> {
-    if (!dashboardsIds || dashboardsIds.length < 1 ) { return Promise.resolve(true); }
+    if (!dashboardsIds || dashboardsIds.length < 1 || (dashboardsIds[0] === '' && dashboardsIds.length === 1)) { return Promise.resolve(true); }
     return new Promise<boolean>((resolve, reject) => {
         dashboardModel.update({_id: { $in: dashboardsIds}},
                               { $push: { widgets: widgetId }},

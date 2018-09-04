@@ -12,6 +12,8 @@ import {
     IWidgetModel,
     WidgetSizeMap,
     WidgetTypeMap,
+    getComparisonDirectionArrow,
+    ComparisonDirectionArrowEnum,
 } from './widget';
 import { tagsPlugin } from '../tags/tag.plugin';
 
@@ -130,6 +132,9 @@ WidgetSchema.statics.createWidget = function(input: IWidgetInput): Promise<IWidg
 
         switch (input.type) {
             case 'numeric':
+                if (input.numericWidgetAttributes.comparisonArrowDirection === '') {
+                    input.numericWidgetAttributes.comparisonArrowDirection = getComparisonDirectionArrow(ComparisonDirectionArrowEnum.Undefined);
+                }
                 newWidget['numericWidgetAttributes'] = input.numericWidgetAttributes;
                 break;
             case 'chart':
