@@ -41,7 +41,8 @@ const TargetSchema = new mongoose.Schema({
     },
     owner: { type: String, required: true },
     active: { type: Boolean },
-    selected: { type: Boolean }
+    selected: { type: Boolean },
+    period: { type: String, required: true },
 });
 
 // add tags capabilities
@@ -76,6 +77,7 @@ TargetSchema.statics.createNew = function(targetInput: ITargetNewInput): Promise
             timestamp: new Date(),
             targetMet: 10,
             percentageCompletion: 90,
+            period: targetInput.period,
         };
 
         that.create(objectTarget)
@@ -119,6 +121,7 @@ TargetSchema.statics.updateTargetNew = function(_id: string, targetInput: ITarge
             timestamp: new Date(),
             targetMet: 10,
             percentageCompletion: 90,
+            period: targetInput.period,
         };
 
         that.findByIdAndUpdate(_id, objectTarget)

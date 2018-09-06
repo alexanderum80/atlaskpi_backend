@@ -196,7 +196,7 @@ export class TargetService {
         try {
             const response = await this.getBaseValue(data);
             const dataAmount: number = parseFloat(data.amount.toString());
-            const findValue = response ? response.find(r => r.value) : { value: data.amount };
+            const findValue = response.length > 0 ? response.find(r => r.value) : { value: data.amount };
 
             const responseValue: number = findValue ? findValue.value : 0;
 
@@ -243,6 +243,10 @@ export class TargetService {
 
         if (!data.period) {
             return [{ value: 0 }];
+        }
+
+        if (groupings[0] !== '') {
+            groupings[0] !== data.nonStackName;
         }
 
         if (chart.isStacked()) {

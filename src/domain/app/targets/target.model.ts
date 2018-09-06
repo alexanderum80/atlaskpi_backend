@@ -94,9 +94,9 @@ TargetSchema.statics.updateTarget = function(id: string, data: ITarget): Promise
 
         (<ITargetModel>this).findById(id)
             .then((target) => {
-                if (data.visible) {
-                    target.visible = [];
-                }
+                // if (data.visible) {
+                //     target.visible = [];
+                // }
 
                 if (data.vary === 'fixed') {
                     data.period = '';

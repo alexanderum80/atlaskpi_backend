@@ -106,6 +106,9 @@ export class TargetNew  {
     @field({ type: GraphQLTypesMap.Float })
     target: number;
 
+    @field({ type: GraphQLTypesMap.String })
+    period: { type: string, required: true };
+
 }
 
 
@@ -219,6 +222,8 @@ export class TargetNewInput  {
     @field({ type: GraphQLTypesMap.String })
     selected: { type: boolean };
 
+    @field({ type: GraphQLTypesMap.String })
+    period: { type: string, required: true };
 }
 
 

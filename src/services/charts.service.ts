@@ -555,6 +555,12 @@ export class ChartsService {
             const isDateInFuture = moment(findDateRange.custom.to).isAfter(moment());
             return isDateInFuture;
         }
+
+        if (findDateRange.predefined === 'all times') {
+            const isDateInFuture = moment().isAfter(moment().format('YYYY'));
+            return isDateInFuture;
+        }
+
         return true;
     }
 

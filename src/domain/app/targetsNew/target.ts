@@ -52,6 +52,7 @@ export interface ITargetNew {
     targetMet?: number;
     timestamp?: Date;
     percentageCompletion?: any;
+    period: string;
 }
 
 export interface ITargetNewInput {
@@ -72,6 +73,7 @@ export interface ITargetNewInput {
     targetMet?: number;
     timestamp?: Date;
     percentageCompletion?: any;
+    period: string;
 }
 
 export interface ISourceNewInput {
