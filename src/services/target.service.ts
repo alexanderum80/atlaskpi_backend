@@ -246,7 +246,7 @@ export class TargetService {
         }
 
         if (groupings[0] !== '') {
-            groupings[0] !== data.nonStackName;
+            groupings[0] = 'all';
         }
 
         if (chart.isStacked()) {
@@ -255,7 +255,7 @@ export class TargetService {
                 groupings: groupings,
                 stackName: this.getStackName(chart, data).name || null
             };
-        } else if (Array.isArray(groupings) && !groupings[0]) {
+        } else if (Array.isArray(groupings) && !groupings[0] && groupings[0] !== '') {
             getDataOptions = { filter: chart.filter };
         } else {
             getDataOptions = { filter: chart.filter };
