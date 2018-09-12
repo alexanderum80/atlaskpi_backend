@@ -11,8 +11,6 @@ import { IChart } from '../domain/app/charts/chart';
 import { Users } from '../domain/app/security/users/user.model';
 import { IUserDocument } from '../domain/app/security/users/user';
 import { Dashboards } from '../domain/app/dashboards/dashboard.model';
-import {ITarget, ITargetDocument, INotificationData} from '../domain/app/targets/target';
-import {Targets} from '../domain/app/targets/target.model';
 import { NotificationInput } from '../app_modules/targets/targets.types';
 import {
     IDateRange,
@@ -22,10 +20,11 @@ PredefinedDateRanges,
 IChartDateRange,
 } from '../domain/common/date-range';
 import { FrequencyEnum, FrequencyTable } from '../domain/common/frequency-enum';
-import { field } from '../framework/decorators/field.decorator';
 import { isNumber } from 'lodash';
 import {TargetNotification} from './notifications/users/target.notification';
 import {PnsService} from './pns.service';
+import { TargetsNew } from '../domain/app/targetsNew/target.model';
+import { ITargetNewDocument } from '../domain/app/targetsNew/target';
 
 export interface IMomentFrequencyTable {
     daily: string;
@@ -79,16 +78,16 @@ export class TargetService {
 
     constructor(@inject(Users.name) private _users: Users,
                 @inject(KpiFactory.name) private _kpiFactory: KpiFactory,
-                @inject(Targets.name) private _targets: Targets,
+                @inject(TargetsNew.name) private _targets: TargetsNew,
                 @inject(Charts.name) private _charts: Charts,
                 @inject(Dashboards.name) private _dashboard: Dashboards,
                 @inject(TargetNotification.name) private _targetNotification: TargetNotification,
                 @inject(PnsService.name) private _pnsService: PnsService
     ) { }
 
-    async getTargets(chartId: string, userId: string): Promise<ITargetDocument[]> {
+    async getTargets(chartId: string, userId: string): Promise<ITargetNewDocument[]> {
         try {
-            const visibleTargets: ITargetDocument[] = await this._targets.model.findUserVisibleTargets(chartId, userId);
+            const visibleTargets: ITargetNewDocument[] = await this._targets.model.findUserVisibleTargets(chartId, userId);
             return await this.frequentlyUpdateTargets(visibleTargets);
         } catch (err) {
             return ({
@@ -98,15 +97,15 @@ export class TargetService {
         }
     }
 
-    async frequentlyUpdateTargets(targets: ITargetDocument[]): Promise<ITargetDocument[]> {
+    async frequentlyUpdateTargets(targets: ITargetNewDocument[]): Promise<ITargetNewDocument[]> {
         try {
             if (!targets || !targets.length) {
                 return targets;
             }
 
-            const updatedListTargets: ITargetDocument[] = await Bluebird.map(
+            const updatedListTargets: ITargetNewDocument[] = await Bluebird.map(
                                         targets,
-                                        (target: ITargetDocument) => this.updateTarget(target)
+                                        (target: ITargetNewDocument) => this.updateTarget(target)
                                     );
             return updatedListTargets;
         } catch (err) {
@@ -115,7 +114,7 @@ export class TargetService {
     }
 
 
-    async updateTarget(target: ITargetDocument): Promise<ITargetDocument> {
+    async updateTarget(target: ITargetNewDocument): Promise<ITargetNewDocument> {
         try {
             const id: string = target.id;
             const inputData: ITarget = Object.assign({}, target.toObject() as ITarget);
@@ -124,7 +123,7 @@ export class TargetService {
             inputData.target = targetAmount;
             inputData.timestamp = new Date();
 
-            const updatedTarget: ITargetDocument = await this._targets.model.updateTarget(id, inputData);
+            const updatedTarget: ITargetNewDocument = await this._targets.model.updateTarget(id, inputData);
 
             const targetProgress: number = await this.targetProgressValue(updatedTarget);
             updatedTarget.percentageCompletion = (targetProgress / updatedTarget.target) * 100;
@@ -135,7 +134,7 @@ export class TargetService {
         }
     }
 
-    async targetProgressValue(data: ITargetDocument): Promise<number> {
+    async targetProgressValue(data: ITargetNewDocument): Promise<number> {
         try {
             const chart: IChartDocument = await this._charts.model.findById(data.chart[0])
                                                 .populate({ path: 'kpis' });
@@ -173,7 +172,7 @@ export class TargetService {
         }
     }
 
-    async createUpdateTarget(data: ITarget, id?: string): Promise<ITargetDocument> {
+    async createUpdateTarget(data: ITarget, id?: string): Promise<ITargetNewDocument> {
         try {
             // target value
             data.target = await this.getTargetValue(data);
@@ -476,11 +475,11 @@ export class TargetService {
         }
     }
 
-    static futureTargets(targets: ITargetDocument[]): IDateRange {
+    static futureTargets(targets: ITargetNewDocument[]): IDateRange {
         let futureDateRange: IDateRange;
 
         if (targets && targets.length) {
-            targets.forEach((target: ITargetDocument) => {
+            targets.forEach((target: ITargetNewDocument) => {
                 const datepicker: string = moment(target.datepicker).format('YYYY-MM-DD');
                 const currentYear: string = moment().endOf('year').format('YYYY-MM-DD');
                 if (moment(datepicker).isAfter(currentYear)) {

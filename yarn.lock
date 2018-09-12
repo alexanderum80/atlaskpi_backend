@@ -2053,9 +2053,9 @@ graphql-server-express@^1.2.0:
   dependencies:
     apollo-server-express "^1.4.0"
 
-graphql-tools@^2.21.0:
+graphql-tools@^2.14.0:
   version "2.24.0"
-  resolved "https://registry.yarnpkg.com/graphql-tools/-/graphql-tools-2.24.0.tgz#bbacaad03924012a0edb8735a5e65df5d5563675"
+  resolved "http://npm.atlaskpi.com:9000/graphql-tools/-/graphql-tools-2.24.0.tgz#bbacaad03924012a0edb8735a5e65df5d5563675"
   dependencies:
     apollo-link "^1.2.1"
     apollo-utilities "^1.0.1"

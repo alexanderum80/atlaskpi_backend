@@ -53,6 +53,7 @@ export interface ITargetNew {
     timestamp?: Date;
     percentageCompletion?: any;
     period: string;
+    deleted: boolean;
 }
 
 export interface ITargetNewInput {
@@ -93,4 +94,12 @@ export interface ITargetNewModel extends mongoose.Model<ITargetNewDocument> {
     deleteTargetNew(id: string): Promise<ITargetNewDocument>;
     targetBySource(identifier: string): Promise<ITargetNewDocument[]>;
     targetByName(name: string): Promise<ITargetNewDocument>;
+    findTargetByDate(date: string): Promise<ITargetNewDocument[]>;
+    removeTargetFromChart(id: string): Promise<ITargetNewDocument>;
+    removeTarget(id: string): Promise<ITargetNewDocument>;
+    findAllTargets(): Promise<ITargetNewDocument[]>;
+    findTargetById(id: string): Promise<ITargetNewDocument>;
+    findTargetByName(name: string): Promise<ITargetNewDocument>;
+    findTarget(id: string): Promise<ITargetNewDocument>;
+    findUserVisibleTargets(chartId: string, userId: string): Promise<ITargetNewDocument[]>;
 }

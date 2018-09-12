@@ -2,14 +2,13 @@ import { inject, injectable } from 'inversify';
 
 import { Charts } from '../../../domain/app/charts/chart.model';
 import { Users } from '../../../domain/app/security/users/user.model';
-import { ITarget } from '../../../domain/app/targets/target';
-import { field } from '../../../framework/decorators/field.decorator';
 import { mutation } from '../../../framework/decorators/mutation.decorator';
 import { MutationBase } from '../../../framework/mutations/mutation-base';
 import { IMutationResponse } from '../../../framework/mutations/mutation-response';
 import { TargetService } from '../../../services/target.service';
 import { CreateTargetActivity } from '../activities/create-target.activity';
 import { TargetInput, TargetResult } from '../targets.types';
+import { ITargetNew } from '../../../domain/app/targetsNew/target';
 
 
 @injectable()
@@ -31,7 +30,7 @@ export class CreateTargetMutation extends MutationBase<IMutationResponse> {
         super();
     }
 
-    async run(data: { data: ITarget }): Promise<IMutationResponse> {
+    async run(data: { data: ITargetNew }): Promise<IMutationResponse> {
         // TODO: REFACTOR THIS
         const that = this;
         const mutationData = data.data;

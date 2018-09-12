@@ -15,14 +15,7 @@ import { MetadataFieldsMap } from './decorators/metadata-fields.map';
 import { BridgeContainer } from './di/bridge-container';
 import { makeGraphqlSchemaExecutable } from './graphql/graphql-schema-generator';
 import { MutationBus } from './mutations/mutation-bus';
-import { IQuery } from './queries/query';
 import { QueryBus } from './queries/query-bus';
-
-interface IQueryData {
-    types: string[];
-    queries: string[];
-    instances: IQuery < any > ;
-}
 
 export interface IFrameworkOptions {
     port?: number;
@@ -95,6 +88,37 @@ export class Bridge {
     }
 
     start() {
+    //      // generate graphql schema
+    //      const graphqlSchema = 
+    //      getTypesAndResolvers(this._artifacts.mutations, this._artifacts.queries);
+
+    //  if (graphqlSchema) {
+    //      const apolloServer = new ApolloServer({
+    //          ...graphqlSchema,
+    //          context: ({ req }: { req: express.Request }) => {
+    //              const ctx = {
+    //                  req,
+    //                  requestContainer: (req as IBridgeRequest).Container,
+    //                  mutationBus: this._container.get(MutationBus.name),
+    //                  queryBus: this._container.get(QueryBus.name)
+    //              };
+
+    //              return ctx;
+    //          },
+    //          debug: true,
+    //          playground: true,
+    //      });
+
+    //      apolloServer.applyMiddleware({
+    //          app: this._server,
+    //          cors: true,
+    //      });
+
+    //      const _httpServer = this._server.listen(this._options.port, () => console.log(
+    //          `Bridge Server is now running on http://localhost:${this._options.port}/${this._options.graphqlPath}`
+    //      ));
+    //  }
+
         this._server.use('/graphql', bodyParser.json(), graphqlExpress((req: IBridgeRequest) => (
             {
               context: {
@@ -103,8 +127,8 @@ export class Bridge {
                 mutationBus: this._container.get(MutationBus.name),
                 queryBus: this._container.get(QueryBus.name)
               },
-              schema: this._executableSchema
-            }
+             schema: this._executableSchema
+            } as any
         )));
 
         this._httpServer = this._server.listen(this._options.port, () => console.log(

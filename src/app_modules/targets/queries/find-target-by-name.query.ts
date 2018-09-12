@@ -1,13 +1,12 @@
 import { inject, injectable } from 'inversify';
 import { isEmpty } from 'lodash';
 
-import { ITargetDocument } from '../../../domain/app/targets/target';
-import { Targets } from '../../../domain/app/targets/target.model';
-import { field } from '../../../framework/decorators/field.decorator';
 import { query } from '../../../framework/decorators/query.decorator';
 import { IQuery } from '../../../framework/queries/query';
-import { TargetResponse } from '../targets.types';
 import { FindTargetByNameActivity } from '../activities/find-target-by-name.activity';
+import { TargetResponse } from '../targets.types';
+import { ITargetNewDocument } from '../../../domain/app/targetsNew/target';
+import { TargetsNew } from '../../../domain/app/targetsNew/target.model';
 
 @injectable()
 @query({
@@ -18,10 +17,10 @@ import { FindTargetByNameActivity } from '../activities/find-target-by-name.acti
     ],
     output: { type: TargetResponse }
 })
-export class FindTargetByNameQuery implements IQuery<ITargetDocument> {
-    constructor(@inject(Targets.name) private _targets: Targets) { }
+export class FindTargetByNameQuery implements IQuery<ITargetNewDocument> {
+    constructor(@inject(TargetsNew.name) private _targets: TargetsNew) { }
 
-    async run(data: { name: string }): Promise<ITargetDocument> {
+    async run(data: { name: string }): Promise<ITargetNewDocument> {
         try {
             if (!data.name) {
                 return null;

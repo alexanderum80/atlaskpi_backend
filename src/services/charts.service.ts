@@ -25,11 +25,11 @@ import { Charts } from './../domain/app/charts/chart.model';
 import { IDashboardDocument } from './../domain/app/dashboards/dashboard';
 import { Dashboards } from './../domain/app/dashboards/dashboard.model';
 import { KPIs } from './../domain/app/kpis/kpi.model';
-import { Targets } from './../domain/app/targets/target.model';
 import {IChartDateRange, IDateRange, parsePredifinedDate, PredefinedTargetPeriod, PredefinedDateRanges} from './../domain/common/date-range';
 import {FrequencyEnum, FrequencyTable} from './../domain/common/frequency-enum';
 import { TargetService } from './target.service';
 import {dataSortDesc} from '../helpers/number.helpers';
+import { TargetsNew } from '../domain/app/targetsNew/target.model';
 
 export interface IRenderChartOptions {
     chartId?: string;
@@ -53,7 +53,7 @@ export class ChartsService {
         @inject(Charts.name) private _charts: Charts,
         @inject(Dashboards.name) private _dashboards: Dashboards,
         @inject(KPIs.name) private _kpis: KPIs,
-        @inject(Targets.name) private _targets: Targets,
+        @inject(TargetsNew.name) private _targets: TargetsNew,
         @inject(TargetService.name) private _targetService: TargetService,
         @inject(CurrentUser.name) private _currentUser: CurrentUser,
         @inject(ChartFactory.name) private _chartFactory: ChartFactory,

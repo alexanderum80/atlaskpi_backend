@@ -1,13 +1,12 @@
 import * as Promise from 'bluebird';
 import { inject, injectable } from 'inversify';
 
-import { Targets } from '../../../domain/app/targets/target.model';
-import { field } from '../../../framework/decorators/field.decorator';
 import { mutation } from '../../../framework/decorators/mutation.decorator';
 import { MutationBase } from '../../../framework/mutations/mutation-base';
 import { IMutationResponse } from '../../../framework/mutations/mutation-response';
 import { RemoveTargetFromChartActivity } from '../activities/remove-target-from-chart.activity';
 import { TargetRemoveResult } from '../targets.types';
+import { TargetsNew } from '../../../domain/app/targetsNew/target.model';
 
 @injectable()
 @mutation({
@@ -19,7 +18,7 @@ import { TargetRemoveResult } from '../targets.types';
     output: { type: TargetRemoveResult }
 })
 export class RemoveTargetFromChartMutation extends MutationBase<IMutationResponse> {
-    constructor(@inject(Targets.name) private _targets: Targets) {
+    constructor(@inject(TargetsNew.name) private _targets: TargetsNew) {
         super();
     }
 

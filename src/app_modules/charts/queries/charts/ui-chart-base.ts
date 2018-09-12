@@ -10,7 +10,6 @@ import * as moment from 'moment';
 import * as logger from 'winston';
 import { camelCase } from 'change-case';
 import { IChart } from '../../../../domain/app/charts/chart';
-import { ITargetDocument } from '../../../../domain/app/targets/target';
 import {
     getDateRangeIdFromString,
     IChartDateRange,
@@ -34,6 +33,7 @@ import { IChartSerie } from './chart-serie';
 import { ChartType } from './chart-type';
 import { FrequencyHelper } from './frequency-values';
 import {ApplyTopNChart} from './apply-top-n.chart';
+import { ITargetNewDocument } from '../../../../domain/app/targetsNew/target';
 
 export const NULL_CATEGORY_REPLACEMENT = 'Uncategorized*';
 
@@ -95,7 +95,7 @@ export enum SortingCriteriaEnum {
  }
 
 export interface IUIChart {
-    getDefinition?(kpiBase: IKpiBase, metadata?: IChartMetadata, target?: ITargetDocument[]): Promise<any>;
+    getDefinition?(kpiBase: IKpiBase, metadata?: IChartMetadata, target?: ITargetNewDocument[]): Promise<any>;
 }
 
 export class UIChartBase {
@@ -132,7 +132,7 @@ export class UIChartBase {
      * @param kpi kpi to run
      * @param metadata chart metadata
      */
-    protected processChartData(kpi: IKpiBase, metadata?: IChartMetadata, target?: ITargetDocument[]): Promise < void > {
+    protected processChartData(kpi: IKpiBase, metadata?: IChartMetadata, target?: ITargetNewDocument[]): Promise < void > {
         // logger.debug('processChartData for: ' + this.constructor.name + ' - kpi: ' + kpi.constructor.name);
         const that = this;
 
@@ -900,7 +900,7 @@ export class UIChartBase {
         });
     }
 
-    protected getDefinitionOfComparisonChart(kpi, metadata: IChartMetadata, target?: ITargetDocument[]): Promise<any> {
+    protected getDefinitionOfComparisonChart(kpi, metadata: IChartMetadata, target?: ITargetNewDocument[]): Promise<any> {
         if (metadata.dateRange &&
             Array.isArray(metadata.dateRange) &&
             metadata.dateRange[0].predefined === 'custom') {

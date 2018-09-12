@@ -1,13 +1,12 @@
-import { ITarget } from '../../../domain/app/targets/target';
 import { inject, injectable } from 'inversify';
 
-import { field } from '../../../framework/decorators/field.decorator';
 import { mutation } from '../../../framework/decorators/mutation.decorator';
 import { MutationBase } from '../../../framework/mutations/mutation-base';
 import { IMutationResponse } from '../../../framework/mutations/mutation-response';
 import { TargetService } from '../../../services/target.service';
 import { UpdateTargetActivity } from '../activities/update-target.activity';
 import { TargetInput, TargetResult } from '../targets.types';
+import { ITargetNew } from '../../../domain/app/targetsNew/target';
 
 @injectable()
 @mutation({
@@ -26,7 +25,7 @@ export class UpdateTargetMutation extends MutationBase<IMutationResponse> {
         super();
     }
 
-    async run(data: { id: string, data: ITarget}): Promise<IMutationResponse> {
+    async run(data: { id: string, data: ITargetNew}): Promise<IMutationResponse> {
         const that = this;
         const mutationData = data.data;
 

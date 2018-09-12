@@ -1,14 +1,13 @@
-import { isArray } from 'util';
 import * as Promise from 'bluebird';
 import { inject, injectable } from 'inversify';
+import { isArray } from 'util';
 
-import { ITargetDocument } from '../../../domain/app/targets/target';
-import { Targets } from '../../../domain/app/targets/target.model';
-import { field } from '../../../framework/decorators/field.decorator';
 import { query } from '../../../framework/decorators/query.decorator';
 import { IQuery } from '../../../framework/queries/query';
-import { TargetByDateActivity } from '../activities/target-by-date.activity';
 import { TargetResponse } from '../../targets/targets.types';
+import { TargetByDateActivity } from '../activities/target-by-date.activity';
+import { ITargetNewDocument } from '../../../domain/app/targetsNew/target';
+import { TargetsNew } from '../../../domain/app/targetsNew/target.model';
 
 @injectable()
 @query({
@@ -19,13 +18,13 @@ import { TargetResponse } from '../../targets/targets.types';
     ],
     output: { type: TargetResponse, isArray: true }
 })
-export class TargetByDateQuery implements IQuery<ITargetDocument[]> {
-    constructor(@inject(Targets.name) private _targets: Targets) { }
+export class TargetByDateQuery implements IQuery<ITargetNewDocument[]> {
+    constructor(@inject(TargetsNew.name) private _targets: TargetsNew) { }
 
-    run(data: { date: string }): Promise<ITargetDocument[]> {
+    run(data: { date: string }): Promise<ITargetNewDocument[]> {
         const that = this;
 
-        return new Promise<ITargetDocument[]>((resolve, reject) => {
+        return new Promise<ITargetNewDocument[]>((resolve, reject) => {
             that._targets.model.findTargetByDate(data.date)
                 .then((target) => {
                     resolve(target);

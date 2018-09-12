@@ -48,7 +48,6 @@
         "chalk": "^2.3.0",
         "client-oauth2": "^4.1.0",
         "commander": "^2.11.0",
-        "handlebars": "^4.0.11",
         "inquirer": "^3.3.0",
         "jasmine": "^2.5.2",
         "jsonminify": "^0.4.1",

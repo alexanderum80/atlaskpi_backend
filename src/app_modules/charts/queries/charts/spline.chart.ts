@@ -1,11 +1,11 @@
 import * as console from 'console';
 
 import { IChart } from '../../../../domain/app/charts/chart';
-import { ITargetDocument } from '../../../../domain/app/targets/target';
 import { IKpiBase } from '../../../kpis/queries/kpi-base';
 import { IChartMetadata } from './chart-metadata';
 import { FrequencyHelper } from './frequency-values';
 import { IUIChart, UIChartBase } from './ui-chart-base';
+import { ITargetNewDocument } from '../../../../domain/app/targetsNew/target';
 
 
 export class SPLineChart extends UIChartBase implements IUIChart {
@@ -19,7 +19,7 @@ export class SPLineChart extends UIChartBase implements IUIChart {
         super(chart, frequencyHelper);
     }
 
-    getDefinition(kpi: IKpiBase, metadata?: IChartMetadata, target?: ITargetDocument[]): Promise < any > {
+    getDefinition(kpi: IKpiBase, metadata?: IChartMetadata, target?: ITargetNewDocument[]): Promise < any > {
         const that = this;
 
         this.dateRange = this._getDateRange(metadata.dateRange);
