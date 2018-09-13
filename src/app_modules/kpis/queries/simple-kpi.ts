@@ -1,5 +1,5 @@
 import { FinancialActivities } from './../../../domain/app/financial-activities/financial-activity.model';
-import { cloneDeep, camelCase } from 'lodash';
+import { cloneDeep, camelCase, isEmpty } from 'lodash';
 
 import { Calls } from '../../../domain/app/calls/call.model';
 import { Expenses } from '../../../domain/app/expenses/expense.model';
@@ -40,28 +40,25 @@ export class SimpleKPI extends SimpleKPIBase implements IKpiBase {
                 timestampField: virtualSource.dateField
             };
 
-
-            const preVSAggregateStages = [];
-
-            // decide if we need to apply the daterange before the vs aggregate
-            if (parentVirtualSource) {
-                if (Object.values(parentVirtualSource.fieldsMap).some(f => f.path === collection.timestampField)
-                   && virtualSource.aggregate
-                   && virtualSource.aggregate.length) {
-                    const applyVsDateRange =  {
-                        vsDateRange: true,
-                        '$match': { [collection.timestampField]: { } }
-                    };
-                    preVSAggregateStages.push(applyVsDateRange);
-                }
-            }
-
             simpleKPIDefinition.dataSource = camelCase(virtualSource.source);
+
+            const initialAggStages = [];
+
+            // flag in case we need to apply the daterange before the vs aggregate
+            if (parentVirtualSource
+                && !isEmpty(virtualSource.aggregate)
+                && Object.values(parentVirtualSource.fieldsMap)
+                         .some(f => f.path === collection.timestampField)) {
+                const stage =  {
+                    vsAggDateRange: true,
+                    '$match': { [collection.timestampField]: { } }
+                };
+                initialAggStages.push(stage);
+            }
 
             if (virtualSource.aggregate) {
                 baseAggregate = [
-                    // put a match stage before the aggregate
-                    ...preVSAggregateStages,
+                    ...initialAggStages,
                     ...virtualSource.aggregate.map(a => {
                         return KPIFilterHelper.CleanObjectKeys(a);
                     })
