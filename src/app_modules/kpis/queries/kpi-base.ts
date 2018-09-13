@@ -133,6 +133,7 @@ export class KpiBase {
 
     private _injectDataRange(dateRange: IDateRange[], field: string) {
         // const matchDateRange = { $match: {} } as any;
+        let vsDateRange = this.findStage('vsDateRange', '$match');
         let matchDateRange = this.findStage('filter', '$match');
 
         const dateFormat = 'YYYY-MM-DD HH:mm:ss';
@@ -147,6 +148,8 @@ export class KpiBase {
                     '$gte':  localTimeFrom,
                     '$lt':   localTimeTo
                 };
+                // if we have a vsDateRange match stage, lets apply the dateRange before the vs aggregate
+                if (vsDateRange) vsDateRange.$match[field] = { ...matchDateRange.$match[field] };
             } else {
                 if (!matchDateRange['$match']) {
                     matchDateRange.$match = {};

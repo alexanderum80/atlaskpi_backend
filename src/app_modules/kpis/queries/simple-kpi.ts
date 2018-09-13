@@ -32,6 +32,7 @@ export class SimpleKPI extends SimpleKPIBase implements IKpiBase {
 
         // if (virtualSources) {
         const virtualSource = virtualSources.find(s => s.name.toLocaleLowerCase() === simpleKPIDefinition.dataSource.toLocaleLowerCase());
+        const parentVirtualSource = virtualSources.find(s => s.name.toLocaleLowerCase() === virtualSource.source.toLowerCase());
 
         if (virtualSource) {
             collection = {
@@ -39,12 +40,32 @@ export class SimpleKPI extends SimpleKPIBase implements IKpiBase {
                 timestampField: virtualSource.dateField
             };
 
+
+            const preVSAggregateStages = [];
+
+            // decide if we need to apply the daterange before the vs aggregate
+            if (parentVirtualSource) {
+                if (Object.values(parentVirtualSource.fieldsMap).some(f => f.path === collection.timestampField)
+                   && virtualSource.aggregate
+                   && virtualSource.aggregate.length) {
+                    const applyVsDateRange =  {
+                        vsDateRange: true,
+                        '$match': { [collection.timestampField]: { } }
+                    };
+                    preVSAggregateStages.push(applyVsDateRange);
+                }
+            }
+
             simpleKPIDefinition.dataSource = camelCase(virtualSource.source);
 
             if (virtualSource.aggregate) {
-                baseAggregate = virtualSource.aggregate.map(a => {
-                    return KPIFilterHelper.CleanObjectKeys(a);
-                });
+                baseAggregate = [
+                    // put a match stage before the aggregate
+                    ...preVSAggregateStages,
+                    ...virtualSource.aggregate.map(a => {
+                        return KPIFilterHelper.CleanObjectKeys(a);
+                    })
+                ];
             }
         }
         // }
