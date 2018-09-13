@@ -1,5 +1,5 @@
 import { FinancialActivities } from './../../../domain/app/financial-activities/financial-activity.model';
-import { cloneDeep, camelCase } from 'lodash';
+import { cloneDeep, camelCase, isEmpty } from 'lodash';
 
 import { Calls } from '../../../domain/app/calls/call.model';
 import { Expenses } from '../../../domain/app/expenses/expense.model';
@@ -32,6 +32,7 @@ export class SimpleKPI extends SimpleKPIBase implements IKpiBase {
 
         // if (virtualSources) {
         const virtualSource = virtualSources.find(s => s.name.toLocaleLowerCase() === simpleKPIDefinition.dataSource.toLocaleLowerCase());
+        const parentVirtualSource = virtualSources.find(s => s.name.toLocaleLowerCase() === virtualSource.source.toLowerCase());
 
         if (virtualSource) {
             collection = {
@@ -41,10 +42,27 @@ export class SimpleKPI extends SimpleKPIBase implements IKpiBase {
 
             simpleKPIDefinition.dataSource = camelCase(virtualSource.source);
 
+            const initialAggStages = [];
+
+            // flag in case we need to apply the daterange before the vs aggregate
+            if (parentVirtualSource
+                && !isEmpty(virtualSource.aggregate)
+                && Object.values(parentVirtualSource.fieldsMap)
+                         .some(f => f.path === collection.timestampField)) {
+                const stage =  {
+                    vsAggDateRange: true,
+                    '$match': { [collection.timestampField]: { } }
+                };
+                initialAggStages.push(stage);
+            }
+
             if (virtualSource.aggregate) {
-                baseAggregate = virtualSource.aggregate.map(a => {
-                    return KPIFilterHelper.CleanObjectKeys(a);
-                });
+                baseAggregate = [
+                    ...initialAggStages,
+                    ...virtualSource.aggregate.map(a => {
+                        return KPIFilterHelper.CleanObjectKeys(a);
+                    })
+                ];
             }
         }
         // }
