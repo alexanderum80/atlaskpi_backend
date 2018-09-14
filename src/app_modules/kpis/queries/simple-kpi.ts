@@ -42,28 +42,27 @@ export class SimpleKPI extends SimpleKPIBase implements IKpiBase {
 
             simpleKPIDefinition.dataSource = camelCase(virtualSource.source);
 
-            const initialAggStages = [];
+            let vsAggDateRangeStage;
+            let vsAggStages;
+
+            if (virtualSource.aggregate) {
+                vsAggStages = virtualSource.aggregate.map(a => {
+                    return KPIFilterHelper.CleanObjectKeys(a);
+                });
+            }
 
             // flag in case we need to apply the daterange before the vs aggregate
-            if (parentVirtualSource
-                && !isEmpty(virtualSource.aggregate)
+            if (!isEmpty(vsAggStages)
                 && Object.values(parentVirtualSource.fieldsMap)
                          .some(f => f.path === collection.timestampField)) {
-                const stage =  {
+                vsAggDateRangeStage =  {
                     vsAggDateRange: true,
                     '$match': { [collection.timestampField]: { } }
                 };
-                initialAggStages.push(stage);
             }
 
-            if (virtualSource.aggregate) {
-                baseAggregate = [
-                    ...initialAggStages,
-                    ...virtualSource.aggregate.map(a => {
-                        return KPIFilterHelper.CleanObjectKeys(a);
-                    })
-                ];
-            }
+            if (vsAggDateRangeStage) baseAggregate = [vsAggDateRangeStage];
+            if (vsAggStages) baseAggregate = (baseAggregate || []).concat(...vsAggStages);
         }
         // }
 
