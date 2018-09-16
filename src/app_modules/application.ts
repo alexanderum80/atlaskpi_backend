@@ -22,7 +22,6 @@ import { RolesModule } from './roles/roles.module';
 import { SearchModule } from './search/search.module';
 import { SlideshowsModule } from './slideshows/slideshow.module';
 import { SocialWidgetsModule } from './social-widgets/social-widgets.module';
-import { TargetsModule } from './targets/targets.module';
 import { UsersModule } from './users/users.module';
 import { WidgetsModule } from './widgets/widgets.module';
 import { CountriesModule } from './countries/countries.module';
@@ -60,7 +59,6 @@ import { TargetsNewModule } from './targetsNew/target.module';
         RolesModule,
         SearchModule,
         SlideshowsModule,
-        TargetsModule,
         UsersModule,
         WidgetsModule,
         SocialWidgetsModule,

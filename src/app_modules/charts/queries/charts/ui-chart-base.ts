@@ -15,7 +15,7 @@ import {
     IChartDateRange,
     IDateRange,
     parseComparisonDateRange,
-    parsePredifinedDate,
+    parsePredefinedDate,
     PredefinedComparisonDateRanges,
     PredefinedDateRanges,
 } from '../../../../domain/common/date-range';
@@ -332,7 +332,7 @@ export class UIChartBase {
                     from: moment(chartDateRange.custom.from).startOf('day').toDate(),
                     to: moment(chartDateRange.custom.to).endOf('day').toDate()
                 }
-                : parsePredifinedDate(chartDateRange.predefined);
+                : parsePredefinedDate(chartDateRange.predefined);
     }
 
     /**

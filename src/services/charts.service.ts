@@ -25,7 +25,7 @@ import { Charts } from './../domain/app/charts/chart.model';
 import { IDashboardDocument } from './../domain/app/dashboards/dashboard';
 import { Dashboards } from './../domain/app/dashboards/dashboard.model';
 import { KPIs } from './../domain/app/kpis/kpi.model';
-import {IChartDateRange, IDateRange, parsePredifinedDate, PredefinedTargetPeriod, PredefinedDateRanges} from './../domain/common/date-range';
+import {IChartDateRange, IDateRange, parsePredefinedDate, PredefinedTargetPeriod, PredefinedDateRanges} from './../domain/common/date-range';
 import {FrequencyEnum, FrequencyTable} from './../domain/common/frequency-enum';
 import { TargetService } from './target.service';
 import {dataSortDesc} from '../helpers/number.helpers';
@@ -489,7 +489,7 @@ export class ChartsService {
                     from: moment(dateRange[0].custom.from).startOf('day').toDate(),
                     to: moment(dateRange[0].custom.to).endOf('day').toDate()
                 }
-                : parsePredifinedDate(dateRange[0].predefined);
+                : parsePredefinedDate(dateRange[0].predefined);
     }
 
     private _getTargetExtraPeriodOptions(frequency: number, chartDateRange?: IChartDateRange[]): IObject {

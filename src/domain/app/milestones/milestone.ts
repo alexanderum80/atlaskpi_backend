@@ -4,7 +4,6 @@ import * as Promise from 'bluebird';
 import * as nodemailer from 'nodemailer';
 
 export interface IMilestone {
-    target: string;
     task: string;
     dueDate: string;
     status: string;

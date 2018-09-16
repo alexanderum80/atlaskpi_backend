@@ -1,5 +1,6 @@
 import * as Promise from 'bluebird';
 import * as mongoose from 'mongoose';
+import { IChartDateRange } from '../../common/date-range';
 
 export interface SourceNew {
     type: string;
@@ -12,76 +13,82 @@ export interface DateRangeNew {
 }
 
 export interface ReportOptionsNew {
+    kpi: string;
     frequency?: string;
-    groupings?: string;
+    groupings?: string[];
     timezone: string;
-    dateRange: DateRangeNew;
+    dateRange: IChartDateRange;
     filter?: string[];
 }
 
-export interface deliveyMethodNew {
+export interface DeliveryMethodNew {
     email: boolean;
     push: boolean;
 }
 
 export interface UsersNew {
     id: string;
-    deliveyMethod: [string];
+    deliveryMethod: string[];
 }
 
 export interface NotificationConfigNew {
-    notifiOnPercente: string;
+    notifyOnPercent: string;
     users: [UsersNew];
+}
+
+export interface ITargetMilestone {
+    _id: string;
+    task: string;
+    dueDate: Date;
+    status: string;
+    responsible: string[];
 }
 
 export interface ITargetNew {
     name: string;
     source: SourceNew;
-    kpi: string;
     reportOptions: ReportOptionsNew;
     compareTo: string;
-    recurrent: string;
     type: string;
-    value: string;
+    value: number;
+    appliesTo?: string;
     unit: string;
     notificationConfig: NotificationConfigNew;
-    owner: string;
     active?: boolean;
-    selected?: boolean;
-    target?: number;
-    targetMet?: number;
+    targetValue?: number;
     timestamp?: Date;
-    percentageCompletion?: any;
-    period: string;
     deleted: boolean;
+    milestones: ITargetMilestone[];
+}
+
+export interface IMilestone {
+    task: string;
+    dueDate: string;
+    status: string;
+    responsible: [string];
 }
 
 export interface ITargetNewInput {
     name: string;
     source: SourceNew;
-    kpi: string;
     reportOptions: ReportOptionsNew;
     compareTo: string;
-    recurrent: string;
     type: string;
     value: number;
+    appliesTo: string;
     unit: string;
-    notificationConfig: NotificationConfigNew;
-    owner: string;
     active?: boolean;
-    selected?: boolean;
-    target?: number;
-    targetMet?: number;
+    targetValue?: number;
     timestamp?: Date;
-    percentageCompletion?: any;
-    period: string;
+    notificationConfig: NotificationConfigNew;
+    milestones: IMilestone;
 }
 
 export interface ISourceNewInput {
     type: string;
     identifier: string;
 }
-  
+
 export interface ITargetNewDocument extends ITargetNew, mongoose.Document {
 
 }

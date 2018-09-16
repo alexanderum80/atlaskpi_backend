@@ -55,6 +55,7 @@ export class DashboardsQuery implements IQuery<IDashboard[]> {
         return new Promise<IDashboard[]>((resolve, reject) => {
             that._dashboards.model
                 .find(query)
+                .lean(true)
                 .populate({
                     path: 'charts',
                     populate: { path: 'kpis' }
@@ -64,7 +65,7 @@ export class DashboardsQuery implements IQuery<IDashboard[]> {
                     select: ['_id', 'username', 'visible']
                 })
                 .then(dashboards => {
-                    resolve(dashboards);
+                    resolve(dashboards as IDashboard[]);
                 }).catch(e => {
                     reject(e);
                 });

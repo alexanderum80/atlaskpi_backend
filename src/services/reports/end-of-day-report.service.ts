@@ -4,7 +4,7 @@ import * as logger from 'winston';
 
 import { IExpenseDocument, IExpenseModel } from '../../domain/app/expenses/expense';
 import { ISaleDocument, ISaleModel } from '../../domain/app/sales/sale';
-import { IDateRange, parsePredifinedDate, PredefinedDateRanges } from '../../domain/common/date-range';
+import { IDateRange, parsePredefinedDate, PredefinedDateRanges } from '../../domain/common/date-range';
 import { ReportServiceBase } from './report-service-base';
 
 
@@ -34,8 +34,8 @@ export class EndOfDayReportService extends ReportServiceBase<Promise<IEndOfDayRe
                 }
 
     public generateReport(): Promise<IEndOfDayReport> {
-        const todayDateRange: IDateRange = parsePredifinedDate(PredefinedDateRanges.today);
-        const thisMonthDateRange: IDateRange = parsePredifinedDate(PredefinedDateRanges.thisMonth);
+        const todayDateRange: IDateRange = parsePredefinedDate(PredefinedDateRanges.today);
+        const thisMonthDateRange: IDateRange = parsePredefinedDate(PredefinedDateRanges.thisMonth);
 
         return new Promise<IEndOfDayReport>((resolve, reject) => {
             const dataPromise = {

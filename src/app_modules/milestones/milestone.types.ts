@@ -10,8 +10,6 @@ import {User} from '../users/users.types';
 
 @input()
 export class MilestoneInput {
-    @field({ type: GraphQLTypesMap.String, required: true})
-    target: string;
 
     @field({ type: GraphQLTypesMap.String, required: true })
     task: string;
@@ -23,7 +21,7 @@ export class MilestoneInput {
     status: string;
 
     @field({ type: GraphQLTypesMap.String, isArray: true, required: true})
-    responsible: [string];
+    responsible: string[];
 }
 
 @input()
@@ -43,6 +41,11 @@ export class MilestoneNotificationInput {
 
 @type()
 export class Milestone {
+    @resolver({ forField: '_id' })
+    static convertId(d) {
+        return d._id.toString();
+    }
+
     @field({ type: GraphQLTypesMap.String })
     _id: string;
 

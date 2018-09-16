@@ -4,8 +4,8 @@ import { isEmpty } from 'lodash';
 
 /**
  * TODO:
- * - fix all daterange functions to work work with utc time (depends on a timezone cofiguraiton).
- * - make an understanding about where or not to show "previous period" when dateranges represents whole months, weeks, quarter
+ * - fix all date range functions to work work with utc time (depends on a timezone configuration).
+ * - make an understanding about where or not to show "previous period" when date ranges represents whole months, weeks, quarter
  */
 
 export interface IDateRange {
@@ -80,7 +80,7 @@ export const quarterMonths = {
 
 const thisQuarter = moment().quarter();
 
-export function parsePredifinedDate(textDate: string): IDateRange {
+export function parsePredefinedDate(textDate: string): IDateRange {
     let from: Date;
     let to: Date;
 
@@ -428,15 +428,15 @@ export function parsePredefinedTargetDateRanges (predefinedDate: string, dueDate
 
     switch (predefinedDate) {
         case PredefinedDateRanges.lastMonth:
-            return parsePredifinedDate(PredefinedDateRanges.lastMonth);
+            return parsePredefinedDate(PredefinedDateRanges.lastMonth);
         case PredefinedDateRanges.yesterday:
-            return parsePredifinedDate(PredefinedDateRanges.yesterday);
+            return parsePredefinedDate(PredefinedDateRanges.yesterday);
         case PredefinedDateRanges.lastWeek:
-            return parsePredifinedDate(PredefinedDateRanges.lastWeek);
+            return parsePredefinedDate(PredefinedDateRanges.lastWeek);
         case PredefinedDateRanges.lastQuarter:
-            return parsePredifinedDate(PredefinedDateRanges.lastQuarter);
+            return parsePredefinedDate(PredefinedDateRanges.lastQuarter);
         case PredefinedDateRanges.lastYear:
-            return parsePredifinedDate(PredefinedDateRanges.lastYear);
+            return parsePredefinedDate(PredefinedDateRanges.lastYear);
 
 
         // frequency = 'daily'
@@ -662,7 +662,7 @@ export function getComparisonDateRanges(dateRange: IChartDateRange[], comparison
 export function processChartDateRange(chartDateRange: IChartDateRange): IDateRange {
     return chartDateRange.custom && chartDateRange.custom.from ?
             { from: new Date(chartDateRange.custom.from), to: new Date(chartDateRange.custom.to) }
-            : parsePredifinedDate(chartDateRange.predefined);
+            : parsePredefinedDate(chartDateRange.predefined);
 }
 
 export function getYesterdayDate(): IDateRange {

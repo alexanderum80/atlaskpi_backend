@@ -10,14 +10,21 @@ import { ITargetNewDocument, ITargetNewModel, ITargetNewInput, SourceNew } from 
 import { SourceNewInput } from '../../../app_modules/targetsNew/target.types';
 import * as moment from 'moment';
 
+const TargetMilestoneSchema = new mongoose.Schema({
+    task: { type: String, required: true },
+    dueDate: { type: Date },
+    status: { type: String, required: true },
+    responsible: { type: [String], required: true },
+});
+
 const TargetSchema = new mongoose.Schema({
     name: { type: String, unique: true, required: true },
     source: {
         type: { type: String, required: true },
         identifier: { type: String, required: true }
     },
-    kpi: { type: String, required: true },
     reportOptions: {
+        kpi: { type: String, required: true },
         frequency: String,
         groupings: [String],
         timezone: { type: String, required: true },
@@ -28,21 +35,20 @@ const TargetSchema = new mongoose.Schema({
         filter: { type: String, isArray: true}
     },
     compareTo: { type: String, required: true },
-    recurrent: { type: Boolean, required: true },
     type: { type: String, required: true },
     value: { type: Number, required: true },
+    appliesTo: { type: String },
     unit: { type: String, required: true },
     notificationConfig: {
-        notifiOnPercente: [{ type: Number, required: true }],
+        notifyOnPercentage: { type: [Number], required: true },
         users: [{
-            id: { type: String, required: true },
-            deliveryMethod: [ {type: String} ]
-        }]
+            identifier: { type: String, required: true },
+            deliveryMethod: { type: [String] }
+        }],
+        templates: { type: mongoose.Schema.Types.Mixed }
     },
-    owner: { type: String, required: true },
+    milestones: [TargetMilestoneSchema],
     active: { type: Boolean },
-    selected: { type: Boolean },
-    period: { type: String, required: true },
     deleted: { type: Boolean },
 });
 
@@ -63,22 +69,19 @@ TargetSchema.statics.createNew = function(targetInput: ITargetNewInput): Promise
                 type: targetInput.source.type,
                 identifier: targetInput.source.identifier
             },
-            kpi: targetInput.kpi,
             reportOptions: targetInput.reportOptions,
             compareTo: targetInput.compareTo,
-            recurrent: targetInput.recurrent,
             type: targetInput.type,
             value: Number(targetInput.value),
             unit: targetInput.unit,
-            notificationConfig : targetInput.notificationConfig,
-            owner: targetInput.owner,
             active: targetInput.active,
-            selected: targetInput.selected,
-            target: 20,
+            targetValue: targetInput.targetValue,
             timestamp: new Date(),
-            targetMet: 10,
-            percentageCompletion: 90,
-            period: targetInput.period,
+            notificationConfig : {
+                ...targetInput.notificationConfig,
+                notifyOnPercentage: [0.25, 0.5, 0.75]
+            },
+            milestones: targetInput.milestones,
         };
 
         that.create(objectTarget)
@@ -107,22 +110,16 @@ TargetSchema.statics.updateTargetNew = function(_id: string, targetInput: ITarge
                 type: targetInput.source.type,
                 identifier: targetInput.source.identifier
             },
-            kpi: targetInput.kpi,
             reportOptions: targetInput.reportOptions,
             compareTo: targetInput.compareTo,
-            recurrent: targetInput.recurrent,
             type: targetInput.type,
-            value: Number(targetInput.value),
+            value: Number(targetInput.value) || 0,
+            appliesTo: targetInput.appliesTo,
             unit: targetInput.unit,
             notificationConfig : targetInput.notificationConfig,
-            owner: targetInput.owner,
             active: targetInput.active,
-            selected: targetInput.selected,
-            target: 20,
+            targetValue: targetInput.targetValue,
             timestamp: new Date(),
-            targetMet: 10,
-            percentageCompletion: 90,
-            period: targetInput.period,
         };
 
         that.findByIdAndUpdate(_id, objectTarget)

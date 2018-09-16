@@ -1,30 +1,25 @@
 import * as Bluebird from 'bluebird';
 import { inject, injectable } from 'inversify';
 import * as moment from 'moment';
-import { clone } from 'lodash';
 
 import { IGetDataOptions, IKpiBase } from '../app_modules/kpis/queries/kpi-base';
 import { KpiFactory } from '../app_modules/kpis/queries/kpi.factory';
 import { IChartDocument } from '../domain/app/charts/chart';
 import { Charts } from '../domain/app/charts/chart.model';
-import { IChart } from '../domain/app/charts/chart';
-import { Users } from '../domain/app/security/users/user.model';
-import { IUserDocument } from '../domain/app/security/users/user';
 import { Dashboards } from '../domain/app/dashboards/dashboard.model';
-import { NotificationInput } from '../app_modules/targets/targets.types';
+import { Users } from '../domain/app/security/users/user.model';
+import { ITargetNew, ITargetNewDocument } from '../domain/app/targetsNew/target';
+import { TargetsNew } from '../domain/app/targetsNew/target.model';
 import {
+    IChartDateRange,
     IDateRange,
     parsePredefinedTargetDateRanges,
-    parsePredifinedDate,
-PredefinedDateRanges,
-IChartDateRange,
+    parsePredefinedDate,
+    PredefinedDateRanges,
 } from '../domain/common/date-range';
 import { FrequencyEnum, FrequencyTable } from '../domain/common/frequency-enum';
-import { isNumber } from 'lodash';
-import {TargetNotification} from './notifications/users/target.notification';
-import {PnsService} from './pns.service';
-import { TargetsNew } from '../domain/app/targetsNew/target.model';
-import { ITargetNewDocument } from '../domain/app/targetsNew/target';
+import { TargetNotification } from './notifications/users/target.notification';
+import { PnsService } from './pns.service';
 
 export interface IMomentFrequencyTable {
     daily: string;
@@ -117,13 +112,13 @@ export class TargetService {
     async updateTarget(target: ITargetNewDocument): Promise<ITargetNewDocument> {
         try {
             const id: string = target.id;
-            const inputData: ITarget = Object.assign({}, target.toObject() as ITarget);
+            const inputData: ITargetNew = Object.assign({}, target.toObject() as ITargetNew);
 
             const targetAmount: number = await this.getTargetValue(inputData);
             inputData.target = targetAmount;
             inputData.timestamp = new Date();
 
-            const updatedTarget: ITargetNewDocument = await this._targets.model.updateTarget(id, inputData);
+            const updatedTarget: ITargetNewDocument = await this._targets.model.updateTargetNew(id, inputData);
 
             const targetProgress: number = await this.targetProgressValue(updatedTarget);
             updatedTarget.percentageCompletion = (targetProgress / updatedTarget.target) * 100;
@@ -136,15 +131,16 @@ export class TargetService {
 
     async targetProgressValue(data: ITargetNewDocument): Promise<number> {
         try {
-            const chart: IChartDocument = await this._charts.model.findById(data.chart[0])
+            const chart: IChartDocument = await this._charts.model.findById(data.source.identifier)
                                                 .populate({ path: 'kpis' });
             const kpi: IKpiBase = await this._kpiFactory.getInstance(chart.kpis[0]);
 
             const groupings: string[] = (chart.groupings && chart.groupings[0]) ? chart.groupings : [];
-            const stackName: string = data.stackName ? data.stackName : data.nonStackName;
+            const stackName: string = data.appliesTo || undefined;
             const isStackNameEqualToAll: boolean = stackName.toLowerCase() === 'all';
 
-            const dateRange: IDateRange[] = this._getTargetProgressDateRange(chart.frequency, data.datepicker, chart.dateRange);
+            const dr = parsePredefinedDate(data.period);
+            const dateRange: IDateRange[] = this._getTargetProgressDateRange(chart.frequency, dr.to, chart.dateRange);
             const options: IGetDataOptions = {
                 filter: chart.filter
             };
@@ -163,7 +159,7 @@ export class TargetService {
             }
 
             const response = await kpi.getData(dateRange, options);
-            const totalProgress = response ? response.find(r => r.value) : { value : data.amount };
+            const totalProgress = response ? response.find(r => r.value) : { value : data.target };
             const amount: number = totalProgress ? totalProgress.value : 0;
 
             return amount;
@@ -172,18 +168,17 @@ export class TargetService {
         }
     }
 
-    async createUpdateTarget(data: ITarget, id?: string): Promise<ITargetNewDocument> {
+    async createUpdateTarget(data: ITargetNew, id?: string): Promise<ITargetNewDocument> {
         try {
             // target value
             data.target = await this.getTargetValue(data);
-            const chart = await this._charts.model.findById(data.chart[0]);
 
             if (!id) {
                 // create target
-                return await this._targets.model.createTarget(data);
+                return await this._targets.model.createNew(data);
             } else {
                 // update target
-                return await this._targets.model.updateTarget(id, data);
+                return await this._targets.model.updateTargetNew(id, data);
             }
 
         } catch (err) {
@@ -299,7 +294,7 @@ export class TargetService {
         const isStackNameEqualToAll: boolean = stackName.toLowerCase() === 'all';
 
         const chartDateRange: string = chart.dateRange ? chart.dateRange[0].predefined : '';
-        const dateRange: any = getDateRange || parsePredifinedDate(chartDateRange);
+        const dateRange: any = getDateRange || parsePredefinedDate(chartDateRange);
 
         const options: IGetDataOptions = {
             filter: chart.filter
@@ -323,49 +318,49 @@ export class TargetService {
         return responseValue;
     }
 
-    async sendNotification(input: NotificationInput): Promise<boolean> {
-        try {
-            const chartDoc: IChartDocument = await this._charts.model.findById(input.chartId);
-            const dashboardName: string = await this._dashboard.model.findDashboardByChartId(input.chartId);
-            const usersDoc: IUserDocument[] = await this._users.model.findUsersById(input.usersId);
+    // async sendNotification(input: NotificationInput): Promise<boolean> {
+    //     try {
+    //         const chartDoc: IChartDocument = await this._charts.model.findById(input.chartId);
+    //         const dashboardName: string = await this._dashboard.model.findDashboardByChartId(input.chartId);
+    //         const usersDoc: IUserDocument[] = await this._users.model.findUsersById(input.usersId);
 
-            const chart = chartDoc.toObject() as IChart;
-            const chartDefinition = chart.chartDefinition;
+    //         const chart = chartDoc.toObject() as IChart;
+    //         const chartDefinition = chart.chartDefinition;
 
-            let targetAmount: string;
-            let targetMet: string;
+    //         let targetAmount: string;
+    //         let targetMet: string;
 
-            if (!chartDoc || !dashboardName || !usersDoc) {
-                throw new Error('inefficient data');
-            }
+    //         if (!chartDoc || !dashboardName || !usersDoc) {
+    //             throw new Error('inefficient data');
+    //         }
 
-            targetAmount = this._formatNotificationValue(chartDefinition, input.targetAmount);
-            targetMet = this._formatNotificationValue(chartDefinition, input.targetMet);
+    //         targetAmount = this._formatNotificationValue(chartDefinition, input.targetAmount);
+    //         targetMet = this._formatNotificationValue(chartDefinition, input.targetMet);
 
-            const notifyData: INotificationData = {
-                targetName: input.targetName,
-                targetAmount: targetAmount,
-                targetMet: targetMet,
-                targetDate: input.targetDate,
-                dashboardName: dashboardName,
-                chartName: chartDoc.title,
-                businessUnitName: input.businessUnit
-            };
+    //         const notifyData: INotificationData = {
+    //             targetName: input.targetName,
+    //             targetAmount: targetAmount,
+    //             targetMet: targetMet,
+    //             targetDate: input.targetDate,
+    //             dashboardName: dashboardName,
+    //             chartName: chartDoc.title,
+    //             businessUnitName: input.businessUnit
+    //         };
 
-            const message = `
-                This is a notification for the target ${notifyData.targetName} you set for ${notifyData.businessUnitName}, 
-                to date you have reached ${notifyData.targetMet} of your targeted ${notifyData.targetAmount} for 
-                ${notifyData.targetDate}. You can access this on your ${notifyData.dashboardName} dashboard on the chart called 
-                ${notifyData.chartName}.
-            `;
-            this._pnsService.sendNotifications(usersDoc, message);
+    //         const message = `
+    //             This is a notification for the target ${notifyData.targetName} you set for ${notifyData.businessUnitName},
+    //             to date you have reached ${notifyData.targetMet} of your targeted ${notifyData.targetAmount} for
+    //             ${notifyData.targetDate}. You can access this on your ${notifyData.dashboardName} dashboard on the chart called
+    //             ${notifyData.chartName}.
+    //         `;
+    //         this._pnsService.sendNotifications(usersDoc, message);
 
-            usersDoc.forEach(user => this._targetNotification.notify(user, user.username, notifyData));
-            return true;
-        } catch (err) {
-            throw new Error('error getting dashboard name, chart, and users');
-        }
-    }
+    //         usersDoc.forEach(user => this._targetNotification.notify(user, user.username, notifyData));
+    //         return true;
+    //     } catch (err) {
+    //         throw new Error('error getting dashboard name, chart, and users');
+    //     }
+    // }
 
     // return object with 'from' and 'to' property
     getDate(period: string, dueDate: string, chartFrequency: string, chartDateRange: IChartDateRange[]): IDateRange[] {
@@ -376,7 +371,7 @@ export class TargetService {
                         from: moment(dateRange.custom.from).startOf('day').toDate(),
                         to: moment(dateRange.custom.to).startOf('day').toDate()
                    }
-                   : parsePredifinedDate(dateRange.predefined);
+                   : parsePredefinedDate(dateRange.predefined);
                });
     }
 
@@ -480,7 +475,8 @@ export class TargetService {
 
         if (targets && targets.length) {
             targets.forEach((target: ITargetNewDocument) => {
-                const datepicker: string = moment(target.datepicker).format('YYYY-MM-DD');
+                const dr = parsePredefinedDate(target.period);
+                const datepicker: string = moment(dr.to).format('YYYY-MM-DD');
                 const currentYear: string = moment().endOf('year').format('YYYY-MM-DD');
                 if (moment(datepicker).isAfter(currentYear)) {
                     futureDateRange = {
@@ -498,15 +494,15 @@ export class TargetService {
 
         switch (dateFrequency) {
             case FrequencyTable.daily:
-                return parsePredifinedDate(PredefinedDateRanges.today);
+                return parsePredefinedDate(PredefinedDateRanges.today);
             case FrequencyTable.weekly:
-                return parsePredifinedDate(PredefinedDateRanges.thisWeekToDate);
+                return parsePredefinedDate(PredefinedDateRanges.thisWeekToDate);
             case FrequencyTable.monthly:
-                return parsePredifinedDate(PredefinedDateRanges.thisMonthToDate);
+                return parsePredefinedDate(PredefinedDateRanges.thisMonthToDate);
             case FrequencyTable.quarterly:
-                return parsePredifinedDate(PredefinedDateRanges.thisQuarterToDate);
+                return parsePredefinedDate(PredefinedDateRanges.thisQuarterToDate);
             case FrequencyTable.yearly:
-                return parsePredifinedDate(PredefinedDateRanges.thisYearToDate);
+                return parsePredefinedDate(PredefinedDateRanges.thisYearToDate);
             default:
                 return {
                     from: moment(notify, 'MM/DD/YYYY').startOf(MomentFrequencyTable[frequency]).toDate(),
@@ -516,7 +512,7 @@ export class TargetService {
 
     }
 
-    private _getTargetProgressDateRange(chartFrequency: string, dueDate: string, chartDateRange: IChartDateRange[]): IDateRange[] {
+    private _getTargetProgressDateRange(chartFrequency: string, dueDate: Date, chartDateRange: IChartDateRange[]): IDateRange[] {
         const to = moment(dueDate).toDate();
         let from: Date;
 
@@ -547,7 +543,7 @@ export class TargetService {
                   from: moment(dateRange.custom.from).startOf('day').toDate(),
                   to: moment(dateRange.custom.to).startOf('day').toDate()
                 }
-                : parsePredifinedDate(dateRange.predefined);
+                : parsePredefinedDate(dateRange.predefined);
             });
         }
         return [{
@@ -555,20 +551,20 @@ export class TargetService {
             to: to
         }];
     }
-    
-    private _formatNotificationValue(chartDefinition: any, amount: number): string {
-        if (!chartDefinition || !chartDefinition.tooltip || !chartDefinition.tooltip.custom) {
-            return amount.toString();
-        }
 
-        const custom = chartDefinition.tooltip.custom;
-        const decimal = custom.decimals;
-        if (isNumber(decimal)) {
-            if (decimal === 0) {
-                amount = Math.round(amount);
-            }
-            amount = amount.toFixed(decimal) as any;
-        }
-        return `${custom.prefix}${amount}${custom.suffix}`;
-    }
+    // private _formatNotificationValue(chartDefinition: any, amount: number): string {
+    //     if (!chartDefinition || !chartDefinition.tooltip || !chartDefinition.tooltip.custom) {
+    //         return amount.toString();
+    //     }
+
+    //     const custom = chartDefinition.tooltip.custom;
+    //     const decimal = custom.decimals;
+    //     if (isNumber(decimal)) {
+    //         if (decimal === 0) {
+    //             amount = Math.round(amount);
+    //         }
+    //         amount = amount.toFixed(decimal) as any;
+    //     }
+    //     return `${custom.prefix}${amount}${custom.suffix}`;
+    // }
 }

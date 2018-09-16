@@ -3,6 +3,7 @@ import { field } from '../../framework/decorators/field.decorator';
 import { GraphQLTypesMap } from '../../framework/decorators/graphql-types-map';
 import { type } from '../../framework/decorators/type.decorator';
 import { ErrorDetails } from '../../framework/graphql/common.types';
+import { resolver } from '../../framework/decorators/resolver.decorator';
 
 @input()
 export class CreateBusinessUnitInput {
@@ -15,6 +16,11 @@ export class CreateBusinessUnitInput {
 
 @input()
 export class UpdateBusinessUnitInput {
+    @resolver({ forField: '_id' })
+    static convertId(d) {
+        return d._id.toString();
+    }
+
     @field({ type: GraphQLTypesMap.String })
     _id: string;
 
@@ -27,6 +33,11 @@ export class UpdateBusinessUnitInput {
 
 @type()
 export class BusinessUnit  {
+    @resolver({ forField: '_id' })
+    static convertId(d) {
+        return d._id.toString();
+    }
+
     @field({ type: GraphQLTypesMap.String })
     _id: string;
 
