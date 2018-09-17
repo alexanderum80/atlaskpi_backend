@@ -4,7 +4,6 @@ import { type } from '../../framework/decorators/type.decorator';
 import { ErrorDetails } from '../../framework/graphql/common.types';
 import { input } from '../../framework/decorators/input.decorator';
 import { resolver } from '../../framework/decorators/resolver.decorator';
-import { MilestoneInput } from '../milestones/milestone.types';
 
 
 @type()
@@ -19,10 +18,10 @@ export class DateRangeNew {
 @type()
 export class TargetUsersNew {
     @field({ type: GraphQLTypesMap.String })
-    id: string;
+    identifier: string;
 
     @field({ type: GraphQLTypesMap.String, isArray: true })
-    deliveryMethod: string[];
+    deliveryMethods: string[];
 }
 
 @type()
@@ -62,6 +61,22 @@ export class SourceNew {
 }
 
 @type()
+export class Milestone {
+    @field({ type: GraphQLTypesMap.String })
+    task: string;
+
+    @field({ type: GraphQLTypesMap.String })
+    dueDate: string;
+
+    @field({ type: GraphQLTypesMap.String })
+    status: string;
+
+    @field({ type: GraphQLTypesMap.String, isArray: true })
+    responsible: [string];
+
+}
+
+@type()
 export class TargetNew  {
     @resolver({ forField: '_id' })
     static convertId(d) {
@@ -77,17 +92,11 @@ export class TargetNew  {
     @field({ type: SourceNew })
     source: SourceNew;
 
-    @field({ type: GraphQLTypesMap.String })
-    kpi: { type: string, required: true };
-
     @field({ type: ReportOptionsNew })
     reportOptions: ReportOptionsNew;
 
     @field({ type: GraphQLTypesMap.String })
     compareTo: { type: string, required: true };
-
-    @field({ type: GraphQLTypesMap.String })
-    recurrent: { type: boolean, required: true };
 
     @field({ type: GraphQLTypesMap.String })
     type: { type: string, required: true };
@@ -105,32 +114,13 @@ export class TargetNew  {
     notificationConfig: NotificationConfigNew;
 
     @field({ type: GraphQLTypesMap.String })
-    owner: { type: string, required: true };
-
-    @field({ type: GraphQLTypesMap.String })
     active: { type: boolean };
 
-    @field({ type: GraphQLTypesMap.String })
-    selected: { type: boolean };
+    @field({ type: Milestone, isArray: true })
+    milestones: Milestone[];
 
-    @field({ type: GraphQLTypesMap.Float })
-    target: number;
-
-    @field({ type: GraphQLTypesMap.String })
-    period: { type: string, required: true };
 
 }
-
-
-@input()
-export class deliveryMethodNewInput {
-    @field({ type: GraphQLTypesMap.String })
-    email: boolean;
-
-    @field({ type: GraphQLTypesMap.String, isArray: true })
-    push: boolean[];
-}
-
 
 
 @input()
@@ -190,6 +180,22 @@ export class SourceNewInput {
     identifier: string;
 }
 
+@input()
+export class MilestoneInput {
+
+    @field({ type: GraphQLTypesMap.String, required: true })
+    task: string;
+
+    @field({ type: GraphQLTypesMap.String, required: true })
+    dueDate: string;
+
+    @field({ type: GraphQLTypesMap.String })
+    status: string;
+
+    @field({ type: GraphQLTypesMap.String, isArray: true, required: true})
+    responsible: string[];
+}
+
 
 @input()
 export class TargetNewInput  {
@@ -221,7 +227,7 @@ export class TargetNewInput  {
     notificationConfig: NotificationConfigNewInput;
 
     @field({ type: MilestoneInput, isArray: true })
-    milestones: NotificationConfigNewInput;
+    milestones: MilestoneInput[];
 
 
 }
@@ -267,58 +273,3 @@ export class DeleteTargetNewResponse  {
     errors: ErrorDetails[];
 
 }
-
-@type()
-export class TargetResponse  {
-    @resolver({ forField: '_id' })
-    static convertId(d) {
-        return d._id.toString();
-    }
-
-    @field({ type: GraphQLTypesMap.String })
-    _id: string;
-
-    @field({ type: GraphQLTypesMap.String })
-    name: string;
-
-    @field({ type: GraphQLTypesMap.String })
-    datepicker: string;
-
-    @field({ type: GraphQLTypesMap.String })
-    vary: string;
-
-    @field({ type: GraphQLTypesMap.Float })
-    amount: number;
-
-    @field({ type: GraphQLTypesMap.String })
-    amountBy: string;
-
-    @field({ type: GraphQLTypesMap.Boolean })
-    active: boolean;
-
-    @field({ type: GraphQLTypesMap.Float })
-    target: number;
-
-    @field({ type: GraphQLTypesMap.String })
-    type: string;
-
-    @field({ type: GraphQLTypesMap.String })
-    period: string;
-
-    @field({ type: GraphQLTypesMap.String, isArray: true })
-    visible: string[];
-
-    @field({ type: GraphQLTypesMap.String })
-    owner: string;
-
-    @field({ type: GraphQLTypesMap.String, isArray: true })
-    chart: string[];
-
-    @field({ type: GraphQLTypesMap.String })
-    stackName: string;
-
-    @field({ type: GraphQLTypesMap.String })
-    nonStackName: string;
-
-}
-

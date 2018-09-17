@@ -1,4 +1,3 @@
-import { MilestonesModule } from './milestones/milestones.module';
 import { GoogleSpreadSheetModule } from './google-spreadsheet/google-spreadsheet.module';
 import { CallRailModule } from './integrations/callrail/callrail.module';
 import { AppModule, ModuleBase } from '../framework/decorators/app-module';
@@ -53,7 +52,6 @@ import { TargetsNewModule } from './targetsNew/target.module';
         KpisModule,
         LocationsModule,
         MapsModule,
-        MilestonesModule,
         PermissionsModule,
         ReportsModule,
         RolesModule,

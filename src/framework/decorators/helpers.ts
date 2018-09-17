@@ -97,7 +97,7 @@ export function updateFieldAndTypeMetadata(metadataType: MetadataType, name: str
         let graphqlArtifact: IGraphqlArtifacts = BRIDGE.graphql[metadataType];
 
         if (graphqlArtifact[name]) {
-            throw new Error(`Graphql type ${name} was already defined`);
+            throw `Graphql type ${name} was already defined`;
         }
 
         graphqlArtifact[name] = {

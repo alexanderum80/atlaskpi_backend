@@ -4,8 +4,8 @@ import { ITargetNewDocument } from '../../../domain/app/targetsNew/target';
 import { TargetsNew } from '../../../domain/app/targetsNew/target.model';
 import { query } from '../../../framework/decorators/query.decorator';
 import { IQuery } from '../../../framework/queries/query';
+import { TargetNew } from '../../targetsNew/target.types';
 import { TargetByDateActivity } from '../activities/target-by-date.activity';
-import { TargetResponse } from '../../targetsNew/target.types';
 
 @injectable()
 @query({
@@ -14,7 +14,7 @@ import { TargetResponse } from '../../targetsNew/target.types';
     parameters: [
         { name: 'date', type: String },
     ],
-    output: { type: TargetResponse, isArray: true }
+    output: { type: TargetNew, isArray: true }
 })
 export class TargetByDateQuery implements IQuery<ITargetNewDocument[]> {
     constructor(@inject(TargetsNew.name) private _targets: TargetsNew) { }

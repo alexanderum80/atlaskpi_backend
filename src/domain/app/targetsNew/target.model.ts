@@ -43,7 +43,7 @@ const TargetSchema = new mongoose.Schema({
         notifyOnPercentage: { type: [Number], required: true },
         users: [{
             identifier: { type: String, required: true },
-            deliveryMethod: { type: [String] }
+            deliveryMethods: { type: [String] }
         }],
         templates: { type: mongoose.Schema.Types.Mixed }
     },

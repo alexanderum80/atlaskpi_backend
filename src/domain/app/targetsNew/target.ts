@@ -28,7 +28,7 @@ export interface DeliveryMethodNew {
 
 export interface UsersNew {
     id: string;
-    deliveryMethod: string[];
+    deliveryMethods: string[];
 }
 
 export interface NotificationConfigNew {
