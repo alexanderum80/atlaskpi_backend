@@ -120,7 +120,7 @@ export class TargetNew  {
     @field({ type: NotificationConfigNew })
     notificationConfig: NotificationConfigNew;
 
-    @field({ type: GraphQLTypesMap.String })
+    @field({ type: GraphQLTypesMap.Boolean })
     active: { type: boolean };
 
     @field({ type: Milestone, isArray: true })

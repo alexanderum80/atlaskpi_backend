@@ -13,6 +13,8 @@ import { GetDashboardsActivity } from '../activities/get-dashboards.activity';
 import { Dashboard } from '../dashboards.types';
 import { CurrentUser } from './../../../domain/app/current-user';
 
+const transformProps = require('transform-props');
+
 
 @injectable()
 @query({
@@ -65,10 +67,20 @@ export class DashboardsQuery implements IQuery<IDashboard[]> {
                     select: ['_id', 'username', 'visible']
                 })
                 .then(dashboards => {
+                    (dashboards as IDashboard[]).forEach(d => {
+                        transformProps(d, this.castToString, '_id');
+                        d.owner = JSON.stringify(d.owner) as any;
+                        d.charts = d.charts.map(c => JSON.stringify(c)) as any;
+                    });
+
                     resolve(dashboards as IDashboard[]);
                 }).catch(e => {
                     reject(e);
                 });
         });
+    }
+
+    castToString(arg) {
+        return String(arg);
     }
 }

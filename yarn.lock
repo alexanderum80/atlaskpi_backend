@@ -5258,6 +5258,10 @@ tough-cookie@~2.3.3:
   dependencies:
     punycode "^1.4.1"
 
+transform-props@^1.0.1:
+  version "1.0.1"
+  resolved "http://npm.atlaskpi.com:9000/transform-props/-/transform-props-1.0.1.tgz#c98ea32d76031f9b83561b1575dffb58b39a7b1c"
+
 ts-node@^1.7.0:
   version "1.7.3"
   resolved "https://registry.yarnpkg.com/ts-node/-/ts-node-1.7.3.tgz#dee7f8a84751732d3c2e497cac5a02fb117dfee7"

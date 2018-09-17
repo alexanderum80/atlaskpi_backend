@@ -41,6 +41,7 @@ export class DashboardInput  {
     visible?: boolean;
 }
 
+
 @type()
 export class Dashboard  {
     @resolver({ forField: '_id' })
