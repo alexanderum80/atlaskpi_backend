@@ -4,6 +4,7 @@ import { type } from '../../framework/decorators/type.decorator';
 import { ErrorDetails } from '../../framework/graphql/common.types';
 import { input } from '../../framework/decorators/input.decorator';
 import { resolver } from '../../framework/decorators/resolver.decorator';
+import { IMilestone } from '../../domain/app/targetsNew/target';
 
 
 @type()
@@ -62,6 +63,12 @@ export class SourceNew {
 
 @type()
 export class Milestone {
+
+    @resolver({ forField: 'dueDate' })
+    static forDueDate(m: IMilestone) {
+        return m.dueDate.toISOString();
+    }
+
     @field({ type: GraphQLTypesMap.String })
     task: string;
 

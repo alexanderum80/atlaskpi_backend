@@ -63,7 +63,7 @@ export interface ITargetNew {
 
 export interface IMilestone {
     task: string;
-    dueDate: string;
+    dueDate: Date;
     status: string;
     responsible: [string];
 }
@@ -81,7 +81,7 @@ export interface ITargetNewInput {
     targetValue?: number;
     timestamp?: Date;
     notificationConfig: NotificationConfigNew;
-    milestones: IMilestone;
+    milestones: IMilestone[];
 }
 
 export interface ISourceNewInput {

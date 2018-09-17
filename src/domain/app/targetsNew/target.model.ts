@@ -34,7 +34,7 @@ const TargetSchema = new mongoose.Schema({
         },
         filter: { type: String, isArray: true}
     },
-    compareTo: { type: String, required: true },
+    compareTo: { type: String },
     type: { type: String, required: true },
     value: { type: Number, required: true },
     appliesTo: { type: String },
@@ -61,6 +61,15 @@ TargetSchema.statics.createNew = function(targetInput: ITargetNewInput): Promise
     return new Promise<ITargetNewDocument>((resolve, reject) => {
         if (!targetInput.name) {
             return reject('Information not valid');
+        }
+
+        // convert milestones due dates
+        if (targetInput.milestones) {
+            targetInput.milestones.forEach(m => {
+                if (m.dueDate) {
+                    m.dueDate = new Date(m.dueDate);
+                }
+            });
         }
 
         const objectTarget = {
@@ -103,6 +112,16 @@ TargetSchema.statics.updateTargetNew = function(_id: string, targetInput: ITarge
         if (!targetInput) {
             return reject('Information not valid');
         }
+
+        // convert milestones due dates
+        if (targetInput.milestones) {
+            targetInput.milestones.forEach(m => {
+                if (m.dueDate) {
+                    m.dueDate = new Date(m.dueDate);
+                }
+            });
+        }
+
         const objectTarget = {
             _id: _id,
             name: targetInput.name,
@@ -116,9 +135,13 @@ TargetSchema.statics.updateTargetNew = function(_id: string, targetInput: ITarge
             value: Number(targetInput.value) || 0,
             appliesTo: targetInput.appliesTo,
             unit: targetInput.unit,
-            notificationConfig : targetInput.notificationConfig,
             active: targetInput.active,
             targetValue: targetInput.targetValue,
+            notificationConfig : {
+                ...targetInput.notificationConfig,
+                notifyOnPercentage: [0.25, 0.5, 0.75]
+            },
+            milestones: targetInput.milestones,
             timestamp: new Date(),
         };
 

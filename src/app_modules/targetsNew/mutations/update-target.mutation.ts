@@ -35,6 +35,7 @@ export class UpdateTargetNewMutation extends MutationBase<IMutationResponse> {
         const chart = await this._charts.model.findById(data.TargetInput.source.identifier).lean().exec() as IChart;
 
         i.reportOptions = {
+            kpi: chart.kpis[0] as any,
             dateRange: chart.dateRange[0],
             frequency: chart.frequency,
             groupings: chart.groupings,
