@@ -28,7 +28,7 @@ export interface IKPIResult {
 }
 
 export interface IGetDataOptions {
-    dateRange?: [IChartDateRange];
+    dateRange?: IChartDateRange[];
     top?: IChartTop;
     includeTopGroupingValues?: (string|string[])[];
     limit?: number;

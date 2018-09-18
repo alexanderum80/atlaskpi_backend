@@ -48,8 +48,9 @@ const TargetSchema = new mongoose.Schema({
         templates: { type: mongoose.Schema.Types.Mixed }
     },
     milestones: [TargetMilestoneSchema],
-    active: { type: Boolean },
-    deleted: { type: Boolean },
+    targetValue: { type: Number, default: 0 },
+    active: { type: Boolean, default: true },
+    deleted: { type: Boolean, default: false },
 });
 
 // add tags capabilities
@@ -300,7 +301,11 @@ TargetSchema.statics.findTarget = async function(id: string): Promise<ITargetNew
 };
 
 TargetSchema.statics.findUserVisibleTargets = function(chartId: string, userId: string): Promise<ITargetNewDocument[]> {
-    return (<ITargetNewModel>this).find({ delete: 0, visible: { $in: [userId] }, chart: { $in: [chartId] } }).exec();
+    return (<ITargetNewModel>this).find({
+        deleted: { $ne: 1 },
+        'notificationConfig.users.identifier': { $in: [userId] },
+        'source.identifier': chartId,
+    }).exec();
 };
 
 

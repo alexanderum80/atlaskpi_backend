@@ -650,21 +650,21 @@ export class UIChartBase {
                 return t.active !== false;
             });
 
-            if (metadata.frequency !== 4) {
-                if (this.futureTarget) {
-                    filterActiveTargets = filterActiveTargets.filter((targ) => {
-                        let futureDate = new Date(targ.datepicker);
-                        let endDate = new Date(moment().endOf('year').toDate());
-                        return endDate < futureDate;
-                    });
-                } else {
-                    filterActiveTargets = filterActiveTargets.filter((targ) => {
-                        let futureDate = new Date(targ.datepicker);
-                        let endDate = new Date(moment().endOf('year').toDate());
-                        return endDate > futureDate;
-                    });
-                }
-            }
+            // if (metadata.frequency !== 4) {
+            //     if (this.futureTarget) {
+            //         filterActiveTargets = filterActiveTargets.filter((targ) => {
+            //             let futureDate = new Date(targ.datepicker);
+            //             let endDate = new Date(moment().endOf('year').toDate());
+            //             return endDate < futureDate;
+            //         });
+            //     } else {
+            //         filterActiveTargets = filterActiveTargets.filter((targ) => {
+            //             let futureDate = new Date(targ.datepicker);
+            //             let endDate = new Date(moment().endOf('year').toDate());
+            //             return endDate > futureDate;
+            //         });
+            //     }
+            // }
 
             this.targetData = map(filterActiveTargets, (v, k) => {
                 return (<any>v).stackName ? {
@@ -674,16 +674,17 @@ export class UIChartBase {
                         stackName: (<any>v).stackName,
                         targetId: v._id
                     },
-                    value: (<any>v).target,
+                    value: (<any>v).targetValue,
                     targetId: v._id,
                     percentageCompletion: v.percentageCompletion
                 } : {
                     _id: {
-                        frequency: TargetService.formatFrequency(metadata.frequency, v.datepicker),
+                        // frequency: TargetService.formatFrequency(metadata.frequency, v.datepicker),
+                        frequency: TargetService.formatFrequency(metadata.frequency, moment().format()),
                         [this.commonField[0]]: (<any>v).name,
                         targetId: v._id
                     },
-                    value: (<any>v).target,
+                    value: (<any>v).targetValue,
                     targetId: v._id,
                     percentageCompletion: v.percentageCompletion
                 };

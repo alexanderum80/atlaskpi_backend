@@ -4,7 +4,7 @@ import * as moment from 'moment';
 
 import { IGetDataOptions, IKpiBase } from '../app_modules/kpis/queries/kpi-base';
 import { KpiFactory } from '../app_modules/kpis/queries/kpi.factory';
-import { IChartDocument } from '../domain/app/charts/chart';
+import { IChartDocument, IChart } from '../domain/app/charts/chart';
 import { Charts } from '../domain/app/charts/chart.model';
 import { Dashboards } from '../domain/app/dashboards/dashboard.model';
 import { Users } from '../domain/app/security/users/user.model';
@@ -20,6 +20,7 @@ import {
 import { FrequencyEnum, FrequencyTable } from '../domain/common/frequency-enum';
 import { TargetNotification } from './notifications/users/target.notification';
 import { PnsService } from './pns.service';
+import { DateService } from './date/date-service';
 
 export interface IMomentFrequencyTable {
     daily: string;
@@ -77,12 +78,14 @@ export class TargetService {
                 @inject(Charts.name) private _charts: Charts,
                 @inject(Dashboards.name) private _dashboard: Dashboards,
                 @inject(TargetNotification.name) private _targetNotification: TargetNotification,
-                @inject(PnsService.name) private _pnsService: PnsService
+                @inject(PnsService.name) private _pnsService: PnsService,
+                @inject(DateService.name) private dateService: DateService,
     ) { }
 
     async getTargets(chartId: string, userId: string): Promise<ITargetNewDocument[]> {
         try {
-            const visibleTargets: ITargetNewDocument[] = await this._targets.model.findUserVisibleTargets(chartId, userId);
+            const visibleTargets: ITargetNewDocument[] =
+                await this._targets.model.findUserVisibleTargets(chartId, userId);
             return await this.frequentlyUpdateTargets(visibleTargets);
         } catch (err) {
             return ({
@@ -111,17 +114,17 @@ export class TargetService {
 
     async updateTarget(target: ITargetNewDocument): Promise<ITargetNewDocument> {
         try {
-            const id: string = target.id;
-            const inputData: ITargetNew = Object.assign({}, target.toObject() as ITargetNew);
+            const id: string = target._id;
+            const inputData: ITargetNew = Object.assign({}, target.toObject());
 
             const targetAmount: number = await this.getTargetValue(inputData);
-            inputData.target = targetAmount;
+            inputData.targetValue = targetAmount;
             inputData.timestamp = new Date();
 
             const updatedTarget: ITargetNewDocument = await this._targets.model.updateTargetNew(id, inputData);
 
             const targetProgress: number = await this.targetProgressValue(updatedTarget);
-            updatedTarget.percentageCompletion = (targetProgress / updatedTarget.target) * 100;
+            updatedTarget.percentageCompletion = (targetProgress / inputData.targetValue) * 100;
 
             return updatedTarget;
         } catch (err) {
@@ -131,16 +134,23 @@ export class TargetService {
 
     async targetProgressValue(data: ITargetNewDocument): Promise<number> {
         try {
-            const chart: IChartDocument = await this._charts.model.findById(data.source.identifier)
-                                                .populate({ path: 'kpis' });
+            const chart: IChart = await this._charts.model.findById(data.source.identifier)
+                .populate({ path: 'kpis' })
+                .lean(true)
+                .exec() as IChart;
             const kpi: IKpiBase = await this._kpiFactory.getInstance(chart.kpis[0]);
 
             const groupings: string[] = (chart.groupings && chart.groupings[0]) ? chart.groupings : [];
             const stackName: string = data.appliesTo || undefined;
-            const isStackNameEqualToAll: boolean = stackName.toLowerCase() === 'all';
 
-            const dr = parsePredefinedDate(data.period);
-            const dateRange: IDateRange[] = this._getTargetProgressDateRange(chart.frequency, dr.to, chart.dateRange);
+            // const dr = parsePredefinedDate(data.period);
+            // const dateRange: IDateRange[] = this._getTargetProgressDateRange(chart.frequency, dr.to, chart.dateRange);
+
+            const dateRange: IDateRange = this.getDate(
+                chart.dateRange[0],
+                data.reportOptions.frequency
+            );
+
             const options: IGetDataOptions = {
                 filter: chart.filter
             };
@@ -150,7 +160,7 @@ export class TargetService {
                     filter: chart.filter
                 });
             } else {
-                if (!isStackNameEqualToAll) {
+                if (data.appliesTo) {
                     Object.assign(options, {
                         groupings: groupings,
                         stackName: this.getStackName(chart, stackName).name || null
@@ -158,8 +168,8 @@ export class TargetService {
                 }
             }
 
-            const response = await kpi.getData(dateRange, options);
-            const totalProgress = response ? response.find(r => r.value) : { value : data.target };
+            const response = await kpi.getData([dateRange], options);
+            const totalProgress = response ? response.find(r => r.value) : { value : data.targetValue };
             const amount: number = totalProgress ? totalProgress.value : 0;
 
             return amount;
@@ -186,81 +196,73 @@ export class TargetService {
         }
     }
 
-    async getTargetValue(data: ITargetCalculateData): Promise<number> {
+    async getTargetValue(data: ITargetNew): Promise<number> {
         try {
             const response = await this.getBaseValue(data);
-            const dataAmount: number = parseFloat(data.amount.toString());
             const findValue = response.length > 0 ? response.find(r => r.value) : { value: data.amount };
 
             const responseValue: number = findValue ? findValue.value : 0;
 
-            switch (data.vary) {
-
+            switch (data.type) {
                 case 'fixed':
-                    return dataAmount;
-
+                    return responseValue;
                 case 'increase':
-                    switch (data.amountBy) {
-                        case 'percent':
-                            const increasePercentResult: number = responseValue + (responseValue * (dataAmount / 100) );
-                            return increasePercentResult;
-
-                        case 'dollar':
-                            const increaseDollarResult: number = responseValue + dataAmount;
-                            return increaseDollarResult;
-
-                    }
+                    return data.unit === '%'
+                        ? responseValue * (1 + (data.value / 100))
+                        : responseValue + data.value;
                 case 'decrease':
-                    switch (data.amountBy) {
-                        case 'percent':
-                            const decreasePercentResult: number = responseValue - (responseValue * (dataAmount / 100) );
-                            return decreasePercentResult;
-
-                        case 'dollar':
-                            const descreaseDollarResult: number = responseValue - dataAmount;
-                            return descreaseDollarResult;
-
-                    }
+                    return data.unit === '%'
+                        ? responseValue - (responseValue * (data.value / 100))
+                        : responseValue - data.value;
             }
         } catch (err) {
-            throw new Error('unable to calcuate target amount');
+            throw new Error('unable to calculate target amount');
         }
     }
 
-    async getBaseValue(data: ITargetCalculateData): Promise<any> {
-        const chart = await this._charts.model.findById(data.chart[0])
-            .populate({ path: 'kpis' });
+    async getBaseValue(data: ITargetNew): Promise<any> {
+        const chart: IChart = await this._charts.model.findById(data.source.identifier)
+            .populate({ path: 'kpis' })
+            .lean(true).exec() as any;
         const kpi: IKpiBase = await this._kpiFactory.getInstance(chart.kpis[0]);
-        const groupings: string[] = chart.groupings || [];
-        const targetDateRange: IDateRange[] = this.getDate(data.period, data.datepicker, chart.frequency, chart.dateRange);
-        let getDataOptions: IGetDataOptions;
 
-        if (!data.period) {
-            return [{ value: 0 }];
-        }
+        if (data.type === 'fixed') return data.targetValue;
 
-        if (groupings[0] !== '') {
-            groupings[0] = 'all';
-        }
+        const compareDateRange = this.getCompareDateRange(
+            chart.dateRange[0],
+            data.compareTo,
+            data.reportOptions.frequency
+        );
 
-        if (chart.isStacked()) {
-            getDataOptions = {
-                filter: chart.filter,
-                groupings: groupings,
-                stackName: this.getStackName(chart, data).name || null
-            };
-        } else if (Array.isArray(groupings) && !groupings[0] && groupings[0] !== '') {
-            getDataOptions = { filter: chart.filter };
-        } else {
-            getDataOptions = { filter: chart.filter };
+        let getDataOptions: IGetDataOptions = {
+            dateRange: chart.dateRange,
+            frequency: this.dateService.getFrequency(data.reportOptions.frequency),
+            groupings: data.reportOptions.groupings,
+            top: data.reportOptions.top,
+        };
 
-            if (data.nonStackName.toLocaleLowerCase() !== 'all') {
-                getDataOptions.stackName = this.getStackName(chart, data).name;
-                getDataOptions.groupings = groupings;
+        return await kpi.getData([compareDateRange], getDataOptions);
+    }
+
+    private getCompareDateRange(dateRange: IChartDateRange, compareTo: string, frequency: string): IDateRange {
+        if (frequency) {
+            let date: moment.Moment;
+
+            if (compareTo.indexOf('last') !== -1) {
+                const duration = this.dateService.convertFrequencyToDuration(frequency);
+                date = moment().subtract(1, duration);
+            } else if (compareTo.indexOf('two') !== -1) {
+                date = moment().subtract(2, 'year');
+            } else if (compareTo.indexOf('three') !== -1) {
+                date = moment().subtract(3, 'year');
             }
+
+            return this.dateService.getFrequencyDateRange(dateRange, frequency, date);
+
+        } else {
+            // TODO: Need to implement this
         }
 
-        return await kpi.getData(targetDateRange, getDataOptions);
     }
 
     async getTargetMet(input: ITargetMet) {
@@ -363,19 +365,21 @@ export class TargetService {
     // }
 
     // return object with 'from' and 'to' property
-    getDate(period: string, dueDate: string, chartFrequency: string, chartDateRange: IChartDateRange[]): IDateRange[] {
-        return [parsePredefinedTargetDateRanges(period, dueDate, chartFrequency)] ||
-               chartDateRange.map(dateRange => {
-                   return dateRange.custom && dateRange.custom.from ?
-                   {
-                        from: moment(dateRange.custom.from).startOf('day').toDate(),
-                        to: moment(dateRange.custom.to).startOf('day').toDate()
-                   }
-                   : parsePredefinedDate(dateRange.predefined);
-               });
+    getDate(chartDateRange: IChartDateRange, frequency?: string): IDateRange {
+        return !frequency
+            ? this.dateService.getDateRange(chartDateRange)
+            : this.dateService.getFrequencyDateRange(chartDateRange, frequency, moment());
+
+        // return parsePredefinedTargetDateRanges(dueDate, chartFrequency) ||
+        //         chartDateRange.custom && chartDateRange.custom.from ?
+        //            {
+        //                 from: moment(chartDateRange.custom.from).startOf('day').toDate(),
+        //                 to: moment(chartDateRange.custom.to).startOf('day').toDate()
+        //            }
+        //            : parsePredefinedDate(chartDateRange.predefined);
     }
 
-    isComparison(chart: IChartDocument): boolean {
+    isComparison(chart: IChart): boolean {
         if (!chart) { return false; }
         return (chart.comparison && chart.comparison.length) ? true : false;
     }
@@ -423,7 +427,7 @@ export class TargetService {
         return false;
     }
 
-    getStackName(chart: IChartDocument, data: any): IGetComparisonStackName {
+    getStackName(chart: IChart, data: any): IGetComparisonStackName {
         const targetName: string = data.stackName || data.nonStackName;
 
         if (!targetName || !this.isComparison(chart)) {

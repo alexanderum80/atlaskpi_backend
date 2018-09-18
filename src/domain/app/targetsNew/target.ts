@@ -1,6 +1,8 @@
 import * as Promise from 'bluebird';
 import * as mongoose from 'mongoose';
 import { IChartDateRange } from '../../common/date-range';
+import { FrequencyEnum } from '../../common/frequency-enum';
+import { IChartTop } from '../../common/top-n-record';
 
 export interface SourceNew {
     type: string;
@@ -19,6 +21,7 @@ export interface ReportOptionsNew {
     timezone: string;
     dateRange: IChartDateRange;
     filter?: string[];
+    top?: IChartTop;
 }
 
 export interface DeliveryMethodNew {
@@ -45,6 +48,7 @@ export interface ITargetMilestone {
 }
 
 export interface ITargetNew {
+    _id: string;
     name: string;
     source: SourceNew;
     reportOptions: ReportOptionsNew;
@@ -59,6 +63,7 @@ export interface ITargetNew {
     timestamp?: Date;
     deleted: boolean;
     milestones: ITargetMilestone[];
+    percentageCompletion?: number;
 }
 
 export interface IMilestone {
