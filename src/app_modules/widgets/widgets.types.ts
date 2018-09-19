@@ -140,7 +140,7 @@ export class WidgetMaterializedFields  {
 export class Widget  {
     @resolver({ forField: '_id' })
     static convertId(d) {
-        return d._id.toString();
+        return !d._id ? undefined : d._id.toString();
     }
 
     @field({ type: GraphQLTypesMap.String })
