@@ -25,10 +25,6 @@ export class WidgetsService {
     constructor(
         @inject(Dashboards.name) private _dashboards: Dashboards,
         @inject(Widgets.name) private _widgets: Widgets,
-        @inject(Charts.name) private _charts: Charts,
-        @inject(Sales.name) private _sales: Sales,
-        @inject(Expenses.name) private _expenses: Expenses,
-        @inject(KPIs.name) private _kpis: KPIs,
         @inject(WidgetFactory.name) private _widgetFactory: WidgetFactory,
         @inject(Alerts.name) private _alert: Alerts,
         @inject(Logger.name) private _logger: Logger
