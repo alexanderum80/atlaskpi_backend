@@ -67,6 +67,8 @@ export class WidgetInput  {
     @field({ type: GraphQLTypesMap.Boolean })
     preview: boolean;
 
+    @field({ type: GraphQLTypesMap.String, isArray: true })
+    dashboards: string[];
 }
 
 
@@ -174,6 +176,8 @@ export class Widget  {
     @field({ type: GraphQLTypesMap.String, isArray: true })
     tags: string[];
 
+    @field({ type: GraphQLTypesMap.String, isArray: true})
+    dashboards: string[];
 }
 
 

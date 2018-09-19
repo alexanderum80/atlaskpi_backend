@@ -1,15 +1,22 @@
-import { camelCase, cloneDeep } from 'lodash';
+import { cloneDeep, camelCase, isEmpty } from 'lodash';
 
+import { Calls } from '../../../domain/app/calls/call.model';
+import { Expenses } from '../../../domain/app/expenses/expense.model';
+import { Inventory } from '../../../domain/app/inventory/inventory.model';
 import { IKPI, IKPIDocument, IKPISimpleDefinition, KPITypeEnum } from '../../../domain/app/kpis/kpi';
 import { KPIExpressionHelper } from '../../../domain/app/kpis/kpi-expression.helper';
 import { KPIFilterHelper } from '../../../domain/app/kpis/kpi-filter.helper';
+import { Sales } from '../../../domain/app/sales/sale.model';
 import { IVirtualSourceDocument } from '../../../domain/app/virtual-sources/virtual-source';
 import { IDateRange } from '../../../domain/common/date-range';
-import { getGenericModel } from '../../../domain/common/fields-with-data';
 import { FrequencyEnum } from '../../../domain/common/frequency-enum';
+import { Appointments } from './../../../domain/app/appointments/appointment-model';
+import { COGS } from './../../../domain/app/cogs/cogs.model';
+import { Payments } from './../../../domain/app/payments/payment.model';
 import { AggregateStage } from './aggregate';
 import { ICollection, IGetDataOptions, IKpiBase } from './kpi-base';
 import { SimpleKPIBase } from './simple-kpi-base';
+import { getGenericModel } from '../../../domain/common/fields-with-data';
 
 export class SimpleKPI extends SimpleKPIBase implements IKpiBase {
 
@@ -24,6 +31,7 @@ export class SimpleKPI extends SimpleKPIBase implements IKpiBase {
 
         // if (virtualSources) {
         const virtualSource = virtualSources.find(s => s.name.toLocaleLowerCase() === simpleKPIDefinition.dataSource.toLocaleLowerCase());
+        const parentVirtualSource = virtualSources.find(s => s.name.toLocaleLowerCase() === virtualSource.source.toLowerCase());
 
         if (virtualSource) {
             collection = {
@@ -33,11 +41,27 @@ export class SimpleKPI extends SimpleKPIBase implements IKpiBase {
 
             simpleKPIDefinition.dataSource = camelCase(virtualSource.source);
 
+            let vsAggDateRangeStage;
+            let vsAggStages;
+
             if (virtualSource.aggregate) {
-                baseAggregate = virtualSource.aggregate.map(a => {
+                vsAggStages = virtualSource.aggregate.map(a => {
                     return KPIFilterHelper.CleanObjectKeys(a);
                 });
             }
+
+            // flag in case we need to apply the daterange before the vs aggregate
+            if (!isEmpty(vsAggStages)
+                && Object.values(parentVirtualSource.fieldsMap)
+                         .some(f => f.path === collection.timestampField)) {
+                vsAggDateRangeStage =  {
+                    vsAggDateRange: true,
+                    '$match': { [collection.timestampField]: { } }
+                };
+            }
+
+            if (vsAggDateRangeStage) baseAggregate = [vsAggDateRangeStage];
+            if (vsAggStages) baseAggregate = (baseAggregate || []).concat(...vsAggStages);
         }
         // }
 

@@ -1,4 +1,3 @@
-import * as Bluebird from 'bluebird';
 import { inject, injectable } from 'inversify';
 import { isObject, filter, isEmpty } from 'lodash';
 import * as moment from 'moment';
