@@ -1,6 +1,6 @@
-import * as Promise from 'bluebird';
 import { filter, last, toArray } from 'lodash';
 import * as logger from 'winston';
+import * as Bluebird from 'bluebird';
 
 import { IExpenseDocument, IExpenseModel } from '../../domain/app/expenses/expense';
 import { ISaleDocument, ISaleModel } from '../../domain/app/sales/sale';
@@ -43,7 +43,7 @@ export class EndOfDayReportService extends ReportServiceBase<Promise<IEndOfDayRe
                 expenses: this._getThisMonthExpenses()
             };
 
-            Promise.props(dataPromise).then(data => {
+            Bluebird.props(dataPromise).then(data => {
                 const result = {
                     todaySales: this._getTotalSalesFor(todayDateRange, (<any>data).sales),
                     monthSales: this._getTotalSalesFor(thisMonthDateRange, (<any>data).sales),

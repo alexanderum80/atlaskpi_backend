@@ -1,14 +1,9 @@
-import { isArray } from 'util';
-import { from } from 'apollo-link/lib';
-import * as Promise from 'bluebird';
 import { inject, injectable } from 'inversify';
 
+import { Sales } from '../../../domain/app/sales/sale.model';
 import { query } from '../../../framework/decorators/query.decorator';
 import { MutationBase } from '../../../framework/mutations/mutation-base';
-import { ISaleDocument } from '../../../domain/app/sales/sale';
-import { Sales } from '../../../domain/app/sales/sale.model';
 import { MonthAvgSalesAmount } from '../activities.types';
-import { parsePredefinedDate } from '../../../domain/common/date-range';
 import { MonthAvgSalesActivity } from '../activities/month-avg-sales.activity';
 
 @injectable()

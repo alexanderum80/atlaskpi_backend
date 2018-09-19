@@ -1175,9 +1175,9 @@ export function parsePredefinedTargetDateRanges (predefinedDate: string, dueDate
         case PredefinedDateRanges.lastQuarter:
             return parsePredefinedDate(PredefinedDateRanges.lastQuarter);
         case PredefinedDateRanges.lastYear:
-            return parsePredifinedDate(PredefinedDateRanges.lastYear);
+            return parsePredefinedDate(PredefinedDateRanges.lastYear);
         case PredefinedDateRanges.last2Years:
-            return parsePredifinedDate(PredefinedDateRanges.last2Years);
+            return parsePredefinedDate(PredefinedDateRanges.last2Years);
 
         // frequency = 'daily'
         case PredefinedTargetDateRanges.sameDayLastYear:

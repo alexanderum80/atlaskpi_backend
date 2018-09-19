@@ -1,5 +1,3 @@
-import { from } from 'apollo-link/lib';
-import * as Promise from 'bluebird';
 import { inject, injectable } from 'inversify';
 
 import { IAppointmentDocument } from '../../../domain/app/appointments/appointment';
