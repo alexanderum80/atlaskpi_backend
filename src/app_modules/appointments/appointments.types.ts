@@ -100,6 +100,11 @@ export class AppointmentCustomer {
 
 @type()
 export class Appointment  {
+    @resolver({ forField: '_id' })
+    static convertId(d) {
+        return d._id.toString();
+    }
+
     @field({ type: GraphQLTypesMap.String })
     _id: string;
 

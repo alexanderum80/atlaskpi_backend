@@ -7,7 +7,7 @@ import { MutationBase } from '../../../framework/mutations/mutation-base';
 import { ISaleDocument } from '../../../domain/app/sales/sale';
 import { Sales } from '../../../domain/app/sales/sale.model';
 import { SalesAmount } from '../activities.types';
-import { parsePredifinedDate } from '../../../domain/common/date-range';
+import { parsePredefinedDate } from '../../../domain/common/date-range';
 import { SalesEmployeeByDateActivity } from '../activities/sales-employee-by-date.activity';
 
 @injectable()

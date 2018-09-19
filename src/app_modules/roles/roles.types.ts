@@ -4,9 +4,15 @@ import { GraphQLTypesMap } from '../../framework/decorators/graphql-types-map';
 import { input } from '../../framework/decorators/input.decorator';
 import { ErrorDetails } from '../../framework/graphql/common.types';
 import { Permission } from '../permissions/permissions.types';
+import { resolver } from '../../framework/decorators/resolver.decorator';
 
 @type()
 export class Role  {
+    @resolver({ forField: '_id' })
+    static convertId(d) {
+        return d._id.toString();
+    }
+
     @field({ type: GraphQLTypesMap.String })
     _id: string;
 
@@ -31,6 +37,16 @@ export class RoleDetailsInput  {
 
 @type()
 export class RoleList  {
+    @resolver({ forField: '_id' })
+    static convertId(d) {
+        return d._id.toString();
+    }
+
+    @resolver({ forField: 'permissions' })
+    static convertPermissions(d) {
+        return d.permissions.map(p => p.toString());
+    }
+
     @field({ type: GraphQLTypesMap.String })
     _id: string;
 

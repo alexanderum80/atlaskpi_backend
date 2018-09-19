@@ -4,6 +4,7 @@ import { input } from '../../framework/decorators/input.decorator';
 import { type } from '../../framework/decorators/type.decorator';
 import { ErrorDetails } from '../../framework/graphql/common.types';
 import { ChartDateRange, ChartDateRangeInput } from '../shared/shared.types';
+import { resolver } from '../../framework/decorators/resolver.decorator';
 
 
 @input()
@@ -137,6 +138,11 @@ export class WidgetMaterializedFields  {
 
 @type()
 export class Widget  {
+    @resolver({ forField: '_id' })
+    static convertId(d) {
+        return d._id.toString();
+    }
+
     @field({ type: GraphQLTypesMap.String })
     _id: string;
 

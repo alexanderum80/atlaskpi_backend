@@ -1,24 +1,29 @@
 {
     // See https://go.microsoft.com/fwlink/?LinkId=733558
     // for the documentation about the tasks.json format
-    "version": "0.1.0",
+    "version": "2.0.0",
     "command": "tsc",
     "args": ["--sourceMap"],
-    "isShellCommand": true,
-    "showOutput": "silent",
     // "problemMatcher": "$tsc",
     "tasks": [{
-            "taskName": "main",
+            "label": "main",
             // "args": ["-p", "./server"],
             "args": ["--outDir", "build/debug", "./app.ts"],
-            "problemMatcher": "$tsc",
-            "suppressTaskName": true
+            "problemMatcher": "$tsc"
         },
         {
-            "taskName": "playground",
+            "label": "playground",
             "args": ["--outDir", "build/playground", "./playground.ts"],
             "problemMatcher": "$tsc",
-            "suppressTaskName": true
-        }
+        },
+        {
+            "label": "watch",
+            "type": "typescript",
+            "tsconfig": "tsconfig.json",
+            "option": "watch",
+            "problemMatcher": [
+                "$tsc-watch"
+            ]
+        },
     ]
 }

@@ -25,11 +25,11 @@ import { Charts } from './../domain/app/charts/chart.model';
 import { IDashboardDocument } from './../domain/app/dashboards/dashboard';
 import { Dashboards } from './../domain/app/dashboards/dashboard.model';
 import { KPIs } from './../domain/app/kpis/kpi.model';
-import { Targets } from './../domain/app/targets/target.model';
-import {IChartDateRange, IDateRange, parsePredifinedDate, PredefinedTargetPeriod, PredefinedDateRanges} from './../domain/common/date-range';
+import {IChartDateRange, IDateRange, parsePredefinedDate, PredefinedTargetPeriod, PredefinedDateRanges} from './../domain/common/date-range';
 import {FrequencyEnum, FrequencyTable} from './../domain/common/frequency-enum';
 import { TargetService } from './target.service';
 import {dataSortDesc} from '../helpers/number.helpers';
+import { TargetsNew } from '../domain/app/targetsNew/target.model';
 
 export interface IRenderChartOptions {
     chartId?: string;
@@ -53,7 +53,7 @@ export class ChartsService {
         @inject(Charts.name) private _charts: Charts,
         @inject(Dashboards.name) private _dashboards: Dashboards,
         @inject(KPIs.name) private _kpis: KPIs,
-        @inject(Targets.name) private _targets: Targets,
+        @inject(TargetsNew.name) private _targets: TargetsNew,
         @inject(TargetService.name) private _targetService: TargetService,
         @inject(CurrentUser.name) private _currentUser: CurrentUser,
         @inject(ChartFactory.name) private _chartFactory: ChartFactory,
@@ -412,12 +412,12 @@ export class ChartsService {
 
             that._targetService.getTargets(chartId, userId)
                 .then((res) => {
-                    if (meta.isFutureTarget &&
-                        meta.frequency !== FrequencyTable.yearly) {
-                        meta.dateRange = meta.dateRange ||
-                            [{ predefined: null,
-                                custom: TargetService.futureTargets(res) }];
-                    }
+                    // if (meta.isFutureTarget &&
+                    //     meta.frequency !== FrequencyTable.yearly) {
+                    //     meta.dateRange = meta.dateRange ||
+                    //         [{ predefined: null,
+                    //             custom: TargetService.futureTargets(res) }];
+                    // }
 
                     uiChart.getDefinition(kpi, { ...meta }, res).then((definition) => {
                         that._logger.debug('chart definition received for id: ' + chartId);
@@ -489,7 +489,7 @@ export class ChartsService {
                     from: moment(dateRange[0].custom.from).startOf('day').toDate(),
                     to: moment(dateRange[0].custom.to).endOf('day').toDate()
                 }
-                : parsePredifinedDate(dateRange[0].predefined);
+                : parsePredefinedDate(dateRange[0].predefined);
     }
 
     private _getTargetExtraPeriodOptions(frequency: number, chartDateRange?: IChartDateRange[]): IObject {
@@ -555,6 +555,12 @@ export class ChartsService {
             const isDateInFuture = moment(findDateRange.custom.to).isAfter(moment());
             return isDateInFuture;
         }
+
+        if (findDateRange.predefined === 'all times') {
+            const isDateInFuture = moment().isAfter(moment().format('YYYY'));
+            return isDateInFuture;
+        }
+
         return true;
     }
 
