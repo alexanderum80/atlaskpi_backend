@@ -47,6 +47,11 @@ export interface ITargetMilestone {
     responsible: string[];
 }
 
+export interface ITargetAppliesTo {
+    field: string;
+    value: string;
+}
+
 export interface ITargetNew {
     _id: string;
     name: string;
@@ -55,7 +60,7 @@ export interface ITargetNew {
     compareTo: string;
     type: string;
     value: number;
-    appliesTo?: string;
+    appliesTo?: ITargetAppliesTo;
     unit: string;
     notificationConfig: NotificationConfigNew;
     active?: boolean;
@@ -80,7 +85,7 @@ export interface ITargetNewInput {
     compareTo: string;
     type: string;
     value: number;
-    appliesTo: string;
+    appliesTo?: ITargetAppliesTo;
     unit: string;
     active?: boolean;
     targetValue?: number;

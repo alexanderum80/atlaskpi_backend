@@ -178,28 +178,30 @@ export class TargetService {
         }
     }
 
-    async createUpdateTarget(data: ITargetNew, id?: string): Promise<ITargetNewDocument> {
-        try {
-            // target value
-            data.target = await this.getTargetValue(data);
+    // async createUpdateTarget(data: ITargetNew, id?: string): Promise<ITargetNewDocument> {
+    //     try {
+    //         // target value
+    //         data.target = await this.getTargetValue(data);
 
-            if (!id) {
-                // create target
-                return await this._targets.model.createNew(data);
-            } else {
-                // update target
-                return await this._targets.model.updateTargetNew(id, data);
-            }
+    //         if (!id) {
+    //             // create target
+    //             return await this._targets.model.createNew(data);
+    //         } else {
+    //             // update target
+    //             return await this._targets.model.updateTargetNew(id, data);
+    //         }
 
-        } catch (err) {
-            throw new Error('unable to modify target');
-        }
-    }
+    //     } catch (err) {
+    //         throw new Error('unable to modify target');
+    //     }
+    // }
 
     async getTargetValue(data: ITargetNew): Promise<number> {
         try {
             const response = await this.getBaseValue(data);
-            const findValue = response.length > 0 ? response.find(r => r.value) : { value: data.amount };
+            const findValue = data.appliesTo
+                ? response.find(r => r._id[data.appliesTo.field] === data.appliesTo.value)
+                : response.find(r => r.value);
 
             const responseValue: number = findValue ? findValue.value : 0;
 
@@ -245,6 +247,10 @@ export class TargetService {
     }
 
     private getCompareDateRange(dateRange: IChartDateRange, compareTo: string, frequency: string): IDateRange {
+        if (compareTo === 'previous period') {
+            return this.dateService.getPreviousPeriod(dateRange);
+        }
+
         if (frequency) {
             let date: moment.Moment;
 

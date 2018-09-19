@@ -6,7 +6,7 @@ import * as logger from 'winston';
 import { ModelBase } from '../../../type-mongo/model-base';
 import { AppConnection } from '../app.connection';
 import { tagsPlugin } from '../tags/tag.plugin';
-import { ITargetNewDocument, ITargetNewModel, ITargetNewInput, SourceNew } from './target';
+import { ITargetNewDocument, ITargetNewModel, ITargetNewInput, SourceNew, ITargetNew } from './target';
 import { SourceNewInput } from '../../../app_modules/targetsNew/target.types';
 import * as moment from 'moment';
 
@@ -15,6 +15,11 @@ const TargetMilestoneSchema = new mongoose.Schema({
     dueDate: { type: Date },
     status: { type: String, required: true },
     responsible: { type: [String], required: true },
+});
+
+const TargetAppliesTo = new mongoose.Schema({
+    field: { type: String, required: true },
+    value: { type: String, required: true },
 });
 
 const TargetSchema = new mongoose.Schema({
@@ -37,7 +42,7 @@ const TargetSchema = new mongoose.Schema({
     compareTo: { type: String },
     type: { type: String, required: true },
     value: { type: Number, required: true },
-    appliesTo: { type: String },
+    appliesTo: { type: TargetAppliesTo },
     unit: { type: String, required: true },
     notificationConfig: {
         notifyOnPercentage: { type: [Number], required: true },
@@ -83,6 +88,7 @@ TargetSchema.statics.createNew = function(targetInput: ITargetNewInput): Promise
             compareTo: targetInput.compareTo,
             type: targetInput.type,
             value: Number(targetInput.value),
+            appliesTo: targetInput.appliesTo,
             unit: targetInput.unit,
             active: targetInput.active,
             targetValue: targetInput.targetValue,
@@ -106,12 +112,15 @@ TargetSchema.statics.createNew = function(targetInput: ITargetNewInput): Promise
     });
 };
 
-TargetSchema.statics.updateTargetNew = function(_id: string, targetInput: ITargetNewInput): Promise<ITargetNewDocument> {
+TargetSchema.statics.updateTargetNew = async function(_id: string, targetInput: ITargetNewInput): Promise<ITargetNewDocument> {
     const that = <ITargetNewModel> this;
 
-    return new Promise<ITargetNewDocument>((resolve, reject) => {
+    try {
+
+        const target = await that.findById(_id).lean().exec() as ITargetNew;
+
         if (!targetInput) {
-            return reject('Information not valid');
+            return null;
         }
 
         // convert milestones due dates
@@ -137,7 +146,7 @@ TargetSchema.statics.updateTargetNew = function(_id: string, targetInput: ITarge
             appliesTo: targetInput.appliesTo,
             unit: targetInput.unit,
             active: targetInput.active,
-            targetValue: targetInput.targetValue,
+            targetValue: target.targetValue || 0,
             notificationConfig : {
                 ...targetInput.notificationConfig,
                 notifyOnPercentage: [0.25, 0.5, 0.75]
@@ -146,14 +155,12 @@ TargetSchema.statics.updateTargetNew = function(_id: string, targetInput: ITarge
             timestamp: new Date(),
         };
 
-        that.findByIdAndUpdate(_id, objectTarget)
-        .then(target => {
-            resolve(target);
-        }).catch(err => {
-            logger.error(err);
-            reject('There was an error updating the target');
-        });
-    });
+        return await that.findByIdAndUpdate(_id, objectTarget);
+
+    } catch (err) {
+        logger.error(err);
+        throw new Error('There was an error updating the target');
+    }
 };
 
 TargetSchema.statics.deleteTargetNew = function(_id: string): Promise<ITargetNewDocument> {

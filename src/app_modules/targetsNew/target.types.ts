@@ -84,6 +84,15 @@ export class Milestone {
 }
 
 @type()
+export class TargetAppliesTo {
+    @field({ type: GraphQLTypesMap.String })
+    field: { type: string };
+
+    @field({ type: GraphQLTypesMap.String })
+    value: { type: string };
+}
+
+@type()
 export class TargetNew  {
     @resolver({ forField: '_id' })
     static convertId(d) {
@@ -111,8 +120,8 @@ export class TargetNew  {
     @field({ type: GraphQLTypesMap.String })
     value: string;
 
-    @field({ type: GraphQLTypesMap.String })
-    appliesTo: string;
+    @field({ type: TargetAppliesTo })
+    appliesTo: TargetAppliesTo;
 
     @field({ type: GraphQLTypesMap.String })
     unit: { type: string, required: true };
@@ -224,8 +233,8 @@ export class TargetNewInput  {
     @field({ type: GraphQLTypesMap.Float })
     value: string;
 
-    @field({ type: GraphQLTypesMap.String })
-    appliesTo: string;
+    @field({ type: TargetAppliesTo })
+    appliesTo: TargetAppliesTo;
 
     @field({ type: GraphQLTypesMap.Boolean })
     active: boolean;

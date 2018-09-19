@@ -1,7 +1,7 @@
 import { injectable } from 'inversify';
 import * as m from 'moment-timezone';
 
-import { IChartDateRange, IDateRange, parsePredefinedDate } from '../../domain/common/date-range';
+import { IChartDateRange, IDateRange, parsePredefinedDate, PredefinedDateRanges } from '../../domain/common/date-range';
 import { FrequencyEnum } from '../../domain/common/frequency-enum';
 
 @injectable()
@@ -78,6 +78,47 @@ export class DateService {
             case 'yearly':
                 return 'year';
         }
+    }
+
+    getPreviousPeriod(dr: IChartDateRange): IDateRange {
+
+        if (dr.predefined === 'custom') {
+            const from = m(dr.custom.from);
+            const to = m(dr.custom.to);
+            const days = from.diff(to, 'days') + 1;
+
+            return {
+                from: from.subtract(days, 'days').toDate(),
+                to: from.subtract(days, 'days').toDate(),
+            };
+        }
+
+        let duration: m.unitOfTime.DurationConstructor;
+
+        switch (dr.predefined) {
+            case PredefinedDateRanges.thisWeek:
+            case PredefinedDateRanges.thisWeekToDate:
+                duration = 'week';
+                break;
+            case PredefinedDateRanges.thisMonth:
+            case PredefinedDateRanges.thisMonthToDate:
+                duration = 'month';
+                break;
+            case PredefinedDateRanges.thisQuarter:
+            case PredefinedDateRanges.thisQuarterToDate:
+                duration = 'quarter';
+                break;
+            case PredefinedDateRanges.thisYear:
+            case PredefinedDateRanges.thisYearToDate:
+                duration = 'year';
+                break;
+        }
+
+        return {
+            from: m().subtract(1, duration).startOf(duration).toDate(),
+            to: m().subtract(1, duration).endOf(duration).toDate(),
+        };
+
     }
 
 }
