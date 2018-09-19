@@ -133,7 +133,7 @@ export class SalesAmountSource {
 export class SalesAmount {
     @resolver({ forField: '_id' })
     static convertId(d) {
-        return d._id.toString();
+        return d._id && d._id.toString();
     }
 
     @field({ type: GraphQLTypesMap.String })
