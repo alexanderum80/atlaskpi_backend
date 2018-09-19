@@ -142,7 +142,7 @@ export class TargetService {
             const kpi: IKpiBase = await this._kpiFactory.getInstance(chart.kpis[0]);
 
             const groupings: string[] = (chart.groupings && chart.groupings[0]) ? chart.groupings : [];
-            const stackName: string = !data.appliesTo ? undefined : data.appliesTo.field;
+            const stackName: string = !data.appliesTo ? undefined : data.appliesTo.value;
 
             // const dr = parsePredefinedDate(data.period);
             // const dateRange: IDateRange[] = this._getTargetProgressDateRange(chart.frequency, dr.to, chart.dateRange);
@@ -434,8 +434,8 @@ export class TargetService {
         return false;
     }
 
-    getStackName(chart: IChart, data: any): IGetComparisonStackName {
-        const targetName: string = data.stackName || data.nonStackName;
+    getStackName(chart: IChart, name: string): IGetComparisonStackName {
+        const targetName: string = name || undefined;
 
         if (!targetName || !this.isComparison(chart)) {
             return {

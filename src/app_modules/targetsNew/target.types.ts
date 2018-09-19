@@ -212,6 +212,15 @@ export class MilestoneInput {
     responsible: string[];
 }
 
+@input()
+export class TargetAppliesToInput {
+    @field({ type: GraphQLTypesMap.String })
+    field: { type: string };
+
+    @field({ type: GraphQLTypesMap.String })
+    value: { type: string };
+}
+
 
 @input()
 export class TargetNewInput  {
@@ -233,8 +242,8 @@ export class TargetNewInput  {
     @field({ type: GraphQLTypesMap.Float })
     value: string;
 
-    @field({ type: TargetAppliesTo })
-    appliesTo: TargetAppliesTo;
+    @field({ type: TargetAppliesToInput })
+    appliesTo: TargetAppliesToInput;
 
     @field({ type: GraphQLTypesMap.Boolean })
     active: boolean;

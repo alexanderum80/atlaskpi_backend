@@ -146,7 +146,7 @@ TargetSchema.statics.updateTargetNew = async function(_id: string, targetInput: 
             appliesTo: targetInput.appliesTo,
             unit: targetInput.unit,
             active: targetInput.active,
-            targetValue: target.targetValue || 0,
+            targetValue: targetInput.targetValue || target.targetValue || 0,
             notificationConfig : {
                 ...targetInput.notificationConfig,
                 notifyOnPercentage: [0.25, 0.5, 0.75]

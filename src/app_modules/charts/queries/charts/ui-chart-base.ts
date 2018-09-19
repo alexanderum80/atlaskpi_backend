@@ -667,28 +667,32 @@ export class UIChartBase {
             // }
 
             this.targetData = map(filterActiveTargets, (v, k) => {
-                return (<any>v).stackName ? {
-                    _id: {
-                        frequency: TargetService.formatFrequency(metadata.frequency, v.datepicker),
-                        [this.commonField[0]]: (<any>v).name,
-                        stackName: (<any>v).stackName,
-                        targetId: v._id
-                    },
-                    value: (<any>v).targetValue,
-                    targetId: v._id,
-                    percentageCompletion: v.percentageCompletion
-                } : {
-                    _id: {
-                        // frequency: TargetService.formatFrequency(metadata.frequency, v.datepicker),
-                        frequency: TargetService.formatFrequency(metadata.frequency, moment().format()),
-                        [this.commonField[0]]: (<any>v).name,
-                        targetId: v._id
-                    },
-                    value: (<any>v).targetValue,
-                    targetId: v._id,
-                    percentageCompletion: v.percentageCompletion
-                };
-            });
+                if (v.appliesTo) {
+                    return {
+                        _id: {
+                            frequency: TargetService.formatFrequency(metadata.frequency, v.datepicker),
+                            [this.commonField[0]]: (<any>v).name,
+                            stackName: v.appliesTo.value,
+                            targetId: v._id
+                        },
+                        value: v.targetValue,
+                        targetId: v._id,
+                        percentageCompletion: v.percentageCompletion
+                    };
+                } else {
+                    return {
+                        _id: {
+                            // frequency: TargetService.formatFrequency(metadata.frequency, v.datepicker),
+                            frequency: TargetService.formatFrequency(metadata.frequency, moment().format()),
+                            [this.commonField[0]]: (<any>v).name,
+                            targetId: v._id
+                        },
+                        value: (<any>v).targetValue,
+                        targetId: v._id,
+                        percentageCompletion: v.percentageCompletion
+                    };
+            }});
+
             this.frequencyHelper.decomposeFrequencyInfo(this.targetData, metadata.frequency);
         }
     }
