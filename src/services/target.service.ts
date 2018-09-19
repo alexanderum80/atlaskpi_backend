@@ -121,7 +121,8 @@ export class TargetService {
             inputData.targetValue = targetAmount;
             inputData.timestamp = new Date();
 
-            const updatedTarget: ITargetNewDocument = await this._targets.model.updateTargetNew(id, inputData);
+            const updatedTarget: ITargetNewDocument =
+                await this._targets.model.updateTargetNew(id, inputData);
 
             const targetProgress: number = await this.targetProgressValue(updatedTarget);
             updatedTarget.percentageCompletion = (targetProgress / inputData.targetValue) * 100;
@@ -141,7 +142,7 @@ export class TargetService {
             const kpi: IKpiBase = await this._kpiFactory.getInstance(chart.kpis[0]);
 
             const groupings: string[] = (chart.groupings && chart.groupings[0]) ? chart.groupings : [];
-            const stackName: string = data.appliesTo || undefined;
+            const stackName: string = !data.appliesTo ? undefined : data.appliesTo.field;
 
             // const dr = parsePredefinedDate(data.period);
             // const dateRange: IDateRange[] = this._getTargetProgressDateRange(chart.frequency, dr.to, chart.dateRange);
@@ -480,24 +481,24 @@ export class TargetService {
         }
     }
 
-    static futureTargets(targets: ITargetNewDocument[]): IDateRange {
-        let futureDateRange: IDateRange;
+    // static futureTargets(targets: ITargetNewDocument[]): IDateRange {
+    //     let futureDateRange: IDateRange;
 
-        if (targets && targets.length) {
-            targets.forEach((target: ITargetNewDocument) => {
-                const dr = parsePredefinedDate(target.period);
-                const datepicker: string = moment(dr.to).format('YYYY-MM-DD');
-                const currentYear: string = moment().endOf('year').format('YYYY-MM-DD');
-                if (moment(datepicker).isAfter(currentYear)) {
-                    futureDateRange = {
-                        from: moment().add(1, 'year').startOf('year').toDate(),
-                        to: moment().add(1, 'year').endOf('year').toDate()
-                    };
-                }
-            });
-            return futureDateRange;
-        }
-    }
+    //     if (targets && targets.length) {
+    //         targets.forEach((target: ITargetNewDocument) => {
+    //             const dr = parsePredefinedDate(target.period);
+    //             const datepicker: string = moment(dr.to).format('YYYY-MM-DD');
+    //             const currentYear: string = moment().endOf('year').format('YYYY-MM-DD');
+    //             if (moment(datepicker).isAfter(currentYear)) {
+    //                 futureDateRange = {
+    //                     from: moment().add(1, 'year').startOf('year').toDate(),
+    //                     to: moment().add(1, 'year').endOf('year').toDate()
+    //                 };
+    //             }
+    //         });
+    //         return futureDateRange;
+    //     }
+    // }
 
     private _getDateRange(period: string, notify: any, frequency: string): IDateRange {
         const dateFrequency: number = FrequencyTable[frequency];

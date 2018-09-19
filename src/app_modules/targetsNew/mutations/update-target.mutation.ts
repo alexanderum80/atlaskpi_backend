@@ -42,7 +42,7 @@ export class UpdateTargetNewMutation extends MutationBase<IMutationResponse> {
             timezone: this._user.get().profile.timezone
         };
 
-        const target = await this._targets.model.updateTargetNew(data._id, data.TargetInput);
+        const target = await this._targets.model.updateTargetNew(data._id, data.TargetInput as any);
 
         return {
             success: true,

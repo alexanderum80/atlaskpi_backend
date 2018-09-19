@@ -1,7 +1,7 @@
 import * as Promise from 'bluebird';
 import * as mongoose from 'mongoose';
+
 import { IChartDateRange } from '../../common/date-range';
-import { FrequencyEnum } from '../../common/frequency-enum';
 import { IChartTop } from '../../common/top-n-record';
 
 export interface SourceNew {
@@ -53,7 +53,6 @@ export interface ITargetAppliesTo {
 }
 
 export interface ITargetNew {
-    _id: string;
     name: string;
     source: SourceNew;
     reportOptions: ReportOptionsNew;
@@ -105,7 +104,7 @@ export interface ITargetNewDocument extends ITargetNew, mongoose.Document {
 
 export interface ITargetNewModel extends mongoose.Model<ITargetNewDocument> {
     createNew(name: ITargetNewInput): Promise<ITargetNewDocument>;
-    updateTargetNew(id: string, name: ITargetNewInput): Promise<ITargetNewDocument>;
+    updateTargetNew(id: string, name: ITargetNew): Promise<ITargetNewDocument>;
     targetsNew(): Promise<ITargetNewDocument[]>;
     targetNewById(id: string): Promise<ITargetNewDocument>;
     deleteTargetNew(id: string): Promise<ITargetNewDocument>;

@@ -412,12 +412,12 @@ export class ChartsService {
 
             that._targetService.getTargets(chartId, userId)
                 .then((res) => {
-                    if (meta.isFutureTarget &&
-                        meta.frequency !== FrequencyTable.yearly) {
-                        meta.dateRange = meta.dateRange ||
-                            [{ predefined: null,
-                                custom: TargetService.futureTargets(res) }];
-                    }
+                    // if (meta.isFutureTarget &&
+                    //     meta.frequency !== FrequencyTable.yearly) {
+                    //     meta.dateRange = meta.dateRange ||
+                    //         [{ predefined: null,
+                    //             custom: TargetService.futureTargets(res) }];
+                    // }
 
                     uiChart.getDefinition(kpi, { ...meta }, res).then((definition) => {
                         that._logger.debug('chart definition received for id: ' + chartId);

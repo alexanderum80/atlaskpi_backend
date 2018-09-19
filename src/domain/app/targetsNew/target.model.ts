@@ -112,7 +112,7 @@ TargetSchema.statics.createNew = function(targetInput: ITargetNewInput): Promise
     });
 };
 
-TargetSchema.statics.updateTargetNew = async function(_id: string, targetInput: ITargetNewInput): Promise<ITargetNewDocument> {
+TargetSchema.statics.updateTargetNew = async function(_id: string, targetInput: ITargetNew): Promise<ITargetNewDocument> {
     const that = <ITargetNewModel> this;
 
     try {
