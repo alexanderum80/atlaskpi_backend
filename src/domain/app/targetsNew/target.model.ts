@@ -87,11 +87,11 @@ TargetSchema.statics.createNew = function(targetInput: ITargetNewInput): Promise
             reportOptions: targetInput.reportOptions,
             compareTo: targetInput.compareTo,
             type: targetInput.type,
-            value: Number(targetInput.value),
+            value: targetInput.value,
             appliesTo: targetInput.appliesTo,
             unit: targetInput.unit,
             active: targetInput.active,
-            targetValue: targetInput.targetValue,
+            targetValue: targetInput.type === 'fixed' ? targetInput.value : 0,
             timestamp: new Date(),
             notificationConfig : {
                 ...targetInput.notificationConfig,
@@ -117,7 +117,7 @@ TargetSchema.statics.updateTargetNew = async function(_id: string, targetInput: 
 
     try {
 
-        const target = await that.findById(_id).lean().exec() as ITargetNew;
+        // const target = await that.findById(_id).lean().exec() as ITargetNew;
 
         if (!targetInput) {
             return null;
@@ -142,11 +142,11 @@ TargetSchema.statics.updateTargetNew = async function(_id: string, targetInput: 
             reportOptions: targetInput.reportOptions,
             compareTo: targetInput.compareTo,
             type: targetInput.type,
-            value: Number(targetInput.value) || 0,
+            value: targetInput.value,
             appliesTo: targetInput.appliesTo,
             unit: targetInput.unit,
             active: targetInput.active,
-            targetValue: targetInput.targetValue || target.targetValue || 0,
+            targetValue: targetInput.type === 'fixed' ? targetInput.value : 0,
             notificationConfig : {
                 ...targetInput.notificationConfig,
                 notifyOnPercentage: [0.25, 0.5, 0.75]

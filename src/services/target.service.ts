@@ -224,27 +224,31 @@ export class TargetService {
     }
 
     async getBaseValue(data: ITargetNew): Promise<any> {
-        const chart: IChart = await this._charts.model.findById(data.source.identifier)
-            .populate({ path: 'kpis' })
-            .lean(true).exec() as any;
-        const kpi: IKpiBase = await this._kpiFactory.getInstance(chart.kpis[0]);
+        try {
 
-        if (data.type === 'fixed') return data.targetValue;
+            const chart: IChart = await this._charts.model.findById(data.source.identifier)
+                .populate({ path: 'kpis' })
+                .lean(true).exec() as any;
+            const kpi: IKpiBase = await this._kpiFactory.getInstance(chart.kpis[0]);
 
-        const compareDateRange = this.getCompareDateRange(
-            chart.dateRange[0],
-            data.compareTo,
-            data.reportOptions.frequency
-        );
+            const compareDateRange = this.getCompareDateRange(
+                chart.dateRange[0],
+                data.compareTo,
+                data.reportOptions.frequency
+            );
 
-        let getDataOptions: IGetDataOptions = {
-            dateRange: chart.dateRange,
-            frequency: this.dateService.getFrequency(data.reportOptions.frequency),
-            groupings: data.reportOptions.groupings,
-            top: data.reportOptions.top,
-        };
+            let getDataOptions: IGetDataOptions = {
+                dateRange: chart.dateRange,
+                frequency: this.dateService.getFrequency(data.reportOptions.frequency),
+                groupings: data.reportOptions.groupings,
+                top: data.reportOptions.top,
+            };
 
-        return await kpi.getData([compareDateRange], getDataOptions);
+            return await kpi.getData([compareDateRange], getDataOptions);
+        } catch (e) {
+            console.error('Error getting target base value: ' + e);
+            throw e;
+        }
     }
 
     private getCompareDateRange(dateRange: IChartDateRange, compareTo: string, frequency: string): IDateRange {
