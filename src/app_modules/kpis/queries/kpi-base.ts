@@ -85,7 +85,7 @@ export class KpiBase {
                 that._injectTargetStackFilter(options.groupings, options.stackName);
             if (options.frequency >= 0)
                 that._injectFrequency(options.frequency, dateField);
-            if (options.groupings)
+            if (options.groupings && options.groupings.filter(g => g !== '').length)
                 that._injectGroupings(options.groupings);
 
             // decompose aggregate object into array
