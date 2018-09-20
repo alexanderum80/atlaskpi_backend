@@ -3,6 +3,7 @@ import { input } from '../../framework/decorators/input.decorator';
 import { field } from '../../framework/decorators/field.decorator';
 import { GraphQLTypesMap } from '../../framework/decorators/graphql-types-map';
 import { ErrorDetails } from '../../framework/graphql/common.types';
+import { resolver } from '../../framework/decorators/resolver.decorator';
 
 
 @input()
@@ -21,6 +22,11 @@ export class SlideshowInput  {
 
 @type()
 export class Slideshow  {
+    @resolver({ forField: '_id' })
+    static convertId(d) {
+        return d._id.toString();
+    }
+
     @field({ type: GraphQLTypesMap.String })
     _id: string;
 

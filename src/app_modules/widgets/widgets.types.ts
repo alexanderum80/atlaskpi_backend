@@ -4,6 +4,7 @@ import { input } from '../../framework/decorators/input.decorator';
 import { type } from '../../framework/decorators/type.decorator';
 import { ErrorDetails } from '../../framework/graphql/common.types';
 import { ChartDateRange, ChartDateRangeInput } from '../shared/shared.types';
+import { resolver } from '../../framework/decorators/resolver.decorator';
 
 
 @input()
@@ -66,6 +67,8 @@ export class WidgetInput  {
     @field({ type: GraphQLTypesMap.Boolean })
     preview: boolean;
 
+    @field({ type: GraphQLTypesMap.String, isArray: true })
+    dashboards: string[];
 }
 
 
@@ -135,6 +138,12 @@ export class WidgetMaterializedFields  {
 
 @type()
 export class Widget  {
+    @resolver({ forField: '_id' })
+    static convertId(d) {
+        // return !d._id ? undefined : d._id.toString();
+        return d && d._id  && d._id.toString();
+    }
+
     @field({ type: GraphQLTypesMap.String })
     _id: string;
 
@@ -168,6 +177,8 @@ export class Widget  {
     @field({ type: GraphQLTypesMap.String, isArray: true })
     tags: string[];
 
+    @field({ type: GraphQLTypesMap.String, isArray: true})
+    dashboards: string[];
 }
 
 

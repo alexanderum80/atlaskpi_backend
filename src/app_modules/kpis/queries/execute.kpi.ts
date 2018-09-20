@@ -10,7 +10,7 @@ import { ExecuteKpiActivity } from '../activities/execute-kpi.activity';
 import { KPIAttributesInput } from '../kpis.types';
 import { DataSourceResponse } from '../../data-sources/data-sources.types';
 import { KpiFactory } from './kpi.factory';
-import { parsePredifinedDate } from '../../../domain/common/date-range';
+import { parsePredefinedDate } from '../../../domain/common/date-range';
 
 @injectable()
 @query({

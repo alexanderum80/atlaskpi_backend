@@ -1,4 +1,3 @@
-import * as Promise from 'bluebird';
 import { inject, injectable } from 'inversify';
 
 import { query } from '../../../framework/decorators/query.decorator';

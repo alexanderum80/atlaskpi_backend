@@ -5,7 +5,7 @@ import * as math from 'mathjs';
 
 import { IKPIDocument } from '../../../domain/app/kpis/kpi';
 import { KPIs } from '../../../domain/app/kpis/kpi.model';
-import { IChartDateRange, IDateRange, parsePredifinedDate } from '../../../domain/common/date-range';
+import { IChartDateRange, IDateRange, parsePredefinedDate } from '../../../domain/common/date-range';
 import { FrequencyTable } from '../../../domain/common/frequency-enum';
 import { IGetDataOptions, IKpiBase } from './kpi-base';
 import { KpiFactory } from './kpi.factory';
@@ -124,7 +124,7 @@ export class CompositeKpi implements IKpiBase {
     private _processChartDateRange(chartDateRange: IChartDateRange): IDateRange {
         return chartDateRange.custom && chartDateRange.custom.from ?
             { from: new Date(chartDateRange.custom.from), to: new Date(chartDateRange.custom.to) }
-            : parsePredifinedDate(chartDateRange.predefined);
+            : parsePredefinedDate(chartDateRange.predefined);
     }
 
     private _applyBinaryOperator(left, operator, right): any {

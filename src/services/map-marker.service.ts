@@ -1,4 +1,4 @@
-import { IDateRange, parsePredifinedDate } from '../domain/common/date-range';
+import { IDateRange, parsePredefinedDate } from '../domain/common/date-range';
 import { VirtualSources } from '../domain/app/virtual-sources/virtual-source.model';
 import { injectable, inject } from 'inversify';
 import { chain, Dictionary, isEmpty, keyBy, isString, isObject, filter, sortBy } from 'lodash';
@@ -226,7 +226,7 @@ export class MapMarkerService {
 
     private _updateMatchAggregatePipeline(aggregate: IMapMarkerAggregate[], input: MapMarkerGroupingInput): void {
         const matchStage: IMapMarkerAggregate = findStage(aggregate, '$match');
-        const dateRange: IDateRange = parsePredifinedDate(input.dateRange);
+        const dateRange: IDateRange = parsePredefinedDate(input.dateRange);
 
         if (matchStage && moment(dateRange.from).isValid()) {
             matchStage.$match['product.from'] = {

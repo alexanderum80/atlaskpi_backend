@@ -1,4 +1,3 @@
-import { FinancialActivities } from './../../../domain/app/financial-activities/financial-activity.model';
 import { cloneDeep, camelCase, isEmpty } from 'lodash';
 
 import { Calls } from '../../../domain/app/calls/call.model';
