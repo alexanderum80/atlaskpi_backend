@@ -29,9 +29,9 @@ export class UpdateRoleMutation extends MutationBase<IMutationResponse> {
     run(data: { id: string, data: IRoleResponse }): Promise<IMutationResponse> {
         return new Promise<IMutationResponse>((resolve, reject) => {
             return this._roles.model.updateRole(data.id, data.data).then((response) => {
-                return resolve({ success: true, entity: response });
+                return resolve(response);
             }).catch((err) => {
-                return resolve({ success: false, errors: [ { field: 'role', errors: [err] } ]});
+                return resolve(null);
             });
         });
     }
