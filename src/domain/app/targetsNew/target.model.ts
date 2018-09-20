@@ -146,7 +146,7 @@ TargetSchema.statics.updateTargetNew = async function(_id: string, targetInput: 
             appliesTo: targetInput.appliesTo,
             unit: targetInput.unit,
             active: targetInput.active,
-            targetValue: targetInput.type === 'fixed' ? targetInput.value : 0,
+            targetValue: targetInput.targetValue || 0,
             notificationConfig : {
                 ...targetInput.notificationConfig,
                 notifyOnPercentage: [0.25, 0.5, 0.75]
@@ -155,7 +155,9 @@ TargetSchema.statics.updateTargetNew = async function(_id: string, targetInput: 
             timestamp: new Date(),
         };
 
-        return await that.findByIdAndUpdate(_id, objectTarget);
+        await that.findByIdAndUpdate(_id, objectTarget);
+
+        return objectTarget as any;
 
     } catch (err) {
         logger.error(err);
