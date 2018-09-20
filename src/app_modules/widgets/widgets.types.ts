@@ -11,7 +11,6 @@ import { resolver } from '../../framework/decorators/resolver.decorator';
 export class ChartWidgetAttributesInput  {
     @field({ type: GraphQLTypesMap.String })
     chart: string;
-
 }
 
 
