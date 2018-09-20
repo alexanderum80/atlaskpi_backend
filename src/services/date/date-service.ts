@@ -46,7 +46,7 @@ export class DateService {
         // };
         return {
             from: date.clone().startOf(uoft).toDate(),
-            to: dr.to,
+            to: date.clone().endOf(uoft).toDate(),
         };
     }
 

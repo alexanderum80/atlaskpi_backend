@@ -8,7 +8,7 @@ import { IChartDocument, IChart } from '../domain/app/charts/chart';
 import { Charts } from '../domain/app/charts/chart.model';
 import { Dashboards } from '../domain/app/dashboards/dashboard.model';
 import { Users } from '../domain/app/security/users/user.model';
-import { ITargetNew, ITargetNewDocument } from '../domain/app/targetsNew/target';
+import { ITargetNew, ITargetNewDocument, TargetCompareToEnum } from '../domain/app/targetsNew/target';
 import { TargetsNew } from '../domain/app/targetsNew/target.model';
 import {
     IChartDateRange,
@@ -255,14 +255,30 @@ export class TargetService {
         if (frequency) {
             let date: moment.Moment;
 
-            if (compareTo.indexOf('last') !== -1) {
-                const duration = this.dateService.convertFrequencyToDuration(frequency);
-                date = moment().subtract(1, duration);
-            } else if (compareTo.indexOf('two') !== -1) {
-                date = moment().subtract(2, 'year');
-            } else if (compareTo.indexOf('three') !== -1) {
-                date = moment().subtract(3, 'year');
+            switch (compareTo) {
+                case TargetCompareToEnum.previous:
+                    const duration = this.dateService.convertFrequencyToDuration(frequency);
+                    date = moment().subtract(1, duration);
+                    break;
+                case TargetCompareToEnum.oneYearAgo:
+                    date = moment().subtract(1, 'year');
+                    break;
+                case TargetCompareToEnum.twoYearsAgo:
+                    date = moment().subtract(2, 'year');
+                    break;
+                case TargetCompareToEnum.threeYearsAgo:
+                    date = moment().subtract(3, 'year');
+                    break;
             }
+
+            // if (compareTo.indexOf('last') !== -1) {
+            //     const duration = this.dateService.convertFrequencyToDuration(frequency);
+            //     date = moment().subtract(1, duration);
+            // } else if (compareTo.indexOf('two') !== -1) {
+            //     date = moment().subtract(2, 'year');
+            // } else if (compareTo.indexOf('three') !== -1) {
+            //     date = moment().subtract(3, 'year');
+            // }
 
             return this.dateService.getFrequencyDateRange(dateRange, frequency, date);
 

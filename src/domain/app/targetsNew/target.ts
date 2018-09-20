@@ -4,6 +4,13 @@ import * as mongoose from 'mongoose';
 import { IChartDateRange } from '../../common/date-range';
 import { IChartTop } from '../../common/top-n-record';
 
+export enum TargetCompareToEnum {
+    previous = 'previous',
+    oneYearAgo = 'oneYearAgo',
+    twoYearsAgo = 'twoYearAgo',
+    threeYearsAgo = 'threeYearAgo',
+}
+
 export interface SourceNew {
     type: string;
     identifier: string;
@@ -56,7 +63,7 @@ export interface ITargetNew {
     name: string;
     source: SourceNew;
     reportOptions: ReportOptionsNew;
-    compareTo: string;
+    compareTo: TargetCompareToEnum;
     type: string;
     value: number;
     appliesTo?: ITargetAppliesTo;
