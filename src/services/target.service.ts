@@ -1,6 +1,7 @@
 import * as Bluebird from 'bluebird';
 import { inject, injectable } from 'inversify';
 import * as moment from 'moment';
+import { camelCase } from 'change-case';
 
 import { IGetDataOptions, IKpiBase } from '../app_modules/kpis/queries/kpi-base';
 import { KpiFactory } from '../app_modules/kpis/queries/kpi.factory';
@@ -8,7 +9,7 @@ import { IChartDocument, IChart } from '../domain/app/charts/chart';
 import { Charts } from '../domain/app/charts/chart.model';
 import { Dashboards } from '../domain/app/dashboards/dashboard.model';
 import { Users } from '../domain/app/security/users/user.model';
-import { ITargetNew, ITargetNewDocument } from '../domain/app/targetsNew/target';
+import { ITargetNew, ITargetNewDocument, TargetCompareToEnum } from '../domain/app/targetsNew/target';
 import { TargetsNew } from '../domain/app/targetsNew/target.model';
 import {
     IChartDateRange,
@@ -199,12 +200,47 @@ export class TargetService {
 
     async getTargetValue(data: ITargetNew): Promise<number> {
         try {
-            const response = await this.getBaseValue(data);
-            const findValue = data.appliesTo
-                ? response.find(r => r._id[data.appliesTo.field] === data.appliesTo.value)
-                : response.find(r => r.value);
 
-            const responseValue: number = findValue ? findValue.value : 0;
+            // let response = data.type !== 'fixed'
+            //     ? await this.getBaseValue(data)
+            //     : data.value;
+            // let findValue: any;
+
+            let responseValue: number;
+
+            if (data.type === 'fixed') {
+                responseValue = data.value;
+            } else {
+                const response = await this.getBaseValue(data);
+                let findValue: any;
+
+                if (data.appliesTo) {
+                    if (data.reportOptions.categorySource === data.appliesTo.field) {
+                        const field = camelCase(data.appliesTo.field);
+                        const records = response.filter(i => i._id[field] === data.appliesTo.value) as any[];
+                        findValue = { _id: { }, value: records.reduce((prev, current) => {
+                            return (prev.value || prev) + current.value;
+                        } ) };
+                        findValue._id[field] = data.appliesTo.value;
+                    } else {
+                        findValue = response.find(r => r._id[data.appliesTo.field] === data.appliesTo.value);
+                    }
+                } else if (data.reportOptions.categorySource === 'frequency') {
+                    findValue = response.reduce((prev, current) => {
+                        return (prev.value || prev) + current.value;
+                    });
+                } else {
+                    findValue = response.find(r => r.value);
+                }
+
+                if (typeof findValue === 'number') {
+                    responseValue = findValue;
+                } else {
+                    responseValue = findValue ? findValue.value : 0;
+                }
+            }
+
+            // const responseValue: number = findValue ? findValue.value : 0;
 
             switch (data.type) {
                 case 'fixed':
@@ -224,27 +260,31 @@ export class TargetService {
     }
 
     async getBaseValue(data: ITargetNew): Promise<any> {
-        const chart: IChart = await this._charts.model.findById(data.source.identifier)
-            .populate({ path: 'kpis' })
-            .lean(true).exec() as any;
-        const kpi: IKpiBase = await this._kpiFactory.getInstance(chart.kpis[0]);
+        try {
 
-        if (data.type === 'fixed') return data.targetValue;
+            const chart: IChart = await this._charts.model.findById(data.source.identifier)
+                .populate({ path: 'kpis' })
+                .lean(true).exec() as any;
+            const kpi: IKpiBase = await this._kpiFactory.getInstance(chart.kpis[0]);
 
-        const compareDateRange = this.getCompareDateRange(
-            chart.dateRange[0],
-            data.compareTo,
-            data.reportOptions.frequency
-        );
+            const compareDateRange = this.getCompareDateRange(
+                chart.dateRange[0],
+                data.compareTo,
+                data.reportOptions.frequency
+            );
 
-        let getDataOptions: IGetDataOptions = {
-            dateRange: chart.dateRange,
-            frequency: this.dateService.getFrequency(data.reportOptions.frequency),
-            groupings: data.reportOptions.groupings,
-            top: data.reportOptions.top,
-        };
+            let getDataOptions: IGetDataOptions = {
+                dateRange: chart.dateRange,
+                frequency: this.dateService.getFrequency(data.reportOptions.frequency),
+                groupings: data.reportOptions.groupings,
+                top: data.reportOptions.top,
+            };
 
-        return await kpi.getData([compareDateRange], getDataOptions);
+            return await kpi.getData([compareDateRange], getDataOptions);
+        } catch (e) {
+            console.error('Error getting target base value: ' + e);
+            throw e;
+        }
     }
 
     private getCompareDateRange(dateRange: IChartDateRange, compareTo: string, frequency: string): IDateRange {
@@ -255,14 +295,30 @@ export class TargetService {
         if (frequency) {
             let date: moment.Moment;
 
-            if (compareTo.indexOf('last') !== -1) {
-                const duration = this.dateService.convertFrequencyToDuration(frequency);
-                date = moment().subtract(1, duration);
-            } else if (compareTo.indexOf('two') !== -1) {
-                date = moment().subtract(2, 'year');
-            } else if (compareTo.indexOf('three') !== -1) {
-                date = moment().subtract(3, 'year');
+            switch (compareTo) {
+                case TargetCompareToEnum.previous:
+                    const duration = this.dateService.convertFrequencyToDuration(frequency);
+                    date = moment().subtract(1, duration);
+                    break;
+                case TargetCompareToEnum.oneYearAgo:
+                    date = moment().subtract(1, 'year');
+                    break;
+                case TargetCompareToEnum.twoYearsAgo:
+                    date = moment().subtract(2, 'year');
+                    break;
+                case TargetCompareToEnum.threeYearsAgo:
+                    date = moment().subtract(3, 'year');
+                    break;
             }
+
+            // if (compareTo.indexOf('last') !== -1) {
+            //     const duration = this.dateService.convertFrequencyToDuration(frequency);
+            //     date = moment().subtract(1, duration);
+            // } else if (compareTo.indexOf('two') !== -1) {
+            //     date = moment().subtract(2, 'year');
+            // } else if (compareTo.indexOf('three') !== -1) {
+            //     date = moment().subtract(3, 'year');
+            // }
 
             return this.dateService.getFrequencyDateRange(dateRange, frequency, date);
 
