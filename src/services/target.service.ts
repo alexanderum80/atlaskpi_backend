@@ -211,11 +211,13 @@ export class TargetService {
                         return (prev.value || prev) + current.value;
                     } ) };
                     findValue._id[field] = data.appliesTo.value;
-                    console.log('records found');
                 } else {
                     findValue = response.find(r => r._id[data.appliesTo.field] === data.appliesTo.value);
                 }
-
+            } else if (data.reportOptions.categorySource === 'frequency') {
+                findValue = { _id: { }, value: response.reduce((prev, current) => {
+                    return (prev.value || prev) + current.value;
+                } ) };
             } else {
                 findValue = response.find(r => r.value);
             }
