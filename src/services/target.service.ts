@@ -200,29 +200,43 @@ export class TargetService {
 
     async getTargetValue(data: ITargetNew): Promise<number> {
         try {
-            const response = await this.getBaseValue(data);
-            let findValue: any;
 
-            if (data.appliesTo) {
-                if (data.reportOptions.categorySource === data.appliesTo.field) {
-                    const field = camelCase(data.appliesTo.field);
-                    const records = response.filter(i => i._id[field] === data.appliesTo.value) as any[];
-                    findValue = { _id: { }, value: records.reduce((prev, current) => {
+            // let response = data.type !== 'fixed'
+            //     ? await this.getBaseValue(data)
+            //     : data.value;
+            // let findValue: any;
+
+            let responseValue: number;
+
+            if (data.type === 'fixed') {
+                responseValue = data.value;
+            } else {
+                const response = await this.getBaseValue(data);
+                let findValue: any;
+
+                if (data.appliesTo) {
+                    if (data.reportOptions.categorySource === data.appliesTo.field) {
+                        const field = camelCase(data.appliesTo.field);
+                        const records = response.filter(i => i._id[field] === data.appliesTo.value) as any[];
+                        findValue = { _id: { }, value: records.reduce((prev, current) => {
+                            return (prev.value || prev) + current.value;
+                        } ) };
+                        findValue._id[field] = data.appliesTo.value;
+                    } else {
+                        findValue = response.find(r => r._id[data.appliesTo.field] === data.appliesTo.value);
+                    }
+                } else if (data.reportOptions.categorySource === 'frequency') {
+                    findValue = { _id: { }, value: response.reduce((prev, current) => {
                         return (prev.value || prev) + current.value;
                     } ) };
-                    findValue._id[field] = data.appliesTo.value;
                 } else {
-                    findValue = response.find(r => r._id[data.appliesTo.field] === data.appliesTo.value);
+                    findValue = response.find(r => r.value);
                 }
-            } else if (data.reportOptions.categorySource === 'frequency') {
-                findValue = { _id: { }, value: response.reduce((prev, current) => {
-                    return (prev.value || prev) + current.value;
-                } ) };
-            } else {
-                findValue = response.find(r => r.value);
+
+                responseValue = findValue ? findValue.value : 0;
             }
 
-            const responseValue: number = findValue ? findValue.value : 0;
+            // const responseValue: number = findValue ? findValue.value : 0;
 
             switch (data.type) {
                 case 'fixed':
