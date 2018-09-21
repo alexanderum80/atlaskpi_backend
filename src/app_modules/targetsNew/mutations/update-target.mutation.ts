@@ -39,7 +39,8 @@ export class UpdateTargetNewMutation extends MutationBase<IMutationResponse> {
             dateRange: chart.dateRange[0],
             frequency: chart.frequency,
             groupings: chart.groupings,
-            timezone: this._user.get().profile.timezone
+            timezone: this._user.get().profile.timezone,
+            categorySource: chart.xAxisSource,
         };
 
         const target = await this._targets.model.updateTargetNew(data._id, data.TargetInput as any);

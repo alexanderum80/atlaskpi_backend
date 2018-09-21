@@ -1,6 +1,7 @@
 import * as Bluebird from 'bluebird';
 import { inject, injectable } from 'inversify';
 import * as moment from 'moment';
+import { camelCase } from 'change-case';
 
 import { IGetDataOptions, IKpiBase } from '../app_modules/kpis/queries/kpi-base';
 import { KpiFactory } from '../app_modules/kpis/queries/kpi.factory';
@@ -200,9 +201,24 @@ export class TargetService {
     async getTargetValue(data: ITargetNew): Promise<number> {
         try {
             const response = await this.getBaseValue(data);
-            const findValue = data.appliesTo
-                ? response.find(r => r._id[data.appliesTo.field] === data.appliesTo.value)
-                : response.find(r => r.value);
+            let findValue: any;
+
+            if (data.appliesTo) {
+                if (data.reportOptions.categorySource === data.appliesTo.field) {
+                    const field = camelCase(data.appliesTo.field);
+                    const records = response.filter(i => i._id[field] === data.appliesTo.value) as any[];
+                    findValue = { _id: { }, value: records.reduce((prev, current) => {
+                        return (prev.value || prev) + current.value;
+                    } ) };
+                    findValue._id[field] = data.appliesTo.value;
+                    console.log('records found');
+                } else {
+                    findValue = response.find(r => r._id[data.appliesTo.field] === data.appliesTo.value);
+                }
+
+            } else {
+                findValue = response.find(r => r.value);
+            }
 
             const responseValue: number = findValue ? findValue.value : 0;
 

@@ -41,6 +41,7 @@ export class CreateTargetNewMutation extends MutationBase<IMutationResponse> {
                 frequency: chart.frequency,
                 groupings: chart.groupings,
                 timezone: this.user.get().profile.timezone,
+                categorySource: chart.xAxisSource,
             };
 
             const target = await this._targets.model.createNew(input);

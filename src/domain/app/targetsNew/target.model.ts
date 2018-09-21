@@ -37,7 +37,8 @@ const TargetSchema = new mongoose.Schema({
             from: { type: String },
             to: { type: String}
         },
-        filter: { type: String, isArray: true}
+        filter: { type: String, isArray: true},
+        categorySource: { type: String }
     },
     compareTo: { type: String },
     type: { type: String, required: true },

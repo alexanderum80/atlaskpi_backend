@@ -29,6 +29,7 @@ export interface ReportOptionsNew {
     dateRange: IChartDateRange;
     filter?: string[];
     top?: IChartTop;
+    categorySource: string;
 }
 
 export interface DeliveryMethodNew {
