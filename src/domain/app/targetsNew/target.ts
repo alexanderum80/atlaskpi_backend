@@ -7,8 +7,8 @@ import { IChartTop } from '../../common/top-n-record';
 export enum TargetCompareToEnum {
     previous = 'previous',
     oneYearAgo = 'oneYearAgo',
-    twoYearsAgo = 'twoYearAgo',
-    threeYearsAgo = 'threeYearAgo',
+    twoYearsAgo = 'twoYearsAgo',
+    threeYearsAgo = 'threeYearsAgo',
 }
 
 export interface SourceNew {
