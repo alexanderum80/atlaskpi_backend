@@ -233,7 +233,11 @@ export class TargetService {
                     findValue = response.find(r => r.value);
                 }
 
-                responseValue = findValue ? findValue.value : 0;
+                if (typeof findValue === 'number') {
+                    responseValue = findValue;
+                } else {
+                    responseValue = findValue ? findValue.value : 0;
+                }
             }
 
             // const responseValue: number = findValue ? findValue.value : 0;
