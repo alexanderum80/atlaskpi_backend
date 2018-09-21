@@ -226,9 +226,9 @@ export class TargetService {
                         findValue = response.find(r => r._id[data.appliesTo.field] === data.appliesTo.value);
                     }
                 } else if (data.reportOptions.categorySource === 'frequency') {
-                    findValue = { _id: { }, value: response.reduce((prev, current) => {
+                    findValue = response.reduce((prev, current) => {
                         return (prev.value || prev) + current.value;
-                    } ) };
+                    });
                 } else {
                     findValue = response.find(r => r.value);
                 }
