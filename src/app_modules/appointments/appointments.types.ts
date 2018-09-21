@@ -123,9 +123,17 @@ export class Appointment  {
     @field({ type: GraphQLTypesMap.String})
     comments: string;
 
+    @resolver({ forField: 'from' })
+    static fromResolver(d) {
+        return (d.from as Date).toISOString();
+    }
     @field({ type: GraphQLTypesMap.String, required: true })
     from: string;
 
+    @resolver({ forField: 'to' })
+    static toResolver(d) {
+        return (d.to as Date).toISOString();
+    }
     @field({ type: GraphQLTypesMap.String })
     to: string;
 
