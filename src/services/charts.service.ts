@@ -101,7 +101,7 @@ export class ChartsService {
                 sortingCriteria: chart.sortingCriteria,
                 sortingOrder: chart.sortingOrder,
                 originalFrequency: (options && options.originalFrequency) ? FrequencyTable[options.originalFrequency] : -1,
-                onTheFly: options.onTheFly,
+                onTheFly: (options ? options.onTheFly : false),
             };
 
             chart.targetExtraPeriodOptions = this._getTargetExtraPeriodOptions(meta.frequency, chart.dateRange);
