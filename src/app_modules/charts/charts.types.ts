@@ -29,6 +29,9 @@ export class GetChartInput  {
     isDrillDown: boolean;
 
     @field({ type: GraphQLTypesMap.Boolean })
+    onTheFly: boolean;
+
+    @field({ type: GraphQLTypesMap.Boolean })
     isFutureTarget: boolean;
 
     @field({ type: GraphQLTypesMap.String})

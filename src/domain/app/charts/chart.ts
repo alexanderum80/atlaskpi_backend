@@ -56,6 +56,7 @@ export interface IChartInput {
     isFutureTarget?: boolean;
     isDrillDown?: boolean;
     originalFrequency?: string;
+    onTheFly: boolean;
 }
 
 export interface IGetChartInput {

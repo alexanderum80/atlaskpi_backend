@@ -43,6 +43,7 @@ export interface IRenderChartOptions {
     isFutureTarget?: boolean;
     isDrillDown?: boolean;
     originalFrequency?: string;
+    onTheFly: boolean;
 }
 
 
@@ -99,7 +100,8 @@ export class ChartsService {
                 isFutureTarget: options && options.isFutureTarget || false,
                 sortingCriteria: chart.sortingCriteria,
                 sortingOrder: chart.sortingOrder,
-                originalFrequency: (options && options.originalFrequency) ? FrequencyTable[options.originalFrequency] : -1
+                originalFrequency: (options && options.originalFrequency) ? FrequencyTable[options.originalFrequency] : -1,
+                onTheFly: (options ? options.onTheFly : false),
             };
 
             chart.targetExtraPeriodOptions = this._getTargetExtraPeriodOptions(meta.frequency, chart.dateRange);
@@ -402,39 +404,19 @@ export class ChartsService {
         });
     }
 
-    private _renderRegularDefinition(   chartId: string,
+    private async _renderRegularDefinition(   chartId: string,
                                         kpi: IKpiBase,
                                         uiChart: IUIChart,
                                         meta: IChartMetadata ): Promise<any> {
-        const that = this;
-        return new Promise<any>((resolve, reject) => {
-            const userId = (!that._currentUser || !that._currentUser.get()) ? '' : that._currentUser.get()._id;
+        try {
+            const userId = (!this._currentUser || !this._currentUser.get()) ? '' : this._currentUser.get()._id;
+            const res = meta.onTheFly ? [] : await this._targetService.getTargets(chartId, userId);
 
-            that._targetService.getTargets(chartId, userId)
-                .then((res) => {
-                    // if (meta.isFutureTarget &&
-                    //     meta.frequency !== FrequencyTable.yearly) {
-                    //     meta.dateRange = meta.dateRange ||
-                    //         [{ predefined: null,
-                    //             custom: TargetService.futureTargets(res) }];
-                    // }
-
-                    uiChart.getDefinition(kpi, { ...meta }, res).then((definition) => {
-                        that._logger.debug('chart definition received for id: ' + chartId);
-                        resolve(definition);
-                        return;
-                    })
-                    .catch(e => {
-                        that._logger.error(e);
-                        reject(e);
-                        return;
-                    });
-                })
-                .catch(err => {
-                    that._logger.error(err);
-                    reject(err);
-                });
-        });
+            return uiChart.getDefinition(kpi, { ...meta }, res);
+        } catch (e) {
+            this._logger.error(e);
+            return null;
+        }
     }
 
     private _renderPreviewDefinition(   kpi: IKpiBase,

@@ -215,13 +215,19 @@ export class TargetService {
                 let findValue: any;
 
                 if (data.appliesTo) {
-                    if (data.reportOptions.categorySource === data.appliesTo.field) {
+                    if (
+                        data.reportOptions.categorySource === data.appliesTo.field
+                        || (!data.reportOptions.categorySource && !data.reportOptions.frequency)
+                    ) {
                         const field = camelCase(data.appliesTo.field);
                         const records = response.filter(i => i._id[field] === data.appliesTo.value) as any[];
-                        findValue = { _id: { }, value: records.reduce((prev, current) => {
+                        // findValue = { _id: { }, value: records.reduce((prev, current) => {
+                        //     return (prev.value || prev) + current.value;
+                        // } ) };
+                        // findValue._id[field] = data.appliesTo.value;
+                        findValue = records.reduce((prev, current) => {
                             return (prev.value || prev) + current.value;
-                        } ) };
-                        findValue._id[field] = data.appliesTo.value;
+                        });
                     } else {
                         findValue = response.find(r => r._id[data.appliesTo.field] === data.appliesTo.value);
                     }

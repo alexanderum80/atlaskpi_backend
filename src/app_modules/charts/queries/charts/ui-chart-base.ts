@@ -1216,7 +1216,7 @@ export class UIChartBase {
         });
 
         sortSeries.forEach(s => {
-            s.name = `${s.name}${s.comparisonString}`;
+            s.name = `${s.name}${s.comparisonString || ''}`;
             delete s.comparisonString;
             delete s.category;
         });
