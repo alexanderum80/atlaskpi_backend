@@ -48,12 +48,24 @@ export class GetKpiOldestDateQuery implements IQuery<Object> {
         return new Promise<Object>((resolve, reject) => {
             Promise.all(searchPromises).then(res => {
                 let result: number[] = [];
+                let endResult;
                 res.map(r => {
+                        // this happens with google analytics the response is a []
+                    if(Object.values(r).length < 1){
+                            //assign a fixed value up to 3 years in the past
+                         endResult = moment().year() - 3;
+                    }
+                    else{
                     const yearTMP = moment(r[0].oldestDate).year();
                     result.push(yearTMP);
+                    }
                 });
+
+                if(!endResult){
                 result = result.sort();
-                let endResult = result[result.length - 1];
+                endResult = result[result.length - 1];
+                }
+
                 resolve(endResult);
             })
             .catch(err => {
