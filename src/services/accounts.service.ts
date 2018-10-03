@@ -1,5 +1,4 @@
 import { NewSeedService } from './seed/seed-service';
-import * as Promise from 'bluebird';
 import * as changeCase from 'change-case';
 import * as Handlebars from 'handlebars';
 import { inject, injectable } from 'inversify';
@@ -216,6 +215,10 @@ export class AccountsService {
             }
         });
 
+    }
+
+    async accountNameAvailable(name: string): Promise<boolean> {
+        return this._accounts.model.accountNameAvailable(name);
     }
 
     private _saveLead(account: IAccount): Promise < ILeadDocument > {
