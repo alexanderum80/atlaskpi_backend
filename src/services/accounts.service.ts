@@ -19,8 +19,6 @@ import { IAccount, IAccountDocument, IDatabaseInfo } from '../domain/master/acco
 import { Accounts } from '../domain/master/accounts/account.model';
 import { ILeadDocument } from '../domain/master/leads/lead';
 import { Leads } from '../domain/master/leads/lead.model';
-import { field } from '../framework/decorators/field.decorator';
-import { input } from '../framework/decorators/input.decorator';
 import { IMutationResponse, MutationResponse } from '../framework/mutations/mutation-response';
 import { generateUniqueHash } from '../helpers/security.helpers';
 import { AppConnectionPool } from '../middlewares/app-connection-pool';
