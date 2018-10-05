@@ -12,6 +12,7 @@ import { IMongoDBAtlasCredentials } from '../../../configuration/config-models';
 import { ModelBase } from '../../../type-mongo/model-base';
 import { MasterConnection } from '../master.connection';
 import { IAccountDBUser, IAccountDocument, IAccountModel } from './Account';
+import { paramCase } from 'change-case';
 
 
 // define mongo schema
@@ -80,8 +81,10 @@ accountSchema.statics.findAccountByHostname = function(hostname: string): Promis
 
 };
 
-accountSchema.statics.accountNameAvailable = function(name: String): Promise<boolean> {
+accountSchema.statics.accountNameAvailable = function(name: string): Promise<boolean> {
     const that = this;
+
+    const query = { 'database.name': paramCase(name) };
 
     return new Promise<boolean>((resolve, reject) => {
 
@@ -89,7 +92,7 @@ accountSchema.statics.accountNameAvailable = function(name: String): Promise<boo
             return resolve(false);
         }
 
-        that.findOne({ 'name': name.trim() }, (err, account) => {
+        that.findOne(query, (err, account) => {
             if (err) {
                 reject(err);
                 return;
