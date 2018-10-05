@@ -38,6 +38,7 @@ import { Attachments } from './attachments/attachment-model';
 import { VirtualSources } from './virtual-sources/virtual-source.model';
 import { ScheduleJobs } from './schedule-job/schedule-job.model';
 import { TargetsNew } from './targetsNew/target.model';
+import { ProjectedIncomes } from './projected-income/projected-income.model';
 
 // import { ChartFormats } from './chart-formats/chart-format.model';
 interface IRegistrationInfo {
@@ -82,7 +83,8 @@ const registrations: any[] = [
     COGS,
     FinancialActivities,
     ScheduleJobs,
-    TargetsNew
+    TargetsNew,
+    ProjectedIncomes,
 ];
 
 export function registerAppModels(container: IBridgeContainer) {
