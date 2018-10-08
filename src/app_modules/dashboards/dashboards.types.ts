@@ -30,6 +30,12 @@ export class DashboardInput  {
     @field({ type: GraphQLTypesMap.String, isArray: true })
     widgets: string[];
 
+    @field({ type: GraphQLTypesMap.String, isArray: true })
+    socialwidgets: string[];
+
+    @field({ type: GraphQLTypesMap.String, isArray: true })
+    maps: string[];
+
     @field({ type: GraphQLTypesMap.String })
     owner: string;
 
@@ -56,6 +62,12 @@ export class Dashboard  {
 
     @field({ type: GraphQLTypesMap.String, isArray: true })
     widgets: string[];
+
+    @field({ type: GraphQLTypesMap.String, isArray: true })
+    socialwidgets: string[];
+
+    @field({ type: GraphQLTypesMap.String, isArray: true })
+    maps: string[];
 
     @field({ type: GraphQLTypesMap.String })
     owner: string;

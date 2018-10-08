@@ -10,6 +10,7 @@ import { WidgetsService } from './../../../services/widgets.service';
 import { ChartQuery } from './../../charts/queries/chart.query';
 import { PreviewDashboardActivity } from './../activities/preview-dashboard.activity';
 import { DashboardInput, Dashboard } from './../dashboards.types';
+import { SocialWidgetsService } from '../../../services/social-widgets.service';
 
 @injectable()
 @query({
@@ -25,6 +26,7 @@ export class PreviewDashboardQuery implements IQuery<IDashboard> {
         @inject(CurrentUser.name) private _user: CurrentUser,
         @inject(Logger.name) private _logger: Logger,
         @inject(WidgetsService.name) private _widgetService: WidgetsService,
+        @inject(SocialWidgetsService.name) private _socialwidgetService: SocialWidgetsService,
         @inject(ChartQuery.name) private _chartQuery: ChartQuery
     ) { }
 
@@ -37,6 +39,11 @@ export class PreviewDashboardQuery implements IQuery<IDashboard> {
                 (w: string) => that._widgetService.getWidgetById(w)
             );
 
+            dashboardElementsPromises['socialwidgets'] = Bluebird.map(
+                <any>data.input.socialwidgets,
+                (w: string) => that._socialwidgetService.getSocialWidgetsById(w)
+            );
+
             dashboardElementsPromises['charts'] = Bluebird.map(
                 <any>data.input.charts,
                 (c: string) => that._chartQuery.run({ id: c } as any)
@@ -47,6 +54,7 @@ export class PreviewDashboardQuery implements IQuery<IDashboard> {
             const response = {...data.input} as any;
             response.widgets = elements.widgets.map(w => JSON.stringify(w));
             response.charts  = elements.charts;
+            response.socialwidgets = elements.socialwidgets;
 
             return response;
        }
