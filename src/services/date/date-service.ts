@@ -1,7 +1,7 @@
 import { injectable } from 'inversify';
 import * as m from 'moment-timezone';
 
-import { IChartDateRange, IDateRange, parsePredefinedDate, PredefinedDateRanges } from '../../domain/common/date-range';
+import { IChartDateRange, IDateRange, parsePredefinedDateOld , PredefinedDateRanges } from '../../domain/common/date-range';
 import { FrequencyEnum } from '../../domain/common/frequency-enum';
 
 @injectable()
@@ -9,7 +9,7 @@ export class DateService {
 
     getDateRange(dateRange: IChartDateRange): IDateRange | null {
         if (dateRange.predefined !== 'custom') {
-            return parsePredefinedDate(dateRange.predefined);
+            return parsePredefinedDateOld(dateRange.predefined);
         }
 
         return {

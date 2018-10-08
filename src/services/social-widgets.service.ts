@@ -3,7 +3,7 @@ import { inject, injectable } from 'inversify';
 import * as moment from 'moment';
 import * as mongoose from 'mongoose';
 
-import { parsePredefinedDate } from '../domain/common/date-range';
+import { parsePredefinedDateOld } from '../domain/common/date-range';
 import { CurrentAccount } from '../domain/master/current-account';
 import { ISocialNetworkDocument } from './../domain/app/social-networks/social-network';
 import { SocialNetwork } from './../domain/app/social-networks/social-network.model';
@@ -107,7 +107,7 @@ export class SocialWidgetsService {
 
     private _getHistoricalMetric(connectorId: string, textDate: string): Promise<ISocialNetworkDocument> {
         const that = this;
-        const parsedDate = parsePredefinedDate(textDate);
+        const parsedDate = parsePredefinedDateOld(textDate);
         const startOfDay = moment(parsedDate.from).utc().startOf('day');
         const endOfDay = moment(parsedDate.from).utc().endOf('day');
 

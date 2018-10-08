@@ -14,8 +14,8 @@ import { TargetsNew } from '../domain/app/targetsNew/target.model';
 import {
     IChartDateRange,
     IDateRange,
-    parsePredefinedTargetDateRanges,
-    parsePredefinedDate,
+    parsePredefinedTargetDateRangesOld,
+    parsePredefinedDateOld,
     PredefinedDateRanges,
 } from '../domain/common/date-range';
 import { FrequencyEnum, FrequencyTable } from '../domain/common/frequency-enum';
@@ -365,7 +365,7 @@ export class TargetService {
         const isStackNameEqualToAll: boolean = stackName.toLowerCase() === 'all';
 
         const chartDateRange: string = chart.dateRange ? chart.dateRange[0].predefined : '';
-        const dateRange: any = getDateRange || parsePredefinedDate(chartDateRange);
+        const dateRange: any = getDateRange || parsePredefinedDateOld(chartDateRange);
 
         const options: IGetDataOptions = {
             filter: chart.filter
@@ -567,15 +567,15 @@ export class TargetService {
 
         switch (dateFrequency) {
             case FrequencyTable.daily:
-                return parsePredefinedDate(PredefinedDateRanges.today);
+                return parsePredefinedDateOld(PredefinedDateRanges.today);
             case FrequencyTable.weekly:
-                return parsePredefinedDate(PredefinedDateRanges.thisWeekToDate);
+                return parsePredefinedDateOld(PredefinedDateRanges.thisWeekToDate);
             case FrequencyTable.monthly:
-                return parsePredefinedDate(PredefinedDateRanges.thisMonthToDate);
+                return parsePredefinedDateOld(PredefinedDateRanges.thisMonthToDate);
             case FrequencyTable.quarterly:
-                return parsePredefinedDate(PredefinedDateRanges.thisQuarterToDate);
+                return parsePredefinedDateOld(PredefinedDateRanges.thisQuarterToDate);
             case FrequencyTable.yearly:
-                return parsePredefinedDate(PredefinedDateRanges.thisYearToDate);
+                return parsePredefinedDateOld(PredefinedDateRanges.thisYearToDate);
             default:
                 return {
                     from: moment(notify, 'MM/DD/YYYY').startOf(MomentFrequencyTable[frequency]).toDate(),
@@ -616,7 +616,7 @@ export class TargetService {
                   from: moment(dateRange.custom.from).startOf('day').toDate(),
                   to: moment(dateRange.custom.to).startOf('day').toDate()
                 }
-                : parsePredefinedDate(dateRange.predefined);
+                : parsePredefinedDateOld(dateRange.predefined);
             });
         }
         return [{

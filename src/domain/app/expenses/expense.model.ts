@@ -5,7 +5,7 @@ import * as logger from 'winston';
 import * as moment from 'moment';
 
 import { ModelBase } from '../../../type-mongo/model-base';
-import { parsePredefinedDate } from '../../common/date-range';
+import { parsePredefinedDateOld } from '../../common/date-range';
 import { AppConnection } from '../app.connection';
 import { IExpense, IExpenseDocument, IExpenseModel } from './expense';
 
@@ -49,7 +49,7 @@ ExpenseSchema.plugin(criteriaPlugin);
 
 ExpenseSchema.statics.findByPredefinedDateRange = function(predefinedDateRange: string): Promise<IExpenseDocument[]> {
     const ExpenseModel = (<IExpenseModel>this);
-    const dateRange = parsePredefinedDate(predefinedDateRange);
+    const dateRange = parsePredefinedDateOld(predefinedDateRange);
 
     return new Promise<IExpenseDocument[]>((resolve, reject) => {
         ExpenseModel.find({ 'timestamp': { '$gte': dateRange.from, '$lte': dateRange.to } })

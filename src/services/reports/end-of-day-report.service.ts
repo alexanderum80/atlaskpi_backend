@@ -4,7 +4,7 @@ import * as Bluebird from 'bluebird';
 
 import { IExpenseDocument, IExpenseModel } from '../../domain/app/expenses/expense';
 import { ISaleDocument, ISaleModel } from '../../domain/app/sales/sale';
-import { IDateRange, parsePredefinedDate, PredefinedDateRanges } from '../../domain/common/date-range';
+import { IDateRange, parsePredefinedDateOld, PredefinedDateRanges } from '../../domain/common/date-range';
 import { ReportServiceBase } from './report-service-base';
 
 
@@ -34,8 +34,8 @@ export class EndOfDayReportService extends ReportServiceBase<Promise<IEndOfDayRe
                 }
 
     public generateReport(): Promise<IEndOfDayReport> {
-        const todayDateRange: IDateRange = parsePredefinedDate(PredefinedDateRanges.today);
-        const thisMonthDateRange: IDateRange = parsePredefinedDate(PredefinedDateRanges.thisMonth);
+        const todayDateRange: IDateRange = parsePredefinedDateOld(PredefinedDateRanges.today);
+        const thisMonthDateRange: IDateRange = parsePredefinedDateOld(PredefinedDateRanges.thisMonth);
 
         return new Promise<IEndOfDayReport>((resolve, reject) => {
             const dataPromise = {
