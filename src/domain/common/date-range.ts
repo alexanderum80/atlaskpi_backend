@@ -4,8 +4,8 @@ import { isEmpty } from 'lodash';
 
 /**
  * TODO:
- * - fix all daterange functions to work work with utc time (depends on a timezone cofiguraiton).
- * - make an understanding about where or not to show "previous period" when dateranges represents whole months, weeks, quarter
+ * - fix all date range functions to work work with utc time (depends on a timezone configuration).
+ * - make an understanding about where or not to show "previous period" when date ranges represents whole months, weeks, quarter
  */
 
 export interface IDateRange {
@@ -63,12 +63,43 @@ export const PredefinedDateRanges = {
     last3Years: 'last 3 years',
     last4Years: 'last 4 years',
     last5Years: 'last 5 years',
+    last6Years: 'last 6 years',
+    last7Years: 'last 7 years',
+    last8Years: 'last 8 years',
+    last9Years: 'last 9 years',
+    last10Years: 'last 10 years',
+    last11Years: 'last 11 years',
+    last12Years: 'last 12 years',
+    last13Years: 'last 13 years',
+    last14Years: 'last 14 years',
+    last15Years: 'last 15 years',
+    last16Years: 'last 16 years',
+    last17Years: 'last 17 years',
+    last18Years: 'last 18 years',
+    last19Years: 'last 19 years',
+    last20Years: 'last 20 years',
+    last21Years: 'last 21 years',
+    last22Years: 'last 22 years',
+    last23Years: 'last 23 years',
+    last24Years: 'last 24 years',
+    last25Years: 'last 25 years',
+    last26Years: 'last 26 years',
+    last27Years: 'last 27 years',
+    last28Years: 'last 28 years',
+    last29Years: 'last 29 years',
+    last30Years: 'last 30 years',
     last7Days: 'last 7 days',
     last14Days: 'last 14 days',
     last30Days: 'last 30 days',
     last90Days: 'last 90 days',
     last365Days: 'last 365 days',
-    allTimes: 'all times'
+    allTimes: 'all times',
+
+    // future DateRanges,
+    nextWeek: 'next week',
+    nextMonth: 'next month',
+    nextQuarter: 'next quarter',
+    nextYear: 'next year'
 };
 
 export const quarterMonths = {
@@ -80,7 +111,7 @@ export const quarterMonths = {
 
 const thisQuarter = moment().quarter();
 
-export function parsePredifinedDate(textDate: string): IDateRange {
+export function parsePredefinedDate(textDate: string): IDateRange {
     let from: Date;
     let to: Date;
 
@@ -88,7 +119,7 @@ export function parsePredifinedDate(textDate: string): IDateRange {
         case PredefinedDateRanges.allTimes:
             return {
                 from: (<any>moment).min(moment().subtract(30, 'years'), moment().subtract(1, 'years')).startOf('year').toDate(),
-                to: moment().toDate()
+                to: moment().add(30, 'year').toDate()
             };
         case PredefinedDateRanges.lastWeek:
             return {
@@ -143,6 +174,132 @@ export function parsePredifinedDate(textDate: string): IDateRange {
         case PredefinedDateRanges.last5Years:
             return {
                 from: moment().subtract(5, 'year').startOf('year').toDate(),
+                to: moment().subtract(1, 'year').endOf('year').toDate()
+            };
+        case PredefinedDateRanges.last6Years:
+            return {
+                from: moment().subtract(6, 'year').startOf('year').toDate(),
+                to: moment().subtract(1, 'year').endOf('year').toDate()
+            };
+        case PredefinedDateRanges.last7Years:
+            return {
+                from: moment().subtract(7, 'year').startOf('year').toDate(),
+                to: moment().subtract(1, 'year').endOf('year').toDate()
+            };
+
+        case PredefinedDateRanges.last8Years:
+            return {
+                from: moment().subtract(8, 'year').startOf('year').toDate(),
+                to: moment().subtract(1, 'year').endOf('year').toDate()
+            };
+        case PredefinedDateRanges.last9Years:
+            return {
+                from: moment().subtract(9, 'year').startOf('year').toDate(),
+                to: moment().subtract(1, 'year').endOf('year').toDate()
+            };
+        case PredefinedDateRanges.last10Years:
+            return {
+                from: moment().subtract(10, 'year').startOf('year').toDate(),
+                to: moment().subtract(1, 'year').endOf('year').toDate()
+            };
+        case PredefinedDateRanges.last11Years:
+            return {
+                from: moment().subtract(11, 'year').startOf('year').toDate(),
+                to: moment().subtract(1, 'year').endOf('year').toDate()
+            };
+        case PredefinedDateRanges.last12Years:
+            return {
+                from: moment().subtract(12, 'year').startOf('year').toDate(),
+                to: moment().subtract(1, 'year').endOf('year').toDate()
+            };
+        case PredefinedDateRanges.last13Years:
+            return {
+                from: moment().subtract(13, 'year').startOf('year').toDate(),
+                to: moment().subtract(1, 'year').endOf('year').toDate()
+            };
+        case PredefinedDateRanges.last14Years:
+            return {
+                from: moment().subtract(14, 'year').startOf('year').toDate(),
+                to: moment().subtract(1, 'year').endOf('year').toDate()
+            };
+        case PredefinedDateRanges.last15Years:
+            return {
+                from: moment().subtract(15, 'year').startOf('year').toDate(),
+                to: moment().subtract(1, 'year').endOf('year').toDate()
+            };
+        case PredefinedDateRanges.last16Years:
+            return {
+                from: moment().subtract(16, 'year').startOf('year').toDate(),
+                to: moment().subtract(1, 'year').endOf('year').toDate()
+            };
+        case PredefinedDateRanges.last17Years:
+            return {
+                from: moment().subtract(17, 'year').startOf('year').toDate(),
+                to: moment().subtract(1, 'year').endOf('year').toDate()
+            };
+        case PredefinedDateRanges.last18Years:
+            return {
+                from: moment().subtract(18, 'year').startOf('year').toDate(),
+                to: moment().subtract(1, 'year').endOf('year').toDate()
+            };
+        case PredefinedDateRanges.last19Years:
+            return {
+                from: moment().subtract(19, 'year').startOf('year').toDate(),
+                to: moment().subtract(1, 'year').endOf('year').toDate()
+            };
+        case PredefinedDateRanges.last20Years:
+            return {
+                from: moment().subtract(20, 'year').startOf('year').toDate(),
+                to: moment().subtract(1, 'year').endOf('year').toDate()
+            };
+        case PredefinedDateRanges.last21Years:
+            return {
+                from: moment().subtract(21, 'year').startOf('year').toDate(),
+                to: moment().subtract(1, 'year').endOf('year').toDate()
+            };
+        case PredefinedDateRanges.last22Years:
+            return {
+                from: moment().subtract(22, 'year').startOf('year').toDate(),
+                to: moment().subtract(1, 'year').endOf('year').toDate()
+            };
+        case PredefinedDateRanges.last23Years:
+            return {
+                from: moment().subtract(23, 'year').startOf('year').toDate(),
+                to: moment().subtract(1, 'year').endOf('year').toDate()
+            };
+        case PredefinedDateRanges.last24Years:
+            return {
+                from: moment().subtract(24, 'year').startOf('year').toDate(),
+                to: moment().subtract(1, 'year').endOf('year').toDate()
+            };
+        case PredefinedDateRanges.last25Years:
+            return {
+                from: moment().subtract(25, 'year').startOf('year').toDate(),
+                to: moment().subtract(1, 'year').endOf('year').toDate()
+            };
+        case PredefinedDateRanges.last26Years:
+            return {
+                from: moment().subtract(26, 'year').startOf('year').toDate(),
+                to: moment().subtract(1, 'year').endOf('year').toDate()
+            };
+        case PredefinedDateRanges.last27Years:
+            return {
+                from: moment().subtract(27, 'year').startOf('year').toDate(),
+                to: moment().subtract(1, 'year').endOf('year').toDate()
+            };
+        case PredefinedDateRanges.last28Years:
+            return {
+                from: moment().subtract(28, 'year').startOf('year').toDate(),
+                to: moment().subtract(1, 'year').endOf('year').toDate()
+            };
+        case PredefinedDateRanges.last29Years:
+            return {
+                from: moment().subtract(29, 'year').startOf('year').toDate(),
+                to: moment().subtract(1, 'year').endOf('year').toDate()
+            };
+        case PredefinedDateRanges.last30Years:
+            return {
+                from: moment().subtract(30, 'year').startOf('year').toDate(),
                 to: moment().subtract(1, 'year').endOf('year').toDate()
             };
         case PredefinedDateRanges.lastYearToDate:
@@ -235,6 +392,39 @@ export function parsePredifinedDate(textDate: string): IDateRange {
                 from: undefined,
                 to: undefined
             };
+
+        // future dateRanges
+
+        case PredefinedDateRanges.nextWeek:
+            return {
+                from: moment().add(1, 'week').startOf('week').toDate(),
+                to: moment().add(1, 'week').endOf('week').toDate()
+            };
+
+        case PredefinedDateRanges.nextMonth:
+            return {
+                from: moment().add(1, 'month').startOf('month').toDate(),
+                to: moment().add(1, 'month').endOf('month').toDate()
+            };
+
+        case PredefinedDateRanges.nextQuarter:
+            let nextQuarter = thisQuarter + 1;
+            if (nextQuarter > 4) nextQuarter -= 4;
+
+            const nYear = (thisQuarter - 1)
+                         ? moment().add(1, 'year').year()
+                         : moment().year();
+
+            return {
+                from: moment().year(nYear).quarter(nextQuarter).startOf('quarter').toDate(),
+                to: moment().year(nYear).quarter(nextQuarter).endOf('quarter').toDate()
+            };
+
+        case PredefinedDateRanges.nextYear:
+            return {
+                from: moment().add(1, 'year').startOf('year').toDate(),
+                to: moment().add(1, 'year').endOf('year').toDate()
+            };
     }
 
 }
@@ -246,81 +436,506 @@ export const PredefinedComparisonDateRanges = {
         lastWeek: 'last week',
         lastMonth: 'last month',
         lastYear: 'last year',
+        twoYearsAgo: '2 years ago',
+        threeYearsAgo: '3 years ago',
+        fourYearsAgo: '4 years ago',
+        fiveYearsAgo: '5 years ago',
+        sixYearsAgo: '6 years ago',
+        sevenYearsAgo: '7 years ago',
+        eightYearsAgo: '8 years ago',
+        nineYearsAgo: '9 years ago',
+        tenYearsAgo: '10 years ago',
+        elevenYearsAgo: '11 years ago',
+        twelveYearsAgo: '12 years ago',
+        thirteenYearsAgo: '13 years ago',
+        fourteenYearsAgo: '14 years ago',
+        fifteenYearsAgo: '15 years ago',
+        sixteenYearsAgo: '16 years ago',
+        seventeenYearsAgo: '17 years ago',
+        eighteenYearsAgo: '18 years ago',
+        nineteenYearsAgo: '19 years ago',
+        twentyYearsAgo: '20 years ago',
+        twentyoneYearsAgo: '21 years ago',
+        twentytwoYearsAgo: '22 years ago',
+        twentythreeYearsAgo: '23 years ago',
+        twentyfourYearsAgo: '24 years ago',
+        twentyfiveYearsAgo: '25 years ago',
+        twentysixYearsAgo: '26 years ago',
+        twentysevenYearsAgo: '27 years ago',
+        twentyeightYearsAgo: '28 years ago',
+        twentynineYearsAgo: '29 years ago',
+        thirtyYearsAgo: '30 years ago'
     },
     yesterday: {
         previousPeriod: 'previous period',
         lastWeek: 'last week',
         lastMonth: 'last month',
         lastYear: 'last year',
+        twoYearsAgo: '2 years ago',
+        threeYearsAgo: '3 years ago',
+        fourYearsAgo: '4 years ago',
+        fiveYearsAgo: '5 years ago',
+        sixYearsAgo: '6 years ago',
+        sevenYearsAgo: '7 years ago',
+        eightYearsAgo: '8 years ago',
+        nineYearsAgo: '9 years ago',
+        tenYearsAgo: '10 years ago',
+        elevenYearsAgo: '11 years ago',
+        twelveYearsAgo: '12 years ago',
+        thirteenYearsAgo: '13 years ago',
+        fourteenYearsAgo: '14 years ago',
+        fifteenYearsAgo: '15 years ago',
+        sixteenYearsAgo: '16 years ago',
+        seventeenYearsAgo: '17 years ago',
+        eighteenYearsAgo: '18 years ago',
+        nineteenYearsAgo: '19 years ago',
+        twentyYearsAgo: '20 years ago',
+        twentyoneYearsAgo: '21 years ago',
+        twentytwoYearsAgo: '22 years ago',
+        twentythreeYearsAgo: '23 years ago',
+        twentyfourYearsAgo: '24 years ago',
+        twentyfiveYearsAgo: '25 years ago',
+        twentysixYearsAgo: '26 years ago',
+        twentysevenYearsAgo: '27 years ago',
+        twentyeightYearsAgo: '28 years ago',
+        twentynineYearsAgo: '29 years ago',
+        thirtyYearsAgo: '30 years ago'
     },
     thisWeek: {
         previousPeriod: 'previous period',
         lastMonth: 'last month',
         lastYear: 'last year',
+        twoYearsAgo: '2 years ago',
+        threeYearsAgo: '3 years ago',
+        fourYearsAgo: '4 years ago',
+        fiveYearsAgo: '5 years ago',
+        sixYearsAgo: '6 years ago',
+        sevenYearsAgo: '7 years ago',
+        eightYearsAgo: '8 years ago',
+        nineYearsAgo: '9 years ago',
+        tenYearsAgo: '10 years ago',
+        elevenYearsAgo: '11 years ago',
+        twelveYearsAgo: '12 years ago',
+        thirteenYearsAgo: '13 years ago',
+        fourteenYearsAgo: '14 years ago',
+        fifteenYearsAgo: '15 years ago',
+        sixteenYearsAgo: '16 years ago',
+        seventeenYearsAgo: '17 years ago',
+        eighteenYearsAgo: '18 years ago',
+        nineteenYearsAgo: '19 years ago',
+        twentyYearsAgo: '20 years ago',
+        twentyoneYearsAgo: '21 years ago',
+        twentytwoYearsAgo: '22 years ago',
+        twentythreeYearsAgo: '23 years ago',
+        twentyfourYearsAgo: '24 years ago',
+        twentyfiveYearsAgo: '25 years ago',
+        twentysixYearsAgo: '26 years ago',
+        twentysevenYearsAgo: '27 years ago',
+        twentyeightYearsAgo: '28 years ago',
+        twentynineYearsAgo: '29 years ago',
+        thirtyYearsAgo: '30 years ago'
     },
     thisWeekToDate: {
         previousPeriod: 'previous period',
         lastMonth: 'last month',
         lastYear: 'last year',
+        twoYearsAgo: '2 years ago',
+        threeYearsAgo: '3 years ago',
+        fourYearsAgo: '4 years ago',
+        fiveYearsAgo: '5 years ago',
+        sixYearsAgo: '6 years ago',
+        sevenYearsAgo: '7 years ago',
+        eightYearsAgo: '8 years ago',
+        nineYearsAgo: '9 years ago',
+        tenYearsAgo: '10 years ago',
+        elevenYearsAgo: '11 years ago',
+        twelveYearsAgo: '12 years ago',
+        thirteenYearsAgo: '13 years ago',
+        fourteenYearsAgo: '14 years ago',
+        fifteenYearsAgo: '15 years ago',
+        sixteenYearsAgo: '16 years ago',
+        seventeenYearsAgo: '17 years ago',
+        eighteenYearsAgo: '18 years ago',
+        nineteenYearsAgo: '19 years ago',
+        twentyYearsAgo: '20 years ago',
+        twentyoneYearsAgo: '21 years ago',
+        twentytwoYearsAgo: '22 years ago',
+        twentythreeYearsAgo: '23 years ago',
+        twentyfourYearsAgo: '24 years ago',
+        twentyfiveYearsAgo: '25 years ago',
+        twentysixYearsAgo: '26 years ago',
+        twentysevenYearsAgo: '27 years ago',
+        twentyeightYearsAgo: '28 years ago',
+        twentynineYearsAgo: '29 years ago',
+        thirtyYearsAgo: '30 years ago'
     },
     lastWeek: {
         previousPeriod: 'previous period',
         lastMonth: 'last month',
         lastYear: 'last year',
+        twoYearsAgo: '2 years ago',
+        threeYearsAgo: '3 years ago',
+        fourYearsAgo: '4 years ago',
+        fiveYearsAgo: '5 years ago',
+        sixYearsAgo: '6 years ago',
+        sevenYearsAgo: '7 years ago',
+        eightYearsAgo: '8 years ago',
+        nineYearsAgo: '9 years ago',
+        tenYearsAgo: '10 years ago',
+        elevenYearsAgo: '11 years ago',
+        twelveYearsAgo: '12 years ago',
+        thirteenYearsAgo: '13 years ago',
+        fourteenYearsAgo: '14 years ago',
+        fifteenYearsAgo: '15 years ago',
+        sixteenYearsAgo: '16 years ago',
+        seventeenYearsAgo: '17 years ago',
+        eighteenYearsAgo: '18 years ago',
+        nineteenYearsAgo: '19 years ago',
+        twentyYearsAgo: '20 years ago',
+        twentyoneYearsAgo: '21 years ago',
+        twentytwoYearsAgo: '22 years ago',
+        twentythreeYearsAgo: '23 years ago',
+        twentyfourYearsAgo: '24 years ago',
+        twentyfiveYearsAgo: '25 years ago',
+        twentysixYearsAgo: '26 years ago',
+        twentysevenYearsAgo: '27 years ago',
+        twentyeightYearsAgo: '28 years ago',
+        twentynineYearsAgo: '29 years ago',
+        thirtyYearsAgo: '30 years ago'
     },
     thisMonth: {
         previousPeriod: 'previous period',
         lastMonth: 'last month',
         lastYear: 'last year',
+        twoYearsAgo: '2 years ago',
+        threeYearsAgo: '3 years ago',
+        fourYearsAgo: '4 years ago',
+        fiveYearsAgo: '5 years ago',
+        sixYearsAgo: '6 years ago',
+        sevenYearsAgo: '7 years ago',
+        eightYearsAgo: '8 years ago',
+        nineYearsAgo: '9 years ago',
+        tenYearsAgo: '10 years ago',
+        elevenYearsAgo: '11 years ago',
+        twelveYearsAgo: '12 years ago',
+        thirteenYearsAgo: '13 years ago',
+        fourteenYearsAgo: '14 years ago',
+        fifteenYearsAgo: '15 years ago',
+        sixteenYearsAgo: '16 years ago',
+        seventeenYearsAgo: '17 years ago',
+        eighteenYearsAgo: '18 years ago',
+        nineteenYearsAgo: '19 years ago',
+        twentyYearsAgo: '20 years ago',
+        twentyoneYearsAgo: '21 years ago',
+        twentytwoYearsAgo: '22 years ago',
+        twentythreeYearsAgo: '23 years ago',
+        twentyfourYearsAgo: '24 years ago',
+        twentyfiveYearsAgo: '25 years ago',
+        twentysixYearsAgo: '26 years ago',
+        twentysevenYearsAgo: '27 years ago',
+        twentyeightYearsAgo: '28 years ago',
+        twentynineYearsAgo: '29 years ago',
+        thirtyYearsAgo: '30 years ago'
     },
     thisMonthToDate: {
         previousPeriod: 'previous period',
         lastMonth: 'last month',
         lastYear: 'last year',
-        twoYearsAgo: '2 years ago'
+        twoYearsAgo: '2 years ago',
+        threeYearsAgo: '3 years ago',
+        fourYearsAgo: '4 years ago',
+        fiveYearsAgo: '5 years ago',
+        sixYearsAgo: '6 years ago',
+        sevenYearsAgo: '7 years ago',
+        eightYearsAgo: '8 years ago',
+        nineYearsAgo: '9 years ago',
+        tenYearsAgo: '10 years ago',
+        elevenYearsAgo: '11 years ago',
+        twelveYearsAgo: '12 years ago',
+        thirteenYearsAgo: '13 years ago',
+        fourteenYearsAgo: '14 years ago',
+        fifteenYearsAgo: '15 years ago',
+        sixteenYearsAgo: '16 years ago',
+        seventeenYearsAgo: '17 years ago',
+        eighteenYearsAgo: '18 years ago',
+        nineteenYearsAgo: '19 years ago',
+        twentyYearsAgo: '20 years ago',
+        twentyoneYearsAgo: '21 years ago',
+        twentytwoYearsAgo: '22 years ago',
+        twentythreeYearsAgo: '23 years ago',
+        twentyfourYearsAgo: '24 years ago',
+        twentyfiveYearsAgo: '25 years ago',
+        twentysixYearsAgo: '26 years ago',
+        twentysevenYearsAgo: '27 years ago',
+        twentyeightYearsAgo: '28 years ago',
+        twentynineYearsAgo: '29 years ago',
+        thirtyYearsAgo: '30 years ago'
     },
     lastMonth: {
         previousPeriod: 'previous period',
         lastYear: 'last year',
         twoYearsAgo: '2 years ago',
+        threeYearsAgo: '3 years ago',
+        fourYearsAgo: '4 years ago',
+        fiveYearsAgo: '5 years ago',
+        sixYearsAgo: '6 years ago',
+        sevenYearsAgo: '7 years ago',
+        eightYearsAgo: '8 years ago',
+        nineYearsAgo: '9 years ago',
+        tenYearsAgo: '10 years ago',
+        elevenYearsAgo: '11 years ago',
+        twelveYearsAgo: '12 years ago',
+        thirteenYearsAgo: '13 years ago',
+        fourteenYearsAgo: '14 years ago',
+        fifteenYearsAgo: '15 years ago',
+        sixteenYearsAgo: '16 years ago',
+        seventeenYearsAgo: '17 years ago',
+        eighteenYearsAgo: '18 years ago',
+        nineteenYearsAgo: '19 years ago',
+        twentyYearsAgo: '20 years ago',
+        twentyoneYearsAgo: '21 years ago',
+        twentytwoYearsAgo: '22 years ago',
+        twentythreeYearsAgo: '23 years ago',
+        twentyfourYearsAgo: '24 years ago',
+        twentyfiveYearsAgo: '25 years ago',
+        twentysixYearsAgo: '26 years ago',
+        twentysevenYearsAgo: '27 years ago',
+        twentyeightYearsAgo: '28 years ago',
+        twentynineYearsAgo: '29 years ago',
+        thirtyYearsAgo: '30 years ago'
     },
     thisQuarter: {
         previousPeriod: 'previous period',
         lastQuarter: 'last quarter',
         lastYear: 'last year',
         twoYearsAgo: '2 years ago',
+        threeYearsAgo: '3 years ago',
+        fourYearsAgo: '4 years ago',
+        fiveYearsAgo: '5 years ago',
+        sixYearsAgo: '6 years ago',
+        sevenYearsAgo: '7 years ago',
+        eightYearsAgo: '8 years ago',
+        nineYearsAgo: '9 years ago',
+        tenYearsAgo: '10 years ago',
+        elevenYearsAgo: '11 years ago',
+        twelveYearsAgo: '12 years ago',
+        thirteenYearsAgo: '13 years ago',
+        fourteenYearsAgo: '14 years ago',
+        fifteenYearsAgo: '15 years ago',
+        sixteenYearsAgo: '16 years ago',
+        seventeenYearsAgo: '17 years ago',
+        eighteenYearsAgo: '18 years ago',
+        nineteenYearsAgo: '19 years ago',
+        twentyYearsAgo: '20 years ago',
+        twentyoneYearsAgo: '21 years ago',
+        twentytwoYearsAgo: '22 years ago',
+        twentythreeYearsAgo: '23 years ago',
+        twentyfourYearsAgo: '24 years ago',
+        twentyfiveYearsAgo: '25 years ago',
+        twentysixYearsAgo: '26 years ago',
+        twentysevenYearsAgo: '27 years ago',
+        twentyeightYearsAgo: '28 years ago',
+        twentynineYearsAgo: '29 years ago',
+        thirtyYearsAgo: '30 years ago'
+
     },
     lastQuarter: {
         previousPeriod: 'previous period',
         lastYear: 'last year',
         twoYearsAgo: '2 years ago',
+        threeYearsAgo: '3 years ago',
+        fourYearsAgo: '4 years ago',
+        fiveYearsAgo: '5 years ago',
+        sixYearsAgo: '6 years ago',
+        sevenYearsAgo: '7 years ago',
+        eightYearsAgo: '8 years ago',
+        nineYearsAgo: '9 years ago',
+        tenYearsAgo: '10 years ago',
+        elevenYearsAgo: '11 years ago',
+        twelveYearsAgo: '12 years ago',
+        thirteenYearsAgo: '13 years ago',
+        fourteenYearsAgo: '14 years ago',
+        fifteenYearsAgo: '15 years ago',
+        sixteenYearsAgo: '16 years ago',
+        seventeenYearsAgo: '17 years ago',
+        eighteenYearsAgo: '18 years ago',
+        nineteenYearsAgo: '19 years ago',
+        twentyYearsAgo: '20 years ago',
+        twentyoneYearsAgo: '21 years ago',
+        twentytwoYearsAgo: '22 years ago',
+        twentythreeYearsAgo: '23 years ago',
+        twentyfourYearsAgo: '24 years ago',
+        twentyfiveYearsAgo: '25 years ago',
+        twentysixYearsAgo: '26 years ago',
+        twentysevenYearsAgo: '27 years ago',
+        twentyeightYearsAgo: '28 years ago',
+        twentynineYearsAgo: '29 years ago',
+        thirtyYearsAgo: '30 years ago'
     },
     last3Months: {
         previousPeriod: 'previous period',
         lastYear: 'last year',
-        twoYearsAgo: '2 years ago'
+        twoYearsAgo: '2 years ago',
+        threeYearsAgo: '3 years ago',
+        fourYearsAgo: '4 years ago',
+        fiveYearsAgo: '5 years ago',
+        sixYearsAgo: '6 years ago',
+        sevenYearsAgo: '7 years ago',
+        eightYearsAgo: '8 years ago',
+        nineYearsAgo: '9 years ago',
+        tenYearsAgo: '10 years ago',
+        elevenYearsAgo: '11 years ago',
+        twelveYearsAgo: '12 years ago',
+        thirteenYearsAgo: '13 years ago',
+        fourteenYearsAgo: '14 years ago',
+        fifteenYearsAgo: '15 years ago',
+        sixteenYearsAgo: '16 years ago',
+        seventeenYearsAgo: '17 years ago',
+        eighteenYearsAgo: '18 years ago',
+        nineteenYearsAgo: '19 years ago',
+        twentyYearsAgo: '20 years ago',
+        twentyoneYearsAgo: '21 years ago',
+        twentytwoYearsAgo: '22 years ago',
+        twentythreeYearsAgo: '23 years ago',
+        twentyfourYearsAgo: '24 years ago',
+        twentyfiveYearsAgo: '25 years ago',
+        twentysixYearsAgo: '26 years ago',
+        twentysevenYearsAgo: '27 years ago',
+        twentyeightYearsAgo: '28 years ago',
+        twentynineYearsAgo: '29 years ago',
+        thirtyYearsAgo: '30 years ago'
     },
     last6Months: {
          previousPeriod: 'previous period',
          lastYear: 'last year',
          twoYearsAgo: '2 years ago',
+        threeYearsAgo: '3 years ago',
+        fourYearsAgo: '4 years ago',
+        fiveYearsAgo: '5 years ago',
+        sixYearsAgo: '6 years ago',
+        sevenYearsAgo: '7 years ago',
+        eightYearsAgo: '8 years ago',
+        nineYearsAgo: '9 years ago',
+        tenYearsAgo: '10 years ago',
+        elevenYearsAgo: '11 years ago',
+        twelveYearsAgo: '12 years ago',
+        thirteenYearsAgo: '13 years ago',
+        fourteenYearsAgo: '14 years ago',
+        fifteenYearsAgo: '15 years ago',
+        sixteenYearsAgo: '16 years ago',
+        seventeenYearsAgo: '17 years ago',
+        eighteenYearsAgo: '18 years ago',
+        nineteenYearsAgo: '19 years ago',
+        twentyYearsAgo: '20 years ago',
+        twentyoneYearsAgo: '21 years ago',
+        twentytwoYearsAgo: '22 years ago',
+        twentythreeYearsAgo: '23 years ago',
+        twentyfourYearsAgo: '24 years ago',
+        twentyfiveYearsAgo: '25 years ago',
+        twentysixYearsAgo: '26 years ago',
+        twentysevenYearsAgo: '27 years ago',
+        twentyeightYearsAgo: '28 years ago',
+        twentynineYearsAgo: '29 years ago',
+        thirtyYearsAgo: '30 years ago'
     },
     thisYear: {
         previousPeriod: 'previous period',
         lastYear: 'last year',
         twoYearsAgo: '2 years ago',
         threeYearsAgo: '3 years ago',
+        fourYearsAgo: '4 years ago',
+        fiveYearsAgo: '5 years ago',
+        sixYearsAgo: '6 years ago',
+        sevenYearsAgo: '7 years ago',
+        eightYearsAgo: '8 years ago',
+        nineYearsAgo: '9 years ago',
+        tenYearsAgo: '10 years ago',
+        elevenYearsAgo: '11 years ago',
+        twelveYearsAgo: '12 years ago',
+        thirteenYearsAgo: '13 years ago',
+        fourteenYearsAgo: '14 years ago',
+        fifteenYearsAgo: '15 years ago',
+        sixteenYearsAgo: '16 years ago',
+        seventeenYearsAgo: '17 years ago',
+        eighteenYearsAgo: '18 years ago',
+        nineteenYearsAgo: '19 years ago',
+        twentyYearsAgo: '20 years ago',
+        twentyoneYearsAgo: '21 years ago',
+        twentytwoYearsAgo: '22 years ago',
+        twentythreeYearsAgo: '23 years ago',
+        twentyfourYearsAgo: '24 years ago',
+        twentyfiveYearsAgo: '25 years ago',
+        twentysixYearsAgo: '26 years ago',
+        twentysevenYearsAgo: '27 years ago',
+        twentyeightYearsAgo: '28 years ago',
+        twentynineYearsAgo: '29 years ago',
+        thirtyYearsAgo: '30 years ago'
+
     },
     thisYearToDate: {
         previousPeriod: 'previous period',
         lastYear: 'last year',
         twoYearsAgo: '2 years ago',
         threeYearsAgo: '3 years ago',
+        fourYearsAgo: '4 years ago',
+        fiveYearsAgo: '5 years ago',
+        sixYearsAgo: '6 years ago',
+        sevenYearsAgo: '7 years ago',
+        eightYearsAgo: '8 years ago',
+        nineYearsAgo: '9 years ago',
+        tenYearsAgo: '10 years ago',
+        elevenYearsAgo: '11 years ago',
+        twelveYearsAgo: '12 years ago',
+        thirteenYearsAgo: '13 years ago',
+        fourteenYearsAgo: '14 years ago',
+        fifteenYearsAgo: '15 years ago',
+        sixteenYearsAgo: '16 years ago',
+        seventeenYearsAgo: '17 years ago',
+        eighteenYearsAgo: '18 years ago',
+        nineteenYearsAgo: '19 years ago',
+        twentyYearsAgo: '20 years ago',
+        twentyoneYearsAgo: '21 years ago',
+        twentytwoYearsAgo: '22 years ago',
+        twentythreeYearsAgo: '23 years ago',
+        twentyfourYearsAgo: '24 years ago',
+        twentyfiveYearsAgo: '25 years ago',
+        twentysixYearsAgo: '26 years ago',
+        twentysevenYearsAgo: '27 years ago',
+        twentyeightYearsAgo: '28 years ago',
+        twentynineYearsAgo: '29 years ago',
+        thirtyYearsAgo: '30 years ago'
     },
     lastYear: {
          previousPeriod: 'previous period',
          twoYearsAgo: '2 years ago',
-         threeYearsAgo: '3 years ago',
+        threeYearsAgo: '3 years ago',
+        fourYearsAgo: '4 years ago',
+        fiveYearsAgo: '5 years ago',
+        sixYearsAgo: '6 years ago',
+        sevenYearsAgo: '7 years ago',
+        eightYearsAgo: '8 years ago',
+        nineYearsAgo: '9 years ago',
+        tenYearsAgo: '10 years ago',
+        elevenYearsAgo: '11 years ago',
+        twelveYearsAgo: '12 years ago',
+        thirteenYearsAgo: '13 years ago',
+        fourteenYearsAgo: '14 years ago',
+        fifteenYearsAgo: '15 years ago',
+        sixteenYearsAgo: '16 years ago',
+        seventeenYearsAgo: '17 years ago',
+        eighteenYearsAgo: '18 years ago',
+        nineteenYearsAgo: '19 years ago',
+        twentyYearsAgo: '20 years ago',
+        twentyoneYearsAgo: '21 years ago',
+        twentytwoYearsAgo: '22 years ago',
+        twentythreeYearsAgo: '23 years ago',
+        twentyfourYearsAgo: '24 years ago',
+        twentyfiveYearsAgo: '25 years ago',
+        twentysixYearsAgo: '26 years ago',
+        twentysevenYearsAgo: '27 years ago',
+        twentyeightYearsAgo: '28 years ago',
+        twentynineYearsAgo: '29 years ago',
+        thirtyYearsAgo: '30 years ago'
     },
     lastYearToDate: {
         previousPeriod: 'previous period'
@@ -344,35 +959,198 @@ export const PredefinedComparisonDateRanges = {
         previousPeriod: 'previous period',
         lastYear: 'last year',
         twoYearsAgo: '2 years ago',
-        threeYearsAgo: '3 years ago'
+        threeYearsAgo: '3 years ago',
+        fourYearsAgo: '4 years ago',
+        fiveYearsAgo: '5 years ago',
+        sixYearsAgo: '6 years ago',
+        sevenYearsAgo: '7 years ago',
+        eightYearsAgo: '8 years ago',
+        nineYearsAgo: '9 years ago',
+        tenYearsAgo: '10 years ago',
+        elevenYearsAgo: '11 years ago',
+        twelveYearsAgo: '12 years ago',
+        thirteenYearsAgo: '13 years ago',
+        fourteenYearsAgo: '14 years ago',
+        fifteenYearsAgo: '15 years ago',
+        sixteenYearsAgo: '16 years ago',
+        seventeenYearsAgo: '17 years ago',
+        eighteenYearsAgo: '18 years ago',
+        nineteenYearsAgo: '19 years ago',
+        twentyYearsAgo: '20 years ago',
+        twentyoneYearsAgo: '21 years ago',
+        twentytwoYearsAgo: '22 years ago',
+        twentythreeYearsAgo: '23 years ago',
+        twentyfourYearsAgo: '24 years ago',
+        twentyfiveYearsAgo: '25 years ago',
+        twentysixYearsAgo: '26 years ago',
+        twentysevenYearsAgo: '27 years ago',
+        twentyeightYearsAgo: '28 years ago',
+        twentynineYearsAgo: '29 years ago',
+        thirtyYearsAgo: '30 years ago'
     },
     last14Days: {
         previousPeriod: 'previous period',
         lastYear: 'last year',
         twoYearsAgo: '2 years ago',
-        threeYearsAgo: '3 years ago'
+        threeYearsAgo: '3 years ago',
+        fourYearsAgo: '4 years ago',
+        fiveYearsAgo: '5 years ago',
+        sixYearsAgo: '6 years ago',
+        sevenYearsAgo: '7 years ago',
+        eightYearsAgo: '8 years ago',
+        nineYearsAgo: '9 years ago',
+        tenYearsAgo: '10 years ago',
+        elevenYearsAgo: '11 years ago',
+        twelveYearsAgo: '12 years ago',
+        thirteenYearsAgo: '13 years ago',
+        fourteenYearsAgo: '14 years ago',
+        fifteenYearsAgo: '15 years ago',
+        sixteenYearsAgo: '16 years ago',
+        seventeenYearsAgo: '17 years ago',
+        eighteenYearsAgo: '18 years ago',
+        nineteenYearsAgo: '19 years ago',
+        twentyYearsAgo: '20 years ago',
+        twentyoneYearsAgo: '21 years ago',
+        twentytwoYearsAgo: '22 years ago',
+        twentythreeYearsAgo: '23 years ago',
+        twentyfourYearsAgo: '24 years ago',
+        twentyfiveYearsAgo: '25 years ago',
+        twentysixYearsAgo: '26 years ago',
+        twentysevenYearsAgo: '27 years ago',
+        twentyeightYearsAgo: '28 years ago',
+        twentynineYearsAgo: '29 years ago',
+        thirtyYearsAgo: '30 years ago'
     },
     last30Days: {
         previousPeriod: 'previous period',
         lastYear: 'last year',
         twoYearsAgo: '2 years ago',
-        threeYearsAgo: '3 years ago'
+        threeYearsAgo: '3 years ago',
+        fourYearsAgo: '4 years ago',
+        fiveYearsAgo: '5 years ago',
+        sixYearsAgo: '6 years ago',
+        sevenYearsAgo: '7 years ago',
+        eightYearsAgo: '8 years ago',
+        nineYearsAgo: '9 years ago',
+        tenYearsAgo: '10 years ago',
+        elevenYearsAgo: '11 years ago',
+        twelveYearsAgo: '12 years ago',
+        thirteenYearsAgo: '13 years ago',
+        fourteenYearsAgo: '14 years ago',
+        fifteenYearsAgo: '15 years ago',
+        sixteenYearsAgo: '16 years ago',
+        seventeenYearsAgo: '17 years ago',
+        eighteenYearsAgo: '18 years ago',
+        nineteenYearsAgo: '19 years ago',
+        twentyYearsAgo: '20 years ago',
+        twentyoneYearsAgo: '21 years ago',
+        twentytwoYearsAgo: '22 years ago',
+        twentythreeYearsAgo: '23 years ago',
+        twentyfourYearsAgo: '24 years ago',
+        twentyfiveYearsAgo: '25 years ago',
+        twentysixYearsAgo: '26 years ago',
+        twentysevenYearsAgo: '27 years ago',
+        twentyeightYearsAgo: '28 years ago',
+        twentynineYearsAgo: '29 years ago',
+        thirtyYearsAgo: '30 years ago'
     },
     last90Days: {
         previousPeriod: 'previous period',
         lastYear: 'last year',
         twoYearsAgo: '2 years ago',
-        threeYearsAgo: '3 years ago'
+        threeYearsAgo: '3 years ago',
+        fourYearsAgo: '4 years ago',
+        fiveYearsAgo: '5 years ago',
+        sixYearsAgo: '6 years ago',
+        sevenYearsAgo: '7 years ago',
+        eightYearsAgo: '8 years ago',
+        nineYearsAgo: '9 years ago',
+        tenYearsAgo: '10 years ago',
+        elevenYearsAgo: '11 years ago',
+        twelveYearsAgo: '12 years ago',
+        thirteenYearsAgo: '13 years ago',
+        fourteenYearsAgo: '14 years ago',
+        fifteenYearsAgo: '15 years ago',
+        sixteenYearsAgo: '16 years ago',
+        seventeenYearsAgo: '17 years ago',
+        eighteenYearsAgo: '18 years ago',
+        nineteenYearsAgo: '19 years ago',
+        twentyYearsAgo: '20 years ago',
+        twentyoneYearsAgo: '21 years ago',
+        twentytwoYearsAgo: '22 years ago',
+        twentythreeYearsAgo: '23 years ago',
+        twentyfourYearsAgo: '24 years ago',
+        twentyfiveYearsAgo: '25 years ago',
+        twentysixYearsAgo: '26 years ago',
+        twentysevenYearsAgo: '27 years ago',
+        twentyeightYearsAgo: '28 years ago',
+        twentynineYearsAgo: '29 years ago',
+        thirtyYearsAgo: '30 years ago'
     },
     last365Days: {
         previousPeriod: 'previous period',
         twoYearsAgo: '2 years ago',
-        threeYearsAgo: '3 years ago'
+        threeYearsAgo: '3 years ago',
+        fourYearsAgo: '4 years ago',
+        fiveYearsAgo: '5 years ago',
+        sixYearsAgo: '6 years ago',
+        sevenYearsAgo: '7 years ago',
+        eightYearsAgo: '8 years ago',
+        nineYearsAgo: '9 years ago',
+        tenYearsAgo: '10 years ago',
+        elevenYearsAgo: '11 years ago',
+        twelveYearsAgo: '12 years ago',
+        thirteenYearsAgo: '13 years ago',
+        fourteenYearsAgo: '14 years ago',
+        fifteenYearsAgo: '15 years ago',
+        sixteenYearsAgo: '16 years ago',
+        seventeenYearsAgo: '17 years ago',
+        eighteenYearsAgo: '18 years ago',
+        nineteenYearsAgo: '19 years ago',
+        twentyYearsAgo: '20 years ago',
+        twentyoneYearsAgo: '21 years ago',
+        twentytwoYearsAgo: '22 years ago',
+        twentythreeYearsAgo: '23 years ago',
+        twentyfourYearsAgo: '24 years ago',
+        twentyfiveYearsAgo: '25 years ago',
+        twentysixYearsAgo: '26 years ago',
+        twentysevenYearsAgo: '27 years ago',
+        twentyeightYearsAgo: '28 years ago',
+        twentynineYearsAgo: '29 years ago',
+        thirtyYearsAgo: '30 years ago'
     },
     custom: {
         previousPeriod: 'previous period',
         lastYear: 'last year',
-        twoYearsAgo: '2 years ago'
+        twoYearsAgo: '2 years ago',
+        threeYearsAgo: '3 years ago',
+        fourYearsAgo: '4 years ago',
+        fiveYearsAgo: '5 years ago',
+        sixYearsAgo: '6 years ago',
+        sevenYearsAgo: '7 years ago',
+        eightYearsAgo: '8 years ago',
+        nineYearsAgo: '9 years ago',
+        tenYearsAgo: '10 years ago',
+        elevenYearsAgo: '11 years ago',
+        twelveYearsAgo: '12 years ago',
+        thirteenYearsAgo: '13 years ago',
+        fourteenYearsAgo: '14 years ago',
+        fifteenYearsAgo: '15 years ago',
+        sixteenYearsAgo: '16 years ago',
+        seventeenYearsAgo: '17 years ago',
+        eighteenYearsAgo: '18 years ago',
+        nineteenYearsAgo: '19 years ago',
+        twentyYearsAgo: '20 years ago',
+        twentyoneYearsAgo: '21 years ago',
+        twentytwoYearsAgo: '22 years ago',
+        twentythreeYearsAgo: '23 years ago',
+        twentyfourYearsAgo: '24 years ago',
+        twentyfiveYearsAgo: '25 years ago',
+        twentysixYearsAgo: '26 years ago',
+        twentysevenYearsAgo: '27 years ago',
+        twentyeightYearsAgo: '28 years ago',
+        twentynineYearsAgo: '29 years ago',
+        thirtyYearsAgo: '30 years ago'
     }
 };
 
@@ -428,16 +1206,17 @@ export function parsePredefinedTargetDateRanges (predefinedDate: string, dueDate
 
     switch (predefinedDate) {
         case PredefinedDateRanges.lastMonth:
-            return parsePredifinedDate(PredefinedDateRanges.lastMonth);
+            return parsePredefinedDate(PredefinedDateRanges.lastMonth);
         case PredefinedDateRanges.yesterday:
-            return parsePredifinedDate(PredefinedDateRanges.yesterday);
+            return parsePredefinedDate(PredefinedDateRanges.yesterday);
         case PredefinedDateRanges.lastWeek:
-            return parsePredifinedDate(PredefinedDateRanges.lastWeek);
+            return parsePredefinedDate(PredefinedDateRanges.lastWeek);
         case PredefinedDateRanges.lastQuarter:
-            return parsePredifinedDate(PredefinedDateRanges.lastQuarter);
+            return parsePredefinedDate(PredefinedDateRanges.lastQuarter);
         case PredefinedDateRanges.lastYear:
-            return parsePredifinedDate(PredefinedDateRanges.lastYear);
-
+            return parsePredefinedDate(PredefinedDateRanges.lastYear);
+        case PredefinedDateRanges.last2Years:
+            return parsePredefinedDate(PredefinedDateRanges.last2Years);
 
         // frequency = 'daily'
         case PredefinedTargetDateRanges.sameDayLastYear:
@@ -622,22 +1401,125 @@ export function parseComparisonDateRange(dateRange: IDateRange, comparisonString
 
         case 'lastMonth':
             return backInTime(dateRange, 1, 'month', mainDateRangeFrom);
-
-        case '2YearsAgo':
-            return backInTime(dateRange, 2, 'year', mainDateRangeFrom);
-
-        case '3YearsAgo':
-            return backInTime(dateRange, 3, 'year', mainDateRangeFrom);
-
         case 'lastYear':
+        case 'last year':
             return backInTime(dateRange, 1, 'year', mainDateRangeFrom);
-
         case 'twoYearsAgo':
+        case '2 years ago':
+        case 'two years ago':
             return backInTime(dateRange, 2, 'year', mainDateRangeFrom);
-
         case 'threeYearsAgo':
+        case '3 years ago':
+        case 'three years ago':
             return backInTime(dateRange, 3, 'year', mainDateRangeFrom);
-
+        case 'fourYearsAgo':
+        case '4 years ago':
+        case 'four years ago':
+            return backInTime(dateRange, 4, 'year', mainDateRangeFrom);
+        case 'fiveYearsAgo':
+        case '5 years ago':
+        case 'five years ago':
+            return backInTime(dateRange, 5, 'year', mainDateRangeFrom);
+        case 'sixYearsAgo':
+        case '6 years ago':
+        case 'six years ago':
+            return backInTime(dateRange, 6, 'year', mainDateRangeFrom);
+        case 'sevenYearsAgo':
+        case '7 years ago':
+        case 'seven years ago':
+            return backInTime(dateRange, 7, 'year', mainDateRangeFrom);
+        case 'eightYearsAgo':
+        case '8 years ago':
+        case 'eight years ago':
+            return backInTime(dateRange, 8, 'year', mainDateRangeFrom);
+        case 'nineYearsAgo':
+        case '9 years ago':
+        case 'nine years ago':
+            return backInTime(dateRange, 9, 'year', mainDateRangeFrom);
+        case 'tenYearsAgo':
+        case '10 years ago':
+        case 'ten years ago':
+            return backInTime(dateRange, 10, 'year', mainDateRangeFrom);
+        case 'elevenYearsAgo':
+        case '11 years ago':
+        case 'eleven years ago':
+            return backInTime(dateRange, 11, 'year', mainDateRangeFrom);
+        case 'twelveYearsAgo':
+        case '12 years ago':
+        case 'twelve years ago':
+            return backInTime(dateRange, 12, 'year', mainDateRangeFrom);
+        case 'thirteenYearsAgo':
+        case '13 years ago':
+        case 'thirteen years ago':
+            return backInTime(dateRange, 13, 'year', mainDateRangeFrom);
+        case 'fourteenYearsAgo':
+        case '14 years ago':
+        case 'fourteen years ago':
+            return backInTime(dateRange, 14, 'year', mainDateRangeFrom);
+        case 'fifteenYearsAgo':
+        case '15 years ago':
+        case 'fifteen years ago':
+            return backInTime(dateRange, 15, 'year', mainDateRangeFrom);
+        case 'sixteenYearsAgo':
+        case '16 years ago':
+        case 'sixteen years ago':
+            return backInTime(dateRange, 16, 'year', mainDateRangeFrom);
+        case 'seventeenYearsAgo':
+        case '17 years ago':
+        case 'seventeen years ago':
+            return backInTime(dateRange, 17, 'year', mainDateRangeFrom);
+        case 'eighteenYearsAgo':
+        case '18 years ago':
+        case 'eighteen years ago':
+            return backInTime(dateRange, 18, 'year', mainDateRangeFrom);
+        case 'nineteenYearsAgo':
+        case '19 years ago':
+        case 'nineteen years ago':
+            return backInTime(dateRange, 19, 'year', mainDateRangeFrom);
+        case 'twentyYearsAgo':
+        case '20 years ago':
+        case 'twenty years Ago':
+                return backInTime(dateRange, 20, 'year', mainDateRangeFrom);
+        case 'twentyoneYearsAgo':
+        case '21 years ago':
+        case 'twentyone years ago':
+                return backInTime(dateRange, 21, 'year', mainDateRangeFrom);
+        case 'twentytwoYearsAgo':
+        case '22 years ago':
+        case 'twentytwo years ago':
+                return backInTime(dateRange, 22, 'year', mainDateRangeFrom);
+        case 'twentythreeYearsAgo':
+        case '23 years ago':
+        case 'twentythree years Ago':
+                return backInTime(dateRange, 23, 'year', mainDateRangeFrom);
+        case 'twentyfourYearsAgo':
+        case '24 years ago':
+        case 'twentyfour years ago':
+                return backInTime(dateRange, 24, 'year', mainDateRangeFrom);
+        case 'twentyfiveYearsAgo':
+        case '25 years ago':
+        case 'twentyfive years ago':
+                return backInTime(dateRange, 25, 'year', mainDateRangeFrom);
+        case 'twentysixYearsAgo':
+        case '26 years ago':
+        case 'twentysix years ago':
+                return backInTime(dateRange, 26, 'year', mainDateRangeFrom);
+        case 'twentysevenYearsAgo':
+        case '27 years ago':
+        case 'twentyseven years ago':
+                return backInTime(dateRange, 27, 'year', mainDateRangeFrom);
+        case 'twentyeightYearsAgo':
+        case '28 years ago':
+        case 'twentyeight years ago':
+                return backInTime(dateRange, 28, 'year', mainDateRangeFrom);
+        case 'twentynineYearsAgo':
+        case '29 years ago':
+        case 'twentynine years ago':
+                return backInTime(dateRange, 29, 'year', mainDateRangeFrom);
+        case 'thirtyYearsAgo':
+        case '30 years ago':
+        case 'thirty years ago':
+                return backInTime(dateRange, 30, 'year', mainDateRangeFrom);
         case 'lastQuarter':
             // TODO: we have to calculate the previous Q, just back in time 90 days for now
             return backInTime(dateRange, 90, 'days', mainDateRangeFrom);
@@ -662,7 +1544,7 @@ export function getComparisonDateRanges(dateRange: IChartDateRange[], comparison
 export function processChartDateRange(chartDateRange: IChartDateRange): IDateRange {
     return chartDateRange.custom && chartDateRange.custom.from ?
             { from: new Date(chartDateRange.custom.from), to: new Date(chartDateRange.custom.to) }
-            : parsePredifinedDate(chartDateRange.predefined);
+            : parsePredefinedDate(chartDateRange.predefined);
 }
 
 export function getYesterdayDate(): IDateRange {

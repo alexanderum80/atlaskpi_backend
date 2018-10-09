@@ -1,3 +1,4 @@
+import { GetKpiOldestDateQuery } from './queries/get-kpi-oldestDate.query';
 import { SettingsOnFlyKpisQuery } from './queries/settings-on-fly-kpis.query';
 import { KpiByNameQuery } from './queries/kpi-by-name.query';
 import { GetKpisCriteriaQuery } from './queries/get-kpi-criteria.query';

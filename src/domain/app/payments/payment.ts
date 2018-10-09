@@ -56,4 +56,5 @@ export interface IPayment {
 
 export interface IPaymentDocument extends IPayment, mongoose.Document { }
 
-export interface IPaymentModel extends mongoose.Model<IPaymentDocument> { }
+export interface IPaymentModel extends mongoose.Model<IPaymentDocument> {
+}

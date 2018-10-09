@@ -3,6 +3,7 @@ import { GraphQLTypesMap } from '../../framework/decorators/graphql-types-map';
 import { input } from '../../framework/decorators/input.decorator';
 import { type } from '../../framework/decorators/type.decorator';
 import { ErrorDetails } from '../../framework/graphql/common.types';
+import { resolver } from '../../framework/decorators/resolver.decorator';
 
 
 @input()
@@ -84,6 +85,11 @@ export class ProductSales {
 
 @type()
 export class Sale  {
+    @resolver({ forField: '_id' })
+    static convertId(d) {
+        return d._id.toString();
+    }
+
     @field({ type: GraphQLTypesMap.String })
     _id: string;
 
@@ -125,6 +131,11 @@ export class SalesAmountSource {
 
 @type()
 export class SalesAmount {
+    @resolver({ forField: '_id' })
+    static convertId(d) {
+        return d._id && d._id.toString();
+    }
+
     @field({ type: GraphQLTypesMap.String })
     _id: string;
 
@@ -169,6 +180,11 @@ export class ExpensesConcept {
 
 @type()
 export class ExpensesAmount {
+    @resolver({ forField: '_id' })
+    static convertId(d) {
+        return d._id.toString();
+    }
+
     @field({ type: GraphQLTypesMap.String })
     _id: string;
 
@@ -191,6 +207,11 @@ export class ExpensesAmount {
 
 @type()
 export class UsersActivity {
+    @resolver({ forField: '_id' })
+    static convertId(d) {
+        return d._id.toString();
+    }
+
     @field({ type: GraphQLTypesMap.String })
     _id: string;
 

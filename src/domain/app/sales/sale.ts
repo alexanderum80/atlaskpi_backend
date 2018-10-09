@@ -1,4 +1,3 @@
-import * as Promise from 'bluebird';
 import * as mongoose from 'mongoose';
 import { IDateRange } from '../../common/date-range';
 import { ICriteriaSearchable } from '../../../app_modules/shared/criteria.plugin';

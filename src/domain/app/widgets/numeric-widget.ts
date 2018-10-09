@@ -9,7 +9,7 @@ import {
     getDateRangeIdFromString,
     IChartDateRange,
     IDateRange,
-    parsePredifinedDate,
+    parsePredefinedDate,
     PredefinedComparisonDateRanges,
 } from '../../common/date-range';
 import { KPIs } from '../kpis/kpi.model';
@@ -105,7 +105,7 @@ export class NumericWidget extends UIWidgetBase implements IUIWidget {
                     from: moment(chartDateRange.custom.from, momentFormat).startOf('day').toDate(),
                     to: moment(chartDateRange.custom.to, momentFormat).endOf('day').toDate()
                 }
-                : parsePredifinedDate(chartDateRange.predefined);
+                : parsePredefinedDate(chartDateRange.predefined);
     }
 
     private async _getKpiData(kpi: IKpiBase, dateRange: IDateRange): Promise<any> {
