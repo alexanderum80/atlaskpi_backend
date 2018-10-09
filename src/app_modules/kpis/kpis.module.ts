@@ -13,7 +13,6 @@ import { ExecuteKpiQuery } from './queries/execute.kpi';
 import {GetKpiFilterFields} from './queries/get-kpi-filter-fields.query';
 import {GetKpiExpressionFieldsQuery} from './queries/get-kpi-expression-fields.query';
 import {KpiGroupingsQuery} from './queries/kpi-groupings.query';
-import { GetKpiOldestDateQuery } from './queries/get-kpi-oldestDate.query';
 
 @AppModule({
     mutations: [
