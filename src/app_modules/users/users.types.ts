@@ -138,9 +138,6 @@ export class UserAgreementInput {
 @type()
 export class UserEmail  {
     @field({ type: GraphQLTypesMap.String })
-    _id: string;
-
-    @field({ type: GraphQLTypesMap.String })
     address: string;
 
     @field({ type: GraphQLTypesMap.Boolean })
@@ -151,9 +148,6 @@ export class UserEmail  {
 
 @type()
 export class UserLoginToken  {
-    @field({ type: GraphQLTypesMap.String })
-    _id: string;
-
     @field({ type: GraphQLTypesMap.String })
     when: string;
 
@@ -168,6 +162,11 @@ export class UserLoginToken  {
 
 @type()
 export class UserEmailedToken  {
+    @resolver({ forField: '_id' })
+    static convertId(d) {
+        return d._id.toString();
+    }
+
     @field({ type: GraphQLTypesMap.String })
     _id: string;
 
@@ -185,6 +184,11 @@ export class UserEmailedToken  {
 
 @type()
 export class PasswordReset  {
+    @resolver({ forField: '_id' })
+    static convertId(d) {
+        return d._id.toString();
+    }
+
     @field({ type: GraphQLTypesMap.String })
     _id: string;
 
@@ -196,6 +200,11 @@ export class PasswordReset  {
 
 @type()
 export class UserServiceEmail  {
+    @resolver({ forField: '_id' })
+    static convertId(d) {
+        return d._id.toString();
+    }
+
     @field({ type: GraphQLTypesMap.String })
     _id: string;
 
@@ -207,6 +216,11 @@ export class UserServiceEmail  {
 
 @type()
 export class UserServices  {
+    @resolver({ forField: '_id' })
+    static convertId(d) {
+        return d._id.toString();
+    }
+
     @field({ type: GraphQLTypesMap.String })
     _id: string;
 
@@ -236,9 +250,6 @@ export class UserAgreement {
 
 @type()
 export class UserProfile  {
-    @field({ type: GraphQLTypesMap.String })
-    _id: string;
-
     @field({ type: GraphQLTypesMap.String })
     firstName: string;
 
@@ -331,6 +342,11 @@ export class UserPreference {
 
 @type()
 export class User  {
+    @resolver({ forField: '_id' })
+    static convertId(d) {
+        return d._id.toString();
+    }
+
     @field({ type: GraphQLTypesMap.String })
     _id: string;
 

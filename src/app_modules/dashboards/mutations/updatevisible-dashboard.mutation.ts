@@ -17,7 +17,7 @@ import { DashboardInput, DashboardResponse } from '../dashboards.types';
         { name: 'id', type: String, required: true },
         { name: 'input', type: Boolean, required: true },
     ],
-    output: { type: Boolean }
+    output: { type: DashboardResponse }
 })
 export class UpdateVisibleDashboardMutation extends MutationBase<IMutationResponse> {
     constructor(@inject(Dashboards.name) private _dashboards: Dashboards) {

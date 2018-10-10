@@ -1,31 +1,27 @@
 import * as Bluebird from 'bluebird';
 import { inject, injectable } from 'inversify';
 import * as moment from 'moment';
-import { clone } from 'lodash';
+import { camelCase } from 'change-case';
 
 import { IGetDataOptions, IKpiBase } from '../app_modules/kpis/queries/kpi-base';
 import { KpiFactory } from '../app_modules/kpis/queries/kpi.factory';
-import { IChartDocument } from '../domain/app/charts/chart';
+import { IChartDocument, IChart } from '../domain/app/charts/chart';
 import { Charts } from '../domain/app/charts/chart.model';
-import { IChart } from '../domain/app/charts/chart';
-import { Users } from '../domain/app/security/users/user.model';
-import { IUserDocument } from '../domain/app/security/users/user';
 import { Dashboards } from '../domain/app/dashboards/dashboard.model';
-import {ITarget, ITargetDocument, INotificationData} from '../domain/app/targets/target';
-import {Targets} from '../domain/app/targets/target.model';
-import { NotificationInput } from '../app_modules/targets/targets.types';
+import { Users } from '../domain/app/security/users/user.model';
+import { ITargetNew, ITargetNewDocument, TargetCompareToEnum } from '../domain/app/targetsNew/target';
+import { TargetsNew } from '../domain/app/targetsNew/target.model';
 import {
+    IChartDateRange,
     IDateRange,
     parsePredefinedTargetDateRanges,
-    parsePredifinedDate,
-PredefinedDateRanges,
-IChartDateRange,
+    parsePredefinedDate,
+    PredefinedDateRanges,
 } from '../domain/common/date-range';
 import { FrequencyEnum, FrequencyTable } from '../domain/common/frequency-enum';
-import { field } from '../framework/decorators/field.decorator';
-import { isNumber } from 'lodash';
-import {TargetNotification} from './notifications/users/target.notification';
-import {PnsService} from './pns.service';
+import { TargetNotification } from './notifications/users/target.notification';
+import { PnsService } from './pns.service';
+import { DateService } from './date/date-service';
 
 export interface IMomentFrequencyTable {
     daily: string;
@@ -79,16 +75,18 @@ export class TargetService {
 
     constructor(@inject(Users.name) private _users: Users,
                 @inject(KpiFactory.name) private _kpiFactory: KpiFactory,
-                @inject(Targets.name) private _targets: Targets,
+                @inject(TargetsNew.name) private _targets: TargetsNew,
                 @inject(Charts.name) private _charts: Charts,
                 @inject(Dashboards.name) private _dashboard: Dashboards,
                 @inject(TargetNotification.name) private _targetNotification: TargetNotification,
-                @inject(PnsService.name) private _pnsService: PnsService
+                @inject(PnsService.name) private _pnsService: PnsService,
+                @inject(DateService.name) private dateService: DateService,
     ) { }
 
-    async getTargets(chartId: string, userId: string): Promise<ITargetDocument[]> {
+    async getTargets(chartId: string, userId: string): Promise<ITargetNewDocument[]> {
         try {
-            const visibleTargets: ITargetDocument[] = await this._targets.model.findUserVisibleTargets(chartId, userId);
+            const visibleTargets: ITargetNewDocument[] =
+                await this._targets.model.findUserVisibleTargets(chartId, userId);
             return await this.frequentlyUpdateTargets(visibleTargets);
         } catch (err) {
             return ({
@@ -98,15 +96,15 @@ export class TargetService {
         }
     }
 
-    async frequentlyUpdateTargets(targets: ITargetDocument[]): Promise<ITargetDocument[]> {
+    async frequentlyUpdateTargets(targets: ITargetNewDocument[]): Promise<ITargetNewDocument[]> {
         try {
             if (!targets || !targets.length) {
                 return targets;
             }
 
-            const updatedListTargets: ITargetDocument[] = await Bluebird.map(
+            const updatedListTargets: ITargetNewDocument[] = await Bluebird.map(
                                         targets,
-                                        (target: ITargetDocument) => this.updateTarget(target)
+                                        (target: ITargetNewDocument) => this.updateTarget(target)
                                     );
             return updatedListTargets;
         } catch (err) {
@@ -115,19 +113,20 @@ export class TargetService {
     }
 
 
-    async updateTarget(target: ITargetDocument): Promise<ITargetDocument> {
+    async updateTarget(target: ITargetNewDocument): Promise<ITargetNewDocument> {
         try {
-            const id: string = target.id;
-            const inputData: ITarget = Object.assign({}, target.toObject() as ITarget);
+            const id: string = target._id;
+            const inputData: ITargetNew = Object.assign({}, target.toObject());
 
             const targetAmount: number = await this.getTargetValue(inputData);
-            inputData.target = targetAmount;
+            inputData.targetValue = targetAmount;
             inputData.timestamp = new Date();
 
-            const updatedTarget: ITargetDocument = await this._targets.model.updateTarget(id, inputData);
+            const updatedTarget: ITargetNewDocument =
+                await this._targets.model.updateTargetNew(id, inputData);
 
             const targetProgress: number = await this.targetProgressValue(updatedTarget);
-            updatedTarget.percentageCompletion = (targetProgress / updatedTarget.target) * 100;
+            updatedTarget.percentageCompletion = (targetProgress / inputData.targetValue) * 100;
 
             return updatedTarget;
         } catch (err) {
@@ -135,17 +134,25 @@ export class TargetService {
         }
     }
 
-    async targetProgressValue(data: ITargetDocument): Promise<number> {
+    async targetProgressValue(data: ITargetNewDocument): Promise<number> {
         try {
-            const chart: IChartDocument = await this._charts.model.findById(data.chart[0])
-                                                .populate({ path: 'kpis' });
+            const chart: IChart = await this._charts.model.findById(data.source.identifier)
+                .populate({ path: 'kpis' })
+                .lean(true)
+                .exec() as IChart;
             const kpi: IKpiBase = await this._kpiFactory.getInstance(chart.kpis[0]);
 
             const groupings: string[] = (chart.groupings && chart.groupings[0]) ? chart.groupings : [];
-            const stackName: string = data.stackName ? data.stackName : data.nonStackName;
-            const isStackNameEqualToAll: boolean = stackName.toLowerCase() === 'all';
+            const stackName: string = !data.appliesTo ? undefined : data.appliesTo.value;
 
-            const dateRange: IDateRange[] = this._getTargetProgressDateRange(chart.frequency, data.datepicker, chart.dateRange);
+            // const dr = parsePredefinedDate(data.period);
+            // const dateRange: IDateRange[] = this._getTargetProgressDateRange(chart.frequency, dr.to, chart.dateRange);
+
+            const dateRange: IDateRange = this.getDate(
+                chart.dateRange[0],
+                data.reportOptions.frequency
+            );
+
             const options: IGetDataOptions = {
                 filter: chart.filter
             };
@@ -155,7 +162,7 @@ export class TargetService {
                     filter: chart.filter
                 });
             } else {
-                if (!isStackNameEqualToAll) {
+                if (data.appliesTo) {
                     Object.assign(options, {
                         groupings: groupings,
                         stackName: this.getStackName(chart, stackName).name || null
@@ -163,8 +170,8 @@ export class TargetService {
                 }
             }
 
-            const response = await kpi.getData(dateRange, options);
-            const totalProgress = response ? response.find(r => r.value) : { value : data.amount };
+            const response = await kpi.getData([dateRange], options);
+            const totalProgress = response ? response.find(r => r.value) : { value : data.targetValue };
             const amount: number = totalProgress ? totalProgress.value : 0;
 
             return amount;
@@ -173,96 +180,158 @@ export class TargetService {
         }
     }
 
-    async createUpdateTarget(data: ITarget, id?: string): Promise<ITargetDocument> {
-        try {
-            // target value
-            data.target = await this.getTargetValue(data);
-            const chart = await this._charts.model.findById(data.chart[0]);
+    // async createUpdateTarget(data: ITargetNew, id?: string): Promise<ITargetNewDocument> {
+    //     try {
+    //         // target value
+    //         data.target = await this.getTargetValue(data);
 
-            if (!id) {
-                // create target
-                return await this._targets.model.createTarget(data);
+    //         if (!id) {
+    //             // create target
+    //             return await this._targets.model.createNew(data);
+    //         } else {
+    //             // update target
+    //             return await this._targets.model.updateTargetNew(id, data);
+    //         }
+
+    //     } catch (err) {
+    //         throw new Error('unable to modify target');
+    //     }
+    // }
+
+    async getTargetValue(data: ITargetNew): Promise<number> {
+        try {
+
+            // let response = data.type !== 'fixed'
+            //     ? await this.getBaseValue(data)
+            //     : data.value;
+            // let findValue: any;
+
+            let responseValue: number;
+
+            if (data.type === 'fixed') {
+                responseValue = data.value;
             } else {
-                // update target
-                return await this._targets.model.updateTarget(id, data);
+                const response = await this.getBaseValue(data);
+                let findValue: any;
+
+                if (data.appliesTo) {
+                    if (
+                        data.reportOptions.categorySource === data.appliesTo.field
+                        || (!data.reportOptions.categorySource && !data.reportOptions.frequency)
+                    ) {
+                        const field = camelCase(data.appliesTo.field);
+                        const records = response.filter(i => i._id[field] === data.appliesTo.value) as any[];
+                        // findValue = { _id: { }, value: records.reduce((prev, current) => {
+                        //     return (prev.value || prev) + current.value;
+                        // } ) };
+                        // findValue._id[field] = data.appliesTo.value;
+                        findValue = records.reduce((prev, current) => {
+                            return (prev.value || prev) + current.value;
+                        });
+                    } else {
+                        findValue = response.find(r => r._id[data.appliesTo.field] === data.appliesTo.value);
+                    }
+                } else if (data.reportOptions.categorySource === 'frequency') {
+                    findValue = response.reduce((prev, current) => {
+                        return (prev.value || prev) + current.value;
+                    });
+                } else {
+                    findValue = response.find(r => r.value);
+                }
+
+                if (typeof findValue === 'number') {
+                    responseValue = findValue;
+                } else {
+                    responseValue = findValue ? findValue.value : 0;
+                }
             }
 
-        } catch (err) {
-            throw new Error('unable to modify target');
-        }
-    }
+            // const responseValue: number = findValue ? findValue.value : 0;
 
-    async getTargetValue(data: ITargetCalculateData): Promise<number> {
-        try {
-            const response = await this.getBaseValue(data);
-            const dataAmount: number = parseFloat(data.amount.toString());
-            const findValue = response ? response.find(r => r.value) : { value: data.amount };
-
-            const responseValue: number = findValue ? findValue.value : 0;
-
-            switch (data.vary) {
-
+            switch (data.type) {
                 case 'fixed':
-                    return dataAmount;
-
+                    return responseValue;
                 case 'increase':
-                    switch (data.amountBy) {
-                        case 'percent':
-                            const increasePercentResult: number = responseValue + (responseValue * (dataAmount / 100) );
-                            return increasePercentResult;
-
-                        case 'dollar':
-                            const increaseDollarResult: number = responseValue + dataAmount;
-                            return increaseDollarResult;
-
-                    }
+                    return data.unit === '%'
+                        ? responseValue * (1 + (data.value / 100))
+                        : responseValue + data.value;
                 case 'decrease':
-                    switch (data.amountBy) {
-                        case 'percent':
-                            const decreasePercentResult: number = responseValue - (responseValue * (dataAmount / 100) );
-                            return decreasePercentResult;
-
-                        case 'dollar':
-                            const descreaseDollarResult: number = responseValue - dataAmount;
-                            return descreaseDollarResult;
-
-                    }
+                    return data.unit === '%'
+                        ? responseValue - (responseValue * (data.value / 100))
+                        : responseValue - data.value;
             }
         } catch (err) {
-            throw new Error('unable to calcuate target amount');
+            throw new Error('unable to calculate target amount');
         }
     }
 
-    async getBaseValue(data: ITargetCalculateData): Promise<any> {
-        const chart = await this._charts.model.findById(data.chart[0])
-            .populate({ path: 'kpis' });
-        const kpi: IKpiBase = await this._kpiFactory.getInstance(chart.kpis[0]);
-        const groupings: string[] = chart.groupings || [];
-        const targetDateRange: IDateRange[] = this.getDate(data.period, data.datepicker, chart.frequency, chart.dateRange);
-        let getDataOptions: IGetDataOptions;
+    async getBaseValue(data: ITargetNew): Promise<any> {
+        try {
 
-        if (!data.period) {
-            return [{ value: 0 }];
-        }
+            const chart: IChart = await this._charts.model.findById(data.source.identifier)
+                .populate({ path: 'kpis' })
+                .lean(true).exec() as any;
+            const kpi: IKpiBase = await this._kpiFactory.getInstance(chart.kpis[0]);
 
-        if (chart.isStacked()) {
-            getDataOptions = {
-                filter: chart.filter,
-                groupings: groupings,
-                stackName: this.getStackName(chart, data).name || null
+            const compareDateRange = this.getCompareDateRange(
+                chart.dateRange[0],
+                data.compareTo,
+                data.reportOptions.frequency
+            );
+
+            let getDataOptions: IGetDataOptions = {
+                dateRange: chart.dateRange,
+                frequency: this.dateService.getFrequency(data.reportOptions.frequency),
+                groupings: data.reportOptions.groupings,
+                top: data.reportOptions.top,
             };
-        } else if (Array.isArray(groupings) && !groupings[0]) {
-            getDataOptions = { filter: chart.filter };
-        } else {
-            getDataOptions = { filter: chart.filter };
 
-            if (data.nonStackName.toLocaleLowerCase() !== 'all') {
-                getDataOptions.stackName = this.getStackName(chart, data).name;
-                getDataOptions.groupings = groupings;
-            }
+            return await kpi.getData([compareDateRange], getDataOptions);
+        } catch (e) {
+            console.error('Error getting target base value: ' + e);
+            throw e;
+        }
+    }
+
+    private getCompareDateRange(dateRange: IChartDateRange, compareTo: string, frequency: string): IDateRange {
+        if (compareTo === 'previous period') {
+            return this.dateService.getPreviousPeriod(dateRange);
         }
 
-        return await kpi.getData(targetDateRange, getDataOptions);
+        if (frequency) {
+            let date: moment.Moment;
+
+            switch (compareTo) {
+                case TargetCompareToEnum.previous:
+                    const duration = this.dateService.convertFrequencyToDuration(frequency);
+                    date = moment().subtract(1, duration);
+                    break;
+                case TargetCompareToEnum.oneYearAgo:
+                    date = moment().subtract(1, 'year');
+                    break;
+                case TargetCompareToEnum.twoYearsAgo:
+                    date = moment().subtract(2, 'year');
+                    break;
+                case TargetCompareToEnum.threeYearsAgo:
+                    date = moment().subtract(3, 'year');
+                    break;
+            }
+
+            // if (compareTo.indexOf('last') !== -1) {
+            //     const duration = this.dateService.convertFrequencyToDuration(frequency);
+            //     date = moment().subtract(1, duration);
+            // } else if (compareTo.indexOf('two') !== -1) {
+            //     date = moment().subtract(2, 'year');
+            // } else if (compareTo.indexOf('three') !== -1) {
+            //     date = moment().subtract(3, 'year');
+            // }
+
+            return this.dateService.getFrequencyDateRange(dateRange, frequency, date);
+
+        } else {
+            // TODO: Need to implement this
+        }
+
     }
 
     async getTargetMet(input: ITargetMet) {
@@ -296,7 +365,7 @@ export class TargetService {
         const isStackNameEqualToAll: boolean = stackName.toLowerCase() === 'all';
 
         const chartDateRange: string = chart.dateRange ? chart.dateRange[0].predefined : '';
-        const dateRange: any = getDateRange || parsePredifinedDate(chartDateRange);
+        const dateRange: any = getDateRange || parsePredefinedDate(chartDateRange);
 
         const options: IGetDataOptions = {
             filter: chart.filter
@@ -320,64 +389,66 @@ export class TargetService {
         return responseValue;
     }
 
-    async sendNotification(input: NotificationInput): Promise<boolean> {
-        try {
-            const chartDoc: IChartDocument = await this._charts.model.findById(input.chartId);
-            const dashboardName: string = await this._dashboard.model.findDashboardByChartId(input.chartId);
-            const usersDoc: IUserDocument[] = await this._users.model.findUsersById(input.usersId);
+    // async sendNotification(input: NotificationInput): Promise<boolean> {
+    //     try {
+    //         const chartDoc: IChartDocument = await this._charts.model.findById(input.chartId);
+    //         const dashboardName: string = await this._dashboard.model.findDashboardByChartId(input.chartId);
+    //         const usersDoc: IUserDocument[] = await this._users.model.findUsersById(input.usersId);
 
-            const chart = chartDoc.toObject() as IChart;
-            const chartDefinition = chart.chartDefinition;
+    //         const chart = chartDoc.toObject() as IChart;
+    //         const chartDefinition = chart.chartDefinition;
 
-            let targetAmount: string;
-            let targetMet: string;
+    //         let targetAmount: string;
+    //         let targetMet: string;
 
-            if (!chartDoc || !dashboardName || !usersDoc) {
-                throw new Error('inefficient data');
-            }
+    //         if (!chartDoc || !dashboardName || !usersDoc) {
+    //             throw new Error('inefficient data');
+    //         }
 
-            targetAmount = this._formatNotificationValue(chartDefinition, input.targetAmount);
-            targetMet = this._formatNotificationValue(chartDefinition, input.targetMet);
+    //         targetAmount = this._formatNotificationValue(chartDefinition, input.targetAmount);
+    //         targetMet = this._formatNotificationValue(chartDefinition, input.targetMet);
 
-            const notifyData: INotificationData = {
-                targetName: input.targetName,
-                targetAmount: targetAmount,
-                targetMet: targetMet,
-                targetDate: input.targetDate,
-                dashboardName: dashboardName,
-                chartName: chartDoc.title,
-                businessUnitName: input.businessUnit
-            };
+    //         const notifyData: INotificationData = {
+    //             targetName: input.targetName,
+    //             targetAmount: targetAmount,
+    //             targetMet: targetMet,
+    //             targetDate: input.targetDate,
+    //             dashboardName: dashboardName,
+    //             chartName: chartDoc.title,
+    //             businessUnitName: input.businessUnit
+    //         };
 
-            const message = `
-                This is a notification for the target ${notifyData.targetName} you set for ${notifyData.businessUnitName}, 
-                to date you have reached ${notifyData.targetMet} of your targeted ${notifyData.targetAmount} for 
-                ${notifyData.targetDate}. You can access this on your ${notifyData.dashboardName} dashboard on the chart called 
-                ${notifyData.chartName}.
-            `;
-            this._pnsService.sendNotifications(usersDoc, message);
+    //         const message = `
+    //             This is a notification for the target ${notifyData.targetName} you set for ${notifyData.businessUnitName},
+    //             to date you have reached ${notifyData.targetMet} of your targeted ${notifyData.targetAmount} for
+    //             ${notifyData.targetDate}. You can access this on your ${notifyData.dashboardName} dashboard on the chart called
+    //             ${notifyData.chartName}.
+    //         `;
+    //         this._pnsService.sendNotifications(usersDoc, message);
 
-            usersDoc.forEach(user => this._targetNotification.notify(user, user.username, notifyData));
-            return true;
-        } catch (err) {
-            throw new Error('error getting dashboard name, chart, and users');
-        }
-    }
+    //         usersDoc.forEach(user => this._targetNotification.notify(user, user.username, notifyData));
+    //         return true;
+    //     } catch (err) {
+    //         throw new Error('error getting dashboard name, chart, and users');
+    //     }
+    // }
 
     // return object with 'from' and 'to' property
-    getDate(period: string, dueDate: string, chartFrequency: string, chartDateRange: IChartDateRange[]): IDateRange[] {
-        return [parsePredefinedTargetDateRanges(period, dueDate, chartFrequency)] ||
-               chartDateRange.map(dateRange => {
-                   return dateRange.custom && dateRange.custom.from ?
-                   {
-                        from: moment(dateRange.custom.from).startOf('day').toDate(),
-                        to: moment(dateRange.custom.to).startOf('day').toDate()
-                   }
-                   : parsePredifinedDate(dateRange.predefined);
-               });
+    getDate(chartDateRange: IChartDateRange, frequency?: string): IDateRange {
+        return !frequency
+            ? this.dateService.getDateRange(chartDateRange)
+            : this.dateService.getFrequencyDateRange(chartDateRange, frequency, moment());
+
+        // return parsePredefinedTargetDateRanges(dueDate, chartFrequency) ||
+        //         chartDateRange.custom && chartDateRange.custom.from ?
+        //            {
+        //                 from: moment(chartDateRange.custom.from).startOf('day').toDate(),
+        //                 to: moment(chartDateRange.custom.to).startOf('day').toDate()
+        //            }
+        //            : parsePredefinedDate(chartDateRange.predefined);
     }
 
-    isComparison(chart: IChartDocument): boolean {
+    isComparison(chart: IChart): boolean {
         if (!chart) { return false; }
         return (chart.comparison && chart.comparison.length) ? true : false;
     }
@@ -425,8 +496,8 @@ export class TargetService {
         return false;
     }
 
-    getStackName(chart: IChartDocument, data: any): IGetComparisonStackName {
-        const targetName: string = data.stackName || data.nonStackName;
+    getStackName(chart: IChart, name: string): IGetComparisonStackName {
+        const targetName: string = name || undefined;
 
         if (!targetName || !this.isComparison(chart)) {
             return {
@@ -472,38 +543,39 @@ export class TargetService {
         }
     }
 
-    static futureTargets(targets: ITargetDocument[]): IDateRange {
-        let futureDateRange: IDateRange;
+    // static futureTargets(targets: ITargetNewDocument[]): IDateRange {
+    //     let futureDateRange: IDateRange;
 
-        if (targets && targets.length) {
-            targets.forEach((target: ITargetDocument) => {
-                const datepicker: string = moment(target.datepicker).format('YYYY-MM-DD');
-                const currentYear: string = moment().endOf('year').format('YYYY-MM-DD');
-                if (moment(datepicker).isAfter(currentYear)) {
-                    futureDateRange = {
-                        from: moment().add(1, 'year').startOf('year').toDate(),
-                        to: moment().add(1, 'year').endOf('year').toDate()
-                    };
-                }
-            });
-            return futureDateRange;
-        }
-    }
+    //     if (targets && targets.length) {
+    //         targets.forEach((target: ITargetNewDocument) => {
+    //             const dr = parsePredefinedDate(target.period);
+    //             const datepicker: string = moment(dr.to).format('YYYY-MM-DD');
+    //             const currentYear: string = moment().endOf('year').format('YYYY-MM-DD');
+    //             if (moment(datepicker).isAfter(currentYear)) {
+    //                 futureDateRange = {
+    //                     from: moment().add(1, 'year').startOf('year').toDate(),
+    //                     to: moment().add(1, 'year').endOf('year').toDate()
+    //                 };
+    //             }
+    //         });
+    //         return futureDateRange;
+    //     }
+    // }
 
     private _getDateRange(period: string, notify: any, frequency: string): IDateRange {
         const dateFrequency: number = FrequencyTable[frequency];
 
         switch (dateFrequency) {
             case FrequencyTable.daily:
-                return parsePredifinedDate(PredefinedDateRanges.today);
+                return parsePredefinedDate(PredefinedDateRanges.today);
             case FrequencyTable.weekly:
-                return parsePredifinedDate(PredefinedDateRanges.thisWeekToDate);
+                return parsePredefinedDate(PredefinedDateRanges.thisWeekToDate);
             case FrequencyTable.monthly:
-                return parsePredifinedDate(PredefinedDateRanges.thisMonthToDate);
+                return parsePredefinedDate(PredefinedDateRanges.thisMonthToDate);
             case FrequencyTable.quarterly:
-                return parsePredifinedDate(PredefinedDateRanges.thisQuarterToDate);
+                return parsePredefinedDate(PredefinedDateRanges.thisQuarterToDate);
             case FrequencyTable.yearly:
-                return parsePredifinedDate(PredefinedDateRanges.thisYearToDate);
+                return parsePredefinedDate(PredefinedDateRanges.thisYearToDate);
             default:
                 return {
                     from: moment(notify, 'MM/DD/YYYY').startOf(MomentFrequencyTable[frequency]).toDate(),
@@ -513,7 +585,7 @@ export class TargetService {
 
     }
 
-    private _getTargetProgressDateRange(chartFrequency: string, dueDate: string, chartDateRange: IChartDateRange[]): IDateRange[] {
+    private _getTargetProgressDateRange(chartFrequency: string, dueDate: Date, chartDateRange: IChartDateRange[]): IDateRange[] {
         const to = moment(dueDate).toDate();
         let from: Date;
 
@@ -544,7 +616,7 @@ export class TargetService {
                   from: moment(dateRange.custom.from).startOf('day').toDate(),
                   to: moment(dateRange.custom.to).startOf('day').toDate()
                 }
-                : parsePredifinedDate(dateRange.predefined);
+                : parsePredefinedDate(dateRange.predefined);
             });
         }
         return [{
@@ -552,20 +624,20 @@ export class TargetService {
             to: to
         }];
     }
-    
-    private _formatNotificationValue(chartDefinition: any, amount: number): string {
-        if (!chartDefinition || !chartDefinition.tooltip || !chartDefinition.tooltip.custom) {
-            return amount.toString();
-        }
 
-        const custom = chartDefinition.tooltip.custom;
-        const decimal = custom.decimals;
-        if (isNumber(decimal)) {
-            if (decimal === 0) {
-                amount = Math.round(amount);
-            }
-            amount = amount.toFixed(decimal) as any;
-        }
-        return `${custom.prefix}${amount}${custom.suffix}`;
-    }
+    // private _formatNotificationValue(chartDefinition: any, amount: number): string {
+    //     if (!chartDefinition || !chartDefinition.tooltip || !chartDefinition.tooltip.custom) {
+    //         return amount.toString();
+    //     }
+
+    //     const custom = chartDefinition.tooltip.custom;
+    //     const decimal = custom.decimals;
+    //     if (isNumber(decimal)) {
+    //         if (decimal === 0) {
+    //             amount = Math.round(amount);
+    //         }
+    //         amount = amount.toFixed(decimal) as any;
+    //     }
+    //     return `${custom.prefix}${amount}${custom.suffix}`;
+    // }
 }

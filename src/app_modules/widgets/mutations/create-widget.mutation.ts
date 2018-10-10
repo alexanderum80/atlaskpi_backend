@@ -8,6 +8,7 @@ import { IMutationResponse } from '../../../framework/mutations/mutation-respons
 import { CreateWidgetActivity } from '../activities/create-widget.activity';
 import { WidgetInput, WidgetMutationResponse } from '../widgets.types';
 import { IWidgetInput } from '../../../domain/app/widgets/widget';
+import { WidgetsService } from '../../../services/widgets.service';
 
 
 @injectable()
@@ -20,7 +21,7 @@ import { IWidgetInput } from '../../../domain/app/widgets/widget';
     output: { type: WidgetMutationResponse }
 })
 export class CreateWidgetMutation extends MutationBase<IMutationResponse> {
-    constructor(@inject(Widgets.name) private _widgets: Widgets) {
+    constructor(@inject(WidgetsService.name) private _widgetsService: WidgetsService) {
         super();
     }
 
@@ -28,7 +29,7 @@ export class CreateWidgetMutation extends MutationBase<IMutationResponse> {
         const that = this;
 
         return new Promise<IMutationResponse>((resolve, reject) => {
-            that._widgets.model.createWidget(data.input)
+            that._widgetsService.createWidget(data.input)
                 .then(widget =>  {
                     resolve({ entity: widget, success: true });
                     return;

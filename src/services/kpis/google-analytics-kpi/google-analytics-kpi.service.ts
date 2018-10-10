@@ -114,7 +114,7 @@ export class GoogleAnalyticsKPIService {
             };
             const analyticsData = that._mapToIGoogleAnalytics(rawData, batchProps, that._connector.config.view.timezone);
 
-            // if no date property lets use the startdate localtime based on the view timezone
+            // if no date property lets use the start date local time based on the view timezone
             const localTimeStartDate = moment.tz(startDate, that._connector.config.view.timezone).toDate();
             analyticsData.forEach(d => d['date'] = d['date'] || localTimeStartDate);
 
@@ -128,7 +128,7 @@ export class GoogleAnalyticsKPIService {
         // delete the 'ga:' substring
         const columnHeaders = cleanHeaders(data.columnHeaders || []);
 
-        // shortcircuit to empty array if data or rows are null
+        // empty array if data or rows are null
         const rows = data && data.rows || [];
 
         const that = this;

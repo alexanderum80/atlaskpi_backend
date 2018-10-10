@@ -25,11 +25,11 @@ import { Charts } from './../domain/app/charts/chart.model';
 import { IDashboardDocument } from './../domain/app/dashboards/dashboard';
 import { Dashboards } from './../domain/app/dashboards/dashboard.model';
 import { KPIs } from './../domain/app/kpis/kpi.model';
-import { Targets } from './../domain/app/targets/target.model';
-import {IChartDateRange, IDateRange, parsePredifinedDate, PredefinedTargetPeriod, PredefinedDateRanges} from './../domain/common/date-range';
+import {IChartDateRange, IDateRange, parsePredefinedDate, PredefinedTargetPeriod, PredefinedDateRanges} from './../domain/common/date-range';
 import {FrequencyEnum, FrequencyTable} from './../domain/common/frequency-enum';
 import { TargetService } from './target.service';
 import {dataSortDesc} from '../helpers/number.helpers';
+import { TargetsNew } from '../domain/app/targetsNew/target.model';
 
 export interface IRenderChartOptions {
     chartId?: string;
@@ -43,6 +43,7 @@ export interface IRenderChartOptions {
     isFutureTarget?: boolean;
     isDrillDown?: boolean;
     originalFrequency?: string;
+    onTheFly: boolean;
 }
 
 
@@ -53,7 +54,7 @@ export class ChartsService {
         @inject(Charts.name) private _charts: Charts,
         @inject(Dashboards.name) private _dashboards: Dashboards,
         @inject(KPIs.name) private _kpis: KPIs,
-        @inject(Targets.name) private _targets: Targets,
+        @inject(TargetsNew.name) private _targets: TargetsNew,
         @inject(TargetService.name) private _targetService: TargetService,
         @inject(CurrentUser.name) private _currentUser: CurrentUser,
         @inject(ChartFactory.name) private _chartFactory: ChartFactory,
@@ -99,7 +100,8 @@ export class ChartsService {
                 isFutureTarget: options && options.isFutureTarget || false,
                 sortingCriteria: chart.sortingCriteria,
                 sortingOrder: chart.sortingOrder,
-                originalFrequency: (options && options.originalFrequency) ? FrequencyTable[options.originalFrequency] : -1
+                originalFrequency: (options && options.originalFrequency) ? FrequencyTable[options.originalFrequency] : -1,
+                onTheFly: (options ? options.onTheFly : false),
             };
 
             chart.targetExtraPeriodOptions = this._getTargetExtraPeriodOptions(meta.frequency, chart.dateRange);
@@ -402,39 +404,19 @@ export class ChartsService {
         });
     }
 
-    private _renderRegularDefinition(   chartId: string,
+    private async _renderRegularDefinition(   chartId: string,
                                         kpi: IKpiBase,
                                         uiChart: IUIChart,
                                         meta: IChartMetadata ): Promise<any> {
-        const that = this;
-        return new Promise<any>((resolve, reject) => {
-            const userId = (!that._currentUser || !that._currentUser.get()) ? '' : that._currentUser.get()._id;
+        try {
+            const userId = (!this._currentUser || !this._currentUser.get()) ? '' : this._currentUser.get()._id;
+            const res = meta.onTheFly ? [] : await this._targetService.getTargets(chartId, userId);
 
-            that._targetService.getTargets(chartId, userId)
-                .then((res) => {
-                    if (meta.isFutureTarget &&
-                        meta.frequency !== FrequencyTable.yearly) {
-                        meta.dateRange = meta.dateRange ||
-                            [{ predefined: null,
-                                custom: TargetService.futureTargets(res) }];
-                    }
-
-                    uiChart.getDefinition(kpi, { ...meta }, res).then((definition) => {
-                        that._logger.debug('chart definition received for id: ' + chartId);
-                        resolve(definition);
-                        return;
-                    })
-                    .catch(e => {
-                        that._logger.error(e);
-                        reject(e);
-                        return;
-                    });
-                })
-                .catch(err => {
-                    that._logger.error(err);
-                    reject(err);
-                });
-        });
+            return uiChart.getDefinition(kpi, { ...meta }, res);
+        } catch (e) {
+            this._logger.error(e);
+            return null;
+        }
     }
 
     private _renderPreviewDefinition(   kpi: IKpiBase,
@@ -489,7 +471,7 @@ export class ChartsService {
                     from: moment(dateRange[0].custom.from).startOf('day').toDate(),
                     to: moment(dateRange[0].custom.to).endOf('day').toDate()
                 }
-                : parsePredifinedDate(dateRange[0].predefined);
+                : parsePredefinedDate(dateRange[0].predefined);
     }
 
     private _getTargetExtraPeriodOptions(frequency: number, chartDateRange?: IChartDateRange[]): IObject {
@@ -555,6 +537,12 @@ export class ChartsService {
             const isDateInFuture = moment(findDateRange.custom.to).isAfter(moment());
             return isDateInFuture;
         }
+
+        if (findDateRange.predefined === 'all times') {
+            const isDateInFuture = moment().isAfter(moment().format('YYYY'));
+            return isDateInFuture;
+        }
+
         return true;
     }
 

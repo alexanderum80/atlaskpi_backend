@@ -21,7 +21,7 @@ import { IVirtualSourceDocument } from '../domain/app/virtual-sources/virtual-so
 import { VirtualSources, mapDataSourceFields } from '../domain/app/virtual-sources/virtual-source.model';
 import { IWidgetDocument } from '../domain/app/widgets/widget';
 import { Widgets } from '../domain/app/widgets/widget.model';
-import { parsePredifinedDate } from '../domain/common/date-range';
+import { parsePredefinedDate } from '../domain/common/date-range';
 import { blackListDataSource, getFieldsWithData, IFieldsWithDataDatePipeline } from '../domain/common/fields-with-data';
 import { IValueName } from '../domain/common/value-name';
 import { IConnectorDocument } from '../domain/master/connectors/connector';
@@ -177,11 +177,11 @@ export class KpiService {
                     from: moment(chartDateRange.custom.from).startOf('day').toDate(),
                     to: moment(chartDateRange.custom.to).endOf('day').toDate()
                 }
-                : parsePredifinedDate(chartDateRange.predefined);
+                : parsePredefinedDate(chartDateRange.predefined);
     }
 
-    private _getKpiSources(kpi: IKPIDocument, kpis: IKPIDocument[], connectors: IConnectorDocument[]): string[] {
-    
+    public _getKpiSources(kpi: IKPIDocument, kpis: IKPIDocument[], connectors: IConnectorDocument[]): string[] {
+
         if (kpi.type === KPITypeEnum.ExternalSource) {
             const expression = KPIExpressionHelper.DecomposeExpression(kpi.type, kpi.expression);
             const sourceTokens = expression.dataSource.split('$');
