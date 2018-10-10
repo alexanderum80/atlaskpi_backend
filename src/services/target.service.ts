@@ -577,7 +577,7 @@ export class TargetService {
                 return parsePredefinedDate(PredefinedDateRanges.thisYearToDate, tz);
             default:
                 return {
-                    from: moment.tz(notify, AKPIDateFormatEnum.US, tz).startOf(MomentFrequencyTable[frequency]).toDate(),
+                    from: moment.tz(notify, AKPIDateFormatEnum.US_DATE, tz).startOf(MomentFrequencyTable[frequency]).toDate(),
                     to: moment.tz(tz).toDate()
                 };
         }

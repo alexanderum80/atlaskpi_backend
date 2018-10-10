@@ -4,8 +4,8 @@ import { isEmpty } from 'lodash';
 import { ChartDateRangeInput } from '../../app_modules/shared/shared.types';
 
 export enum AKPIDateFormatEnum {
-    US = 'MM/DD/YYYY',
-    US_SHORT = 'MM/DD/YY',
+    US_DATE = 'MM/DD/YYYY',
+    US_SHORT_DATE = 'MM/DD/YY',
 }
 
 export const toTzDate = (m: moment.Moment): Date => new Date(m.toISOString());
@@ -1733,20 +1733,30 @@ export function processDateRangeWithTimezone(dr: IChartDateRange | ChartDateRang
         return parsePredefinedDate(dr.predefined, tz);
     }
 
+    let start, end;
+
+    if (dr.custom.from instanceof Date) {
+        start = moment.utc(dr.custom.from).format(AKPIDateFormatEnum.US_DATE);
+        end = moment.utc(dr.custom.to).format(AKPIDateFormatEnum.US_DATE);
+    } else {
+        start = dr.custom.from;
+        end = dr.custom.to;
+    }
+
     const from = moment.tz(
-        String(dr.custom.from),
-        AKPIDateFormatEnum.US,
+        start,
+        AKPIDateFormatEnum.US_DATE,
         tz
     ).startOf('day');
 
     const to = moment.tz(
-        String(dr.custom.to),
-        AKPIDateFormatEnum.US,
+        end,
+        AKPIDateFormatEnum.US_DATE,
         tz
     ).endOf('day');
 
     return {
-        from: toTzDate(from),
-        to: toTzDate(to),
+        from: from.toDate(),
+        to: to.toDate(),
     };
 }
