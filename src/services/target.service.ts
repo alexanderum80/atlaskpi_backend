@@ -1,3 +1,4 @@
+import { CurrentUser } from '../domain/app/current-user';
 import * as Bluebird from 'bluebird';
 import { inject, injectable } from 'inversify';
 import * as moment from 'moment';
@@ -11,13 +12,7 @@ import { Dashboards } from '../domain/app/dashboards/dashboard.model';
 import { Users } from '../domain/app/security/users/user.model';
 import { ITargetNew, ITargetNewDocument, TargetCompareToEnum } from '../domain/app/targetsNew/target';
 import { TargetsNew } from '../domain/app/targetsNew/target.model';
-import {
-    IChartDateRange,
-    IDateRange,
-    parsePredefinedTargetDateRangesOld,
-    parsePredefinedDateOld,
-    PredefinedDateRanges,
-} from '../domain/common/date-range';
+import { IChartDateRange, IDateRange, parsePredefinedDate, PredefinedDateRanges, AKPIDateFormatEnum } from '../domain/common/date-range';
 import { FrequencyEnum, FrequencyTable } from '../domain/common/frequency-enum';
 import { TargetNotification } from './notifications/users/target.notification';
 import { PnsService } from './pns.service';
@@ -81,6 +76,7 @@ export class TargetService {
                 @inject(TargetNotification.name) private _targetNotification: TargetNotification,
                 @inject(PnsService.name) private _pnsService: PnsService,
                 @inject(DateService.name) private dateService: DateService,
+                @inject(CurrentUser.name) private _user: CurrentUser,
     ) { }
 
     async getTargets(chartId: string, userId: string): Promise<ITargetNewDocument[]> {
@@ -300,20 +296,21 @@ export class TargetService {
 
         if (frequency) {
             let date: moment.Moment;
+            let m = moment.tz(this._user.get().profile.timezone);
 
             switch (compareTo) {
                 case TargetCompareToEnum.previous:
                     const duration = this.dateService.convertFrequencyToDuration(frequency);
-                    date = moment().subtract(1, duration);
+                    date = m.subtract(1, duration);
                     break;
                 case TargetCompareToEnum.oneYearAgo:
-                    date = moment().subtract(1, 'year');
+                    date = m.subtract(1, 'year');
                     break;
                 case TargetCompareToEnum.twoYearsAgo:
-                    date = moment().subtract(2, 'year');
+                    date = m.subtract(2, 'year');
                     break;
                 case TargetCompareToEnum.threeYearsAgo:
-                    date = moment().subtract(3, 'year');
+                    date = m.subtract(3, 'year');
                     break;
             }
 
@@ -365,7 +362,7 @@ export class TargetService {
         const isStackNameEqualToAll: boolean = stackName.toLowerCase() === 'all';
 
         const chartDateRange: string = chart.dateRange ? chart.dateRange[0].predefined : '';
-        const dateRange: any = getDateRange || parsePredefinedDateOld(chartDateRange);
+        const dateRange: any = getDateRange || parsePredefinedDate(chartDateRange, this._user.get().profile.timezone);
 
         const options: IGetDataOptions = {
             filter: chart.filter
@@ -565,65 +562,67 @@ export class TargetService {
     private _getDateRange(period: string, notify: any, frequency: string): IDateRange {
         const dateFrequency: number = FrequencyTable[frequency];
 
+        const tz = this._user.get().profile.timezone;
+
         switch (dateFrequency) {
             case FrequencyTable.daily:
-                return parsePredefinedDateOld(PredefinedDateRanges.today);
+                return parsePredefinedDate(PredefinedDateRanges.today, tz);
             case FrequencyTable.weekly:
-                return parsePredefinedDateOld(PredefinedDateRanges.thisWeekToDate);
+                return parsePredefinedDate(PredefinedDateRanges.thisWeekToDate, tz);
             case FrequencyTable.monthly:
-                return parsePredefinedDateOld(PredefinedDateRanges.thisMonthToDate);
+                return parsePredefinedDate(PredefinedDateRanges.thisMonthToDate, tz);
             case FrequencyTable.quarterly:
-                return parsePredefinedDateOld(PredefinedDateRanges.thisQuarterToDate);
+                return parsePredefinedDate(PredefinedDateRanges.thisQuarterToDate, tz);
             case FrequencyTable.yearly:
-                return parsePredefinedDateOld(PredefinedDateRanges.thisYearToDate);
+                return parsePredefinedDate(PredefinedDateRanges.thisYearToDate, tz);
             default:
                 return {
-                    from: moment(notify, 'MM/DD/YYYY').startOf(MomentFrequencyTable[frequency]).toDate(),
-                    to: moment().toDate()
+                    from: moment.tz(notify, AKPIDateFormatEnum.US, tz).startOf(MomentFrequencyTable[frequency]).toDate(),
+                    to: moment.tz(tz).toDate()
                 };
         }
 
     }
 
-    private _getTargetProgressDateRange(chartFrequency: string, dueDate: Date, chartDateRange: IChartDateRange[]): IDateRange[] {
-        const to = moment(dueDate).toDate();
-        let from: Date;
+    // private _getTargetProgressDateRange(chartFrequency: string, dueDate: Date, chartDateRange: IChartDateRange[]): IDateRange[] {
+    //     const to = moment(dueDate).toDate();
+    //     let from: Date;
 
-        const frequency = FrequencyTable[chartFrequency];
+    //     const frequency = FrequencyTable[chartFrequency];
 
-        switch (frequency) {
-            case FrequencyEnum.Daily:
-                from = moment(dueDate).startOf('day').toDate();
-                break;
-            case FrequencyEnum.Weekly:
-                from = moment(dueDate).startOf('week').toDate();
-                break;
-            case FrequencyEnum.Monthly:
-                from = moment(dueDate).startOf('month').toDate();
-                break;
-            case FrequencyEnum.Quarterly:
-                from = moment(dueDate).startOf('quarter').toDate();
-                break;
-            case FrequencyEnum.Yearly:
-                from = moment(dueDate).startOf('year').toDate();
-                break;
-        }
+    //     switch (frequency) {
+    //         case FrequencyEnum.Daily:
+    //             from = moment(dueDate).startOf('day').toDate();
+    //             break;
+    //         case FrequencyEnum.Weekly:
+    //             from = moment(dueDate).startOf('week').toDate();
+    //             break;
+    //         case FrequencyEnum.Monthly:
+    //             from = moment(dueDate).startOf('month').toDate();
+    //             break;
+    //         case FrequencyEnum.Quarterly:
+    //             from = moment(dueDate).startOf('quarter').toDate();
+    //             break;
+    //         case FrequencyEnum.Yearly:
+    //             from = moment(dueDate).startOf('year').toDate();
+    //             break;
+    //     }
 
-        if (!from) {
-            return chartDateRange.map(dateRange => {
-                return dateRange.custom && dateRange.custom.from ?
-                {
-                  from: moment(dateRange.custom.from).startOf('day').toDate(),
-                  to: moment(dateRange.custom.to).startOf('day').toDate()
-                }
-                : parsePredefinedDateOld(dateRange.predefined);
-            });
-        }
-        return [{
-            from: from,
-            to: to
-        }];
-    }
+    //     if (!from) {
+    //         return chartDateRange.map(dateRange => {
+    //             return dateRange.custom && dateRange.custom.from ?
+    //             {
+    //               from: moment(dateRange.custom.from).startOf('day').toDate(),
+    //               to: moment(dateRange.custom.to).startOf('day').toDate()
+    //             }
+    //             : parsePredefinedDate(dateRange.predefined, this._user.get().profile.timezone);
+    //         });
+    //     }
+    //     return [{
+    //         from: from,
+    //         to: to
+    //     }];
+    // }
 
     // private _formatNotificationValue(chartDefinition: any, amount: number): string {
     //     if (!chartDefinition || !chartDefinition.tooltip || !chartDefinition.tooltip.custom) {

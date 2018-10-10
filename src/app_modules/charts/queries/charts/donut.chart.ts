@@ -8,8 +8,8 @@ import { ITargetNewDocument } from '../../../../domain/app/targetsNew/target';
 
 export class DonutChart extends UIChartBase implements IUIChart {
 
-    constructor(chart: IChart, frequencyHelper: FrequencyHelper) {
-        super(chart, frequencyHelper);
+    constructor(chart: IChart, frequencyHelper: FrequencyHelper, tz: string) {
+        super(chart, frequencyHelper, tz);
     }
 
     getDefinition(kpi: IKpiBase, metadata?: IChartMetadata, target?: ITargetNewDocument[]): Promise < string > {

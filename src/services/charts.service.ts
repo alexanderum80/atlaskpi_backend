@@ -25,7 +25,7 @@ import { Charts } from './../domain/app/charts/chart.model';
 import { IDashboardDocument } from './../domain/app/dashboards/dashboard';
 import { Dashboards } from './../domain/app/dashboards/dashboard.model';
 import { KPIs } from './../domain/app/kpis/kpi.model';
-import {IChartDateRange, IDateRange, parsePredefinedDateOld , PredefinedTargetPeriod, PredefinedDateRanges} from './../domain/common/date-range';
+import {IChartDateRange, IDateRange, PredefinedTargetPeriod, PredefinedDateRanges, processDateRangeWithTimezone} from './../domain/common/date-range';
 import {FrequencyEnum, FrequencyTable} from './../domain/common/frequency-enum';
 import { TargetService } from './target.service';
 import {dataSortDesc} from '../helpers/number.helpers';
@@ -466,13 +466,17 @@ export class ChartsService {
     }
 
     private _getTopDateRange(dateRange: IChartDateRange[]): IDateRange {
-        return dateRange[0].custom && dateRange[0].custom.from ?
-                {
-                    from: moment(dateRange[0].custom.from).startOf('day').toDate(),
-                    to: moment(dateRange[0].custom.to).endOf('day').toDate()
-                }
-                : parsePredefinedDateOld(dateRange[0].predefined);
+        return processDateRangeWithTimezone(dateRange[0], this._currentUser.get().profile.timezone);
     }
+
+    // private _getTopDateRange(dateRange: IChartDateRange[]): IDateRange {
+    //     return dateRange[0].custom && dateRange[0].custom.from ?
+    //             {
+    //                 from: moment(dateRange[0].custom.from).startOf('day').toDate(),
+    //                 to: moment(dateRange[0].custom.to).endOf('day').toDate()
+    //             }
+    //             : parsePredefinedDateOld(dateRange[0].predefined);
+    // }
 
     private _getTargetExtraPeriodOptions(frequency: number, chartDateRange?: IChartDateRange[]): IObject {
         if (!isNumber(frequency) && !isEmpty(chartDateRange)) {

@@ -1,26 +1,26 @@
-import { injectable } from 'inversify';
+import { CurrentUser } from '../../domain/app/current-user';
+import { injectable, inject } from 'inversify';
 import * as m from 'moment-timezone';
 
-import { IChartDateRange, IDateRange, parsePredefinedDateOld , PredefinedDateRanges } from '../../domain/common/date-range';
+import {
+    IChartDateRange,
+    IDateRange,
+    PredefinedDateRanges,
+    processDateRangeWithTimezone,
+} from '../../domain/common/date-range';
 import { FrequencyEnum } from '../../domain/common/frequency-enum';
 
 @injectable()
 export class DateService {
 
-    getDateRange(dateRange: IChartDateRange): IDateRange | null {
-        if (dateRange.predefined !== 'custom') {
-            return parsePredefinedDateOld(dateRange.predefined);
-        }
+    @inject(CurrentUser.name) private _user: CurrentUser;
 
-        return {
-            from: m(dateRange.custom.from).startOf('day').toDate(),
-            to: m(dateRange.custom.to).endOf('day').toDate(),
-        };
+    getDateRange(dateRange: IChartDateRange): IDateRange | null {
+        return processDateRangeWithTimezone(dateRange, this._user.get().profile.timezone);
     }
 
     getFrequencyDateRange(chartDateRange: IChartDateRange, frequency: string, date: m.Moment): IDateRange {
         let uoft: m.unitOfTime.StartOf;
-        const dr = this.getDateRange(chartDateRange);
 
         switch (frequency) {
             case 'daily':

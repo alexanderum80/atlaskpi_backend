@@ -1,3 +1,4 @@
+import { CurrentUser } from '../domain/app/current-user';
 import { difference } from 'lodash';
 import { IDashboardDocument } from './../domain/app/dashboards/dashboard';
 import { IWidgetInput } from './../domain/app/widgets/widget';
@@ -22,13 +23,18 @@ import { detachFromDashboards } from '../app_modules/widgets/mutations/common';
 @injectable()
 export class WidgetsService {
 
+    private _timezone;
+
     constructor(
         @inject(Dashboards.name) private _dashboards: Dashboards,
         @inject(Widgets.name) private _widgets: Widgets,
         @inject(WidgetFactory.name) private _widgetFactory: WidgetFactory,
         @inject(Alerts.name) private _alert: Alerts,
-        @inject(Logger.name) private _logger: Logger
-    ) { }
+        @inject(Logger.name) private _logger: Logger,
+        @inject(CurrentUser.name) private _user: CurrentUser
+    ) {
+        this._timezone = _user.get().profile.timezone;
+    }
 
     public async createWidget(input: IWidgetInput): Promise<IWidget> {
         try {
@@ -103,7 +109,7 @@ export class WidgetsService {
     async previewWidget(data: any): Promise<IUIWidget> {
         try {
             const uiWidget = await this._widgetFactory.getInstance(data);
-            return uiWidget.materialize();
+            return uiWidget.materialize({ timezone: this._timezone });
         } catch (e) {
             console.log('error when previewing the widget: ' + e);
             return e;
@@ -115,7 +121,7 @@ export class WidgetsService {
             const widgetDocument = await this._widgets.model.findOne({ _id: id });
             const widgetAsObject = <IWidget>widgetDocument.toObject();
             const uiWidget = await this._widgetFactory.getInstance(widgetAsObject);
-            const materializedWidget = await uiWidget.materialize();
+            const materializedWidget = await uiWidget.materialize({ timezone: this._timezone });
 
             const dashboards = await this._resolveDashboards(uiWidget);
             if (dashboards.length > 0) {
@@ -134,7 +140,7 @@ export class WidgetsService {
             const widgetAsObject = <IWidget>widgetDocument.toObject();
             const uiWidget = await this._widgetFactory.getInstance(widgetAsObject);
 
-            return uiWidget.materialize();
+            return uiWidget.materialize({ timezone: this._timezone });
         } catch (e) {
             console.log(`error when getting the widget(${name}):  ${e}`);
         }
@@ -152,7 +158,7 @@ export class WidgetsService {
                 const widgetAsObject = <IWidget>d.toObject();
                 uiWidgetsPromises.push(
                     that._widgetFactory.getInstance(widgetAsObject).then(uiWidget => {
-                        return uiWidget.materialize();
+                        return uiWidget.materialize({ timezone: this._timezone });
                     })
                 );
             });

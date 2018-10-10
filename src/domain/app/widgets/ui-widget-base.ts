@@ -2,9 +2,12 @@ import * as Bluebird from 'bluebird';
 
 import { IChartWidgetAttributes, INumericWidgetAttributes, IWidget, IWidgetMaterializedFields } from './widget';
 
+export interface IMaterializeOptions {
+    timezone: string;
+}
 
 export interface IUIWidget extends UIWidgetBase {
-    materialize(): Promise<IUIWidget> | Bluebird<IUIWidget>;
+    materialize(options: IMaterializeOptions): Promise<IUIWidget> | Bluebird<IUIWidget>;
 }
 
 export class UIWidgetBase {
