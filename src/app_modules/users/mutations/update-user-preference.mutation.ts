@@ -1,4 +1,5 @@
 import { Users } from '../../../domain/app/security/users/user.model';
+import { IUserPreference } from '../../../domain/app/security/users/user';
 import { ITourInput, ErrorSuccessResult } from '../users.types';
 import { UpdateUserPreferenceActivity } from '../activities/update-user-preference.activity';
 import { injectable, inject } from 'inversify';
@@ -30,7 +31,7 @@ export class UpdateUserPreferenceMutation extends MutationBase<IMutationResponse
                 reject('No data provided to update preference');
                 return;
             }
-
+             
             const input = data.input;
 
             if (!data.id) {
