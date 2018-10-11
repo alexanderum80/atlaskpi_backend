@@ -1514,21 +1514,33 @@ export function backInTime(dateRange: IDateRange, amount: any, timespan: string,
 }
 
 export function previousPeriod(dateRange: IDateRange): IDateRange {
+    // const start = moment(dateRange.from);
+    // const end = moment(dateRange.to);
+    // const duration = end.diff(start);
+
+    // const isSameDate = end.diff(start, 'days') === 0;
+    // if (isSameDate) {
+    //     return {
+    //         from: start.subtract(1, 'day').startOf('day').toDate(),
+    //         to: end.startOf('day').toDate()
+    //     };
+    // }
+
+    // return {
+    //     from: start.subtract(duration).startOf('day').toDate(),
+    //     to: end.subtract(duration).startOf('day').toDate()
+    // };
+
     const start = moment(dateRange.from);
     const end = moment(dateRange.to);
     const duration = end.diff(start);
 
-    const isSameDate = end.diff(start, 'days') === 0;
-    if (isSameDate) {
-        return {
-            from: start.subtract(1, 'day').startOf('day').toDate(),
-            to: end.startOf('day').toDate()
-        };
-    }
+    const from = moment(dateRange.from).subtract(duration).toDate();
+    const to = moment(dateRange.to).subtract(duration).toDate();
 
     return {
-        from: start.subtract(duration).startOf('day').toDate(),
-        to: end.subtract(duration).startOf('day').toDate()
+        from,
+        to
     };
 }
 
