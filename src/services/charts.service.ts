@@ -1,7 +1,7 @@
 import { camelCase } from 'change-case';
 import { inject, injectable } from 'inversify';
 import {difference, isNumber, isString, pick, PartialDeep, cloneDeep, isEmpty, isArray, omit }  from 'lodash';
-import * as moment from 'moment';
+import * as moment from 'moment-timezone';
 
 import { IChartMetadata } from '../app_modules/charts/queries/charts/chart-metadata';
 import {
@@ -25,11 +25,19 @@ import { Charts } from './../domain/app/charts/chart.model';
 import { IDashboardDocument } from './../domain/app/dashboards/dashboard';
 import { Dashboards } from './../domain/app/dashboards/dashboard.model';
 import { KPIs } from './../domain/app/kpis/kpi.model';
-import {IChartDateRange, IDateRange, PredefinedTargetPeriod, PredefinedDateRanges, processDateRangeWithTimezone} from './../domain/common/date-range';
+import {
+    convertStringDateRangeToDateDateRange,
+    IChartDateRange,
+    IDateRange,
+    PredefinedDateRanges,
+    PredefinedTargetPeriod,
+    processDateRangeWithTimezone,
+} from './../domain/common/date-range';
 import {FrequencyEnum, FrequencyTable} from './../domain/common/frequency-enum';
 import { TargetService } from './target.service';
 import {dataSortDesc} from '../helpers/number.helpers';
 import { TargetsNew } from '../domain/app/targetsNew/target.model';
+import { ChartDateRangeInput } from '../app_modules/shared/shared.types';
 
 export interface IRenderChartOptions {
     chartId?: string;
@@ -187,7 +195,7 @@ export class ChartsService {
                     );
                     Object.assign(chart, chartOptions);
                 }
-                that.renderDefinition(chart, input).then(definition => {
+                that.renderDefinition(chart, input as any).then(definition => {
                     // chart.chartDefinition = definition;
                     const originalDefinitionSeries = cloneDeep(chart.chartDefinition.series);
 
@@ -291,6 +299,11 @@ export class ChartsService {
                 this._logger.error('one or more dashboard not found');
                 throw new Error('one or more dashboards not found');
             }
+
+            // IMPORTANT!!! transform date from string to date based on user timezone.
+            const tz = this._currentUser.get().profile.timezone;
+            input.dateRange  = input.dateRange.map(d => convertStringDateRangeToDateDateRange(d, tz) as any);
+
             // create the chart
             const chart = await this._charts.model.createChart(input);
             await attachToDashboards(this._dashboards.model, input.dashboards, chart._id);
@@ -347,6 +360,11 @@ export class ChartsService {
                 that._dashboards.model.find( {charts: { $in: [id]}})
                     .then((chartDashboards) => {
                         // update the chart
+
+                        // IMPORTANT!!!: transform date from string to date based on user timezone.
+                        const tz = this._currentUser.get().profile.timezone;
+                        input.dateRange  = input.dateRange.map(d => convertStringDateRangeToDateDateRange(d, tz) as any);
+
                         that._charts.model.updateChart(id, input)
                             .then((chart) => {
                                 const currentDashboardIds = chartDashboards.map(d => String(d._id));
@@ -527,7 +545,7 @@ export class ChartsService {
     }
 
     private _canAddTarget(dateRange: IChartDateRange[]): boolean {
-        if(!dateRange) { return false; }
+        if (!dateRange) { return false; }
         const findDateRange: IChartDateRange = dateRange.find((d: any) => d.predefined);
         if (!findDateRange) {
             return true;
@@ -636,5 +654,4 @@ export class ChartsService {
         }
         return chartData;
     }
-
 }

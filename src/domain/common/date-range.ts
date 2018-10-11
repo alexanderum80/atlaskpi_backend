@@ -1,7 +1,7 @@
 import { FrequencyEnum, FrequencyTable } from './frequency-enum';
 import * as moment from 'moment-timezone';
 import { isEmpty } from 'lodash';
-import { ChartDateRangeInput } from '../../app_modules/shared/shared.types';
+import { ChartDateRangeInput, ChartDateRange } from '../../app_modules/shared/shared.types';
 
 export enum AKPIDateFormatEnum {
     US_DATE = 'MM/DD/YYYY',
@@ -1761,4 +1761,21 @@ export function processDateRangeWithTimezone(dr: IChartDateRange | ChartDateRang
         from: from.toDate(),
         to: to.toDate(),
     };
+}
+
+export function  convertStringDateRangeToDateDateRange(dateRange: ChartDateRange, timezone: string): IChartDateRange {
+    const newDateRange: IChartDateRange = {
+        predefined: dateRange.predefined
+    };
+
+    if (dateRange.custom) {
+        const from = moment.tz(dateRange.custom.from, AKPIDateFormatEnum.US_DATE, timezone).toDate();
+        const to = moment.tz(dateRange.custom.to, AKPIDateFormatEnum.US_DATE, timezone).toDate();
+        newDateRange.custom = {
+            from,
+            to
+        };
+    }
+
+    return newDateRange;
 }

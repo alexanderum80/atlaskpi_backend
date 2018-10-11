@@ -1,3 +1,4 @@
+import { convertStringDateRangeToDateDateRange } from '../domain/common/date-range';
 import { CurrentUser } from '../domain/app/current-user';
 import { difference } from 'lodash';
 import { IDashboardDocument } from './../domain/app/dashboards/dashboard';
@@ -8,9 +9,6 @@ import * as BlueBird from 'bluebird';
 
 import { Charts } from '../domain/app/charts/chart.model';
 import { Dashboards } from '../domain/app/dashboards/dashboard.model';
-import { Expenses } from '../domain/app/expenses/expense.model';
-import { KPIs } from '../domain/app/kpis/kpi.model';
-import { Sales } from '../domain/app/sales/sale.model';
 import { IUIWidget } from '../domain/app/widgets/ui-widget-base';
 import { IWidget, IWidgetDocument } from '../domain/app/widgets/widget';
 import { WidgetFactory } from '../domain/app/widgets/widget-factory';
@@ -40,6 +38,13 @@ export class WidgetsService {
         try {
             const inputDashboards = <any>input.dashboards || [];
 
+
+            // IMPORTANT!!!: transform date from string to date based on user timezone.
+            const tz = this._user.get().profile.timezone;
+            input.numericWidgetAttributes.dateRange
+                = convertStringDateRangeToDateDateRange(input.numericWidgetAttributes.dateRange as any, tz) as any;
+
+
             // create the widget
             const widget = await this._widgets.model.createWidget(input);
 
@@ -62,6 +67,11 @@ export class WidgetsService {
             const currentDashboardIds = widgetsDashboards.map(d => String(d._id));
             const toRemoveDashboardIds = difference(currentDashboardIds, inputDashboards);
             const toAddDashboardIds = difference(inputDashboards, currentDashboardIds);
+
+            // IMPORTANT!!!: transform date from string to date based on user timezone.
+            const tz = this._user.get().profile.timezone;
+            input.numericWidgetAttributes.dateRange
+                = convertStringDateRangeToDateDateRange(input.numericWidgetAttributes.dateRange as any, tz) as any;
 
             // update the widget
             const widget = await this._widgets.model.updateWidget(id, input);
@@ -108,6 +118,11 @@ export class WidgetsService {
 
     async previewWidget(data: any): Promise<IUIWidget> {
         try {
+            // IMPORTANT!!!: transform date from string to date based on user timezone.
+            const tz = this._user.get().profile.timezone;
+            data.numericWidgetAttributes.dateRange
+                = convertStringDateRangeToDateDateRange(data.numericWidgetAttributes.dateRange as any, tz) as any;
+
             const uiWidget = await this._widgetFactory.getInstance(data);
             return uiWidget.materialize({ timezone: this._timezone });
         } catch (e) {
