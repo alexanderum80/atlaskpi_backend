@@ -5,15 +5,21 @@ import * as mongoose from 'mongoose';
 import { IChart } from '../charts/chart';
 import { IUser } from '../security/users/user';
 import { IWidget } from '../widgets/widget';
+import { SocialWidgetBase } from '../social-widget/social-widget-base';
 
 
 // import { IWidget } from '../widgets';
-
+export interface IMap {
+    _id: string;
+    imgpath: string;
+  }
 export interface IDashboard {
     name: string;
     description: string;
     charts: IChart[];
     widgets: IWidget[];
+    socialwidgets: string[];
+    maps: string[];
     owner: IUser;
     users: IUser[];
     visible?: boolean;
@@ -24,6 +30,8 @@ export interface IDashboardInput {
     description: string;
     charts: string[];
     widgets: string[];
+    socialwidgets: string[];
+    maps: string[];
     owner: string;
     users: string[];
     visible?: boolean;
