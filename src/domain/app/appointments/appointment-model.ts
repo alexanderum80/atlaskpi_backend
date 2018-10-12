@@ -12,6 +12,7 @@ import { IIdName } from './../../common/id-name';
 import { IAppointment, IAppointmentDocument, IAppointmentModel } from './appointment';
 import { getCustomerSchema } from '../../common/customer.schema';
 import { searchPlugin } from '../global-search/global-search.plugin';
+import { AKPIDateFormatEnum } from '../../common/date-range';
 
 const distinctProvidersPipeline = [
     { '$unwind': '$provider' },
@@ -267,8 +268,8 @@ AppointmentSchema.statics.search = function(criteria: SearchAppointmentCriteriaI
     if (criteria) {
         // date
         if (criteria.date) {
-            from = moment(criteria.date).startOf('day');
-            to = moment(criteria.date).add(1, 'day').startOf('day');
+            from = moment.tz(criteria.date, AKPIDateFormatEnum.US_DATE, criteria.timezone).startOf('day');
+            to = moment.tz(criteria.date, AKPIDateFormatEnum.US_DATE, criteria.timezone).add(1, 'day').startOf('day');
         } else if (criteria.startDate && criteria.endDate) {
             from = moment(criteria.startDate);
             to = moment(criteria.endDate);

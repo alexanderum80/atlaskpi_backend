@@ -86,9 +86,9 @@ SaleSchema.plugin(criteriaPlugin);
 // SaleSchema.methods.
 
 // SaleSchema.statics.
-SalesSchema.statics.findByPredefinedDateRange = function(predefinedDateRange: string): Promise<ISaleDocument[]> {
+SalesSchema.statics.findByPredefinedDateRange = function(predefinedDateRange: string, timezone: string): Promise<ISaleDocument[]> {
     const SalesModel = (<ISaleModel>this);
-    const dateRange = parsePredefinedDate(predefinedDateRange);
+    const dateRange = parsePredefinedDate(predefinedDateRange, timezone);
 
     return new Promise<ISaleDocument[]>((resolve, reject) => {
         SalesModel.find({ 'product.from': { '$gte': dateRange.from, '$lte': dateRange.to } })
@@ -153,10 +153,10 @@ SalesSchema.statics.monthsAvgSales = function(date: string): Promise<Object> {
     });
 };
 
-SalesSchema.statics.salesEmployeeByDateRange = function(predefinedDateRange: string): Promise<Object> {
+SalesSchema.statics.salesEmployeeByDateRange = function(predefinedDateRange: string, timezone: string): Promise<Object> {
     const SalesModel = (<ISaleModel>this);
 
-    const DateRange = parsePredefinedDate(predefinedDateRange);
+    const DateRange = parsePredefinedDate(predefinedDateRange, timezone);
 
     return new Promise<Object>((resolve, reject) => {
         SalesModel.aggregate({ '$match': { 'product.from': { '$gte': DateRange.from, '$lt': DateRange.to } } },
