@@ -14,6 +14,7 @@ import { WidgetsService } from '../../../services/widgets.service';
 import { ChartQuery } from '../../charts/queries/chart.query';
 import { GetDashboardActivity } from '../activities/get-dashboard.activity';
 import { Dashboard } from '../dashboards.types';
+import { SocialWidgetsService } from '../../../services/social-widgets.service';
 
 @injectable()
 @query({
@@ -29,6 +30,7 @@ export class DashboardQuery implements IQuery<IDashboard> {
         @inject(CurrentUser.name) private _user: CurrentUser,
         @inject('Logger') private _logger: Logger,
         @inject(WidgetsService.name) private _widgetService: WidgetsService,
+        @inject(SocialWidgetsService.name) private _socialwidgetService: SocialWidgetsService,
         @inject(ChartQuery.name) private _chartQuery: ChartQuery,
         @inject(Dashboards.name) private _dashboards: Dashboards) { }
 
@@ -82,6 +84,11 @@ export class DashboardQuery implements IQuery<IDashboard> {
                     // process widgets
                     dashboardElementsPromises['widgets'] = that._widgetService.materializeWidgetDocuments(<any>dashboard.widgets);
 
+                    // process social widgets
+
+                    let swidgetsPromises = dashboard.socialwidgets.map(c => {
+                        return that._socialwidgetService.getSocialWidgetsById(<any>c);
+                    });
                     // process charts
                     let chartPromises = dashboard.charts.map(c => {
                         return that._chartQuery.run({ id: (<any>c)._id } as any);
@@ -89,11 +96,13 @@ export class DashboardQuery implements IQuery<IDashboard> {
 
                     dashboardElementsPromises['charts'] = Promise.all(chartPromises);
 
-                    Promise.props(dashboardElementsPromises).then((elements: { widgets: IUIWidget[], charts: string[]}) => {
+                    dashboardElementsPromises['socialwidgets'] = Promise.all(swidgetsPromises);
+
+                    Promise.props(dashboardElementsPromises).then((elements: { widgets: IUIWidget[], socialwidgets: string[] , charts: string[]}) => {
                         let response = {};
 
                         const widgetsAsString = elements.widgets.map(w => JSON.stringify(w));
-                        Object.assign(response, dashboard.toObject(), { widgets: widgetsAsString, charts: elements.charts });
+                        Object.assign(response, dashboard.toObject(), { widgets: widgetsAsString, socialwidgets: elements.socialwidgets , maps: dashboard.maps ,  charts: elements.charts });
                         resolve(<any>response);
                     }).catch(e => {
                         reject(e);

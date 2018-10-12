@@ -22,6 +22,14 @@ const TargetAppliesTo = new mongoose.Schema({
     value: { type: String, required: true },
 });
 
+const TargetDateRange = new mongoose.Schema({
+    predefined: {type: String},
+    custom: {
+        from: { type: Date },
+        to: { type: Date}
+    }
+})
+
 const TargetSchema = new mongoose.Schema({
     name: { type: String, unique: true, required: true },
     source: {
@@ -33,10 +41,7 @@ const TargetSchema = new mongoose.Schema({
         frequency: String,
         groupings: [String],
         timezone: { type: String, required: true },
-        dateRange: {
-            from: { type: String },
-            to: { type: String}
-        },
+        dateRange: { type: TargetDateRange, required: true },
         filter: { type: String, isArray: true},
         categorySource: { type: String }
     },

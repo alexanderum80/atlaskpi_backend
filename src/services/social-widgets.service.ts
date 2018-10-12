@@ -53,7 +53,32 @@ export class SocialWidgetsService {
                 return;
             });
         });
-        // return Promise.resolve([]);
+    }
+
+    getSocialWidgetsById(id: string): Promise<string> {
+        const that = this;
+        return new Promise<string>((resolve, reject) => {
+            that._connectors.model.findById(id)
+            .then(connector => {
+                if (!connector) {
+                    resolve(null);
+                    return;
+                }
+                that._toSocialWidget(connector, moment().utc().toDate(), 'last 7 days')
+                .then(swidget => {
+                    resolve(JSON.stringify(swidget));
+                    return;
+                })
+                .catch(err => {
+                    reject(err);
+                    return;
+                });
+            })
+            .catch(err => {
+                reject(err);
+                return;
+            });
+        });
     }
 
     private _toSocialWidget(doc: IConnectorDocument, date: Date, textDate: string): Promise<ISocialWidget> {

@@ -120,6 +120,9 @@ export class ITourInput {
 
     @field({ type: GraphQLTypesMap.String })
     calendarTimeZone: string;
+
+    @field({ type: GraphQLTypesMap.String })
+    dashboardIdNoVisible: string[];
 }
 
 @input()
@@ -321,8 +324,20 @@ export class UserPreference {
     @field({ type: GraphQLTypesMap.String })
     calendarTimeZone: string;
 
+    @field({ type: GraphQLTypesMap.String })
+    dashboardIdNoVisible: string;
+
     @resolver({ forField: 'providers' })
     static resolveProviders = (entity: IUserPreference) => entity.providers.join('|')
+
+    @resolver({ forField: 'dashboardIdNoVisible' })
+    static resolverdashboardIdNoVisible = (entity: IUserPreference) => {
+        if (entity.dashboardIdNoVisible === undefined || entity.dashboardIdNoVisible.length === 0){
+             return undefined
+        }else{
+            return entity.dashboardIdNoVisible.join('|')
+        }
+    }
 }
 
 @type()
