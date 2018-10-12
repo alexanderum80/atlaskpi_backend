@@ -1,7 +1,5 @@
-import { CurrentUser } from '../current-user';
 import * as Bluebird from 'bluebird';
 import { cloneDeep } from 'lodash';
-import * as moment from 'moment';
 
 import { IKpiBase } from '../../../app_modules/kpis/queries/kpi-base';
 import { KpiFactory } from '../../../app_modules/kpis/queries/kpi.factory';
@@ -14,7 +12,8 @@ import {
     processDateRangeWithTimezone,
 } from '../../common/date-range';
 import { KPIs } from '../kpis/kpi.model';
-import { IUIWidget, UIWidgetBase, IMaterializeOptions } from './ui-widget-base';
+import { IVirtualSourceDocument } from '../virtual-sources/virtual-source';
+import { IMaterializeOptions, IUIWidget, UIWidgetBase } from './ui-widget-base';
 import {
     ComparisonDirectionArrowEnum,
     ComparisonDirectionArrowMap,
@@ -22,7 +21,6 @@ import {
     IWidget,
     IWidgetMaterializedFields,
 } from './widget';
-import { IVirtualSourceDocument } from '../virtual-sources/virtual-source';
 
 export class NumericWidget extends UIWidgetBase implements IUIWidget {
 
@@ -100,17 +98,6 @@ export class NumericWidget extends UIWidgetBase implements IUIWidget {
 
         throw new Error('could not resolve a kpi with id: ' + this.numericWidgetAttributes.kpi);
     }
-
-    // private _processChartDateRange(chartDateRange: IChartDateRange): IDateRange {
-    //     const momentFormat: string = 'MM/DD/YYYY';
-
-    //     return chartDateRange.custom && chartDateRange.custom.from ?
-    //             {
-    //                 from: moment(chartDateRange.custom.from, momentFormat).startOf('day').toDate(),
-    //                 to: moment(chartDateRange.custom.to, momentFormat).endOf('day').toDate()
-    //             }
-    //             : parsePredefinedDateOld(chartDateRange.predefined);
-    // }
 
     private async _getKpiData(kpi: IKpiBase, dateRange: IDateRange): Promise<any> {
         try {

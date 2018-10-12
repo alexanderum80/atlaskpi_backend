@@ -1356,154 +1356,8 @@ export function parsePredefinedTargetDateRanges (predefinedDate: string, dueDate
     }
 }
 
-// /**
-//  *
-//  * @param predefinedDate last year
-//  * @param dueDate MM/DD/YYYY
-//  */
-// export function parsePredefinedTargetDateRangesOld (predefinedDate: string, dueDate: string, chartFrequency: string): IDateRange {
-//     const momentFormat: string = 'MM/DD/YYYY';
-//     const frequency: number = FrequencyTable[chartFrequency];
-
-//     let PredefinedTargetDateRanges: IPredefinedTargetPeriod = {};
-
-//     Object.keys(PredefinedTargetPeriod).forEach((key: string) => {
-//         Object.assign(PredefinedTargetDateRanges, PredefinedTargetPeriod[key]);
-//     });
-
-//     switch (predefinedDate) {
-//         case PredefinedDateRanges.lastMonth:
-//             return parsePredefinedDateOld(PredefinedDateRanges.lastMonth);
-//         case PredefinedDateRanges.yesterday:
-//             return parsePredefinedDateOld(PredefinedDateRanges.yesterday);
-//         case PredefinedDateRanges.lastWeek:
-//             return parsePredefinedDateOld(PredefinedDateRanges.lastWeek);
-//         case PredefinedDateRanges.lastQuarter:
-//             return parsePredefinedDateOld(PredefinedDateRanges.lastQuarter);
-//         case PredefinedDateRanges.lastYear:
-//             return parsePredefinedDateOld(PredefinedDateRanges.lastYear);
-//         case PredefinedDateRanges.last2Years:
-//             return parsePredefinedDateOld(PredefinedDateRanges.last2Years);
-
-//         // frequency = 'daily'
-//         case PredefinedTargetDateRanges.sameDayLastYear:
-//             return {
-//                 from: moment(dueDate, momentFormat).subtract(1, 'year').startOf('day').toDate(),
-//                 to: moment(dueDate, momentFormat).subtract(1, 'year').endOf('day').toDate()
-//             };
-//         case PredefinedTargetDateRanges.sameDay2YearsAgo:
-//             return {
-//                 from: moment(dueDate, momentFormat).subtract(2, 'year').startOf('day').toDate(),
-//                 to: moment(dueDate, momentFormat).subtract(2, 'year').endOf('day').toDate()
-//             };
-
-//         // frequency = 'weekly'
-//         case PredefinedTargetDateRanges.sameWeekLastYear:
-//             return {
-//                 from: moment(dueDate, momentFormat).subtract(1, 'year').startOf('week').toDate(),
-//                 to: moment(dueDate, momentFormat).subtract(1, 'year').endOf('week').toDate()
-//             };
-//         case PredefinedTargetDateRanges.sameWeek2YearsAgo:
-//             return {
-//                 from: moment(dueDate, momentFormat).subtract(2, 'year').startOf('week').toDate(),
-//                 to: moment(dueDate, momentFormat).subtract(2, 'year').endOf('week').toDate()
-//             };
-
-//         // frequency = 'monthly'
-//         case PredefinedTargetDateRanges.sameMonthLastYear:
-//             return {
-//                 from: moment(dueDate, momentFormat).subtract(1, 'year').startOf('month').toDate(),
-//                 to: moment(dueDate, momentFormat).subtract(1, 'year').endOf('month').toDate()
-//             };
-//         case PredefinedTargetDateRanges.sameMonth2YearsAgo:
-//             return {
-//                 from: moment(dueDate, momentFormat).subtract(2, 'year').startOf('month').toDate(),
-//                 to: moment(dueDate, momentFormat).subtract(2, 'year').endOf('month').toDate()
-//             };
-
-//         // frequency = 'quarterly'
-//         case PredefinedTargetDateRanges.sameQuarterLastYear:
-//             return {
-//                 from: moment(dueDate, momentFormat).subtract(1, 'year').startOf('quarter').toDate(),
-//                 to: moment(dueDate, momentFormat).subtract(1, 'year').endOf('quarter').toDate()
-//             };
-//         case PredefinedTargetDateRanges.sameQuarter2YearsAgo:
-//             return {
-//                 from: moment(dueDate, momentFormat).subtract(2, 'year').startOf('quarter').toDate(),
-//                 to: moment(dueDate, momentFormat).subtract(2, 'year').endOf('quarter').toDate()
-//             };
-//         // yearly
-//         case PredefinedTargetDateRanges.twoYearsAgo:
-//             return {
-//                 from: moment().subtract(2, 'year').startOf('year').toDate(),
-//                 to: moment().subtract(2, 'year').endOf('year').toDate()
-//             };
-
-//         // any frequency
-//         case PredefinedTargetDateRanges.samePeriodLastYear:
-//             switch (frequency) {
-//                 case FrequencyEnum.Weekly:
-//                     return {
-//                         from: moment(dueDate, momentFormat).subtract(1, 'year').startOf('week').toDate(),
-//                         to: moment(dueDate, momentFormat).subtract(1, 'year').endOf('day').toDate()
-//                     };
-//                 case FrequencyEnum.Monthly:
-//                     return {
-//                         from: moment(dueDate, momentFormat).subtract(1, 'year').startOf('month').toDate(),
-//                         to: moment(dueDate, momentFormat).subtract(1, 'year').endOf('day').toDate()
-//                     };
-//                 case FrequencyEnum.Quarterly:
-//                     return {
-//                         from: moment(dueDate, momentFormat).subtract(1, 'year').startOf('quarter').toDate(),
-//                         to: moment(dueDate, momentFormat).subtract(1, 'year').endOf('day').toDate()
-//                     };
-//                 case FrequencyEnum.Yearly:
-//                     return {
-//                         from: moment(dueDate, momentFormat).subtract(1, 'year').startOf('year').toDate(),
-//                         to: moment(dueDate, momentFormat).subtract(1, 'year').endOf('day').toDate()
-//                     };
-//             }
-//         case PredefinedTargetDateRanges.samePeriod2YearsAgo:
-//             switch (frequency) {
-//                 case FrequencyEnum.Weekly:
-//                     return {
-//                         from: moment(dueDate, momentFormat).subtract(2, 'year').startOf('week').toDate(),
-//                         to: moment(dueDate, momentFormat).subtract(2, 'year').endOf('day').toDate()
-//                     };
-//                 case FrequencyEnum.Monthly:
-//                     return {
-//                         from: moment(dueDate, momentFormat).subtract(2, 'year').startOf('month').toDate(),
-//                         to: moment(dueDate, momentFormat).subtract(2, 'year').endOf('day').toDate()
-//                     };
-//                 case FrequencyEnum.Quarterly:
-//                     return {
-//                         from: moment(dueDate, momentFormat).subtract(2, 'year').startOf('quarter').toDate(),
-//                         to: moment(dueDate, momentFormat).subtract(2, 'year').endOf('day').toDate()
-//                     };
-//                 case FrequencyEnum.Yearly:
-//                     return {
-//                         from: moment(dueDate, momentFormat).subtract(2, 'year').startOf('year').toDate(),
-//                         to: moment(dueDate, momentFormat).subtract(2, 'year').endOf('day').toDate()
-//                     };
-//             }
-//     }
-// }
-
 
 export function backInTime(dateRange: IDateRange, amount: any, timespan: string, mainDateRangeFrom?: Date): IDateRange {
-    // const format: string = 'MM/DD/YYYY';
-    // const fromDate: Date = moment(dateRange.from).subtract(amount, timespan).toDate();
-    // let toDate: Date = moment(dateRange.to).subtract(amount, timespan).endOf('day').toDate();
-
-    // if (mainDateRangeFrom) {
-    //     const dateRangeFrom: string = moment(mainDateRangeFrom, format).format(format);
-    //     const comparisonToDate: string = moment(dateRange.to).subtract(amount, timespan).format(format);
-
-    //     const isSameDate: boolean = dateRangeFrom === comparisonToDate;
-    //     if (isSameDate) {
-    //         toDate = moment(dateRange.to).subtract(amount, timespan).startOf('day').toDate();
-    //     }
-    // }
     const from = moment(dateRange.from).subtract(amount, timespan).toDate();
     const to = moment(dateRange.to).subtract(amount, timespan).toDate();
 
@@ -1514,23 +1368,6 @@ export function backInTime(dateRange: IDateRange, amount: any, timespan: string,
 }
 
 export function previousPeriod(dateRange: IDateRange): IDateRange {
-    // const start = moment(dateRange.from);
-    // const end = moment(dateRange.to);
-    // const duration = end.diff(start);
-
-    // const isSameDate = end.diff(start, 'days') === 0;
-    // if (isSameDate) {
-    //     return {
-    //         from: start.subtract(1, 'day').startOf('day').toDate(),
-    //         to: end.startOf('day').toDate()
-    //     };
-    // }
-
-    // return {
-    //     from: start.subtract(duration).startOf('day').toDate(),
-    //     to: end.subtract(duration).startOf('day').toDate()
-    // };
-
     const start = moment(dateRange.from);
     const end = moment(dateRange.to);
     const duration = end.diff(start);
@@ -1726,12 +1563,6 @@ export function getComparisonDateRanges(
          return parseComparisonDateRange(processDateRangeWithTimezone(dateRange[0], timezone), c, mainDateRangeFrom);
     });
 }
-
-// export function processChartDateRange(chartDateRange: IChartDateRange): IDateRange {
-//     return chartDateRange.custom && chartDateRange.custom.from ?
-//             { from: new Date(chartDateRange.custom.from), to: new Date(chartDateRange.custom.to) }
-//             : parsePredefinedDateOld(chartDateRange.predefined);
-// }
 
 export function getYesterdayDate(): IDateRange {
     return {

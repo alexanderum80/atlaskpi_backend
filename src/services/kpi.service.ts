@@ -175,15 +175,6 @@ export class KpiService {
             }) : [];
     }
 
-    // processChartDateRange(chartDateRange: ChartDateRangeInput): any {
-    //     return chartDateRange.custom && chartDateRange.custom.from ?
-    //             {
-    //                 from: moment(chartDateRange.custom.from).startOf('day').toDate(),
-    //                 to: moment(chartDateRange.custom.to).endOf('day').toDate()
-    //             }
-    //             : parsePredefinedDateOld(chartDateRange.predefined);
-    // }
-
     public _getKpiSources(kpi: IKPIDocument, kpis: IKPIDocument[], connectors: IConnectorDocument[]): string[] {
 
         if (kpi.type === KPITypeEnum.ExternalSource) {
