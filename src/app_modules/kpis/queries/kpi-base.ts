@@ -449,5 +449,4 @@ export class KpiBase {
         }
         return new RegExp(expression.searchValue, 'i');
     }
-
 }
