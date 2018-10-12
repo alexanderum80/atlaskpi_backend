@@ -1,3 +1,4 @@
+import { CurrentUser } from '../domain/app/current-user';
 import * as Bluebird from 'bluebird';
 import { inject, injectable } from 'inversify';
 import * as moment from 'moment';
@@ -11,13 +12,7 @@ import { Dashboards } from '../domain/app/dashboards/dashboard.model';
 import { Users } from '../domain/app/security/users/user.model';
 import { ITargetNew, ITargetNewDocument, TargetCompareToEnum } from '../domain/app/targetsNew/target';
 import { TargetsNew } from '../domain/app/targetsNew/target.model';
-import {
-    IChartDateRange,
-    IDateRange,
-    parsePredefinedTargetDateRanges,
-    parsePredefinedDate,
-    PredefinedDateRanges,
-} from '../domain/common/date-range';
+import { IChartDateRange, IDateRange, parsePredefinedDate, PredefinedDateRanges, AKPIDateFormatEnum } from '../domain/common/date-range';
 import { FrequencyEnum, FrequencyTable } from '../domain/common/frequency-enum';
 import { TargetNotification } from './notifications/users/target.notification';
 import { PnsService } from './pns.service';
@@ -81,6 +76,7 @@ export class TargetService {
                 @inject(TargetNotification.name) private _targetNotification: TargetNotification,
                 @inject(PnsService.name) private _pnsService: PnsService,
                 @inject(DateService.name) private dateService: DateService,
+                @inject(CurrentUser.name) private _user: CurrentUser,
     ) { }
 
     async getTargets(chartId: string, userId: string): Promise<ITargetNewDocument[]> {
@@ -180,32 +176,8 @@ export class TargetService {
         }
     }
 
-    // async createUpdateTarget(data: ITargetNew, id?: string): Promise<ITargetNewDocument> {
-    //     try {
-    //         // target value
-    //         data.target = await this.getTargetValue(data);
-
-    //         if (!id) {
-    //             // create target
-    //             return await this._targets.model.createNew(data);
-    //         } else {
-    //             // update target
-    //             return await this._targets.model.updateTargetNew(id, data);
-    //         }
-
-    //     } catch (err) {
-    //         throw new Error('unable to modify target');
-    //     }
-    // }
-
     async getTargetValue(data: ITargetNew): Promise<number> {
         try {
-
-            // let response = data.type !== 'fixed'
-            //     ? await this.getBaseValue(data)
-            //     : data.value;
-            // let findValue: any;
-
             let responseValue: number;
 
             if (data.type === 'fixed') {
@@ -221,10 +193,7 @@ export class TargetService {
                     ) {
                         const field = camelCase(data.appliesTo.field);
                         const records = response.filter(i => i._id[field] === data.appliesTo.value) as any[];
-                        // findValue = { _id: { }, value: records.reduce((prev, current) => {
-                        //     return (prev.value || prev) + current.value;
-                        // } ) };
-                        // findValue._id[field] = data.appliesTo.value;
+
                         findValue = records.reduce((prev, current) => {
                             return (prev.value || prev) + current.value;
                         });
@@ -300,31 +269,23 @@ export class TargetService {
 
         if (frequency) {
             let date: moment.Moment;
+            let m = moment.tz(this._user.get().profile.timezone);
 
             switch (compareTo) {
                 case TargetCompareToEnum.previous:
                     const duration = this.dateService.convertFrequencyToDuration(frequency);
-                    date = moment().subtract(1, duration);
+                    date = m.subtract(1, duration);
                     break;
                 case TargetCompareToEnum.oneYearAgo:
-                    date = moment().subtract(1, 'year');
+                    date = m.subtract(1, 'year');
                     break;
                 case TargetCompareToEnum.twoYearsAgo:
-                    date = moment().subtract(2, 'year');
+                    date = m.subtract(2, 'year');
                     break;
                 case TargetCompareToEnum.threeYearsAgo:
-                    date = moment().subtract(3, 'year');
+                    date = m.subtract(3, 'year');
                     break;
             }
-
-            // if (compareTo.indexOf('last') !== -1) {
-            //     const duration = this.dateService.convertFrequencyToDuration(frequency);
-            //     date = moment().subtract(1, duration);
-            // } else if (compareTo.indexOf('two') !== -1) {
-            //     date = moment().subtract(2, 'year');
-            // } else if (compareTo.indexOf('three') !== -1) {
-            //     date = moment().subtract(3, 'year');
-            // }
 
             return this.dateService.getFrequencyDateRange(dateRange, frequency, date);
 
@@ -365,7 +326,7 @@ export class TargetService {
         const isStackNameEqualToAll: boolean = stackName.toLowerCase() === 'all';
 
         const chartDateRange: string = chart.dateRange ? chart.dateRange[0].predefined : '';
-        const dateRange: any = getDateRange || parsePredefinedDate(chartDateRange);
+        const dateRange: any = getDateRange || parsePredefinedDate(chartDateRange, this._user.get().profile.timezone);
 
         const options: IGetDataOptions = {
             filter: chart.filter
@@ -389,63 +350,12 @@ export class TargetService {
         return responseValue;
     }
 
-    // async sendNotification(input: NotificationInput): Promise<boolean> {
-    //     try {
-    //         const chartDoc: IChartDocument = await this._charts.model.findById(input.chartId);
-    //         const dashboardName: string = await this._dashboard.model.findDashboardByChartId(input.chartId);
-    //         const usersDoc: IUserDocument[] = await this._users.model.findUsersById(input.usersId);
-
-    //         const chart = chartDoc.toObject() as IChart;
-    //         const chartDefinition = chart.chartDefinition;
-
-    //         let targetAmount: string;
-    //         let targetMet: string;
-
-    //         if (!chartDoc || !dashboardName || !usersDoc) {
-    //             throw new Error('inefficient data');
-    //         }
-
-    //         targetAmount = this._formatNotificationValue(chartDefinition, input.targetAmount);
-    //         targetMet = this._formatNotificationValue(chartDefinition, input.targetMet);
-
-    //         const notifyData: INotificationData = {
-    //             targetName: input.targetName,
-    //             targetAmount: targetAmount,
-    //             targetMet: targetMet,
-    //             targetDate: input.targetDate,
-    //             dashboardName: dashboardName,
-    //             chartName: chartDoc.title,
-    //             businessUnitName: input.businessUnit
-    //         };
-
-    //         const message = `
-    //             This is a notification for the target ${notifyData.targetName} you set for ${notifyData.businessUnitName},
-    //             to date you have reached ${notifyData.targetMet} of your targeted ${notifyData.targetAmount} for
-    //             ${notifyData.targetDate}. You can access this on your ${notifyData.dashboardName} dashboard on the chart called
-    //             ${notifyData.chartName}.
-    //         `;
-    //         this._pnsService.sendNotifications(usersDoc, message);
-
-    //         usersDoc.forEach(user => this._targetNotification.notify(user, user.username, notifyData));
-    //         return true;
-    //     } catch (err) {
-    //         throw new Error('error getting dashboard name, chart, and users');
-    //     }
-    // }
-
     // return object with 'from' and 'to' property
     getDate(chartDateRange: IChartDateRange, frequency?: string): IDateRange {
         return !frequency
             ? this.dateService.getDateRange(chartDateRange)
             : this.dateService.getFrequencyDateRange(chartDateRange, frequency, moment());
 
-        // return parsePredefinedTargetDateRanges(dueDate, chartFrequency) ||
-        //         chartDateRange.custom && chartDateRange.custom.from ?
-        //            {
-        //                 from: moment(chartDateRange.custom.from).startOf('day').toDate(),
-        //                 to: moment(chartDateRange.custom.to).startOf('day').toDate()
-        //            }
-        //            : parsePredefinedDate(chartDateRange.predefined);
     }
 
     isComparison(chart: IChart): boolean {
@@ -543,101 +453,29 @@ export class TargetService {
         }
     }
 
-    // static futureTargets(targets: ITargetNewDocument[]): IDateRange {
-    //     let futureDateRange: IDateRange;
-
-    //     if (targets && targets.length) {
-    //         targets.forEach((target: ITargetNewDocument) => {
-    //             const dr = parsePredefinedDate(target.period);
-    //             const datepicker: string = moment(dr.to).format('YYYY-MM-DD');
-    //             const currentYear: string = moment().endOf('year').format('YYYY-MM-DD');
-    //             if (moment(datepicker).isAfter(currentYear)) {
-    //                 futureDateRange = {
-    //                     from: moment().add(1, 'year').startOf('year').toDate(),
-    //                     to: moment().add(1, 'year').endOf('year').toDate()
-    //                 };
-    //             }
-    //         });
-    //         return futureDateRange;
-    //     }
-    // }
-
     private _getDateRange(period: string, notify: any, frequency: string): IDateRange {
         const dateFrequency: number = FrequencyTable[frequency];
 
+        const tz = this._user.get().profile.timezone;
+
         switch (dateFrequency) {
             case FrequencyTable.daily:
-                return parsePredefinedDate(PredefinedDateRanges.today);
+                return parsePredefinedDate(PredefinedDateRanges.today, tz);
             case FrequencyTable.weekly:
-                return parsePredefinedDate(PredefinedDateRanges.thisWeekToDate);
+                return parsePredefinedDate(PredefinedDateRanges.thisWeekToDate, tz);
             case FrequencyTable.monthly:
-                return parsePredefinedDate(PredefinedDateRanges.thisMonthToDate);
+                return parsePredefinedDate(PredefinedDateRanges.thisMonthToDate, tz);
             case FrequencyTable.quarterly:
-                return parsePredefinedDate(PredefinedDateRanges.thisQuarterToDate);
+                return parsePredefinedDate(PredefinedDateRanges.thisQuarterToDate, tz);
             case FrequencyTable.yearly:
-                return parsePredefinedDate(PredefinedDateRanges.thisYearToDate);
+                return parsePredefinedDate(PredefinedDateRanges.thisYearToDate, tz);
             default:
                 return {
-                    from: moment(notify, 'MM/DD/YYYY').startOf(MomentFrequencyTable[frequency]).toDate(),
-                    to: moment().toDate()
+                    from: moment.tz(notify, AKPIDateFormatEnum.US_DATE, tz).startOf(MomentFrequencyTable[frequency]).toDate(),
+                    to: moment.tz(tz).toDate()
                 };
         }
 
     }
 
-    private _getTargetProgressDateRange(chartFrequency: string, dueDate: Date, chartDateRange: IChartDateRange[]): IDateRange[] {
-        const to = moment(dueDate).toDate();
-        let from: Date;
-
-        const frequency = FrequencyTable[chartFrequency];
-
-        switch (frequency) {
-            case FrequencyEnum.Daily:
-                from = moment(dueDate).startOf('day').toDate();
-                break;
-            case FrequencyEnum.Weekly:
-                from = moment(dueDate).startOf('week').toDate();
-                break;
-            case FrequencyEnum.Monthly:
-                from = moment(dueDate).startOf('month').toDate();
-                break;
-            case FrequencyEnum.Quarterly:
-                from = moment(dueDate).startOf('quarter').toDate();
-                break;
-            case FrequencyEnum.Yearly:
-                from = moment(dueDate).startOf('year').toDate();
-                break;
-        }
-
-        if (!from) {
-            return chartDateRange.map(dateRange => {
-                return dateRange.custom && dateRange.custom.from ?
-                {
-                  from: moment(dateRange.custom.from).startOf('day').toDate(),
-                  to: moment(dateRange.custom.to).startOf('day').toDate()
-                }
-                : parsePredefinedDate(dateRange.predefined);
-            });
-        }
-        return [{
-            from: from,
-            to: to
-        }];
-    }
-
-    // private _formatNotificationValue(chartDefinition: any, amount: number): string {
-    //     if (!chartDefinition || !chartDefinition.tooltip || !chartDefinition.tooltip.custom) {
-    //         return amount.toString();
-    //     }
-
-    //     const custom = chartDefinition.tooltip.custom;
-    //     const decimal = custom.decimals;
-    //     if (isNumber(decimal)) {
-    //         if (decimal === 0) {
-    //             amount = Math.round(amount);
-    //         }
-    //         amount = amount.toFixed(decimal) as any;
-    //     }
-    //     return `${custom.prefix}${amount}${custom.suffix}`;
-    // }
 }

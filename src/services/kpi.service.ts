@@ -1,3 +1,4 @@
+import { CurrentUser } from '../domain/app/current-user';
 import { DataSourceField } from './../app_modules/data-sources/data-sources.types';
 import * as Bluebird from 'bluebird';
 import { inject, injectable } from 'inversify';
@@ -21,7 +22,7 @@ import { IVirtualSourceDocument } from '../domain/app/virtual-sources/virtual-so
 import { VirtualSources, mapDataSourceFields } from '../domain/app/virtual-sources/virtual-source.model';
 import { IWidgetDocument } from '../domain/app/widgets/widget';
 import { Widgets } from '../domain/app/widgets/widget.model';
-import { parsePredefinedDate } from '../domain/common/date-range';
+import { processDateRangeWithTimezone } from '../domain/common/date-range';
 import { blackListDataSource, getFieldsWithData, IFieldsWithDataDatePipeline } from '../domain/common/fields-with-data';
 import { IValueName } from '../domain/common/value-name';
 import { IConnectorDocument } from '../domain/master/connectors/connector';
@@ -48,7 +49,8 @@ export class KpiService {
         @inject(Widgets.name) private _widget: Widgets,
         @inject(VirtualSources.name) private _virtualSources: VirtualSources,
         @inject(Connectors.name) private _connectors: Connectors,
-        @inject(DataSourcesService.name) private _dataSourcesService: DataSourcesService
+        @inject(DataSourcesService.name) private _dataSourcesService: DataSourcesService,
+        @inject(CurrentUser.name) private _user: CurrentUser,
     ) {}
 
     async getKpis(): Promise<IKPIDocument[]> {
@@ -162,22 +164,15 @@ export class KpiService {
     getDateRange(chartDateRange: ChartDateRangeInput[]): any[] {
         return (Array.isArray(chartDateRange) && chartDateRange.length) ?
             chartDateRange.map(d => {
-                const dateRange = this.processChartDateRange(d);
+                // const dateRange = this.processChartDateRange(d);
+
+                const dateRange = processDateRangeWithTimezone(d, this._user.get().profile.timezone);
 
                 return {
                     '$gte': dateRange.from,
                     '$lt': dateRange.to
                 };
             }) : [];
-    }
-
-    processChartDateRange(chartDateRange: ChartDateRangeInput): any {
-        return chartDateRange.custom && chartDateRange.custom.from ?
-                {
-                    from: moment(chartDateRange.custom.from).startOf('day').toDate(),
-                    to: moment(chartDateRange.custom.to).endOf('day').toDate()
-                }
-                : parsePredefinedDate(chartDateRange.predefined);
     }
 
     public _getKpiSources(kpi: IKPIDocument, kpis: IKPIDocument[], connectors: IConnectorDocument[]): string[] {

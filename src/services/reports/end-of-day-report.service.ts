@@ -6,6 +6,8 @@ import { IExpenseDocument, IExpenseModel } from '../../domain/app/expenses/expen
 import { ISaleDocument, ISaleModel } from '../../domain/app/sales/sale';
 import { IDateRange, parsePredefinedDate, PredefinedDateRanges } from '../../domain/common/date-range';
 import { ReportServiceBase } from './report-service-base';
+import { injectable, inject } from 'inversify';
+import { CurrentUser } from '../../domain/app/current-user';
 
 
 export interface IEndOfDayReportWinner {
@@ -25,8 +27,11 @@ export interface IEndOfDayReport {
     winners: IEndOfDayReportWinnerMap;
 }
 
+@injectable()
 export class EndOfDayReportService extends ReportServiceBase<Promise<IEndOfDayReport>> {
     private _predefinedDateRange = PredefinedDateRanges.thisMonth;
+
+    @inject(CurrentUser.name) private _user: CurrentUser;
 
     constructor(private _saleModel: ISaleModel,
                 private _expenseModel: IExpenseModel) {
@@ -34,8 +39,8 @@ export class EndOfDayReportService extends ReportServiceBase<Promise<IEndOfDayRe
                 }
 
     public generateReport(): Promise<IEndOfDayReport> {
-        const todayDateRange: IDateRange = parsePredefinedDate(PredefinedDateRanges.today);
-        const thisMonthDateRange: IDateRange = parsePredefinedDate(PredefinedDateRanges.thisMonth);
+        const todayDateRange: IDateRange = parsePredefinedDate(PredefinedDateRanges.today, this._user.get().profile.timezone);
+        const thisMonthDateRange: IDateRange = parsePredefinedDate(PredefinedDateRanges.today, this._user.get().profile.timezone);
 
         return new Promise<IEndOfDayReport>((resolve, reject) => {
             const dataPromise = {
@@ -61,11 +66,11 @@ export class EndOfDayReportService extends ReportServiceBase<Promise<IEndOfDayRe
     }
 
     private _getThisMonthSales(): Promise<ISaleDocument[]> {
-        return this._saleModel.findByPredefinedDateRange(this._predefinedDateRange);
+        return this._saleModel.findByPredefinedDateRange(this._predefinedDateRange, this._user.get().profile.timezone);
     }
 
     private _getThisMonthExpenses(): Promise<IExpenseDocument[]> {
-        return this._expenseModel.findByPredefinedDateRange(this._predefinedDateRange);
+        return this._expenseModel.findByPredefinedDateRange(this._predefinedDateRange, this._user.get().profile.timezone);
     }
 
     private _getTotalSalesFor(dateRange: IDateRange, sales: ISaleDocument[]): number {

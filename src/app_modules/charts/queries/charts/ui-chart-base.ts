@@ -1,5 +1,3 @@
-import 'datejs';
-
 import * as Bluebird from 'bluebird';
 import * as console from 'console';
 import {
@@ -18,6 +16,7 @@ import {
     parsePredefinedDate,
     PredefinedComparisonDateRanges,
     PredefinedDateRanges,
+    processDateRangeWithTimezone,
 } from '../../../../domain/common/date-range';
 import {
     FREQUENCY_GROUPING_NAME,
@@ -121,7 +120,8 @@ export class UIChartBase {
 
     chartPreProcessor: ChartPreProcessorExtention;
 
-    constructor(protected chart: IChart, protected frequencyHelper: FrequencyHelper) {
+    constructor(protected chart: IChart, protected frequencyHelper: FrequencyHelper,
+                protected tz: string)  {
         if (!chart.kpis || chart.kpis.length < 1) {
             throw 'A chart cannot be created without a KPI';
         }
@@ -326,13 +326,8 @@ export class UIChartBase {
         return data;
     }
 
-    private _processChartDateRange(chartDateRange: IChartDateRange): IDateRange {
-        return chartDateRange.custom && chartDateRange.custom.from ?
-                {
-                    from: moment(chartDateRange.custom.from).startOf('day').toDate(),
-                    to: moment(chartDateRange.custom.to).endOf('day').toDate()
-                }
-                : parsePredefinedDate(chartDateRange.predefined);
+    private _processChartDateRange(chartDateRange: IChartDateRange ): IDateRange {
+        return processDateRangeWithTimezone(chartDateRange, this.tz);
     }
 
     /**

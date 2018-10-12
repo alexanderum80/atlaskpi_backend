@@ -1,12 +1,28 @@
 import { FrequencyEnum, FrequencyTable } from './frequency-enum';
 import * as moment from 'moment-timezone';
 import { isEmpty } from 'lodash';
+import { ChartDateRangeInput, ChartDateRange } from '../../app_modules/shared/shared.types';
+
+export enum AKPIDateFormatEnum {
+    US_DATE = 'MM/DD/YYYY',
+    US_SHORT_DATE = 'MM/DD/YY',
+}
+
+export const toTzDate = (m: moment.Moment): Date => new Date(m.toISOString());
 
 /**
  * TODO:
  * - fix all date range functions to work work with utc time (depends on a timezone configuration).
  * - make an understanding about where or not to show "previous period" when date ranges represents whole months, weeks, quarter
  */
+
+export interface IGQLDateRange {
+    predefined?: string;
+    custom?: {
+        from: string,
+        to: string;
+    };
+}
 
 export interface IDateRange {
     from: Date;
@@ -111,324 +127,339 @@ export const quarterMonths = {
 
 const thisQuarter = moment().quarter();
 
-export function parsePredefinedDate(textDate: string): IDateRange {
-    let from: Date;
-    let to: Date;
+export function parsePredefinedDate(textDate: string, timezone: string): IDateRange | null {
+
+    if (!textDate) return null;
+
+    if (!isValidTimezone(timezone)) { throw new Error('invalid timezone'); }
+
+    const m = moment;
+
+    const from = m.tz(timezone);
+    const to = m.tz(timezone);
+    const thisQuarter = m.tz(timezone).quarter();
 
     switch (textDate) {
         case PredefinedDateRanges.allTimes:
             return {
-                from: (<any>moment).min(moment().subtract(30, 'years'), moment().subtract(1, 'years')).startOf('year').toDate(),
-                to: moment().add(30, 'year').toDate()
+                from: from.subtract(30, 'years').toDate(),
+                to: to.add(30, 'year').toDate(),
             };
         case PredefinedDateRanges.lastWeek:
             return {
-                from: moment().subtract(1, 'week').startOf('week').toDate(),
-                to: moment().subtract(1, 'week').endOf('week').toDate()
+                from: from.subtract(1, 'week').startOf('week').toDate(),
+                to: to.subtract(1, 'week').endOf('week').toDate(),
             };
         case PredefinedDateRanges.lastMonth:
             return {
-                from: moment().subtract(1, 'month').startOf('month').toDate(),
-                to: moment().subtract(1, 'month').endOf('month').toDate()
+                from: from.subtract(1, 'month').startOf('month').toDate(),
+                to: to.subtract(1, 'month').endOf('month').toDate(),
             };
         case PredefinedDateRanges.last3Months:
             return {
-                from: moment().subtract(3, 'month').startOf('month').toDate(),
-                to: moment().subtract(1, 'month').endOf('month').toDate()
+                from: from.subtract(3, 'month').startOf('month').toDate(),
+                to: to.subtract(1, 'month').endOf('month').toDate(),
             };
         case PredefinedDateRanges.last6Months:
             return {
-                from: moment().subtract(6, 'month').startOf('month').toDate(),
-                to: moment().subtract(1, 'month').endOf('month').toDate()
+                from: from.subtract(6, 'month').startOf('month').toDate(),
+                to: to.subtract(1, 'month').endOf('month').toDate()
             };
         case PredefinedDateRanges.lastQuarter:
             const lastQuarter = thisQuarter - 1 || 4;
-            const year = (thisQuarter - 1)
-                         ? moment().year()
-                         : moment().subtract(1, 'year').year();
+            const year = (thisQuarter - 1) ?
+                from.year() :
+                to.subtract(1, 'year').year();
 
             return {
-                from: moment().year(year).quarter(lastQuarter).startOf('quarter').toDate(),
-                to: moment().year(year).quarter(lastQuarter).endOf('quarter').toDate()
+                from: from.year(year).quarter(lastQuarter).startOf('quarter').toDate(),
+                to: to.year(year).quarter(lastQuarter).endOf('quarter').toDate(),
             };
         case PredefinedDateRanges.lastYear:
             return {
-                from: moment().subtract(1, 'year').startOf('year').toDate(),
-                to: moment().subtract(1, 'year').endOf('year').toDate()
+                from: from.subtract(1, 'year').startOf('year').toDate(),
+                to: to.subtract(1, 'year').endOf('year').toDate(),
             };
         case PredefinedDateRanges.last2Years:
             return {
-                from: moment().subtract(2, 'year').startOf('year').toDate(),
-                to: moment().subtract(1, 'year').endOf('year').toDate()
+                from: from.subtract(2, 'year').startOf('year').toDate(),
+                to: to.subtract(1, 'year').endOf('year').toDate(),
             };
         case PredefinedDateRanges.last3Years:
             return {
-                from: moment().subtract(3, 'year').startOf('year').toDate(),
-                to: moment().subtract(1, 'year').endOf('year').toDate()
+                from: from.subtract(3, 'year').startOf('year').toDate(),
+                to: to.subtract(1, 'year').endOf('year').toDate(),
             };
         case PredefinedDateRanges.last4Years:
             return {
-                from: moment().subtract(4, 'year').startOf('year').toDate(),
-                to: moment().subtract(1, 'year').endOf('year').toDate()
+                from: from.subtract(4, 'year').startOf('year').toDate(),
+                to: to.subtract(1, 'year').endOf('year').toDate(),
             };
         case PredefinedDateRanges.last5Years:
             return {
-                from: moment().subtract(5, 'year').startOf('year').toDate(),
-                to: moment().subtract(1, 'year').endOf('year').toDate()
+                from: from.subtract(5, 'year').startOf('year').toDate(),
+                to: to.subtract(1, 'year').endOf('year').toDate(),
             };
         case PredefinedDateRanges.last6Years:
             return {
-                from: moment().subtract(6, 'year').startOf('year').toDate(),
-                to: moment().subtract(1, 'year').endOf('year').toDate()
+                from: from.subtract(6, 'year').startOf('year').toDate(),
+                to: to.subtract(1, 'year').endOf('year').toDate(),
             };
         case PredefinedDateRanges.last7Years:
             return {
-                from: moment().subtract(7, 'year').startOf('year').toDate(),
-                to: moment().subtract(1, 'year').endOf('year').toDate()
+                from: from.subtract(7, 'year').startOf('year').toDate(),
+                to: to.subtract(1, 'year').endOf('year').toDate(),
             };
-
+        case PredefinedDateRanges.last5Years:
+            return {
+                from: from.subtract(8, 'year').startOf('year').toDate(),
+                to: to.subtract(1, 'year').endOf('year').toDate(),
+            };
         case PredefinedDateRanges.last8Years:
             return {
-                from: moment().subtract(8, 'year').startOf('year').toDate(),
-                to: moment().subtract(1, 'year').endOf('year').toDate()
+                from: from.subtract(5, 'year').startOf('year').toDate(),
+                to: to.subtract(1, 'year').endOf('year').toDate(),
             };
         case PredefinedDateRanges.last9Years:
             return {
-                from: moment().subtract(9, 'year').startOf('year').toDate(),
-                to: moment().subtract(1, 'year').endOf('year').toDate()
+                from: from.subtract(9, 'year').startOf('year').toDate(),
+                to: to.subtract(1, 'year').endOf('year').toDate(),
             };
         case PredefinedDateRanges.last10Years:
             return {
-                from: moment().subtract(10, 'year').startOf('year').toDate(),
-                to: moment().subtract(1, 'year').endOf('year').toDate()
+                from: from.subtract(10, 'year').startOf('year').toDate(),
+                to: to.subtract(1, 'year').endOf('year').toDate(),
             };
         case PredefinedDateRanges.last11Years:
             return {
-                from: moment().subtract(11, 'year').startOf('year').toDate(),
-                to: moment().subtract(1, 'year').endOf('year').toDate()
+                from: from.subtract(11, 'year').startOf('year').toDate(),
+                to: to.subtract(1, 'year').endOf('year').toDate(),
             };
         case PredefinedDateRanges.last12Years:
             return {
-                from: moment().subtract(12, 'year').startOf('year').toDate(),
-                to: moment().subtract(1, 'year').endOf('year').toDate()
+                from: from.subtract(12, 'year').startOf('year').toDate(),
+                to: to.subtract(1, 'year').endOf('year').toDate(),
             };
         case PredefinedDateRanges.last13Years:
             return {
-                from: moment().subtract(13, 'year').startOf('year').toDate(),
-                to: moment().subtract(1, 'year').endOf('year').toDate()
+                from: from.subtract(13, 'year').startOf('year').toDate(),
+                to: to.subtract(1, 'year').endOf('year').toDate(),
             };
         case PredefinedDateRanges.last14Years:
             return {
-                from: moment().subtract(14, 'year').startOf('year').toDate(),
-                to: moment().subtract(1, 'year').endOf('year').toDate()
+                from: from.subtract(14, 'year').startOf('year').toDate(),
+                to: to.subtract(1, 'year').endOf('year').toDate(),
             };
         case PredefinedDateRanges.last15Years:
             return {
-                from: moment().subtract(15, 'year').startOf('year').toDate(),
-                to: moment().subtract(1, 'year').endOf('year').toDate()
+                from: from.subtract(15, 'year').startOf('year').toDate(),
+                to: to.subtract(1, 'year').endOf('year').toDate(),
             };
         case PredefinedDateRanges.last16Years:
             return {
-                from: moment().subtract(16, 'year').startOf('year').toDate(),
-                to: moment().subtract(1, 'year').endOf('year').toDate()
+                from: from.subtract(16, 'year').startOf('year').toDate(),
+                to: to.subtract(1, 'year').endOf('year').toDate(),
             };
         case PredefinedDateRanges.last17Years:
             return {
-                from: moment().subtract(17, 'year').startOf('year').toDate(),
-                to: moment().subtract(1, 'year').endOf('year').toDate()
+                from: from.subtract(17, 'year').startOf('year').toDate(),
+                to: to.subtract(1, 'year').endOf('year').toDate(),
             };
         case PredefinedDateRanges.last18Years:
             return {
-                from: moment().subtract(18, 'year').startOf('year').toDate(),
-                to: moment().subtract(1, 'year').endOf('year').toDate()
+                from: from.subtract(18, 'year').startOf('year').toDate(),
+                to: to.subtract(1, 'year').endOf('year').toDate(),
             };
         case PredefinedDateRanges.last19Years:
             return {
-                from: moment().subtract(19, 'year').startOf('year').toDate(),
-                to: moment().subtract(1, 'year').endOf('year').toDate()
+                from: from.subtract(19, 'year').startOf('year').toDate(),
+                to: to.subtract(1, 'year').endOf('year').toDate(),
             };
         case PredefinedDateRanges.last20Years:
             return {
-                from: moment().subtract(20, 'year').startOf('year').toDate(),
-                to: moment().subtract(1, 'year').endOf('year').toDate()
+                from: from.subtract(20, 'year').startOf('year').toDate(),
+                to: to.subtract(1, 'year').endOf('year').toDate(),
             };
         case PredefinedDateRanges.last21Years:
             return {
-                from: moment().subtract(21, 'year').startOf('year').toDate(),
-                to: moment().subtract(1, 'year').endOf('year').toDate()
+                from: from.subtract(21, 'year').startOf('year').toDate(),
+                to: to.subtract(1, 'year').endOf('year').toDate(),
             };
         case PredefinedDateRanges.last22Years:
             return {
-                from: moment().subtract(22, 'year').startOf('year').toDate(),
-                to: moment().subtract(1, 'year').endOf('year').toDate()
+                from: from.subtract(22, 'year').startOf('year').toDate(),
+                to: to.subtract(1, 'year').endOf('year').toDate(),
             };
         case PredefinedDateRanges.last23Years:
             return {
-                from: moment().subtract(23, 'year').startOf('year').toDate(),
-                to: moment().subtract(1, 'year').endOf('year').toDate()
+                from: from.subtract(23, 'year').startOf('year').toDate(),
+                to: to.subtract(1, 'year').endOf('year').toDate(),
             };
         case PredefinedDateRanges.last24Years:
             return {
-                from: moment().subtract(24, 'year').startOf('year').toDate(),
-                to: moment().subtract(1, 'year').endOf('year').toDate()
+                from: from.subtract(24, 'year').startOf('year').toDate(),
+                to: to.subtract(1, 'year').endOf('year').toDate(),
             };
         case PredefinedDateRanges.last25Years:
             return {
-                from: moment().subtract(25, 'year').startOf('year').toDate(),
-                to: moment().subtract(1, 'year').endOf('year').toDate()
+                from: from.subtract(25, 'year').startOf('year').toDate(),
+                to: to.subtract(1, 'year').endOf('year').toDate(),
             };
         case PredefinedDateRanges.last26Years:
             return {
-                from: moment().subtract(26, 'year').startOf('year').toDate(),
-                to: moment().subtract(1, 'year').endOf('year').toDate()
+                from: from.subtract(26, 'year').startOf('year').toDate(),
+                to: to.subtract(1, 'year').endOf('year').toDate(),
             };
         case PredefinedDateRanges.last27Years:
             return {
-                from: moment().subtract(27, 'year').startOf('year').toDate(),
-                to: moment().subtract(1, 'year').endOf('year').toDate()
+                from: from.subtract(27, 'year').startOf('year').toDate(),
+                to: to.subtract(1, 'year').endOf('year').toDate(),
             };
         case PredefinedDateRanges.last28Years:
             return {
-                from: moment().subtract(28, 'year').startOf('year').toDate(),
-                to: moment().subtract(1, 'year').endOf('year').toDate()
+                from: from.subtract(28, 'year').startOf('year').toDate(),
+                to: to.subtract(1, 'year').endOf('year').toDate(),
             };
         case PredefinedDateRanges.last29Years:
             return {
-                from: moment().subtract(29, 'year').startOf('year').toDate(),
-                to: moment().subtract(1, 'year').endOf('year').toDate()
+                from: from.subtract(29, 'year').startOf('year').toDate(),
+                to: to.subtract(1, 'year').endOf('year').toDate(),
             };
         case PredefinedDateRanges.last30Years:
             return {
-                from: moment().subtract(30, 'year').startOf('year').toDate(),
-                to: moment().subtract(1, 'year').endOf('year').toDate()
+                from: from.subtract(30, 'year').startOf('year').toDate(),
+                to: to.subtract(1, 'year').endOf('year').toDate(),
             };
+
+
         case PredefinedDateRanges.lastYearToDate:
             return {
-                from: moment().subtract(1, 'year').startOf('year').toDate(),
-                to: moment().endOf('day').toDate()
+                from: from.subtract(1, 'year').startOf('year').toDate(),
+                to: to.endOf('day').toDate(),
             };
         case PredefinedDateRanges.last2YearsToDate:
             return {
-                from: moment().subtract(2, 'year').startOf('year').toDate(),
-                to: moment().endOf('day').toDate()
+                from: from.subtract(2, 'year').startOf('year').toDate(),
+                to: to.endOf('day').toDate(),
             };
         case PredefinedDateRanges.thisWeek:
             return {
-                from: moment().startOf('week').toDate(),
-                to: moment().endOf('week').toDate()
+                from: from.startOf('week').toDate(),
+                to: to.endOf('week').toDate(),
             };
         case PredefinedDateRanges.thisMonth:
             return {
-                from: moment().startOf('month').toDate(),
-                to: moment().endOf('month').toDate()
+                from: from.startOf('month').toDate(),
+                to: to.endOf('month').toDate(),
             };
         case PredefinedDateRanges.thisQuarter:
             return {
-                from: moment().quarter(thisQuarter).startOf('quarter').toDate(),
-                to: moment().quarter(thisQuarter).endOf('quarter').toDate()
+                from: from.quarter(thisQuarter).startOf('quarter').toDate(),
+                to: to.quarter(thisQuarter).endOf('quarter').toDate(),
             };
         case PredefinedDateRanges.thisYear:
             return {
-                from: moment().startOf('year').toDate(),
-                to: moment().endOf('year').toDate()
+                from: from.startOf('year').toDate(),
+                to: to.endOf('year').toDate(),
             };
         case PredefinedDateRanges.yesterday:
             return {
-                from: moment().subtract(1, 'days').startOf('day').toDate(),
-                to: moment().subtract(1, 'days').endOf('day').toDate()
+                from: from.subtract(1, 'days').startOf('day').toDate(),
+                to: to.subtract(1, 'days').endOf('day').toDate(),
             };
         case PredefinedDateRanges.thisWeekToDate:
             return {
-                from: moment().startOf('isoWeek').toDate(),
-                to: moment().endOf('day').toDate()
+                from: from.startOf('isoWeek').toDate(),
+                to: to.endOf('day').toDate(),
             };
         case PredefinedDateRanges.today:
             return {
-                from: moment().startOf('day').toDate(),
-                to: moment().endOf('day').toDate()
+                from: from.startOf('day').toDate(),
+                to: to.endOf('day').toDate(),
             };
         case PredefinedDateRanges.thisMonthToDate:
             return {
-                from: moment().startOf('month').toDate(),
-                to: moment().endOf('day').toDate()
+                from: from.startOf('month').toDate(),
+                to: to.endOf('day').toDate(),
             };
         case PredefinedDateRanges.thisQuarterToDate:
-        return {
-            from: moment().quarter(thisQuarter).startOf('quarter').toDate(),
-            to: moment().endOf('day').toDate()
-        };
+            return {
+                from: from.quarter(thisQuarter).startOf('quarter').toDate(),
+                to: to.endOf('day').toDate(),
+            };
         case PredefinedDateRanges.thisYearToDate:
             return {
-                from: moment().startOf('year').toDate(),
-                to: moment().endOf('day').toDate()
+                from: from.startOf('year').toDate(),
+                to: to.endOf('day').toDate(),
             };
         case PredefinedDateRanges.last7Days:
             return {
-                from: moment().subtract(7, 'days').startOf('day').toDate(),
-                to: moment().subtract(1, 'days').endOf('day').toDate()
+                from: from.subtract(7, 'days').startOf('day').toDate(),
+                to: to.subtract(1, 'days').endOf('day').toDate(),
             };
         case PredefinedDateRanges.last14Days:
             return {
-                from: moment().subtract(14, 'days').startOf('day').toDate(),
-                to: moment().subtract(1, 'days').endOf('day').toDate()
+                from: from.subtract(14, 'days').startOf('day').toDate(),
+                to: to.subtract(1, 'days').endOf('day').toDate(),
             };
         case PredefinedDateRanges.last30Days:
             return {
-                from: moment().subtract(30, 'days').startOf('day').toDate(),
-                to: moment().subtract(1, 'days').endOf('day').toDate()
+                from: from.subtract(30, 'days').startOf('day').toDate(),
+                to: to.subtract(1, 'days').endOf('day').toDate(),
             };
         case PredefinedDateRanges.last90Days:
             return {
-                from: moment().subtract(90, 'days').startOf('day').toDate(),
-                to: moment().subtract(1, 'days').endOf('day').toDate()
+                from: from.subtract(90, 'days').startOf('day').toDate(),
+                to: to.subtract(1, 'days').endOf('day').toDate(),
             };
         case PredefinedDateRanges.last365Days:
             return {
-                from: moment().subtract(365, 'days').startOf('day').toDate(),
-                to: moment().subtract(1, 'days').endOf('day').toDate()
-            };
-        case PredefinedDateRanges.custom:
-            return {
-                from: undefined,
-                to: undefined
+                from: from.subtract(365, 'days').startOf('day').toDate(),
+                to: to.subtract(1, 'days').endOf('day').toDate(),
             };
 
-        // future dateRanges
+        // future date ranges
 
         case PredefinedDateRanges.nextWeek:
             return {
-                from: moment().add(1, 'week').startOf('week').toDate(),
-                to: moment().add(1, 'week').endOf('week').toDate()
+                from: from.add(1, 'week').startOf('week').toDate(),
+                to: to.add(1, 'week').endOf('week').toDate(),
             };
 
         case PredefinedDateRanges.nextMonth:
             return {
-                from: moment().add(1, 'month').startOf('month').toDate(),
-                to: moment().add(1, 'month').endOf('month').toDate()
+                from: from.add(1, 'month').startOf('month').toDate(),
+                to: to.add(1, 'month').endOf('month').toDate(),
             };
 
         case PredefinedDateRanges.nextQuarter:
             let nextQuarter = thisQuarter + 1;
             if (nextQuarter > 4) nextQuarter -= 4;
 
-            const nYear = (thisQuarter - 1)
-                         ? moment().add(1, 'year').year()
-                         : moment().year();
+            const y = from.year();
 
+            const nYear = (thisQuarter - 1)
+                         ? y + 1
+                         : y;
             return {
-                from: moment().year(nYear).quarter(nextQuarter).startOf('quarter').toDate(),
-                to: moment().year(nYear).quarter(nextQuarter).endOf('quarter').toDate()
+                from: from.year(nYear).quarter(nextQuarter).startOf('quarter').toDate(),
+                to: to.year(nYear).quarter(nextQuarter).endOf('quarter').toDate(),
             };
 
         case PredefinedDateRanges.nextYear:
             return {
-                from: moment().add(1, 'year').startOf('year').toDate(),
-                to: moment().add(1, 'year').endOf('year').toDate()
+                from: from.add(1, 'year').startOf('year').toDate(),
+                to: to.add(1, 'year').endOf('year').toDate(),
             };
+
+        case PredefinedDateRanges.custom:
+            return null;
+        default:
+            return null;
     }
 
-}
 
+}
 
 export const PredefinedComparisonDateRanges = {
     today: {
@@ -1194,7 +1225,10 @@ export const PredefinedTargetPeriod = {
  * @param predefinedDate last year
  * @param dueDate MM/DD/YYYY
  */
-export function parsePredefinedTargetDateRanges (predefinedDate: string, dueDate: string, chartFrequency: string): IDateRange {
+export function parsePredefinedTargetDateRanges (predefinedDate: string, dueDate: string, chartFrequency: string, tz: string): IDateRange {
+    const timezone = moment.tz.zone(tz);
+    if (!tz || !timezone) throw new Error('timezone invalid');
+
     const momentFormat: string = 'MM/DD/YYYY';
     const frequency: number = FrequencyTable[chartFrequency];
 
@@ -1206,70 +1240,70 @@ export function parsePredefinedTargetDateRanges (predefinedDate: string, dueDate
 
     switch (predefinedDate) {
         case PredefinedDateRanges.lastMonth:
-            return parsePredefinedDate(PredefinedDateRanges.lastMonth);
+            return parsePredefinedDate(PredefinedDateRanges.lastMonth, tz);
         case PredefinedDateRanges.yesterday:
-            return parsePredefinedDate(PredefinedDateRanges.yesterday);
+            return parsePredefinedDate(PredefinedDateRanges.yesterday, tz);
         case PredefinedDateRanges.lastWeek:
-            return parsePredefinedDate(PredefinedDateRanges.lastWeek);
+            return parsePredefinedDate(PredefinedDateRanges.lastWeek, tz);
         case PredefinedDateRanges.lastQuarter:
-            return parsePredefinedDate(PredefinedDateRanges.lastQuarter);
+            return parsePredefinedDate(PredefinedDateRanges.lastQuarter, tz);
         case PredefinedDateRanges.lastYear:
-            return parsePredefinedDate(PredefinedDateRanges.lastYear);
+            return parsePredefinedDate(PredefinedDateRanges.lastYear, tz);
         case PredefinedDateRanges.last2Years:
-            return parsePredefinedDate(PredefinedDateRanges.last2Years);
+            return parsePredefinedDate(PredefinedDateRanges.last2Years, tz);
 
         // frequency = 'daily'
         case PredefinedTargetDateRanges.sameDayLastYear:
             return {
-                from: moment(dueDate, momentFormat).subtract(1, 'year').startOf('day').toDate(),
-                to: moment(dueDate, momentFormat).subtract(1, 'year').endOf('day').toDate()
+                from: toTzDate(moment(dueDate, momentFormat).tz(tz).subtract(1, 'year').startOf('day')),
+                to: toTzDate(moment(dueDate, momentFormat).tz(tz).subtract(1, 'year').endOf('day'))
             };
         case PredefinedTargetDateRanges.sameDay2YearsAgo:
             return {
-                from: moment(dueDate, momentFormat).subtract(2, 'year').startOf('day').toDate(),
-                to: moment(dueDate, momentFormat).subtract(2, 'year').endOf('day').toDate()
+                from: toTzDate(moment(dueDate, momentFormat).tz(tz).subtract(2, 'year').startOf('day')),
+                to: toTzDate(moment(dueDate, momentFormat).tz(tz).subtract(2, 'year').endOf('day'))
             };
 
         // frequency = 'weekly'
         case PredefinedTargetDateRanges.sameWeekLastYear:
             return {
-                from: moment(dueDate, momentFormat).subtract(1, 'year').startOf('week').toDate(),
-                to: moment(dueDate, momentFormat).subtract(1, 'year').endOf('week').toDate()
+                from: toTzDate(moment(dueDate, momentFormat).tz(tz).subtract(1, 'year').startOf('week')),
+                to: toTzDate(moment(dueDate, momentFormat).tz(tz).subtract(1, 'year').endOf('week'))
             };
         case PredefinedTargetDateRanges.sameWeek2YearsAgo:
             return {
-                from: moment(dueDate, momentFormat).subtract(2, 'year').startOf('week').toDate(),
-                to: moment(dueDate, momentFormat).subtract(2, 'year').endOf('week').toDate()
+                from: toTzDate(moment(dueDate, momentFormat).tz(tz).subtract(2, 'year').startOf('week')),
+                to: toTzDate(moment(dueDate, momentFormat).tz(tz).subtract(2, 'year').endOf('week'))
             };
 
         // frequency = 'monthly'
         case PredefinedTargetDateRanges.sameMonthLastYear:
             return {
-                from: moment(dueDate, momentFormat).subtract(1, 'year').startOf('month').toDate(),
-                to: moment(dueDate, momentFormat).subtract(1, 'year').endOf('month').toDate()
+                from: toTzDate(moment(dueDate, momentFormat).tz(tz).subtract(1, 'year').startOf('month')),
+                to: toTzDate(moment(dueDate, momentFormat).tz(tz).subtract(1, 'year').endOf('month'))
             };
         case PredefinedTargetDateRanges.sameMonth2YearsAgo:
             return {
-                from: moment(dueDate, momentFormat).subtract(2, 'year').startOf('month').toDate(),
-                to: moment(dueDate, momentFormat).subtract(2, 'year').endOf('month').toDate()
+                from: toTzDate(moment(dueDate, momentFormat).tz(tz).subtract(2, 'year').startOf('month')),
+                to: toTzDate(moment(dueDate, momentFormat).tz(tz).subtract(2, 'year').endOf('month'))
             };
 
         // frequency = 'quarterly'
         case PredefinedTargetDateRanges.sameQuarterLastYear:
             return {
-                from: moment(dueDate, momentFormat).subtract(1, 'year').startOf('quarter').toDate(),
-                to: moment(dueDate, momentFormat).subtract(1, 'year').endOf('quarter').toDate()
+                from: toTzDate(moment(dueDate, momentFormat).tz(tz).subtract(1, 'year').startOf('quarter')),
+                to: toTzDate(moment(dueDate, momentFormat).tz(tz).subtract(1, 'year').endOf('quarter'))
             };
         case PredefinedTargetDateRanges.sameQuarter2YearsAgo:
             return {
-                from: moment(dueDate, momentFormat).subtract(2, 'year').startOf('quarter').toDate(),
-                to: moment(dueDate, momentFormat).subtract(2, 'year').endOf('quarter').toDate()
+                from: toTzDate(moment(dueDate, momentFormat).tz(tz).subtract(2, 'year').startOf('quarter')),
+                to: toTzDate(moment(dueDate, momentFormat).tz(tz).subtract(2, 'year').endOf('quarter'))
             };
         // yearly
         case PredefinedTargetDateRanges.twoYearsAgo:
             return {
-                from: moment().subtract(2, 'year').startOf('year').toDate(),
-                to: moment().subtract(2, 'year').endOf('year').toDate()
+                from: toTzDate(moment().tz(tz).subtract(2, 'year').startOf('year')),
+                to: toTzDate(moment().tz(tz).subtract(2, 'year').endOf('year'))
             };
 
         // any frequency
@@ -1277,46 +1311,46 @@ export function parsePredefinedTargetDateRanges (predefinedDate: string, dueDate
             switch (frequency) {
                 case FrequencyEnum.Weekly:
                     return {
-                        from: moment(dueDate, momentFormat).subtract(1, 'year').startOf('week').toDate(),
-                        to: moment(dueDate, momentFormat).subtract(1, 'year').endOf('day').toDate()
+                        from: toTzDate(moment(dueDate, momentFormat).tz(tz).subtract(1, 'year').startOf('week')),
+                        to: toTzDate(moment(dueDate, momentFormat).tz(tz).subtract(1, 'year').endOf('day'))
                     };
                 case FrequencyEnum.Monthly:
                     return {
-                        from: moment(dueDate, momentFormat).subtract(1, 'year').startOf('month').toDate(),
-                        to: moment(dueDate, momentFormat).subtract(1, 'year').endOf('day').toDate()
+                        from: toTzDate(moment(dueDate, momentFormat).tz(tz).subtract(1, 'year').startOf('month')),
+                        to: toTzDate(moment(dueDate, momentFormat).tz(tz).subtract(1, 'year').endOf('day'))
                     };
                 case FrequencyEnum.Quarterly:
                     return {
-                        from: moment(dueDate, momentFormat).subtract(1, 'year').startOf('quarter').toDate(),
-                        to: moment(dueDate, momentFormat).subtract(1, 'year').endOf('day').toDate()
+                        from: toTzDate(moment(dueDate, momentFormat).tz(tz).subtract(1, 'year').startOf('quarter')),
+                        to: toTzDate(moment(dueDate, momentFormat).tz(tz).subtract(1, 'year').endOf('day'))
                     };
                 case FrequencyEnum.Yearly:
                     return {
-                        from: moment(dueDate, momentFormat).subtract(1, 'year').startOf('year').toDate(),
-                        to: moment(dueDate, momentFormat).subtract(1, 'year').endOf('day').toDate()
+                        from: toTzDate(moment(dueDate, momentFormat).tz(tz).subtract(1, 'year').startOf('year')),
+                        to: toTzDate(moment(dueDate, momentFormat).tz(tz).subtract(1, 'year').endOf('day'))
                     };
             }
         case PredefinedTargetDateRanges.samePeriod2YearsAgo:
             switch (frequency) {
                 case FrequencyEnum.Weekly:
                     return {
-                        from: moment(dueDate, momentFormat).subtract(2, 'year').startOf('week').toDate(),
-                        to: moment(dueDate, momentFormat).subtract(2, 'year').endOf('day').toDate()
+                        from: toTzDate(moment(dueDate, momentFormat).tz(tz).subtract(2, 'year').startOf('week')),
+                        to: toTzDate(moment(dueDate, momentFormat).tz(tz).subtract(2, 'year').endOf('day'))
                     };
                 case FrequencyEnum.Monthly:
                     return {
-                        from: moment(dueDate, momentFormat).subtract(2, 'year').startOf('month').toDate(),
-                        to: moment(dueDate, momentFormat).subtract(2, 'year').endOf('day').toDate()
+                        from: toTzDate(moment(dueDate, momentFormat).tz(tz).subtract(2, 'year').startOf('month')),
+                        to: toTzDate(moment(dueDate, momentFormat).tz(tz).subtract(2, 'year').endOf('day'))
                     };
                 case FrequencyEnum.Quarterly:
                     return {
-                        from: moment(dueDate, momentFormat).subtract(2, 'year').startOf('quarter').toDate(),
-                        to: moment(dueDate, momentFormat).subtract(2, 'year').endOf('day').toDate()
+                        from: toTzDate(moment(dueDate, momentFormat).tz(tz).subtract(2, 'year').startOf('quarter')),
+                        to: toTzDate(moment(dueDate, momentFormat).tz(tz).subtract(2, 'year').endOf('day'))
                     };
                 case FrequencyEnum.Yearly:
                     return {
-                        from: moment(dueDate, momentFormat).subtract(2, 'year').startOf('year').toDate(),
-                        to: moment(dueDate, momentFormat).subtract(2, 'year').endOf('day').toDate()
+                        from: toTzDate(moment(dueDate, momentFormat).tz(tz).subtract(2, 'year').startOf('year')),
+                        to: toTzDate(moment(dueDate, momentFormat).tz(tz).subtract(2, 'year').endOf('day'))
                     };
             }
     }
@@ -1324,23 +1358,12 @@ export function parsePredefinedTargetDateRanges (predefinedDate: string, dueDate
 
 
 export function backInTime(dateRange: IDateRange, amount: any, timespan: string, mainDateRangeFrom?: Date): IDateRange {
-    const format: string = 'MM/DD/YYYY';
-    const fromDate: Date = moment(dateRange.from).subtract(amount, timespan).toDate();
-    let toDate: Date = moment(dateRange.to).subtract(amount, timespan).endOf('day').toDate();
-
-    if (mainDateRangeFrom) {
-        const dateRangeFrom: string = moment(mainDateRangeFrom, format).format(format);
-        const comparisonToDate: string = moment(dateRange.to).subtract(amount, timespan).format(format);
-
-        const isSameDate: boolean = dateRangeFrom === comparisonToDate;
-        if (isSameDate) {
-            toDate = moment(dateRange.to).subtract(amount, timespan).startOf('day').toDate();
-        }
-    }
+    const from = moment(dateRange.from).subtract(amount, timespan).toDate();
+    const to = moment(dateRange.to).subtract(amount, timespan).toDate();
 
     return {
-        from: fromDate,
-        to: toDate
+        from,
+        to
     };
 }
 
@@ -1349,17 +1372,12 @@ export function previousPeriod(dateRange: IDateRange): IDateRange {
     const end = moment(dateRange.to);
     const duration = end.diff(start);
 
-    const isSameDate = end.diff(start, 'days') === 0;
-    if (isSameDate) {
-        return {
-            from: start.subtract(1, 'day').startOf('day').toDate(),
-            to: end.startOf('day').toDate()
-        };
-    }
+    const from = moment(dateRange.from).subtract(duration).toDate();
+    const to = moment(dateRange.to).subtract(duration).toDate();
 
     return {
-        from: start.subtract(duration).startOf('day').toDate(),
-        to: end.subtract(duration).startOf('day').toDate()
+        from,
+        to
     };
 }
 
@@ -1532,19 +1550,18 @@ export function parseComparisonDateRange(dateRange: IDateRange, comparisonString
     return null;
 }
 
-export function getComparisonDateRanges(dateRange: IChartDateRange[], comparisonOptions: string[], mainDateRangeFrom: Date): IDateRange[] {
+export function getComparisonDateRanges(
+    dateRange: IChartDateRange[],
+    comparisonOptions: string[],
+    mainDateRangeFrom: Date,
+    timezone: string,
+): IDateRange[] {
     if (!dateRange || !comparisonOptions) return [];
 
     return comparisonOptions.map(c => {
          if (isEmpty(c)) return;
-         return parseComparisonDateRange(processChartDateRange(dateRange[0]), c, mainDateRangeFrom);
+         return parseComparisonDateRange(processDateRangeWithTimezone(dateRange[0], timezone), c, mainDateRangeFrom);
     });
-}
-
-export function processChartDateRange(chartDateRange: IChartDateRange): IDateRange {
-    return chartDateRange.custom && chartDateRange.custom.from ?
-            { from: new Date(chartDateRange.custom.from), to: new Date(chartDateRange.custom.to) }
-            : parsePredefinedDate(chartDateRange.predefined);
 }
 
 export function getYesterdayDate(): IDateRange {
@@ -1555,3 +1572,53 @@ export function getYesterdayDate(): IDateRange {
 }
 
 export const isValidTimezone = (tz: string): boolean => !!moment.tz.zone(tz);
+
+export function processDateRangeWithTimezone(dr: IChartDateRange | ChartDateRangeInput, tz: string): IDateRange {
+    if (!dr.custom || !dr.custom.from) {
+        return parsePredefinedDate(dr.predefined, tz);
+    }
+
+    let start, end;
+
+    if (dr.custom.from instanceof Date) {
+        start = moment.utc(dr.custom.from).format(AKPIDateFormatEnum.US_DATE);
+        end = moment.utc(dr.custom.to).format(AKPIDateFormatEnum.US_DATE);
+    } else {
+        start = dr.custom.from;
+        end = dr.custom.to;
+    }
+
+    const from = moment.tz(
+        start,
+        AKPIDateFormatEnum.US_DATE,
+        tz
+    ).startOf('day');
+
+    const to = moment.tz(
+        end,
+        AKPIDateFormatEnum.US_DATE,
+        tz
+    ).endOf('day');
+
+    return {
+        from: from.toDate(),
+        to: to.toDate(),
+    };
+}
+
+export function  convertStringDateRangeToDateDateRange(dateRange: ChartDateRange, timezone: string): IChartDateRange {
+    const newDateRange: IChartDateRange = {
+        predefined: dateRange.predefined
+    };
+
+    if (dateRange.custom) {
+        const from = moment.tz(dateRange.custom.from, AKPIDateFormatEnum.US_DATE, timezone).toDate();
+        const to = moment.tz(dateRange.custom.to, AKPIDateFormatEnum.US_DATE, timezone).toDate();
+        newDateRange.custom = {
+            from,
+            to
+        };
+    }
+
+    return newDateRange;
+}
