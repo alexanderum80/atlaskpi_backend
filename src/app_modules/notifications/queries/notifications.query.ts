@@ -22,9 +22,9 @@ export class NotificationsQuery implements IQuery<NotificationGql[]> {
     ) { }
 
     async run(data: { id: string }): Promise<NotificationGql[]> {
-        const notifications = await this._notifications.model.find({}
-            // { user: this._currentUser.get()._id }
-        );
+        const notifications = await this._notifications.model.find(
+            { user: this._currentUser.get()._id },
+        ).sort({ 'status.timestamp': -1 });
 
         return notifications.map(n => {
             const notif = new NotificationGql();
