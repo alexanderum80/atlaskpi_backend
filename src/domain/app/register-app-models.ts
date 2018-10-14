@@ -82,7 +82,7 @@ const registrations: any[] = [
     COGS,
     FinancialActivities,
     ScheduleJobs,
-    TargetsNew
+    TargetsNew,
 ];
 
 export function registerAppModels(container: IBridgeContainer) {
