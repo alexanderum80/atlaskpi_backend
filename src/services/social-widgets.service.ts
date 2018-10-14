@@ -1,9 +1,10 @@
+import { parsePredefinedDate } from '../domain/common/date-range';
+import { CurrentUser } from '../domain/app/current-user';
 import * as Promise from 'bluebird';
 import { inject, injectable } from 'inversify';
 import * as moment from 'moment';
 import * as mongoose from 'mongoose';
 
-import { parsePredefinedDate } from '../domain/common/date-range';
 import { CurrentAccount } from '../domain/master/current-account';
 import { ISocialNetworkDocument } from './../domain/app/social-networks/social-network';
 import { SocialNetwork } from './../domain/app/social-networks/social-network.model';
@@ -19,7 +20,8 @@ export class SocialWidgetsService {
         @inject(SocialNetwork.name) private _socialNetworks: SocialNetwork,
         @inject(Connectors.name) private _connectors: Connectors,
         @inject(CurrentAccount.name) private _currentAccount: CurrentAccount,
-        @inject(SocialWidgetFactory.name) private _socialWidgetFactory: SocialWidgetFactory
+        @inject(SocialWidgetFactory.name) private _socialWidgetFactory: SocialWidgetFactory,
+        @inject(CurrentUser.name) private _user: CurrentUser,
     ) { }
 
     getSocialWidgets(startDate: string, textDate: string): Promise<ISocialWidget[]> {
@@ -51,7 +53,32 @@ export class SocialWidgetsService {
                 return;
             });
         });
-        // return Promise.resolve([]);
+    }
+
+    getSocialWidgetsById(id: string): Promise<string> {
+        const that = this;
+        return new Promise<string>((resolve, reject) => {
+            that._connectors.model.findById(id)
+            .then(connector => {
+                if (!connector) {
+                    resolve(null);
+                    return;
+                }
+                that._toSocialWidget(connector, moment().utc().toDate(), 'last 7 days')
+                .then(swidget => {
+                    resolve(JSON.stringify(swidget));
+                    return;
+                })
+                .catch(err => {
+                    reject(err);
+                    return;
+                });
+            })
+            .catch(err => {
+                reject(err);
+                return;
+            });
+        });
     }
 
     private _toSocialWidget(doc: IConnectorDocument, date: Date, textDate: string): Promise<ISocialWidget> {
@@ -107,7 +134,7 @@ export class SocialWidgetsService {
 
     private _getHistoricalMetric(connectorId: string, textDate: string): Promise<ISocialNetworkDocument> {
         const that = this;
-        const parsedDate = parsePredefinedDate(textDate);
+        const parsedDate = parsePredefinedDate(textDate, this._user.get().profile.timezone);
         const startOfDay = moment(parsedDate.from).utc().startOf('day');
         const endOfDay = moment(parsedDate.from).utc().endOf('day');
 

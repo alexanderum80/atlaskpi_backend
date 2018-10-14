@@ -1,3 +1,4 @@
+import { CurrentUser } from '../domain/app/current-user';
 import { IDateRange, parsePredefinedDate } from '../domain/common/date-range';
 import { VirtualSources } from '../domain/app/virtual-sources/virtual-source.model';
 import { injectable, inject } from 'inversify';
@@ -53,7 +54,9 @@ export class MapMarkerService {
     constructor(
         @inject(Sales.name) private _sales: Sales,
         @inject(ZipsToMap.name) private _ZipToMaps: ZipsToMap,
-        @inject(VirtualSources.name) private _virtualSources: VirtualSources) { }
+        @inject(VirtualSources.name) private _virtualSources: VirtualSources,
+        @inject(CurrentUser.name) private _user: CurrentUser,
+        ) { }
 
 
     async getMapMarkers(dataTypeMap: TypeMap, input: MapMarkerGroupingInput): Promise<IMapMarker[]> {
@@ -226,7 +229,7 @@ export class MapMarkerService {
 
     private _updateMatchAggregatePipeline(aggregate: IMapMarkerAggregate[], input: MapMarkerGroupingInput): void {
         const matchStage: IMapMarkerAggregate = findStage(aggregate, '$match');
-        const dateRange: IDateRange = parsePredefinedDate(input.dateRange);
+        const dateRange: IDateRange = parsePredefinedDate(input.dateRange, this._user.get().profile.timezone);
 
         if (matchStage && moment(dateRange.from).isValid()) {
             matchStage.$match['product.from'] = {

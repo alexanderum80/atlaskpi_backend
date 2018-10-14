@@ -25,10 +25,10 @@ import * as moment from 'moment';
 export class GetKpiOldestDateQuery implements IQuery<Object> {
 
     constructor(@inject(KPIs.name) private _kpis: KPIs,
-                @inject(AppConnection.name) private _appConnection: AppConnection,
-                @inject(KpiService.name) private _kpiservice: KpiService,
-                @inject(VirtualSources.name) private _virtualSources: VirtualSources,
-                @inject(Connectors.name) private _connectors: Connectors) { }
+        @inject(AppConnection.name) private _appConnection: AppConnection,
+        @inject(KpiService.name) private _kpiservice: KpiService,
+        @inject(VirtualSources.name) private _virtualSources: VirtualSources,
+        @inject(Connectors.name) private _connectors: Connectors) { }
 
     async run(data: { id: string }): Promise<Object> {
 
@@ -41,29 +41,41 @@ export class GetKpiOldestDateQuery implements IQuery<Object> {
             return kpiSources.indexOf(v.name.toLocaleLowerCase()) !== -1;
         });
         const searchPromises: Promise<Object>[] = [];
-        virtualSources.map( s => {
+        virtualSources.map(s => {
             const theModel = this.getModel(s.name, s.source);
             searchPromises.push(this.getOldDestYear(theModel, s.dateField));
         });
         return new Promise<Object>((resolve, reject) => {
             Promise.all(searchPromises).then(res => {
                 let result: number[] = [];
+                let endResult;
                 res.map(r => {
-                    const yearTMP = moment(r[0].oldestDate).year();
-                    result.push(yearTMP);
+                    // this happens with google analytics the response is a []
+                    if (Object.values(r).length < 1 || 
+                        (Object.values(r).length === 1 && Object.values(r[0]).length === 0)) {
+                        //assign a fixed value up to 3 years in the past
+                        endResult = moment().year() - 3;
+                    }
+                    else {
+                        const yearTMP = moment(r[0].oldestDate).year();
+                        result.push(yearTMP);
+                    }
                 });
+
+                if(!endResult){
                 result = result.sort();
-                let endResult = result[result.length - 1];
+                endResult = result[result.length - 1];
+                }
                 resolve(endResult);
             })
-            .catch(err => {
-                reject(err);
-            });
+                .catch(err => {
+                    reject(err);
+                });
         });
     }
 
     private getModel(modelName: string, source: string): any {
-        const schema = new mongoose.Schema({}, {strict: false});
+        const schema = new mongoose.Schema({}, { strict: false });
         const connection: mongoose.Connection = this._appConnection.get;
         const model = connection.model(modelName, schema, source);
         return model;
@@ -73,7 +85,7 @@ export class GetKpiOldestDateQuery implements IQuery<Object> {
         return new Promise<Object>((resolve, reject) => {
             const parameters = [];
             const paramstr = '{"$match":{"' + dateField + '":{"$exists":true}}}';
-            const sortstr = '{"$sort":{"' +  dateField + '":1}}';
+            const sortstr = '{"$sort":{"' + dateField + '":1}}';
             const groupstr = '{"$group":{"_id":null,"oldestDate":{"$first":"$' + dateField + '" }}}';
             parameters.push(JSON.parse(paramstr));
             parameters.push(JSON.parse(sortstr));
@@ -84,9 +96,9 @@ export class GetKpiOldestDateQuery implements IQuery<Object> {
                 resolve(result);
                 return;
             })
-            .catch(err => {
-                reject(err);
-            });
+                .catch(err => {
+                    reject(err);
+                });
         });
     }
 }

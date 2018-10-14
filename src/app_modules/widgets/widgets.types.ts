@@ -178,6 +178,14 @@ export class Widget  {
 
     @field({ type: GraphQLTypesMap.String, isArray: true})
     dashboards: string[];
+
+    @resolver({ forField: 'dashboards' })
+    static convertDashboards(d) {
+        if(d && d.dashboards){
+            return  d.dashboards.map(dash => dash.toString() );
+        }
+        return;
+    }
 }
 
 

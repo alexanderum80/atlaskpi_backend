@@ -30,7 +30,8 @@ export class CompositeKpi implements IKpiBase {
     constructor(
         private _kpi: IKPIDocument,
         private _kpiFactory: KpiFactory,
-        private _kpis: KPIs) { }
+        private _kpis: KPIs,
+        private _tz: string) { }
 
     // constructor(private _kpi: IKPIDocument, private ctx: IAppModels) { }
 
@@ -124,7 +125,7 @@ export class CompositeKpi implements IKpiBase {
     private _processChartDateRange(chartDateRange: IChartDateRange): IDateRange {
         return chartDateRange.custom && chartDateRange.custom.from ?
             { from: new Date(chartDateRange.custom.from), to: new Date(chartDateRange.custom.to) }
-            : parsePredefinedDate(chartDateRange.predefined);
+            : parsePredefinedDate(chartDateRange.predefined, this._tz);
     }
 
     private _applyBinaryOperator(left, operator, right): any {

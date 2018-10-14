@@ -23,6 +23,8 @@ export class SearchAppointmentCriteriaInput {
 
     @field({ type: GraphQLTypesMap.Boolean })
     cancelled?: boolean;
+
+    timezone: string;
 }
 
 @input()

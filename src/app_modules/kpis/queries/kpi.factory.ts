@@ -44,9 +44,9 @@ export class KpiFactory {
 
             switch (kpiDocument.type) {
                 case KPITypeEnum.Compound:
-                    return new CompositeKpi(kpiDocument, this, this._kpis);
+                    return new CompositeKpi(kpiDocument, this, this._kpis, tz);
                 case KPITypeEnum.Complex:
-                    return new CompositeKpi(kpiDocument, this, this._kpis);
+                    return new CompositeKpi(kpiDocument, this, this._kpis, tz);
                 case KPITypeEnum.Simple:
                     return SimpleKPI.CreateFromExpression(
                                 kpiDocument,
