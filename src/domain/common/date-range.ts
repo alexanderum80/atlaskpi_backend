@@ -1611,7 +1611,7 @@ export function  convertStringDateRangeToDateDateRange(dateRange: ChartDateRange
         predefined: dateRange.predefined
     };
 
-    if (dateRange.custom) {
+    if (dateRange.custom && dateRange.custom.from) {
         const from = moment.tz(dateRange.custom.from, AKPIDateFormatEnum.US_DATE, timezone).toDate();
         const to = moment.tz(dateRange.custom.to, AKPIDateFormatEnum.US_DATE, timezone).toDate();
         newDateRange.custom = {
