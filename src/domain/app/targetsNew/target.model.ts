@@ -51,7 +51,7 @@ const TargetSchema = new mongoose.Schema({
     appliesTo: { type: TargetAppliesTo },
     unit: { type: String, required: true },
     notificationConfig: {
-        notifyOnPercentage: { type: [Number], required: true },
+        notifyOnPercentages: { type: [Number], required: true },
         users: [{
             identifier: { type: String, required: true },
             deliveryMethods: { type: [String] }
@@ -101,7 +101,7 @@ TargetSchema.statics.createNew = function(targetInput: ITargetNewInput): Promise
             timestamp: new Date(),
             notificationConfig : {
                 ...targetInput.notificationConfig,
-                notifyOnPercentage: [0.25, 0.5, 0.75]
+                notifyOnPercentages: [0.25, 0.5, 0.75]
             },
             milestones: targetInput.milestones,
         };
@@ -155,7 +155,7 @@ TargetSchema.statics.updateTargetNew = async function(_id: string, targetInput: 
             targetValue: targetInput.targetValue || 0,
             notificationConfig : {
                 ...targetInput.notificationConfig,
-                notifyOnPercentage: [0.25, 0.5, 0.75]
+                notifyOnPercentages: [0.25, 0.5, 0.75]
             },
             milestones: targetInput.milestones,
             timestamp: new Date(),
