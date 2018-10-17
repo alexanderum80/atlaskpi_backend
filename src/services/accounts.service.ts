@@ -1,5 +1,4 @@
 import { NewSeedService } from './seed/seed-service';
-import * as Promise from 'bluebird';
 import * as changeCase from 'change-case';
 import * as Handlebars from 'handlebars';
 import { inject, injectable } from 'inversify';
@@ -20,8 +19,6 @@ import { IAccount, IAccountDocument, IDatabaseInfo } from '../domain/master/acco
 import { Accounts } from '../domain/master/accounts/account.model';
 import { ILeadDocument } from '../domain/master/leads/lead';
 import { Leads } from '../domain/master/leads/lead.model';
-import { field } from '../framework/decorators/field.decorator';
-import { input } from '../framework/decorators/input.decorator';
 import { IMutationResponse, MutationResponse } from '../framework/mutations/mutation-response';
 import { generateUniqueHash } from '../helpers/security.helpers';
 import { AppConnectionPool } from '../middlewares/app-connection-pool';
@@ -216,6 +213,10 @@ export class AccountsService {
             }
         });
 
+    }
+
+    async accountNameAvailable(name: string): Promise<boolean> {
+        return this._accounts.model.accountNameAvailable(name);
     }
 
     private _saveLead(account: IAccount): Promise < ILeadDocument > {

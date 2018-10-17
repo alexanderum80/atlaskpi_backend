@@ -1,3 +1,4 @@
+import { resolver } from '../../framework/decorators/resolver.decorator';
 import { field } from '../../framework/decorators/field.decorator';
 import { GraphQLTypesMap } from '../../framework/decorators/graphql-types-map';
 import { type } from '../../framework/decorators/type.decorator';
@@ -14,6 +15,9 @@ export class HistoricalData {
 
 @type()
 export class SocialWidget  {
+    @resolver({ forField: 'connectorId' })
+    static resolverForConnectorId(s) { return s.connectorId.toString(); }
+
     @field({ type: GraphQLTypesMap.String })
     connectorId: string;
 

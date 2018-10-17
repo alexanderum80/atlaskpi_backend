@@ -1,7 +1,4 @@
-import * as Promise from 'bluebird';
 import { inject, injectable } from 'inversify';
-import { start } from 'repl';
-import { isArray } from 'util';
 
 import { IAppointmentDocument } from '../../../domain/app/appointments/appointment';
 import { Appointments } from '../../../domain/app/appointments/appointment-model';

@@ -1,4 +1,3 @@
-import * as Promise from 'bluebird';
 import { inject, injectable } from 'inversify';
 
 import { IAppointment } from '../../../domain/app/appointments/appointment';
@@ -8,6 +7,7 @@ import { Appointment } from '../appointments.types';
 import { IQuery } from './../../../framework/queries/query';
 import { SearchAppointmentsActivity } from './../activities/search-appointments.activity';
 import { SearchAppointmentCriteriaInput } from './../appointments.types';
+import { CurrentUser } from '../../../domain/app/current-user';
 
 @injectable()
 @query({
@@ -20,10 +20,12 @@ import { SearchAppointmentCriteriaInput } from './../appointments.types';
 })
 export class SearchAppointmentsQuery implements IQuery<IAppointment[]> {
     constructor(
-        @inject(Appointments.name) private _appointments: Appointments
+        @inject(Appointments.name) private _appointments: Appointments,
+        @inject(CurrentUser.name) private _user: CurrentUser
     ) { }
 
     run(data: { criteria: SearchAppointmentCriteriaInput }): Promise<IAppointment[]> {
+        data.criteria.timezone = this._user.get().profile.timezone;
         return this._appointments.model.search(data.criteria);
     }
 }

@@ -1,7 +1,7 @@
+import { ApolloServer } from 'apollo-server-express';
 import * as bodyParser from 'body-parser';
 import * as cors from 'cors';
 import * as express from 'express';
-import { graphqlExpress } from 'graphql-server-express';
 import { IExecutableSchemaDefinition } from 'graphql-tools/dist/Interfaces';
 import { Server } from 'http';
 import { Container } from 'inversify';
@@ -13,16 +13,9 @@ import { IAppModule } from './decorators/app-module';
 import { BRIDGE } from './decorators/helpers';
 import { MetadataFieldsMap } from './decorators/metadata-fields.map';
 import { BridgeContainer } from './di/bridge-container';
-import { makeGraphqlSchemaExecutable } from './graphql/graphql-schema-generator';
+import { makeGraphqlSchemaExecutable, ITypesAndResolvers } from './graphql/graphql-schema-generator';
 import { MutationBus } from './mutations/mutation-bus';
-import { IQuery } from './queries/query';
 import { QueryBus } from './queries/query-bus';
-
-interface IQueryData {
-    types: string[];
-    queries: string[];
-    instances: IQuery < any > ;
-}
 
 export interface IFrameworkOptions {
     port?: number;
@@ -72,12 +65,12 @@ export class Bridge {
         registerBridgeDependencies(bridgeContainer);
 
         // generate graphql schema
-        const graphqlSchema: IExecutableSchemaDefinition = makeGraphqlSchemaExecutable(moduleInstances);
+        const graphqlSchema: ITypesAndResolvers = makeGraphqlSchemaExecutable(moduleInstances);
 
         return new Bridge(bridgeContainer, graphqlSchema, options);
     }
 
-    constructor(private _container: BridgeContainer, private _executableSchema: IExecutableSchemaDefinition, private _options: IFrameworkOptions) {
+    constructor(private _container: BridgeContainer, private _executableSchema: ITypesAndResolvers, private _options: IFrameworkOptions) {
         this._options = Object.assign({}, defaultServerOptions, _options);
 
         this._server = express();
@@ -94,22 +87,56 @@ export class Bridge {
         return this._container;
     }
 
-    start() {
-        this._server.use('/graphql', bodyParser.json(), graphqlExpress((req: IBridgeRequest) => (
-            {
-              context: {
-                req: req,
-                requestContainer: req.Container,
-                mutationBus: this._container.get(MutationBus.name),
-                queryBus: this._container.get(QueryBus.name)
-              },
-              schema: this._executableSchema
-            }
-        )));
+    // start() {
+    //     this._server.use('/graphql', bodyParser.json(), graphqlExpress((req: IBridgeRequest) => (
+    //         {
+    //           context: {
+    //             req: req,
+    //             requestContainer: req.Container,
+    //             mutationBus: this._container.get(MutationBus.name),
+    //             queryBus: this._container.get(QueryBus.name)
+    //           },
+    //           schema: this._executableSchema
+    //         }
+    //     )));
 
-        this._httpServer = this._server.listen(this._options.port, () => console.log(
+    //     this._httpServer = this._server.listen(this._options.port, () => console.log(
+    //         `Bridge Server is now running on http://localhost:${this._options.port}/${this._options.graphqlPath}`
+    //     ));
+    // }
+
+    start() {
+
+        const apolloServer = new ApolloServer({
+            ...this._executableSchema,
+            context: ({ req }: { req: express.Request }) => {
+                const ctx = {
+                    req,
+                    requestContainer: (req as IBridgeRequest).Container,
+                    mutationBus: this._container.get(MutationBus.name),
+                    queryBus: this._container.get(QueryBus.name)
+                };
+
+                return ctx;
+            },
+            debug: true,
+            playground: true,
+        });
+
+        apolloServer.applyMiddleware({
+            app: this._server,
+            cors: true,
+        });
+
+        const _httpServer = this._server.listen(this._options.port, () => console.log(
             `Bridge Server is now running on http://localhost:${this._options.port}/${this._options.graphqlPath}`
         ));
+
+        // process http controllers
+        // if (this._artifacts.httpControllers && this._artifacts.httpControllers.length) {
+        //     this._artifacts.httpControllers.forEach(c => injectHttpController(c, this._server, this._container));
+        //     Bridge.logger.debug(`HTTP Controllers: ${this._artifacts.httpControllers.map(c => (c as any).name).sort().join(', ')}`);
+        // }
     }
 
     get server(): express.Express {

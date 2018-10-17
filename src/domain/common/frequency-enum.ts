@@ -1,5 +1,4 @@
-import { find, orderBy } from 'lodash';
-import { String } from 'aws-sdk/clients/cloudsearch';
+import { orderBy } from 'lodash';
 export const FREQUENCY_GROUPING_NAME = 'frequency';
 
 export enum FrequencyEnum {

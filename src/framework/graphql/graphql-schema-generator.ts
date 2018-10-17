@@ -1,9 +1,12 @@
-import { makeExecutableSchema } from 'graphql-tools';
-import { IExecutableSchemaDefinition } from 'graphql-tools/dist/Interfaces';
+import { gql } from 'apollo-server-express';
+import { DocumentNode } from 'graphql';
+import { IResolvers } from 'graphql-tools/dist/Interfaces';
 
 import { IAppModule } from '../decorators/app-module';
 import { BRIDGE, MetadataType } from '../decorators/helpers';
 import { resolver } from '../decorators/resolver.decorator';
+import { dateScalarType } from './custom-types';
+
 
 
 interface ITypeDetails {
@@ -19,13 +22,18 @@ interface IMutationAndQueries {
     queries: any[];
 }
 
-export function makeGraphqlSchemaExecutable(modules: IAppModule[]): IExecutableSchemaDefinition {
-    const resolvers = [];
+export interface ITypesAndResolvers {
+    typeDefs?: DocumentNode;
+    resolvers?: IResolvers;
+}
+
+export function makeGraphqlSchemaExecutable(modules: IAppModule[]): ITypesAndResolvers {
+    // const resolvers = [];
 
     const inputKeys = Object.keys(BRIDGE.graphql.inputs);
     const inputs = inputKeys.map(key => BRIDGE.graphql.inputs[key].text);
 
-    const typeKeys = Object.keys(BRIDGE.graphql.types);
+    // const typeKeys = Object.keys(BRIDGE.graphql.types);
     const types: ITypeDetails[] = Object.keys(BRIDGE.graphql.types).map(key => {
         const typeRef = BRIDGE.graphql.types[key];
         return {
@@ -56,6 +64,9 @@ export function makeGraphqlSchemaExecutable(modules: IAppModule[]): IExecutableS
     });
 
     const schema = `
+
+    scalar ${dateScalarType.name}
+
     ${inputs.join('\n')}
 
     ${types.map(t => t.text).join('\n')}
@@ -74,18 +85,26 @@ export function makeGraphqlSchemaExecutable(modules: IAppModule[]): IExecutableS
     }
     `;
 
-    return makeExecutableSchema({
-        typeDefs: [schema],
+    // return makeExecutableSchema({
+    //     typeDefs: [schema],
+    //     resolvers: mergeModuleResolvers({}, types, mutationAndQueries),
+    //     allowUndefinedInResolve: true,
+    //     //   printErrors: true,
+    // });
+
+    return {
+        typeDefs: gql(schema),
         resolvers: mergeModuleResolvers({}, types, mutationAndQueries),
-        allowUndefinedInResolve: true,
-        //   printErrors: true,
-    });
+    };
 }
 
 // --- MERGE RESOLVERS
 function mergeModuleResolvers(baseResolvers, types: ITypeDetails[], mutationAndQueries: IMutationAndQueries) {
 
     const resolvers = {};
+
+    // add custom scalar types
+    resolvers[dateScalarType.name] = dateScalarType.resolver;
 
     // complex type resolvers
     types.forEach(t => {

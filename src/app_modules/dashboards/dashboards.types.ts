@@ -4,6 +4,7 @@ import { GraphQLTypesMap } from '../../framework/decorators/graphql-types-map';
 import { input } from '../../framework/decorators/input.decorator';
 import { type } from '../../framework/decorators/type.decorator';
 import { ErrorDetails } from '../../framework/graphql/common.types';
+import { resolver } from '../../framework/decorators/resolver.decorator';
 
 
 @input()
@@ -30,6 +31,12 @@ export class DashboardInput  {
     @field({ type: GraphQLTypesMap.String, isArray: true })
     widgets: string[];
 
+    @field({ type: GraphQLTypesMap.String, isArray: true })
+    socialwidgets: string[];
+
+    @field({ type: GraphQLTypesMap.String, isArray: true })
+    maps: string[];
+
     @field({ type: GraphQLTypesMap.String })
     owner: string;
 
@@ -40,8 +47,14 @@ export class DashboardInput  {
     visible?: boolean;
 }
 
+
 @type()
 export class Dashboard  {
+    @resolver({ forField: '_id' })
+    static convertId(d) {
+        return d._id.toString();
+    }
+
     @field({ type: GraphQLTypesMap.String })
     _id: string;
 
@@ -56,6 +69,12 @@ export class Dashboard  {
 
     @field({ type: GraphQLTypesMap.String, isArray: true })
     widgets: string[];
+
+    @field({ type: GraphQLTypesMap.String, isArray: true })
+    socialwidgets: string[];
+
+    @field({ type: GraphQLTypesMap.String, isArray: true })
+    maps: string[];
 
     @field({ type: GraphQLTypesMap.String })
     owner: string;

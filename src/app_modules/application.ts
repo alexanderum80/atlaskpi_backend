@@ -1,4 +1,3 @@
-import { MilestonesModule } from './milestones/milestones.module';
 import { GoogleSpreadSheetModule } from './google-spreadsheet/google-spreadsheet.module';
 import { CallRailModule } from './integrations/callrail/callrail.module';
 import { AppModule, ModuleBase } from '../framework/decorators/app-module';
@@ -22,7 +21,6 @@ import { RolesModule } from './roles/roles.module';
 import { SearchModule } from './search/search.module';
 import { SlideshowsModule } from './slideshows/slideshow.module';
 import { SocialWidgetsModule } from './social-widgets/social-widgets.module';
-import { TargetsModule } from './targets/targets.module';
 import { UsersModule } from './users/users.module';
 import { WidgetsModule } from './widgets/widgets.module';
 import { CountriesModule } from './countries/countries.module';
@@ -31,6 +29,8 @@ import { ActivitiesModule } from './activities/activities.module';
 import { AlertsModule } from './alerts/alerts.module';
 import {HelpCenterModule} from './help-centers/help-center.module';
 import { CustomModule } from './integrations/custom/custom.module';
+import { TargetsNewModule } from './targetsNew/target.module';
+import { NotificationsModule } from './notifications/notifications.module';
 
 
 @AppModule({
@@ -53,20 +53,20 @@ import { CustomModule } from './integrations/custom/custom.module';
         KpisModule,
         LocationsModule,
         MapsModule,
-        MilestonesModule,
         PermissionsModule,
         ReportsModule,
         RolesModule,
         SearchModule,
         SlideshowsModule,
-        TargetsModule,
         UsersModule,
         WidgetsModule,
         SocialWidgetsModule,
         TagModule,
         ConnectorsModule,
         ActivitiesModule,
-        CustomModule
+        CustomModule,
+        TargetsNewModule,
+        NotificationsModule,
     ]
 })
 export class AtlasApp extends ModuleBase { }

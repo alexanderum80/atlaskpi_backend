@@ -94,6 +94,7 @@ export interface IWidget {
     color: string;
     numericWidgetAttributes?: INumericWidgetAttributes;
     chartWidgetAttributes?: IChartWidgetAttributes;
+    dashboards?: string[];
 
     // virtual properties ( result of calcs, chart definitions, trending)
     materialized?: IWidgetMaterializedFields;
@@ -111,6 +112,7 @@ export interface IWidgetInput {
     chartWidgetAttributes?: IChartWidgetAttributes;
     preview?: boolean;
     tags: string[];
+    dashboards?: string;
 }
 
 export interface IWidgetDocument extends IWidget, mongoose.Document { }

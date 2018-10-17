@@ -85,6 +85,7 @@ export interface IUserPreference {
     showAppointmentCancelled?: boolean;
     providers?: string[];
     calendarTimeZone?: string;
+    dashboardIdNoVisible?: string[];
 }
 
 
@@ -158,7 +159,7 @@ export interface IUser {
 }
 
 
-// declare interface to mix account and mongo docuemnt properties/methods
+// declare interface to mix account and mongo document properties/methods
 export interface IUserDocument extends IUser, mongoose.Document {
     profilePictureUrl: string;
     ownerAgreed?: boolean;
@@ -213,7 +214,7 @@ export interface IUserModel extends mongoose.Model<IUserDocument>, ISearchableMo
     /**
      * Updates a user.
      * @param { String } id - id of the entity
-     * @param {ICreateUserDetails} details - updted info information
+     * @param {ICreateUserDetails} details - user information
      * @returns {Promise<IMutationResponse>}
      */
     updateUser(id: string, details: ICreateUserDetails, dataRole: IRoleList[]): Promise<IMutationResponse>;
@@ -229,7 +230,7 @@ export interface IUserModel extends mongoose.Model<IUserDocument>, ISearchableMo
      * @return {Promise<IUserDocument>}
      */
     findByUsername(username: string): Promise<IUserDocument>;
-   
+
     /**
      * Finds the user with the specified Full Name but if more than one user matches the case insensitive search, it returns null.
      * @param {string} firstName - the firstName to look for
@@ -255,7 +256,7 @@ export interface IUserModel extends mongoose.Model<IUserDocument>, ISearchableMo
      * @param {string} email - the email address to look for
      * @returns {Promise<IUserDocument>}
      */
-    
+
     findByEmail(email: string): Promise<IUserDocument>;
     /**
      * Add an email address for a user. Use this instead of directly updating the database.
@@ -296,7 +297,7 @@ export interface IUserModel extends mongoose.Model<IUserDocument>, ISearchableMo
     forgotPassword(email: string, usernameField: string, notifier: IForgotPasswordNotifier): Promise<nodemailer.SentMessageInfo>;
     /**
      * Reset the password for a user using a token received in email. Logs the user in afterwards.
-     * @param {string} token - the token retrieved from the reset passowrd url
+     * @param {string} token - the token retrieved from the reset password url
      * @param {string} newPassword - the new password for the user
      * @param {boolean} logoutOtherSessions - (Optional) Logout other sessions for this user. (default: true)
      * @returns {Promise<IMutationResponse>}

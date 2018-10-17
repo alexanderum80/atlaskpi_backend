@@ -30,17 +30,15 @@ import { Users } from './security/users/user.model';
 import { Slideshows } from './slideshow/slideshow.model';
 import { SocialNetwork } from './social-networks/social-network.model';
 import { Surveys } from './surveys/survey.model';
-import { Targets } from './targets/target.model';
-import { Milestones } from './milestones/milestone.model';
 import { Widgets } from './widgets/widget.model';
 import { Worklogs } from './work-log/work-log.model';
 import { GoogleAnalytics } from './google-analytics/google-analytics.model';
 import { Tags } from './tags/tag.model';
 import { Attachments } from './attachments/attachment-model';
 import { VirtualSources } from './virtual-sources/virtual-source.model';
-import { ICriteriaSearchable } from '../../app_modules/shared/criteria.plugin';
-import { interfaces } from 'inversify';
 import { ScheduleJobs } from './schedule-job/schedule-job.model';
+import { TargetsNew } from './targetsNew/target.model';
+import { ProjectedIncomes } from './projected-income/projected-income.model';
 
 // import { ChartFormats } from './chart-formats/chart-format.model';
 interface IRegistrationInfo {
@@ -67,13 +65,11 @@ const registrations: any[] = [
     KPIs,
     Locations,
     Logs,
-    Milestones,
     Sales,
     Slideshows,
     SocialNetwork,
     Surveys,
     Tags,
-    Targets,
     Roles,
     Permissions,
     Users,
@@ -86,7 +82,9 @@ const registrations: any[] = [
     Payments,
     COGS,
     FinancialActivities,
-    ScheduleJobs
+    ScheduleJobs,
+    TargetsNew,
+    ProjectedIncomes,
 ];
 
 export function registerAppModels(container: IBridgeContainer) {

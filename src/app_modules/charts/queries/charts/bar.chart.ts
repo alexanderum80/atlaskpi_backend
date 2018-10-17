@@ -1,22 +1,22 @@
 import { IChart } from '../../../../domain/app/charts/chart';
-import { ITargetDocument } from '../../../../domain/app/targets/target';
 import { IKpiBase } from '../../../kpis/queries/kpi-base';
 import { IChartMetadata } from './chart-metadata';
 import { FrequencyHelper } from './frequency-values';
 import { IUIChart, UIChartBase } from './ui-chart-base';
-
+import { ITargetNewDocument } from '../../../../domain/app/targetsNew/target';
 
 export class BarChart extends UIChartBase implements IUIChart {
     protected basicDefinition = { 'chart'       : { 'type': 'bar' } };
 
-    constructor(chart: IChart, frequencyHelper: FrequencyHelper) {
-        super(chart, frequencyHelper);
+    constructor(chart: IChart, frequencyHelper: FrequencyHelper,
+                tz: string) {
+        super(chart, frequencyHelper, tz);
     }
 
-    getDefinition(kpi: IKpiBase, metadata?: IChartMetadata, target?: ITargetDocument[]): Promise < any > {
+    getDefinition(kpi: IKpiBase, metadata?: IChartMetadata, target?: ITargetNewDocument[]): Promise < any > {
         const that = this;
 
-        this.dateRange = this._getDateRange(metadata.dateRange);
+        this.dateRange = metadata.dateRange;
         this.comparison = this._getComparisonDateRanges(this.dateRange, metadata.comparison);
 
         return (this.comparison && this.comparison.length > 0)

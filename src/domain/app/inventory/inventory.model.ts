@@ -1,7 +1,7 @@
 import { criteriaPlugin } from '../../../app_modules/shared/criteria.plugin';
 import { inject, injectable } from 'inversify';
 import * as mongoose from 'mongoose';
-
+import * as logger from 'winston';
 import { AppConnection } from '../app.connection';
 import { ModelBase } from './../../../type-mongo/model-base';
 import { IInventoryModel } from './inventory';

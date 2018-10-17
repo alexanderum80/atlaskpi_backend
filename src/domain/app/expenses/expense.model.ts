@@ -5,10 +5,9 @@ import * as logger from 'winston';
 import * as moment from 'moment';
 
 import { ModelBase } from '../../../type-mongo/model-base';
-import { parsePredifinedDate } from '../../common/date-range';
 import { AppConnection } from '../app.connection';
-import { IExpense, IExpenseDocument, IExpenseModel } from './expense';
-
+import { IExpenseDocument, IExpenseModel } from './expense';
+import { parsePredefinedDate } from '../../common/date-range';
 
 const Schema = mongoose.Schema;
 
@@ -47,9 +46,9 @@ ExpenseSchema.index({ 'timestamp': 1, 'expense.concept': 1 });
 
 ExpenseSchema.plugin(criteriaPlugin);
 
-ExpenseSchema.statics.findByPredefinedDateRange = function(predefinedDateRange: string): Promise<IExpenseDocument[]> {
+ExpenseSchema.statics.findByPredefinedDateRange = function(predefinedDateRange: string, timezone: string): Promise<IExpenseDocument[]> {
     const ExpenseModel = (<IExpenseModel>this);
-    const dateRange = parsePredifinedDate(predefinedDateRange);
+    const dateRange = parsePredefinedDate(predefinedDateRange, timezone);
 
     return new Promise<IExpenseDocument[]>((resolve, reject) => {
         ExpenseModel.find({ 'timestamp': { '$gte': dateRange.from, '$lte': dateRange.to } })

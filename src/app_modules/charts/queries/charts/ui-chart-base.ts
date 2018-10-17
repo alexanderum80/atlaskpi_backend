@@ -1,5 +1,3 @@
-import 'datejs';
-
 import * as Bluebird from 'bluebird';
 import * as console from 'console';
 import {
@@ -10,15 +8,15 @@ import * as moment from 'moment';
 import * as logger from 'winston';
 import { camelCase } from 'change-case';
 import { IChart } from '../../../../domain/app/charts/chart';
-import { ITargetDocument } from '../../../../domain/app/targets/target';
 import {
     getDateRangeIdFromString,
     IChartDateRange,
     IDateRange,
     parseComparisonDateRange,
-    parsePredifinedDate,
+    parsePredefinedDate,
     PredefinedComparisonDateRanges,
     PredefinedDateRanges,
+    processDateRangeWithTimezone,
 } from '../../../../domain/common/date-range';
 import {
     FREQUENCY_GROUPING_NAME,
@@ -34,6 +32,7 @@ import { IChartSerie } from './chart-serie';
 import { ChartType } from './chart-type';
 import { FrequencyHelper } from './frequency-values';
 import {ApplyTopNChart} from './apply-top-n.chart';
+import { ITargetNewDocument } from '../../../../domain/app/targetsNew/target';
 
 export const NULL_CATEGORY_REPLACEMENT = 'Uncategorized*';
 
@@ -95,7 +94,7 @@ export enum SortingCriteriaEnum {
  }
 
 export interface IUIChart {
-    getDefinition?(kpiBase: IKpiBase, metadata?: IChartMetadata, target?: ITargetDocument[]): Promise<any>;
+    getDefinition?(kpiBase: IKpiBase, metadata?: IChartMetadata, target?: ITargetNewDocument[]): Promise<any>;
 }
 
 export class UIChartBase {
@@ -121,7 +120,8 @@ export class UIChartBase {
 
     chartPreProcessor: ChartPreProcessorExtention;
 
-    constructor(protected chart: IChart, protected frequencyHelper: FrequencyHelper) {
+    constructor(protected chart: IChart, protected frequencyHelper: FrequencyHelper,
+                protected tz: string)  {
         if (!chart.kpis || chart.kpis.length < 1) {
             throw 'A chart cannot be created without a KPI';
         }
@@ -132,7 +132,7 @@ export class UIChartBase {
      * @param kpi kpi to run
      * @param metadata chart metadata
      */
-    protected processChartData(kpi: IKpiBase, metadata?: IChartMetadata, target?: ITargetDocument[]): Promise < void > {
+    protected processChartData(kpi: IKpiBase, metadata?: IChartMetadata, target?: ITargetNewDocument[]): Promise < void > {
         // logger.debug('processChartData for: ' + this.constructor.name + ' - kpi: ' + kpi.constructor.name);
         const that = this;
 
@@ -326,13 +326,8 @@ export class UIChartBase {
         return data;
     }
 
-    private _processChartDateRange(chartDateRange: IChartDateRange): IDateRange {
-        return chartDateRange.custom && chartDateRange.custom.from ?
-                {
-                    from: moment(chartDateRange.custom.from).startOf('day').toDate(),
-                    to: moment(chartDateRange.custom.to).endOf('day').toDate()
-                }
-                : parsePredifinedDate(chartDateRange.predefined);
+    private _processChartDateRange(chartDateRange: IChartDateRange ): IDateRange {
+        return processDateRangeWithTimezone(chartDateRange, this.tz);
     }
 
     /**
@@ -650,44 +645,49 @@ export class UIChartBase {
                 return t.active !== false;
             });
 
-            if (metadata.frequency !== 4) {
-                if (this.futureTarget) {
-                    filterActiveTargets = filterActiveTargets.filter((targ) => {
-                        let futureDate = new Date(targ.datepicker);
-                        let endDate = new Date(moment().endOf('year').toDate());
-                        return endDate < futureDate;
-                    });
-                } else {
-                    filterActiveTargets = filterActiveTargets.filter((targ) => {
-                        let futureDate = new Date(targ.datepicker);
-                        let endDate = new Date(moment().endOf('year').toDate());
-                        return endDate > futureDate;
-                    });
-                }
-            }
+            // if (metadata.frequency !== 4) {
+            //     if (this.futureTarget) {
+            //         filterActiveTargets = filterActiveTargets.filter((targ) => {
+            //             let futureDate = new Date(targ.datepicker);
+            //             let endDate = new Date(moment().endOf('year').toDate());
+            //             return endDate < futureDate;
+            //         });
+            //     } else {
+            //         filterActiveTargets = filterActiveTargets.filter((targ) => {
+            //             let futureDate = new Date(targ.datepicker);
+            //             let endDate = new Date(moment().endOf('year').toDate());
+            //             return endDate > futureDate;
+            //         });
+            //     }
+            // }
 
             this.targetData = map(filterActiveTargets, (v, k) => {
-                return (<any>v).stackName ? {
-                    _id: {
-                        frequency: TargetService.formatFrequency(metadata.frequency, v.datepicker),
-                        [this.commonField[0]]: (<any>v).name,
-                        stackName: (<any>v).stackName,
-                        targetId: v._id
-                    },
-                    value: (<any>v).target,
-                    targetId: v._id,
-                    percentageCompletion: v.percentageCompletion
-                } : {
-                    _id: {
-                        frequency: TargetService.formatFrequency(metadata.frequency, v.datepicker),
-                        [this.commonField[0]]: (<any>v).name,
-                        targetId: v._id
-                    },
-                    value: (<any>v).target,
-                    targetId: v._id,
-                    percentageCompletion: v.percentageCompletion
-                };
-            });
+                if (v.appliesTo) {
+                    return {
+                        _id: {
+                            frequency: TargetService.formatFrequency(metadata.frequency, v.datepicker),
+                            [this.commonField[0]]: (<any>v).name,
+                            stackName: v.appliesTo.value,
+                            targetId: v._id
+                        },
+                        value: v.targetValue,
+                        targetId: v._id,
+                        percentageCompletion: v.percentageCompletion
+                    };
+                } else {
+                    return {
+                        _id: {
+                            // frequency: TargetService.formatFrequency(metadata.frequency, v.datepicker),
+                            frequency: TargetService.formatFrequency(metadata.frequency, moment().format()),
+                            [this.commonField[0]]: (<any>v).name,
+                            targetId: v._id
+                        },
+                        value: (<any>v).targetValue,
+                        targetId: v._id,
+                        percentageCompletion: v.percentageCompletion
+                    };
+            }});
+
             this.frequencyHelper.decomposeFrequencyInfo(this.targetData, metadata.frequency);
         }
     }
@@ -900,7 +900,7 @@ export class UIChartBase {
         });
     }
 
-    protected getDefinitionOfComparisonChart(kpi, metadata: IChartMetadata, target?: ITargetDocument[]): Promise<any> {
+    protected getDefinitionOfComparisonChart(kpi, metadata: IChartMetadata, target?: ITargetNewDocument[]): Promise<any> {
         if (metadata.dateRange &&
             Array.isArray(metadata.dateRange) &&
             metadata.dateRange[0].predefined === 'custom') {
@@ -1107,6 +1107,13 @@ export class UIChartBase {
                 } else {
                     if (dateRangeId && stack) {
                         comparisonString = PredefinedComparisonDateRanges[dateRangeId][stack];
+                        if (!comparisonString) {
+                            if (stack.includes('YearsAgo')) {
+                                comparisonString = stack.substr(0, stack.indexOf('YearsAgo')) + ' years ago';
+                            } else {
+                                comparisonString = stack;
+                            }
+                        }
                     }
                 }
 
@@ -1204,7 +1211,7 @@ export class UIChartBase {
         });
 
         sortSeries.forEach(s => {
-            s.name = `${s.name}${s.comparisonString}`;
+            s.name = `${s.name}${s.comparisonString || ''}`;
             delete s.comparisonString;
             delete s.category;
         });

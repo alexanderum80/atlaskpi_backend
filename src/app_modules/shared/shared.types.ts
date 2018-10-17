@@ -1,3 +1,4 @@
+import { resolver } from '../../framework/decorators/resolver.decorator';
 import { type } from '../../framework/decorators/type.decorator';
 import { input } from '../../framework/decorators/input.decorator';
 import { field } from '../../framework/decorators/field.decorator';
@@ -66,12 +67,21 @@ export class ValueName  {
 
 @type()
 export class DateRange  {
+    @resolver({ forField: 'from' })
+    static fromResolver(d) {
+        if (!d.from) return null;
+        return (d.from as Date).toISOString();
+    }
     @field({ type: GraphQLTypesMap.String })
     from: string;
 
+    @resolver({ forField: 'to' })
+    static toResolver(d) {
+        if (!d.from) return null;
+        return (d.to as Date).toISOString();
+    }
     @field({ type: GraphQLTypesMap.String })
     to: string;
-
 }
 
 
@@ -82,7 +92,6 @@ export class ChartDateRange  {
 
     @field({ type: DateRange })
     custom: DateRange;
-
 }
 
 @type()
