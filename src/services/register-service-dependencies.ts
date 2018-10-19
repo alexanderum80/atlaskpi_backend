@@ -5,6 +5,7 @@ import { UserAttachmentsService } from './attachments/user-attachments.service';
 import { AuthService } from './auth.service';
 import { CallRailService } from './callrail.services';
 import { ChartsService } from './charts.service';
+import { MapsService } from './maps.service';
 import { ConnectorsService } from './connectors.service';
 import { DataSourcesService } from './data-sources.service';
 import { ExternalDataSourcesService } from './external-data-sources.service';
@@ -49,6 +50,7 @@ export function registerServices(container: IBridgeContainer) {
     container.registerPerWebRequest(TargetService);
     container.registerPerWebRequest(WidgetsService);
     container.registerPerWebRequest(ChartsService);
+    container.registerPerWebRequest(MapsService);
     container.registerPerWebRequest(KpiService);
     container.registerPerWebRequest(MapMarkerService);
     container.registerPerWebRequest(UserService);

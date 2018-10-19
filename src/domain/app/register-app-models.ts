@@ -41,6 +41,7 @@ import { VirtualSources } from './virtual-sources/virtual-source.model';
 import { ICriteriaSearchable } from '../../app_modules/shared/criteria.plugin';
 import { interfaces } from 'inversify';
 import { ScheduleJobs } from './schedule-job/schedule-job.model';
+import { Maps } from './maps/maps.model';
 
 // import { ChartFormats } from './chart-formats/chart-format.model';
 interface IRegistrationInfo {
@@ -57,6 +58,7 @@ const registrations: any[] = [
     BusinessUnits,
     Calls,
     Charts,
+    Maps,
     Customers,
     Dashboards,
     Departments,

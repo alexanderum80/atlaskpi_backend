@@ -25,9 +25,17 @@ let DashboardSchema = new Schema({
         type: Schema.Types.String,
         ref: 'Chart'
     }],
+    maps: [{
+        type: Schema.Types.String,
+        ref: 'Map'
+    }],
     widgets: [{
         type: Schema.Types.String,
         ref: 'Widget'
+    }],
+    socialwidgets: [{
+        type: Schema.Types.String,
+        ref: 'socialWidget'
     }],
     owner: {
         type: Schema.Types.String,

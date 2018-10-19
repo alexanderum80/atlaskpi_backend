@@ -180,8 +180,8 @@ export class KpiService {
                 : parsePredifinedDate(chartDateRange.predefined);
     }
 
-    private _getKpiSources(kpi: IKPIDocument, kpis: IKPIDocument[], connectors: IConnectorDocument[]): string[] {
-    
+    public _getKpiSources(kpi: IKPIDocument, kpis: IKPIDocument[], connectors: IConnectorDocument[]): string[] {
+
         if (kpi.type === KPITypeEnum.ExternalSource) {
             const expression = KPIExpressionHelper.DecomposeExpression(kpi.type, kpi.expression);
             const sourceTokens = expression.dataSource.split('$');
