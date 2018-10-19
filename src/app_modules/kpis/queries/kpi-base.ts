@@ -8,7 +8,6 @@ import { FrequencyEnum } from '../../../domain/common/frequency-enum';
 import { IChartTop } from '../../../domain/common/top-n-record';
 import { NULL_CATEGORY_REPLACEMENT } from '../../charts/queries/charts/ui-chart-base';
 import { AggregateStage } from './aggregate';
-import * as moment from 'moment-timezone';
 
 export interface ICollection {
     modelName: string;
@@ -28,7 +27,7 @@ export interface IKPIResult {
 }
 
 export interface IGetDataOptions {
-    dateRange?: [IChartDateRange];
+    dateRange?: IChartDateRange[];
     top?: IChartTop;
     includeTopGroupingValues?: (string|string[])[];
     limit?: number;
@@ -85,7 +84,7 @@ export class KpiBase {
                 that._injectTargetStackFilter(options.groupings, options.stackName);
             if (options.frequency >= 0)
                 that._injectFrequency(options.frequency, dateField);
-            if (options.groupings)
+            if (options.groupings && options.groupings.filter(g => g !== '').length)
                 that._injectGroupings(options.groupings);
 
             // decompose aggregate object into array
@@ -133,20 +132,17 @@ export class KpiBase {
 
     private _injectDataRange(dateRange: IDateRange[], field: string) {
         // const matchDateRange = { $match: {} } as any;
+        const vsAggDateRange = this.findStage('vsAggDateRange', '$match');
         let matchDateRange = this.findStage('filter', '$match');
 
-        const dateFormat = 'YYYY-MM-DD HH:mm:ss';
-
-        const tz = this.timezone;
-
         if (dateRange && dateRange.length) {
-            const localTimeFrom = moment.tz(moment(dateRange[0].from).format(dateFormat), tz).toDate();
-            const localTimeTo = moment.tz(moment(dateRange[0].to).format(dateFormat), tz).toDate();
             if (dateRange.length === 1) {
                 matchDateRange.$match[field] = {
-                    '$gte':  localTimeFrom,
-                    '$lt':   localTimeTo
+                    '$gte':  dateRange[0].from,
+                    '$lt':   dateRange[0].to
                 };
+                // if we have a vsDateRange match stage, lets apply the dateRange
+                if (vsAggDateRange) vsAggDateRange.$match[field] = { ...matchDateRange.$match[field] };
             } else {
                 if (!matchDateRange['$match']) {
                     matchDateRange.$match = {};
@@ -157,13 +153,11 @@ export class KpiBase {
                 }
 
                 matchDateRange.$match.$or = dateRange.map((dateParams: IDateRange) => {
-                    const localTimeFrom = moment.tz(moment(dateParams.from).format(dateFormat), tz).toDate();
-                    const localTimeTo = moment.tz(moment(dateParams.to).format(dateFormat), tz).toDate();
                     return {
                         // field => i.e. 'product.from', timestamp
                         [field]: {
-                            '$gte':  localTimeFrom,
-                            '$lt':   localTimeTo,
+                            '$gte':  dateParams.from,
+                            '$lt':   dateParams.to,
                         }
                     };
                 });
@@ -455,5 +449,4 @@ export class KpiBase {
         }
         return new RegExp(expression.searchValue, 'i');
     }
-
 }

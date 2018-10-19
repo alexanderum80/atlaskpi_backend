@@ -23,6 +23,8 @@ export class SearchAppointmentCriteriaInput {
 
     @field({ type: GraphQLTypesMap.Boolean })
     cancelled?: boolean;
+
+    timezone: string;
 }
 
 @input()
@@ -100,6 +102,11 @@ export class AppointmentCustomer {
 
 @type()
 export class Appointment  {
+    @resolver({ forField: '_id' })
+    static convertId(d) {
+        return d._id.toString();
+    }
+
     @field({ type: GraphQLTypesMap.String })
     _id: string;
 
@@ -118,9 +125,17 @@ export class Appointment  {
     @field({ type: GraphQLTypesMap.String})
     comments: string;
 
+    @resolver({ forField: 'from' })
+    static fromResolver(d) {
+        return (d.from as Date).toISOString();
+    }
     @field({ type: GraphQLTypesMap.String, required: true })
     from: string;
 
+    @resolver({ forField: 'to' })
+    static toResolver(d) {
+        return (d.to as Date).toISOString();
+    }
     @field({ type: GraphQLTypesMap.String })
     to: string;
 

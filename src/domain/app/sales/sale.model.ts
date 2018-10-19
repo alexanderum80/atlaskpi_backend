@@ -1,4 +1,3 @@
-import * as Bluebird from 'bluebird';
 import { inject, injectable } from 'inversify';
 import { isObject, filter, isEmpty } from 'lodash';
 import * as moment from 'moment';
@@ -8,7 +7,7 @@ import * as logger from 'winston';
 import { criteriaPlugin } from '../../../app_modules/shared/criteria.plugin';
 import { ModelBase } from '../../../type-mongo/model-base';
 import { getCustomerSchema } from '../../common/customer.schema';
-import { parsePredifinedDate } from '../../common/date-range';
+import { parsePredefinedDate } from '../../common/date-range';
 import { getEmployeeSchema } from '../../common/employee.schema';
 import { getLocationSchema } from '../../common/location.schema';
 import { getProductSchema } from '../../common/product.schema';
@@ -87,9 +86,9 @@ SaleSchema.plugin(criteriaPlugin);
 // SaleSchema.methods.
 
 // SaleSchema.statics.
-SalesSchema.statics.findByPredefinedDateRange = function(predefinedDateRange: string): Promise<ISaleDocument[]> {
+SalesSchema.statics.findByPredefinedDateRange = function(predefinedDateRange: string, timezone: string): Promise<ISaleDocument[]> {
     const SalesModel = (<ISaleModel>this);
-    const dateRange = parsePredifinedDate(predefinedDateRange);
+    const dateRange = parsePredefinedDate(predefinedDateRange, timezone);
 
     return new Promise<ISaleDocument[]>((resolve, reject) => {
         SalesModel.find({ 'product.from': { '$gte': dateRange.from, '$lte': dateRange.to } })
@@ -154,10 +153,10 @@ SalesSchema.statics.monthsAvgSales = function(date: string): Promise<Object> {
     });
 };
 
-SalesSchema.statics.salesEmployeeByDateRange = function(predefinedDateRange: string): Promise<Object> {
+SalesSchema.statics.salesEmployeeByDateRange = function(predefinedDateRange: string, timezone: string): Promise<Object> {
     const SalesModel = (<ISaleModel>this);
 
-    const DateRange = parsePredifinedDate(predefinedDateRange);
+    const DateRange = parsePredefinedDate(predefinedDateRange, timezone);
 
     return new Promise<Object>((resolve, reject) => {
         SalesModel.aggregate({ '$match': { 'product.from': { '$gte': DateRange.from, '$lt': DateRange.to } } },

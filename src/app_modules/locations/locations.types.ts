@@ -3,6 +3,7 @@ import { GraphQLTypesMap } from '../../framework/decorators/graphql-types-map';
 import { input } from '../../framework/decorators/input.decorator';
 import { type } from '../../framework/decorators/type.decorator';
 import { ErrorDetails } from '../../framework/graphql/common.types';
+import { resolver } from '../../framework/decorators/resolver.decorator';
 
 @input()
 export class OperationHoursInput  {
@@ -70,7 +71,7 @@ export class LocationInput  {
 
     @field({ type: GraphQLTypesMap.String })
     timezone: string;
-    
+
     @field({ type: OperationHoursInput, isArray: true })
     operhours: OperationHoursInput[];
 
@@ -81,6 +82,11 @@ export class LocationInput  {
 
 @type()
 export class Location  {
+    @resolver({ forField: '_id' })
+    static convertId(d) {
+        return d._id.toString();
+    }
+
     @field({ type: GraphQLTypesMap.String })
     _id: string;
 

@@ -28,9 +28,9 @@ export class CreateRoleMutation extends MutationBase<IMutationResponse> {
     run(data: { data: IRoleCustom  }): Promise<IMutationResponse> {
         return new Promise<IMutationResponse>((resolve, reject) => {
             return this._roles.model.createRole(data.data).then((response) => {
-                return resolve({success: true, entity: response });
+                return resolve(response);
             }).catch((err) => {
-                return resolve({ success: false, errors: [ { field: 'role', errors: [err] } ]});
+                return resolve(null);
             });
         });
     }

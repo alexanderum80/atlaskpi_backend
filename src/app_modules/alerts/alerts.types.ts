@@ -47,6 +47,11 @@ export class AlertModelInfoResponse {
 
 @type()
 export class AlertResponse {
+    @resolver({ forField: '_id' })
+    static convertId(d) {
+        return d._id.toString();
+    }
+
     @field({ type: GraphQLTypesMap.String })
     _id: string;
 

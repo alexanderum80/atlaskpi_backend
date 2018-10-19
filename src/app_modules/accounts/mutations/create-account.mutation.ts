@@ -1,4 +1,3 @@
-import * as Promise from 'bluebird';
 import { inject, injectable } from 'inversify';
 
 import { mutation } from '../../../framework/decorators/mutation.decorator';
@@ -28,8 +27,25 @@ export class CreateAccountMutation extends MutationBase<IMutationResponse> {
         this.log = false;
     }
 
-    run(data: { account: IAccount }): Promise<IMutationResponse> {
+    async run(data: { account: IAccount }): Promise<IMutationResponse> {
         const that = this;
+
+        const accountNameAvailable =
+            await this._accountService.accountNameAvailable(data.account.name);
+
+        if (!accountNameAvailable) {
+            const response: IMutationResponse = {
+                success: false,
+                errors: [
+                  {
+                    field: 'name',
+                    errors: ['already exists']
+                  },
+                ]
+            };
+
+            return response;
+        }
 
         return this._accountService.createAccount({
             ip: that._request.ip,

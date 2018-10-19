@@ -1,4 +1,3 @@
-import * as Promise from 'bluebird';
 import * as mongoose from 'mongoose';
 
 import { IIdName } from '../../common/id-name';
@@ -31,7 +30,7 @@ export interface IExpense {
 export interface IExpenseDocument extends IExpense, mongoose.Document { }
 
 export interface IExpenseModel extends mongoose.Model<IExpenseDocument>, ICriteriaSearchable {
-    findByPredefinedDateRange(predefinedDateRange: string): Promise<IExpenseDocument[]>;
+    findByPredefinedDateRange(predefinedDateRange: string, timezone: string): Promise<IExpenseDocument[]>;
     amountByDateRange(fromDate: string, toDate: string): Promise<Object>;
     monthsAvgExpense(date: string): Promise<Object>;
 }

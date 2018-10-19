@@ -2,9 +2,12 @@ import * as Bluebird from 'bluebird';
 
 import { IChartWidgetAttributes, INumericWidgetAttributes, IWidget, IWidgetMaterializedFields } from './widget';
 
+export interface IMaterializeOptions {
+    timezone: string;
+}
 
 export interface IUIWidget extends UIWidgetBase {
-    materialize(): Promise<IUIWidget> | Bluebird<IUIWidget>;
+    materialize(options: IMaterializeOptions): Promise<IUIWidget> | Bluebird<IUIWidget>;
 }
 
 export class UIWidgetBase {
@@ -17,6 +20,7 @@ export class UIWidgetBase {
     protected format?: string; // string interpolation ex: "${value}" | "{value} kms"
     protected numericWidgetAttributes?: INumericWidgetAttributes;
     protected chartWidgetAttributes?: IChartWidgetAttributes;
+    protected dashboards?: string[];
 
     // virtual properties ( result of calcs, chart definitions, trending)
     materialized?: IWidgetMaterializedFields;

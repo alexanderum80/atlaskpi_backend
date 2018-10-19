@@ -1,6 +1,6 @@
 import { inject, injectable } from 'inversify';
 import * as mongoose from 'mongoose';
-
+import * as logger from 'winston';
 import { criteriaPlugin } from '../../../app_modules/shared/criteria.plugin';
 import { getCustomerSchema } from '../../common/customer.schema';
 import { getLocationSchema } from '../../common/location.schema';

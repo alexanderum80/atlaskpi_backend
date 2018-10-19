@@ -1,5 +1,6 @@
 import { KPIExpressionHelper } from './../domain/app/kpis/kpi-expression.helper';
-import { IDateRange, parsePredifinedDate, IChartDateRange } from '../domain/common/date-range';
+import { IDateRange, parsePredefinedDate, IChartDateRange } from '../domain/common/date-range';
+import { CurrentUser } from '../domain/app/current-user';
 import { VirtualSources } from '../domain/app/virtual-sources/virtual-source.model';
 import { injectable, inject } from 'inversify';
 import { chain, Dictionary, isEmpty, keyBy, isString, isObject, filter, sortBy } from 'lodash';
@@ -59,7 +60,9 @@ export class MapMarkerService {
         @inject(KPIs.name) private _kpis: KPIs,
         @inject(Maps.name) private _maps: Maps,
         @inject(ZipsToMap.name) private _ZipToMaps: ZipsToMap,
-        @inject(VirtualSources.name) private _virtualSources: VirtualSources) { }
+        @inject(VirtualSources.name) private _virtualSources: VirtualSources,
+        @inject(CurrentUser.name) private _user: CurrentUser,
+        ) { }
 
         public listMaps(): Promise<any[]> {
             const that = this;
@@ -297,7 +300,7 @@ export class MapMarkerService {
             const tmpdateRange: IChartDateRange = JSON.parse(input.dateRange);
             const dateRange: IDateRange = tmpdateRange.custom && tmpdateRange.custom.from ?
             { from: tmpdateRange.custom.from, to: tmpdateRange.custom.to }
-            : parsePredifinedDate(tmpdateRange.predefined);
+            : parsePredefinedDate(tmpdateRange.predefined, this._user.get().profile.timezone);
 
             if (matchStage && moment(dateRange.from).isValid()) {
                 matchStage.$match['product.from'] = {
@@ -310,10 +313,13 @@ export class MapMarkerService {
         private _updateGroupingPipeline(aggregate: IMapMarkerAggregate[], input: MapMarkerGroupingInput, vsFieldsInfo: IVirtualSourceFieldsInfo): void {
             const groupStage = findStage(aggregate, '$group');
 
-            if (groupStage) {
+        // private _updateMatchAggregatePipeline(aggregate: IMapMarkerAggregate[], input: MapMarkerGroupingInput): void {
+            /* if (groupStage) {
                 if (!groupStage.$group._id) {
                     groupStage.$group._id = {};
-                }
+                } */
+        const matchStage: IMapMarkerAggregate = findStage(aggregate, '$match');
+        const dateRange: IDateRange = parsePredefinedDate(input.dateRange, this._user.get().profile.timezone);
 
                 let grouping: string;
                 if (isEmpty(vsFieldsInfo)) {
@@ -323,7 +329,6 @@ export class MapMarkerService {
                 }
                 groupStage.$group._id['grouping'] = '$' + grouping;
             }
-        }
 
         private _updateUnwindPipeline(aggregate: IMapMarkerAggregate[], input: MapMarkerGroupingInput, vsFieldsInfo: IVirtualSourceFieldsInfo): void {
             const unwindStage = findStage(aggregate, '$unwind');
