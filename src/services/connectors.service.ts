@@ -194,49 +194,47 @@ export class ConnectorsService {
             this._connectors.model.findById(id)
                 .then(connector => {
 
-                    const virtualSourceName = connector.virtualSource;
+                    const virtualSourceName = connector.virtualSource || null;
                     
                     // contain regex expression to use for complex kpi
                     const expressionName: RegExp = new RegExp(virtualSourceName);
 
-                    const simpleKpi: DocumentQuery<IKPIDocument[], IKPIDocument> = this._kpis.model.find({
+                    this._kpis.model.find({
                         expression: {
                             $regex: expressionName,
                         },
                         type: 'simple'
-                    });
+                    })
+                    .then(kpis => {
+                        const expressionId: RegExp[] = kpis.map(k => new RegExp(k.id, 'i'));
 
-                    Promise.all([simpleKpi])
-                        .spread((kpis: IConnectorDocument[]) => {
-                            const expressionId: RegExp[] = kpis.map(k => new RegExp(k.id, 'i'));
-
-                            this._kpis.model.find({
-                                type: 'complex',
-                                $or: [{ 
-                                    expression: {
-                                        $regex: expressionName
-                                    }
-                                }, {
-                                    expression: {
-                                        $in: expressionId
-                                    }
-                                }]
-                            })
-                            .then(res => {
-                                kpis = kpis.concat(<any>res)
-                                resolve(kpis);
-                                return;
-                            });
-                            
-                        }).catch(err => {
-                            reject(err);
+                        this._kpis.model.find({
+                            type: 'complex',
+                            $or: [{ 
+                                expression: {
+                                    $regex: expressionName
+                                }
+                            }, {
+                                expression: {
+                                    $in: expressionId
+                                }
+                            }]
+                        })
+                        .then(res => {
+                            kpis = kpis.concat(<any>res)
+                            resolve(<any>kpis);
                             return;
                         });
-
+                        
                     }).catch(err => {
                         reject(err);
                         return;
-                    })
+                    });
+
+                }).catch(err => {
+                    reject(err);
+                    return;
+                })
         });
     }
 }
