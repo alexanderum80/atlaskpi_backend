@@ -24,6 +24,9 @@ export class ICustomInput {
 
     @field({ type: GraphQLTypesMap.String })
     records: string;
+
+    @field({ type: GraphQLTypesMap.String })
+    dateRangeField: string;
 }
 
 @type()

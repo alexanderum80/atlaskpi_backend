@@ -66,7 +66,6 @@ export class ConnectorsService {
                                     ? collectionName.concat('s') : collectionName;
 
                 input.fields = JSON.parse(input.fields);
-                const inputDateField = input.fields.find(f => f.dateRangeField === true);
                 let inputFieldsMap = {};
                 inputFieldsMap['Source'] = {
                     path: 'source',
@@ -92,7 +91,7 @@ export class ConnectorsService {
                     description: input.inputName,
                     source: collectionName,
                     modelIdentifier: collectionName,
-                    dateField: inputDateField.columnName.toLowerCase().replace(' ', '_'),
+                    dateField: input.dateRangeField.toLowerCase().replace(' ', '_'),
                     aggregate: [],
                     fieldsMap: inputFieldsMap
                 };
@@ -180,7 +179,7 @@ export class ConnectorsService {
         });
     }
 
-    
+
     private _connectorInUseByModel(id: string): Promise<IConnectorDocument[]> {
         const that = this;
 
@@ -195,7 +194,7 @@ export class ConnectorsService {
                 .then(connector => {
 
                     const virtualSourceName = connector.virtualSource || null;
-                    
+
                     // contain regex expression to use for complex kpi
                     const expressionName: RegExp = new RegExp(virtualSourceName);
 
@@ -210,7 +209,7 @@ export class ConnectorsService {
 
                         this._kpis.model.find({
                             type: 'complex',
-                            $or: [{ 
+                            $or: [{
                                 expression: {
                                     $regex: expressionName
                                 }
@@ -221,11 +220,11 @@ export class ConnectorsService {
                             }]
                         })
                         .then(res => {
-                            kpis = kpis.concat(<any>res)
+                            kpis = kpis.concat(<any>res);
                             resolve(<any>kpis);
                             return;
                         });
-                        
+
                     }).catch(err => {
                         reject(err);
                         return;
@@ -234,7 +233,7 @@ export class ConnectorsService {
                 }).catch(err => {
                     reject(err);
                     return;
-                })
+                });
         });
     }
 }
