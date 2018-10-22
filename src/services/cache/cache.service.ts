@@ -39,7 +39,10 @@ export class CacheService implements ICacheService {
             try {
                 this._client.get(key, (err: any, reply: string) => {
                     if (err) return reject(err);
-                    return JSON.parse(reply);
+
+                    if (!reply) return resolve(null);
+
+                    resolve(JSON.parse(reply));
                 });
             } catch (e) {
                 reject(e);
