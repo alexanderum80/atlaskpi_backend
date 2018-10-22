@@ -5,14 +5,14 @@ import { set } from 'mongoose';
 import { Error } from 'tslint/lib/error';
 import { isArray } from 'util';
 
+import { ICacheService } from '../bridge';
 import { IBridgeContainer, IWebRequestContainerDetails } from '../di/bridge-container';
 import { IActivity } from '../modules/security/activity';
 import { IAppModule } from './app-module';
-import { field } from './field.decorator';
 import { GraphqlMetaType } from './graphql-meta-types.enum';
 import { GraphQLInputDecoratorOptions } from './input.decorator';
 import { MetadataFieldsMap } from './metadata-fields.map';
-import { GraphQLQueryMutationDecoratorOptions } from './query-mutation-options';
+import { GraphQLQueryMutationDecoratorOptions, ICacheOptions } from './query-mutation-options';
 import { resolver } from './resolver.decorator';
 
 
@@ -22,6 +22,7 @@ export interface IArtifactDetails {
     constructor: any;
     activity?: new () => IActivity;
     relatedTypes?: any[];
+    cache?: ICacheOptions;
     resolvers?: {
         [name: string]: Function
     };
@@ -117,7 +118,8 @@ export function updateQueriesAndMutationsMetadata(metadataType: MetadataType, na
     graphqlName: string, graphqlText: string,
     constructor: any,
     activity?: new (...args) => IActivity,
-    types?: any[]) {
+    types?: any[],
+    cacheOptions?: ICacheOptions) {
     let graphqlArtifact: IGraphqlArtifacts = BRIDGE.graphql[metadataType];
 
     if (graphqlArtifact[name]) {
@@ -128,7 +130,8 @@ export function updateQueriesAndMutationsMetadata(metadataType: MetadataType, na
     graphqlArtifact[name] = {
         name: graphqlName,
         text: graphqlText,
-        constructor: constructor
+        constructor: constructor,
+        cache: cacheOptions,
     };
 
     if (activity) {
@@ -222,7 +225,7 @@ export function processQueryAndMutation(target: any, type: GraphqlMetaType, defi
         `{{name}}({{#each parameters}}{{this}},{{/each}}): {{output}}`
         : `{{name}}: {{output}}`;
 
-    const output = definition.output.isArray ? 
+    const output = definition.output.isArray ?
         `[${definition.output.type.name}]` :
         definition.output.type.name !== undefined ? definition.output.type.name : definition.output.type;
     const payload = { name, parameters, output };
@@ -237,9 +240,9 @@ export function processQueryAndMutation(target: any, type: GraphqlMetaType, defi
     }
 
     if (type === GraphqlMetaType.Mutation) {
-        updateQueriesAndMutationsMetadata(MetadataType.Mutations, target.name, name, graphqlType, target, definition.activity, types);
+        updateQueriesAndMutationsMetadata(MetadataType.Mutations, target.name, name, graphqlType, target, definition.activity, types, definition.cache);
     } else if (type === GraphqlMetaType.Query) {
-        updateQueriesAndMutationsMetadata(MetadataType.Queries, target.name, name, graphqlType, target, definition.activity, types);
+        updateQueriesAndMutationsMetadata(MetadataType.Queries, target.name, name, graphqlType, target, definition.activity, types, definition.cache);
     }
 }
 

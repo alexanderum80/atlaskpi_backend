@@ -14,6 +14,7 @@ import { Logger } from '../../../domain/app/logger';
 @injectable()
 @query({
     name: 'chart',
+    cache: { ttl: 300 },
     activity: GetChartActivity,
     parameters: [
         { name: 'id', type: String },
