@@ -260,7 +260,8 @@ export class DataSourcesService {
             const dataCollection = {
                 'schema': dataSource.fieldsMap,
                 'data': data,
-                'dataName': connectorName
+                'dataName': connectorName,
+                'dateRangeField': dataSource.dateField
             };
 
             return JSON.stringify(dataCollection);
@@ -438,5 +439,15 @@ export class DataSourcesService {
         });
 
         return fields;
+    }
+
+    async dataSourceByName(name: string): Promise<DataSourceResponse> {
+        const dataSource = await this._virtualDatasources.model.getDataSourceByName(name);
+        const dataSourceResponse = {
+            name: dataSource.name,
+            description: dataSource.description,
+            dataSource: dataSource.source,
+        };
+        return <any>dataSourceResponse;
     }
 }

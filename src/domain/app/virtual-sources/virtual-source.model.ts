@@ -185,7 +185,8 @@ async function getDataSourceByName(name: string): Promise<IVirtualSourceDocument
     const model = this as IVirtualSourceModel;
 
     try {
-        const query: IObject = { name: name };
+        const regExp = new RegExp(name, 'i');
+        const query: IObject = { name: regExp };
         return await model.findOne(query);
     } catch (e) {
         console.log('Error getting virtual source fields');

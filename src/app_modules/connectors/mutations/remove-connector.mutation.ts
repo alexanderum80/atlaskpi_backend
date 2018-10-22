@@ -42,7 +42,7 @@ export class RemoveConnectorMutation extends MutationBase<IMutationResponse> {
                 return;
             }).catch((err) =>  {
                 that._logger.error(err);
-                resolve({ success: false, entity: JSON.stringify(err.entity) });  
+                resolve({ success: false, entity: JSON.stringify(err.entity) });
             });
         });
     }
