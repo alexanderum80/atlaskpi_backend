@@ -1,6 +1,6 @@
 {
     "name": "atlaskpi-backend",
-    "version": "0.5.165",
+    "version": "0.5.166",
     "description": "",
     "main": "index.ts",
     "scripts": {
