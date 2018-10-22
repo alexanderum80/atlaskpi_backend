@@ -2,19 +2,17 @@ import * as Promise from 'bluebird';
 import { injectable } from 'inversify';
 import { inject } from 'inversify';
 import { flatMap } from 'lodash';
-import { run } from 'tslint/lib/runner';
 import * as logger from 'winston';
 
 import { Enforcer } from '../../app_modules/security/enforcer/enforcer';
 import { AccessLogs } from '../../domain/app/access-log/access-log.model';
 import { IExtendedRequest } from '../../middlewares/extended-request';
-import { query } from '../decorators/query.decorator';
 import { IActivity } from '../modules/security/activity';
 import { IEnforcer } from '../modules/security/enforcer';
 import { IQuery } from './query';
-
-
-
+import { IGraphqlArtifacts, BRIDGE, MetadataType } from '../decorators/helpers';
+import { ICacheService } from '../bridge';
+import { constants } from '../constants';
 
 export interface IQueryBus {
     run<T>(activity: new () => IActivity, req: IExtendedRequest, query: IQuery<T>, data: any): Promise<any>;
@@ -32,7 +30,10 @@ export class QueryBus implements IQueryBus {
         return this._enforcer;
     }
 
-    constructor(@inject(Enforcer.name) private _enforcer: IEnforcer) { }
+    constructor(
+        @inject(Enforcer.name) private _enforcer: IEnforcer,
+        @inject(constants.CACHE_SERVICE) private _cacheService: ICacheService,
+    ) { }
 
     run<T>(activity: new () => IActivity, request: IExtendedRequest, query: IQuery<T>, data: any): Promise<any> {
         const that = this;
@@ -49,7 +50,7 @@ export class QueryBus implements IQueryBus {
         // get activity instance
         const act: IActivity = request.Container.instance.get(activity.name);
 
-        // chack activity authorization
+        // check activity authorization
         return this.enforcer.authorizationTo(
             act,
             roles,
@@ -64,6 +65,11 @@ export class QueryBus implements IQueryBus {
             .then((authorized: boolean) => {
                 that.authorizedValue = authorized;
                 if (authorized) {
+
+                    // process cache logic if necessary
+                    const graphqlArtifact: IGraphqlArtifacts = BRIDGE.graphql[MetadataType.Queries];
+                    const queryMetadata = graphqlArtifact[query.constructor.name];
+
                     console.log('trying to run query: ' + query.constructor.name);
                     return (query as any).run(data)
                         .then(data => data)

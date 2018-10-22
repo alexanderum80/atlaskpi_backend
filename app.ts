@@ -22,8 +22,9 @@ import { logger } from './src/middlewares/logger.middleware';
 import { tokenValidator } from './src/middlewares/token-validator.middleware';
 import { registerValidators } from './src/validators/validatos';
 import { attachments } from './src/app_modules/attachments/attachments.routes';
+import { CacheService } from './src/services/cache/cache.service';
 
-const app = Bridge.create(AtlasApp);
+const app = Bridge.create(AtlasApp, CacheService);
 
 // override some configurations
 runConfigOverrides();
