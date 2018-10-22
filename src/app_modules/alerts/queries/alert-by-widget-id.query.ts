@@ -11,7 +11,7 @@ import { AlertResponse } from '../alerts.types';
 @injectable()
 @query({
     name: 'alertByWidgetId',
-    cache: { ttl: 300 },
+    cache: { ttl: 3000 },
     activity: AlertByWidgetIdActivity,
     parameters: [
         { name: 'id', type: String, required: true }

@@ -19,7 +19,7 @@ import { SocialWidgetsService } from '../../../services/social-widgets.service';
 @injectable()
 @query({
     name: 'dashboard',
-    cache: { ttl: 300 },
+    cache: { ttl: 3000 },
     activity: GetDashboardActivity,
     parameters: [
         { name: 'id', type: String, required: true },
