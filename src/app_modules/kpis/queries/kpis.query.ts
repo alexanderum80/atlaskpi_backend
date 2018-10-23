@@ -12,7 +12,7 @@ import { KPI } from '../kpis.types';
 @injectable()
 @query({
     name: 'kpis',
-    cache: { ttl: 3000 },
+    cache: { ttl: 1800 },
     activity: GetKpisActivity,
     output: { type: KPI, isArray: true }
 })
