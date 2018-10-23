@@ -91,7 +91,7 @@ export const config: IAppConfig = {
         secretAccessKey: process.env.AKPI_AWS_SECRET_ACCESS_KEY || '2iMP5YS5rhkYO6329CsbzK28+CqbjWHo8dyuO6LL'
     },
     cache: {
-        redisServer: process.env.AKPI_REDIS_SERVER || 'localhost',
+        redisServer: process.env.AKPI_REDIS_SERVER || '35.172.178.73',
         redisPort: process.env.AKPI_REDIS_PORT || '6379'
     },
     supportEmail: process.env.SUPPORT_EMAIL || 'support@atlaskpi.com',
