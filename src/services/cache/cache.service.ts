@@ -1,7 +1,8 @@
-import { injectable, inject } from 'inversify';
-import { IAppConfig } from '../../configuration/config-models';
+import { inject, injectable } from 'inversify';
 import * as redis from 'redis';
-import { ICacheService, ICacheItemOptions } from '../../framework/bridge';
+
+import { IAppConfig } from '../../configuration/config-models';
+import { ICacheService } from '../../framework/bridge';
 
 
 @injectable()

@@ -23,8 +23,12 @@ import { tokenValidator } from './src/middlewares/token-validator.middleware';
 import { registerValidators } from './src/validators/validatos';
 import { attachments } from './src/app_modules/attachments/attachments.routes';
 import { CacheService } from './src/services/cache/cache.service';
+import { InMemoryCacheService } from './src/services/cache/in-memory-cache.service';
 
-const app = Bridge.create(AtlasApp, CacheService);
+// for development
+const app = Bridge.create(AtlasApp, InMemoryCacheService);
+// for production
+// const app = Bridge.create(AtlasApp, CacheService);
 
 // override some configurations
 runConfigOverrides();
