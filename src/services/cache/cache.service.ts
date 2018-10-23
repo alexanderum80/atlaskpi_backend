@@ -1,7 +1,8 @@
-import { injectable, inject } from 'inversify';
-import { IAppConfig } from '../../configuration/config-models';
+import { inject, injectable } from 'inversify';
 import * as redis from 'redis';
-import { ICacheService, ICacheItemOptions } from '../../framework/bridge';
+
+import { IAppConfig } from '../../configuration/config-models';
+import { ICacheService } from '../../framework/bridge';
 
 
 @injectable()
@@ -50,5 +51,13 @@ export class CacheService implements ICacheService {
         });
     }
 
+    async removePattern(pattern: string): Promise<void> {
+        return new Promise<void>((resolve, reject) => {
+            this._client.keys(pattern, (err, res: string[]) => {
+                if (res) res.forEach(key => this._client.del(key));
 
+                resolve();
+            });
+        });
+    }
 }

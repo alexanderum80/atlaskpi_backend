@@ -5,16 +5,14 @@ import { set } from 'mongoose';
 import { Error } from 'tslint/lib/error';
 import { isArray } from 'util';
 
-import { ICacheService } from '../bridge';
 import { IBridgeContainer, IWebRequestContainerDetails } from '../di/bridge-container';
 import { IActivity } from '../modules/security/activity';
+import { IQuery } from '../queries/query';
 import { IAppModule } from './app-module';
 import { GraphqlMetaType } from './graphql-meta-types.enum';
 import { GraphQLInputDecoratorOptions } from './input.decorator';
 import { MetadataFieldsMap } from './metadata-fields.map';
 import { GraphQLQueryMutationDecoratorOptions, ICacheOptions } from './query-mutation-options';
-import { resolver } from './resolver.decorator';
-
 
 export interface IArtifactDetails {
     name?: string;
@@ -23,6 +21,7 @@ export interface IArtifactDetails {
     activity?: new () => IActivity;
     relatedTypes?: any[];
     cache?: ICacheOptions;
+    invalidateCacheFor?: Array < new(...args) => IQuery < any >>;
     resolvers?: {
         [name: string]: Function
     };
@@ -119,7 +118,8 @@ export function updateQueriesAndMutationsMetadata(metadataType: MetadataType, na
     constructor: any,
     activity?: new (...args) => IActivity,
     types?: any[],
-    cacheOptions?: ICacheOptions) {
+    cacheOptions?: ICacheOptions,
+    invalidateCacheFor?: Array < new(...args) => IQuery < any >>) {
     let graphqlArtifact: IGraphqlArtifacts = BRIDGE.graphql[metadataType];
 
     if (graphqlArtifact[name]) {
@@ -132,6 +132,7 @@ export function updateQueriesAndMutationsMetadata(metadataType: MetadataType, na
         text: graphqlText,
         constructor: constructor,
         cache: cacheOptions,
+        invalidateCacheFor: invalidateCacheFor,
     };
 
     if (activity) {
@@ -240,9 +241,9 @@ export function processQueryAndMutation(target: any, type: GraphqlMetaType, defi
     }
 
     if (type === GraphqlMetaType.Mutation) {
-        updateQueriesAndMutationsMetadata(MetadataType.Mutations, target.name, name, graphqlType, target, definition.activity, types, definition.cache);
+        updateQueriesAndMutationsMetadata(MetadataType.Mutations, target.name, name, graphqlType, target, definition.activity, types, definition.cache, definition.invalidateCacheFor);
     } else if (type === GraphqlMetaType.Query) {
-        updateQueriesAndMutationsMetadata(MetadataType.Queries, target.name, name, graphqlType, target, definition.activity, types, definition.cache);
+        updateQueriesAndMutationsMetadata(MetadataType.Queries, target.name, name, graphqlType, target, definition.activity, types, definition.cache, definition.invalidateCacheFor);
     }
 }
 
