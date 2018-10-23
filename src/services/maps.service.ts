@@ -1,38 +1,16 @@
-import { camelCase } from 'change-case';
 import { inject, injectable } from 'inversify';
-import {difference, isNumber, isString, pick, PartialDeep, cloneDeep, isEmpty, isArray, omit }  from 'lodash';
-import * as moment from 'moment';
+import {difference }  from 'lodash';
 
-import { IChartMetadata } from '../app_modules/charts/queries/charts/chart-metadata';
 import {
-    attachToDashboards,
-    detachFromAllDashboards,
-    detachFromDashboards,
     detachMapFromDashboards,
     attachMapToDashboards,
     detachMapFromAllDashboards,
 } from '../app_modules/dashboards/mutations/common';
-import { IObject } from '../app_modules/shared/criteria.plugin';
-import { CurrentUser } from '../domain/app/current-user';
 import { Logger } from '../domain/app/logger';
-import { VirtualSources } from '../domain/app/virtual-sources/virtual-source.model';
-import {chartTopLimit, IChartTop, isNestedArray} from '../domain/common/top-n-record';
-import {ChartAttributesInput} from './../app_modules/charts/charts.types';
-import { ChartFactory } from './../app_modules/charts/queries/charts/chart-factory';
-import { IUIChart, NULL_CATEGORY_REPLACEMENT } from './../app_modules/charts/queries/charts/ui-chart-base';
-import { DateRangeHelper } from './../app_modules/date-ranges/queries/date-range.helper';
-import { IKpiBase } from './../app_modules/kpis/queries/kpi-base';
-import { KpiFactory } from './../app_modules/kpis/queries/kpi.factory';
-import { IChart, IChartInput } from './../domain/app/charts/chart';
-import { Charts } from './../domain/app/charts/chart.model';
-import { IDashboardDocument } from './../domain/app/dashboards/dashboard';
+import {IChartTop} from '../domain/common/top-n-record';
 import { Dashboards } from './../domain/app/dashboards/dashboard.model';
 import { KPIs } from './../domain/app/kpis/kpi.model';
-import { Targets } from './../domain/app/targets/target.model';
-import {IChartDateRange, IDateRange, parsePredifinedDate, PredefinedTargetPeriod, PredefinedDateRanges} from './../domain/common/date-range';
-import {FrequencyEnum, FrequencyTable} from './../domain/common/frequency-enum';
-import { TargetService } from './target.service';
-import {dataSortDesc} from '../helpers/number.helpers';
+import {IChartDateRange} from './../domain/common/date-range';
 import { Maps } from '../domain/app/maps/maps.model';
 import { MapAttributesInput } from '../app_modules/maps/map.types';
 
@@ -144,10 +122,10 @@ export class MapsService {
                                 const currentDashboardIds = mapDashboards.map(d => String(d._id));
                                 const toRemoveDashboardIds = difference(currentDashboardIds, input.dashboards);
                                 const toAddDashboardIds = difference(input.dashboards, currentDashboardIds);
-
-                                detachMapFromDashboards(that._dashboards.model, toRemoveDashboardIds, map.id)
+                                const mapObj = JSON.parse(<any>map);
+                                detachMapFromDashboards(that._dashboards.model, toRemoveDashboardIds, mapObj.id)
                                 .then(() => {
-                                    attachMapToDashboards(that._dashboards.model, toAddDashboardIds, map.id)
+                                    attachMapToDashboards(that._dashboards.model, toAddDashboardIds, mapObj.id)
                                     .then(() => {
                                         resolve(JSON.stringify(map));
                                         return;

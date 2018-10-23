@@ -1,6 +1,4 @@
-import * as Bluebird from 'bluebird';
 import { inject, injectable } from 'inversify';
-import { IChartInput } from '../../../domain/app/charts/chart';
 import { query } from '../../../framework/decorators/query.decorator';
 import { GetMapActivity } from '../activities/get-map.activity';
 import { IQuery } from './../../../framework/queries/query';
@@ -31,7 +29,7 @@ export class MapQuery implements IQuery<String> {
             that._mapsService.getMapById(data.id)
                 .then(m => {
                     const many: any = m;
-                    this.getMarkers(m, many.dateRange, many.groupings)
+                    this.getMarkers(m, many.dateRange, many.groupings, many.kpi)
                     .then(res => {
                         resolve(<any>res);
                     })
@@ -46,11 +44,12 @@ export class MapQuery implements IQuery<String> {
         });
     }
 
-    private getMarkers(mapdata: any, dateRange: string, groupings: string ): Promise<Object> {
+    private getMarkers(mapdata: any, dateRange: string, groupings: string, kpi: string ): Promise<Object> {
         return new Promise<Object>((resolve, reject) => {
             const markerGroupings  = {
                 dateRange: JSON.stringify(dateRange),
-                grouping: groupings
+                grouping: groupings,
+                kpi: kpi
             };
             this._mapMarkerService.getMapMarkers(TypeMap.customerAndZip, markerGroupings)
                 .then(markersList => {
