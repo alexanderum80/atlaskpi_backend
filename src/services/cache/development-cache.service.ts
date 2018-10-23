@@ -16,10 +16,12 @@ export class DevelopmentCacheService implements ICacheService {
 
     async get(key: string): Promise<any> {
         return new Promise<any>((resolve, reject) => {
-            const data = this._cache.get(key);
-            if (!data) return resolve(null);
+            // const data = this._cache.get(key);
+            // if (!data) return resolve(null);
 
-            resolve(JSON.parse(data));
+            // resolve(JSON.parse(data));
+
+            resolve(null);
         });
     }
 }
