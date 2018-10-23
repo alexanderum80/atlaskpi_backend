@@ -4,7 +4,7 @@ import { ICacheService } from '../../framework/bridge';
 
 
 @injectable()
-export class InMemoryCacheService implements ICacheService {
+export class DevelopmentCacheService implements ICacheService {
     private _cache = new Map<string, string>();
 
     async set(key: string, payload: any, ttl?: number): Promise<void> {
@@ -16,7 +16,10 @@ export class InMemoryCacheService implements ICacheService {
 
     async get(key: string): Promise<any> {
         return new Promise<any>((resolve, reject) => {
-            resolve(JSON.parse(this._cache.get(key)));
+            const data = this._cache.get(key);
+            if (!data) return resolve(null);
+
+            resolve(JSON.parse(data));
         });
     }
 }
