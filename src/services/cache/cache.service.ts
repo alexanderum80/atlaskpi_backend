@@ -51,5 +51,13 @@ export class CacheService implements ICacheService {
         });
     }
 
+    async removePattern(pattern: string): Promise<void> {
+        return new Promise<void>((resolve, reject) => {
+            this._client.keys(pattern, (err, res: string[]) => {
+                if (res) res.forEach(key => this._client.del(key));
 
+                resolve();
+            });
+        });
+    }
 }

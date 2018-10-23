@@ -25,6 +25,7 @@ export interface ICacheItemOptions {
 export interface ICacheService {
     set(key: string, payload: any, ttl?: number): Promise<void>;
     get(key: string): any;
+    removePattern(pattern: string): Promise<void>;
 }
 
 export interface IFrameworkOptions {

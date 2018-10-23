@@ -24,4 +24,11 @@ export class DevelopmentCacheService implements ICacheService {
             resolve(null);
         });
     }
+
+    async removePattern(pattern: string): Promise<void> {
+        return new Promise<void>((resolve, reject) => {
+            this._cache.delete(pattern);
+            resolve();
+        });
+    }
 }

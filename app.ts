@@ -26,9 +26,9 @@ import { CacheService } from './src/services/cache/cache.service';
 import { DevelopmentCacheService } from './src/services/cache/development-cache.service';
 
 // for development
-const app = Bridge.create(AtlasApp, DevelopmentCacheService);
+// const app = Bridge.create(AtlasApp, DevelopmentCacheService);
 // for production
-// const app = Bridge.create(AtlasApp, CacheService);
+const app = Bridge.create(AtlasApp, CacheService);
 
 // override some configurations
 runConfigOverrides();
