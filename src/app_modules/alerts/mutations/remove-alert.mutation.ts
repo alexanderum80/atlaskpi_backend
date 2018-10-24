@@ -7,11 +7,13 @@ import { IMutationResponse } from '../../../framework/mutations/mutation-respons
 import { ScheduleJobService } from '../../../services/schedule-jobs/schedule-job.service';
 import { RemoveAlertActivity } from '../activities/remove-alert.activity';
 import { AlertMutationResponse } from '../alerts.types';
+import { DashboardQuery } from '../../dashboards/queries/dashboard.query';
 
 @injectable()
 @mutation({
     name: 'removeAlert',
     activity: RemoveAlertActivity,
+    invalidateCacheFor: [ DashboardQuery ],
     parameters: [
         { name: 'id', type: GraphQLTypesMap.String, required: true }
     ],

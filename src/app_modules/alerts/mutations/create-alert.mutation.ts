@@ -8,11 +8,14 @@ import { IMutationResponse } from '../../../framework/mutations/mutation-respons
 import { ScheduleJobService } from '../../../services/schedule-jobs/schedule-job.service';
 import { CreateAlertActivity } from '../activities/create-alert.activity';
 import { AlertInput, AlertMutationResponse } from '../alerts.types';
+import { DashboardQuery } from '../../dashboards/queries/dashboard.query';
+import { WidgetQuery } from '../../widgets/queries/widget.query';
 
 @injectable()
 @mutation({
     name: 'createAlert',
     activity: CreateAlertActivity,
+    invalidateCacheFor: [ DashboardQuery, WidgetQuery ],
     parameters: [
         { name: 'input', type: AlertInput }
     ],

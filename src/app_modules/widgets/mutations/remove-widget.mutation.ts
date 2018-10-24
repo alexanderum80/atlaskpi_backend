@@ -9,11 +9,13 @@ import { MutationBase } from '../../../framework/mutations/mutation-base';
 import { IMutationResponse } from '../../../framework/mutations/mutation-response';
 import { RemoveWidgetActivity } from '../activities/remove-widget.activity';
 import { WidgetMutationResponse } from '../widgets.types';
+import { DashboardQuery } from '../../dashboards/queries/dashboard.query';
 
 @injectable()
 @mutation({
     name: 'removeWidget',
     activity: RemoveWidgetActivity,
+    invalidateCacheFor: [ DashboardQuery ],
     parameters: [
         { name: 'id', type: String, required: true },
     ],

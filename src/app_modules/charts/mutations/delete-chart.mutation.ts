@@ -12,11 +12,13 @@ import { DeleteChartActivity } from '../activities/delete-chart.activity';
 import { ChartMutationResponse } from '../charts.types';
 import { Logger } from './../../../domain/app/logger';
 import { concat } from 'lodash';
+import { DashboardQuery } from '../../dashboards/queries/dashboard.query';
 
 @injectable()
 @mutation({
     name: 'deleteChart',
     activity: DeleteChartActivity,
+    invalidateCacheFor: [ DashboardQuery ],
     parameters: [
         { name: 'id', type: String, required: true },
     ],
