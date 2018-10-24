@@ -442,12 +442,22 @@ export class DataSourcesService {
     }
 
     async dataSourceByName(name: string): Promise<DataSourceResponse> {
-        const dataSource = await this._virtualDatasources.model.getDataSourceByName(name);
-        const dataSourceResponse = {
-            name: dataSource.name,
-            description: dataSource.description,
-            dataSource: dataSource.source,
-        };
-        return <any>dataSourceResponse;
+        try {
+            const dataSource = await this._virtualDatasources.model.getDataSourceByName(name);
+
+            if (!dataSource) {
+                return null;
+            }
+
+            const dataSourceResponse = {
+                name: dataSource.name,
+                description: dataSource.description,
+                dataSource: dataSource.source,
+            };
+            return <any>dataSourceResponse;
+        }
+        catch (err) {
+            console.log(err);
+        }
     }
 }
