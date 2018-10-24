@@ -1,5 +1,5 @@
 import { inject, injectable } from 'inversify';
-import {difference }  from 'lodash';
+import {difference, isString }  from 'lodash';
 
 import {
     detachMapFromDashboards,
@@ -122,7 +122,12 @@ export class MapsService {
                                 const currentDashboardIds = mapDashboards.map(d => String(d._id));
                                 const toRemoveDashboardIds = difference(currentDashboardIds, input.dashboards);
                                 const toAddDashboardIds = difference(input.dashboards, currentDashboardIds);
-                                const mapObj = JSON.parse(<any>map);
+                                let mapObj;
+                                if (isString(map)) {
+                                    mapObj = JSON.parse(<any>map);
+                                } else {
+                                    mapObj = map;
+                                }
                                 detachMapFromDashboards(that._dashboards.model, toRemoveDashboardIds, mapObj.id)
                                 .then(() => {
                                     attachMapToDashboards(that._dashboards.model, toAddDashboardIds, mapObj.id)
