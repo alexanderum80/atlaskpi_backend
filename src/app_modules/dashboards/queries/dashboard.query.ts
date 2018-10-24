@@ -20,7 +20,7 @@ import { MapQuery } from '../../maps/queries/map.query';
 @injectable()
 @query({
     name: 'dashboard',
-    cache: { ttl: 3000 },
+    cache: { ttl: 1800 },
     activity: GetDashboardActivity,
     parameters: [
         { name: 'id', type: String, required: true },
