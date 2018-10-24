@@ -55,7 +55,7 @@ export class DashboardByNameQuery implements IQuery<IDashboard> {
 
                     if (!dashboard) {
                         // that._logger.debug('dashbord doenst exists, or not enought permissions to see it.');
-                        reject('not found');
+                        resolve(null);
                         return;
                     }
 
