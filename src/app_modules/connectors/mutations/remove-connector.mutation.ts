@@ -9,11 +9,13 @@ import { IMutationResponse } from '../../../framework/mutations/mutation-respons
 import { RemoveConnectorActivity } from './../activities/remove-connector.activity';
 import { ConnectorResult } from './../connectors.types';
 import { ConnectorsService } from '../../../services/connectors.service';
+import { DashboardQuery } from '../../dashboards/queries/dashboard.query';
 
 @injectable()
 @mutation({
     name: 'removeConnector',
     activity: RemoveConnectorActivity,
+    invalidateCacheFor: [ DashboardQuery ],
     parameters: [
         { name: 'id', type: String },
     ],

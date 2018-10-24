@@ -9,11 +9,13 @@ import { MutationBase } from '../../../framework/mutations/mutation-base';
 import { IMutationResponse } from '../../../framework/mutations/mutation-response';
 import { GraphQLTypesMap } from '../../../framework/decorators/graphql-types-map';
 import { DashboardResponse } from '../dashboards.types';
+import { DashboardQuery } from '../queries/dashboard.query';
 
 @injectable()
 @mutation({
     name: 'deleteWidgetFromDashboard',
     activity: DeleteWidgetFromDashboardActivity,
+    invalidateCacheFor: [ DashboardQuery ],
     parameters: [
         { name: 'dashboardId', type: GraphQLTypesMap.String, required: true },
         { name: 'widgetId', type: GraphQLTypesMap.String, required: true }
