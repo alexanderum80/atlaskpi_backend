@@ -1,4 +1,5 @@
 import { IActivity } from '../modules/security/activity';
+import { IQuery } from '../queries/query';
 
 export interface IParameterDefinition {
     name: string;
@@ -9,13 +10,13 @@ export interface IParameterDefinition {
 
 export interface ICacheOptions {
     /* time to live in seconds */
-    ttl?: number;
+    ttl: number;
     /** If provided it override the automatic key generation */
     overrideKey?: string;
 }
 
 const defaultCacheOptions: ICacheOptions = {
-    ttl: 5,
+    ttl: 300,
 };
 
 export interface GraphQLQueryMutationDecoratorOptions {
@@ -23,5 +24,6 @@ export interface GraphQLQueryMutationDecoratorOptions {
     activity: new (...args) => IActivity;
     parameters?: IParameterDefinition[];
     cache?: ICacheOptions;
+    invalidateCacheFor?: Array < new(...args) => IQuery < any >> ;
     output: any;
 }

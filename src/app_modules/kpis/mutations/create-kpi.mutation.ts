@@ -1,22 +1,24 @@
 import { inject, injectable } from 'inversify';
 
 import { IKPI } from '../../../domain/app/kpis/kpi';
-import { KPIs } from '../../../domain/app/kpis/kpi.model';
-import { field } from '../../../framework/decorators/field.decorator';
-import { input } from '../../../framework/decorators/input.decorator';
+import { Logger } from '../../../domain/app/logger';
 import { mutation } from '../../../framework/decorators/mutation.decorator';
 import { MutationBase } from '../../../framework/mutations/mutation-base';
 import { IMutationResponse } from '../../../framework/mutations/mutation-response';
+import { KpiService } from '../../../services/kpi.service';
 import { CreateKPIActivity } from '../activities/create-kpi.activity';
 import { KPIAttributesInput, KPIMutationResponse } from '../kpis.types';
-import { KpiService } from '../../../services/kpi.service';
-import { Logger } from '../../../domain/app/logger';
+import { KpisQuery } from '../queries/kpis.query';
+import { DashboardQuery } from '../../dashboards/queries/dashboard.query';
+import { ChartsQuery } from '../../charts/queries/charts.query';
+import { WidgetQuery } from '../../widgets/queries/widget.query';
 
 
 
 @injectable()
 @mutation({
     name: 'createKPI',
+    invalidateCacheFor: [ KpisQuery, DashboardQuery, ChartsQuery, WidgetQuery ],
     activity: CreateKPIActivity,
     parameters: [
         { name: 'input', type: KPIAttributesInput },
