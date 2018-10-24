@@ -1,3 +1,4 @@
+import { isArray } from 'util';
 import { AppConnection } from './../../../domain/app/app.connection';
 import * as mongoose from 'mongoose';
 import { VirtualSources } from './../../../domain/app/virtual-sources/virtual-source.model';
@@ -20,11 +21,12 @@ import { GetKpiDatasourcesActivity } from '../activities/get-kpi-datasources.act
     parameters: [
         { name: 'id', type: String },
     ],
-    output: { type: String }
+    output: { type: Boolean, isArray: true }
 })
 export class GetKpiDataSourcesQuery implements IQuery<Object> {
 
     constructor(@inject(KPIs.name) private _kpis: KPIs,
+                @inject(AppConnection.name) private _appConnection: AppConnection,
                 @inject(KpiService.name) private _kpiservice: KpiService,
                 @inject(VirtualSources.name) private _virtualSources: VirtualSources,
                 @inject(Connectors.name) private _connectors: Connectors) { }
@@ -39,10 +41,48 @@ export class GetKpiDataSourcesQuery implements IQuery<Object> {
         const virtualSources: IVirtualSourceDocument[] = vs.filter((v: IVirtualSourceDocument) => {
             return kpiSources.indexOf(v.name.toLocaleLowerCase()) !== -1;
         });
-        const datasources = [];
-        virtualSources.map( s => datasources.push(s.source));
+        const searchPromises: Promise<Object>[] = [];
+        virtualSources.map( s => {
+            const theModel = this.getModel(s.name, s.source);
+            searchPromises.push(this.getFields(theModel));
+        });
         return new Promise<Object>((resolve, reject) => {
-            resolve(JSON.stringify(datasources));
+            Promise.all(searchPromises).then(res => {
+                resolve(res);
+            })
+            .catch(err => {
+                reject(err);
+            });
+        });
+    }
+    private getModel(modelName: string, source: string): any {
+        const schema = new mongoose.Schema({}, { strict: false });
+        const connection: mongoose.Connection = this._appConnection.get;
+        const model = connection.model(modelName, schema, source);
+        return model;
+    }
+    private getFields(model: any): Promise<Object> {
+
+        return new Promise<Object>((resolve, reject) => {
+            const parameters = [
+                { '$match' : {
+                        '$or' : [ { 'customer.zip' : { '$exists' : true } },
+                            { 'location.zip' : { '$exists' : true } } ] }
+                },
+                {
+                    '$group' : { '_id' : null, 'first' : { '$first' : '$_id' } }
+                }
+            ];
+            const agg = model.aggregate(parameters);
+            agg.options = { allowDiskUse: true };
+            agg.then(result => {
+                const exitResult = result && result[0] ? true : false;
+                resolve(exitResult);
+                return;
+            })
+                .catch(err => {
+                    reject(err);
+                });
         });
     }
 }

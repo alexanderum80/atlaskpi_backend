@@ -34,7 +34,7 @@ export class DashboardsQuery implements IQuery<IDashboard[]> {
         @inject('CurrentUser') private _currentUser: CurrentUser
     ) { }
 
-    run(data: { group: string,  }): Promise<IDashboard[]> {
+    run(data: { group: string  }): Promise<IDashboard[]> {
         const that = this;
 
         if (!this._currentUser || !this._currentUser.get()) {

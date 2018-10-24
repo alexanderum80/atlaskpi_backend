@@ -37,7 +37,7 @@ export class DashboardQuery implements IQuery<IDashboard> {
         @inject(MapQuery.name) private _mapQuery: MapQuery,
         @inject(Dashboards.name) private _dashboards: Dashboards) { }
 
-    run(data: { id: string,  }): Promise<IDashboard> {
+    run(data: { id: string }): Promise<IDashboard> {
         let that = this;
 
         if (!this._user) {
