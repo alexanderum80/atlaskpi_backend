@@ -164,11 +164,9 @@ export class MapMarkerService {
                     aggregate = this._updateAggregateWithKPIData(kpi, aggregate, input, vs);
                 }
                 if (input && isObject(input)) {
-                    /* const vs = await this._virtualSources.model.findOne({
-                        name: REVENUE_BY_REFERRALS,
-                    }); */
 
                     const vsFieldsInfo: IVirtualSourceFieldsInfo = this._vsFieldsInfo(vs, input.grouping);
+
                     this._updateAggregate(aggregate, input, vs, vsFieldsInfo);
 
                     if (this._sortByUnwind(aggregate, vsFieldsInfo)) {
@@ -191,7 +189,7 @@ export class MapMarkerService {
                 { '$unwind': {} },
                 { '$group': {
                     _id: { customerZip: '$customer.zip' },
-                    sales: { '$sum': '$product.amount' }
+                    values: { '$sum': '$product.amount' }
                 }}
             );
             return aggregate;
@@ -220,16 +218,19 @@ export class MapMarkerService {
             let projectstr = '';
             const unwindstr = '{"$unwind":{}}';
             let groupstr = '';
-            let extrastr = expression.dataSource + '":{"$' + expression.function + '":"$' + expression.field + '"}}}';
+            let extrastr = '"values":{"$' + expression.function + '":"$' + expression.field + '"}}}';
             const dateField = vs.dateField.split('.');
+            const expField = expression.field.split('.');
+            let tmpField = '';
+            if (dateField[0] !== expField[0] ) { tmpField = ',"' + expField[0] + '":1'; } else { tmpField = ''; }
             switch (input.grouping) {
                 case 'customer.zip':
-                    projectstr = '{"$project":{"' + dateField[0] + '":1,"_id":0,"customer":1}}';
-                    groupstr = '{"$group":{"_id":{"customerZip":"$' + input.grouping + '"},"';
+                    projectstr = '{"$project":{"' + dateField[0] + '":1,"_id":0,"customer":1' + tmpField + '}}';
+                    groupstr = '{"$group":{"_id":{"customerZip":"$' + input.grouping + '"},';
                     break;
                 case 'location.zip':
-                    projectstr = '{"$project":{"' + dateField[0] + '":1,"_id":0,"location":1}}';
-                    groupstr = '{"$group":{"_id":{"locationZip":"$' + input.grouping + '"},"';
+                    projectstr = '{"$project":{"' + dateField[0] + '":1,"_id":0,"location":1' + tmpField + '}}';
+                    groupstr = '{"$group":{"_id":{"locationZip":"$' + input.grouping + '"},';
                     break;
                 default:
                     break;
@@ -237,6 +238,7 @@ export class MapMarkerService {
             aggregate.push(JSON.parse(matchstr));
             aggregate.push(JSON.parse(projectstr));
             aggregate.push(JSON.parse(unwindstr));
+            const fin = groupstr + extrastr;
             aggregate.push(JSON.parse(groupstr + extrastr));
             return aggregate;
         }
@@ -428,19 +430,19 @@ export class MapMarkerService {
             return isArrayType ? 'Array' : field.type;
         }
 
-        private _noGroupingsMarkersFormatted(salesByZip: ISaleByZip[], zipList: IZipToMapDocument[]): MapMarker[] {
-            const salesObject: Dictionary<ISaleByZip> = keyBy(salesByZip, '_id.customerZip');
+        private _noGroupingsMarkersFormatted(valuesByZip: ISaleByZip[], zipList: IZipToMapDocument[]): MapMarker[] {
+            const valuesObject: Dictionary<ISaleByZip> = keyBy(valuesByZip, '_id.grouping');
 
             return zipList.map(zip => {
-                const value = salesObject[zip.zipCode].sales;
+                const value = valuesObject[zip.zipCode].sales;
                 if (value >= SalesColorMap[MarkerColorEnum.Yellow].min) {
                     return {
                         name: zip.zipCode,
                         lat: zip.lat,
                         lng: zip.lng,
-                        color: getMarkerColor(salesObject[zip.zipCode].sales),
+                        color: getMarkerColor(valuesObject[zip.zipCode].sales),
                         value: value,
-                        groupingName: salesObject[zip.zipCode]._id['grouping']
+                        groupingName: valuesObject[zip.zipCode]._id['grouping']
                     };
                 }
             });
@@ -455,14 +457,14 @@ export class MapMarkerService {
             return chain(salesByZip)
                         .groupBy('_id.grouping')
                         // key = zipCode => i.e. 37703
-                        .map((value: ISaleByZip[], key: string) => {
+                        .map((value: any[], key: string) => {
                             let itemList: MapMarkerItemList[] = [];
                             let total: number = 0;
 
                             for (let i = 0; i < value.length; i++) {
                                 if (value[i]) {
                                     const groupName: string = this._getGroupName(value, i, groupByField);
-                                    const amount: number = value[i].sales;
+                                    const amount: number = value[i].values;
 
                                     total += amount;
 
@@ -565,7 +567,7 @@ export class MapMarkerService {
     };
 
 
-    function getMarkerColor(sales: number): MarkerColorEnum {
+    function getMarkerColor(values: number): MarkerColorEnum {
         const colors = Object.keys(SalesColorMap);
-        return colors.find(c => sales >= SalesColorMap[c].min && sales <= SalesColorMap[c].max) as MarkerColorEnum;
+        return colors.find(c => values >= SalesColorMap[c].min && values <= SalesColorMap[c].max) as MarkerColorEnum;
     }
