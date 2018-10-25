@@ -4,7 +4,6 @@ import { CurrentUser } from '../domain/app/current-user';
 import { VirtualSources } from '../domain/app/virtual-sources/virtual-source.model';
 import { injectable, inject } from 'inversify';
 import { chain, Dictionary, isEmpty, keyBy, isString, isObject, filter, sortBy } from 'lodash';
-import {Sales} from '../domain/app/sales/sale.model';
 import {ZipsToMap} from '../domain/master/zip-to-map/zip-to-map.model';
 import {ISaleByZip, ISaleByZipGrouping, TypeMap} from '../domain/app/sales/sale';
 import {NULL_CATEGORY_REPLACEMENT} from '../app_modules/charts/queries/charts/ui-chart-base';
@@ -14,11 +13,16 @@ import { IFieldMetadata, IVirtualSourceDocument, IVirtualSourceFields } from '..
 import {IObject} from '../app_modules/shared/criteria.plugin';
 import {KPIFilterHelper} from '../domain/app/kpis/kpi-filter.helper';
 import * as moment from 'moment';
+import * as mongoose from 'mongoose';
 import {getProjectOptions, findStage } from '../domain/common/fields-with-data';
 import { lowerCaseFirst } from 'change-case';
 import { Maps } from '../domain/app/maps/maps.model';
 import { KPIs } from '../domain/app/kpis/kpi.model';
 import { IKPIDocument, KPITypeEnum } from '../domain/app/kpis/kpi';
+import { Connectors } from '../domain/master/connectors/connector.model';
+import { IConnectorDocument } from '../domain/master/connectors/connector';
+import { KpiService } from './kpi.service';
+import { AppConnection } from '../domain/app/app.connection';
 
 export interface IMapMarker {
     name: string;
@@ -56,11 +60,13 @@ const REVENUE_BY_REFERRALS = 'revenue_by_referrals';
 @injectable()
 export class MapMarkerService {
     constructor(
-        @inject(Sales.name) private _sales: Sales,
+        @inject(AppConnection.name) private _appConnection: AppConnection,
         @inject(KPIs.name) private _kpis: KPIs,
+        @inject(KpiService.name) private _kpiservice: KpiService,
         @inject(Maps.name) private _maps: Maps,
         @inject(ZipsToMap.name) private _ZipToMaps: ZipsToMap,
         @inject(VirtualSources.name) private _virtualSources: VirtualSources,
+        @inject(Connectors.name) private _connectors: Connectors,
         @inject(CurrentUser.name) private _user: CurrentUser,
         ) { }
 
@@ -77,20 +83,51 @@ export class MapMarkerService {
                 });
             });
         }
+
+        private getModel(modelName: string, source: string): any {
+            const schema = new mongoose.Schema({}, { strict: false });
+            const connection: mongoose.Connection = this._appConnection.get;
+            const model = connection.model(modelName, schema, source);
+            return model;
+        }
+
+        public executeAggregate(model: any, parameters: any): Promise<any[]> {
+            return new Promise<any[]>((resolve, reject) => {
+                const agg = model.aggregate(parameters);
+                agg.options = { allowDiskUse: true };
+                agg.then(result => {
+                    return resolve(result);
+                })
+                .catch(err => {
+                    reject(err);
+                });
+            });
+        }
         async getMapMarkers(dataTypeMap: TypeMap, input: MapMarkerGroupingInput): Promise<IMapMarker[]> {
             try {
-                // i.e. input.grouping = 'Referral'
-                const aggregate: IMapMarkerAggregate[] = await this._getAggregateObject(dataTypeMap, input);
+
+                const allKpis: IKPIDocument[] = await this._kpis.model.find({});
+                const kpi: IKPIDocument = allKpis.find((k: IKPIDocument) => k.id === input.kpi);
+                const connectors: IConnectorDocument[] = await this._connectors.model.find({});
+                const kpiSources: string[] = this._kpiservice._getKpiSources(kpi, allKpis, connectors);
+                const vs: IVirtualSourceDocument[] = await this._virtualSources.model.find({});
+                const virtualSources: IVirtualSourceDocument[] = vs.filter((v: IVirtualSourceDocument) => {
+                    return kpiSources.indexOf(v.name.toLocaleLowerCase()) !== -1;
+                });
+                const theModel = this.getModel(virtualSources[0].name, virtualSources[0].source);
+
+                const aggregate: IMapMarkerAggregate[] = await this._getAggregateObject(kpi, input, virtualSources[0]);
 
                 if (isEmpty(aggregate)) {
                     return [];
                 }
 
-                const salesByZip = await this._sales.model.salesBy(aggregate);
+                const resultByZip = await this.executeAggregate(theModel, aggregate);
+
                 // get the zip codes related
                 const zipList = await this._ZipToMaps.model.find({
                                     zipCode: {
-                                        $in: salesByZip.map(d => d._id.grouping)
+                                        $in: <any> resultByZip.map(d => d._id.grouping)
                                     }});
 
                 // convert array to object
@@ -99,12 +136,12 @@ export class MapMarkerService {
                 if (input) {
                     const groupByField = input['grouping'];
                     if (groupByField) {
-                        markers = this._groupingMarkersFormatted(salesByZip, zipList, groupByField);
+                        markers = this._groupingMarkersFormatted(resultByZip, zipList, groupByField);
                     } else {
-                        markers = this._noGroupingsMarkersFormatted(salesByZip, zipList);
+                        markers = this._noGroupingsMarkersFormatted(resultByZip, zipList);
                     }
                 } else {
-                    markers = this._noGroupingsMarkersFormatted(salesByZip, zipList);
+                    markers = this._noGroupingsMarkersFormatted(resultByZip, zipList);
                 }
 
                 return markers;
@@ -114,7 +151,7 @@ export class MapMarkerService {
             }
         }
 
-        private async _getAggregateObject(type: TypeMap, input: MapMarkerGroupingInput): Promise<any[]> {
+        private async _getAggregateObject(kpi: IKPIDocument, input: MapMarkerGroupingInput, vs: any): Promise<any[]> {
             try {
                 let aggregate: IMapMarkerAggregate[] = [];
                 if (!input) {
@@ -124,16 +161,15 @@ export class MapMarkerService {
                 if (!input.kpi) {
                     aggregate = this._getDefaultAggregate(aggregate);
                 } else {
-                    const kpi: IKPIDocument = await this._kpis.model.findOne({ _id: input.kpi});
-                    aggregate = this._updateAggregateWithKPIData(kpi, aggregate, input);
+                    aggregate = this._updateAggregateWithKPIData(kpi, aggregate, input, vs);
                 }
                 if (input && isObject(input)) {
-                    const vs = await this._virtualSources.model.findOne({
+                    /* const vs = await this._virtualSources.model.findOne({
                         name: REVENUE_BY_REFERRALS,
-                    });
+                    }); */
 
                     const vsFieldsInfo: IVirtualSourceFieldsInfo = this._vsFieldsInfo(vs, input.grouping);
-                    this._updateAggregate(aggregate, input, vsFieldsInfo);
+                    this._updateAggregate(aggregate, input, vs, vsFieldsInfo);
 
                     if (this._sortByUnwind(aggregate, vsFieldsInfo)) {
                         aggregate = this._getSortedAggregate(aggregate);
@@ -160,7 +196,7 @@ export class MapMarkerService {
             );
             return aggregate;
         }
-        private _updateAggregateWithKPIData(kpi: IKPIDocument, aggregate: IMapMarkerAggregate[], input: MapMarkerGroupingInput): IMapMarkerAggregate[] {
+        private _updateAggregateWithKPIData(kpi: IKPIDocument, aggregate: IMapMarkerAggregate[], input: MapMarkerGroupingInput, vs: any): IMapMarkerAggregate[] {
 
             let typeEnum;
             switch (kpi.type) {
@@ -185,13 +221,14 @@ export class MapMarkerService {
             const unwindstr = '{"$unwind":{}}';
             let groupstr = '';
             let extrastr = expression.dataSource + '":{"$' + expression.function + '":"$' + expression.field + '"}}}';
+            const dateField = vs.dateField.split('.');
             switch (input.grouping) {
                 case 'customer.zip':
-                    projectstr = '{"$project":{"product":1,"_id":0,"customer":1}}';
+                    projectstr = '{"$project":{"' + dateField[0] + '":1,"_id":0,"customer":1}}';
                     groupstr = '{"$group":{"_id":{"customerZip":"$' + input.grouping + '"},"';
                     break;
                 case 'location.zip':
-                    projectstr = '{"$project":{"product":1,"_id":0,"location":1}}';
+                    projectstr = '{"$project":{"' + dateField[0] + '":1,"_id":0,"location":1}}';
                     groupstr = '{"$group":{"_id":{"locationZip":"$' + input.grouping + '"},"';
                     break;
                 default:
@@ -271,12 +308,12 @@ export class MapMarkerService {
             };
         }
 
-        private _updateAggregate(aggregate: IMapMarkerAggregate[], input: MapMarkerGroupingInput, vsFieldsInfo: IVirtualSourceFieldsInfo): void {
+        private _updateAggregate(aggregate: IMapMarkerAggregate[], input: MapMarkerGroupingInput, vs: any, vsFieldsInfo: IVirtualSourceFieldsInfo): void {
             if (isEmpty(aggregate)) {
                 return;
             }
             if (input.dateRange) {
-                this._updateMatchAggregatePipeline(aggregate, input);
+                this._updateMatchAggregatePipeline(aggregate, input, vs);
             }
 
             if (input.grouping) {
@@ -295,7 +332,7 @@ export class MapMarkerService {
             this._updateUnwindPipeline(aggregate, input, vsFieldsInfo);
         }
 
-        private _updateMatchAggregatePipeline(aggregate: IMapMarkerAggregate[], input: MapMarkerGroupingInput): void {
+        private _updateMatchAggregatePipeline(aggregate: IMapMarkerAggregate[], input: MapMarkerGroupingInput, vs: any): void {
             const matchStage: IMapMarkerAggregate = findStage(aggregate, '$match');
             const tmpdateRange: IChartDateRange = JSON.parse(input.dateRange);
             const dateRange: IDateRange = tmpdateRange.custom && tmpdateRange.custom.from ?
@@ -303,7 +340,7 @@ export class MapMarkerService {
             : parsePredefinedDate(tmpdateRange.predefined, this._user.get().profile.timezone);
 
             if (matchStage && moment(dateRange.from).isValid()) {
-                matchStage.$match['product.from'] = {
+                matchStage.$match[vs.dateField] = {
                     $gte: dateRange.from,
                     $lt: dateRange.to
                 };
@@ -416,7 +453,7 @@ export class MapMarkerService {
             const zipCodes: Dictionary<IZipToMapDocument> = keyBy(zipList, 'zipCode');
 
             return chain(salesByZip)
-                        .groupBy('_id.customerZip')
+                        .groupBy('_id.grouping')
                         // key = zipCode => i.e. 37703
                         .map((value: ISaleByZip[], key: string) => {
                             let itemList: MapMarkerItemList[] = [];
