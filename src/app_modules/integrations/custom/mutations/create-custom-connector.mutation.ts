@@ -1,3 +1,4 @@
+import { FileTypeEnum } from './../custom-datasource-type-enum';
 import { IConnectorDocument } from './../../../../domain/master/connectors/connector';
 import { ICustomInput, ICustomResponse } from '../custom.types';
 import { CurrentAccount } from '../../../../domain/master/current-account';
@@ -43,13 +44,13 @@ export class CreateCustomConnectorMutation extends MutationBase<IMutationRespons
 
             let connectorType: string;
             switch (inputExt) {
-                case 'xls':
+                case FileTypeEnum.xls:
                     connectorType = 'customexcel';
                     break;
-                case 'xlsx':
+                case FileTypeEnum.xlsx:
                     connectorType = 'customexcel';
                     break;
-                case 'csv':
+                case FileTypeEnum.csv:
                     connectorType = 'customcsv';
                     break;
                 default:

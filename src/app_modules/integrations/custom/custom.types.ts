@@ -19,11 +19,14 @@ export class ICustomInput {
     @field({ type: GraphQLTypesMap.String })
     inputName: string;
 
-    @field({ type: ICustomModelInput, isArray: true })
-    fields: ICustomModelInput[];
+    @field({ type: GraphQLTypesMap.String })
+    fields: string;
 
     @field({ type: GraphQLTypesMap.String })
     records: string;
+
+    @field({ type: GraphQLTypesMap.String })
+    dateRangeField: string;
 }
 
 @type()
