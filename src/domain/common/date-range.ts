@@ -1370,7 +1370,7 @@ export function backInTime(dateRange: IDateRange, amount: any, timespan: string,
 export function previousPeriod(dateRange: IDateRange): IDateRange {
     const start = moment(dateRange.from);
     const end = moment(dateRange.to);
-    const duration = end.diff(start);
+    const duration = end.diff(start) + 1;
 
     const from = moment(dateRange.from).subtract(duration).toDate();
     const to = moment(dateRange.to).subtract(duration).toDate();
