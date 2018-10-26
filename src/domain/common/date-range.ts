@@ -463,7 +463,7 @@ export function parsePredefinedDate(textDate: string, timezone: string): IDateRa
 
 export const PredefinedComparisonDateRanges = {
     today: {
-        previousPeriod: 'previous period',
+        yesterday: 'yesterday',
         lastWeek: 'last week',
         lastMonth: 'last month',
         lastYear: 'last year',
