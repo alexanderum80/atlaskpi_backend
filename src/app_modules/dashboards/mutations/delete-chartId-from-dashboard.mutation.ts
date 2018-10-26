@@ -7,12 +7,14 @@ import { MutationBase } from '../../../framework/mutations/mutation-base';
 import { IMutationResponse } from '../../../framework/mutations/mutation-response';
 import { deleteChartIdFromDashboardActivity  } from '../activities/delete-chartId-from-dashboard-activity';
 import { DashboardInput, DashboardResponse } from '../dashboards.types';
+import { DashboardQuery } from '../queries/dashboard.query';
 
 
 @injectable()
 @mutation({
     name: 'deleteChartIdFromDashboard',
     activity: deleteChartIdFromDashboardActivity,
+    invalidateCacheFor: [ DashboardQuery ],
     parameters: [
         { name: 'id', type: String, required: true },
         { name: 'charts', type: String, isArray: true },
