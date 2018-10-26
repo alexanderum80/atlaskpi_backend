@@ -53,4 +53,5 @@ export interface IDashboardModel extends mongoose.Model<IDashboardDocument>, ISe
     deleteDashboard(id: string): Promise<IDashboardDocument>;
     findDashboardByChartId(id: string): Promise<string>;
     deleteWidget(dashboardId: string, widgetId: string): Promise<IDashboardDocument>;
+    deleteChartIdFromDashboard(id: string, charts: string[]): Promise<IDashboardDocument>;
  }

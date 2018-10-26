@@ -8,6 +8,7 @@ import { DashboardQuery } from './queries/dashboard.query';
 import { DashboardsQuery } from './queries/dashboards.query';
 import { DashboardByNameQuery } from './queries/dashboard-by-name.query';
 import {DeleteWidgetFromDashboard} from './mutations/delete-widget-from-dashboard.mutation';
+import { DeleteChartIdFromDashboardMutation } from './mutations/delete-chartId-from-dashboard.mutation';
 
 @AppModule({
     mutations: [
@@ -15,7 +16,8 @@ import {DeleteWidgetFromDashboard} from './mutations/delete-widget-from-dashboar
         DeleteDashboardMutation,
         UpdateDashboardMutation,
         UpdateVisibleDashboardMutation,
-        DeleteWidgetFromDashboard
+        DeleteWidgetFromDashboard,
+        DeleteChartIdFromDashboardMutation,
     ],
     queries: [
         DashboardQuery,
