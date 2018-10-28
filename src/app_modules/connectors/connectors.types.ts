@@ -30,8 +30,8 @@ export class ConnectorResult {
     @field({ type: GraphQLTypesMap.Boolean })
     success: boolean;
 
-    @field({ type: Connector })
-    entity: Connector;
+    @field({ type: GraphQLTypesMap.String })
+    entity: string;
 
     @field({ type: ErrorDetails, isArray: true })
     errors: ErrorDetails[];
