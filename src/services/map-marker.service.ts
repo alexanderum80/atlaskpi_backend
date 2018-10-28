@@ -1,9 +1,10 @@
+import { AggregateStage } from './../app_modules/kpis/queries/aggregate';
 import { KPIExpressionHelper } from './../domain/app/kpis/kpi-expression.helper';
 import { IDateRange, parsePredefinedDate, IChartDateRange } from '../domain/common/date-range';
 import { CurrentUser } from '../domain/app/current-user';
 import { VirtualSources } from '../domain/app/virtual-sources/virtual-source.model';
 import { injectable, inject } from 'inversify';
-import { chain, Dictionary, isEmpty, keyBy, isString, isObject, filter, sortBy } from 'lodash';
+import { chain, Dictionary, isEmpty, keyBy, isString, isObject, filter, sortBy, isArray, isDate } from 'lodash';
 import {ZipsToMap} from '../domain/master/zip-to-map/zip-to-map.model';
 import {ISaleByZip, ISaleByZipGrouping, TypeMap} from '../domain/app/sales/sale';
 import {NULL_CATEGORY_REPLACEMENT} from '../app_modules/charts/queries/charts/ui-chart-base';
@@ -15,7 +16,7 @@ import {KPIFilterHelper} from '../domain/app/kpis/kpi-filter.helper';
 import * as moment from 'moment';
 import * as mongoose from 'mongoose';
 import {getProjectOptions, findStage } from '../domain/common/fields-with-data';
-import { lowerCaseFirst } from 'change-case';
+import { lowerCaseFirst, camelCase } from 'change-case';
 import { Maps } from '../domain/app/maps/maps.model';
 import { KPIs } from '../domain/app/kpis/kpi.model';
 import { IKPIDocument, KPITypeEnum } from '../domain/app/kpis/kpi';
@@ -59,6 +60,7 @@ const REVENUE_BY_REFERRALS = 'revenue_by_referrals';
 
 @injectable()
 export class MapMarkerService {
+
     constructor(
         @inject(AppConnection.name) private _appConnection: AppConnection,
         @inject(KPIs.name) private _kpis: KPIs,
@@ -67,8 +69,28 @@ export class MapMarkerService {
         @inject(ZipsToMap.name) private _ZipToMaps: ZipsToMap,
         @inject(VirtualSources.name) private _virtualSources: VirtualSources,
         @inject(Connectors.name) private _connectors: Connectors,
-        @inject(CurrentUser.name) private _user: CurrentUser,
+        @inject(CurrentUser.name) private _user: CurrentUser
         ) { }
+
+        private aggregate: AggregateStage[] = this._getDefaultAggregate();
+
+        private _getDefaultAggregate(): AggregateStage[] {
+            return [
+                    {
+                        $match: { 'product.amount' : { '$gte' : 0} }
+                    },
+                    {
+                        $project: { 'product': 1, '_id': 0, 'customer': 1 }
+                    },
+                    { '$unwind': {}
+                    },
+                    {
+                        $group: {
+                            _id: { customerZip: '$customer.zip' }, values: {'$sum': '$product.amount'}
+                        }
+                    }
+            ];
+        }
 
         public listMaps(): Promise<any[]> {
             const that = this;
@@ -116,21 +138,17 @@ export class MapMarkerService {
                 });
                 const theModel = this.getModel(virtualSources[0].name, virtualSources[0].source);
 
-                const aggregate: IMapMarkerAggregate[] = await this._getAggregateObject(kpi, input, virtualSources[0]);
+                this.aggregate = await this._getAggregateObject(kpi, input, virtualSources[0]);
 
-                if (isEmpty(aggregate)) {
+                if (isEmpty(this.aggregate)) {
                     return [];
                 }
-
-                const resultByZip = await this.executeAggregate(theModel, aggregate);
-
+                const resultByZip = await this.executeAggregate(theModel, this.aggregate);
                 // get the zip codes related
                 const zipList = await this._ZipToMaps.model.find({
                                     zipCode: {
                                         $in: <any> resultByZip.map(d => d._id.grouping)
                                     }});
-
-                // convert array to object
                 let markers;
 
                 if (input) {
@@ -153,48 +171,145 @@ export class MapMarkerService {
 
         private async _getAggregateObject(kpi: IKPIDocument, input: MapMarkerGroupingInput, vs: any): Promise<any[]> {
             try {
-                let aggregate: IMapMarkerAggregate[] = [];
                 if (!input) {
                     input = new MapMarkerGroupingInput();
                     input.grouping = 'customer.zip';
                 }
-                if (!input.kpi) {
-                    aggregate = this._getDefaultAggregate(aggregate);
-                } else {
-                    aggregate = this._updateAggregateWithKPIData(kpi, aggregate, input, vs);
+                if (input.kpi) {
+                   this._updateAggregateWithKPIData(kpi, input, vs);
                 }
                 if (input && isObject(input)) {
 
                     const vsFieldsInfo: IVirtualSourceFieldsInfo = this._vsFieldsInfo(vs, input.grouping);
 
-                    this._updateAggregate(aggregate, input, vs, vsFieldsInfo);
+                    this._updateAggregate(input, vs, vsFieldsInfo);
 
-                    if (this._sortByUnwind(aggregate, vsFieldsInfo)) {
-                        aggregate = this._getSortedAggregate(aggregate);
+                    if (this._sortByUnwind(vsFieldsInfo)) {
+                        this._getSortedAggregate();
                     }
                 }
 
-                aggregate = this._filterEmptyUnwindPipe(aggregate);
-                return aggregate;
+                this._filterEmptyUnwindPipe();
+                return this.aggregate;
             } catch (err) {
                 console.error(err);
                 throw new Error('error getting aggregate object');
             }
         }
 
-        private _getDefaultAggregate(aggregate: IMapMarkerAggregate[]): IMapMarkerAggregate[] {
-            aggregate.push(
-                { '$match': { 'product.amount': { '$gte': 0 } }},
-                { '$project': { product: 1, _id: 0, customer: 1 }},
-                { '$unwind': {} },
-                { '$group': {
-                    _id: { customerZip: '$customer.zip' },
-                    values: { '$sum': '$product.amount' }
-                }}
-            );
-            return aggregate;
+        protected findStage(stageOperator: string): AggregateStage {
+            return this.aggregate.find(s => s[stageOperator] !== undefined);
         }
-        private _updateAggregateWithKPIData(kpi: IKPIDocument, aggregate: IMapMarkerAggregate[], input: MapMarkerGroupingInput, vs: any): IMapMarkerAggregate[] {
+
+        protected findStages(stageOperator: string): AggregateStage[] {
+            return this.aggregate.filter(s => s[stageOperator] !== undefined);
+        }
+
+        private replacementString = [
+            { key: '__dot__', value: '.' },
+            { key: '__dollar__', value: '$' }
+        ];
+
+        private _isRegExpOperator(operator: string): boolean {
+            const regexStrings = ['startWith', 'endWith', 'contains', 'regex'];
+            return regexStrings.indexOf(operator) !== -1;
+        }
+        private _injectMatch(expField: string) {
+            let matchStage = this.findStage('$match');
+            matchStage.$match[expField] = { $gte: 0 };
+        }
+
+        private _injectFilter(filter: any) {
+            let matchStage = this.findStage('$match');
+            let cleanFilter = this._cleanFilter(filter);
+
+            if (!matchStage) {
+                return;
+            }
+
+            Object.keys(cleanFilter).forEach(filterKey => {
+                // do not add top to the filter, that gets applied in the end
+                if (filterKey === 'top') return;
+                matchStage.$match[filterKey] = cleanFilter[filterKey];
+            });
+        }
+
+        protected _cleanFilter(filter: any): any {
+            let newFilter = {};
+
+            if (isString(filter)) {
+                return filter;
+            }
+
+            Object.keys(filter).forEach(filterKey => {
+
+                let key = filterKey;
+                this.replacementString.forEach(r => key = key.replace(r.key, r.value));
+                let value = filter[filterKey];
+
+                if (!isArray(value) && !isDate(value) && isObject(value)) {
+                    newFilter[key] = this._cleanFilter(value);
+                } else if (!isDate(value) && isArray(value)) {
+                    for (let i = 0; i < value.length; i++) {
+                        value[i] = this._cleanFilter(value[i]);
+                    }
+                    newFilter[key] = value;
+                } else {
+                    // apply filter
+                    let filterValue = filter[filterKey];
+                    const operatorName = filterKey.replace(/__dot__|__dollar__/g, '');
+                    if (this._isRegExpOperator(operatorName)) {
+                        // process filter value
+                        if (operatorName.indexOf('start') !== -1) {
+                            filterValue = '^' + filterValue;
+                        }
+                        if (operatorName.indexOf('end') !== -1) {
+                            filterValue = filterValue + '$';
+                        }
+                        key = '$regex';
+                        if (operatorName === 'regex') {
+                            value = new RegExp(filterValue);
+                        } else {
+                            value = new RegExp(filterValue, 'i');
+                        }
+                    } else {
+                        value = filterValue;
+                    }
+                    newFilter[key] = value;
+                }
+            });
+            return newFilter;
+        }
+
+        private _injectProject(vs: any, expression: any ) {
+            const dateField = vs.dateField.split('.')[0];
+            const expField: string = expression.field.split('.')[0];
+            const projectStage = this.findStage('$project');
+            projectStage.$project = {};
+            projectStage.$project[dateField] = 1;
+            projectStage.$project._id = 0;
+            projectStage.$project.customer = 1;
+            let index = Object.keys(projectStage.$project).findIndex(prop => prop === expField);
+            if (index === -1) {
+                projectStage.$project[expField] = 1;
+            }
+        }
+
+        private _injectGroup(grouping: string, expression: any) {
+            const expField: string = expression.field.split('.')[0];
+            const groupStage = this.findStage('$group');
+            const groupingStr = camelCase(grouping);
+            groupStage.$group._id = {};
+            groupStage.$group._id[groupingStr] = '$' + grouping;
+            groupStage.$group.values = {};
+            if (expression.function === 'count') {
+                groupStage.$group.values['$sum'] = 1;
+            } else {
+                groupStage.$group.values['$' + expression.function] = '$' + expression.field;
+            }
+        }
+
+        private _updateAggregateWithKPIData(kpi: IKPIDocument, input: MapMarkerGroupingInput, vs: any) {
 
             let typeEnum;
             switch (kpi.type) {
@@ -213,37 +328,19 @@ export class MapMarkerService {
             }
             // Here I must looks for kpi expression
             const expression = KPIExpressionHelper.DecomposeExpression(typeEnum, kpi.expression);
-
-            const matchstr = '{"$match":{"' + expression.field + '":{"$gte":0}}}';
-            let projectstr = '';
-            const unwindstr = '{"$unwind":{}}';
-            let groupstr = '';
-            let extrastr = '"values":{"$' + expression.function + '":"$' + expression.field + '"}}}';
-            const dateField = vs.dateField.split('.');
-            const expField = expression.field.split('.');
-            let tmpField = '';
-            if (dateField[0] !== expField[0] ) { tmpField = ',"' + expField[0] + '":1'; } else { tmpField = ''; }
-            switch (input.grouping) {
-                case 'customer.zip':
-                    projectstr = '{"$project":{"' + dateField[0] + '":1,"_id":0,"customer":1' + tmpField + '}}';
-                    groupstr = '{"$group":{"_id":{"customerZip":"$' + input.grouping + '"},';
-                    break;
-                case 'location.zip':
-                    projectstr = '{"$project":{"' + dateField[0] + '":1,"_id":0,"location":1' + tmpField + '}}';
-                    groupstr = '{"$group":{"_id":{"locationZip":"$' + input.grouping + '"},';
-                    break;
-                default:
-                    break;
+            let matchStage = this.findStage('$match');
+            matchStage.$match = {};
+            if (kpi.filter) {
+                this._injectFilter(kpi.filter);
             }
-            aggregate.push(JSON.parse(matchstr));
-            aggregate.push(JSON.parse(projectstr));
-            aggregate.push(JSON.parse(unwindstr));
-            const fin = groupstr + extrastr;
-            aggregate.push(JSON.parse(groupstr + extrastr));
-            return aggregate;
+            if (expression) {
+                this._injectMatch(expression.field);
+                this._injectProject(vs, expression);
+                this._injectGroup(input.grouping, expression);
+            }
         }
-        private _sortByUnwind(aggregate, vsFieldsInfo: IVirtualSourceFieldsInfo): boolean {
-            const projectStage = findStage(aggregate, '$project');
+        private _sortByUnwind(vsFieldsInfo: IVirtualSourceFieldsInfo): boolean {
+            const projectStage = findStage(this.aggregate, '$project');
             if (!projectStage || !projectStage.$project) {
                 return false;
             }
@@ -258,24 +355,24 @@ export class MapMarkerService {
             return pipelineKeys.indexOf(vsFieldsInfo.field.nonDotPath) !== -1;
         }
 
-        private _getSortedAggregate(aggregate: IMapMarkerAggregate[]): IMapMarkerAggregate[] {
-            let agg: IMapMarkerAggregate[] = sortBy(aggregate, '$project');
-            const unwindStage: IMapMarkerAggregate = findStage(aggregate, '$unwind');
+        private _getSortedAggregate() {
+            let agg: IMapMarkerAggregate[] = sortBy(this.aggregate, '$project');
+            const unwindStage: IMapMarkerAggregate = findStage(this.aggregate, '$unwind');
 
             agg = agg.filter(a => !a.$unwind);
             agg.unshift(unwindStage);
 
-            return agg;
+            this.aggregate = agg;
         }
 
-        private _filterEmptyUnwindPipe(aggregate: any[]): any[] {
-            const unwindStage: IMapMarkerAggregate = findStage(aggregate, '$unwind');
+        private _filterEmptyUnwindPipe() {
+            const unwindStage: IMapMarkerAggregate = findStage(this.aggregate, '$unwind');
 
             if (isEmpty(unwindStage.$unwind)) {
                 delete unwindStage.$unwind;
             }
 
-            return filter(aggregate, (agg) => !isEmpty(agg));
+            this.aggregate = filter(this.aggregate, (agg) => !isEmpty(agg));
         }
 
         private _vsFieldsInfo(virtualSource: IVirtualSourceDocument, groupByField: string): IVirtualSourceFieldsInfo {
@@ -310,32 +407,31 @@ export class MapMarkerService {
             };
         }
 
-        private _updateAggregate(aggregate: IMapMarkerAggregate[], input: MapMarkerGroupingInput, vs: any, vsFieldsInfo: IVirtualSourceFieldsInfo): void {
-            if (isEmpty(aggregate)) {
+        private _updateAggregate(input: MapMarkerGroupingInput, vs: any, vsFieldsInfo: IVirtualSourceFieldsInfo): void {
+            if (isEmpty(this.aggregate)) {
                 return;
             }
             if (input.dateRange) {
-                this._updateMatchAggregatePipeline(aggregate, input, vs);
+                this._updateMatchAggregatePipeline(input, vs);
             }
 
             if (input.grouping) {
-                this._updateGroupingPipeline(aggregate, input, vsFieldsInfo);
+                this._updateGroupingPipeline(input, vsFieldsInfo);
             }
 
-            const projectStage: IMapMarkerAggregate = findStage(aggregate, '$project');
+            const projectStage: IMapMarkerAggregate = findStage(this.aggregate, '$project');
             if (projectStage && projectStage.$project) {
-                const project: IObject = this._getProjectPipeline(aggregate, input, vsFieldsInfo);
+                const project: IObject = this._getProjectPipeline(vsFieldsInfo);
 
                 if (project && !isEmpty(project.$project)) {
                     Object.assign(projectStage.$project, project.$project);
                 }
             }
-
-            this._updateUnwindPipeline(aggregate, input, vsFieldsInfo);
+            this._updateUnwindPipeline(input, vsFieldsInfo);
         }
 
-        private _updateMatchAggregatePipeline(aggregate: IMapMarkerAggregate[], input: MapMarkerGroupingInput, vs: any): void {
-            const matchStage: IMapMarkerAggregate = findStage(aggregate, '$match');
+        private _updateMatchAggregatePipeline(input: MapMarkerGroupingInput, vs: any): void {
+            const matchStage: IMapMarkerAggregate = findStage(this.aggregate, '$match');
             const tmpdateRange: IChartDateRange = JSON.parse(input.dateRange);
             const dateRange: IDateRange = tmpdateRange.custom && tmpdateRange.custom.from ?
             { from: tmpdateRange.custom.from, to: tmpdateRange.custom.to }
@@ -349,15 +445,15 @@ export class MapMarkerService {
             }
         }
 
-        private _updateGroupingPipeline(aggregate: IMapMarkerAggregate[], input: MapMarkerGroupingInput, vsFieldsInfo: IVirtualSourceFieldsInfo): void {
-            const groupStage = findStage(aggregate, '$group');
+        private _updateGroupingPipeline(input: MapMarkerGroupingInput, vsFieldsInfo: IVirtualSourceFieldsInfo): void {
+            const groupStage = findStage(this.aggregate, '$group');
 
         // private _updateMatchAggregatePipeline(aggregate: IMapMarkerAggregate[], input: MapMarkerGroupingInput): void {
             /* if (groupStage) {
                 if (!groupStage.$group._id) {
                     groupStage.$group._id = {};
                 } */
-        const matchStage: IMapMarkerAggregate = findStage(aggregate, '$match');
+        const matchStage: IMapMarkerAggregate = findStage(this.aggregate, '$match');
         const dateRange: IDateRange = parsePredefinedDate(input.dateRange, this._user.get().profile.timezone);
 
                 let grouping: string;
@@ -369,8 +465,8 @@ export class MapMarkerService {
                 groupStage.$group._id['grouping'] = '$' + grouping;
             }
 
-        private _updateUnwindPipeline(aggregate: IMapMarkerAggregate[], input: MapMarkerGroupingInput, vsFieldsInfo: IVirtualSourceFieldsInfo): void {
-            const unwindStage = findStage(aggregate, '$unwind');
+        private _updateUnwindPipeline(input: MapMarkerGroupingInput, vsFieldsInfo: IVirtualSourceFieldsInfo): void {
+            const unwindStage = findStage(this.aggregate, '$unwind');
 
             if (unwindStage && unwindStage.$unwind) {
                 let path = '';
@@ -393,7 +489,7 @@ export class MapMarkerService {
             }
         }
 
-        private _getProjectPipeline(aggregate: IMapMarkerAggregate[], input: MapMarkerGroupingInput, vsFieldsInfo: IVirtualSourceFieldsInfo) {
+        private _getProjectPipeline(vsFieldsInfo: IVirtualSourceFieldsInfo) {
             if (isEmpty(vsFieldsInfo)) {
                 return;
             }
