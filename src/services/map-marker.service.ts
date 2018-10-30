@@ -4,7 +4,8 @@ import { IDateRange, parsePredefinedDate, IChartDateRange } from '../domain/comm
 import { CurrentUser } from '../domain/app/current-user';
 import { VirtualSources } from '../domain/app/virtual-sources/virtual-source.model';
 import { injectable, inject } from 'inversify';
-import { chain, Dictionary, isEmpty, keyBy, isString, isObject, filter, sortBy, isArray, isDate } from 'lodash';
+import { chain, Dictionary, isEmpty, keyBy, isString,
+         isObject, filter, sortBy, isArray, isDate, clone, remove } from 'lodash';
 import {ZipsToMap} from '../domain/master/zip-to-map/zip-to-map.model';
 import {ISaleByZip, ISaleByZipGrouping, TypeMap} from '../domain/app/sales/sale';
 import {NULL_CATEGORY_REPLACEMENT} from '../app_modules/charts/queries/charts/ui-chart-base';
@@ -24,6 +25,9 @@ import { Connectors } from '../domain/master/connectors/connector.model';
 import { IConnectorDocument } from '../domain/master/connectors/connector';
 import { KpiService } from './kpi.service';
 import { AppConnection } from '../domain/app/app.connection';
+import { KpiFactory } from '../app_modules/kpis/queries/kpi.factory';
+import * as jsep from 'jsep';
+import * as math from 'mathjs';
 
 export interface IMapMarker {
     name: string;
@@ -39,6 +43,13 @@ export interface IMapMarkerAggregate {
     $unwind?: Object;
     $group?: Object;
 }
+
+export const ExpressionTreeTypes = {
+    binary: 'BinaryExpression',
+    identifier: 'Identifier',
+    literal: 'Literal',
+    CallExpression: 'CallExpression'
+};
 
 interface IVirtualSourceInfoFields {
     // i.e. Referral
@@ -64,6 +75,7 @@ export class MapMarkerService {
     constructor(
         @inject(AppConnection.name) private _appConnection: AppConnection,
         @inject(KPIs.name) private _kpis: KPIs,
+        @inject(KpiFactory.name) private _kpifactory: KpiFactory,
         @inject(KpiService.name) private _kpiservice: KpiService,
         @inject(Maps.name) private _maps: Maps,
         @inject(ZipsToMap.name) private _ZipToMaps: ZipsToMap,
@@ -125,25 +137,155 @@ export class MapMarkerService {
                 });
             });
         }
+
+        private _mergeList(leftList, operator, rightList) {
+            const that = this;
+            let result = [];
+
+            // check if leftList/rightList is null or undefined
+            if (!leftList || !rightList) {
+                return;
+            }
+
+            // check if leftList and rightList has empty array
+            if (!leftList.length && !rightList.length) {
+                return;
+            }
+
+            // get the keys for the first element
+            const keysToTest: any[] = leftList.length ?
+                Object.keys(leftList[0]._id) :
+                (
+                    rightList.length ?
+                    Object.keys(rightList[0]._id) :
+                    []
+                );
+
+            // start on the left collection
+            (<Array<any>>leftList).forEach(l => {
+                const rightSide = that._popWithSameGroupings(rightList, l, keysToTest);
+                const rightValue = rightSide.length > 0 ? rightSide[0].value : 0;
+                let newDataItem = clone(l);
+
+                newDataItem.value = that._doCalculation(l.value, operator, rightValue);
+                result.push(newDataItem);
+            });
+            // now continue with whatever is left on the right cloned collection
+            (<Array<any>>rightList).forEach(r => {
+                const leftSide = that._popWithSameGroupings(leftList, r, keysToTest);
+                const leftValue = leftSide.length > 0 ? leftSide[0].value : 0;
+                let newDataItem = clone(r);
+
+                newDataItem.value = that._doCalculation(leftValue, operator, r.value);
+                result.push(newDataItem);
+            });
+
+            return result;
+        }
+
+        private _popWithSameGroupings(collection: any[], ele: any, keys: string[]) {
+            return remove(collection, (e) => {
+                let found = true;
+                // build the comparison object with all the jeys for this object
+                keys.forEach(key => {
+                    // if at least one value is different then I can finish the comparison here
+                    if (e._id[key] !== ele._id[key]) {
+                        found = false;
+                        return;
+                    }
+                });
+
+                return found;
+            });
+        }
+
+        private _doCalculation(left, operator, right) {
+            return math.eval(`${left || 0} ${operator} ${right || 0}`);
+        }
+
+        private _applyLiteralToList(list: any[], operator: string, value: number) {
+            const that = this;
+            list.forEach(item => item.value = that._doCalculation(item.value, operator, value));
+            return list;
+        }
+
+        private _applyBinaryOperator(left, operator, right): any {
+            // I need to make sure that both sets have the same data
+            // algorhitm: Start running one collection
+            const that = this;
+            const leftIsArray = isArray(left);
+            const rightIsArray = isArray(right);
+
+            if (leftIsArray && rightIsArray) {
+                return this._mergeList(left, operator, right);
+            } else if (leftIsArray && !rightIsArray) {
+                return this._applyLiteralToList(left, operator, +right);
+            } else if (!leftIsArray && rightIsArray) {
+                return this._applyLiteralToList(right, operator, +left);
+            } else if (!leftIsArray && !rightIsArray) {
+                return that._doCalculation(left, operator, right);
+            }
+        }
+
+        private _processBinaryExpression(exp: jsep.IBinaryExpression, input: MapMarkerGroupingInput): Promise<any> {
+            const that = this;
+            // get type for operands
+            const leftValue = this._processExpression(exp.left, input);
+            const rightValue = this._processExpression(exp.right, input);
+
+            return new Promise<any>((resolve, reject) => {
+                Promise.all([leftValue, rightValue]).then(results => {
+                    const result = that._applyBinaryOperator(results[0], exp.operator, results[1]);
+                    resolve(result);
+                }).catch(e => reject(e));
+            });
+        }
+
+        private _processExpression(exp: jsep.IExpression, input: MapMarkerGroupingInput): Promise<any> {
+            switch (exp.type) {
+                case ExpressionTreeTypes.binary:
+                    return this._processBinaryExpression(<jsep.IBinaryExpression>exp, input);
+                case ExpressionTreeTypes.identifier:
+                    return this._getKpiData((<jsep.IIdentifier>exp).name.replace('kpi', ''), input);
+                case ExpressionTreeTypes.literal:
+                    return Promise.resolve(+(<jsep.ILiteral>exp).value);
+                case ExpressionTreeTypes.CallExpression:
+                    return this._getKpiData(input.kpi, input);
+            }
+        }
+
+        private getData(kpi: IKPIDocument, input: MapMarkerGroupingInput): any {
+            const exp: jsep.IExpression = jsep(kpi.expression);
+            return this._processExpression(exp, input);
+        }
+
+        async _getKpiData(kpiId: string, input: MapMarkerGroupingInput) {
+            const allKpis: IKPIDocument[] = await this._kpis.model.find({});
+            const kpi: IKPIDocument = allKpis.find((k: IKPIDocument) => k.id === kpiId);
+            const connectors: IConnectorDocument[] = await this._connectors.model.find({});
+            const kpiSources: string[] = this._kpiservice._getKpiSources(kpi, allKpis, connectors);
+            const vs: IVirtualSourceDocument[] = await this._virtualSources.model.find({});
+            const virtualSources: IVirtualSourceDocument[] = vs.filter((v: IVirtualSourceDocument) => {
+                    return kpiSources.indexOf(v.name.toLocaleLowerCase()) !== -1;
+            });
+
+            const theModel = this.getModel(virtualSources[0].name, virtualSources[0].source);
+            this.aggregate = await this._getAggregateObject(kpi, input, virtualSources[0]);
+            if (isEmpty(this.aggregate)) {
+                return [];
+            }
+            return  await this.executeAggregate(theModel, this.aggregate);
+        }
+
         async getMapMarkers(dataTypeMap: TypeMap, input: MapMarkerGroupingInput): Promise<IMapMarker[]> {
             try {
 
                 const allKpis: IKPIDocument[] = await this._kpis.model.find({});
                 const kpi: IKPIDocument = allKpis.find((k: IKPIDocument) => k.id === input.kpi);
-                const connectors: IConnectorDocument[] = await this._connectors.model.find({});
-                const kpiSources: string[] = this._kpiservice._getKpiSources(kpi, allKpis, connectors);
-                const vs: IVirtualSourceDocument[] = await this._virtualSources.model.find({});
-                const virtualSources: IVirtualSourceDocument[] = vs.filter((v: IVirtualSourceDocument) => {
-                    return kpiSources.indexOf(v.name.toLocaleLowerCase()) !== -1;
-                });
-                const theModel = this.getModel(virtualSources[0].name, virtualSources[0].source);
-
-                this.aggregate = await this._getAggregateObject(kpi, input, virtualSources[0]);
-
-                if (isEmpty(this.aggregate)) {
+                const resultByZip = await this.getData(kpi, input);
+                if (resultByZip === undefined) {
                     return [];
                 }
-                const resultByZip = await this.executeAggregate(theModel, this.aggregate);
                 // get the zip codes related
                 const zipList = await this._ZipToMaps.model.find({
                                     zipCode: {
@@ -215,8 +357,8 @@ export class MapMarkerService {
             return regexStrings.indexOf(operator) !== -1;
         }
         private _injectMatch(expField: string) {
-            let matchStage = this.findStage('$match');
-            matchStage.$match[expField] = { $gte: 0 };
+            // let matchStage = this.findStage('$match');
+            // matchStage.$match[expField] = { $gte: 0 };
         }
 
         private _injectFilter(filter: any) {
@@ -281,14 +423,15 @@ export class MapMarkerService {
             return newFilter;
         }
 
-        private _injectProject(vs: any, expression: any ) {
+        private _injectProject(grouping: string, vs: any, expression: any ) {
             const dateField = vs.dateField.split('.')[0];
             const expField: string = expression.field.split('.')[0];
+            const groupingStr: string = grouping.split('.')[0];
             const projectStage = this.findStage('$project');
             projectStage.$project = {};
             projectStage.$project[dateField] = 1;
             projectStage.$project._id = 0;
-            projectStage.$project.customer = 1;
+            projectStage.$project[groupingStr] = 1;
             let index = Object.keys(projectStage.$project).findIndex(prop => prop === expField);
             if (index === -1) {
                 projectStage.$project[expField] = 1;
@@ -335,10 +478,11 @@ export class MapMarkerService {
             }
             if (expression) {
                 this._injectMatch(expression.field);
-                this._injectProject(vs, expression);
+                this._injectProject(input.grouping, vs, expression);
                 this._injectGroup(input.grouping, expression);
             }
         }
+
         private _sortByUnwind(vsFieldsInfo: IVirtualSourceFieldsInfo): boolean {
             const projectStage = findStage(this.aggregate, '$project');
             if (!projectStage || !projectStage.$project) {
