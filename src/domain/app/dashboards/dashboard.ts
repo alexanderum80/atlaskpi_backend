@@ -23,6 +23,7 @@ export interface IDashboard {
     owner: IUser;
     users: IUser[];
     visible?: boolean;
+    order?: number;
 }
 
 export interface IDashboardInput {
@@ -35,6 +36,7 @@ export interface IDashboardInput {
     owner: string;
     users: string[];
     visible?: boolean;
+    order?: number;
 }
 
 export interface IDashboardDocument extends IDashboard, mongoose.Document {
