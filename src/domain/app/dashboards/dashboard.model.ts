@@ -46,6 +46,7 @@ let DashboardSchema = new Schema({
         ref: 'User'
     }],
     visible: Boolean,
+    order: Number
 });
 
 // add tags capabilities
