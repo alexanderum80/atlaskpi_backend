@@ -45,6 +45,10 @@ export class DashboardInput  {
 
     @field({ type: GraphQLTypesMap.Boolean })
     visible?: boolean;
+
+    @field({ type: GraphQLTypesMap.Int })
+    order?: number;
+
 }
 
 
@@ -84,6 +88,9 @@ export class Dashboard  {
 
     @field({ type: GraphQLTypesMap.Boolean })
     visible?: boolean;
+
+    @field({ type: GraphQLTypesMap.Int })
+    order?: number;
 }
 
 
