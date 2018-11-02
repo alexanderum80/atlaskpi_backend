@@ -185,7 +185,7 @@ async function getDataSourceByName(name: string): Promise<IVirtualSourceDocument
     const model = this as IVirtualSourceModel;
 
     try {
-        const regExp = new RegExp(camelCase(name).toLowerCase(), 'i');
+        const regExp = new RegExp(name.toLowerCase(), 'i');
         const query: IObject = { name: regExp };
         return await model.findOne(query);
     } catch (e) {
