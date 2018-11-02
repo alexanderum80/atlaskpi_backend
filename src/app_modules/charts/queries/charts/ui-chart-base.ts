@@ -164,7 +164,9 @@ export class UIChartBase {
             // will return data if top n input is not given
             data = ApplyTopNChart.applyTopNToData(data, metadata);
 
-            data = this._sortingData(metadata, data);
+            // sorting ?
+            if(metadata.sortingCriteria && metadata.sortingOrder)
+                data = this._sortingData(metadata, data);
 
             that.groupings = that._getGroupingFields(data);
 
@@ -272,7 +274,7 @@ export class UIChartBase {
      * @param chartDateRange data range that includes a predefined or a custom data range
      */
     private _sortingData(metadata: IChartMetadata, data: any): any {
-
+      
         let groupingField = (metadata.groupings && metadata.groupings.length) ? camelCase(metadata.groupings[0]) : null;
 
         if (metadata.sortingCriteria && metadata.sortingCriteria === SortingCriteriaEnum.Values) {
