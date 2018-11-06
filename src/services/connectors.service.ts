@@ -192,12 +192,14 @@ export class ConnectorsService {
                                 errors: [ { field: 'id', errors: ['Connector not found']} ] });
             }
 
+            const expressionId: RegExp = new RegExp(id, 'i');
+
             const connectorsArray: any[] = [];
 
             this._connectors.model.findById(id)
                 .then(connector => {
 
-                    const virtualSourceName = connector.virtualSource || null;
+                    const virtualSourceName = connector.virtualSource && connector.virtualSource !== 'google_analytics' ? connector.virtualSource : null;
 
                     // contain regex expression to use for complex kpi
                     const expressionName: RegExp = new RegExp(virtualSourceName);
@@ -209,16 +211,21 @@ export class ConnectorsService {
                         type: 'simple'
                     })
                     .then(kpis => {
-                        const expressionId: RegExp[] = kpis.map(k => new RegExp(k.id, 'i'));
+                        const expressionKpiId: RegExp[] = kpis.map(k => new RegExp(k.id, 'i'));
 
                         this._kpis.model.find({
+                            type: { $ne: 'simple' },
                             $or: [{
                                 expression: {
                                     $regex: expressionName
                                 }
                             }, {
                                 expression: {
-                                    $in: expressionId
+                                    $in: expressionKpiId
+                                }
+                            }, {
+                                expression: {
+                                    $regex: expressionId
                                 }
                             }]
                         })
