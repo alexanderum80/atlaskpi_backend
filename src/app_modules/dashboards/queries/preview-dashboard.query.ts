@@ -1,3 +1,4 @@
+import { MapQuery } from './../../maps/queries/map.query';
 import * as Bluebird from 'bluebird';
 import { inject, injectable } from 'inversify';
 
@@ -27,7 +28,8 @@ export class PreviewDashboardQuery implements IQuery<IDashboard> {
         @inject(Logger.name) private _logger: Logger,
         @inject(WidgetsService.name) private _widgetService: WidgetsService,
         @inject(SocialWidgetsService.name) private _socialwidgetService: SocialWidgetsService,
-        @inject(ChartQuery.name) private _chartQuery: ChartQuery
+        @inject(ChartQuery.name) private _chartQuery: ChartQuery,
+        @inject(MapQuery.name) private _mapQuery: MapQuery,
     ) { }
 
     async run(data: { input: DashboardInput }): Promise<IDashboard> {
@@ -44,6 +46,11 @@ export class PreviewDashboardQuery implements IQuery<IDashboard> {
                 (w: string) => that._socialwidgetService.getSocialWidgetsById(w)
             );
 
+            dashboardElementsPromises['maps'] = Bluebird.map(
+                <any>data.input.maps,
+                (w: string) => that._mapQuery.run({id: w})
+            );
+
             dashboardElementsPromises['charts'] = Bluebird.map(
                 <any>data.input.charts,
                 (c: string) => that._chartQuery.run({ id: c } as any)
@@ -55,6 +62,7 @@ export class PreviewDashboardQuery implements IQuery<IDashboard> {
             response.widgets = elements.widgets.map(w => JSON.stringify(w));
             response.charts  = elements.charts;
             response.socialwidgets = elements.socialwidgets;
+            response.maps = elements.maps;
 
             return response;
        }

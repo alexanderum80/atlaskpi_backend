@@ -90,7 +90,8 @@ export interface ISales {
 
 export enum TypeMap {
     customerAndZip = 'customerAndZip',
-    productAndZip = 'productAndZip'
+    productAndZip = 'productAndZip',
+    locationAndZip = 'locationAndZip'
 }
 
 export interface ISaleByZipGrouping {
