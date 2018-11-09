@@ -1,4 +1,3 @@
-import { GetKpiOldestDateQuery } from './queries/get-kpi-oldestDate.query';
 import { SettingsOnFlyKpisQuery } from './queries/settings-on-fly-kpis.query';
 import { KpiByNameQuery } from './queries/kpi-by-name.query';
 import { GetKpisCriteriaQuery } from './queries/get-kpi-criteria.query';
@@ -13,6 +12,8 @@ import { ExecuteKpiQuery } from './queries/execute.kpi';
 import {GetKpiFilterFields} from './queries/get-kpi-filter-fields.query';
 import {GetKpiExpressionFieldsQuery} from './queries/get-kpi-expression-fields.query';
 import {KpiGroupingsQuery} from './queries/kpi-groupings.query';
+import { GetKpiOldestDateQuery } from './queries/get-kpi-oldestDate.query';
+import { GetKpiDataSourcesQuery } from './queries/get-kpi-datasources.query';
 
 @AppModule({
     mutations: [
@@ -31,7 +32,8 @@ import {KpiGroupingsQuery} from './queries/kpi-groupings.query';
         GetKpiFilterFields,
         GetKpiExpressionFieldsQuery,
         KpiGroupingsQuery,
-        GetKpiOldestDateQuery
+        GetKpiOldestDateQuery,
+        GetKpiDataSourcesQuery
     ]
 })
 export class KpisModule extends ModuleBase { }

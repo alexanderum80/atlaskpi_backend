@@ -222,6 +222,10 @@ export class ChartsService {
                 .populate({
                     path: 'kpis',
                 }).then(chartDocument => {
+                    if (!chartDocument) {
+                        reject({ field: 'id', errors: ['Chart not found']});
+                        return;
+                    }
                     that._resolveDashboards(chartDocument).then((dashboards) => {
                         const chart: any = chartDocument.toObject();
                         chart.dashboards = dashboards;
