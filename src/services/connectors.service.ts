@@ -1,3 +1,4 @@
+import { Dashboards } from './../domain/app/dashboards/dashboard.model';
 import { IKPIDocument } from './../domain/app/kpis/kpi';
 import { IMutationResponse } from './../framework/mutations/mutation-response';
 import { CurrentAccount } from './../domain/master/current-account';
@@ -29,7 +30,8 @@ export class ConnectorsService {
         @inject(DataSourcesService.name) private _dataSourcesService: DataSourcesService,
         @inject(IntegrationConnectorFactory.name) private _integrationConnectorFactory: IntegrationConnectorFactory,
         @inject(Logger.name) private _logger: Logger,
-        @inject(KPIs.name) private _kpis: KPIs
+        @inject(KPIs.name) private _kpis: KPIs,
+        @inject(Dashboards.name) private _dashboards: Dashboards
     ) { }
 
     findConnectorsByDatabaseName(databaseName: string): Promise<IConnectorDocument[]> {
@@ -131,11 +133,11 @@ export class ConnectorsService {
     removeConnector(id: string): Promise<IConnectorDocument> {
         const that = this;
         return new Promise<IConnectorDocument>((resolve, reject) => {
-            that._connectorInUseByModel(id).then((kpis: IConnectorDocument[]) => {
+            that._connectorInUseByModel(id).then((connectors: IConnectorDocument[]) => {
 
                 // check if connector is in use by another model
-                if (kpis.length) {
-                    reject({ message: 'Connector is being used by ', entity: kpis, error: 'Connector is being used by '});
+                if (connectors.length) {
+                    reject({ message: 'Connector is being used by ', entity: connectors, error: 'Connector is being used by '});
                     return;
                 }
 
@@ -190,10 +192,14 @@ export class ConnectorsService {
                                 errors: [ { field: 'id', errors: ['Connector not found']} ] });
             }
 
+            const expressionId: RegExp = new RegExp(id, 'i');
+
+            const connectorsArray: any[] = [];
+
             this._connectors.model.findById(id)
                 .then(connector => {
 
-                    const virtualSourceName = connector.virtualSource || null;
+                    const virtualSourceName = connector.virtualSource && connector.virtualSource !== 'google_analytics' ? connector.virtualSource : null;
 
                     // contain regex expression to use for complex kpi
                     const expressionName: RegExp = new RegExp(virtualSourceName);
@@ -205,31 +211,59 @@ export class ConnectorsService {
                         type: 'simple'
                     })
                     .then(kpis => {
-                        const expressionId: RegExp[] = kpis.map(k => new RegExp(k.id, 'i'));
+                        const expressionKpiId: RegExp[] = kpis.map(k => new RegExp(k.id, 'i'));
 
                         this._kpis.model.find({
-                            type: 'complex',
+                            type: { $ne: 'simple' },
                             $or: [{
                                 expression: {
                                     $regex: expressionName
                                 }
                             }, {
                                 expression: {
-                                    $in: expressionId
+                                    $in: expressionKpiId
+                                }
+                            }, {
+                                expression: {
+                                    $regex: expressionId
                                 }
                             }]
                         })
                         .then(res => {
                             kpis = kpis.concat(<any>res);
-                            resolve(<any>kpis);
-                            return;
-                        });
+                            if (kpis.length) {
+                                kpis.map(k => {
+                                    connectorsArray.push({
+                                        name: k.name,
+                                        type: 'kpi'
+                                    });
+                                });
+                            }
 
+                            this._dashboards.model.find({
+                                socialwidgets: {$in: [id]}
+                            })
+                            .then(dashboard => {
+                                if (dashboard.length) {
+                                    dashboard.map(d => {
+                                        connectorsArray.push({
+                                            name: d.name,
+                                            type: 'dashboard'
+                                        });
+                                    });
+                                }
+                                resolve(<any>connectorsArray);
+                                return;
+                            })
+                            .catch(err => {
+                                reject(err);
+                                return;
+                            });
+                        });
                     }).catch(err => {
                         reject(err);
                         return;
                     });
-
                 }).catch(err => {
                     reject(err);
                     return;
