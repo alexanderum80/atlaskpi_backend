@@ -50,7 +50,7 @@ try {
             port: config.cache.redisPort, // 6379,
             host: config.cache.redisServer, // 'localhost'
         }
-    }); 
+    });
 
     console.log('Queue name: ' + os.hostname);
 } catch (e) {
