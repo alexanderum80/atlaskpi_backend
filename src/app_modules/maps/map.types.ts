@@ -11,8 +11,8 @@ export class MapMarkerGroupingInput {
     @field({ type: GraphQLTypesMap.String })
     dateRange: string;
 
-    @field({ type: GraphQLTypesMap.String })
-    grouping: string;
+    @field({ type: GraphQLTypesMap.String, isArray: true })
+    grouping: string[];
 
     @field({ type: GraphQLTypesMap.String })
     kpi: string;
@@ -32,8 +32,8 @@ export class MapAttributesInput  {
     @field({ type: ChartDateRangeInput })
     dateRange: ChartDateRangeInput;
 
-    @field({ type: GraphQLTypesMap.String })
-    groupings: string;
+    @field({ type: GraphQLTypesMap.String, isArray: true })
+    groupings: string[];
 
     @field({ type: GraphQLTypesMap.String, isArray: true })
     dashboards: string[];
@@ -98,8 +98,8 @@ export class MapEntityResponse  {
     @field({ type: ChartDateRange })
     dateRange: ChartDateRange;
 
-    @field({ type: GraphQLTypesMap.String })
-    groupings: string;
+    @field({ type: GraphQLTypesMap.String, isArray: true })
+    groupings: string[];
 
     @field({ type: GraphQLTypesMap.String, isArray: true })
     dashboards: string[];

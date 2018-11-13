@@ -1,3 +1,4 @@
+import { name } from 'aws-sdk/clients/importexport';
 import { IDateRange, parsePredefinedDate, processDateRangeWithTimezone } from '../domain/common/date-range';
 import { CurrentUser } from '../domain/app/current-user';
 import { injectable, inject } from 'inversify';
@@ -188,7 +189,6 @@ export class MapMarkerService {
 
         async _getKpiData(kpiId: string, input: MapMarkerGroupingInput) {
 
-            const Groupings: string[] = [];
             const DateRange: any[] = [];
             const allKpis: IKPIDocument[] = await this._kpis.model.find({});
             const kpiDocument: IKPIDocument = allKpis.find((k: IKPIDocument) => k.id === kpiId);
@@ -197,22 +197,23 @@ export class MapMarkerService {
             const timezone = this._user.get().profile.timezone;
             const dr = processDateRangeWithTimezone(inputDR, timezone);
 
-            Groupings.push(input.grouping);
             DateRange.push(dr);
-
             const metadata: IChartMetadata = {
                 dateRange: DateRange,
-                groupings: Groupings
+                groupings: input.grouping
             };
             return await kpi.getData(DateRange, metadata);
         }
 
         async getMapMarkers(dataTypeMap: TypeMap, input: MapMarkerGroupingInput): Promise<IMapMarker[]> {
             try {
-                if (!input.kpi || !input.grouping) {
-                    return [];
+                if (!input.kpi || !input.grouping) { return []; }
+                let dateRange;
+                if (isString(input.dateRange)) {
+                    dateRange = JSON.parse(input.dateRange);
+                } else {
+                    dateRange = input.dateRange;
                 }
-                const dateRange = JSON.parse(input.dateRange);
                 if (dateRange.predefined === 'custom' && (dateRange.custom.from === '' || dateRange.custom.to === '' )) {
                     return [];
                 }
@@ -222,14 +223,13 @@ export class MapMarkerService {
                 if (resultByZip === undefined) {
                     return [];
                 }
-                const grouping = camelCase(input.grouping);
                 // get the zip codes related
                 const zipList = await this._ZipToMaps.model.find({
                                     zipCode: {
-                                        $in: <any> resultByZip.map(d => d._id[grouping])
+                                        $in: <any> resultByZip.map(d => d._id.customerZip)
                                     }});
                 let markers;
-                const groupByField = input['grouping'];
+                const groupByField = input.grouping[input.grouping.length - 1];
                 if (input) {
                     if (groupByField) {
                         markers = this._groupingMarkersFormatted(resultByZip, zipList, groupByField);
@@ -270,12 +270,10 @@ export class MapMarkerService {
             if (isEmpty(salesByZip)) {
                 return [];
             }
-            const grouping = camelCase(groupByField);
-            const groupBy = '_id.' + grouping;
             const zipCodes: Dictionary<IZipToMapDocument> = keyBy(zipList, 'zipCode');
 
             return chain(salesByZip)
-                        .groupBy(groupBy)
+                        .groupBy('_id.customerZip')
                         // key = zipCode => i.e. 37703
                         .map((value: any[], key: string) => {
                             let itemList: MapMarkerItemList[] = [];
@@ -327,15 +325,15 @@ export class MapMarkerService {
         }
 
         private _getGroupName(value: ISaleByZip[], index: number, groupByField?: string): string {
-            const item: ISaleByZipGrouping = value[index]._id;
+            const item = value[index]._id;
             let grouping: string;
 
             // return 'Uncategorized*' if have no grouping value (i.e. Knoxville)
-            if (isEmpty(item) || isEmpty(item.grouping)) {
+            if (isEmpty(item) || isEmpty(item[camelCase(groupByField)])) {
                 return NULL_CATEGORY_REPLACEMENT;
             }
 
-            grouping = item.grouping;
+            grouping = item[camelCase(groupByField)][0];
 
             // return grouping if groupByField not pass in parameter
             if (isEmpty(groupByField)) {

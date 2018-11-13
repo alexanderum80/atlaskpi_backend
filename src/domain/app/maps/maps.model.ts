@@ -29,7 +29,7 @@ let MapSchema = new Schema({
     subtitle: String,
     group: String,
     dateRange: MapDateRangeSchema,
-    groupings: String,
+    groupings: [String],
     dashboards: [String],
     size: String,
     kpi: String
