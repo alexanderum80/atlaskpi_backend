@@ -13,6 +13,7 @@ import { ExecuteKpiQuery } from './queries/execute.kpi';
 import {GetKpiFilterFields} from './queries/get-kpi-filter-fields.query';
 import {GetKpiExpressionFieldsQuery} from './queries/get-kpi-expression-fields.query';
 import {KpiGroupingsQuery} from './queries/kpi-groupings.query';
+import { GetKpisFilterExpressionQuery } from './queries/get-kpi-filter-expression.query';
 
 @AppModule({
     mutations: [
@@ -31,7 +32,8 @@ import {KpiGroupingsQuery} from './queries/kpi-groupings.query';
         GetKpiFilterFields,
         GetKpiExpressionFieldsQuery,
         KpiGroupingsQuery,
-        GetKpiOldestDateQuery
+        GetKpiOldestDateQuery,
+        GetKpisFilterExpressionQuery
     ]
 })
 export class KpisModule extends ModuleBase { }

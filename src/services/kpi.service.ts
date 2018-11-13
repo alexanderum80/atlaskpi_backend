@@ -516,4 +516,57 @@ export class KpiService {
         const drFilter = this.getDateRange(dr);
         return Array.isArray(drFilter) ? drFilter[0] : drFilter;
     }
+
+    async getKpiByFilterExpression(kpiType: KPITypeEnum, expression: string, filter?: string): Promise<IKPIDocument[]> {
+        let kpis: IKPIDocument[] = await <any>this.getKpis().then(k => {
+            return k;
+        });
+
+        if (kpiType === KPITypeEnum.Simple || kpiType === KPITypeEnum.ExternalSource) {
+            expression = KPIExpressionHelper.ComposeExpression(kpiType, expression);
+        }
+
+        kpis.map(k => {
+            if (k.filter) {
+                k.filter = KPIFilterHelper.DecomposeFilter(kpiType, k.filter);
+            }
+        });
+
+        // filtering by expression
+        const kpiExpression = kpis.filter(k => k.expression === expression);
+
+        const kpi = [];
+
+        const filters = filter ? JSON.parse(filter).filter(f => f.field !== 'source') : null;
+
+        // filtering by filters
+        kpiExpression.map(k => {
+            if (kpiType === KPITypeEnum.Simple || kpiType === KPITypeEnum.ExternalSource) {
+                if (k.filter) {
+                    k.filter = k.filter.filter(f => f.field !== 'source');
+                } else {
+                    k.filter = [];
+                }
+
+                const filterExpression = [];
+                for (let i = 0; i < filters.length; i++) {
+                    const filterExist = k.filter ?
+                                        k.filter.find(f => f.field === filters[i].field &&
+                                            f.operator === filters[i].operator &&
+                                            f.criteria === filters[i].criteria) :
+                                        null;
+                    if (filterExist) {
+                        filterExpression.push(k);
+                    }
+                }
+                if (filters.length === filterExpression.length && filterExpression.length === k.filter.length) {
+                    kpi.push(k);
+                }
+            } else {
+                kpi.push(k);
+            }
+        });
+
+        return kpi;
+    }
 }
