@@ -12,6 +12,7 @@ import { ExecuteKpiQuery } from './queries/execute.kpi';
 import {GetKpiFilterFields} from './queries/get-kpi-filter-fields.query';
 import {GetKpiExpressionFieldsQuery} from './queries/get-kpi-expression-fields.query';
 import {KpiGroupingsQuery} from './queries/kpi-groupings.query';
+import { GetKpisFilterExpressionQuery } from './queries/get-kpi-filter-expression.query';
 import { GetKpiOldestDateQuery } from './queries/get-kpi-oldestDate.query';
 import { GetKpiDataSourcesQuery } from './queries/get-kpi-datasources.query';
 
@@ -33,6 +34,7 @@ import { GetKpiDataSourcesQuery } from './queries/get-kpi-datasources.query';
         GetKpiExpressionFieldsQuery,
         KpiGroupingsQuery,
         GetKpiOldestDateQuery,
+        GetKpisFilterExpressionQuery,
         GetKpiDataSourcesQuery
     ]
 })
