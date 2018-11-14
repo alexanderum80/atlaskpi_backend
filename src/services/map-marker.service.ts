@@ -333,7 +333,7 @@ export class MapMarkerService {
                 return NULL_CATEGORY_REPLACEMENT;
             }
 
-            grouping = item[camelCase(groupByField)][0];
+            grouping = item[camelCase(groupByField)];
 
             // return grouping if groupByField not pass in parameter
             if (isEmpty(groupByField)) {
