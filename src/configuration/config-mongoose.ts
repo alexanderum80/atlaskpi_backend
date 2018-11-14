@@ -5,6 +5,6 @@ export function configMongoose() {
     (<any>mongoose).Promise = Promise;
 
     // if (process.env.NODE_ENV !== 'prod') {
-       mongoose.set('debug', true);
+    //    mongoose.set('debug', true);
     // }
 }
