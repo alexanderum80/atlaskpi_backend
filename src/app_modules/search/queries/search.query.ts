@@ -115,18 +115,22 @@ export class SearchQuery implements IQuery<SearchResult[]> {
     private _processModelsSearch(query: string): Promise<SearchResult[]> {
         const that = this;
 
+        const regexSpecialCharacters = ['(', ')', '[', ']', '{', '}', '$', '^', '.', '|', '?', '*', '+', '\\'];
+
+        const cleanQuery = this.escapeCharacters(regexSpecialCharacters, query);
+
         return new Promise<SearchResult[]>((resolve, reject) => {
             const searchFields = ['name', 'description'];
 
             const searchPromises: Promise<IGlobalSearch>[] = [
-                this._dashboards.model.globalSearch(query, searchFields, 'Dashboards', 'name', 'description'),
-                this._charts.model.globalSearch(query, ['title', 'subtitle'], 'Charts', 'title', 'subtitle'),
-                this._kpis.model.globalSearch(query, searchFields, 'KPIs', 'name', 'description'),
-                this._slideshows.model.globalSearch(query, searchFields, 'Slideshows', 'name', 'description'),
-                this._widgets.model.globalSearch(query, searchFields, 'Widgets', 'name', 'description'),
-                this._users.model.globalSearch(query, ['profile.firstName', 'profile.lastName'], 'Users', 'profile.firstName', 'profile.lastName'),
-                this._roles.model.globalSearch(query, ['name'], 'Roles', 'name', 'name'),
-                this._appointments.model.globalSearch(query, ['reason'], 'Appointments', 'reason', 'reason')
+                this._dashboards.model.globalSearch(cleanQuery, searchFields, 'Dashboards', 'name', 'description'),
+                this._charts.model.globalSearch(cleanQuery, ['title', 'subtitle'], 'Charts', 'title', 'subtitle'),
+                this._kpis.model.globalSearch(cleanQuery, searchFields, 'KPIs', 'name', 'description'),
+                this._slideshows.model.globalSearch(cleanQuery, searchFields, 'Slideshows', 'name', 'description'),
+                this._widgets.model.globalSearch(cleanQuery, searchFields, 'Widgets', 'name', 'description'),
+                this._users.model.globalSearch(cleanQuery, ['profile.firstName', 'profile.lastName'], 'Users', 'profile.firstName', 'profile.lastName'),
+                this._roles.model.globalSearch(cleanQuery, ['name'], 'Roles', 'name', 'name'),
+                this._appointments.model.globalSearch(cleanQuery, ['reason'], 'Appointments', 'reason', 'reason')
             ];
 
             Promise.all(searchPromises).then(res => {
@@ -145,4 +149,18 @@ export class SearchQuery implements IQuery<SearchResult[]> {
             });
         });
     }
+
+    escapeCharacters(characters, text) {
+        var result = '';
+    
+        for (let i = 0; i < text.length; i++) {
+            const element = text[i];
+            result += characters.indexOf(element) !== -1
+                ? "\\" + element
+                : element;
+        }
+        
+        return result;
+    }
+
 }
