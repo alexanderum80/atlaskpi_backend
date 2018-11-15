@@ -1,4 +1,3 @@
-import { InputUserProfile } from '../../../../app_modules/users/users.types';
 import * as Promise from 'bluebird';
 import mongoose = require('mongoose');
 import * as nodemailer from 'nodemailer';
@@ -70,6 +69,10 @@ export interface IShowTour {
     showTour: boolean;
 }
 
+export interface IViewList {
+    listMode: string;
+}
+
 export interface IUserNotifications {
     general?: boolean;
     chat?: boolean;
@@ -86,6 +89,12 @@ export interface IUserPreference {
     providers?: string[];
     calendarTimeZone?: string;
     dashboardIdNoVisible?: string[];
+    dashboards?: IViewList;
+    charts?: IViewList;
+    kpis?: IViewList;
+    roles?: IViewList;
+    users?: IViewList;
+    theme?: string;
 }
 
 

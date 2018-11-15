@@ -121,6 +121,12 @@ export function userPlugin(schema: mongoose.Schema, options: any) {
         }
     };
 
+    const ListViewSchema = {
+        listMode: {
+            type: String
+        }
+    }
+
     const UserNotificationsSchema = {
         general: Boolean,
         chat: Boolean,
@@ -141,6 +147,12 @@ export function userPlugin(schema: mongoose.Schema, options: any) {
         dashboardIdNoVisible: [{
             type: String
         }],
+        dashboards: ListViewSchema,
+        charts: ListViewSchema,
+        kpis: ListViewSchema,
+        roles: ListViewSchema,
+        users: ListViewSchema,
+        theme: String
     };
 
     schema.add({
