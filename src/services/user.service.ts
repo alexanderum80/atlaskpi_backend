@@ -6,7 +6,7 @@ import { AccountCreatedNotification } from './notifications/users/account-create
 import { IMutationResponse } from '../framework/mutations/mutation-response';
 import { ICreateUserDetails } from '../domain/common/create-user';
 import { Users } from '../domain/app/security/users/user.model';
-import { IUserDocument, IUserEmail } from '../domain/app/security/users/user';
+import { IUserDocument, IUserEmail, IUserPreference } from '../domain/app/security/users/user';
 import { inject, injectable } from 'inversify';
 import { CurrentUser } from '../domain/app/current-user';
 import { Attachments } from '../domain/app/attachments/attachment-model';
@@ -28,6 +28,25 @@ export class UserService {
     ) {}
 
     async getCurrentUserInfo(aUser?: IUserDocument): Promise<IUserDocument> {
+        const defaultPreferences : IUserPreference = {
+            charts: {
+                listMode: "tableView"
+            },
+            kpis: {
+                listMode: "tableView"
+            },
+            dashboards: {
+                listMode: "standardView"
+            },
+            roles: {
+                listMode: "standardView"
+            },
+            users: {
+                listMode: "standardView"
+            },
+            theme: "light"
+        }
+        
         try {
             let user: IUserDocument;
             if (aUser) {
@@ -42,6 +61,10 @@ export class UserService {
                 AttachmentTypeEnum.ProfilePicture,
                 user._id.toString()
             );
+
+         const mergedPreferences =  Object.assign(defaultPreferences, user.preferences);
+
+         user.preferences = mergedPreferences;
 
             return user;
         } catch (e) {
