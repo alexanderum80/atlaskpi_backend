@@ -10,7 +10,7 @@ export interface IMap {
     subtitle?: string;
     group?: string;
     dateRange: IChartDateRange;
-    groupings: string;
+    groupings: string[];
     dashboards: string[];
     size: string;
     kpi: string;
@@ -21,7 +21,7 @@ export interface IMapInput {
     subtitle?: string;
     group?: string;
     dateRange: IChartDateRange;
-    groupings: string;
+    groupings: string[];
     dashboards: string[];
     size: string;
     kpi: string;
@@ -29,7 +29,7 @@ export interface IMapInput {
 
 export interface IGetMapInput {
     dateRange: IChartDateRange;
-    groupings: string;
+    groupings: string[];
     size: string;
     kpi: string;
 }
