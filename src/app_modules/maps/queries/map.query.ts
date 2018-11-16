@@ -44,7 +44,7 @@ export class MapQuery implements IQuery<String> {
         });
     }
 
-    private getMarkers(mapdata: any, dateRange: string, groupings: string, kpi: string ): Promise<Object> {
+    private getMarkers(mapdata: any, dateRange: string, groupings: string[], kpi: string ): Promise<Object> {
         return new Promise<Object>((resolve, reject) => {
             const markerGroupings  = {
                 dateRange: JSON.stringify(dateRange),

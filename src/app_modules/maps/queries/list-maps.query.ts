@@ -6,7 +6,6 @@ import { query } from '../../../framework/decorators/query.decorator';
 import { IQuery } from '../../../framework/queries/query';
 import { Logger } from './../../../domain/app/logger';
 import { ListMapsActivity } from './../activities/list-maps.activity';
-import { MapMarkerGroupingInput, } from '../map.types';
 import { MapMarkerService } from '../../../services/map-marker.service';
 import { TypeMap } from '../../../domain/app/sales/sale';
 
@@ -45,7 +44,7 @@ export class ListMapsQuery implements IQuery<String[]> {
         });
     }
 
-    private getMarkers(mapdata: any, dateRange: string, groupings: string, kpi: string ): Promise<Object> {
+    private getMarkers(mapdata: any, dateRange: string, groupings: string[], kpi: string ): Promise<Object> {
         return new Promise<Object>((resolve, reject) => {
             const markerGroupings  = {
                 dateRange: JSON.stringify(dateRange),

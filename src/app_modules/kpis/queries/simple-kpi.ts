@@ -44,6 +44,7 @@ export class SimpleKPI extends SimpleKPIBase implements IKpiBase {
 
             // flag in case we need to apply the daterange before the vs aggregate
             if (!isEmpty(vsAggStages)
+                && parentVirtualSource
                 && Object.values(parentVirtualSource.fieldsMap)
                          .some(f => f.path === collection.timestampField)) {
                 vsAggDateRangeStage =  {

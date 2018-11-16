@@ -103,6 +103,12 @@ export class ITourChart {
     showTour: boolean;
 }
 
+@input()
+export class IListView {
+    @field({ type: GraphQLTypesMap.String })
+    listMode: string;
+}
+
 
 @input()
 export class ITourInput {
@@ -123,6 +129,24 @@ export class ITourInput {
 
     @field({ type: GraphQLTypesMap.String })
     dashboardIdNoVisible: string[];
+
+    @field({ type: IListView })
+    dashboards: IListView;
+
+    @field({ type:IListView})
+    charts: IListView;
+
+    @field({ type:IListView})
+    kpis: IListView;
+
+    @field({ type:IListView})
+    roles: IListView;
+    
+    @field({ type:IListView})
+    users: IListView;
+
+    @field ({ type: GraphQLTypesMap.String })
+    theme: string;
 }
 
 @input()
@@ -286,6 +310,12 @@ export class ChartPreference {
 }
 
 @type()
+export class ListViewPreference {
+    @field({ type: GraphQLTypesMap.String })
+    listMode: string;
+}
+
+@type()
 export class UserNotifications {
     @field({ type: GraphQLTypesMap.Boolean })
     general: boolean;
@@ -326,6 +356,24 @@ export class UserPreference {
 
     @field({ type: GraphQLTypesMap.String })
     dashboardIdNoVisible: string;
+
+    @field({ type: ListViewPreference })
+    dashboards: ListViewPreference;
+
+    @field({ type:ListViewPreference })
+    charts: ListViewPreference;
+
+    @field({ type:ListViewPreference })
+    kpis: ListViewPreference;
+
+    @field({ type:ListViewPreference })
+    roles: ListViewPreference;
+
+    @field({ type:ListViewPreference })
+    users: ListViewPreference;
+
+    @field ({ type: GraphQLTypesMap.String })
+    theme: string;
 
     @resolver({ forField: 'providers' })
     static resolveProviders = (entity: IUserPreference) => entity.providers.join('|')
