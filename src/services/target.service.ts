@@ -202,7 +202,10 @@ export class TargetService {
                     }
                 } else if (data.reportOptions.categorySource === 'frequency') {
                     findValue = response.reduce((prev, current) => {
-                        return (prev.value || prev) + current.value;
+                        if(prev.value === undefined || prev.value === null){
+                            return prev + current.value;
+                        }
+                        return prev.value + current.value;
                     });
                 } else {
                     findValue = response.find(r => r.value);

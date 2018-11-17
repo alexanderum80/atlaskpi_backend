@@ -44,7 +44,7 @@ let queue = require('kue');
 let _jobs: Queue;
 
 try {
-    _jobs = queue.createQueue({
+     _jobs = queue.createQueue({
         prefix: os.hostname(), // 'webapp',
         redis: {
             port: config.cache.redisPort, // 6379,

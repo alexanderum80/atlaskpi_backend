@@ -2,7 +2,6 @@ import { ApolloServer } from 'apollo-server-express';
 import * as bodyParser from 'body-parser';
 import * as cors from 'cors';
 import * as express from 'express';
-import { IExecutableSchemaDefinition } from 'graphql-tools/dist/Interfaces';
 import { Server } from 'http';
 import { Container } from 'inversify';
 
@@ -13,9 +12,21 @@ import { IAppModule } from './decorators/app-module';
 import { BRIDGE } from './decorators/helpers';
 import { MetadataFieldsMap } from './decorators/metadata-fields.map';
 import { BridgeContainer } from './di/bridge-container';
-import { makeGraphqlSchemaExecutable, ITypesAndResolvers } from './graphql/graphql-schema-generator';
+import { ITypesAndResolvers, makeGraphqlSchemaExecutable } from './graphql/graphql-schema-generator';
 import { MutationBus } from './mutations/mutation-bus';
 import { QueryBus } from './queries/query-bus';
+import { constants } from './constants';
+
+export interface ICacheItemOptions {
+    /** Seconds to persist the cached data */
+    ttl: number;
+}
+
+export interface ICacheService {
+    set(key: string, payload: any, ttl?: number): Promise<void>;
+    get(key: string): any;
+    removePattern(pattern: string): Promise<void>;
+}
 
 export interface IFrameworkOptions {
     port?: number;
@@ -29,14 +40,18 @@ const defaultServerOptions: IFrameworkOptions = {
     port: 9091,
     logLevel: 'error',
     bodyParserLimit: '50mb',
-    graphqlPath: '/graphql'
+    graphqlPath: '/graphql',
 };
 
 export class Bridge {
     private _server: express.Express;
     private _httpServer: Server;
 
-    static create(appModule: new() => IAppModule, options?: IFrameworkOptions): Bridge {
+    static create(
+        appModule: new() => IAppModule,
+        cacheService: new (...args: any[]) => ICacheService,
+        options?: IFrameworkOptions
+    ): Bridge {
         const newOptions = Object.assign({}, defaultServerOptions, options);
         const container = new Container({ autoBindInjectable: true });
         const bridgeContainer = new BridgeContainer(container);
@@ -62,7 +77,7 @@ export class Bridge {
         moduleInstances.push(app);
 
         // process bridge container registrations
-        registerBridgeDependencies(bridgeContainer);
+        registerBridgeDependencies(bridgeContainer, cacheService);
 
         // generate graphql schema
         const graphqlSchema: ITypesAndResolvers = makeGraphqlSchemaExecutable(moduleInstances);
@@ -145,12 +160,15 @@ export class Bridge {
 
 }
 
-function registerBridgeDependencies(container: BridgeContainer) {
+function registerBridgeDependencies(container: BridgeContainer, cacheService: new (...args: any[]) => ICacheService) {
     container.registerSingleton(Enforcer);
     container.registerSingleton(MutationBus);
     container.registerSingleton(QueryBus);
-}
 
+    // even if cache service is empty I need to register it because from the query bus
+    // I am requesting this service
+    container.registerSingleton(cacheService, constants.CACHE_SERVICE);
+}
 
 function setBridgeContainer(req: IBridgeRequest, res: express.Response, next) {
     req.Container = BRIDGE.getRequestContainer(req);
@@ -166,4 +184,4 @@ function cleanup(req: IExtendedRequest, res: express.Response, next) {
     });
 
     next();
-  }
+}

@@ -1,16 +1,49 @@
+import { ChartDateRangeInput, ChartDateRange } from './../shared/shared.types';
 import { field } from '../../framework/decorators/field.decorator';
 import { GraphQLTypesMap } from '../../framework/decorators/graphql-types-map';
 import { type } from '../../framework/decorators/type.decorator';
 import { input } from '../../framework/decorators/input.decorator';
-import { Permission } from '../permissions/permissions.types';
+import { ErrorDetails } from '../../framework/graphql/common.types';
+
 
 @input()
 export class MapMarkerGroupingInput {
     @field({ type: GraphQLTypesMap.String })
     dateRange: string;
 
+    @field({ type: GraphQLTypesMap.String, isArray: true })
+    grouping: string[];
+
     @field({ type: GraphQLTypesMap.String })
-    grouping: string;
+    kpi: string;
+}
+
+@input()
+export class MapAttributesInput  {
+    @field({ type: GraphQLTypesMap.String, required: true })
+    title: string;
+
+    @field({ type: GraphQLTypesMap.String })
+    subtitle: string;
+
+    @field({ type: GraphQLTypesMap.String })
+    group: string;
+
+    @field({ type: ChartDateRangeInput })
+    dateRange: ChartDateRangeInput;
+
+    @field({ type: GraphQLTypesMap.String, isArray: true })
+    groupings: string[];
+
+    @field({ type: GraphQLTypesMap.String, isArray: true })
+    dashboards: string[];
+
+    @field({ type: GraphQLTypesMap.String})
+    size: string;
+
+    @field({ type: GraphQLTypesMap.String})
+    kpi: string;
+
 }
 
 @type()
@@ -44,4 +77,51 @@ export class MapMarker  {
 
     @field({ type: MapMarkerItemList, isArray: true })
     itemList?: MapMarkerItemList[];
+}
+@type()
+export class MapEntityResponse  {
+    @field({ type: GraphQLTypesMap.String })
+    _id: string;
+
+    @field({ type: GraphQLTypesMap.String })
+    title: string;
+
+    @field({ type: GraphQLTypesMap.String })
+    subtitle: string;
+
+    @field({ type: GraphQLTypesMap.String })
+    group: string;
+
+    @field({ type: GraphQLTypesMap.String })
+    kpi: string;
+
+    @field({ type: ChartDateRange })
+    dateRange: ChartDateRange;
+
+    @field({ type: GraphQLTypesMap.String, isArray: true })
+    groupings: string[];
+
+    @field({ type: GraphQLTypesMap.String, isArray: true })
+    dashboards: string[];
+}
+
+@type()
+export class MapMutationResponse  {
+    @field({ type: GraphQLTypesMap.Boolean })
+    success: boolean;
+
+    @field({ type: MapEntityResponse })
+    entity: MapEntityResponse;
+
+    @field({ type: ErrorDetails, isArray: true })
+    errors: ErrorDetails[];
+}
+
+@type()
+export class ListMapsQueryResponse  {
+    @field({ type: MapEntityResponse, isArray: true })
+    data: MapEntityResponse[];
+
+    // @this.resolver({ forField: 'data' })
+    // static resolveData = data => data
 }

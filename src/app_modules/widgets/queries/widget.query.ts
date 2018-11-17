@@ -10,6 +10,7 @@ import { WidgetsService } from './../../../services/widgets.service';
 @injectable()
 @query({
     name: 'widget',
+    cache: { ttl: 1800 },
     activity: GetWidgetActivity,
     parameters: [
         { name: 'id', type: String, required: true },

@@ -1,3 +1,5 @@
+import { Dashboards } from './../domain/app/dashboards/dashboard.model';
+import { IKPIDocument } from './../domain/app/kpis/kpi';
 import { IMutationResponse } from './../framework/mutations/mutation-response';
 import { CurrentAccount } from './../domain/master/current-account';
 import { camelCase } from 'change-case';
@@ -13,6 +15,8 @@ import { Logger } from '../domain/app/logger';
 import { IConnectorDocument } from '../domain/master/connectors/connector';
 import { Connectors } from '../domain/master/connectors/connector.model';
 import { VirtualSources } from '../domain/app/virtual-sources/virtual-source.model';
+import { DocumentQuery } from 'mongoose';
+import { KPIs } from '../domain/app/kpis/kpi.model';
 
 
 @injectable()
@@ -25,7 +29,9 @@ export class ConnectorsService {
         @inject(VirtualSources.name) private _virtualSources: VirtualSources,
         @inject(DataSourcesService.name) private _dataSourcesService: DataSourcesService,
         @inject(IntegrationConnectorFactory.name) private _integrationConnectorFactory: IntegrationConnectorFactory,
-        @inject(Logger.name) private _logger: Logger
+        @inject(Logger.name) private _logger: Logger,
+        @inject(KPIs.name) private _kpis: KPIs,
+        @inject(Dashboards.name) private _dashboards: Dashboards
     ) { }
 
     findConnectorsByDatabaseName(databaseName: string): Promise<IConnectorDocument[]> {
@@ -61,7 +67,7 @@ export class ConnectorsService {
                 collectionName = collectionName.substr(collectionName.length - 1, 1) !== 's'
                                     ? collectionName.concat('s') : collectionName;
 
-                const inputDateField = input.fields.find(f => f.dataType === 'Date');
+                input.fields = JSON.parse(input.fields);
                 let inputFieldsMap = {};
                 inputFieldsMap['Source'] = {
                     path: 'source',
@@ -87,7 +93,7 @@ export class ConnectorsService {
                     description: input.inputName,
                     source: collectionName,
                     modelIdentifier: collectionName,
-                    dateField: inputDateField.columnName.toLowerCase().replace(' ', '_'),
+                    dateField: input.dateRangeField.toLowerCase().replace(' ', '_'),
                     aggregate: [],
                     fieldsMap: inputFieldsMap
                 };
@@ -127,30 +133,40 @@ export class ConnectorsService {
     removeConnector(id: string): Promise<IConnectorDocument> {
         const that = this;
         return new Promise<IConnectorDocument>((resolve, reject) => {
-            that._connectors.model.removeConnector(id)
-                .then((deletedConnector) => {
-                    // try to transparently revoke the token
-                    that._disconnect(deletedConnector)
-                        .then(() => {
-                            that._logger.debug('connector: ' + deletedConnector.name + ' disconnected');
-                        })
-                        .catch(err => {
-                            that._logger.debug('could not disconnect ' + deletedConnector.name);
-                        });
+            that._connectorInUseByModel(id).then((connectors: IConnectorDocument[]) => {
 
-                    if (deletedConnector.type === 'customexcel' || deletedConnector.type === 'customcsv' || deletedConnector.type === 'customtable') {
-                        that._virtualSources.model.removeDataSources(deletedConnector.virtualSource).then(virtualSource => {
-                            that._dataSourcesService.removeVirtualSourceMapCollection(virtualSource.source).then(() => {
-                                resolve(deletedConnector);
-                                return;
+                // check if connector is in use by another model
+                if (connectors.length) {
+                    reject({ message: 'Connector is being used by ', entity: connectors, error: 'Connector is being used by '});
+                    return;
+                }
+
+                // remove connector when not in use
+                that._connectors.model.removeConnector(id)
+                    .then((deletedConnector) => {
+                        // try to transparently revoke the token
+                        that._disconnect(deletedConnector)
+                            .then(() => {
+                                that._logger.debug('connector: ' + deletedConnector.name + ' disconnected');
+                            })
+                            .catch(err => {
+                                that._logger.debug('could not disconnect ' + deletedConnector.name);
                             });
-                        });
-                    } else {
-                        resolve(deletedConnector);
-                        return;
-                    }
-                })
-                .catch(err => reject(err));
+
+                        if (deletedConnector.type === 'customexcel' || deletedConnector.type === 'customcsv' || deletedConnector.type === 'customtable') {
+                            that._virtualSources.model.removeDataSources(deletedConnector.virtualSource).then(virtualSource => {
+                                that._dataSourcesService.removeVirtualSourceMapCollection(virtualSource.source).then(() => {
+                                    resolve(deletedConnector);
+                                    return;
+                                });
+                            });
+                        } else {
+                            resolve(deletedConnector);
+                            return;
+                        }
+                    })
+                    .catch(err => reject(err));
+                }).catch(err => reject(err));
         });
     }
 
@@ -162,6 +178,96 @@ export class ConnectorsService {
                 return Promise.reject('could not get an instance of the connector');
             }
             return connector.revokeToken();
+        });
+    }
+
+
+    private _connectorInUseByModel(id: string): Promise<IConnectorDocument[]> {
+        const that = this;
+
+        return new Promise<IConnectorDocument[]>((resolve, reject) => {
+            // reject if no id is provided
+            if (!id) {
+                return reject({ success: false,
+                                errors: [ { field: 'id', errors: ['Connector not found']} ] });
+            }
+
+            const expressionId: RegExp = new RegExp(id, 'i');
+
+            const connectorsArray: any[] = [];
+
+            this._connectors.model.findById(id)
+                .then(connector => {
+
+                    const virtualSourceName = connector.virtualSource && connector.virtualSource !== 'google_analytics' ? connector.virtualSource : null;
+
+                    // contain regex expression to use for complex kpi
+                    const expressionName: RegExp = new RegExp(virtualSourceName);
+
+                    this._kpis.model.find({
+                        expression: {
+                            $regex: expressionName,
+                        },
+                        type: 'simple'
+                    })
+                    .then(kpis => {
+                        const expressionKpiId: RegExp[] = kpis.map(k => new RegExp(k.id, 'i'));
+
+                        this._kpis.model.find({
+                            type: { $ne: 'simple' },
+                            $or: [{
+                                expression: {
+                                    $regex: expressionName
+                                }
+                            }, {
+                                expression: {
+                                    $in: expressionKpiId
+                                }
+                            }, {
+                                expression: {
+                                    $regex: expressionId
+                                }
+                            }]
+                        })
+                        .then(res => {
+                            kpis = kpis.concat(<any>res);
+                            if (kpis.length) {
+                                kpis.map(k => {
+                                    connectorsArray.push({
+                                        name: k.name,
+                                        type: 'kpi'
+                                    });
+                                });
+                            }
+
+                            this._dashboards.model.find({
+                                socialwidgets: {$in: [id]}
+                            })
+                            .then(dashboard => {
+                                if (dashboard.length) {
+                                    dashboard.map(d => {
+                                        connectorsArray.push({
+                                            name: d.name,
+                                            type: 'dashboard'
+                                        });
+                                    });
+                                }
+                                resolve(<any>connectorsArray);
+                                return;
+                            })
+                            .catch(err => {
+                                reject(err);
+                                return;
+                            });
+                        });
+                    }).catch(err => {
+                        reject(err);
+                        return;
+                    });
+                }).catch(err => {
+                    reject(err);
+                    return;
+                });
         });
     }
 }

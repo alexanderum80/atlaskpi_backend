@@ -9,6 +9,7 @@ import { UpdateWidgetActivity } from '../activities/update-widget.activity';
 import { WidgetInput, WidgetMutationResponse } from '../widgets.types';
 import { IWidgetInput } from '../../../domain/app/widgets/widget';
 import { WidgetsService } from '../../../services/widgets.service';
+import { WidgetQuery } from '../queries/widget.query';
 
 
 
@@ -16,6 +17,7 @@ import { WidgetsService } from '../../../services/widgets.service';
 @mutation({
     name: 'updateWidget',
     activity: UpdateWidgetActivity,
+    invalidateCacheFor: [ WidgetQuery ],
     parameters: [
         { name: 'id', type: String, required: true },
         { name: 'input', type: WidgetInput, required: true },

@@ -15,10 +15,12 @@ import { ChartQuery } from '../../charts/queries/chart.query';
 import { GetDashboardActivity } from '../activities/get-dashboard.activity';
 import { Dashboard } from '../dashboards.types';
 import { SocialWidgetsService } from '../../../services/social-widgets.service';
+import { MapQuery } from '../../maps/queries/map.query';
 
 @injectable()
 @query({
     name: 'dashboard',
+    cache: { ttl: 1800 },
     activity: GetDashboardActivity,
     parameters: [
         { name: 'id', type: String, required: true },
@@ -32,9 +34,10 @@ export class DashboardQuery implements IQuery<IDashboard> {
         @inject(WidgetsService.name) private _widgetService: WidgetsService,
         @inject(SocialWidgetsService.name) private _socialwidgetService: SocialWidgetsService,
         @inject(ChartQuery.name) private _chartQuery: ChartQuery,
+        @inject(MapQuery.name) private _mapQuery: MapQuery,
         @inject(Dashboards.name) private _dashboards: Dashboards) { }
 
-    run(data: { id: string,  }): Promise<IDashboard> {
+    run(data: { id: string }): Promise<IDashboard> {
         let that = this;
 
         if (!this._user) {
@@ -89,6 +92,13 @@ export class DashboardQuery implements IQuery<IDashboard> {
                     let swidgetsPromises = dashboard.socialwidgets.map(c => {
                         return that._socialwidgetService.getSocialWidgetsById(<any>c);
                     });
+
+                    // process maps
+
+                    let mapsPromises = dashboard.maps.map(m => {
+                        return that._mapQuery.run({ id: m});
+                    });
+
                     // process charts
                     let chartPromises = dashboard.charts.map(c => {
                         return that._chartQuery.run({ id: (<any>c)._id } as any);
@@ -96,13 +106,15 @@ export class DashboardQuery implements IQuery<IDashboard> {
 
                     dashboardElementsPromises['charts'] = Promise.all(chartPromises);
 
+                    dashboardElementsPromises['maps'] = Promise.all(mapsPromises);
+
                     dashboardElementsPromises['socialwidgets'] = Promise.all(swidgetsPromises);
 
-                    Promise.props(dashboardElementsPromises).then((elements: { widgets: IUIWidget[], socialwidgets: string[] , charts: string[]}) => {
+                    Promise.props(dashboardElementsPromises).then((elements: { widgets: IUIWidget[], socialwidgets: string[] , charts: string[], maps: string}) => {
                         let response = {};
 
                         const widgetsAsString = elements.widgets.map(w => JSON.stringify(w));
-                        Object.assign(response, dashboard.toObject(), { widgets: widgetsAsString, socialwidgets: elements.socialwidgets , maps: dashboard.maps ,  charts: elements.charts });
+                        Object.assign(response, dashboard.toObject(), { widgets: widgetsAsString, socialwidgets: elements.socialwidgets , maps: elements.maps ,  charts: elements.charts });
                         resolve(<any>response);
                     }).catch(e => {
                         reject(e);

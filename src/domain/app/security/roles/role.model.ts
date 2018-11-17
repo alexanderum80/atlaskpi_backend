@@ -295,13 +295,7 @@ RoleSchema.statics.roleByName = function(name: string): Promise < IRoleDocument 
                 if (roles) {
                     resolve(roles);
                 } else {
-                    reject({
-                        errors: [{
-                            field: 'role',
-                            errors: ['Not found']
-                        }],
-                        data: null
-                    });
+                    resolve(null);
                 }
             })
             .catch((err) => {

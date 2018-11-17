@@ -37,6 +37,7 @@ import { Tags } from './tags/tag.model';
 import { Attachments } from './attachments/attachment-model';
 import { VirtualSources } from './virtual-sources/virtual-source.model';
 import { ScheduleJobs } from './schedule-job/schedule-job.model';
+import { Maps } from './maps/maps.model';
 import { TargetsNew } from './targetsNew/target.model';
 import { ProjectedIncomes } from './projected-income/projected-income.model';
 
@@ -55,6 +56,7 @@ const registrations: any[] = [
     BusinessUnits,
     Calls,
     Charts,
+    Maps,
     Customers,
     Dashboards,
     Departments,

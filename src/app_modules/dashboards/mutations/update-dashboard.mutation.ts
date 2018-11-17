@@ -7,12 +7,14 @@ import { MutationBase } from '../../../framework/mutations/mutation-base';
 import { IMutationResponse } from '../../../framework/mutations/mutation-response';
 import { UpdateDashboardActivity } from '../activities/update-dashboard.activity';
 import { DashboardInput, DashboardResponse } from '../dashboards.types';
+import { DashboardQuery } from '../queries/dashboard.query';
 
 
 @injectable()
 @mutation({
     name: 'updateDashboard',
     activity: UpdateDashboardActivity,
+    invalidateCacheFor: [ DashboardQuery ],
     parameters: [
         { name: 'id', type: String, required: true },
         { name: 'input', type: DashboardInput, required: true },

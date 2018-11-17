@@ -164,7 +164,9 @@ export class UIChartBase {
             // will return data if top n input is not given
             data = ApplyTopNChart.applyTopNToData(data, metadata);
 
-            data = this._sortingData(metadata, data);
+            // sorting ?
+            if (metadata.sortingCriteria && metadata.sortingOrder)
+                data = this._sortingData(metadata, data);
 
             that.groupings = that._getGroupingFields(data);
 
@@ -277,7 +279,7 @@ export class UIChartBase {
 
         if (metadata.sortingCriteria && metadata.sortingCriteria === SortingCriteriaEnum.Values) {
             if (metadata.sortingOrder) data = orderBy( data , 'value', metadata.sortingOrder === SortingOrderEnum.Ascending ? 'asc' : 'desc');
-        } else if (groupingField && data.find(e => e._id[groupingField] === metadata.sortingCriteria)) {
+        } else if (metadata.sortingCriteria && groupingField && data.find(e => e._id[groupingField] === metadata.sortingCriteria)) {
             // First of all filter the selected serie data
             let datafiltered = data.filter(x => x._id[groupingField] === metadata.sortingCriteria);
             // Now sorting per value

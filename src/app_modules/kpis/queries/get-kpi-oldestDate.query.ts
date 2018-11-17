@@ -16,6 +16,7 @@ import * as moment from 'moment';
 @injectable()
 @query({
     name: 'getKpiOldestDate',
+    cache: { ttl: 1800 },
     activity: GetKpiOldestDateActivity,
     parameters: [
         { name: 'id', type: String },

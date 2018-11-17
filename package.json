@@ -1,6 +1,6 @@
 {
     "name": "atlaskpi-backend",
-    "version": "0.5.161",
+    "version": "0.5.175",
     "description": "",
     "main": "index.ts",
     "scripts": {
@@ -108,6 +108,7 @@
         "nodemailer": "^2.7.0",
         "nodemailer-mailgun-transport": "^1.2.4",
         "object-mapper": "^3.0.1",
+        "redis": "^2.8.0",
         "reflect-metadata": "^0.1.10",
         "request-promise": "^4.1.1",
         "sharp": "^0.20.1",

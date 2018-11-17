@@ -1,3 +1,4 @@
+import { isString } from 'lodash';
 import { inject, injectable } from 'inversify';
 
 import { TypeMap } from '../../../domain/app/sales/sale';
@@ -7,6 +8,7 @@ import { IQuery } from '../../../framework/queries/query';
 import { GetMapDetailsActivity } from '../activities/get-map-details.activity';
 import { MapMarker, MapMarkerGroupingInput } from '../map.types';
 import { MapMarkerService } from '../../../services/map-marker.service';
+import { input } from '../../../framework/decorators/input.decorator';
 
 export interface IMapMarker {
     name: string;
@@ -30,6 +32,16 @@ export class MapMarkersQuery implements IQuery < IMapMarker[] > {
     constructor(@inject(MapMarkerService.name) private _mapMarkerSvc: MapMarkerService) { }
 
     async run(data: { type: TypeMap, input: MapMarkerGroupingInput }): Promise < IMapMarker[] > {
+        let dateRange;
+        if (isString(data.input.dateRange)) {
+            dateRange = JSON.parse(data.input.dateRange);
+        } else {
+            dateRange = data.input.dateRange;
+        }
+        if (dateRange.predefined === '' || data.input.grouping.length === 0) {
+            return;
+        }
+
         return await this._mapMarkerSvc.getMapMarkers(data.type, data.input);
     }
 }

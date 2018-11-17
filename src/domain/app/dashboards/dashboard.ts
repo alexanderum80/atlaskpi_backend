@@ -23,6 +23,7 @@ export interface IDashboard {
     owner: IUser;
     users: IUser[];
     visible?: boolean;
+    order?: number;
 }
 
 export interface IDashboardInput {
@@ -35,6 +36,7 @@ export interface IDashboardInput {
     owner: string;
     users: string[];
     visible?: boolean;
+    order?: number;
 }
 
 export interface IDashboardDocument extends IDashboard, mongoose.Document {
@@ -53,4 +55,5 @@ export interface IDashboardModel extends mongoose.Model<IDashboardDocument>, ISe
     deleteDashboard(id: string): Promise<IDashboardDocument>;
     findDashboardByChartId(id: string): Promise<string>;
     deleteWidget(dashboardId: string, widgetId: string): Promise<IDashboardDocument>;
+    deleteChartIdFromDashboard(id: string, charts: string[]): Promise<IDashboardDocument>;
  }
