@@ -51,6 +51,14 @@ export class KPIAttributesInput  {
     @field({ type: GraphQLTypesMap.String })
     source: string;
 
+    //add-created
+    @field({ type: GraphQLTypesMap.String })
+    createdBy: string;
+
+    @field({ type: GraphQLTypesMap.Date })
+    createdDate: Date;
+
+
 }
 
 @input()
@@ -150,6 +158,13 @@ export class KPI  {
 
     @field({ type: GraphQLTypesMap.String })
     source: string;
+
+     //add-created
+    @field({ type: GraphQLTypesMap.String })
+    createdBy: string;
+
+    @field({ type: GraphQLTypesMap.Date })
+    createdDate: Date;
 }
 
 @input()
@@ -189,7 +204,7 @@ export class KPIRemoveResponse  {
 
 
 @type()
-export class KPIMutationResponse  {
+export class KPIMutationResponse {
     @field({ type: KPI })
     entity: KPI;
 
