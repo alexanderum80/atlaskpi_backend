@@ -24,6 +24,7 @@ import { registerValidators } from './src/validators/validatos';
 import { attachments } from './src/app_modules/attachments/attachments.routes';
 import { CacheService } from './src/services/cache/cache.service';
 import { DevelopmentCacheService } from './src/services/cache/development-cache.service';
+import * as winston from 'winston';
 
 // for development
 const app = Bridge.create(AtlasApp, DevelopmentCacheService);
@@ -32,6 +33,11 @@ const app = Bridge.create(AtlasApp, DevelopmentCacheService);
 
 // override some configurations
 runConfigOverrides();
+
+process.on('uncaughtException', function (err) {
+    winston.error('Uncaught exception', err);
+    console.log('The App crashed');
+});
 
 // bind dependencies
 registerDependencies(app.Container);
