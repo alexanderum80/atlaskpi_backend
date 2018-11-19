@@ -1,3 +1,4 @@
+import { Alerts } from './../domain/app/alerts/alerts.model';
 import { GoogleSpreadSheetModule } from './google-spreadsheet/google-spreadsheet.module';
 import { CallRailModule } from './integrations/callrail/callrail.module';
 import { AppModule, ModuleBase } from '../framework/decorators/app-module';
@@ -31,6 +32,7 @@ import { HelpCenterModule} from './help-centers/help-center.module';
 import { CustomModule } from './integrations/custom/custom.module';
 import { TargetsNewModule } from './targetsNew/target.module';
 import { NotificationsModule } from './notifications/notifications.module';
+import { AlertsModule } from './alerts/alerts.module';
 
 
 @AppModule({
@@ -67,6 +69,7 @@ import { NotificationsModule } from './notifications/notifications.module';
         CustomModule,
         TargetsNewModule,
         NotificationsModule,
+        AlertsModule
     ]
 })
 export class AtlasApp extends ModuleBase { }

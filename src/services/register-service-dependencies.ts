@@ -10,6 +10,7 @@ import { ConnectorsService } from './connectors.service';
 import { DataSourcesService } from './data-sources.service';
 import { ExternalDataSourcesService } from './external-data-sources.service';
 import { KpiService } from './kpi.service';
+import { AlertsService } from './alerts.service';
 import { GoogleAnalyticsKPIService } from './kpis/google-analytics-kpi/google-analytics-kpi.service';
 import { AccountCreatedNotification } from './notifications/users/account-created.notification';
 import { EnrollmentNotification } from './notifications/users/enrollment.notification';
@@ -52,6 +53,7 @@ export function registerServices(container: IBridgeContainer) {
     container.registerPerWebRequest(ChartsService);
     container.registerPerWebRequest(MapsService);
     container.registerPerWebRequest(KpiService);
+    container.registerPerWebRequest(AlertsService);
     container.registerPerWebRequest(MapMarkerService);
     container.registerPerWebRequest(UserService);
     container.registerPerWebRequest(SocialWidgetsService);
