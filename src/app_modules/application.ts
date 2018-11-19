@@ -26,8 +26,8 @@ import { WidgetsModule } from './widgets/widgets.module';
 import { CountriesModule } from './countries/countries.module';
 import { TagModule } from './tags/tags.module';
 import { ActivitiesModule } from './activities/activities.module';
-import { AlertsModule } from './alerts/alerts.module';
-import {HelpCenterModule} from './help-centers/help-center.module';
+import { ScheduleJobModule } from './schedule-jobs/scheduleJob.module';
+import { HelpCenterModule} from './help-centers/help-center.module';
 import { CustomModule } from './integrations/custom/custom.module';
 import { TargetsNewModule } from './targetsNew/target.module';
 import { NotificationsModule } from './notifications/notifications.module';
@@ -37,7 +37,7 @@ import { NotificationsModule } from './notifications/notifications.module';
     imports: [
         AccountsModule,
         AccessLogsModule,
-        AlertsModule,
+        ScheduleJobModule,
         AppointmentsModule,
         BusinessUnitModule,
         CallRailModule,

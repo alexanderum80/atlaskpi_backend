@@ -4,7 +4,7 @@ import * as Promise from 'bluebird';
 import { injectable, inject } from 'inversify';
 
 @injectable()
-export class RemoveAlertActivity implements IActivity {
+export class CreateScheduleJobActivity implements IActivity {
 
     constructor(@inject(Users.name) private _users: Users) {}
 

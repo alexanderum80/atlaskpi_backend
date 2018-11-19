@@ -1,6 +1,5 @@
 import { inject, injectable } from 'inversify';
-
-import { IAlertDocument, IAlertInfo } from '../../domain/app/alerts/alert';
+import { IScheduleJobDocument, IScheduleJobInfo } from '../../domain/app/schedule-job/schedule-job';
 import { CurrentUser } from '../../domain/app/current-user';
 import { IScheduleJob } from '../../domain/app/schedule-job/schedule-job';
 import { ScheduleJobs } from '../../domain/app/schedule-job/schedule-job.model';
@@ -42,7 +41,7 @@ export class ScheduleJobService {
         private templates: Templates,
     ) {}
 
-    async getJobsByIdentifier(id: string): Promise<IAlertDocument[]> {
+    async getJobsByIdentifier(id: string): Promise<IScheduleJobDocument[]> {
         if (!id) return [];
 
         const jobs = await this.scheduleJobs.model.find({ 'data.identifier': id })
@@ -68,7 +67,7 @@ export class ScheduleJobService {
         return docs as any;
     }
 
-    async addWidgetJob(info: IAlertInfo): Promise<IMutationResponse> {
+    async addWidgetJob(info: IScheduleJobInfo): Promise<IMutationResponse> {
         try {
             const scheduleJob = await this.buildScheduleJob(info);
             await this.scheduleJobs.model.create(scheduleJob);
@@ -80,7 +79,7 @@ export class ScheduleJobService {
         }
     }
 
-    async update(id: string, info: IAlertInfo): Promise<IMutationResponse> {
+    async update(id: string, info: IScheduleJobInfo): Promise<IMutationResponse> {
         try {
             const job = await this.scheduleJobs.model.findById(id).exec();
 
@@ -118,7 +117,7 @@ export class ScheduleJobService {
         }
     }
 
-    private async buildScheduleJob(info: IAlertInfo): Promise<IScheduleJob> {
+    private async buildScheduleJob(info: IScheduleJobInfo): Promise<IScheduleJob> {
         const widgetNames = ['widget-email-template', 'widget-push-template'];
         const templates = await this.templates.model.find({
             name: { $in: widgetNames }
