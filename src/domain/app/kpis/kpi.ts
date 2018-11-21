@@ -93,7 +93,7 @@ export interface IKPI {
     availableGroupings?: string[];
     system?: boolean;
      //add-created
-    createdBy?: string;
+    createdBy?: any;
     createdDate?: Date;
 }
 
