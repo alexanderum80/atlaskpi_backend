@@ -537,16 +537,13 @@ export class KpiService {
 
         const kpi = [];
 
-        const filters = filter ? JSON.parse(filter).filter(f => f.field !== 'source') : null;
+        const filters = filter ? JSON.parse(filter) : null;
 
         // filtering by filters
         kpiExpression.map(k => {
             if (kpiType === KPITypeEnum.Simple || kpiType === KPITypeEnum.ExternalSource) {
-                if (k.filter) {
-                    k.filter = k.filter.filter(f => f.field !== 'source');
-                } else {
-                    k.filter = [];
-                }
+                 (k.filter) = k.filter || [];
+                
 
                 const filterExpression = [];
                 for (let i = 0; i < filters.length; i++) {
