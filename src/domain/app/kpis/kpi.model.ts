@@ -41,7 +41,10 @@ let KPISchema = new Schema({
     expression: String,
     type: { type: String, required: true },
     source: Schema.Types.Mixed,
-    system: Boolean
+    system: Boolean,
+     //add-created
+    createdBy: String,
+    createdDate: Date
 });
 
 // add tags capabilities

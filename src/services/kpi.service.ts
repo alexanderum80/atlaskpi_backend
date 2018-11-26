@@ -54,7 +54,7 @@ export class KpiService {
     ) {}
 
     async getKpis(): Promise<IKPIDocument[]> {
-        const kpis = await this._kpis.model.find({});
+        const kpis = await this._kpis.model.find({}).populate({path: 'createdBy', model: 'User'});
         const virtualSources = await this._virtualSources.model.find({});
         const connectors = await this._connectors.model.find({});
 
@@ -64,6 +64,12 @@ export class KpiService {
             // find common field paths on the sources
             const groupingInfo = await this._getCommonSourcePaths(kpiSources, virtualSources);
             k.groupingInfo = groupingInfo || [];
+            const firstName = k.createdBy.profile.firstName;
+            const midleName = k.createdBy.profile.middleName;
+            const lastName = k.createdBy.profile.lastName;
+
+            const createdBy = (firstName ? firstName + ' ' : '' ) + (midleName ? midleName + ' ' : '' ) + (lastName ? lastName  : '' );
+            k.createdBy = createdBy;
 
             return k;
         });
