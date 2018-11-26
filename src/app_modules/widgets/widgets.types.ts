@@ -179,6 +179,9 @@ export class Widget  {
     @field({ type: GraphQLTypesMap.String, isArray: true})
     dashboards: string[];
 
+    @field({ type: GraphQLTypesMap.Boolean })
+    hasAlerts: boolean;
+
     @resolver({ forField: 'dashboards' })
     static convertDashboards(d) {
         if(d && d.dashboards){

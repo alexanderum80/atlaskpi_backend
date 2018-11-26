@@ -54,7 +54,7 @@ export class KpiService {
     ) {}
 
     async getKpis(): Promise<IKPIDocument[]> {
-        const kpis = await this._kpis.model.find({});
+        const kpis = await this._kpis.model.find({}).populate({path: 'createdBy', model: 'User'});
         const virtualSources = await this._virtualSources.model.find({});
         const connectors = await this._connectors.model.find({});
 
@@ -64,6 +64,12 @@ export class KpiService {
             // find common field paths on the sources
             const groupingInfo = await this._getCommonSourcePaths(kpiSources, virtualSources);
             k.groupingInfo = groupingInfo || [];
+            const firstName = k.createdBy.profile.firstName;
+            const midleName = k.createdBy.profile.middleName;
+            const lastName = k.createdBy.profile.lastName;
+
+            const createdBy = (firstName ? firstName + ' ' : '' ) + (midleName ? midleName + ' ' : '' ) + (lastName ? lastName  : '' );
+            k.createdBy = createdBy;
 
             return k;
         });
@@ -537,16 +543,13 @@ export class KpiService {
 
         const kpi = [];
 
-        const filters = filter ? JSON.parse(filter).filter(f => f.field !== 'source') : null;
+        const filters = filter ? JSON.parse(filter) : null;
 
         // filtering by filters
         kpiExpression.map(k => {
             if (kpiType === KPITypeEnum.Simple || kpiType === KPITypeEnum.ExternalSource) {
-                if (k.filter) {
-                    k.filter = k.filter.filter(f => f.field !== 'source');
-                } else {
-                    k.filter = [];
-                }
+                 (k.filter) = k.filter || [];
+                
 
                 const filterExpression = [];
                 for (let i = 0; i < filters.length; i++) {
