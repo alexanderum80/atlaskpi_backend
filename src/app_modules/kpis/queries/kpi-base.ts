@@ -320,7 +320,7 @@ export class KpiBase {
             case FrequencyEnum.Weekly:
                 delete groupStage.$group._id.frequency;
                 currentGrouping = groupStage.$group._id;
-                groupStage.$group._id = { frequency: { $week: { date: field, timezone: tz } } };
+                groupStage.$group._id = { frequency: { $isoWeek: { date: field, timezone: tz } } };
                 break;
             case FrequencyEnum.Monthly:
                 if (!projectStage.$project) projectStage.$project = { };

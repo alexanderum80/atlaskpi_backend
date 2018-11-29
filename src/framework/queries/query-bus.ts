@@ -72,10 +72,10 @@ export class QueryBus implements IQueryBus {
         let result: any = null;
 
         if (cacheData) {
-            console.log('Returning data fom cache for query: ' + query.constructor.name);
+            // console.log('Returning data fom cache for query: ' + query.constructor.name);
             result = cacheData;
         } else {
-            console.log('trying to run query: ' + query.constructor.name);
+            // console.log('trying to run query: ' + query.constructor.name);
             result = await (query as any).run(data);
 
             // if cache is enabled save the results
