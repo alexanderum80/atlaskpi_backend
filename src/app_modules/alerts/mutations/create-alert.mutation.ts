@@ -5,15 +5,13 @@ import { IMutationResponse } from '../../../framework/mutations/mutation-respons
 import { CreateAlertActivity } from '../activities/create-alert.activity';
 import { AlertInput, AlertMutationResponse } from '../alerts.types';
 import { DashboardQuery } from '../../dashboards/queries/dashboard.query';
-import { WidgetQuery } from '../../widgets/queries/widget.query';
 import { AlertsService } from '../../../services/alerts.service';
-import { IAlertInfo } from '../../../domain/app/alerts/alerts';
 
 @injectable()
 @mutation({
     name: 'createAlert',
     activity: CreateAlertActivity,
-    invalidateCacheFor: [ DashboardQuery, WidgetQuery ],
+    invalidateCacheFor: [ DashboardQuery ],
     parameters: [
         { name: 'input', type: AlertInput }
     ],
@@ -25,7 +23,7 @@ export class CreateAlertMutation extends MutationBase<IMutationResponse> {
         super();
     }
 
-    async run(data: {input: IAlertInfo }): Promise<IMutationResponse> {
+    async run(data: {input: AlertInput }): Promise<IMutationResponse> {
         return await this._alertsService.addAlert(data.input);
     }
 }

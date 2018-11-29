@@ -5,13 +5,19 @@ import * as BlueBird from 'bluebird';
 import { ModelBase } from '../../../type-mongo/model-base';
 import { AppConnection } from '../app.connection';
 import { IAlertDocument, IAlertInfo, IAlertModel } from './alerts';
+
 export const AlertSchema = new mongoose.Schema({
-    active: { type: Boolean, required: true },
-    type: { type: String, required: true },
-    timezone: { type: String, required: true },
-    cronSchedule: { type: [String] },
-    dateSchedule: { type: [Date] },
-    data: { type: mongoose.Schema.Types.Mixed },
+    name: String,
+    kpi: String,
+    frequency: String,
+    condition: String,
+    value: Number,
+    notificationUsers: [{
+        user: String,
+        byEmail: Boolean,
+        byPhone: Boolean,
+    }],
+    active: Boolean,
 });
 
 AlertSchema.statics.alertsbyWidgetId = function(id: string): BlueBird<IAlertDocument[]> {
@@ -169,7 +175,7 @@ AlertSchema.statics.removeDeleteUser = async function(id: string): Promise<boole
     try {
         const removeUser = await this.update(
             {}, {
-                'notifyUsers': {
+                'notificationUsers.user': {
                     $in: [id]
                 }
             }, {

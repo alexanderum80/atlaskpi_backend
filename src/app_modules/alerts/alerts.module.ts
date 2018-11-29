@@ -4,10 +4,12 @@ import { AppModule, ModuleBase } from '../../framework/decorators/app-module';
 import { UpdateAlertMutation } from './mutations/update-alert.mutation';
 import { UpdateAlertActiveMutation } from './mutations/update-alert-active.mutation';
 import { RemoveAlertMutation } from './mutations/remove-alert.mutation';
+import { AlertsQuery } from './queries/alerts.query';
 
 @AppModule({
     queries: [
-        AlertByKpiIdQuery
+        AlertByKpiIdQuery,
+        AlertsQuery
     ],
     mutations: [
         CreateAlertMutation,

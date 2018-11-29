@@ -1,4 +1,5 @@
-import { Alerts } from '../domain/app/alerts/alert.model';
+import { ScheduleJobs } from './../domain/app/schedule-job/schedule-job.model';
+import { Alerts } from '../domain/app/alerts/alerts.model';
 import { IRoleDocument } from '../domain/app/security/roles/role';
 import { Roles } from '../domain/app/security/roles/role.model';
 import { UserDetails } from '../app_modules/users/users.types';
@@ -21,6 +22,7 @@ export class UserService {
         @inject(Logger.name) private _logger: Logger,
         @inject(Users.name) private _users: Users,
         @inject(Alerts.name) private _alerts: Alerts,
+        @inject(ScheduleJobs.name) private _scheduleJobs: ScheduleJobs,
         @inject(Roles.name) private _roles: Roles,
         @inject(CurrentUser.name) private _currentUser: CurrentUser,
         @inject(UserAttachmentsService.name) private _userAttachmentService: UserAttachmentsService,
@@ -57,8 +59,9 @@ export class UserService {
 
             const removeCurrentUser = await this._users.model.removeUser(id);
             if (removeCurrentUser) {
-                const removeDeletedUserFromAlerts = await this._alerts.model
-                                                            .removeDeleteUser(removeCurrentUser.entity._id);
+                await this._alerts.model.removeDeleteUser(removeCurrentUser.entity._id);
+                await this._scheduleJobs.model.removeDeleteUser(removeCurrentUser.entity._id);
+
             }
 
             return removeCurrentUser;

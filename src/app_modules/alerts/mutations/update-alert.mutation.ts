@@ -6,7 +6,6 @@ import { MutationBase } from '../../../framework/mutations/mutation-base';
 import { IMutationResponse } from '../../../framework/mutations/mutation-response';
 import { UpdateAlertActivity } from '../activities/update-alert.activity';
 import { AlertInput, AlertMutationResponse } from '../alerts.types';
-import { IAlertInfo } from '../../../domain/app/alerts/alerts';
 
 @injectable()
 @mutation({
@@ -25,7 +24,7 @@ export class UpdateAlertMutation extends MutationBase<IMutationResponse> {
         super();
     }
 
-    async run(data: { id: string, input: IAlertInfo }): Promise<IMutationResponse> {
+    async run(data: { id: string, input: AlertInput }): Promise<IMutationResponse> {
         return await this._alertsService.updateAlert(data.id, data.input);
     }
 }

@@ -14,7 +14,7 @@ import { AlertsService } from '../../../services/alerts.service';
     parameters: [
         { name: 'id', type: String, required: true }
     ],
-    output: { type: AlertResponse, isArray: true }
+    output: { type: AlertResponse }
 })
 export class AlertByKpiIdQuery implements IQuery<IAlertDocument[]> {
     constructor(

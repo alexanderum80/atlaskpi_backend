@@ -6,6 +6,7 @@ import { Alerts } from '../domain/app/alerts/alerts.model';
 import { NotificationSourceEnum } from '../domain/master/notification/notification';
 import { Templates } from '../domain/master/template/template.model';
 import { IMutationResponse } from '../framework/mutations/mutation-response';
+import { AlertInput } from '../app_modules/alerts/alerts.types';
 
 const frequencyAlertItems: { name: string, cron: string }[] = [
     { name: 'every day', cron: '0 0 19 * * *' },
@@ -33,44 +34,21 @@ function getFrequency(cron: string) {
 export class AlertsService {
 
     constructor(
-        @inject(Alerts.name)
-        private alerts: Alerts,
-        @inject(CurrentUser.name)
-        private currentUser: CurrentUser,
-        @inject(Templates.name)
-        private templates: Templates,
-    ) {}
+        @inject(Alerts.name) private alerts: Alerts) {}
 
-    async getAlertsByIdentifier(id: string): Promise<IAlertDocument[]> {
-        if (!id) return [];
-
-        const jobs = await this.alerts.model.find({ 'data.identifier': id })
-            .exec();
-
-        const docs = jobs.map(j => {
-            return {
-                _id: j.id!.toString(),
-                active: j.active,
-                pushNotification: j.data.template.push !== null,
-                emailNotified: j.data.template.email !== null,
-                notifyUsers: j.data.targets.users.map(u => u.id),
-                frequency: getFrequency(j.cronSchedule[0]),
-                timezone: j.timezone,
-                modelAlert: {
-                    name: '',
-                    id: j.data.identifier,
-                },
-                dayOfMonth: 0
-            };
-        });
-
-        return docs as any;
+    async getAlerts(): Promise<IAlertDocument[]> {
+        try {
+            const alerts = await this.alerts.model.find({}).exec();
+            return alerts;
+        } catch (e) {
+            console.error('there was an error getting alerts', e);
+            return null;
+        }
     }
 
-    async addAlert(info: IAlertInfo): Promise<IMutationResponse> {
+    async addAlert(info: AlertInput): Promise<IMutationResponse> {
         try {
-            const scheduleJob = await this.buildAlert(info);
-            await this.alerts.model.create(scheduleJob);
+            await this.alerts.model.createAlert(info);
 
             return { success: true };
         } catch (e) {
@@ -79,14 +57,13 @@ export class AlertsService {
         }
     }
 
-    async updateAlert(id: string, info: IAlertInfo): Promise<IMutationResponse> {
+    async updateAlert(id: string, info: AlertInput): Promise<IMutationResponse> {
         try {
-            const job = await this.alerts.model.findById(id).exec();
+            const alert = await this.alerts.model.findById(id).exec();
 
-            if (!job) return { success: false };
+            if (!alert) return { success: false };
 
-            const scheduleJob = await this.buildAlert(info);
-            await this.alerts.model.update({ _id: id }, scheduleJob).exec();
+            const result = await this.alerts.model.updateAlert(id, info);
 
             return { success: true };
         } catch (e) {
@@ -97,10 +74,26 @@ export class AlertsService {
     async removeAlert(id: string): Promise<IMutationResponse> {
         try {
             await this.alerts.model.remove({ _id: id }).exec();
-            return { success: true };
+            return {
+                success: true,
+                entity: null,
+                errors: [
+                    {
+                        field: '',
+                        errors: ['']
+                    }]
+                };
         } catch (e) {
-            console.error('error removing job', e);
-            return { success: false };
+            console.error('error removing alert', e);
+            return {
+                success: false,
+                entity: null,
+                errors: [
+                    {
+                        field: '',
+                        errors: [e]
+                    }]
+                };
         }
     }
 
@@ -115,39 +108,6 @@ export class AlertsService {
             console.error('error setting active flag for alert', e);
             return { success: false };
         }
-    }
-
-    private async buildAlert(info: IAlertInfo): Promise<IAlert> {
-        const widgetNames = ['widget-email-template', 'widget-push-template'];
-        const templates = await this.templates.model.find({
-            name: { $in: widgetNames }
-        });
-
-        const emailTemplate = templates.find(t => t.name === widgetNames[0]);
-        const pushTemplate = templates.find(t => t.name === widgetNames[1]);
-        const alert: IAlert = {
-            active: true,
-            timezone: this.currentUser.get().profile.timezone,
-            type: NotificationSourceEnum.widgetNotification,
-            cronSchedule: [getCron(info.frequency)],
-            data: {
-                identifier: info.modelAlert.id,
-                template: {
-                    email : info.emailNotified ? emailTemplate.id : null,
-                    push: info.pushNotification ? pushTemplate.id : null,
-                },
-                targets: {
-                    users: info.notifyUsers.map(id => (
-                        {
-                            id,
-                            deliveryMethods: [ 'push', 'email' ]
-                        }
-                    ))
-                }
-            },
-        };
-
-        return alert;
     }
 
 }
