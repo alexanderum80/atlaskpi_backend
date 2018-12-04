@@ -11,6 +11,7 @@ import { IValueName } from '../../common/value-name';
 import { AppConnection } from '../app.connection';
 import { IFilterOperator, IVirtualSourceDocument, IVirtualSourceModel, IVirtualSource } from '../virtual-sources/virtual-source';
 import { KPIFilterHelper } from '../kpis/kpi-filter.helper';
+import { VirtualSourceAggregateService } from './vs-aggregate.service';
 
 const COLLECTION_SOURCE_MAX_LIMIT = 20;
 const COLLECTION_SOURCE_FIELD_NAME = 'source';
@@ -65,7 +66,10 @@ VirtualSourceSchema.methods.mapDataSourceFields = mapDataSourceFields;
 
 @injectable()
 export class VirtualSources extends ModelBase<IVirtualSourceModel> {
-    constructor(@inject(AppConnection.name) appConnection: AppConnection) {
+
+    constructor(
+        @inject(AppConnection.name) appConnection: AppConnection
+        ) {
         super();
         this.initializeModel(appConnection.get, 'VirtualSource', VirtualSourceSchema, 'virtualSources');
     }
@@ -101,6 +105,7 @@ async function getDataSources(names?: string[]): Promise<DataSourceResponse[]> {
                     externalSource: vs.externalSource,
                     filterOperators: vs.filterOperators as any
                 };
+
                 dataSource.sources = await getDistinctSourceValues(vs);
                 return dataSource;
             },
@@ -172,6 +177,19 @@ async function getDistinctValues(
             aggregate = vs.aggregate.map(a => {
                 return KPIFilterHelper.CleanObjectKeys(a);
             });
+
+            const vsAggregateService = new VirtualSourceAggregateService();
+
+            // special case patient conversions
+            let maxDate = new Date(8640000000000000);
+            let minDate = new Date(-8640000000000000);
+
+            const replacements = {
+                '__from__': { $gt: minDate, $lt: maxDate }
+            };
+
+            vsAggregateService.applyReplacements(aggregate, replacements);
+
         }
 
         return await (model as any).findCriteria(fieldName, aggregate, limit, filter, collectionSource);
@@ -181,13 +199,15 @@ async function getDistinctValues(
     }
 }
 
-async function getDataSourceByName(name: string): Promise<IVirtualSourceDocument> {
+async function getDataSourceByName(name: string): Promise<IVirtualSourceDocument  | null > {
     const model = this as IVirtualSourceModel;
 
     try {
         const regExp = new RegExp(name.toLowerCase(), 'i');
         const query: IObject = { name: regExp };
-        return await model.findOne(query);
+        const vs = await model.findOne(query);
+        return vs;
+
     } catch (e) {
         console.log('Error getting virtual source fields');
         return {} as any;

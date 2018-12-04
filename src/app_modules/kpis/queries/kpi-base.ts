@@ -1,5 +1,6 @@
+import { inject, injectable } from 'inversify';
 import { camelCase } from 'change-case';
-import { cloneDeep, isArray, isDate, isObject, isString } from 'lodash';
+import { find, cloneDeep, isArray, isDate, isObject, isString } from 'lodash';
 import * as logger from 'winston';
 
 import { IKPI } from '../../../domain/app/kpis/kpi';
@@ -8,6 +9,9 @@ import { FrequencyEnum } from '../../../domain/common/frequency-enum';
 import { IChartTop } from '../../../domain/common/top-n-record';
 import { NULL_CATEGORY_REPLACEMENT } from '../../charts/queries/charts/ui-chart-base';
 import { AggregateStage } from './aggregate';
+import { VirtualSourceAggregateService } from '../../../domain/app/virtual-sources/vs-aggregate.service';
+
+const typeOf = require('kind-of');
 
 export interface ICollection {
     modelName: string;
@@ -56,12 +60,15 @@ export class KpiBase {
     protected pristineAggregate: AggregateStage[];
     protected timezone: string;
 
+    protected _vsAggregateService: VirtualSourceAggregateService;
+
     constructor(public model: any, public aggregate: AggregateStage[]) {
         // for multimple executeQuery iterations in the same instance we need to preserve the aggregate
         if (!model) {
             console.error('no model');
         }
         this.pristineAggregate = cloneDeep(aggregate);
+        this._vsAggregateService = new VirtualSourceAggregateService();
     }
 
     executeQuery(dateField: string, dateRange?: IDateRange[], options?: IGetDataOptions): Promise<any> {
@@ -73,9 +80,15 @@ export class KpiBase {
         if (!this.model) throw 'A model is required to execute kpi query';
         if (!dateField) throw 'A date field is required to execute kpi query';
 
+        const replacements = {
+            '__from__': { $gt: dateRange[0].from, $lt: dateRange[0].to }
+        };
+
         let that = this;
 
         return new Promise<any>((resolve, reject) => {
+            that._vsAggregateService.applyReplacements(this.aggregate, replacements);
+
             if (dateRange && dateRange.length)
                 that._injectDataRange(dateRange, dateField);
             if (options.filter)
@@ -165,6 +178,37 @@ export class KpiBase {
         }
 
         // this.aggregate.unshift(matchDateRange);
+    }
+
+    private _injectDeepDataRange(obj: any, dateRange: IDateRange[], field: string) {
+        let type = typeOf(obj);
+
+        if (type !== 'object' && type !== 'array') {
+            throw new Error('expected an object');
+        }
+
+        let stage;
+        if (type === 'object') {
+            stage = find(obj, s => s['deepDateRange'] === true && s['$match'] !== undefined);
+        }
+
+        if (stage) {
+            if (dateRange.length === 1) {
+                stage.$match[field] = {
+                    '$gte':  dateRange[0].from,
+                    '$lt':   dateRange[0].to
+                };
+            }
+        }
+
+        for (const key in obj) {
+            if (obj.hasOwnProperty(key)) {
+                const val = obj[key];
+                if (typeOf(val) === 'object' || typeOf(val) === 'array') {
+                    this._injectDeepDataRange(val, dateRange, field);
+                }
+            }
+        }
     }
 
     private _injectFilter(filter: any) {

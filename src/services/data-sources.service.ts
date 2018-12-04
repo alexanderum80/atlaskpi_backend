@@ -17,6 +17,7 @@ import { AppConnection } from '../domain/app/app.connection';
 import * as moment from 'moment';
 import { IMutationResponse } from '../framework/mutations/mutation-response';
 import { Connectors } from '../domain/master/connectors/connector.model';
+import { VirtualSourceAggregateService } from '../domain/app/virtual-sources/vs-aggregate.service';
 
 const GOOGLE_ANALYTICS = 'GoogleAnalytics';
 
@@ -34,7 +35,9 @@ export class DataSourcesService {
         @inject('resolver') private _resolver: (name: string) => any,
         @inject(AppConnection.name) private _appConnection: AppConnection,
         @inject(Connectors.name) private _connectors: Connectors,
-        @inject(VirtualSources.name) private _virtualDatasources: VirtualSources) { }
+        @inject(VirtualSources.name) private _virtualDatasources: VirtualSources,
+        @inject(VirtualSourceAggregateService.name) private _vsAggregateService: VirtualSourceAggregateService
+        ) { }
 
     async get(): Promise<DataSourceResponse[]> {
         return await this._virtualDatasources.model.getDataSources();
@@ -100,14 +103,30 @@ export class DataSourcesService {
 
     async getExpressionFieldsWithData(input: KPIExpressionFieldInput): Promise<DataSourceField[]> {
         const dataSource: string = input.dataSource;
-        const virtualSource: IVirtualSourceDocument = await this._virtualDatasources.model.getDataSourceByName(dataSource);
+        let virtualSource: IVirtualSourceDocument = await this._virtualDatasources.model.getDataSourceByName(dataSource);
 
         let expressionFields: DataSourceField[];
+
+        if (!virtualSource || !virtualSource.name) return expressionFields;
 
         if (virtualSource.externalSource) {
             expressionFields = mapDataSourceFields(virtualSource);
             expressionFields.forEach(f => f.available = true);
         } else {
+            // special case patient conversions
+            let maxDate = new Date(8640000000000000);
+            let minDate = new Date(-8640000000000000);
+
+            const vsAsObject = virtualSource.toObject() as IVirtualSource;
+
+            const replacements = {
+                '__from__': { $gt: minDate, $lt: maxDate }
+            };
+
+            this._vsAggregateService.applyReplacements(vsAsObject.aggregate, replacements);
+
+            virtualSource.aggregate = vsAsObject.aggregate;
+
             expressionFields = await this.getAvailableFields(virtualSource, input.collectionSource);
         }
 
@@ -355,7 +374,7 @@ export class DataSourcesService {
         // original aggregate
         if (vs.aggregate) {
             const originalAgg =
-                (vs.toObject() as IVirtualSource)
+                (vs as IVirtualSource)
                     .aggregate
                     .map(stage => KPIFilterHelper.CleanObjectKeys(stage));
             aggregate.push(...originalAgg);
