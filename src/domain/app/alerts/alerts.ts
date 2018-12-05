@@ -2,7 +2,7 @@ import * as mongoose from 'mongoose';
 import * as Promise from 'bluebird';
 
 export interface INotificationUsers {
-    user: String;
+    user: String[];
     byEmail: Boolean;
     byPhone: Boolean;
 }

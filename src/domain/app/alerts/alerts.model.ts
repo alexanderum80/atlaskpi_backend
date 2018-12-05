@@ -13,7 +13,7 @@ export const AlertSchema = new mongoose.Schema({
     condition: String,
     value: Number,
     notificationUsers: [{
-        user: String,
+        user: [String],
         byEmail: Boolean,
         byPhone: Boolean,
     }],

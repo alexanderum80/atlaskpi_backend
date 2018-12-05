@@ -1,3 +1,4 @@
+import { isArray } from 'lodash';
 import { field } from '../../framework/decorators/field.decorator';
 import { GraphQLTypesMap } from '../../framework/decorators/graphql-types-map';
 import { input } from '../../framework/decorators/input.decorator';
@@ -17,8 +18,8 @@ export class AlertModelInfoInput {
 }
 @input()
 export class INotificationUsers {
-    @field({ type: GraphQLTypesMap.String, required: true })
-    user: String;
+    @field({ type: GraphQLTypesMap.String, isArray: true , required: true })
+    user: String[];
     @field({ type: GraphQLTypesMap.Boolean })
     byEmail: Boolean;
     @field({ type: GraphQLTypesMap.Boolean })
@@ -27,8 +28,8 @@ export class INotificationUsers {
 
 @type()
 export class ONotificationUsers {
-    @field({ type: GraphQLTypesMap.String, required: true })
-    user: String;
+    @field({ type: GraphQLTypesMap.String, isArray: true,  required: true })
+    user: String[];
     @field({ type: GraphQLTypesMap.Boolean })
     byEmail: Boolean;
     @field({ type: GraphQLTypesMap.Boolean })
