@@ -180,16 +180,7 @@ async function getDistinctValues(
 
             const vsAggregateService = new VirtualSourceAggregateService();
 
-            // special case patient conversions
-            let maxDate = new Date(8640000000000000);
-            let minDate = new Date(-8640000000000000);
-
-            const replacements = {
-                '__from__': { $gt: minDate, $lt: maxDate }
-            };
-
-            vsAggregateService.applyReplacements(aggregate, replacements);
-
+            aggregate = vsAggregateService.applyDateRangeReplacement(aggregate);
         }
 
         return await (model as any).findCriteria(fieldName, aggregate, limit, filter, collectionSource);
@@ -209,7 +200,7 @@ async function getDataSourceByName(name: string): Promise<IVirtualSourceDocument
         return vs;
 
     } catch (e) {
-        console.log('Error getting virtual source fields');
+        console.log('Error getting virtual source fields', e);
         return {} as any;
     }
 }

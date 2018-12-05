@@ -1,4 +1,3 @@
-import { inject, injectable } from 'inversify';
 import { camelCase } from 'change-case';
 import { find, cloneDeep, isArray, isDate, isObject, isString } from 'lodash';
 import * as logger from 'winston';
@@ -9,9 +8,13 @@ import { FrequencyEnum } from '../../../domain/common/frequency-enum';
 import { IChartTop } from '../../../domain/common/top-n-record';
 import { NULL_CATEGORY_REPLACEMENT } from '../../charts/queries/charts/ui-chart-base';
 import { AggregateStage } from './aggregate';
-import { VirtualSourceAggregateService } from '../../../domain/app/virtual-sources/vs-aggregate.service';
+import { VirtualSourceAggregateService, IKeyValues } from '../../../domain/app/virtual-sources/vs-aggregate.service';
+import { IVirtualSource, IVirtualSourceDocument } from '../../../domain/app/virtual-sources/virtual-source';
 
-const typeOf = require('kind-of');
+export interface IKpiVirtualSources {
+    virtualSource: IVirtualSourceDocument;
+    parentVirtualSource?: IVirtualSourceDocument;
+}
 
 export interface ICollection {
     modelName: string;
@@ -59,10 +62,11 @@ export class KpiBase {
     protected collection: ICollection;
     protected pristineAggregate: AggregateStage[];
     protected timezone: string;
+    // protected kpiVirtualSources: IKpiVirtualSources;
 
     protected _vsAggregateService: VirtualSourceAggregateService;
 
-    constructor(public model: any, public aggregate: AggregateStage[]) {
+    constructor(public model: any, public aggregate: AggregateStage[], protected kpiVirtualSources: IKpiVirtualSources) {
         // for multimple executeQuery iterations in the same instance we need to preserve the aggregate
         if (!model) {
             console.error('no model');
@@ -72,24 +76,41 @@ export class KpiBase {
     }
 
     executeQuery(dateField: string, dateRange?: IDateRange[], options?: IGetDataOptions): Promise<any> {
-        // for multimple executeQuery iterations in the same instance we need to preserve the aggregate
-        this.aggregate = cloneDeep(this.pristineAggregate);
+        const vsAggregateReplacements: IKeyValues = {
+            '__from__': dateRange[0].from,
+            '__to__': dateRange[0].to,
+        };
+
+        let aggregateResult = this._vsAggregateService.processReplacements(
+            this.kpiVirtualSources.virtualSource, vsAggregateReplacements
+        );
+
+        this.aggregate = aggregateResult.aggregate;
+
+        if (!aggregateResult.dateRangeApplied) {
+            aggregateResult = this._vsAggregateService.tryDateRangeAsFirstStage(
+                this.aggregate,
+                this.kpiVirtualSources.virtualSource,
+                this.kpiVirtualSources.parentVirtualSource,
+                dateRange[0]
+            );
+        }
+
+        // for multiple executeQuery iterations in the same instance we need to preserve the aggregate
+        this.aggregate = aggregateResult.aggregate.concat(cloneDeep(this.pristineAggregate));
 
         logger.debug('executing query: ' + this.constructor.name);
 
         if (!this.model) throw 'A model is required to execute kpi query';
         if (!dateField) throw 'A date field is required to execute kpi query';
 
-        const replacements = {
-            '__from__': { $gt: dateRange[0].from, $lt: dateRange[0].to }
-        };
-
         let that = this;
 
         return new Promise<any>((resolve, reject) => {
-            that._vsAggregateService.applyReplacements(this.aggregate, replacements);
+            // that._vsAggregateService.applyReplacements(this.aggregate, replacements);
 
-            if (dateRange && dateRange.length)
+            if (!aggregateResult.dateRangeApplied
+                && dateRange && dateRange.length)
                 that._injectDataRange(dateRange, dateField);
             if (options.filter)
                 that._injectFilter(options.filter);
@@ -145,7 +166,7 @@ export class KpiBase {
 
     private _injectDataRange(dateRange: IDateRange[], field: string) {
         // const matchDateRange = { $match: {} } as any;
-        const vsAggDateRange = this.findStage('vsAggDateRange', '$match');
+        // const vsAggDateRange = this.findStage('vsAggDateRange', '$match');
         let matchDateRange = this.findStage('filter', '$match');
 
         if (dateRange && dateRange.length) {
@@ -155,7 +176,7 @@ export class KpiBase {
                     '$lt':   dateRange[0].to
                 };
                 // if we have a vsDateRange match stage, lets apply the dateRange
-                if (vsAggDateRange) vsAggDateRange.$match[field] = { ...matchDateRange.$match[field] };
+                // if (vsAggDateRange) vsAggDateRange.$match[field] = { ...matchDateRange.$match[field] };
             } else {
                 if (!matchDateRange['$match']) {
                     matchDateRange.$match = {};
@@ -178,37 +199,6 @@ export class KpiBase {
         }
 
         // this.aggregate.unshift(matchDateRange);
-    }
-
-    private _injectDeepDataRange(obj: any, dateRange: IDateRange[], field: string) {
-        let type = typeOf(obj);
-
-        if (type !== 'object' && type !== 'array') {
-            throw new Error('expected an object');
-        }
-
-        let stage;
-        if (type === 'object') {
-            stage = find(obj, s => s['deepDateRange'] === true && s['$match'] !== undefined);
-        }
-
-        if (stage) {
-            if (dateRange.length === 1) {
-                stage.$match[field] = {
-                    '$gte':  dateRange[0].from,
-                    '$lt':   dateRange[0].to
-                };
-            }
-        }
-
-        for (const key in obj) {
-            if (obj.hasOwnProperty(key)) {
-                const val = obj[key];
-                if (typeOf(val) === 'object' || typeOf(val) === 'array') {
-                    this._injectDeepDataRange(val, dateRange, field);
-                }
-            }
-        }
     }
 
     private _injectFilter(filter: any) {

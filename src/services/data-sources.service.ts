@@ -113,19 +113,9 @@ export class DataSourcesService {
             expressionFields = mapDataSourceFields(virtualSource);
             expressionFields.forEach(f => f.available = true);
         } else {
-            // special case patient conversions
-            let maxDate = new Date(8640000000000000);
-            let minDate = new Date(-8640000000000000);
-
             const vsAsObject = virtualSource.toObject() as IVirtualSource;
 
-            const replacements = {
-                '__from__': { $gt: minDate, $lt: maxDate }
-            };
-
-            this._vsAggregateService.applyReplacements(vsAsObject.aggregate, replacements);
-
-            virtualSource.aggregate = vsAsObject.aggregate;
+            virtualSource.aggregate = this._vsAggregateService.applyDateRangeReplacement(vsAsObject.aggregate);
 
             expressionFields = await this.getAvailableFields(virtualSource, input.collectionSource);
         }
