@@ -29,6 +29,8 @@ import { IConnectorDocument } from '../domain/master/connectors/connector';
 import { Connectors } from '../domain/master/connectors/connector.model';
 import { IMutationResponse } from '../framework/mutations/mutation-response';
 import { DataSourcesService } from './data-sources.service';
+import { IMapDocument } from '../domain/app/maps/maps';
+import { Maps } from '../domain/app/maps/maps.model';
 
 export interface IGroupingsModel {
     sales: ISaleModel;
@@ -51,6 +53,7 @@ export class KpiService {
         @inject(Connectors.name) private _connectors: Connectors,
         @inject(DataSourcesService.name) private _dataSourcesService: DataSourcesService,
         @inject(CurrentUser.name) private _user: CurrentUser,
+        @inject(Maps.name) private _maps: Maps
     ) {}
 
     async getKpis(): Promise<IKPIDocument[]> {
@@ -144,8 +147,8 @@ export class KpiService {
 
             that._kpiInUseByModel(id).then((documents: IDocumentExist) => {
                 // check if kpi is in use by another model
-                const { chart, widget, complexKPI } = documents;
-                const modelExists: number = chart.length || widget.length || complexKPI.length;
+                const { chart, widget, complexKPI, maps } = documents;
+                const modelExists: number = chart.length || widget.length || complexKPI.length || maps.length;
 
                 if (modelExists) {
                     reject({ message: 'KPIs is being used by ', entity: documents, error: 'KPIs is being used by '});
@@ -431,6 +434,9 @@ export class KpiService {
             const findWidgets: DocumentQuery<IWidgetDocument[], IWidgetDocument> = this._widget.model.find({
                 'numericWidgetAttributes.kpi': id
             });
+            const findMaps: DocumentQuery<IMapDocument[], IMapDocument> = this._maps.model.find({
+                'kpi': id
+            });
 
             // contain regex expression to use for complex kpi
             const expression: RegExp = new RegExp(id);
@@ -442,12 +448,13 @@ export class KpiService {
 
             let documentExists: IDocumentExist = {};
 
-            Bluebird.all([findCharts, findWidgets, findComplexKpi])
-                .spread((charts: IChartDocument[], widgets: IWidgetDocument[], complexKPI: IKPIDocument[]) => {
+            Bluebird.all([findCharts, findWidgets, findComplexKpi, findMaps])
+                .spread((charts: IChartDocument[], widgets: IWidgetDocument[], complexKPI: IKPIDocument[], maps: IMapDocument[]) => {
                     documentExists = {
                         chart: charts,
                         widget: widgets,
-                        complexKPI
+                        complexKPI,
+                        maps: maps
                     };
 
                     resolve(documentExists);

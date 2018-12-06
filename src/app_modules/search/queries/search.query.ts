@@ -18,6 +18,7 @@ import { Slideshows } from '../../../domain/app/slideshow/slideshow.model';
 import { Widgets } from '../../../domain/app/widgets/widget.model';
 import { Appointments } from '../../../domain/app/appointments/appointment-model';
 import { IGlobalSearch, ISearchResultItem } from '../../../domain/app/global-search/global-search';
+import { Maps } from '../../../domain/app/maps/maps.model';
 
 const searchSections = [
     'dashboards',
@@ -70,7 +71,8 @@ export class SearchQuery implements IQuery<SearchResult[]> {
         @inject(Widgets.name) private _widgets: Widgets,
         @inject(Users.name) private _users: Users,
         @inject(Roles.name) private _roles: Roles,
-        @inject(Appointments.name) private _appointments: Appointments
+        @inject(Appointments.name) private _appointments: Appointments,
+        @inject(Maps.name) private _maps: Maps
     ) {
         this._adaptEngine = new AdaptEngine([AdaptIntents.Chart]);
     }
@@ -81,11 +83,11 @@ export class SearchQuery implements IQuery<SearchResult[]> {
         return new Promise<SearchResult[]>((resolve, reject) => {
             let result: SearchResult[] = [];
 
-            // that._processModelsSearch(data.query).then(r => resolve(r));
+             that._processModelsSearch(data.query).then(r => resolve(r));
 
             // before go through the rest of the options I want to parse the query
             // in order to determine if the AdaptEngine can extract any intent from it
-            this._adaptEngine.parse(data.query).then(intents => {
+           /*  this._adaptEngine.parse(data.query).then(intents => {
                 let promise: Promise<SearchResult[]>;
 
                 if (intents && intents.length > 0) {
@@ -97,7 +99,7 @@ export class SearchQuery implements IQuery<SearchResult[]> {
                 }
 
                 promise.then(result => { resolve(result); }).catch(e => reject(e));
-            }).catch(e => reject(e));
+            }).catch(e => reject(e)); */
         });
     }
 
@@ -130,7 +132,8 @@ export class SearchQuery implements IQuery<SearchResult[]> {
                 this._widgets.model.globalSearch(cleanQuery, searchFields, 'Widgets', 'name', 'description'),
                 this._users.model.globalSearch(cleanQuery, ['profile.firstName', 'profile.lastName'], 'Users', 'profile.firstName', 'profile.lastName'),
                 this._roles.model.globalSearch(cleanQuery, ['name'], 'Roles', 'name', 'name'),
-                this._appointments.model.globalSearch(cleanQuery, ['reason'], 'Appointments', 'reason', 'reason')
+                this._appointments.model.globalSearch(cleanQuery, ['reason'], 'Appointments', 'reason', 'reason'),
+                this._maps.model.globalSearch(cleanQuery, ['title', 'subtitle'], 'Maps', 'title', 'subtitle')
             ];
 
             Promise.all(searchPromises).then(res => {
