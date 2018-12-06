@@ -112,8 +112,6 @@ export class DataSourcesService {
 
         if (!virtualSource) return expressionFields;
 
-        if (!virtualSource || !virtualSource.name) return expressionFields;
-
         if (virtualSource.externalSource) {
             expressionFields = mapDataSourceFields(virtualSource);
             expressionFields.forEach(f => f.available = true);
