@@ -67,7 +67,7 @@ export class DataSourcesService {
         }
 
         const vs = await this._virtualDatasources.model.findOne({
-            name: { $regex: new RegExp(dataSource, 'i')}
+            name: { $regex: new RegExp(`^${dataSource}$`, 'i')}
         });
 
         if (!fields) {
@@ -99,10 +99,15 @@ export class DataSourcesService {
     }
 
     async getExpressionFieldsWithData(input: KPIExpressionFieldInput): Promise<DataSourceField[]> {
+        let expressionFields: DataSourceField[];
+
         const dataSource: string = input.dataSource;
+
+        if (!dataSource) return expressionFields;
+
         const virtualSource: IVirtualSourceDocument = await this._virtualDatasources.model.getDataSourceByName(dataSource);
 
-        let expressionFields: DataSourceField[];
+        if (!virtualSource) return expressionFields;
 
         if (virtualSource.externalSource) {
             expressionFields = mapDataSourceFields(virtualSource);
@@ -420,7 +425,7 @@ export class DataSourcesService {
         }
 
         const vs = await this._virtualDatasources.model.findOne({
-            name: { $regex: new RegExp(dataSource, 'i')}
+            name: { $regex: new RegExp(`^${dataSource}$`, 'i')}
         });
 
         if (!fields) {
