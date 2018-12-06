@@ -9,17 +9,18 @@ import { AggregateStage } from './aggregate';
 import { ICollection, IGetDataOptions, IKpiBase, IKpiVirtualSources } from './kpi-base';
 import { SimpleKPIBase } from './simple-kpi-base';
 import { getGenericModel } from '../../../domain/common/fields-with-data';
+import { VirtualSourceAggregateService } from '../../../domain/app/virtual-sources/vs-aggregate.service';
 
 export class SimpleKPI extends SimpleKPIBase implements IKpiBase {
 
     public static CreateFromExpression( kpi: IKPIDocument,
                                         virtualSources: IVirtualSourceDocument[],
-                                        timezone: string
+                                        timezone: string,
+                                        vsAggregateService: VirtualSourceAggregateService
                                     ): SimpleKPI {
 
         const simpleKPIDefinition: IKPISimpleDefinition = KPIExpressionHelper.DecomposeExpression(KPITypeEnum.Simple, kpi.expression);
         let collection: ICollection;
-        let baseAggregate: any;
 
         const virtualSource = virtualSources.find(s => s.name.toLocaleLowerCase() === simpleKPIDefinition.dataSource.toLocaleLowerCase());
         const parentVirtualSource = virtualSources.find(s => s.name.toLocaleLowerCase() === virtualSource.source.toLowerCase());
@@ -37,29 +38,6 @@ export class SimpleKPI extends SimpleKPIBase implements IKpiBase {
         };
 
         simpleKPIDefinition.dataSource = camelCase(virtualSource.source);
-
-        // let vsAggDateRangeStage;
-        // let vsAggStages;
-
-        // if (virtualSource.aggregate) {
-        //     vsAggStages = virtualSource.aggregate.map(a => {
-        //         return KPIFilterHelper.CleanObjectKeys(a);
-        //     });
-        // }
-
-        // // flag in case we need to apply the daterange before the vs aggregate
-        // if (!isEmpty(vsAggStages)
-        //     && parentVirtualSource
-        //     && Object.values(parentVirtualSource.fieldsMap)
-        //                 .some(f => f.path === collection.timestampField)) {
-        //     vsAggDateRangeStage =  {
-        //         vsAggDateRange: true,
-        //         '$match': { [collection.timestampField]: { } }
-        //     };
-        // }
-
-        // if (vsAggDateRangeStage) baseAggregate = [vsAggDateRangeStage];
-        // if (vsAggStages) baseAggregate = (baseAggregate || []).concat(...vsAggStages);
 
         const model = getGenericModel(virtualSource.db, virtualSource.modelIdentifier, virtualSource.source); //  models[collection.modelName];
 
@@ -92,10 +70,6 @@ export class SimpleKPI extends SimpleKPIBase implements IKpiBase {
             }
         ];
 
-        // if (baseAggregate) {
-        //     aggregateSkeleton = baseAggregate.concat(aggregateSkeleton);
-        // }
-
         return new SimpleKPI(
             model,
             aggregateSkeleton,
@@ -103,17 +77,21 @@ export class SimpleKPI extends SimpleKPIBase implements IKpiBase {
             kpi,
             collection,
             timezone,
-            kpiVirtualSources
+            kpiVirtualSources,
+            vsAggregateService
         );
     }
 
     private constructor(model: any, baseAggregate: any, definition: IKPISimpleDefinition,
-                        kpi: IKPI, collection: ICollection, timezone: string, kpiVirtualSources: IKpiVirtualSources) {
+                        kpi: IKPI, collection: ICollection, timezone: string, kpiVirtualSources: IKpiVirtualSources,
+                        vsAggregateService: VirtualSourceAggregateService) {
         super(model, baseAggregate, kpiVirtualSources);
 
         this.timezone = timezone;
         this.kpi = kpi;
         this.collection = collection;
+
+        this._vsAggregateService = vsAggregateService;
 
         let deserializedFilter;
 

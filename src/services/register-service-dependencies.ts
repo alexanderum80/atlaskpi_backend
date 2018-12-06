@@ -35,6 +35,8 @@ export function registerServices(container: IBridgeContainer) {
     container.registerSingleton(PnsService);
     container.registerSingleton(GAJobsQueueService);
 
+    container.registerSingleton(VirtualSourceAggregateService);
+
     // notifications
     container.registerSingleton(TargetNotification);
     container.registerSingleton(LeadReceivedNotification);
@@ -64,7 +66,6 @@ export function registerServices(container: IBridgeContainer) {
     container.registerPerWebRequest(ScheduleJobService);
     container.registerPerWebRequest(DateService);
 
-    container.registerPerWebRequest(VirtualSourceAggregateService);
 
 
 }

@@ -13,6 +13,7 @@ import { IGetDataOptions, IKpiBase, IKpiVirtualSources } from './kpi-base';
 import { SimpleKPIBase } from './simple-kpi-base';
 import { GAJobsQueueService } from '../../../services/queues/ga-jobs-queue.service';
 import { CurrentAccount } from '../../../domain/master/current-account';
+import { VirtualSourceAggregateService } from '../../../domain/app/virtual-sources/vs-aggregate.service';
 
 export class GoogleAnalyticsKpi extends SimpleKPIBase implements IKpiBase {
 
@@ -23,7 +24,8 @@ export class GoogleAnalyticsKpi extends SimpleKPIBase implements IKpiBase {
                                         googleAnalyticsKpiService: GoogleAnalyticsKPIService,
                                         queueService: GAJobsQueueService,
                                         currentAccount: CurrentAccount,
-                                        virtualSources: IVirtualSourceDocument[]): GoogleAnalyticsKpi {
+                                        virtualSources: IVirtualSourceDocument[],
+                                        vsAggregateService: VirtualSourceAggregateService): GoogleAnalyticsKpi {
 
         const kpiDefinition: IKPISimpleDefinition = KPIExpressionHelper.DecomposeExpression(KPITypeEnum.ExternalSource, kpi.expression);
 
@@ -80,7 +82,8 @@ export class GoogleAnalyticsKpi extends SimpleKPIBase implements IKpiBase {
             // googleAnalyticsKpiService,
             queueService,
             currentAccount,
-            kpiVirtualSources);
+            kpiVirtualSources,
+            vsAggregateService);
     }
 
     private _virtualSource: IVirtualSourceDocument;
@@ -92,10 +95,12 @@ export class GoogleAnalyticsKpi extends SimpleKPIBase implements IKpiBase {
                         // private _googleAnalyticsKpiService: GoogleAnalyticsKPIService,
                         private _queueService: GAJobsQueueService,
                         private _currentAccount: CurrentAccount,
-                        kpiVirtualSources: IKpiVirtualSources) {
+                        kpiVirtualSources: IKpiVirtualSources,
+                        vsAggregateService: VirtualSourceAggregateService) {
         super(model, _baseAggregate, kpiVirtualSources);
 
         this._virtualSource = kpiVirtualSources.virtualSource;
+        this._vsAggregateService = vsAggregateService;
 
         if (!this._virtualSource) {
             const errStr = 'Virtual source for google analytics not found... ';

@@ -1,3 +1,4 @@
+import { inject, injectable } from 'inversify';
 import { camelCase } from 'change-case';
 import { find, cloneDeep, isArray, isDate, isObject, isString } from 'lodash';
 import * as logger from 'winston';
@@ -56,6 +57,7 @@ export interface IKpiBase {
     getSeries?(dateRange: IDateRange, frequency: FrequencyEnum);
 }
 
+@injectable()
 export class KpiBase {
     frequency: FrequencyEnum;
     protected kpi: IKPI;
@@ -72,10 +74,11 @@ export class KpiBase {
             console.error('no model');
         }
         this.pristineAggregate = cloneDeep(aggregate);
-        this._vsAggregateService = new VirtualSourceAggregateService();
+        // this._vsAggregateService = new VirtualSourceAggregateService();
     }
 
     executeQuery(dateField: string, dateRange?: IDateRange[], options?: IGetDataOptions): Promise<any> {
+        // process the virtual source aggregate
         const vsAggregateReplacements: IKeyValues = {
             '__from__': dateRange[0].from,
             '__to__': dateRange[0].to,
@@ -107,7 +110,6 @@ export class KpiBase {
         let that = this;
 
         return new Promise<any>((resolve, reject) => {
-            // that._vsAggregateService.applyReplacements(this.aggregate, replacements);
 
             if (!aggregateResult.dateRangeApplied
                 && dateRange && dateRange.length)
@@ -165,8 +167,6 @@ export class KpiBase {
     }
 
     private _injectDataRange(dateRange: IDateRange[], field: string) {
-        // const matchDateRange = { $match: {} } as any;
-        // const vsAggDateRange = this.findStage('vsAggDateRange', '$match');
         let matchDateRange = this.findStage('filter', '$match');
 
         if (dateRange && dateRange.length) {
@@ -175,8 +175,6 @@ export class KpiBase {
                     '$gte':  dateRange[0].from,
                     '$lt':   dateRange[0].to
                 };
-                // if we have a vsDateRange match stage, lets apply the dateRange
-                // if (vsAggDateRange) vsAggDateRange.$match[field] = { ...matchDateRange.$match[field] };
             } else {
                 if (!matchDateRange['$match']) {
                     matchDateRange.$match = {};
