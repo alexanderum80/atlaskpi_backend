@@ -9,7 +9,7 @@ import { FrequencyEnum } from '../../../domain/common/frequency-enum';
 import { IChartTop } from '../../../domain/common/top-n-record';
 import { NULL_CATEGORY_REPLACEMENT } from '../../charts/queries/charts/ui-chart-base';
 import { AggregateStage } from './aggregate';
-import { VirtualSourceAggregateService, IKeyValues } from '../../../domain/app/virtual-sources/vs-aggregate.service';
+import { VirtualSourceAggregateService, IKeyValues, IProcessAggregateResult } from '../../../domain/app/virtual-sources/vs-aggregate.service';
 import { IVirtualSource, IVirtualSourceDocument } from '../../../domain/app/virtual-sources/virtual-source';
 
 export interface IKpiVirtualSources {
@@ -64,7 +64,6 @@ export class KpiBase {
     protected collection: ICollection;
     protected pristineAggregate: AggregateStage[];
     protected timezone: string;
-    // protected kpiVirtualSources: IKpiVirtualSources;
 
     protected _vsAggregateService: VirtualSourceAggregateService;
 
@@ -74,7 +73,6 @@ export class KpiBase {
             console.error('no model');
         }
         this.pristineAggregate = cloneDeep(aggregate);
-        // this._vsAggregateService = new VirtualSourceAggregateService();
     }
 
     executeQuery(dateField: string, dateRange?: IDateRange[], options?: IGetDataOptions): Promise<any> {
@@ -84,19 +82,26 @@ export class KpiBase {
             '__to__': dateRange[0].to,
         };
 
-        let aggregateResult = this._vsAggregateService.processReplacements(
-            this.kpiVirtualSources.virtualSource, vsAggregateReplacements
-        );
+        let aggregateResult: IProcessAggregateResult = {
+            aggregate: [],
+            dateRangeApplied: false
+        };
 
-        this.aggregate = aggregateResult.aggregate;
-
-        if (!aggregateResult.dateRangeApplied) {
-            aggregateResult = this._vsAggregateService.tryDateRangeAsFirstStage(
-                this.aggregate,
-                this.kpiVirtualSources.virtualSource,
-                this.kpiVirtualSources.parentVirtualSource,
-                dateRange[0]
+        if (this.kpiVirtualSources) {
+            aggregateResult = this._vsAggregateService.processReplacements(
+                this.kpiVirtualSources.virtualSource, vsAggregateReplacements
             );
+
+            this.aggregate = aggregateResult.aggregate;
+
+            if (!aggregateResult.dateRangeApplied) {
+                aggregateResult = this._vsAggregateService.tryDateRangeAsFirstStage(
+                    this.aggregate,
+                    this.kpiVirtualSources.virtualSource,
+                    this.kpiVirtualSources.parentVirtualSource,
+                    dateRange[0]
+                );
+            }
         }
 
         // for multiple executeQuery iterations in the same instance we need to preserve the aggregate
