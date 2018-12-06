@@ -65,7 +65,7 @@ let SalesSchema = new Schema ({
     payment: PaymentSchema,
     businessUnit: (<any>BusinessUnitSchema),
     serviceType: String,
-    referral: [SaleReferralSchema],
+    referral: [SaleReferralSchema]
 });
 
 export const SaleSchema = SalesSchema;
