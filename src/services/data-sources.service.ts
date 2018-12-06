@@ -108,6 +108,7 @@ export class DataSourcesService {
 
         if (!dataSource) return expressionFields;
 
+        let virtualSource: IVirtualSourceDocument = await this._virtualDatasources.model.getDataSourceByName(dataSource);
 
         if (!virtualSource) return expressionFields;
 
