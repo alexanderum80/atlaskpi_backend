@@ -136,29 +136,30 @@ async function getDataSources(names?: string[]): Promise<DataSourceResponse[]> {
 
 
 
-async function filterSourceAndFieldsWithData(ds: DataSourceResponse, vs: IVirtualSourceDocument): Promise<DataSourceResponse> {
-    try {
-        const filter = '';
-        const distinctValues: string[] = await getDistinctValues(
-            vs,
-            COLLECTION_SOURCE_FIELD_NAME,
-            COLLECTION_SOURCE_MAX_LIMIT,
-            filter
-        );
+// async function filterSourceAndFieldsWithData(ds: DataSourceResponse, vs: IVirtualSourceDocument): Promise<DataSourceResponse> {
+//     try {
+//         const filter = '';
+//         const distinctValues: string[] = await getDistinctValues(
+//             vs,
+//             COLLECTION_SOURCE_FIELD_NAME,
+//             COLLECTION_SOURCE_MAX_LIMIT,
+//             filter
+//         );
 
-        ds.sources = distinctValues;
-        // ds.fields = await this.filterFieldsWithoutData(ds);
-        return ds;
-    } catch (e) {
-        console.error(e);
-    }
-}
+//         ds.sources = distinctValues;
+//         // ds.fields = await this.filterFieldsWithoutData(ds);
+//         return ds;
+//     } catch (e) {
+//         console.error(e);
+//     }
+// }
 
 async function getDistinctValues(
     vs: IVirtualSourceDocument,
     fieldName: string,
     limit: number,
     filter: string,
+    vsAggregateService: VirtualSourceAggregateService,
     collectionSource?: string[]): Promise<string[]> {
     try {
         let model: mongoose.Model<any>;
@@ -177,8 +178,6 @@ async function getDistinctValues(
             aggregate = vs.aggregate.map(a => {
                 return KPIFilterHelper.CleanObjectKeys(a);
             });
-
-            const vsAggregateService = new VirtualSourceAggregateService();
 
             aggregate = vsAggregateService.applyDateRangeReplacement(aggregate);
         }
