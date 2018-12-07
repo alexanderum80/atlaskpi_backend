@@ -3,6 +3,7 @@ import { GraphQLTypesMap } from '../../framework/decorators/graphql-types-map';
 import { input } from '../../framework/decorators/input.decorator';
 import { type } from '../../framework/decorators/type.decorator';
 import { ErrorDetails } from '../../framework/graphql/common.types';
+import { resolver } from '../../framework/decorators/resolver.decorator';
 
 @input()
 export class PersonalInfoDetails {
@@ -11,6 +12,9 @@ export class PersonalInfoDetails {
 
     @field({ type: GraphQLTypesMap.String })
     email: string;
+
+    @field({ type: GraphQLTypesMap.String })
+    timezone: string;
 }
 
 @input()
@@ -36,6 +40,9 @@ export class PersonalInfo {
 
     @field({ type: GraphQLTypesMap.String, required: true })
     email: string;
+
+    @field({ type: GraphQLTypesMap.String, required: true })
+    timezone: string;
 }
 
 @type()
@@ -64,6 +71,11 @@ export class UserToken {
 
 @type()
 export class Account {
+    @resolver({ forField: '_id' })
+    static convertId(d) {
+        return d._id.toString();
+    }
+
     @field({ type: GraphQLTypesMap.String })
     _id: String;
 

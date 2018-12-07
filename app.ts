@@ -4,6 +4,7 @@ NODE_ENV="local" AKPI_APP_SUBDOMAIN="d.atlaskpi.com:4200" AKPI_MASTER_DB_URI="mo
 
 // This is a must because inversify uses it
 import 'reflect-metadata';
+const timeout = require('connect-timeout');
 
 import * as fileUpload from 'express-fileupload';
 
@@ -21,11 +22,22 @@ import { logger } from './src/middlewares/logger.middleware';
 import { tokenValidator } from './src/middlewares/token-validator.middleware';
 import { registerValidators } from './src/validators/validatos';
 import { attachments } from './src/app_modules/attachments/attachments.routes';
+import { CacheService } from './src/services/cache/cache.service';
+import { DevelopmentCacheService } from './src/services/cache/development-cache.service';
+import * as winston from 'winston';
 
-const app = Bridge.create(AtlasApp);
+// for development
+const app = Bridge.create(AtlasApp, DevelopmentCacheService);
+// for production
+// const app = Bridge.create(AtlasApp, CacheService);
 
 // override some configurations
 runConfigOverrides();
+
+process.on('uncaughtException', function (err) {
+    winston.error('Uncaught exception', err);
+    console.log('The App crashed');
+});
 
 // bind dependencies
 registerDependencies(app.Container);
@@ -34,6 +46,7 @@ registerDependencies(app.Container);
 registerValidators();
 
 // middlewares
+app.server.use(timeout('10m'));
 app.server.use(healthCheck);
 app.server.use(logger);
 app.server.use(tokenValidator);

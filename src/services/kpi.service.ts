@@ -1,46 +1,34 @@
+import { CurrentUser } from '../domain/app/current-user';
+import { DataSourceField } from './../app_modules/data-sources/data-sources.types';
 import * as Bluebird from 'bluebird';
-import {inject, injectable, Container} from 'inversify';
-import { isObject, intersectionBy, cloneDeep, isEmpty, isString, isArray, isDate, pickBy } from 'lodash';
-import { DocumentQuery } from 'mongoose';
+import { inject, injectable } from 'inversify';
+import { cloneDeep, intersectionBy, isArray, isDate, isEmpty, isObject, isString, pickBy, uniqBy } from 'lodash';
 import * as moment from 'moment';
+import * as mongoose from 'mongoose';
+import { DocumentQuery } from 'mongoose';
 
+import { KpiGroupingsInput } from '../app_modules/kpis/kpis.types';
+import { ChartDateRangeInput } from '../app_modules/shared/shared.types';
 import { IChartDocument } from '../domain/app/charts/chart';
 import { Charts } from '../domain/app/charts/chart.model';
 import { IExpenseModel } from '../domain/app/expenses/expense';
-import { Expenses } from '../domain/app/expenses/expense.model';
 import { IInventoryModel } from '../domain/app/inventory/inventory';
-import { Inventory } from '../domain/app/inventory/inventory.model';
-import {
-    IDocumentExist,
-    IKPI,
-    IKPIDocument,
-    KPITypeEnum,
-    KPITypeMap,
-    IKPIFilter
-} from '../domain/app/kpis/kpi';
-import {KPIExpressionHelper} from '../domain/app/kpis/kpi-expression.helper';
+import { IDocumentExist, IKPI, IKPIDocument, IKPIFilter, KPITypeEnum, KPITypeMap } from '../domain/app/kpis/kpi';
+import { KPIExpressionHelper } from '../domain/app/kpis/kpi-expression.helper';
 import { KPIFilterHelper } from '../domain/app/kpis/kpi-filter.helper';
 import { KPIs } from '../domain/app/kpis/kpi.model';
 import { ISaleModel } from '../domain/app/sales/sale';
-import { Sales } from '../domain/app/sales/sale.model';
 import { IVirtualSourceDocument } from '../domain/app/virtual-sources/virtual-source';
-import { VirtualSources } from '../domain/app/virtual-sources/virtual-source.model';
+import { VirtualSources, mapDataSourceFields } from '../domain/app/virtual-sources/virtual-source.model';
 import { IWidgetDocument } from '../domain/app/widgets/widget';
 import { Widgets } from '../domain/app/widgets/widget.model';
+import { processDateRangeWithTimezone } from '../domain/common/date-range';
+import { blackListDataSource, getFieldsWithData, IFieldsWithDataDatePipeline } from '../domain/common/fields-with-data';
 import { IValueName } from '../domain/common/value-name';
 import { IConnectorDocument } from '../domain/master/connectors/connector';
 import { Connectors } from '../domain/master/connectors/connector.model';
 import { IMutationResponse } from '../framework/mutations/mutation-response';
-import {blackListDataSource, getFieldsWithData, IFieldsWithDataDatePipeline} from '../domain/common/fields-with-data';
-import {KpiGroupingsInput} from '../app_modules/kpis/kpis.types';
-import {parsePredifinedDate, IChartDateRange} from '../domain/common/date-range';
-import {ChartDateRangeInput, ChartDateRange} from '../app_modules/shared/shared.types';
-import {CollectionsMapping} from '../app_modules/kpis/queries/simple-kpi';
-
-const codeMapper = {
-    'Revenue': 'sales',
-    'Expenses': 'expenses'
-};
+import { DataSourcesService } from './data-sources.service';
 
 export interface IGroupingsModel {
     sales: ISaleModel;
@@ -56,19 +44,17 @@ export class KpiService {
     ];
 
     constructor(
-        @inject(Sales.name) private _saleModel: Sales,
-        @inject(Expenses.name) private _expenseModel: Expenses,
-        @inject(Inventory.name) private _inventoryModel,
         @inject(KPIs.name) private _kpis: KPIs,
         @inject(Charts.name) private _chart: Charts,
         @inject(Widgets.name) private _widget: Widgets,
         @inject(VirtualSources.name) private _virtualSources: VirtualSources,
         @inject(Connectors.name) private _connectors: Connectors,
-        @inject('resolver') private _resolver: (name: string) => any,
+        @inject(DataSourcesService.name) private _dataSourcesService: DataSourcesService,
+        @inject(CurrentUser.name) private _user: CurrentUser,
     ) {}
 
-    async getKpis(filterFieldsWithoutData?: boolean): Promise<IKPIDocument[]> {
-        const kpis = await this._kpis.model.find({});
+    async getKpis(): Promise<IKPIDocument[]> {
+        const kpis = await this._kpis.model.find({}).populate({path: 'createdBy', model: 'User'});
         const virtualSources = await this._virtualSources.model.find({});
         const connectors = await this._connectors.model.find({});
 
@@ -77,18 +63,13 @@ export class KpiService {
             const kpiSources: string[] = this._getKpiSources(k, kpis, connectors);
             // find common field paths on the sources
             const groupingInfo = await this._getCommonSourcePaths(kpiSources, virtualSources);
+            k.groupingInfo = groupingInfo || [];
+            const firstName = k.createdBy.profile.firstName;
+            const midleName = k.createdBy.profile.middleName;
+            const lastName = k.createdBy.profile.lastName;
 
-            if (filterFieldsWithoutData) {
-                const sources = virtualSources.filter(v => kpiSources.indexOf(v.name.toLocaleLowerCase()) !== -1);
-
-                // i.e [criteria: nextech]
-                const kpiFilter: any = KPIFilterHelper.PrepareFilterField(k.type, k.filter);
-                const fieldsWithData = await this._fieldsWithData(sources, groupingInfo, kpiFilter);
-
-                k.groupingInfo = fieldsWithData || [];
-            } else {
-                k.groupingInfo = groupingInfo || [];
-            }
+            const createdBy = (firstName ? firstName + ' ' : '' ) + (midleName ? midleName + ' ' : '' ) + (lastName ? lastName  : '' );
+            k.createdBy = createdBy;
 
             return k;
         });
@@ -98,8 +79,6 @@ export class KpiService {
 
     async getKpi(id: string): Promise<IKPIDocument> {
         const doc = await this._kpis.model.findOne({ _id: id });
-        const virtualSources = await this._virtualSources.model.find({});
-
         doc.expression = KPIExpressionHelper.PrepareExpressionField(doc.type, doc.expression);
 
         return doc;
@@ -119,11 +98,9 @@ export class KpiService {
                 return kpiSources.indexOf(v.name.toLocaleLowerCase()) !== -1;
             });
 
-            const groupingInfo: IValueName[] = await this._getCommonSourcePaths(kpiSources, vs);
-            const kpiFilterSource: any = KPIFilterHelper.PrepareFilterField(kpi.type, kpi.filter);
             const kpiFilter = this._cleanFilter(kpi.filter || {});
 
-            return await this._fieldsWithData(sources, groupingInfo, input.dateRange, kpiFilterSource, kpiFilter);
+            return await this._groupingsWithData(sources, input.dateRange, kpiFilter);
         } catch (err) {
             console.error('error getting grouping data', err);
             return [];
@@ -193,7 +170,9 @@ export class KpiService {
     getDateRange(chartDateRange: ChartDateRangeInput[]): any[] {
         return (Array.isArray(chartDateRange) && chartDateRange.length) ?
             chartDateRange.map(d => {
-                const dateRange = this.processChartDateRange(d);
+                // const dateRange = this.processChartDateRange(d);
+
+                const dateRange = processDateRangeWithTimezone(d, this._user.get().profile.timezone);
 
                 return {
                     '$gte': dateRange.from,
@@ -202,34 +181,7 @@ export class KpiService {
             }) : [];
     }
 
-    processChartDateRange(chartDateRange: ChartDateRangeInput): any {
-        return chartDateRange.custom && chartDateRange.custom.from ?
-                {
-                    from: moment(chartDateRange.custom.from).startOf('day').toDate(),
-                    to: moment(chartDateRange.custom.to).endOf('day').toDate()
-                }
-                : parsePredifinedDate(chartDateRange.predefined);
-    }
-
-    private _getKpiSources(kpi: IKPIDocument, kpis: IKPIDocument[], connectors: IConnectorDocument[]): string[] {
-        if (kpi.baseKpi) {
-            // return fields for base kpi Revenue or Expenses
-            switch (kpi.baseKpi) {
-                case 'Expenses':
-                    return ['expenses'];
-                case 'Revenue':
-                    return ['sales'];
-            }
-        }
-
-        if (['Expenses', 'Revenue'].indexOf(kpi.code) !== -1) {
-            switch (kpi.code) {
-                case 'Expenses':
-                    return ['expenses'];
-                case 'Revenue':
-                    return ['sales'];
-            }
-        }
+    public _getKpiSources(kpi: IKPIDocument, kpis: IKPIDocument[], connectors: IConnectorDocument[]): string[] {
 
         if (kpi.type === KPITypeEnum.ExternalSource) {
             const expression = KPIExpressionHelper.DecomposeExpression(kpi.type, kpi.expression);
@@ -321,14 +273,12 @@ export class KpiService {
 
             return commonFields;
         } catch (err) {
-            console.error('error gettin common source paths', err);
+            console.error('error getting common source paths', err);
             return [];
         }
     }
 
-    private async _fieldsWithData(sources: IVirtualSourceDocument[], fields: IValueName[], dateRange: ChartDateRangeInput[], kpiFilterSource?: IKPIFilter[], kpiFilter?: any): Promise<IValueName[]> {
-        const that = this;
-
+    private async _fieldsWithDataOld(sources: IVirtualSourceDocument[], fields: IValueName[], dateRange: ChartDateRangeInput[], kpiFilterSource?: IKPIFilter[], kpiFilter?: any): Promise<IValueName[]> {
         try {
             const existingFields: IValueName[][] = await Bluebird.map(sources, async (source: IVirtualSourceDocument) => {
                 if (blackListDataSource.indexOf(source.source) !== -1) {
@@ -341,14 +291,11 @@ export class KpiService {
                         return KPIFilterHelper.CleanObjectKeys(a);
                     });
                 }
-                const model = this._resolver(source.source).model;
 
-                const collectionMappingKey: string = source.source.toLowerCase();
-                const mappingModel = CollectionsMapping[collectionMappingKey];
                 let kpiDateRange: IFieldsWithDataDatePipeline;
 
-                if (mappingModel && mappingModel.timestampField) {
-                    const timestampField = mappingModel.timestampField;
+                if (source.dateField) {
+                    const timestampField = source.dateField;
                     kpiDateRange = { timestampField: timestampField, dateRange: this.getDateRange(dateRange) };
                 } else {
                     kpiDateRange = { timestampField: null, dateRange: null };
@@ -357,7 +304,15 @@ export class KpiService {
                 const collectionSource: string[] = this._getCollectionSource(kpiFilterSource);
                 const filter = pickBy(kpiFilter, (item, k) => k !== 'source');
 
-                const fieldsWithData: string[] = await getFieldsWithData(model, fields, collectionSource, aggregate, kpiDateRange, filter);
+                const fieldsWithData: string[] =
+                    await getFieldsWithData(
+                        source,
+                        fields,
+                        collectionSource,
+                        aggregate,
+                        kpiDateRange,
+                        filter
+                    );
 
                 return fields.filter(field => {
                     return fieldsWithData.indexOf(field.name) !== -1 ||
@@ -382,6 +337,66 @@ export class KpiService {
         } catch (e) {
             throw new Error('error getting fields with data');
         }
+    }
+
+    private async _groupingsWithData(virtualSources: IVirtualSourceDocument[], dateRange: ChartDateRangeInput[],
+                                     kpiFilter?: any): Promise<IValueName[]> {
+        try {
+            const existingGroupings: Array<IValueName[]> =
+                await Bluebird.map(
+                    virtualSources,
+                    async (vs: IVirtualSourceDocument) =>
+                        this._getAvailableGroupingForOptions(
+                            vs, dateRange, kpiFilter
+                        )
+                );
+
+            if (!existingGroupings) {
+                return [];
+            }
+
+            if (existingGroupings.length === 1) {
+                return existingGroupings[0];
+            }
+
+            const uniqList =
+               uniqBy([].concat(...existingGroupings), 'value');
+
+            const commonGroupings = existingGroupings.reduce(
+                (acc, arr) => intersectionBy(acc, arr, 'value'),
+                uniqList
+            );
+
+
+            return commonGroupings;
+        } catch (e) {
+            throw new Error('error getting fields with data');
+        }
+    }
+
+    private async _getAvailableGroupingForOptions(vs: IVirtualSourceDocument, dateRange: ChartDateRangeInput[],
+                                                  filters: any): Promise<IValueName[]> {
+        let availableFields: DataSourceField[];
+
+        if (!vs.externalSource) {
+            const dateRangeFilter = this._getDateRangeAsFilter(dateRange);
+
+            availableFields = await this._dataSourcesService.getAvailableFields(
+                vs,
+                [],
+                { dateRangeFilter, filters, excludeSourceField: false }
+            );
+        } else {
+            availableFields = mapDataSourceFields(vs, false);
+            availableFields.forEach(f => f.available = true);
+        }
+
+        const availableGroupings =
+            availableFields
+                .filter(f => f.available && f.allowGrouping)
+                .map(f => { return { name: f.name, value: f.path}; });
+
+        return availableGroupings;
     }
 
     private _getCollectionSource(kpiFilter: IKPIFilter[]): string [] {
@@ -500,5 +515,61 @@ export class KpiService {
         const regexStrings = ['startWith', 'endWith', 'contains', 'regex'];
 
         return regexStrings.indexOf(operator) !== -1;
+    }
+
+    private _getDateRangeAsFilter(dr: ChartDateRangeInput[]): any {
+        // if it is an array let's get the first element
+        const drFilter = this.getDateRange(dr);
+        return Array.isArray(drFilter) ? drFilter[0] : drFilter;
+    }
+
+    async getKpiByFilterExpression(kpiType: KPITypeEnum, expression: string, filter?: string): Promise<IKPIDocument[]> {
+        let kpis: IKPIDocument[] = await <any>this.getKpis().then(k => {
+            return k;
+        });
+
+        if (kpiType === KPITypeEnum.Simple || kpiType === KPITypeEnum.ExternalSource) {
+            expression = KPIExpressionHelper.ComposeExpression(kpiType, expression);
+        }
+
+        kpis.map(k => {
+            if (k.filter) {
+                k.filter = KPIFilterHelper.DecomposeFilter(kpiType, k.filter);
+            }
+        });
+
+        // filtering by expression
+        const kpiExpression = kpis.filter(k => k.expression === expression);
+
+        const kpi = [];
+
+        const filters = filter ? JSON.parse(filter) : null;
+
+        // filtering by filters
+        kpiExpression.map(k => {
+            if (kpiType === KPITypeEnum.Simple || kpiType === KPITypeEnum.ExternalSource) {
+                 (k.filter) = k.filter || [];
+                
+
+                const filterExpression = [];
+                for (let i = 0; i < filters.length; i++) {
+                    const filterExist = k.filter ?
+                                        k.filter.find(f => f.field === filters[i].field &&
+                                            f.operator === filters[i].operator &&
+                                            f.criteria === filters[i].criteria) :
+                                        null;
+                    if (filterExist) {
+                        filterExpression.push(k);
+                    }
+                }
+                if (filters.length === filterExpression.length && filterExpression.length === k.filter.length) {
+                    kpi.push(k);
+                }
+            } else {
+                kpi.push(k);
+            }
+        });
+
+        return kpi;
     }
 }

@@ -1,5 +1,4 @@
 import { ISearchableModel } from '../global-search/global-search';
-import * as Promise from 'bluebird';
 import * as mongoose from 'mongoose';
 
 import { SearchAppointmentCriteriaInput } from './../../../app_modules/appointments/appointments.types';

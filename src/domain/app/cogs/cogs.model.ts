@@ -5,7 +5,7 @@ import { injectable, inject } from 'inversify';
 import { getEmployeeSchema } from '../../common/employee.schema';
 import { getCustomerSchema } from '../../common/customer.schema';
 import { getLocationSchema } from '../../common/location.schema';
-
+import * as logger from 'winston';
 import * as mongoose from 'mongoose';
 import { criteriaPlugin } from '../../../app_modules/shared/criteria.plugin';
 

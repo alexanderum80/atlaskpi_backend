@@ -8,14 +8,15 @@ import { IChartDateRange } from '../../common/date-range';
 import { IDashboardDocument } from '../dashboards/dashboard';
 import { IKPIDocument } from '../kpis/kpi';
 import {IChartTop} from '../../common/top-n-record';
+import { ChartDateRangeInput } from '../../../app_modules/shared/shared.types';
 
 export interface IChart {
     // _id?: string;
     title: string;
     subtitle?: string;
     group?: string;
-    kpis: [IKPIDocument];
-    dateRange: [IChartDateRange];
+    kpis: IKPIDocument[];
+    dateRange: IChartDateRange[];
     top?: IChartTop;
     filter?: any;
     frequency?: string;
@@ -40,7 +41,7 @@ export interface IChartInput {
     subtitle?: string;
     group?: string;
     kpis: [string];
-    dateRange: [IChartDateRange];
+    dateRange: ChartDateRangeInput[];
     top?: IChartTop;
     filter?: any;
     frequency?: string;
@@ -56,6 +57,7 @@ export interface IChartInput {
     isFutureTarget?: boolean;
     isDrillDown?: boolean;
     originalFrequency?: string;
+    onTheFly: boolean;
 }
 
 export interface IGetChartInput {

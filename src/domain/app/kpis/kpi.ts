@@ -92,6 +92,9 @@ export interface IKPI {
     source?: string;
     availableGroupings?: string[];
     system?: boolean;
+     //add-created
+    createdBy?: any;
+    createdDate?: Date;
 }
 
 export interface IKPIDocument extends IKPI, mongoose.Document {

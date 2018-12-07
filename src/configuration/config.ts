@@ -47,6 +47,13 @@ import { usersServiceConfig } from './users/users-service-config';
 
             Ex: "https://api.atlaskpi.com:9091/integration"
 
+        AKPI_SEED_DB_NAME                -- Database name to copy seed data from
+
+            Ex: "newdemo"
+
+        AKPI_TEMPLATE_HTTP_METHOD       -- The http method for links in email templates
+
+            Ex: "http" | "https"
 */
 
 export const config: IAppConfig = {
@@ -84,7 +91,10 @@ export const config: IAppConfig = {
         secretAccessKey: process.env.AKPI_AWS_SECRET_ACCESS_KEY || '2iMP5YS5rhkYO6329CsbzK28+CqbjWHo8dyuO6LL'
     },
     cache: {
-        redisServer: process.env.AKPI_REDIS_SERVER || '35.172.178.73',
+        redisServer: process.env.AKPI_REDIS_SERVER || 'localhost', // '35.172.178.73',
         redisPort: process.env.AKPI_REDIS_PORT || '6379'
-    }
+    },
+    supportEmail: process.env.SUPPORT_EMAIL || 'support@atlaskpi.com',
+    seedDbName: process.env.AKPI_SEED_DB_NAME || 'newdemo',
+    templateHttpMethod: process.env.AKPI_TEMPLATE_HTTP_METHOD || 'http'
 };

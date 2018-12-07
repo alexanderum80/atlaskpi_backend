@@ -15,7 +15,7 @@ export class ExternalDataSourcesService {
     ) { }
 
     async get(): Promise<ExternalDataSourceResponse[]> {
-        const reportingConnectors =  await this._connectors.model.getReportingConnectors(this._currentAccount.get.database.name);
+        const reportingConnectors =  await this._connectors.model.getReportingConnectors(this._currentAccount.get.subdomain);
 
         if (!reportingConnectors) {
             return [];
@@ -27,16 +27,20 @@ export class ExternalDataSourcesService {
         return reportingConnectors.map(conn => {
             const v = virtualSources.find(vs => vs.name.toLocaleLowerCase() === conn.virtualSource.toLocaleLowerCase());
 
-            return {
-                id: `${conn.type}$${conn.id}`,
+
+            const response: ExternalDataSourceResponse = {
+                id: `${v.name}$${conn.id}`,
                 connectorId: conn.id,
                 connectorType: conn.type,
                 name: v.name,
                 description: `${conn.name} (${v.description})`,
                 dataSource: v.dataSource,
                 fields: v.fields,
-                filterOperators: v.filterOperators
+                filterOperators: v.filterOperators,
+                externalSource: true
             };
+
+            return response;
         });
     }
 }

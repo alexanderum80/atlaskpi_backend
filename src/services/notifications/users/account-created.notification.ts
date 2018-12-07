@@ -5,9 +5,10 @@ import { inject, injectable } from 'inversify';
 import * as nodemailer from 'nodemailer';
 
 import { IAppConfig } from '../../../configuration/config-models';
-import { IAccountCreatedDataSource, IUserDocument } from '../../../domain/app/security/users/user';
+import { IAccountCreatedDataSource, IUserDocument, IUserProfile } from '../../../domain/app/security/users/user';
 import { IEmailNotifier } from '../email-notifier';
 import { CurrentAccount } from '../../../domain/master/current-account';
+import { isEmpty } from 'lodash';
 
 
 export interface IAccountCreatedNotifier extends IEmailNotifier {
@@ -25,9 +26,12 @@ export class AccountCreatedNotification implements IAccountCreatedNotifier {
         const createAccountTemplate =
             Handlebars.compile(this._config.usersService.services.createUser.emailTemplate);
 
-        let dataSource: IAccountCreatedDataSource = user.toObject();
+        const dataSource: IAccountCreatedDataSource = user.toObject();
+
+        dataSource.method = this._config.templateHttpMethod;
+
         if (!dataSource.host) {
-            dataSource.host = this._currentAccount.get.database.name;
+            dataSource.host = this._currentAccount.get.subdomain;
         }
         if (!dataSource.subdomain) {
             dataSource.subdomain = this._config.subdomain;
@@ -35,8 +39,23 @@ export class AccountCreatedNotification implements IAccountCreatedNotifier {
         if (!dataSource.resetToken) {
             dataSource.resetToken = user.services.email.enrollment[0].token;
         }
-        let emailContent = createAccountTemplate(dataSource);
 
-        return sendEmail(email, `${this._config.usersService.app.name}: Account Created`, emailContent);
+        dataSource.fullName = this._getFullName(user);
+
+        const emailContent = createAccountTemplate(dataSource);
+        return sendEmail(email, `AtlasKPI Secure: User Activation`, emailContent);
+    }
+
+    private _getFullName(user: IUserDocument): string {
+        let fullName: string;
+
+        if (!isEmpty(user.profile) && user.profile.firstName) {
+            const userProfile: IUserProfile = user.profile;
+            fullName = `${userProfile.firstName} ${userProfile.lastName}`;
+        } else {
+            fullName = user.username;
+        }
+
+        return fullName;
     }
 }

@@ -1,19 +1,31 @@
-import { IVirtualSourceDocument } from '../domain/app/virtual-sources/virtual-source';
+import { camelCase } from 'change-case';
+import { IDateRange } from './../domain/common/date-range';
+import { IVirtualSourceDocument, IVirtualSource } from '../domain/app/virtual-sources/virtual-source';
 import { DataSourceField, DataSourceResponse } from '../app_modules/data-sources/data-sources.types';
 import { injectable, inject, Container } from 'inversify';
 import {VirtualSources, mapDataSourceFields} from '../domain/app/virtual-sources/virtual-source.model';
-import {sortBy} from 'lodash';
+import { sortBy, concat, isBoolean } from 'lodash';
 import { Logger } from '../domain/app/logger';
 import { KPIFilterHelper } from '../domain/app/kpis/kpi-filter.helper';
 import * as Bluebird from 'bluebird';
-import { isObject, isEmpty } from 'lodash';
+import { isObject, isEmpty, toInteger, toNumber } from 'lodash';
 import {KPIExpressionFieldInput} from '../app_modules/kpis/kpis.types';
-import {getFieldsWithData} from '../domain/common/fields-with-data';
+import {getFieldsWithData, getGenericModel, getAggregateResult} from '../domain/common/fields-with-data';
 import { ICriteriaSearchable } from '../app_modules/shared/criteria.plugin';
+import * as mongoose from 'mongoose';
+import { AppConnection } from '../domain/app/app.connection';
+import * as moment from 'moment';
+import { IMutationResponse } from '../framework/mutations/mutation-response';
+import { Connectors } from '../domain/master/connectors/connector.model';
+import { VirtualSourceAggregateService } from '../domain/app/virtual-sources/vs-aggregate.service';
 
-const COLLECTION_SOURCE_MAX_LIMIT = 20;
-const COLLECTION_SOURCE_FIELD_NAME = 'source';
 const GOOGLE_ANALYTICS = 'GoogleAnalytics';
+
+export interface IFieldAvailabilityOptions {
+    dateRangeFilter?: { $gte: Date, $lt: Date };
+    filters?: any;
+    excludeSourceField?: boolean;
+}
 
 @injectable()
 export class DataSourcesService {
@@ -21,45 +33,56 @@ export class DataSourcesService {
     constructor(
         @inject(Logger.name) private _logger: Logger,
         @inject('resolver') private _resolver: (name: string) => any,
-        @inject(VirtualSources.name) private _virtualDatasources: VirtualSources) { }
+        @inject(AppConnection.name) private _appConnection: AppConnection,
+        @inject(Connectors.name) private _connectors: Connectors,
+        @inject(VirtualSources.name) private _virtualDatasources: VirtualSources,
+        @inject(VirtualSourceAggregateService.name) private _vsAggregateService: VirtualSourceAggregateService
+        ) { }
 
     async get(): Promise<DataSourceResponse[]> {
-        let virtualSources = await this._virtualDatasources.model.getDataSources();
-        virtualSources = await Bluebird.map(
-                                    virtualSources,
-                                    async (virtualSource: DataSourceResponse) => await this.getCollectionSource(virtualSource), {
-                                        concurrency: 1
-                                    });
-        return sortBy(virtualSources, 'name');
-    }
+        return await this._virtualDatasources.model.getDataSources();
+        // const dataSources = await this._virtualDatasources.model.getDataSources();
 
-    async getCollectionSource(virtualSource: DataSourceResponse): Promise<DataSourceResponse> {
-        const filter = '';
-        const distinctValues: string[] = await this.getDistinctValues(
-            virtualSource.name,
-            virtualSource.dataSource,
-            COLLECTION_SOURCE_FIELD_NAME,
-            COLLECTION_SOURCE_MAX_LIMIT,
-            filter
-        );
+        // await Bluebird.map(
+        //     dataSources,
+        //     async(ds: DataSourceResponse) => {
+        //         const vs: IVirtualSourceDocument = await this._virtualDatasources.model.getDataSourceByName(ds.name);
+        //         ds.fields = await this.getAvailableFields(vs, []);
+        //     },
+        //     { concurrency: 10 }
+        // );
 
-        virtualSource.sources = distinctValues;
-        virtualSource.fields = await this.filterFieldsWithoutData(virtualSource);
-        return virtualSource;
+        // return dataSources;
+        // virtualDataSources = await Bluebird.map(
+        //     virtualDataSources,
+        //     async (vs: DataSourceResponse) => await this.getCollectionSource(vs),
+        //     { concurrency: 10 });
+        // return sortBy(virtualDataSources, 'name');
     }
 
     /**
      * i.e. dataSource = 'established_customers_sales'
      * @param data
      */
-    async getKPIFilterFieldsWithData(dataSource: string, collectionSource: string[], fields: DataSourceField[]): Promise<DataSourceField[]> {
+    async getKPIFilterFieldsWithDataOld(dataSource: string, collectionSource?: string[], fields?: DataSourceField[]): Promise<DataSourceField[]> {
         if (!dataSource) {
             return [];
         }
 
-        const virtualSource = await this._virtualDatasources.model.findOne({ name: { $regex: new RegExp(dataSource, 'i')} });
-        const model = this._resolver(virtualSource.source).model;
-        const fieldsWithData: string[] = await getFieldsWithData(model, fields, collectionSource);
+        const vs = await this._virtualDatasources.model.findOne({
+            name: { $regex: new RegExp(`^${dataSource}$`, 'i')}
+        });
+
+        if (!fields) {
+            fields = mapDataSourceFields(vs);
+        }
+
+        if (vs.externalSource) {
+            fields.forEach(f => f.available = true);
+            return fields;
+        }
+
+        const fieldsWithData: string[] = await getFieldsWithData(vs, fields, collectionSource);
 
         fields.forEach((f: DataSourceField) => {
             f.available = fieldsWithData.indexOf(f.name) !== -1;
@@ -68,24 +91,10 @@ export class DataSourcesService {
         return fields;
     }
 
-    async getDistinctValues(name: string, source: string, field: string, limit: number, filter: string): Promise<string[]> {
+    async getDistinctValues(name: string, source: string, field: string, limit: number, filter: string, collectionSource?: string[]): Promise<string[]> {
         try {
             const vs = await this._virtualDatasources.model.findOne({ name: { $regex: new RegExp(`^${name}$`, 'i') }  });
-            const model = this._resolver(source).model;
-
-            if (!model || !model.findCriteria) {
-                return [];
-            }
-
-            let aggregate = [];
-
-            if (vs.aggregate) {
-                aggregate = vs.aggregate.map(a => {
-                    return KPIFilterHelper.CleanObjectKeys(a);
-                });
-            }
-
-            return await (model as any).findCriteria(field, aggregate, limit, filter);
+            return await vs.getDistinctValues(vs, field, limit, filter,  this._vsAggregateService, collectionSource);
         } catch (e) {
             this._logger.error('There was an error retrieving the distinct values', e);
             return [];
@@ -93,20 +102,45 @@ export class DataSourcesService {
     }
 
     async getExpressionFieldsWithData(input: KPIExpressionFieldInput): Promise<DataSourceField[]> {
+        let expressionFields: DataSourceField[];
+
+        const dataSource: string = input.dataSource;
+
+        if (!dataSource) return expressionFields;
+
+        let virtualSource: IVirtualSourceDocument = await this._virtualDatasources.model.getDataSourceByName(dataSource);
+
+        if (!virtualSource) return expressionFields;
+
+        if (virtualSource.externalSource) {
+            expressionFields = mapDataSourceFields(virtualSource);
+            expressionFields.forEach(f => f.available = true);
+        } else {
+            const vsAsObject = virtualSource.toObject() as IVirtualSource;
+
+            virtualSource.aggregate = this._vsAggregateService.applyDateRangeReplacement(vsAsObject.aggregate);
+
+            expressionFields = await this.getAvailableFields(virtualSource, input.collectionSource);
+        }
+
+        return expressionFields;
+    }
+
+    async getExpressionFieldsWithDataOld(input: KPIExpressionFieldInput): Promise<DataSourceField[]> {
         // i.e. 'nextech'
         const collectionSource: string[] = input.collectionSource;
         // i.e. 'established_customer'
         const dataSource: string = input.dataSource;
         const virtualSource: IVirtualSourceDocument = await this._virtualDatasources.model.getDataSourceByName(dataSource);
-        const model = this._resolver(virtualSource.source).model;
+        // const model = this._resolver(virtualSource.modelIdentifier).model;
 
         const expressionFields: DataSourceField[] = mapDataSourceFields(virtualSource);
+
         if (this._isGoogleAnalytics(virtualSource.source)) {
             return this._getGoogleAnalyticsFields(expressionFields);
         }
 
-
-        const fieldsWithData: string[] = await getFieldsWithData(model, expressionFields, collectionSource);
+        const fieldsWithData: string[] = await getFieldsWithData(virtualSource, expressionFields, collectionSource);
 
         expressionFields.forEach((n: DataSourceField) => {
             n.available = fieldsWithData.indexOf(n.name) !== -1;
@@ -120,7 +154,10 @@ export class DataSourcesService {
             const fields: DataSourceField[] = virtualSource.fields;
             // i.e. Sales
             const dataSource: string = virtualSource.dataSource;
-            const model = this._resolver(dataSource).model;
+            const schema = new mongoose.Schema({}, { strict: false });
+
+            const connection: mongoose.Connection = this._appConnection.get;
+            const model = <any>connection.model(dataSource, schema, camelCase(dataSource));
 
             if (this._isGoogleAnalytics(dataSource)) {
                 return this._getGoogleAnalyticsFields(fields);
@@ -163,7 +200,11 @@ export class DataSourcesService {
             });
         }
 
-        const model = this._resolver(vs.source).model;
+        // const model = this._resolver(vs.source).model;
+        const schema = new mongoose.Schema({}, { strict: false });
+        const connection: mongoose.Connection = this._appConnection.get;
+        const model = <any>connection.model(vs.source, schema, vs.source.toLowerCase());
+
         const fieldsWithData: string[] = await getFieldsWithData(model, fields, collectionSource, aggregate);
         fields.forEach((n: DataSourceField) => {
             n.available = fieldsWithData.indexOf(n.name) !== -1;
@@ -182,5 +223,253 @@ export class DataSourcesService {
         });
 
         return fields;
+    }
+
+    createVirtualSourceMapCollection(input): Promise<IMutationResponse> {
+        const schema = new mongoose.Schema({}, { strict: false });
+        const connection: mongoose.Connection = this._appConnection.get;
+        const newCollection = <any>connection.model(input.inputName, schema, input.inputName);
+
+        const dataCollection = <any>input.records;
+        const schemaCollection = input.fields;
+
+        return new Promise<IMutationResponse>((resolve, reject) => {
+            dataCollection.map(d => {
+                const collection: any[] = [];
+                for (let i = 0; i < d.length; i++) {
+                    const record = d[i];
+                    const fieldName = schemaCollection[i].columnName.toLowerCase().replace(' ', '_');
+                    collection[fieldName] = this.getValueFromDataType(schemaCollection[i].dataType, record);
+                }
+                collection['source'] = 'Manual entry';
+                collection['timestamp'] = moment.utc().toDate();
+
+                const model = new newCollection(collection);
+                model.save();
+            });
+            resolve({success: true});
+            return;
+        });
+    }
+
+    async getVirtualSourceMapCollection(connectorName): Promise<any> {
+        try {
+            const connector = await this._connectors.model.getConnectorByName(connectorName);
+
+            const dataSource = await this._virtualDatasources.model.getDataSourceByName(connector.virtualSource);
+
+            if (!dataSource) {
+                return null;
+            }
+
+            const schema = new mongoose.Schema({}, { strict: false });
+            const connection: mongoose.Connection = this._appConnection.get;
+            const model = connection.model(dataSource.source, schema, dataSource.source);
+
+            const dataModel = await model.find();
+            const data = await dataModel.map(data => data['_doc']);
+
+            const dataCollection = {
+                'schema': dataSource.fieldsMap,
+                'data': data,
+                'dataName': connectorName,
+                'dateRangeField': dataSource.dateField
+            };
+
+            return JSON.stringify(dataCollection);
+        } catch (err) {
+            console.log('error getting virtual source collection: ' + err);
+        }
+    }
+
+    removeVirtualSourceMapCollection(source): Promise<any> {
+        return new Promise<IMutationResponse>((resolve, reject) => {
+            try {
+                const connection: mongoose.Connection = this._appConnection.get;
+                connection.db.dropCollection(source);
+                resolve({success: true});
+                return;
+            } catch (err) {
+                console.log(err);
+                resolve({success: false, errors: err});
+            }
+        });
+    }
+
+    getValueFromDataType(dataType, inputValue) {
+        switch (dataType) {
+            case 'Number':
+                if (inputValue === null || inputValue === '') {
+                    return 0;
+                }
+                if (inputValue.toString().split('.').length > 1) {
+                    return toNumber(inputValue);
+                } else {
+                    return toInteger(inputValue);
+                }
+            case 'Date':
+                return moment.utc(inputValue).toDate();
+            case 'Boolean':
+                if (!isBoolean(inputValue)) {
+                    const booleanValue: boolean = inputValue === '1' || inputValue === 'true';
+                    inputValue = booleanValue;
+                }
+                return inputValue as boolean;
+            default:
+                return inputValue;
+        }
+    }
+    /**
+    // To get the availability of the fields we are going to use the following mehthod/aggegation stage
+    // to count the number of records with value in each field
+    //
+    //
+    // Stage:
+    // { $group: {
+    //     "_id" : null,
+    //     "customer": { $sum: {$cond: [{$gte: ['$customer', null]}, 1, 0] } },
+    //     "field_no_value": {
+    //          $sum: {
+    //              $cond: [ {
+    //                  '$and': [
+    //                		 {'$gte': ['$field_no_value', null] },
+    //                		 {'$ne': ['$field_no_value', null]  }
+    //                  ]
+    //              } ]
+    //          }
+    // }
+    //
+    // Output:
+    // {
+    //     "_id" : null,
+    //     "customer" : 544.0,
+    //     "field_no_value" : 0.0
+    // }
+    */
+    async getAvailableFields(vs: IVirtualSourceDocument, sourceFieldCriterias: string[],
+                             options: IFieldAvailabilityOptions = {}): Promise<DataSourceField[]> {
+        if (!vs) return [];
+
+        const { dateRangeFilter, filters, excludeSourceField } = options;
+
+        const aggregate = [];
+
+        const fields =
+            Object.keys(vs.fieldsMap)
+                  .map(k => { return { name: k, value: vs.fieldsMap[k].path }; });
+
+        // construct match stage
+        if (sourceFieldCriterias && sourceFieldCriterias.length) {
+            const match = { $match : { source: { $in: sourceFieldCriterias } } };
+            aggregate.push(match);
+        }
+
+        // original aggregate
+        if (vs.aggregate) {
+            const originalAgg =
+                (vs as IVirtualSource)
+                    .aggregate
+                    .map(stage => KPIFilterHelper.CleanObjectKeys(stage));
+            aggregate.push(...originalAgg);
+        }
+
+        // after original aggregate stage
+        const afterMatch = { $match: { } };
+
+        // if daterange add it to a match stage after the original aggregate
+        // this could be optimiezed to detect if the daterange field goes before of after the original aggregate
+        if (dateRangeFilter && dateRangeFilter) {
+            afterMatch.$match[vs.dateField] = dateRangeFilter;
+        }
+
+        // if daterange add it to a match stage after the original aggregate
+        if (filters) {
+            afterMatch.$match =  Object.assign(afterMatch.$match, filters);
+        }
+
+        // add the stage to the pipeline
+        if (filters || dateRangeFilter) {
+            aggregate.push(afterMatch);
+        }
+
+        // construct the stage for getting value-existance of the fields
+        const existanceStage = { $group: { '_id' : null } };
+        fields.forEach(f =>
+            existanceStage.$group[f.name] = {
+                $sum: {
+                    $cond: [
+                        {
+                            // $gte: [`$${f.value}`, null]
+                            $and: [
+                                { $gte: [`$${f.value}`, null] },
+                                { $ne:  [`$${f.value}`, null] }
+                            ]
+                        }
+                        , 1, 0
+                    ]
+                }
+            }
+        );
+        aggregate.push(existanceStage);
+
+        // execute the new aggregate
+        const aggResult = await getAggregateResult(vs, aggregate) as any[];
+        // console.dir(aggResult);
+
+        const expresionFields = mapDataSourceFields(vs, excludeSourceField);
+
+        // set availablee fields with value gt 0
+        expresionFields.forEach(f => {
+            f.available  = (aggResult[0] || {})[f.name] > 0 ? true : false;
+        });
+
+        return expresionFields;
+    }
+
+    async getKPIFilterFieldsWithData(dataSource: string, collectionSource?: string[], fields?: DataSourceField[]): Promise<DataSourceField[]> {
+        if (!dataSource) {
+            return [];
+        }
+
+        const vs = await this._virtualDatasources.model.findOne({
+            name: { $regex: new RegExp(`^${dataSource}$`, 'i')}
+        });
+
+        if (!fields) {
+            fields = mapDataSourceFields(vs);
+        }
+
+        if (vs.externalSource) {
+            fields.forEach(f => f.available = true);
+            return fields;
+        }
+
+        const fieldsWithData: string[] = await getFieldsWithData(vs, fields, collectionSource);
+
+        fields.forEach((f: DataSourceField) => {
+            f.available = fieldsWithData.indexOf(f.name) !== -1;
+        });
+
+        return fields;
+    }
+
+    async dataSourceByName(name: string): Promise<DataSourceResponse> {
+        try {
+            const dataSource = await this._virtualDatasources.model.getDataSourceByName(name);
+
+            if (!dataSource) {
+                return null;
+            }
+
+            const dataSourceResponse = {
+                name: dataSource.name,
+                description: dataSource.description,
+                dataSource: dataSource.source,
+            };
+            return <any>dataSourceResponse;
+        }
+        catch (err) {
+            console.log(err);
+        }
     }
 }

@@ -1,5 +1,5 @@
 import { inject, injectable } from 'inversify';
-import * as moment from 'moment';
+import * as moment from 'moment-timezone';
 
 import { loadIntegrationConfig } from '../../../app_modules/integrations/models/load-integration-controller';
 import { GoogleAnalytics } from '../../../domain/app/google-analytics/google-analytics.model';
@@ -14,7 +14,6 @@ import {
     cleanHeaders,
     constructDimensionsArray,
     fieldMetricsMap,
-    generateBatchProperties,
     getAnalyticsData,
     IBatchProperties,
     mapMetricDimensionRow,
@@ -47,7 +46,9 @@ export class GoogleAnalyticsKPIService {
                 }
 
                 configDoc = configDocument;
-                return that._resolveConnector(connectorId.replace('googleanalytics', ''));
+
+                const dsTokens = connectorId.split('$');
+                return that._resolveConnector(dsTokens[1]);
             })
             .then(connectorDocument => {
                 if (!connectorDocument) {
@@ -99,7 +100,8 @@ export class GoogleAnalyticsKPIService {
             filters: filters,
             dimensions: constructDimensionsArray(groupings, frequency),
             extraOpts: {
-                'include-empty-rows': false
+                'include-empty-rows': false,
+                'quotaUser': this._connector.subdomain
             }
         })
         .then(rawData => {
@@ -107,10 +109,18 @@ export class GoogleAnalyticsKPIService {
             // const batchProps = generateBatchProperties(that._connector.id, that._connector.config.view.id);
             const batchProps = {
                 _batchId: jobId,
-                _batchTimestamp: moment().toDate()
+                _batchTimestamp: moment().toDate(),
+                viewTimezone: this._connector.config.view.timezone
             };
             const analyticsData = that._mapToIGoogleAnalytics(rawData, batchProps, that._connector.config.view.timezone);
-            return that._googleAnalyticsModel.model.batchUpsert(analyticsData, startDate, batchProps);
+
+            // if no date property lets use the start date local time based on the view timezone
+            const localTimeStartDate = moment.tz(startDate, that._connector.config.view.timezone).toDate();
+            analyticsData.forEach(d => d['date'] = d['date'] || localTimeStartDate);
+
+            return that._googleAnalyticsModel.model.batchUpsert(analyticsData,
+                                                                // startDate,
+                                                                batchProps);
         });
     }
 
@@ -118,7 +128,7 @@ export class GoogleAnalyticsKPIService {
         // delete the 'ga:' substring
         const columnHeaders = cleanHeaders(data.columnHeaders || []);
 
-        // shortcircuit to empty array if data or rows are null
+        // empty array if data or rows are null
         const rows = data && data.rows || [];
 
         const that = this;

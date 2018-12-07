@@ -1,50 +1,44 @@
-import { FinancialActivities } from './../../../domain/app/financial-activities/financial-activity.model';
-import { COGS } from './../../../domain/app/cogs/cogs.model';
-import { Payments } from './../../../domain/app/payments/payment.model';
 import { inject, injectable } from 'inversify';
 
-import { Calls } from '../../../domain/app/calls/call.model';
-import { Expenses } from '../../../domain/app/expenses/expense.model';
+import { CurrentUser } from '../../../domain/app/current-user';
 import { GoogleAnalytics } from '../../../domain/app/google-analytics/google-analytics.model';
 import { IKPIDocument, KPITypeEnum } from '../../../domain/app/kpis/kpi';
 import { KPIs } from '../../../domain/app/kpis/kpi.model';
-import { Sales } from '../../../domain/app/sales/sale.model';
 import { IVirtualSourceDocument } from '../../../domain/app/virtual-sources/virtual-source';
 import { VirtualSources } from '../../../domain/app/virtual-sources/virtual-source.model';
+import { getGenericModel } from '../../../domain/common/fields-with-data';
+import { CurrentAccount } from '../../../domain/master/current-account';
 import { GoogleAnalyticsKPIService } from '../../../services/kpis/google-analytics-kpi/google-analytics-kpi.service';
-import { Appointments } from './../../../domain/app/appointments/appointment-model';
-import { Inventory } from './../../../domain/app/inventory/inventory.model';
+import { GAJobsQueueService } from '../../../services/queues/ga-jobs-queue.service';
+import { isValidTimezone } from './../../../domain/common/date-range';
 import { CompositeKpi } from './compound.kpi';
 import { Expenses as ExpensesKPI } from './expenses.kpi';
 import { GoogleAnalyticsKpi } from './google-analytics-kpi';
 import { IKpiBase } from './kpi-base';
 import { Revenue } from './revenue.kpi';
 import { SimpleKPI } from './simple-kpi';
-import { GAJobsQueueService } from '../../../services/queues/ga-jobs-queue.service';
-import { CurrentAccount } from '../../../domain/master/current-account';
+import { VirtualSourceAggregateService } from '../../../domain/app/virtual-sources/vs-aggregate.service';
 
 @injectable()
 export class KpiFactory {
 
     constructor(
         @inject('KPIs') private _kpis: KPIs,
-        @inject(Sales.name) private _sales: Sales,
-        @inject(Expenses.name) private _expenses: Expenses,
-        @inject(Inventory.name) private _inventory: Inventory,
-        @inject(Calls.name) private _calls: Calls,
         @inject(GoogleAnalytics.name) private _googleAnalytics: GoogleAnalytics,
-        @inject(Appointments.name) private _appointments: Appointments,
         @inject(VirtualSources.name) private _virtualSources: VirtualSources,
-        @inject(Payments.name) private _payments: Payments,
-        @inject(COGS.name) private _cogs: COGS,
-        @inject(FinancialActivities.name) private _financialActivities: FinancialActivities,
         @inject(GoogleAnalyticsKPIService.name) private _googleAnalyticsKpiService: GoogleAnalyticsKPIService,
         @inject(GAJobsQueueService.name) private _queueService: GAJobsQueueService,
         @inject(CurrentAccount.name) private _currentAccount: CurrentAccount,
+        @inject(CurrentUser.name) private _currentUser: CurrentUser,
+        @inject(VirtualSourceAggregateService.name) private _vsAggregateService: VirtualSourceAggregateService
     ) { }
 
     async getInstance(kpiDocument: IKPIDocument): Promise<IKpiBase> {
         const virtualSources: IVirtualSourceDocument[] = await this._virtualSources.model.find({});
+
+        const tz = this._currentUser.get().profile.timezone;
+
+        if (!isValidTimezone(tz)) throw new Error('Invalid user timezone');
 
         if (!kpiDocument) { return null; }
 
@@ -52,21 +46,15 @@ export class KpiFactory {
 
             switch (kpiDocument.type) {
                 case KPITypeEnum.Compound:
-                    return new CompositeKpi(kpiDocument, this, this._kpis);
+                    return new CompositeKpi(kpiDocument, this, this._kpis, tz);
                 case KPITypeEnum.Complex:
-                    return new CompositeKpi(kpiDocument, this, this._kpis);
+                    return new CompositeKpi(kpiDocument, this, this._kpis, tz);
                 case KPITypeEnum.Simple:
                     return SimpleKPI.CreateFromExpression(
                                 kpiDocument,
-                                this._sales,
-                                this._expenses,
-                                this._inventory,
-                                this._calls,
-                                this._appointments,
-                                this._payments,
-                                this._cogs,
-                                this._financialActivities,
-                                virtualSources
+                                virtualSources,
+                                tz,
+                                this._vsAggregateService
                           );
                 case KPITypeEnum.ExternalSource:
                     return GoogleAnalyticsKpi.CreateFromExpression( kpiDocument,
@@ -74,7 +62,8 @@ export class KpiFactory {
                                                                     this._googleAnalyticsKpiService,
                                                                     this._queueService,
                                                                     this._currentAccount,
-                                                                    virtualSources);
+                                                                    virtualSources,
+                                                                    this._vsAggregateService);
             }
 
         }
@@ -83,9 +72,13 @@ export class KpiFactory {
 
         switch (searchBy) {
             case 'Revenue':
-                return new Revenue(this._sales.model);
+                const vsSales = virtualSources.find(vs => vs.name === 'sale');
+                const saleModel = getGenericModel(vsSales.db, vsSales.modelIdentifier, vsSales.source);
+                return new Revenue(saleModel as any);
             case 'Expenses':
-                return new ExpensesKPI(this._expenses.model, virtualSources);
+                const vsExpense = virtualSources.find(vs => vs.name === 'expenses');
+                const expenseModel = getGenericModel(vsExpense.db, vsExpense.modelIdentifier, vsExpense.source);
+                return new ExpensesKPI(expenseModel as any, virtualSources);
             default:
                 return null;
         }

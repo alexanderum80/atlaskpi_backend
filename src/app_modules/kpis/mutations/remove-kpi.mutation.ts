@@ -8,11 +8,16 @@ import { MutationBase } from '../../../framework/mutations/mutation-base';
 import { IMutationResponse } from '../../../framework/mutations/mutation-response';
 import { RemoveKPIActivity } from '../activities/remove-kpi.activity';
 import { KPIRemoveResponse } from '../kpis.types';
+import { KpisQuery } from '../queries/kpis.query';
+import { DashboardQuery } from '../../dashboards/queries/dashboard.query';
+import { ChartsQuery } from '../../charts/queries/charts.query';
+import { WidgetQuery } from '../../widgets/queries/widget.query';
 
 @injectable()
 @mutation({
     name: 'removeKPI',
     activity: RemoveKPIActivity,
+    invalidateCacheFor: [ KpisQuery, DashboardQuery, ChartsQuery, WidgetQuery ],
     parameters: [
         { name: 'id', type: String },
     ],

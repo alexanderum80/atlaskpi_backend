@@ -15,10 +15,23 @@ export function detachFromAllDashboards(dashboardModel: IDashboardModel, chartId
     });
 }
 
-export async function detachUserFromAllDashboards(dashboardModel: IDashboardModel, userId: string): Promise<boolean> {
+export function detachUserFromAllDashboards(dashboardModel: IDashboardModel, userId: string): Promise<boolean> {
     return new Promise<boolean>((resolve, reject) => {
         dashboardModel.update({ users: { $in: [userId]}},
                               { $pull: { users: userId }},
+                              { multi: true }).exec()
+        .then(dashboards => {
+            resolve(true);
+            return;
+        })
+        .catch(err => reject(err));
+    });
+}
+
+export function detachMapFromAllDashboards(dashboardModel: IDashboardModel, mapId: string): Promise<boolean> {
+    return new Promise<boolean>((resolve, reject) => {
+        dashboardModel.update({ maps: { $in: [mapId]}},
+                              { $pull: { maps: mapId }},
                               { multi: true }).exec()
         .then(dashboards => {
             resolve(true);
@@ -42,6 +55,20 @@ export function detachFromDashboards(dashboardModel: IDashboardModel, dashboards
     });
 }
 
+export function detachMapFromDashboards(dashboardModel: IDashboardModel, dashboardsIds: string[], mapId: string): Promise<boolean> {
+    if (!dashboardsIds || dashboardsIds.length < 1 ) { return Promise.resolve(true); }
+    return new Promise<boolean>((resolve, reject) => {
+        dashboardModel.update({_id: { $in: dashboardsIds}},
+                              { $pull: { maps: mapId }},
+                              { multi: true }).exec()
+        .then(dashboards => {
+            resolve(true);
+            return;
+        })
+        .catch(err => reject(err));
+    });
+}
+
 export function attachToDashboards(dashboardModel: IDashboardModel, dashboardsIds: string[], chartId: string): Promise<boolean> {
     if (!dashboardsIds || dashboardsIds.length < 1 ) { return Promise.resolve(true); }
     return new Promise<boolean>((resolve, reject) => {
@@ -53,5 +80,21 @@ export function attachToDashboards(dashboardModel: IDashboardModel, dashboardsId
             return;
         })
         .catch(err => reject(err));
+    });
+}
+
+export function attachMapToDashboards(dashboardModel: IDashboardModel, dashboardsIds: string[], mapId: string): Promise<boolean> {
+    if (!dashboardsIds || dashboardsIds.length < 1 ) { return Promise.resolve(true); }
+    return new Promise<boolean>((resolve, reject) => {
+        dashboardModel.update({_id: { $in: dashboardsIds}},
+                              { $push: { maps: mapId }},
+                              { multi: true }).exec()
+        .then(dashboards => {
+            resolve(true);
+            return;
+        })
+        .catch(err => {
+            reject(err);
+        });
     });
 }

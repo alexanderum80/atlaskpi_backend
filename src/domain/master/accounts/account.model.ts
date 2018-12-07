@@ -12,14 +12,17 @@ import { IMongoDBAtlasCredentials } from '../../../configuration/config-models';
 import { ModelBase } from '../../../type-mongo/model-base';
 import { MasterConnection } from '../master.connection';
 import { IAccountDBUser, IAccountDocument, IAccountModel } from './Account';
+import { paramCase } from 'change-case';
 
 
 // define mongo schema
 let accountSchema = new mongoose.Schema({
     name: { type: String, index: true, required: true },
+    subdomain: { type: String, required: true },
     personalInfo: {
         fullname: String,
         email: { type: String, index: true, required: true },
+        timezone: String,
     },
     businessInfo: {
         numberOfLocations: Number,
@@ -66,7 +69,7 @@ accountSchema.statics.findAccountByHostname = function(hostname: string): Promis
             name = <any>hostname;
         }
 
-        that.findOne({ 'database.name': name }, (err, account) => {
+        that.findOne({ 'subdomain': name.trim() }, (err, account) => {
             if (err) {
                 reject(err);
                 return;
@@ -78,8 +81,10 @@ accountSchema.statics.findAccountByHostname = function(hostname: string): Promis
 
 };
 
-accountSchema.statics.accountNameAvailable = function(name: String): Promise<boolean> {
+accountSchema.statics.accountNameAvailable = function(name: string): Promise<boolean> {
     const that = this;
+
+    const query = { 'database.name': paramCase(name) };
 
     return new Promise<boolean>((resolve, reject) => {
 
@@ -87,7 +92,7 @@ accountSchema.statics.accountNameAvailable = function(name: String): Promise<boo
             return resolve(false);
         }
 
-        that.findOne({ 'name': name }, (err, account) => {
+        that.findOne(query, (err, account) => {
             if (err) {
                 reject(err);
                 return;

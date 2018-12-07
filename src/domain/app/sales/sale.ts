@@ -1,4 +1,3 @@
-import * as Promise from 'bluebird';
 import * as mongoose from 'mongoose';
 import { IDateRange } from '../../common/date-range';
 import { ICriteriaSearchable } from '../../../app_modules/shared/criteria.plugin';
@@ -28,6 +27,9 @@ export interface ISaleCustomer extends IEntity {
         address: string;
         fullname: string;
         firstBillDate: Date;
+        firstPurchase: boolean;
+        firstProcedure: boolean;
+        firstProcedureOver500: boolean;
 }
 
 
@@ -88,7 +90,8 @@ export interface ISales {
 
 export enum TypeMap {
     customerAndZip = 'customerAndZip',
-    productAndZip = 'productAndZip'
+    productAndZip = 'productAndZip',
+    locationAndZip = 'locationAndZip'
 }
 
 export interface ISaleByZipGrouping {
@@ -110,9 +113,9 @@ export interface IMapMarkerInput {
 export interface ISaleDocument extends ISales, mongoose.Document { }
 
 export interface ISaleModel extends mongoose.Model<ISaleDocument>, ICriteriaSearchable {
-    findByPredefinedDateRange(predefinedDateRange: string): Promise<ISaleDocument[]>;
+    findByPredefinedDateRange(predefinedDateRange: string, timezone: string): Promise<ISaleDocument[]>;
     amountByDateRange(from: string, to: string): Promise<Object>;
-    salesEmployeeByDateRange(predefinedDateRange: string): Promise<Object>;
+    salesEmployeeByDateRange(predefinedDateRange: string, timezone: string): Promise<Object>;
     monthsAvgSales(date: string): Promise<Object>;
     salesBy(aggregate: any[]): Promise<ISaleByZip[]>;
 }

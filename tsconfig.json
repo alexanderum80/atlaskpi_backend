@@ -3,18 +3,19 @@
         "module": "commonjs",
         "target": "es6",
         "noImplicitAny": false,
-        "sourceMap": false,
+        "sourceMap": true,
         "outDir": "build/debug",
         "experimentalDecorators": true,
         "types": [
             "node"
         ],
-        "lib": ["es6", "esnext.asynciterable", "dom"]
+        "lib": ["es2017", "esnext.asynciterable", "dom"]
     },
     "exclude": [
         "node_modules",
         "bin", 
         "typings",
-        "build"
+        "build",
+        "release"
     ]
 }

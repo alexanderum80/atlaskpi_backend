@@ -5,18 +5,26 @@ import * as mg from 'nodemailer-mailgun-transport';
 import * as Promise from 'bluebird';
 
 export const MailgunService: IEmailService = {
-    sendEmail(from: string, to: string, subject: string, html: string): Promise<nodemailer.SentMessageInfo> {
+    sendEmail(from: string, to: string, subject: string, html: string, ccEmail?: string): Promise<nodemailer.SentMessageInfo> {
         return new Promise<nodemailer.SentMessageInfo>((resolve, reject) => {
 
             let auth = config.emailService.mailgun;
             let nodemailerMailgun = nodemailer.createTransport(mg(auth));
 
-            nodemailerMailgun.sendMail({
+            const sendEmailPayload = {
                 from: from,
                 to: to,
                 subject: subject,
                 html: html
-            }, (err, info) => {
+            };
+
+            if (ccEmail) {
+                Object.assign(sendEmailPayload, {
+                    cc: ccEmail
+                });
+            }
+
+            nodemailerMailgun.sendMail(sendEmailPayload, (err, info) => {
                 if (err) {
                     reject(err);
                 }

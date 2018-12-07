@@ -29,6 +29,9 @@ export class GetChartInput  {
     isDrillDown: boolean;
 
     @field({ type: GraphQLTypesMap.Boolean })
+    onTheFly: boolean;
+
+    @field({ type: GraphQLTypesMap.Boolean })
     isFutureTarget: boolean;
 
     @field({ type: GraphQLTypesMap.String})
@@ -107,6 +110,11 @@ export class ChartTopResponse {
 
 @type()
 export class ChartEntityResponse  {
+    @resolver({ forField: '_id' })
+    static convertId(d) {
+        return d._id.toString();
+    }
+
     @field({ type: GraphQLTypesMap.String })
     _id: string;
 

@@ -8,11 +8,12 @@ import {
     getDateRangeIdFromString,
     IChartDateRange,
     IDateRange,
-    parsePredifinedDate,
     PredefinedComparisonDateRanges,
+    processDateRangeWithTimezone,
 } from '../../common/date-range';
 import { KPIs } from '../kpis/kpi.model';
-import { IUIWidget, UIWidgetBase } from './ui-widget-base';
+import { IVirtualSourceDocument } from '../virtual-sources/virtual-source';
+import { IMaterializeOptions, IUIWidget, UIWidgetBase } from './ui-widget-base';
 import {
     ComparisonDirectionArrowEnum,
     ComparisonDirectionArrowMap,
@@ -20,9 +21,6 @@ import {
     IWidget,
     IWidgetMaterializedFields,
 } from './widget';
-import { VirtualSources } from '../virtual-sources/virtual-source.model';
-import { IVirtualSourceDocument } from '../virtual-sources/virtual-source';
-
 
 export class NumericWidget extends UIWidgetBase implements IUIWidget {
 
@@ -38,7 +36,9 @@ export class NumericWidget extends UIWidgetBase implements IUIWidget {
         super(widget);
     }
 
-    materialize(): Promise<IUIWidget> {
+    materialize(options: IMaterializeOptions): Promise<IUIWidget> {
+        const { timezone } = options;
+
         Object.assign(this, this.widget);
 
         if (!this.numericWidgetAttributes || !this.numericWidgetAttributes.kpi) {
@@ -48,8 +48,16 @@ export class NumericWidget extends UIWidgetBase implements IUIWidget {
 
         const that = this;
 
-        const dateRange = this._processChartDateRange(this.numericWidgetAttributes.dateRange);
-        const comparison = getComparisonDateRanges([this.numericWidgetAttributes.dateRange], this.numericWidgetAttributes.comparison);
+        // const dateRange = this._processChartDateRange(this.numericWidgetAttributes.dateRange);
+        const dateRange = processDateRangeWithTimezone(this.numericWidgetAttributes.dateRange, timezone);
+        const dateRangeFrom = (dateRange && dateRange.from) ? dateRange.from : null;
+
+        const comparison = getComparisonDateRanges(
+            [this.numericWidgetAttributes.dateRange],
+            this.numericWidgetAttributes.comparison,
+            dateRangeFrom,
+            timezone,
+        );
 
         return new Promise<IUIWidget>((resolve, reject) => {
             that._resolveKpi().then((resolvedKpi) => {
@@ -89,12 +97,6 @@ export class NumericWidget extends UIWidgetBase implements IUIWidget {
         }
 
         throw new Error('could not resolve a kpi with id: ' + this.numericWidgetAttributes.kpi);
-    }
-
-    private _processChartDateRange(chartDateRange: IChartDateRange): IDateRange {
-        return chartDateRange.custom && chartDateRange.custom.from ?
-                { from: new Date(chartDateRange.custom.from), to: new Date(chartDateRange.custom.to) }
-                : parsePredifinedDate(chartDateRange.predefined);
     }
 
     private async _getKpiData(kpi: IKpiBase, dateRange: IDateRange): Promise<any> {

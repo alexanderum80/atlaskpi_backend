@@ -1,12 +1,9 @@
-import { Expenses } from '../../../domain/app/expenses/expense.model';
-import { from } from 'apollo-link/lib';
-import * as Promise from 'bluebird';
 import { inject, injectable } from 'inversify';
 
+import { Expenses } from '../../../domain/app/expenses/expense.model';
 import { query } from '../../../framework/decorators/query.decorator';
 import { MutationBase } from '../../../framework/mutations/mutation-base';
 import { ExpensesAmount } from '../activities.types';
-import { parsePredifinedDate } from '../../../domain/common/date-range';
 import { ExpensesAmountByDateActivity } from '../activities/expenses-amount-by-date.activity';
 
 @injectable()

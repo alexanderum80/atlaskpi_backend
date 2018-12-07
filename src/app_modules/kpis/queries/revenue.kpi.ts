@@ -35,7 +35,7 @@ export class Revenue extends KpiBase implements IKpiBase {
             }
         ];
 
-        super(sales, baseAggregate);
+        super(sales, baseAggregate, null);
     }
 
     getData(dateRange: IDateRange[], options?: IGetDataOptions): Promise<any> {

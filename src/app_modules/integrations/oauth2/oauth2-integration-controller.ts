@@ -1,3 +1,5 @@
+import { GAJobsQueueService } from './../../../services/queues/ga-jobs-queue.service';
+import { CurrentAccount } from './../../../domain/master/current-account';
 import * as Promise from 'bluebird';
 import { inject, injectable } from 'inversify';
 import { isObject } from 'util';
@@ -12,7 +14,6 @@ import { getGoogleAnalyticsConnectors } from '../google-analytics/google-analyti
 import { IOAuthConnector } from '../models/connector-base';
 import { getConnectorTypeId } from '../models/connector-type';
 import { loadIntegrationConfig } from '../models/load-integration-controller';
-import { IAppConfig } from './../../../configuration/config-models';
 import { SocialNetwork } from './../../../domain/app/social-networks/social-network.model';
 import { Connectors } from './../../../domain/master/connectors/connector.model';
 import { GoogleAnalyticsConnector } from './../google-analytics/google-analytics-connector';
@@ -25,7 +26,7 @@ import { runTask } from '../helpers/run-task.helper';
 export class IntegrationController {
 
     private _connector: IOAuthConnector;
-    private _companyName: string;
+    private _companySubdomain: string;
     private stateTokens: string[];
     private _integrationConfig: IConnectorDocument;
     private _query: any;
@@ -34,7 +35,9 @@ export class IntegrationController {
                 @inject(IntegrationConnectorFactory.name) private _integrationConnectorFactory: IntegrationConnectorFactory,
                 @inject(SocialNetwork.name) private _socialNetworkModel: SocialNetwork,
                 @inject('Request') private req: IExtendedRequest,
-                @inject(Logger.name) private _logger: Logger) {
+                @inject(CurrentAccount.name) private _currentAccount: CurrentAccount,
+                @inject(Logger.name) private _logger: Logger,
+                @inject(GAJobsQueueService.name) private _queueService: GAJobsQueueService) {
 
         this._query = req.query;
 
@@ -60,7 +63,7 @@ export class IntegrationController {
                 }
 
                 that._connector = connector;
-                that._companyName = this.stateTokens[1];
+                that._companySubdomain = this.stateTokens[1];
 
                 resolve();
                 return;
@@ -133,7 +136,8 @@ export class IntegrationController {
                     name: that._connector.getName(),
                     active: true,
                     config: connectorConfig,
-                    databaseName: that._companyName,
+                    databaseName: that._currentAccount.get.database.name,
+                    subdomain: that._companySubdomain,
                     type: getConnectorTypeId(that._connector.getType()),
                     createdBy: 'backend',
                     createdOn: new Date(Date.now()),
@@ -193,7 +197,8 @@ export class IntegrationController {
                 name: c.name,
                 active: true,
                 config: { ... connectorConfig },
-                databaseName: that._companyName,
+                databaseName: that._currentAccount.get.database.name,
+                subdomain: that._companySubdomain,
                 type: type,
                 createdBy: 'backend',
                 createdOn: new Date(Date.now()),
@@ -250,7 +255,8 @@ export class IntegrationController {
                 name: c.name,
                 active: true,
                 config: { ... connectorConfig },
-                databaseName: that._companyName,
+                databaseName: that._currentAccount.get.database.name,
+                subdomain: that._companySubdomain,
                 type: type,
                 createdBy: 'backend',
                 createdOn: new Date(Date.now()),
@@ -327,7 +333,12 @@ export class IntegrationController {
 
         const that = this;
         return new Promise<IExecutionFlowResult>((resolve, reject) => {
-            getGoogleAnalyticsConnectors(that._connector, that._integrationConfig, that._companyName)
+            getGoogleAnalyticsConnectors(
+                that._connector,
+                that._integrationConfig,
+                that._currentAccount.get.database.name,
+                that._companySubdomain,
+                that._queueService)
             .then(connectors => {
                 Promise .map(connectors, c => that._connectorModel.model.addConnector(c))
                         .then(() => {

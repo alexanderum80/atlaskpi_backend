@@ -1,4 +1,3 @@
-import * as Promise from 'bluebird';
 import { injectable } from 'inversify';
 import { inject } from 'inversify';
 import { run } from 'tslint/lib/runner';
@@ -7,12 +6,14 @@ import * as logger from 'winston';
 
 import { AccessLogs } from '../../domain/app/access-log/access-log.model';
 import { IExtendedRequest } from '../../middlewares/extended-request';
-import { mutation } from '../decorators/mutation.decorator';
 import { IActivity } from '../modules/security/activity';
 import { IEnforcer } from '../modules/security/enforcer';
 import { IMutation } from './mutation';
-import { IValidationResult } from './validation-result';
 import { Enforcer } from '../../app_modules/security/enforcer/enforcer';
+import { IGraphqlArtifacts, BRIDGE, MetadataType, IArtifactDetails } from '../decorators/helpers';
+import { IQuery } from '../queries/query';
+import { ICacheService } from '../bridge';
+import { constants } from '../constants';
 
 
 
@@ -32,90 +33,82 @@ export class MutationBus implements IMutationBus {
         return this._enforcer;
     }
 
-    constructor(@inject(Enforcer.name) private _enforcer: IEnforcer) {}
+    constructor(
+        @inject(Enforcer.name) private _enforcer: IEnforcer,
+        @inject(constants.CACHE_SERVICE) private _cacheService: ICacheService,
+    ) {}
 
-    run < T > (activity: new () => IActivity, request: IExtendedRequest, mutation: IMutation < T > , data: any): Promise < any > {
+    async run < T > (activity: new () => IActivity, request: IExtendedRequest, mutation: IMutation < T > , data: any): Promise < any > {
         const that = this;
 
-        let roles = [];
-        let permissions = [];
+        try {
 
-        if (request.user) {
-            roles = request.user.roles.map(r => r.name);
-            permissions = flatMap(request.user.roles, (r) => r.permissions);
-        }
+            let roles = [];
+            let permissions = [];
 
-        // get activity instance
-        const act: IActivity = request.Container.instance.get(activity.name);
+            if (request.user) {
+                roles = request.user.roles.map(r => r.name);
+                permissions = flatMap(request.user.roles, (r) => r.permissions);
+            }
 
-        // check activity authorization
-        return this.enforcer.authorizationTo(
-                act,
-                roles,
-                permissions)
-            .then((authorized) => {
-                that.authorizedValue = authorized;
-                if (!authorized) {
-                    return Promise.reject(authorized);
-                }
+            // get activity instance
+            const act: IActivity = request.Container.instance.get(activity.name);
 
-                // run the mutation validation
-                return mutation.validate ? mutation.validate(data) : {
-                    success: true
-                };
-            })
-            .then((result: IValidationResult) => {
-                // if it is valid
-                if (!result.success) {
-                    return Promise.reject(result);
-                }
+            // check activity authorization
+            const authorized = await this.enforcer.authorizationTo(
+                    act,
+                    roles,
+                    permissions);
 
-                return Promise.resolve(true);
-            })
-            .then((validated: boolean) => {
-                return new Promise < any > ((resolve, reject) => {
-                    (mutation as any).run(data).then(res => {
-                            resolve(res);
-                        })
-                        .catch(e => {
-                            logger.error(mutation.constructor.name, e);
-                            resolve({
-                                erros: [e.message]
-                            });
-                        });
+            if (!authorized) throw new Error('Unauthorized');
+
+            const res = await (mutation as any).run(data);
+
+            // process cache logic if necessary
+            const mutations: IGraphqlArtifacts = BRIDGE.graphql[MetadataType.Mutations];
+            const mutationMetadata = mutations[mutation.constructor.name] as IArtifactDetails;
+
+            if (mutationMetadata.invalidateCacheFor) {
+                mutationMetadata.invalidateCacheFor.forEach(query => {
+                    // process cache logic if necessary
+                    const keyPattern = this.generateCacheKeyPattern(request, query);
+                    this._cacheService.removePattern(keyPattern);
                 });
-            })
-            .then((res: T) => {
-                return res;
-            })
-            .catch((err) => {
-                that.errorStr = err;
-                return Promise.reject(err);
-            }).finally(() => {
-                if (mutation.log === true) {
-                    const user = request.user;
-                    const accessBy = user ? user.profile.firstName + ' ' + user.profile.lastName : '';
+            }
 
-                    that.logParams = {
-                        timestamp: Date.now(),
-                        accessBy: accessBy,
-                        ipAddress: request.connection.remoteAddress,
-                        event: mutation.constructor.name,
-                        clientDetails: request.get('User-Agent'),
-                        eventType: 'mutation',
-                        payload: JSON.stringify(request.body),
-                        results: {
-                            authorized: that.authorizedValue,
-                            status: true,
-                            details: that.errorStr || ('Success executing ' + mutation.constructor.name)
-                        }
-                    };
+            if (mutation.log === true) {
+                const user = request.user;
+                const accessBy = user ? user.profile.firstName + ' ' + user.profile.lastName : '';
 
-                    const accessLogs = request.Container.instance.get < AccessLogs > (AccessLogs.name);
+                that.logParams = {
+                    timestamp: Date.now(),
+                    accessBy: accessBy,
+                    ipAddress: request.connection.remoteAddress,
+                    event: mutation.constructor.name,
+                    clientDetails: request.get('User-Agent'),
+                    eventType: 'mutation',
+                    payload: JSON.stringify(request.body),
+                    results: {
+                        authorized: that.authorizedValue,
+                        status: true,
+                        details: that.errorStr || ('Success executing ' + mutation.constructor.name)
+                    }
+                };
 
-                    accessLogs.model.create(that.logParams);
-                }
+                const accessLogs = request.Container.instance.get < AccessLogs > (AccessLogs.name);
 
-            });
+                accessLogs.model.create(that.logParams);
+            }
+
+            return res;
+
+        } catch (e) {
+            logger.error(e);
+            return null;
+        }
+    }
+
+    private generateCacheKeyPattern(request: IExtendedRequest, query: new(...args) => IQuery<any>): string {
+        return `${request.account.database.name}:${query.name}*`;
     }
 }

@@ -1,5 +1,6 @@
+import { inject, injectable } from 'inversify';
 import { camelCase } from 'change-case';
-import { cloneDeep, isArray, isDate, isObject, isString } from 'lodash';
+import { find, cloneDeep, isArray, isDate, isObject, isString } from 'lodash';
 import * as logger from 'winston';
 
 import { IKPI } from '../../../domain/app/kpis/kpi';
@@ -8,6 +9,13 @@ import { FrequencyEnum } from '../../../domain/common/frequency-enum';
 import { IChartTop } from '../../../domain/common/top-n-record';
 import { NULL_CATEGORY_REPLACEMENT } from '../../charts/queries/charts/ui-chart-base';
 import { AggregateStage } from './aggregate';
+import { VirtualSourceAggregateService, IKeyValues, IProcessAggregateResult } from '../../../domain/app/virtual-sources/vs-aggregate.service';
+import { IVirtualSource, IVirtualSourceDocument } from '../../../domain/app/virtual-sources/virtual-source';
+
+export interface IKpiVirtualSources {
+    virtualSource: IVirtualSourceDocument;
+    parentVirtualSource?: IVirtualSourceDocument;
+}
 
 export interface ICollection {
     modelName: string;
@@ -27,7 +35,7 @@ export interface IKPIResult {
 }
 
 export interface IGetDataOptions {
-    dateRange?: [IChartDateRange];
+    dateRange?: IChartDateRange[];
     top?: IChartTop;
     includeTopGroupingValues?: (string|string[])[];
     limit?: number;
@@ -49,20 +57,55 @@ export interface IKpiBase {
     getSeries?(dateRange: IDateRange, frequency: FrequencyEnum);
 }
 
+@injectable()
 export class KpiBase {
     frequency: FrequencyEnum;
     protected kpi: IKPI;
     protected collection: ICollection;
     protected pristineAggregate: AggregateStage[];
+    protected timezone: string;
 
-    constructor(public model: any, public aggregate: AggregateStage[]) {
+    protected _vsAggregateService: VirtualSourceAggregateService;
+
+    constructor(public model: any, public aggregate: AggregateStage[], protected kpiVirtualSources: IKpiVirtualSources) {
         // for multimple executeQuery iterations in the same instance we need to preserve the aggregate
+        if (!model) {
+            console.error('no model');
+        }
         this.pristineAggregate = cloneDeep(aggregate);
     }
 
     executeQuery(dateField: string, dateRange?: IDateRange[], options?: IGetDataOptions): Promise<any> {
-        // for multimple executeQuery iterations in the same instance we need to preserve the aggregate
-        this.aggregate = cloneDeep(this.pristineAggregate);
+        // process the virtual source aggregate
+        const vsAggregateReplacements: IKeyValues = {
+            '__from__': dateRange[0].from,
+            '__to__': dateRange[0].to,
+        };
+
+        let aggregateResult: IProcessAggregateResult = {
+            aggregate: [],
+            dateRangeApplied: false
+        };
+
+        if (this.kpiVirtualSources) {
+            aggregateResult = this._vsAggregateService.processReplacements(
+                this.kpiVirtualSources.virtualSource, vsAggregateReplacements
+            );
+
+            this.aggregate = aggregateResult.aggregate;
+
+            if (!aggregateResult.dateRangeApplied) {
+                aggregateResult = this._vsAggregateService.tryDateRangeAsFirstStage(
+                    this.aggregate,
+                    this.kpiVirtualSources.virtualSource,
+                    this.kpiVirtualSources.parentVirtualSource,
+                    dateRange[0]
+                );
+            }
+        }
+
+        // for multiple executeQuery iterations in the same instance we need to preserve the aggregate
+        this.aggregate = aggregateResult.aggregate.concat(cloneDeep(this.pristineAggregate));
 
         logger.debug('executing query: ' + this.constructor.name);
 
@@ -72,7 +115,9 @@ export class KpiBase {
         let that = this;
 
         return new Promise<any>((resolve, reject) => {
-            if (dateRange && dateRange.length)
+
+            if (!aggregateResult.dateRangeApplied
+                && dateRange && dateRange.length)
                 that._injectDataRange(dateRange, dateField);
             if (options.filter)
                 that._injectFilter(options.filter);
@@ -80,7 +125,7 @@ export class KpiBase {
                 that._injectTargetStackFilter(options.groupings, options.stackName);
             if (options.frequency >= 0)
                 that._injectFrequency(options.frequency, dateField);
-            if (options.groupings)
+            if (options.groupings && options.groupings.filter(g => g !== '').length)
                 that._injectGroupings(options.groupings);
 
             // decompose aggregate object into array
@@ -114,7 +159,7 @@ export class KpiBase {
         let operator: any;
         let operators = [
             '$match', '$project', '$group', '$sort', '$redact', '$limit', '$skip', '$unwind', '$sample',
-            '$geoNear', '$lookup', '$out', '$sortByCount', '$addFields', '$count'];
+            '$geoNear', '$lookup', '$out', '$sortByCount', '$addFields', '$count', '$facet', '$replaceRoot'];
 
         Object.keys(stage).forEach(k => {
             if ((operators.indexOf(k) !== -1)) {
@@ -127,12 +172,14 @@ export class KpiBase {
     }
 
     private _injectDataRange(dateRange: IDateRange[], field: string) {
-        // const matchDateRange = { $match: {} } as any;
         let matchDateRange = this.findStage('filter', '$match');
 
         if (dateRange && dateRange.length) {
             if (dateRange.length === 1) {
-                matchDateRange.$match[field] = { '$gte': dateRange[0].from, '$lt': dateRange[0].to };
+                matchDateRange.$match[field] = {
+                    '$gte':  dateRange[0].from,
+                    '$lt':   dateRange[0].to
+                };
             } else {
                 if (!matchDateRange['$match']) {
                     matchDateRange.$match = {};
@@ -142,13 +189,15 @@ export class KpiBase {
                     matchDateRange.$match.$or = {};
                 }
 
-                matchDateRange.$match.$or = dateRange.map((dateParams: IDateRange) => ({
-                    // field => i.e. 'product.from', timestamp
-                    [field]: {
-                        $gte: dateParams.from,
-                        $lt: dateParams.to
-                    }
-                }));
+                matchDateRange.$match.$or = dateRange.map((dateParams: IDateRange) => {
+                    return {
+                        // field => i.e. 'product.from', timestamp
+                        [field]: {
+                            '$gte':  dateParams.from,
+                            '$lt':   dateParams.to,
+                        }
+                    };
+                });
             }
         }
 
@@ -249,6 +298,8 @@ export class KpiBase {
     }
 
     private _injectFrequency(frequency: FrequencyEnum, field: string) {
+        const tz = this.timezone; // || 'Etc/Universal';
+
         // console.log(typeof frequency);
         if (frequency < 0) return;
 
@@ -278,22 +329,22 @@ export class KpiBase {
                 // add to the projection the frequency field with year, month and day: YYYY-MM-DD
                 projectStage.$project.frequency = {
                     $concat: [
-                        { $substr: [ { $year: field }, 0, 4 ] },
+                        { $substr: [ { $year: { date: field, timezone: tz } }, 0, 4 ] },
                         '-',
                         { $cond: [
-                            { $lte: [ { $month: field }, 9 ] },
+                            { $lte: [ { $month: { date: field, timezone: tz } }, 9 ] },
                             { $concat: [
-                                '0', { $substr: [ { $month: field }, 0, 2 ] }
+                                '0', { $substr: [ { $month: { date: field, timezone: tz } }, 0, 2 ] }
                             ]},
-                            { $substr: [ { $month: field }, 0, 2 ] }
+                            { $substr: [ { $month: { date: field, timezone: tz } }, 0, 2 ] }
                         ]},
                         '-',
                         { $cond: [
-                            { $lte: [ { $dayOfMonth: field }, 9 ] },
+                            { $lte: [ { $dayOfMonth: { date: field, timezone: tz } }, 9 ] },
                             { $concat: [
-                                '0', { $substr: [ { $dayOfMonth: field }, 0, 2 ] }
+                                '0', { $substr: [ { $dayOfMonth: { date: field, timezone: tz } }, 0, 2 ] }
                             ]},
-                            { $substr: [ { $dayOfMonth: field }, 0, 2 ] }
+                            { $substr: [ { $dayOfMonth: { date: field, timezone: tz } }, 0, 2 ] }
                         ]}
                     ]
                 };
@@ -306,7 +357,7 @@ export class KpiBase {
             case FrequencyEnum.Weekly:
                 delete groupStage.$group._id.frequency;
                 currentGrouping = groupStage.$group._id;
-                groupStage.$group._id = { frequency: { $week: field } };
+                groupStage.$group._id = { frequency: { $isoWeek: { date: field, timezone: tz } } };
                 break;
             case FrequencyEnum.Monthly:
                 if (!projectStage.$project) projectStage.$project = { };
@@ -314,14 +365,14 @@ export class KpiBase {
                 // add to the projection the frequency field with year and month: YYYY-MM
                 projectStage.$project.frequency = {
                     $concat: [
-                        { $substr: [ { $year: field }, 0, 4 ] },
+                        { $substr: [ { $year: { date: field, timezone: tz } }, 0, 4 ] },
                         '-',
                         { $cond: [
-                            { $lte: [ { $month: field }, 9 ] },
+                            { $lte: [ { $month: { date: field, timezone: tz } }, 9 ] },
                             { $concat: [
-                                '0', { $substr: [ { $month: field }, 0, 2 ] }
+                                '0', { $substr: [ { $month: { date: field, timezone: tz } }, 0, 2 ] }
                             ]},
-                            { $substr: [ { $month: field }, 0, 2 ] }
+                            { $substr: [ { $month: { date: field, timezone: tz } }, 0, 2 ] }
                         ]}
                     ]
                 };
@@ -336,16 +387,16 @@ export class KpiBase {
 
                 projectStage.$project.frequency = {
                     $concat: [
-                        { $substr: [ { $year: field }, 0, 4 ] },
+                        { $substr: [ { $year: { date: field, timezone: tz } }, 0, 4 ] },
                         '-',
                         { $cond: [
-                            { $lte: [{ $month: field }, 3] },
+                            { $lte: [{ $month: { date: field, timezone: tz } }, 3] },
                                 'Q1',
                                 { $cond: [
-                                    { $lte: [{ $month: field }, 6] },
+                                    { $lte: [{ $month: { date: field, timezone: tz } }, 6] },
                                         'Q2',
                                         { $cond: [
-                                            { $lte: [{ $month: field }, 9] },
+                                            { $lte: [{ $month: { date: field, timezone: tz } }, 9] },
                                             'Q3',
                                             'Q4'
                                         ] }
@@ -361,11 +412,9 @@ export class KpiBase {
             case FrequencyEnum.Yearly:
                 delete groupStage.$group._id.frequency;
                 currentGrouping = groupStage.$group._id;
-                groupStage.$group._id = { frequency: { $year: field } };
+                groupStage.$group._id = { frequency: { $year: { date: field, timezone: tz } } };
                 break;
         }
-
-        let that = this;
 
         // restore the rest of the grouping if there is anything to restore
         if (!currentGrouping) return;
@@ -437,5 +486,4 @@ export class KpiBase {
         }
         return new RegExp(expression.searchValue, 'i');
     }
-
 }

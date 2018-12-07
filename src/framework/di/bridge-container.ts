@@ -23,7 +23,7 @@ type GenericObject = { [key: string]: any };
 export interface IBridgeContainer {
     bind<T>(serviceIdentifier: interfaces.ServiceIdentifier<T>): interfaces.BindingToSyntax<T>;
     register<T extends Newable<any>>(type: T): void;
-    registerSingleton<T extends Newable<any>>(type: T): void;
+    registerSingleton<T extends Newable<any>>(type: T, name?: string): void;
     registerPerWebRequest<T extends Newable<any>>(type: T): void;
     registerConstant<T extends GenericObject>(identifier: string, value: T): void;
     deregister<T extends Newable<any>>(identifier: string | T): void;
@@ -64,12 +64,14 @@ export class BridgeContainer implements IBridgeContainer {
         this._container.bind<T>(type.name).to(type).inTransientScope();
     }
 
-    registerSingleton<T extends Newable<any>>(type: T): void {
+    registerSingleton<T extends Newable<any>>(type: T, name?: symbol | string): void {
         if (this._container.isBound(type.name)) {
             throw new Error(`Duplicated registration for: ${type.name}`);
         }
 
-        this._container.bind<T>(type.name).to(type).inSingletonScope();
+        const registrationName = !name ? type.name : name;
+
+        this._container.bind<T>(registrationName).to(type).inSingletonScope();
     }
 
     registerPerWebRequest<T extends Newable<any>>(type: T): void {

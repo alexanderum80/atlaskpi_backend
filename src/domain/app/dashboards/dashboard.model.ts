@@ -29,6 +29,14 @@ let DashboardSchema = new Schema({
         type: Schema.Types.String,
         ref: 'Widget'
     }],
+    socialwidgets: [{
+        type: Schema.Types.String,
+        ref: 'socialwidget'
+    }],
+    maps: [{
+        type: Schema.Types.String,
+        ref: 'map'
+    }],
     owner: {
         type: Schema.Types.String,
         ref: 'User'
@@ -38,6 +46,7 @@ let DashboardSchema = new Schema({
         ref: 'User'
     }],
     visible: Boolean,
+    order: Number
 });
 
 // add tags capabilities
@@ -188,6 +197,29 @@ DashboardSchema.statics.deleteWidget = function(dashboardId: string, widgetId: s
         });
     });
 };
+
+DashboardSchema.statics.deleteChartIdFromDashboard = function(id: string, charts: string[]):
+    Promise < IDashboardDocument > {
+
+        const that = < IDashboardModel > this;
+
+        return new Promise < IDashboardDocument > ((resolve, reject) => {
+            if (!id || !charts) {
+                return reject('No dashboard Id or chartId was provided');
+            }
+            else{
+
+                that.findByIdAndUpdate(id, {$set: {charts}}, {new: true}).then(dashboard => {
+                    resolve(dashboard);
+                    return;
+                }).catch(err => {
+                    logger.error(err);
+                    return reject('There was an error updating the dashboard');
+                });
+            };
+        });    
+    };
+
 
 @injectable()
 export class Dashboards extends ModelBase < IDashboardModel > {

@@ -9,10 +9,11 @@ import { GoogleAnalyticsKPIService } from '../../../services/kpis/google-analyti
 import { KPIExpressionHelper } from './../../../domain/app/kpis/kpi-expression.helper';
 import { IBatchProperties } from './../../../services/kpis/google-analytics-kpi/google-analytics.helper';
 import { AggregateStage } from './aggregate';
-import { IGetDataOptions, IKpiBase } from './kpi-base';
+import { IGetDataOptions, IKpiBase, IKpiVirtualSources } from './kpi-base';
 import { SimpleKPIBase } from './simple-kpi-base';
 import { GAJobsQueueService } from '../../../services/queues/ga-jobs-queue.service';
 import { CurrentAccount } from '../../../domain/master/current-account';
+import { VirtualSourceAggregateService } from '../../../domain/app/virtual-sources/vs-aggregate.service';
 
 export class GoogleAnalyticsKpi extends SimpleKPIBase implements IKpiBase {
 
@@ -23,7 +24,8 @@ export class GoogleAnalyticsKpi extends SimpleKPIBase implements IKpiBase {
                                         googleAnalyticsKpiService: GoogleAnalyticsKPIService,
                                         queueService: GAJobsQueueService,
                                         currentAccount: CurrentAccount,
-                                        virtualSources: IVirtualSourceDocument[]): GoogleAnalyticsKpi {
+                                        virtualSources: IVirtualSourceDocument[],
+                                        vsAggregateService: VirtualSourceAggregateService): GoogleAnalyticsKpi {
 
         const kpiDefinition: IKPISimpleDefinition = KPIExpressionHelper.DecomposeExpression(KPITypeEnum.ExternalSource, kpi.expression);
 
@@ -57,32 +59,60 @@ export class GoogleAnalyticsKpi extends SimpleKPIBase implements IKpiBase {
         ];
 
         // I can get virtual source here by the name
-        kpiDefinition.dataSource = kpiDefinition.dataSource.replace('$', '');
-        const gaVirtualSource = virtualSources.find(vs => vs.name === 'google_analytics');
+        // kpiDefinition.dataSource = kpiDefinition.dataSource.replace('$', '');
+        // const gaVirtualSource = virtualSources.find(vs => vs.name === 'google_analytics');
+        const dsTokens = kpiDefinition.dataSource.split('$');
+        let gaVirtualSource = virtualSources.find(vs => vs.name === dsTokens[0]);
+
+
+        // to mantain compatibility, if virtualsource not found lets try to get it by static string. ( Old Method )
+        if (!gaVirtualSource) {
+            gaVirtualSource = virtualSources.find(vs => vs.name === 'google_analytics');
+        }
+
+        const kpiVirtualSources: IKpiVirtualSources = {
+            virtualSource: gaVirtualSource
+        };
 
         return new GoogleAnalyticsKpi(
             googleAnalytics.model,
             aggregateSkeleton,
             kpiDefinition,
             kpi,
-            googleAnalyticsKpiService,
+            // googleAnalyticsKpiService,
             queueService,
             currentAccount,
-            gaVirtualSource);
+            kpiVirtualSources,
+            vsAggregateService);
     }
 
+    private _virtualSource: IVirtualSourceDocument;
 
     private constructor(model: any,
                         private _baseAggregate: any,
                         private _definition: IKPISimpleDefinition,
                         private _kpi: IKPI,
-                        private _googleAnalyticsKpiService: GoogleAnalyticsKPIService,
+                        // private _googleAnalyticsKpiService: GoogleAnalyticsKPIService,
                         private _queueService: GAJobsQueueService,
                         private _currentAccount: CurrentAccount,
-                        private _virtualSource: IVirtualSourceDocument) {
-        super(model, _baseAggregate);
+                        kpiVirtualSources: IKpiVirtualSources,
+                        vsAggregateService: VirtualSourceAggregateService) {
+        super(model, _baseAggregate, kpiVirtualSources);
 
-        this.collection = { modelName: 'GoogleAnalytics', timestampField: 'date' };
+        this._virtualSource = kpiVirtualSources.virtualSource;
+        this._vsAggregateService = vsAggregateService;
+
+        if (!this._virtualSource) {
+            const errStr = 'Virtual source for google analytics not found... ';
+            console.log(errStr);
+            throw new Error(errStr);
+        }
+
+        // this.collection = { modelName: 'GoogleAnalytics', timestampField: 'date' };
+        this.collection = {
+            modelName: this._virtualSource.modelIdentifier,
+            timestampField: this._virtualSource.dateField
+        };
 
         this._injectFieldToProjection(_definition.field);
         this._injectAcumulatorFunctionAndArgs(_definition);
@@ -113,7 +143,9 @@ export class GoogleAnalyticsKpi extends SimpleKPIBase implements IKpiBase {
             filterGroupings = Object.keys(this._kpi.filter).filter(k => k !== this._definition.field);
         }
 
+        // the batch contains the view timezone
         const batch = await this._cacheData(dateRange, preparedFilters, options, filterGroupings);
+        this.timezone = batch.viewTimezone;
 
         this._injectPreGroupStageFilters({ _batchId: batch._batchId }, this._definition.field);
         this.pristineAggregate = cloneDeep(this._baseAggregate);

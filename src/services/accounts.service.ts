@@ -1,4 +1,4 @@
-import * as Promise from 'bluebird';
+import { NewSeedService } from './seed/seed-service';
 import * as changeCase from 'change-case';
 import * as Handlebars from 'handlebars';
 import { inject, injectable } from 'inversify';
@@ -19,8 +19,6 @@ import { IAccount, IAccountDocument, IDatabaseInfo } from '../domain/master/acco
 import { Accounts } from '../domain/master/accounts/account.model';
 import { ILeadDocument } from '../domain/master/leads/lead';
 import { Leads } from '../domain/master/leads/lead.model';
-import { field } from '../framework/decorators/field.decorator';
-import { input } from '../framework/decorators/input.decorator';
 import { IMutationResponse, MutationResponse } from '../framework/mutations/mutation-response';
 import { generateUniqueHash } from '../helpers/security.helpers';
 import { AppConnectionPool } from '../middlewares/app-connection-pool';
@@ -28,7 +26,7 @@ import { IExtendedRequest } from '../middlewares/extended-request';
 import { AuthService, IUserAuthenticationData } from './auth.service';
 import { EnrollmentNotification } from './notifications/users/enrollment.notification';
 import { LeadReceivedNotification } from './notifications/users/lead-received.notification';
-import { SeedService } from './seed/seed.service';
+// import { SeedService } from './seed/seed.service';
 
 export interface ICreateAccountInfo {
     ip: string;
@@ -97,8 +95,9 @@ export class AccountsService {
             const hash = generateUniqueHash();
             const accountDbUser: IClusterUser = getClusterDbUser(hash, accountDatabaseName);
             const fullName: IFullName = getFullName(input.account.personalInfo.fullname);
-            const firstUserInfo = getFirstUserInfo(hash, input.account.personalInfo.email, fullName);
+            const firstUserInfo = getFirstUserInfo(hash, input.account.personalInfo.email, fullName,  input.account.personalInfo.timezone);
             input.account.database = generateDBObject(that._config.newAccountDbUriFormat, accountDatabaseName, accountDbUser.user, accountDbUser.pwd);
+            input.account.subdomain = input.account.database.name;
             that._accounts.model.create(input.account, (err, newAccount: IAccountDocument) => {
                 if (err) {
                     resolve({
@@ -174,8 +173,9 @@ export class AccountsService {
                     const hash = generateUniqueHash();
                     const accountDbUser: IClusterUser = getClusterDbUser(hash, accountDatabaseName);
                     const fullName: IFullName = getFullName(input.account.personalInfo.fullname);
-                    const firstUserInfo = getFirstUserInfo(hash, input.account.personalInfo.email, fullName);
+                    const firstUserInfo = getFirstUserInfo(hash, input.account.personalInfo.email, fullName, input.account.personalInfo.timezone);
                     input.account.database = generateDBObject(that._config.newAccountDbUriFormat, accountDatabaseName, accountDbUser.user, accountDbUser.pwd);
+                    input.account.subdomain = input.account.database.name;
 
                     that._accounts.model.create(input.account, (err, newAccount: IAccountDocument) => {
                         if (err) {
@@ -215,6 +215,10 @@ export class AccountsService {
 
     }
 
+    async accountNameAvailable(name: string): Promise<boolean> {
+        return this._accounts.model.accountNameAvailable(name);
+    }
+
     private _saveLead(account: IAccount): Promise < ILeadDocument > {
         const that = this;
 
@@ -246,10 +250,11 @@ function getFullName(rawFullName: string): IFullName {
     return null;
 }
 
-function getFirstUserInfo(hash: string, email: string, fullName: IFullName): ICreateUserDetails {
+function getFirstUserInfo(hash: string, email: string, fullName: IFullName, timezone: string): ICreateUserDetails {
     let firstUser: ICreateUserDetails = {
         email: email,
-        password: hash.substr(hash.length - 10, hash.length)
+        password: hash.substr(hash.length - 10, hash.length),
+        timezone: timezone
     };
 
     if (fullName) {
@@ -335,7 +340,7 @@ function createUserDatabase(
             })
             .then((appConn) => initializeRolesForAccount(roles, permissions))
             .then((rolesCreated) => createAdminUser(users, newAccount.database.name, firstUser, enrollmentNotification))
-            .then(() => new SeedService(appConnection).seedApp())
+            .then(() => new NewSeedService(config).run(newAccount.database.name, true))
             .then(() => generateFirstAccountToken(authService, {
                 hostname: `${newAccount.database.name}.${subdomain}`,
                 username: firstUser.email,

@@ -103,6 +103,12 @@ export class ITourChart {
     showTour: boolean;
 }
 
+@input()
+export class IListView {
+    @field({ type: GraphQLTypesMap.String })
+    listMode: string;
+}
+
 
 @input()
 export class ITourInput {
@@ -120,6 +126,27 @@ export class ITourInput {
 
     @field({ type: GraphQLTypesMap.String })
     calendarTimeZone: string;
+
+    @field({ type: GraphQLTypesMap.String })
+    dashboardIdNoVisible: string[];
+
+    @field({ type: IListView })
+    dashboards: IListView;
+
+    @field({ type:IListView})
+    charts: IListView;
+
+    @field({ type:IListView})
+    kpis: IListView;
+
+    @field({ type:IListView})
+    roles: IListView;
+    
+    @field({ type:IListView})
+    users: IListView;
+
+    @field ({ type: GraphQLTypesMap.String })
+    theme: string;
 }
 
 @input()
@@ -135,9 +162,6 @@ export class UserAgreementInput {
 @type()
 export class UserEmail  {
     @field({ type: GraphQLTypesMap.String })
-    _id: string;
-
-    @field({ type: GraphQLTypesMap.String })
     address: string;
 
     @field({ type: GraphQLTypesMap.Boolean })
@@ -148,9 +172,6 @@ export class UserEmail  {
 
 @type()
 export class UserLoginToken  {
-    @field({ type: GraphQLTypesMap.String })
-    _id: string;
-
     @field({ type: GraphQLTypesMap.String })
     when: string;
 
@@ -165,6 +186,11 @@ export class UserLoginToken  {
 
 @type()
 export class UserEmailedToken  {
+    @resolver({ forField: '_id' })
+    static convertId(d) {
+        return d._id.toString();
+    }
+
     @field({ type: GraphQLTypesMap.String })
     _id: string;
 
@@ -182,6 +208,11 @@ export class UserEmailedToken  {
 
 @type()
 export class PasswordReset  {
+    @resolver({ forField: '_id' })
+    static convertId(d) {
+        return d._id.toString();
+    }
+
     @field({ type: GraphQLTypesMap.String })
     _id: string;
 
@@ -193,6 +224,11 @@ export class PasswordReset  {
 
 @type()
 export class UserServiceEmail  {
+    @resolver({ forField: '_id' })
+    static convertId(d) {
+        return d._id.toString();
+    }
+
     @field({ type: GraphQLTypesMap.String })
     _id: string;
 
@@ -204,6 +240,11 @@ export class UserServiceEmail  {
 
 @type()
 export class UserServices  {
+    @resolver({ forField: '_id' })
+    static convertId(d) {
+        return d._id.toString();
+    }
+
     @field({ type: GraphQLTypesMap.String })
     _id: string;
 
@@ -233,9 +274,6 @@ export class UserAgreement {
 
 @type()
 export class UserProfile  {
-    @field({ type: GraphQLTypesMap.String })
-    _id: string;
-
     @field({ type: GraphQLTypesMap.String })
     firstName: string;
 
@@ -269,6 +307,12 @@ export class UserProfile  {
 export class ChartPreference {
     @field({ type: GraphQLTypesMap.Boolean })
     showTour: boolean;
+}
+
+@type()
+export class ListViewPreference {
+    @field({ type: GraphQLTypesMap.String })
+    listMode: string;
 }
 
 @type()
@@ -310,12 +354,47 @@ export class UserPreference {
     @field({ type: GraphQLTypesMap.String })
     calendarTimeZone: string;
 
+    @field({ type: GraphQLTypesMap.String })
+    dashboardIdNoVisible: string;
+
+    @field({ type: ListViewPreference })
+    dashboards: ListViewPreference;
+
+    @field({ type:ListViewPreference })
+    charts: ListViewPreference;
+
+    @field({ type:ListViewPreference })
+    kpis: ListViewPreference;
+
+    @field({ type:ListViewPreference })
+    roles: ListViewPreference;
+
+    @field({ type:ListViewPreference })
+    users: ListViewPreference;
+
+    @field ({ type: GraphQLTypesMap.String })
+    theme: string;
+
     @resolver({ forField: 'providers' })
     static resolveProviders = (entity: IUserPreference) => entity.providers.join('|')
+
+    @resolver({ forField: 'dashboardIdNoVisible' })
+    static resolverdashboardIdNoVisible = (entity: IUserPreference) => {
+        if (entity.dashboardIdNoVisible === undefined || entity.dashboardIdNoVisible.length === 0){
+             return undefined
+        }else{
+            return entity.dashboardIdNoVisible.join('|')
+        }
+    }
 }
 
 @type()
 export class User  {
+    @resolver({ forField: '_id' })
+    static convertId(d) {
+        return d._id.toString();
+    }
+
     @field({ type: GraphQLTypesMap.String })
     _id: string;
 

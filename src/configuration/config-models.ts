@@ -65,5 +65,8 @@ export interface IAppConfig {
     cache: {
         redisServer: string,
         redisPort: string
-    }
+    };
+    supportEmail: string;
+    seedDbName: string;
+    templateHttpMethod: string;
 }

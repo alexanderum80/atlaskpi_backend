@@ -30,6 +30,7 @@ export interface IConnectorTaskDefinition {
 export interface IConnector extends IUserAudit {
     name: string;
     databaseName: string;
+    subdomain: string;
     type: string;
     virtualSource?: string;
     active: boolean;
@@ -44,5 +45,6 @@ export interface IConnectorModel extends mongoose.Model<IConnectorDocument> {
     addConnector(data: any): Promise<IConnectorDocument>;
     updateConnector(data: any, access_token: string): Promise<IConnectorDocument>;
     removeConnector(id: string): Promise<IConnectorDocument>;
+    getConnectorByName(name: string): Promise<IConnectorDocument>;
     getReportingConnectors(databaseName: string): Promise<IConnectorDocument[]>;
 }

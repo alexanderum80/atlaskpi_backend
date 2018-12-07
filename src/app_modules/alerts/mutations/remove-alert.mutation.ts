@@ -1,36 +1,41 @@
-import { IAlertDocument, IAlertInfo } from '../../../domain/app/alerts/alert';
-import { Alerts } from '../../../domain/app/alerts/alert.model';
-import { AlertInput, AlertMutationResponse } from '../alerts.types';
 import { inject, injectable } from 'inversify';
-import { field } from '../../../framework/decorators/field.decorator';
+
+import { GraphQLTypesMap } from '../../../framework/decorators/graphql-types-map';
 import { mutation } from '../../../framework/decorators/mutation.decorator';
 import { MutationBase } from '../../../framework/mutations/mutation-base';
 import { IMutationResponse } from '../../../framework/mutations/mutation-response';
-import { GraphQLTypesMap } from '../../../framework/decorators/graphql-types-map';
-import {RemoveAlertActivity} from '../activities/remove-alert.activity';
+import { ScheduleJobService } from '../../../services/schedule-jobs/schedule-job.service';
+import { RemoveAlertActivity } from '../activities/remove-alert.activity';
+import { AlertMutationResponse } from '../alerts.types';
+import { DashboardQuery } from '../../dashboards/queries/dashboard.query';
 
 @injectable()
 @mutation({
     name: 'removeAlert',
     activity: RemoveAlertActivity,
+    invalidateCacheFor: [ DashboardQuery ],
     parameters: [
         { name: 'id', type: GraphQLTypesMap.String, required: true }
     ],
     output: { type: AlertMutationResponse }
 })
 export class RemoveAlertMutation extends MutationBase<IMutationResponse> {
-    constructor(@inject(Alerts.name) private _alert: Alerts) {
+    constructor(
+        @inject(ScheduleJobService.name)
+        private _scheduleJobService: ScheduleJobService
+    ) {
         super();
     }
 
     async run(data: { id: string}): Promise<IMutationResponse> {
-        try {
-            const removeAlert = await this._alert.model.removeAlert(data.id);
-            return { success: true, entity: removeAlert };
-        } catch (err) {
-            return {
-                errors: [{ field: '', errors: ['There was error removing the alert'] }]
-            };
-        }
+        return this._scheduleJobService.removeJob(data.id);
+        // try {
+        //     const removeAlert = await this._alert.model.removeAlert(data.id);
+        //     return { success: true, entity: removeAlert };
+        // } catch (err) {
+        //     return {
+        //         errors: [{ field: '', errors: ['There was error removing the alert'] }]
+        //     };
+        // }
     }
 }

@@ -13,6 +13,8 @@ import { GetDashboardsActivity } from '../activities/get-dashboards.activity';
 import { Dashboard } from '../dashboards.types';
 import { CurrentUser } from './../../../domain/app/current-user';
 
+const transformProps = require('transform-props');
+
 
 @injectable()
 @query({
@@ -32,7 +34,7 @@ export class DashboardsQuery implements IQuery<IDashboard[]> {
         @inject('CurrentUser') private _currentUser: CurrentUser
     ) { }
 
-    run(data: { group: string,  }): Promise<IDashboard[]> {
+    run(data: { group: string  }): Promise<IDashboard[]> {
         const that = this;
 
         if (!this._currentUser || !this._currentUser.get()) {
@@ -55,6 +57,7 @@ export class DashboardsQuery implements IQuery<IDashboard[]> {
         return new Promise<IDashboard[]>((resolve, reject) => {
             that._dashboards.model
                 .find(query)
+                .lean(true)
                 .populate({
                     path: 'charts',
                     populate: { path: 'kpis' }
@@ -64,10 +67,20 @@ export class DashboardsQuery implements IQuery<IDashboard[]> {
                     select: ['_id', 'username', 'visible']
                 })
                 .then(dashboards => {
-                    resolve(dashboards);
+                    (dashboards as IDashboard[]).forEach(d => {
+                        transformProps(d, this.castToString, '_id');
+                        d.owner = JSON.stringify(d.owner) as any;
+                        d.charts = d.charts.map(c => JSON.stringify(c)) as any;
+                    });
+
+                    resolve(dashboards as IDashboard[]);
                 }).catch(e => {
                     reject(e);
                 });
         });
+    }
+
+    castToString(arg) {
+        return String(arg);
     }
 }

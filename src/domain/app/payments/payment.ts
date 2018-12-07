@@ -1,5 +1,7 @@
 import * as mongoose from 'mongoose';
 
+import { ICategory } from './../sales/sale';
+
 export interface IEntity {
     externalId: string | number;
     name: string;
@@ -49,8 +51,10 @@ export interface IPayment {
     description: string;
     prePayment: boolean;
     chargeId: string;
+    category: ICategory;
 }
 
 export interface IPaymentDocument extends IPayment, mongoose.Document { }
 
-export interface IPaymentModel extends mongoose.Model<IPaymentDocument> { }
+export interface IPaymentModel extends mongoose.Model<IPaymentDocument> {
+}

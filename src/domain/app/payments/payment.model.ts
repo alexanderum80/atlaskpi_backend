@@ -1,6 +1,6 @@
 import { inject, injectable } from 'inversify';
 import * as mongoose from 'mongoose';
-
+import * as logger from 'winston';
 import { criteriaPlugin } from '../../../app_modules/shared/criteria.plugin';
 import { getCustomerSchema } from '../../common/customer.schema';
 import { getLocationSchema } from '../../common/location.schema';
@@ -22,6 +22,12 @@ const PaymentInvoiceSchema = {
     total: Number,
 };
 
+const CategorySchema = {
+    externalId: String,
+    name: String,
+    service: Number,
+};
+
 export const PaymentSchema = new mongoose.Schema({
     source: String,
     externalId: String,
@@ -39,7 +45,8 @@ export const PaymentSchema = new mongoose.Schema({
     paymentTotalAmount: Number,
     description: String,
     prePayment: Boolean,
-    chargeId: String
+    chargeId: String,
+    category: CategorySchema
 });
 
 // INDEXES
@@ -52,6 +59,8 @@ PaymentSchema.index({ 'timestamp': 1, 'provider.name': 1 });
 PaymentSchema.index({ 'timestamp': 1, 'coordinator.name': 1 });
 PaymentSchema.index({ 'timestamp': 1, 'paymentType.name': 1 });
 PaymentSchema.index({ 'timestamp': 1, 'paymentMethod.name': 1 });
+PaymentSchema.index({ 'timestamp': 1, 'category.name': 1 });
+PaymentSchema.index({ 'timestamp': 1, 'category.service': 1 });
 
 PaymentSchema.plugin(criteriaPlugin);
 

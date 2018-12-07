@@ -51,6 +51,14 @@ export class KPIAttributesInput  {
     @field({ type: GraphQLTypesMap.String })
     source: string;
 
+    //add-created
+    @field({ type: GraphQLTypesMap.String })
+    createdBy: string;
+
+    @field({ type: GraphQLTypesMap.Date })
+    createdDate: Date;
+
+
 }
 
 @input()
@@ -69,6 +77,9 @@ export class KPIFilterCriteria {
 
     @field({ type: GraphQLTypesMap.String })
     filter: string;
+
+    @field({ type: GraphQLTypesMap.String, isArray: true })
+    collectionSource: string[];
 }
 
 @input()
@@ -82,6 +93,11 @@ export class KPIExpressionFieldInput {
 
 @type()
 export class KPI  {
+    @resolver({ forField: '_id' })
+    static convertId(d) {
+        return d._id.toString();
+    }
+
     @field({ type: GraphQLTypesMap.String })
     _id: string;
 
@@ -142,6 +158,13 @@ export class KPI  {
 
     @field({ type: GraphQLTypesMap.String })
     source: string;
+
+     //add-created
+    @field({ type: GraphQLTypesMap.String })
+    createdBy: string;
+
+    @field({ type: GraphQLTypesMap.Date })
+    createdDate: Date;
 }
 
 @input()
@@ -181,7 +204,7 @@ export class KPIRemoveResponse  {
 
 
 @type()
-export class KPIMutationResponse  {
+export class KPIMutationResponse {
     @field({ type: KPI })
     entity: KPI;
 

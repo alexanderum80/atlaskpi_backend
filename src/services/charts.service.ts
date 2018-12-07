@@ -1,7 +1,7 @@
 import { camelCase } from 'change-case';
 import { inject, injectable } from 'inversify';
-import {difference, isNumber, isString, pick, PartialDeep, cloneDeep, isEmpty, omit }  from 'lodash';
-import * as moment from 'moment';
+import {difference, isNumber, isString, pick, PartialDeep, cloneDeep, isEmpty, isArray, omit }  from 'lodash';
+import * as moment from 'moment-timezone';
 
 import { IChartMetadata } from '../app_modules/charts/queries/charts/chart-metadata';
 import {
@@ -25,11 +25,19 @@ import { Charts } from './../domain/app/charts/chart.model';
 import { IDashboardDocument } from './../domain/app/dashboards/dashboard';
 import { Dashboards } from './../domain/app/dashboards/dashboard.model';
 import { KPIs } from './../domain/app/kpis/kpi.model';
-import { Targets } from './../domain/app/targets/target.model';
-import {IChartDateRange, IDateRange, parsePredifinedDate, PredefinedTargetPeriod, PredefinedDateRanges} from './../domain/common/date-range';
+import {
+    convertStringDateRangeToDateDateRange,
+    IChartDateRange,
+    IDateRange,
+    PredefinedDateRanges,
+    PredefinedTargetPeriod,
+    processDateRangeWithTimezone,
+} from './../domain/common/date-range';
 import {FrequencyEnum, FrequencyTable} from './../domain/common/frequency-enum';
 import { TargetService } from './target.service';
 import {dataSortDesc} from '../helpers/number.helpers';
+import { TargetsNew } from '../domain/app/targetsNew/target.model';
+import { ChartDateRangeInput } from '../app_modules/shared/shared.types';
 
 export interface IRenderChartOptions {
     chartId?: string;
@@ -43,6 +51,7 @@ export interface IRenderChartOptions {
     isFutureTarget?: boolean;
     isDrillDown?: boolean;
     originalFrequency?: string;
+    onTheFly: boolean;
 }
 
 
@@ -53,7 +62,7 @@ export class ChartsService {
         @inject(Charts.name) private _charts: Charts,
         @inject(Dashboards.name) private _dashboards: Dashboards,
         @inject(KPIs.name) private _kpis: KPIs,
-        @inject(Targets.name) private _targets: Targets,
+        @inject(TargetsNew.name) private _targets: TargetsNew,
         @inject(TargetService.name) private _targetService: TargetService,
         @inject(CurrentUser.name) private _currentUser: CurrentUser,
         @inject(ChartFactory.name) private _chartFactory: ChartFactory,
@@ -83,7 +92,6 @@ export class ChartsService {
                 throw new Error('missing parameter');
             }
 
-            const virtualSources = await this._virtualSources.model.find({});
             const uiChart = this._chartFactory.getInstance(chart);
             const groupings = this._prepareGroupings(chart, options);
             const kpi = await this._kpiFactory.getInstance(chart.kpis[0]);
@@ -100,7 +108,8 @@ export class ChartsService {
                 isFutureTarget: options && options.isFutureTarget || false,
                 sortingCriteria: chart.sortingCriteria,
                 sortingOrder: chart.sortingOrder,
-                originalFrequency: (options && options.originalFrequency) ? FrequencyTable[options.originalFrequency] : -1
+                originalFrequency: (options && options.originalFrequency) ? FrequencyTable[options.originalFrequency] : -1,
+                onTheFly: (options ? options.onTheFly : false),
             };
 
             chart.targetExtraPeriodOptions = this._getTargetExtraPeriodOptions(meta.frequency, chart.dateRange);
@@ -186,7 +195,7 @@ export class ChartsService {
                     );
                     Object.assign(chart, chartOptions);
                 }
-                that.renderDefinition(chart, input).then(definition => {
+                that.renderDefinition(chart, input as any).then(definition => {
                     // chart.chartDefinition = definition;
                     const originalDefinitionSeries = cloneDeep(chart.chartDefinition.series);
 
@@ -213,6 +222,10 @@ export class ChartsService {
                 .populate({
                     path: 'kpis',
                 }).then(chartDocument => {
+                    if (!chartDocument) {
+                        reject({ field: 'id', errors: ['Chart not found']});
+                        return;
+                    }
                     that._resolveDashboards(chartDocument).then((dashboards) => {
                         const chart: any = chartDocument.toObject();
                         chart.dashboards = dashboards;
@@ -266,6 +279,7 @@ export class ChartsService {
             // chart.chartDefinition = definition;
             chart.chartDefinition = this._setSeriesVisibility(originalDefinitionSeries, definition);
             chart.chartDefinition = this._addSerieColorToDefinition(originalDefinitionSeries, definition);
+
             return chart;
         } catch (e) {
             this._logger.error('There was an error previewing a chart', e);
@@ -289,6 +303,11 @@ export class ChartsService {
                 this._logger.error('one or more dashboard not found');
                 throw new Error('one or more dashboards not found');
             }
+
+            // IMPORTANT!!! transform date from string to date based on user timezone.
+            const tz = this._currentUser.get().profile.timezone;
+            input.dateRange  = input.dateRange.map(d => convertStringDateRangeToDateDateRange(d, tz) as any);
+
             // create the chart
             const chart = await this._charts.model.createChart(input);
             await attachToDashboards(this._dashboards.model, input.dashboards, chart._id);
@@ -345,6 +364,11 @@ export class ChartsService {
                 that._dashboards.model.find( {charts: { $in: [id]}})
                     .then((chartDashboards) => {
                         // update the chart
+
+                        // IMPORTANT!!!: transform date from string to date based on user timezone.
+                        const tz = this._currentUser.get().profile.timezone;
+                        input.dateRange  = input.dateRange.map(d => convertStringDateRangeToDateDateRange(d, tz) as any);
+
                         that._charts.model.updateChart(id, input)
                             .then((chart) => {
                                 const currentDashboardIds = chartDashboards.map(d => String(d._id));
@@ -402,39 +426,19 @@ export class ChartsService {
         });
     }
 
-    private _renderRegularDefinition(   chartId: string,
+    private async _renderRegularDefinition(   chartId: string,
                                         kpi: IKpiBase,
                                         uiChart: IUIChart,
                                         meta: IChartMetadata ): Promise<any> {
-        const that = this;
-        return new Promise<any>((resolve, reject) => {
-            const userId = (!that._currentUser || !that._currentUser.get()) ? '' : that._currentUser.get()._id;
+        try {
+            const userId = (!this._currentUser || !this._currentUser.get()) ? '' : this._currentUser.get()._id;
+            const res = meta.onTheFly ? [] : await this._targetService.getTargets(chartId, userId);
 
-            that._targetService.getTargets(chartId, userId)
-                .then((res) => {
-                    if (meta.isFutureTarget &&
-                        meta.frequency !== FrequencyTable.yearly) {
-                        meta.dateRange = meta.dateRange ||
-                            [{ predefined: null,
-                                custom: TargetService.futureTargets(res) }];
-                    }
-
-                    uiChart.getDefinition(kpi, { ...meta }, res).then((definition) => {
-                        that._logger.debug('chart definition received for id: ' + chartId);
-                        resolve(definition);
-                        return;
-                    })
-                    .catch(e => {
-                        that._logger.error(e);
-                        reject(e);
-                        return;
-                    });
-                })
-                .catch(err => {
-                    that._logger.error(err);
-                    reject(err);
-                });
-        });
+            return uiChart.getDefinition(kpi, { ...meta }, res);
+        } catch (e) {
+            this._logger.error(e);
+            return null;
+        }
     }
 
     private _renderPreviewDefinition(   kpi: IKpiBase,
@@ -484,13 +488,17 @@ export class ChartsService {
     }
 
     private _getTopDateRange(dateRange: IChartDateRange[]): IDateRange {
-        return dateRange[0].custom && dateRange[0].custom.from ?
-                {
-                    from: moment(dateRange[0].custom.from).startOf('day').toDate(),
-                    to: moment(dateRange[0].custom.to).endOf('day').toDate()
-                }
-                : parsePredifinedDate(dateRange[0].predefined);
+        return processDateRangeWithTimezone(dateRange[0], this._currentUser.get().profile.timezone);
     }
+
+    // private _getTopDateRange(dateRange: IChartDateRange[]): IDateRange {
+    //     return dateRange[0].custom && dateRange[0].custom.from ?
+    //             {
+    //                 from: moment(dateRange[0].custom.from).startOf('day').toDate(),
+    //                 to: moment(dateRange[0].custom.to).endOf('day').toDate()
+    //             }
+    //             : parsePredefinedDateOld(dateRange[0].predefined);
+    // }
 
     private _getTargetExtraPeriodOptions(frequency: number, chartDateRange?: IChartDateRange[]): IObject {
         if (!isNumber(frequency) && !isEmpty(chartDateRange)) {
@@ -541,6 +549,7 @@ export class ChartsService {
     }
 
     private _canAddTarget(dateRange: IChartDateRange[]): boolean {
+        if (!dateRange) { return false; }
         const findDateRange: IChartDateRange = dateRange.find((d: any) => d.predefined);
         if (!findDateRange) {
             return true;
@@ -554,36 +563,54 @@ export class ChartsService {
             const isDateInFuture = moment(findDateRange.custom.to).isAfter(moment());
             return isDateInFuture;
         }
+
+        if (findDateRange.predefined === 'all times') {
+            const isDateInFuture = moment().isAfter(moment().format('YYYY'));
+            return isDateInFuture;
+        }
+
         return true;
     }
 
     private _setSeriesVisibility(chartSeries, chartData) {
-        const chartSeriesExist: boolean = Array.isArray(chartSeries);
+        if (!chartData || !chartData.chart) {
+            return chartData;
+        }
 
+        const chartSeriesExist: boolean = Array.isArray(chartSeries);
+        if (!chartData) return chartData;
         if (chartData.chart.type !== 'pie') {
             if (chartSeriesExist) {
                 chartSeries.map(s => {
-                    if (s.visible !== undefined) {
-                        let serieDefinition = chartData.series.find(f => f.name === s.name);
+                    if (s && s.visible !== undefined) {
+                        let serieDefinition = (chartData.series) ? chartData.series.find(f => f.name === s.name) : null;
                         if (serieDefinition) {
-                            // serieDefinition = Object.assign(serieDefinition, { visible: false });
-                            serieDefinition.visible = s.visible;
+                            if (serieDefinition) {
+                                serieDefinition.visible = s.visible;
+                            }
                         }
                     }
                 });
             }
         }
         else {
-            const chartSeriesDataExist: boolean = Array.isArray(chartSeries) &&
+            const chartSeriesDataExist: boolean = isArray(chartSeries) &&
                                          !isEmpty(chartSeries) &&
-                                         Array.isArray(chartSeries[0].data);
+                                         isArray(chartSeries[0].data);
 
             if (chartSeriesDataExist) {
                 chartSeries[0].data.map(s => {
-                    if (s.visible !== undefined) {
-                        let serieDefinition = chartData.series[0].data.find(f => f.name === s.name);
-                        if (serieDefinition) {
-                            serieDefinition.visible = s.visible;
+                    if (s && s.visible !== undefined) {
+                        const isChartDataSeriesDataExist: boolean = !isEmpty(chartData) &&
+                                                isArray(chartData.series) &&
+                                                !isEmpty(chartData.series[0]) &&
+                                                isArray(chartData.series[0].data);
+
+                        if (isChartDataSeriesDataExist) {
+                            const serieDefinition = (chartData.series) ? chartData.series[0].data.find(c => c.name === s.name) : null;
+                            if (serieDefinition) {
+                                serieDefinition.visible = s.visible;
+                            }
                         }
                     }
                 });
@@ -592,12 +619,11 @@ export class ChartsService {
 
         return chartData;
     }
-
-
-
-
-
     private _addSerieColorToDefinition(definitionSeries, chartData) {
+        if (!chartData || !chartData.chart) {
+            return chartData;
+        }
+
         if (chartData.chart.type === 'pie') {
             // check if data exist in definitionSeries[0]
             const definitionSeriesDataExist: boolean = Array.isArray(definitionSeries) &&
@@ -607,7 +633,7 @@ export class ChartsService {
             if (definitionSeriesDataExist) {
                 definitionSeries[0].data.map(d => {
                     if (!isEmpty(d) && !isEmpty(d.color)) {
-                        const serieData = chartData.series[0].data.find(c => c.name === d.name);
+                        const serieData = (chartData.series) ? chartData.series[0].data.find(c => c.name === d.name) : null;
                         // update the color on the new chart only
                         if (serieData) {
                             serieData.color = d.color;
@@ -621,7 +647,7 @@ export class ChartsService {
             if (canMapDefinitionSeries) {
                 definitionSeries.map(d => {
                     if (!isEmpty(d) && !isEmpty(d.color)) {
-                        const serieData = chartData.series.find(c => c.name === d.name);
+                        const serieData = chartData.series ? chartData.series.find(c => c.name === d.name) : null;
                         // update the color on new chart only
                         if (serieData) {
                             serieData.color = d.color;
@@ -632,5 +658,4 @@ export class ChartsService {
         }
         return chartData;
     }
-
 }

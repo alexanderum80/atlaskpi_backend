@@ -9,11 +9,13 @@ import { IMutationResponse } from '../../../framework/mutations/mutation-respons
 import { RemoveConnectorActivity } from './../activities/remove-connector.activity';
 import { ConnectorResult } from './../connectors.types';
 import { ConnectorsService } from '../../../services/connectors.service';
+import { DashboardQuery } from '../../dashboards/queries/dashboard.query';
 
 @injectable()
 @mutation({
     name: 'removeConnector',
     activity: RemoveConnectorActivity,
+    invalidateCacheFor: [ DashboardQuery ],
     parameters: [
         { name: 'id', type: String },
     ],
@@ -38,11 +40,11 @@ export class RemoveConnectorMutation extends MutationBase<IMutationResponse> {
 
             that._connectorsService.removeConnector(data.id)
             .then((deletedConnector) => {
-                resolve({ success: true, entity: deletedConnector });
+                resolve({ success: true, entity: JSON.stringify(deletedConnector) });
                 return;
             }).catch((err) =>  {
                 that._logger.error(err);
-                resolve({ success: false, errors: [ {field: 'connector', errors: [err]} ] });  
+                resolve({ success: false, entity: JSON.stringify(err.entity) });
             });
         });
     }

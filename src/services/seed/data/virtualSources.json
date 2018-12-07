@@ -2,7 +2,7 @@
     "_id": "5abe82d82f8a3702e97ce055",
     "name": "Conversions",
     "description": "Procedure Conversions",
-    "source": "Appointments",
+    "source": "appointments",
     "modelIdentifier": "Appointment",
     "dateField": "date",
     "aggregate" : [
@@ -98,7 +98,7 @@
     "_id": "5ac0fdad2f8a3702e97ce058",
     "name": "Customers",
     "description": "Customers",
-    "source": "Sales",
+    "source": "sales",
     "modelIdentifier": "Sale",
     "dateField": "date",
     "aggregate": [{
@@ -177,7 +177,7 @@
     "_id": "5ac2a6dc49bdac0208430f04",
     "name": "Invoices",
     "description": "Invoices",
-    "source": "Sales",
+    "source": "sales",
     "modelIdentifier": "Sale",
     "dateField": "date",
     "aggregate": [{
@@ -278,7 +278,7 @@
     "_id": "5ac3d47549bdac0208430ff9",
     "name": "Inventory",
     "description": "Inventory",
-    "source": "Inventory",
+    "source": "inventory",
     "modelIdentifier": "Inventory",
     "dateField": "updatedAt",
     "fieldsMap": {
@@ -335,7 +335,7 @@
     "_id": "5ac3ad1249bdac0208430f84",
     "name": "Sales",
     "description": "Sales",
-    "source": "Sales",
+    "source": "sales",
     "modelIdentifier": "Sale",
     "dateField": "product.from",
     "fieldsMap": {
@@ -532,7 +532,7 @@
     "_id": "5ac3cfbb49bdac0208430ff6",
     "name": "Calls",
     "description": "Calls from Callrail",
-    "source": "Calls",
+    "source": "calls",
     "modelIdentifier": "Call",
     "dateField": "created_at",
     "fieldsMap": {
@@ -702,7 +702,7 @@
     "_id": "5ac3dc4e49bdac0208431002",
     "name": "Appointments",
     "description": "Appointments",
-    "source": "Appointments",
+    "source": "appointments",
     "modelIdentifier": "Appointment",
     "dateField": "from",
     "fieldsMap": {
@@ -2321,7 +2321,7 @@
     "_id": "5ac3b36749bdac0208430f96",
     "name": "Expenses",
     "description": "Expenses",
-    "source": "Expenses",
+    "source": "expenses",
     "modelIdentifier": "Expense",
     "dateField": "timestamp",
     "aggregate": [{
@@ -2407,7 +2407,7 @@
     "_id": "5ace6e5ae8ab271c09d73457",
     "name": "revenue_by_referrals",
     "description": "Revenue by Referrals",
-    "source": "Sales",
+    "source": "sales",
     "modelIdentifier": "Sale",
     "dateField": "product.from",
     "aggregate": [{
@@ -2587,7 +2587,7 @@
     "_id": "5acec100e8ab271c09d73460",
     "name": "established_customers_sales",
     "description": "Sales (Established Customers)",
-    "source": "Sales",
+    "source": "sales",
     "modelIdentifier": "Sale",
     "dateField": "product.from",
     "aggregate": [{
@@ -2825,7 +2825,7 @@
     "_id" : "5b170c8fb3df390708c5c9ac", 
     "name" : "COGS", 
     "description" : "Cost of Goods Sold", 
-    "source" : "COGS", 
+    "source" : "cogs", 
     "modelIdentifier" : "COGS", 
     "dateField" : "billDate", 
     "fieldsMap" : {
@@ -2998,7 +2998,7 @@
     "_id" : "5b28120b6d9406cbc12487e1", 
     "name" : "financialActivity", 
     "description" : "Financial Activity", 
-    "source" : "FinancialActivities", 
+    "source" : "financialActivities", 
     "modelIdentifier" : "FinancialActivity", 
     "dateField" : "billDate", 
     "fieldsMap" : {
@@ -3147,7 +3147,7 @@
     "_id" : "5b12deb9608668acf69b1f45", 
     "name" : "first_customer_sales", 
     "description" : "Sales (First Sales)", 
-    "source" : "Sales", 
+    "source" : "sales", 
     "modelIdentifier" : "Sale", 
     "dateField" : "product.from", 
     "aggregate" : [
@@ -3382,7 +3382,7 @@
     "_id" : "5afae2ec186ba508958a91c7", 
     "name" : "payments", 
     "description" : "Payments", 
-    "source" : "Payments", 
+    "source" : "payments", 
     "modelIdentifier" : "Payment", 
     "dateField" : "timestamp", 
     "fieldsMap" : {
@@ -3506,7 +3506,21 @@
             "path" : "description", 
             "dataType" : "String", 
             "allowGrouping" : true
+        },
+        "Category" : {
+            "path" : "category.name", 
+            "dataType" : "String", 
+            "allowGrouping" : true
         }, 
+        "Category's type of service" : {
+            "path" : "category.service", 
+            "dataType" : "Number", 
+            "allowGrouping" : true
+        }, 
+        "Category's External Id" : {
+            "path" : "category.externalId", 
+            "dataType" : "String"
+        },  
         "Seller's External Id" : {
             "path" : "seller.externalId", 
             "dataType" : "String"
