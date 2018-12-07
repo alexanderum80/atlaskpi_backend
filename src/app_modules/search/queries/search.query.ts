@@ -83,11 +83,11 @@ export class SearchQuery implements IQuery<SearchResult[]> {
         return new Promise<SearchResult[]>((resolve, reject) => {
             let result: SearchResult[] = [];
 
-             that._processModelsSearch(data.query).then(r => resolve(r));
+            // that._processModelsSearch(data.query).then(r => resolve(r));
 
             // before go through the rest of the options I want to parse the query
             // in order to determine if the AdaptEngine can extract any intent from it
-           /*  this._adaptEngine.parse(data.query).then(intents => {
+            this._adaptEngine.parse(data.query).then(intents => {
                 let promise: Promise<SearchResult[]>;
 
                 if (intents && intents.length > 0) {
@@ -99,7 +99,7 @@ export class SearchQuery implements IQuery<SearchResult[]> {
                 }
 
                 promise.then(result => { resolve(result); }).catch(e => reject(e));
-            }).catch(e => reject(e)); */
+            }).catch(e => reject(e));
         });
     }
 
