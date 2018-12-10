@@ -1,11 +1,9 @@
-import { isArray } from 'lodash';
 import { field } from '../../framework/decorators/field.decorator';
 import { GraphQLTypesMap } from '../../framework/decorators/graphql-types-map';
 import { input } from '../../framework/decorators/input.decorator';
 import { resolver } from '../../framework/decorators/resolver.decorator';
 import { type } from '../../framework/decorators/type.decorator';
 import { ErrorDetails } from '../../framework/graphql/common.types';
-import { isOutputType } from 'graphql';
 
 
 @input()
@@ -18,40 +16,41 @@ export class AlertModelInfoInput {
 }
 @input()
 export class INotificationUsers {
-    @field({ type: GraphQLTypesMap.String, isArray: true , required: true })
-    user: String[];
-    @field({ type: GraphQLTypesMap.Boolean })
-    byEmail: Boolean;
-    @field({ type: GraphQLTypesMap.Boolean })
-    byPhone: Boolean;
+    @field({ type: GraphQLTypesMap.String, required: true })
+    identifier: String;
+    @field({ type: GraphQLTypesMap.String, isArray: true, required: true })
+    deliveryMethods: String[];
 }
 
 @type()
 export class ONotificationUsers {
-    @field({ type: GraphQLTypesMap.String, isArray: true,  required: true })
-    user: String[];
-    @field({ type: GraphQLTypesMap.Boolean })
-    byEmail: Boolean;
-    @field({ type: GraphQLTypesMap.Boolean })
-    byPhone: Boolean;
+    @field({ type: GraphQLTypesMap.String, required: true })
+    identifier: String;
+    @field({ type: GraphQLTypesMap.String, isArray: true, required: true })
+    deliveryMethods: String[];
 }
 
 @input()
 export class AlertInput {
     @field({ type: GraphQLTypesMap.String, required: true })
     name: String;
-    @field({ type: GraphQLTypesMap.String })
+    @field({ type: GraphQLTypesMap.String, required: true })
     kpi: String;
-    @field({ type: GraphQLTypesMap.String })
+    @field({ type: GraphQLTypesMap.String, required: true })
     frequency: String;
-    @field({ type: GraphQLTypesMap.String })
+    @field({ type: GraphQLTypesMap.String, required: true })
     condition: String;
-    @field({ type: GraphQLTypesMap.Float })
+    @field({ type: GraphQLTypesMap.Float, required: true })
     value: Number;
-    @field({ type: INotificationUsers, isArray: true })
-    notificationUsers: INotificationUsers[];
-    @field({ type: GraphQLTypesMap.Boolean })
+    @field({ type: GraphQLTypesMap.Boolean, required: true })
     active: Boolean;
+    @field({ type: INotificationUsers, isArray: true, required: true })
+    users: INotificationUsers[];
+    @field({ type: GraphQLTypesMap.String, required: true })
+    createdBy: String;
+    @field({ type: GraphQLTypesMap.Date, required: true })
+    createdAt: Date;
+
 }
 
 @type()
@@ -82,10 +81,14 @@ export class AlertResponse {
     condition: String;
     @field({ type: GraphQLTypesMap.Float, required: true })
     value: Number;
-    @field({ type: ONotificationUsers, isArray: true, required: true })
-    notificationUsers: ONotificationUsers[];
     @field({ type: GraphQLTypesMap.Boolean })
     active: Boolean;
+    @field({ type: ONotificationUsers, isArray: true, required: true })
+    users: ONotificationUsers[];
+    @field({ type: GraphQLTypesMap.String, required: true })
+    createdBy: String;
+    @field({ type: GraphQLTypesMap.Date, required: true })
+    createdAt: Date;
 }
 
 @type()

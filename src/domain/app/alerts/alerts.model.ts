@@ -6,18 +6,21 @@ import { ModelBase } from '../../../type-mongo/model-base';
 import { AppConnection } from '../app.connection';
 import { IAlertDocument, IAlertInfo, IAlertModel } from './alerts';
 
+const ALERT_USER_SCHEMA = new mongoose.Schema({
+    identifier: { type: String, required: true },
+    deliveryMethods: { type: [String], enum: ['email', 'push'], required: true }
+});
+
 export const AlertSchema = new mongoose.Schema({
-    name: String,
-    kpi: String,
-    frequency: String,
-    condition: String,
-    value: Number,
-    notificationUsers: [{
-        user: [String],
-        byEmail: Boolean,
-        byPhone: Boolean,
-    }],
-    active: Boolean,
+    name: { type: String, required: true },
+    kpi: { type: String, required: true },
+    frequency: { type: String, required: true },
+    condition: { type: String, required: true },
+    value: { type: Number, required: true },
+    active: { type: Boolean, required: true },
+    users: { type: [ALERT_USER_SCHEMA], required: true },
+    createdBy: { type: String, required: true },
+    createdAt: { type: Date, required: true }
 });
 
 AlertSchema.statics.alertsbyWidgetId = function(id: string): BlueBird<IAlertDocument[]> {
@@ -175,7 +178,7 @@ AlertSchema.statics.removeDeleteUser = async function(id: string): Promise<boole
     try {
         const removeUser = await this.update(
             {}, {
-                'notificationUsers.user': {
+                'users.identifier': {
                     $in: [id]
                 }
             }, {

@@ -2,9 +2,8 @@ import * as mongoose from 'mongoose';
 import * as Promise from 'bluebird';
 
 export interface INotificationUsers {
-    user: String[];
-    byEmail: Boolean;
-    byPhone: Boolean;
+    identifier: String;
+    deliveryMethods: String[];
 }
 export interface IAlert {
     // _id: string;
@@ -13,8 +12,10 @@ export interface IAlert {
     frequency: String;
     condition: String;
     value: Number;
-    notificationUsers: INotificationUsers[];
     active: Boolean;
+    users: INotificationUsers[];
+    createdBy: String;
+    createdAt: Date;
 }
 
 export interface IAlertModelInfo {
@@ -28,8 +29,8 @@ export interface IAlertInfo {
     frequency: String;
     condition: String;
     value: Number;
-    notificationUsers: INotificationUsers[];
     active: Boolean;
+    users: INotificationUsers[];
 }
 
 export interface IAlertDocument extends IAlert, mongoose.Document {
