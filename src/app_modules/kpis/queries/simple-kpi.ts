@@ -2,61 +2,42 @@ import { cloneDeep, camelCase, isEmpty } from 'lodash';
 import { IKPI, IKPIDocument, IKPISimpleDefinition, KPITypeEnum } from '../../../domain/app/kpis/kpi';
 import { KPIExpressionHelper } from '../../../domain/app/kpis/kpi-expression.helper';
 import { KPIFilterHelper } from '../../../domain/app/kpis/kpi-filter.helper';
-import { IVirtualSourceDocument } from '../../../domain/app/virtual-sources/virtual-source';
+import { IVirtualSourceDocument, IVirtualSource } from '../../../domain/app/virtual-sources/virtual-source';
 import { IDateRange } from '../../../domain/common/date-range';
 import { FrequencyEnum } from '../../../domain/common/frequency-enum';
 import { AggregateStage } from './aggregate';
-import { ICollection, IGetDataOptions, IKpiBase } from './kpi-base';
+import { ICollection, IGetDataOptions, IKpiBase, IKpiVirtualSources } from './kpi-base';
 import { SimpleKPIBase } from './simple-kpi-base';
 import { getGenericModel } from '../../../domain/common/fields-with-data';
+import { VirtualSourceAggregateService } from '../../../domain/app/virtual-sources/vs-aggregate.service';
 
 export class SimpleKPI extends SimpleKPIBase implements IKpiBase {
 
     public static CreateFromExpression( kpi: IKPIDocument,
                                         virtualSources: IVirtualSourceDocument[],
-                                        timezone: string
+                                        timezone: string,
+                                        vsAggregateService: VirtualSourceAggregateService
                                     ): SimpleKPI {
 
         const simpleKPIDefinition: IKPISimpleDefinition = KPIExpressionHelper.DecomposeExpression(KPITypeEnum.Simple, kpi.expression);
         let collection: ICollection;
-        let baseAggregate: any;
 
-        // if (virtualSources) {
         const virtualSource = virtualSources.find(s => s.name.toLocaleLowerCase() === simpleKPIDefinition.dataSource.toLocaleLowerCase());
         const parentVirtualSource = virtualSources.find(s => s.name.toLocaleLowerCase() === virtualSource.source.toLowerCase());
 
-        if (virtualSource) {
-            collection = {
-                modelName: virtualSource.modelIdentifier,
-                timestampField: virtualSource.dateField
-            };
+        if (!virtualSource) throw new Error('cannot create a kpi without a virtual source');
 
-            simpleKPIDefinition.dataSource = camelCase(virtualSource.source);
+        const kpiVirtualSources: IKpiVirtualSources = {
+            virtualSource,
+            parentVirtualSource
+        };
 
-            let vsAggDateRangeStage;
-            let vsAggStages;
+        collection = {
+            modelName: virtualSource.modelIdentifier,
+            timestampField: virtualSource.dateField
+        };
 
-            if (virtualSource.aggregate) {
-                vsAggStages = virtualSource.aggregate.map(a => {
-                    return KPIFilterHelper.CleanObjectKeys(a);
-                });
-            }
-
-            // flag in case we need to apply the daterange before the vs aggregate
-            if (!isEmpty(vsAggStages)
-                && parentVirtualSource
-                && Object.values(parentVirtualSource.fieldsMap)
-                         .some(f => f.path === collection.timestampField)) {
-                vsAggDateRangeStage =  {
-                    vsAggDateRange: true,
-                    '$match': { [collection.timestampField]: { } }
-                };
-            }
-
-            if (vsAggDateRangeStage) baseAggregate = [vsAggDateRangeStage];
-            if (vsAggStages) baseAggregate = (baseAggregate || []).concat(...vsAggStages);
-        }
-        // }
+        simpleKPIDefinition.dataSource = camelCase(virtualSource.source);
 
         const model = getGenericModel(virtualSource.db, virtualSource.modelIdentifier, virtualSource.source); //  models[collection.modelName];
 
@@ -89,19 +70,28 @@ export class SimpleKPI extends SimpleKPIBase implements IKpiBase {
             }
         ];
 
-        if (baseAggregate) {
-            aggregateSkeleton = baseAggregate.concat(aggregateSkeleton);
-        }
-
-        return new SimpleKPI(model, aggregateSkeleton, simpleKPIDefinition, kpi, collection, timezone);
+        return new SimpleKPI(
+            model,
+            aggregateSkeleton,
+            simpleKPIDefinition,
+            kpi,
+            collection,
+            timezone,
+            kpiVirtualSources,
+            vsAggregateService
+        );
     }
 
-    private constructor(model: any, baseAggregate: any, definition: IKPISimpleDefinition, kpi: IKPI, collection: ICollection, timezone: string) {
-        super(model, baseAggregate);
+    private constructor(model: any, baseAggregate: any, definition: IKPISimpleDefinition,
+                        kpi: IKPI, collection: ICollection, timezone: string, kpiVirtualSources: IKpiVirtualSources,
+                        vsAggregateService: VirtualSourceAggregateService) {
+        super(model, baseAggregate, kpiVirtualSources);
 
         this.timezone = timezone;
         this.kpi = kpi;
         this.collection = collection;
+
+        this._vsAggregateService = vsAggregateService;
 
         let deserializedFilter;
 
