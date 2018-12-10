@@ -24,8 +24,8 @@ export interface IAppointmentCustomer extends IEntity {
     fullname: string;
 }
 
-export interface IAppointmentProvider extends IEntity {
-    providerType: String;
+export interface IAppointmentResource extends IEntity {
+    type: String;
 }
 
 export interface IAppointmentLocation extends IEntity {
@@ -59,7 +59,7 @@ export interface IAppointment extends BaseModel {
     createdOn: Date;
     noShowOn: Date;
     customer: IAppointmentCustomer;
-    provider: IAppointmentProvider[];
+    provider: IAppointmentResource[];
     location: IAppointmentLocation;
     procedure: IAppointmentProcedure[];
     referral: IEntity;
@@ -68,6 +68,8 @@ export interface IAppointment extends BaseModel {
     appointmentType: string;
 
     event: IAppointmentEvent;
+
+    resource: IAppointmentResource[];
 
     document: {
         type: string, // invoice, bill, charge, etc
@@ -89,4 +91,5 @@ export interface IAppointmentModel extends mongoose.Model<IAppointmentDocument>,
 
     search(criteria: SearchAppointmentCriteriaInput): Promise<IAppointment[]>;
     providersList(): Promise<IIdName[]>;
+    resourcesList(): Promise<IIdName[]>;
 }

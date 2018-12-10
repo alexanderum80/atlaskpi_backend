@@ -1,6 +1,6 @@
 import { Users } from '../../../domain/app/security/users/user.model';
 import { IUserPreference } from '../../../domain/app/security/users/user';
-import { ITourInput, ErrorSuccessResult } from '../users.types';
+import { UserPreferencesInput, ErrorSuccessResult } from '../users.types';
 import { UpdateUserPreferenceActivity } from '../activities/update-user-preference.activity';
 import { injectable, inject } from 'inversify';
 import { mutation } from '../../../framework/decorators/mutation.decorator';
@@ -14,7 +14,7 @@ import * as Promise from 'bluebird';
     activity: UpdateUserPreferenceActivity,
     parameters: [
         { name: 'id', type: String, required: true },
-        { name: 'input', type: ITourInput }
+        { name: 'input', type: UserPreferencesInput }
     ],
     output: { type: ErrorSuccessResult }
 })
@@ -23,7 +23,7 @@ export class UpdateUserPreferenceMutation extends MutationBase<IMutationResponse
         super();
     }
 
-    run(data: { id: string, input: ITourInput }): Promise<IMutationResponse> {
+    run(data: { id: string, input: UserPreferencesInput }): Promise<IMutationResponse> {
         const that = this;
 
         return new Promise<IMutationResponse>((resolve, reject) => {
@@ -31,7 +31,7 @@ export class UpdateUserPreferenceMutation extends MutationBase<IMutationResponse
                 reject('No data provided to update preference');
                 return;
             }
-             
+
             const input = data.input;
 
             if (!data.id) {
