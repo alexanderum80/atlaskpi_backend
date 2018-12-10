@@ -7,6 +7,7 @@ import { MutationBase } from '../../../framework/mutations/mutation-base';
 import { IMutationResponse } from '../../../framework/mutations/mutation-response';
 import { AddUserDashboardActivity } from './../activities/adduser-dashboard.activity';
 import { Users } from '../../../domain/app/security/users/user.model';
+import { DashboardResponse } from '../dashboards.types';
 
 
 @injectable()
@@ -18,7 +19,7 @@ import { Users } from '../../../domain/app/security/users/user.model';
         { name: 'userId', type: String },
         { name: 'username', type: String, required: true }
     ],
-    output: { type: Boolean }
+    output: { type: DashboardResponse }
 })
 export class AddUserDashboardMutation extends MutationBase<IMutationResponse> {
     constructor(@inject(Dashboards.name) private _dashboards: Dashboards,
@@ -40,8 +41,9 @@ export class AddUserDashboardMutation extends MutationBase<IMutationResponse> {
                             success: true
                         });
                     }).catch(err => {
-                        resolve({
-                            success: false
+                        reject({
+                            success: false,
+                            errors: err
                         });
                     });
                 });
@@ -56,15 +58,19 @@ export class AddUserDashboardMutation extends MutationBase<IMutationResponse> {
                                 success: true
                             });
                         }).catch(err => {
-                            resolve({
-                                success: false
+                            reject({
+                                success: false,
+                                errors: err
                             });
                         });
                     });
                 })
                 .catch( err => {
                     console.log(err);
-                    reject(err);
+                    reject({
+                        success: false,
+                        errors: err
+                    });
                 })
         }
         
