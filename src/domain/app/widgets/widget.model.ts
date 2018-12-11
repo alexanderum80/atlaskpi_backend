@@ -51,6 +51,7 @@ const WidgetSchema = new Schema({
     type: { type: String!, enum: Object.keys(WidgetTypeMap) },
     size: { type: String!, enum: Object.keys(WidgetSizeMap) },
     color: String!,
+    fontColor: String!,
     numericWidgetAttributes: NumericWidgetSchema,
     chartWidgetAttributes: ChartWidgetSchema,
     tags: String
@@ -82,6 +83,7 @@ WidgetSchema.statics.createWidget = function(input: IWidgetInput): Promise<IWidg
             type: requiredAndNotBlank,
             size: requiredAndNotBlank,
             color: requiredAndNotBlank,
+            fontColor: requiredAndNotBlank
         };
 
         const errors = (<any>validate)(input, constraints, { fullMessages: false });
@@ -126,6 +128,7 @@ WidgetSchema.statics.createWidget = function(input: IWidgetInput): Promise<IWidg
             type: input.type,
             size: input.size,
             color: input.color,
+            fontColor: input.fontColor,
             preview: input.preview,
             tags: input.tags
         };
@@ -165,6 +168,7 @@ WidgetSchema.statics.updateWidget = function(id: string, input: IWidgetInput): P
             type: requiredAndNotBlank,
             size: requiredAndNotBlank,
             color: requiredAndNotBlank,
+            fontColor: requiredAndNotBlank,
         };
 
         const errors = (<any>validate)(input, constraints, { fullMessages: false });
