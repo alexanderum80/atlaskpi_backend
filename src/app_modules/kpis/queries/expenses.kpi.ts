@@ -59,7 +59,7 @@ export class Expenses extends KpiBase implements IKpiBase {
             vsAggregate = baseAggregate;
         }
 
-        super(expense, vsAggregate);
+        super(expense, vsAggregate, null);
     }
 
     getData(dateRange: IDateRange[], options?: IGetDataOptions): Promise<any> {

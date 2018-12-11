@@ -1,5 +1,6 @@
+import { inject, injectable } from 'inversify';
 import { camelCase } from 'change-case';
-import { cloneDeep, isArray, isDate, isObject, isString } from 'lodash';
+import { find, cloneDeep, isArray, isDate, isObject, isString } from 'lodash';
 import * as logger from 'winston';
 
 import { IKPI } from '../../../domain/app/kpis/kpi';
@@ -8,6 +9,13 @@ import { FrequencyEnum } from '../../../domain/common/frequency-enum';
 import { IChartTop } from '../../../domain/common/top-n-record';
 import { NULL_CATEGORY_REPLACEMENT } from '../../charts/queries/charts/ui-chart-base';
 import { AggregateStage } from './aggregate';
+import { VirtualSourceAggregateService, IKeyValues, IProcessAggregateResult } from '../../../domain/app/virtual-sources/vs-aggregate.service';
+import { IVirtualSource, IVirtualSourceDocument } from '../../../domain/app/virtual-sources/virtual-source';
+
+export interface IKpiVirtualSources {
+    virtualSource: IVirtualSourceDocument;
+    parentVirtualSource?: IVirtualSourceDocument;
+}
 
 export interface ICollection {
     modelName: string;
@@ -49,6 +57,7 @@ export interface IKpiBase {
     getSeries?(dateRange: IDateRange, frequency: FrequencyEnum);
 }
 
+@injectable()
 export class KpiBase {
     frequency: FrequencyEnum;
     protected kpi: IKPI;
@@ -56,7 +65,9 @@ export class KpiBase {
     protected pristineAggregate: AggregateStage[];
     protected timezone: string;
 
-    constructor(public model: any, public aggregate: AggregateStage[]) {
+    protected _vsAggregateService: VirtualSourceAggregateService;
+
+    constructor(public model: any, public aggregate: AggregateStage[], protected kpiVirtualSources: IKpiVirtualSources) {
         // for multimple executeQuery iterations in the same instance we need to preserve the aggregate
         if (!model) {
             console.error('no model');
@@ -65,8 +76,36 @@ export class KpiBase {
     }
 
     executeQuery(dateField: string, dateRange?: IDateRange[], options?: IGetDataOptions): Promise<any> {
-        // for multimple executeQuery iterations in the same instance we need to preserve the aggregate
-        this.aggregate = cloneDeep(this.pristineAggregate);
+        // process the virtual source aggregate
+        const vsAggregateReplacements: IKeyValues = {
+            '__from__': dateRange[0].from,
+            '__to__': dateRange[0].to,
+        };
+
+        let aggregateResult: IProcessAggregateResult = {
+            aggregate: [],
+            dateRangeApplied: false
+        };
+
+        if (this.kpiVirtualSources) {
+            aggregateResult = this._vsAggregateService.processReplacements(
+                this.kpiVirtualSources.virtualSource, vsAggregateReplacements
+            );
+
+            this.aggregate = aggregateResult.aggregate;
+
+            if (!aggregateResult.dateRangeApplied) {
+                aggregateResult = this._vsAggregateService.tryDateRangeAsFirstStage(
+                    this.aggregate,
+                    this.kpiVirtualSources.virtualSource,
+                    this.kpiVirtualSources.parentVirtualSource,
+                    dateRange[0]
+                );
+            }
+        }
+
+        // for multiple executeQuery iterations in the same instance we need to preserve the aggregate
+        this.aggregate = aggregateResult.aggregate.concat(cloneDeep(this.pristineAggregate));
 
         logger.debug('executing query: ' + this.constructor.name);
 
@@ -76,7 +115,9 @@ export class KpiBase {
         let that = this;
 
         return new Promise<any>((resolve, reject) => {
-            if (dateRange && dateRange.length)
+
+            if (!aggregateResult.dateRangeApplied
+                && dateRange && dateRange.length)
                 that._injectDataRange(dateRange, dateField);
             if (options.filter)
                 that._injectFilter(options.filter);
@@ -131,8 +172,6 @@ export class KpiBase {
     }
 
     private _injectDataRange(dateRange: IDateRange[], field: string) {
-        // const matchDateRange = { $match: {} } as any;
-        const vsAggDateRange = this.findStage('vsAggDateRange', '$match');
         let matchDateRange = this.findStage('filter', '$match');
 
         if (dateRange && dateRange.length) {
@@ -141,8 +180,6 @@ export class KpiBase {
                     '$gte':  dateRange[0].from,
                     '$lt':   dateRange[0].to
                 };
-                // if we have a vsDateRange match stage, lets apply the dateRange
-                if (vsAggDateRange) vsAggDateRange.$match[field] = { ...matchDateRange.$match[field] };
             } else {
                 if (!matchDateRange['$match']) {
                     matchDateRange.$match = {};

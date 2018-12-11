@@ -28,10 +28,14 @@ import { WidgetsService } from './widgets.service';
 import { ScheduleJobService } from './schedule-jobs/schedule-job.service';
 import { NewSeedService } from './seed/seed-service';
 import { DateService } from './date/date-service';
+import { VirtualSourceAggregateService } from '../domain/app/virtual-sources/vs-aggregate.service';
+import { KpiBase } from '../app_modules/kpis/queries/kpi-base';
 
 export function registerServices(container: IBridgeContainer) {
     container.registerSingleton(PnsService);
     container.registerSingleton(GAJobsQueueService);
+
+    container.registerSingleton(VirtualSourceAggregateService);
 
     // notifications
     container.registerSingleton(TargetNotification);
@@ -61,4 +65,7 @@ export function registerServices(container: IBridgeContainer) {
     container.registerPerWebRequest(UserPasswordService);
     container.registerPerWebRequest(ScheduleJobService);
     container.registerPerWebRequest(DateService);
+
+
+
 }
