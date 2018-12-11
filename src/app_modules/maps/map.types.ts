@@ -44,6 +44,8 @@ export class MapAttributesInput  {
     @field({ type: GraphQLTypesMap.String})
     kpi: string;
 
+    @field({ type: GraphQLTypesMap.String })
+    zipCodeSource: string;
 }
 
 @type()
@@ -103,6 +105,9 @@ export class MapEntityResponse  {
 
     @field({ type: GraphQLTypesMap.String, isArray: true })
     dashboards: string[];
+
+    @field({ type: GraphQLTypesMap.String })
+    zipCodeSource: string;
 }
 
 @type()
