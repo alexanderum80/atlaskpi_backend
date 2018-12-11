@@ -3,10 +3,8 @@ import { CurrentUser } from '../domain/app/current-user';
 import { difference } from 'lodash';
 import { IDashboardDocument } from './../domain/app/dashboards/dashboard';
 import { IWidgetInput } from './../domain/app/widgets/widget';
-import { Alerts } from '../domain/app/alerts/alert.model';
 import { inject, injectable } from 'inversify';
 import * as BlueBird from 'bluebird';
-
 import { Charts } from '../domain/app/charts/chart.model';
 import { Dashboards } from '../domain/app/dashboards/dashboard.model';
 import { IUIWidget } from '../domain/app/widgets/ui-widget-base';
@@ -17,6 +15,7 @@ import { INameType } from './../domain/common/name-type';
 import { attachToDashboards } from '../app_modules/widgets/mutations/common';
 import { Logger } from '../domain/app/logger';
 import { detachFromDashboards } from '../app_modules/widgets/mutations/common';
+import { ScheduleJobs } from '../domain/app/schedule-job/schedule-job.model';
 
 @injectable()
 export class WidgetsService {
@@ -27,7 +26,7 @@ export class WidgetsService {
         @inject(Dashboards.name) private _dashboards: Dashboards,
         @inject(Widgets.name) private _widgets: Widgets,
         @inject(WidgetFactory.name) private _widgetFactory: WidgetFactory,
-        @inject(Alerts.name) private _alert: Alerts,
+        @inject(ScheduleJobs.name) private _scheduleJobs: ScheduleJobs,
         @inject(Logger.name) private _logger: Logger,
         @inject(CurrentUser.name) private _user: CurrentUser
     ) {
@@ -216,7 +215,7 @@ export class WidgetsService {
                     // remove alert from widget
                     const deleteModel = {
                         widget: that._widgets.model.removeWidget(id),
-                        alert: that._alert.model.removeAlertByModelId(id)
+                        alert: that._scheduleJobs.model.removeJobByModelId(id)
                     };
                     BlueBird.props(deleteModel).then(documents => {
                         resolve(documents.widget);
