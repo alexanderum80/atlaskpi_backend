@@ -1,63 +1,33 @@
-import { IAlertDocument, IAlertInfo, IAlertModel } from './alert';
-import { input } from '../../../framework/decorators/input.decorator';
-import { ModelBase } from '../../../type-mongo/model-base';
-import { AppConnection } from '../app.connection';
-
+import { isEmpty, isBoolean } from 'lodash';
 import { inject, injectable } from 'inversify';
-import { isArray, isEqual, isBoolean, isEmpty } from 'lodash';
 import * as mongoose from 'mongoose';
 import * as BlueBird from 'bluebird';
-import * as validate from 'validate.js';
-import * as moment from 'moment';
+import { ModelBase } from '../../../type-mongo/model-base';
+import { AppConnection } from '../app.connection';
+import { IAlertDocument, IAlertInfo, IAlertModel } from './alerts';
 
-const Schema = mongoose.Schema;
-
-const AlertModelInfoSchema = {
-    name: {
-        type: String,
-        required: true
-    },
-    id: {
-        type: String,
-        required: true
-    },
-};
-
-const AlertSchema = new Schema({
-    notifyUsers: [{
-        // type: Schema.Types.String,
-        type: Schema.Types.ObjectId,
-        ref: 'User',
-        required: true
-    }],
-    // i.e. every business day
-    frequency: { type: String, required: true },
-    // alert is active or inactive
-    active: {type: Boolean, required: true},
-    pushNotification: Boolean,
-    emailNotified: Boolean,
-    modelAlert: {
-        type: AlertModelInfoSchema,
-        required: true
-    },
-    dayOfMonth: {
-        type: Number,
-        required: true,
-        default: parseInt(moment().format('DD'))
-    },
-    timestamp: {
-        type: Date,
-        default: Date.now()
-    }
+const ALERT_USER_SCHEMA = new mongoose.Schema({
+    identifier: { type: String, required: true },
+    deliveryMethods: { type: [String], enum: ['email', 'push'], required: true }
 });
 
+export const AlertSchema = new mongoose.Schema({
+    name: { type: String, required: true },
+    kpi: { type: String, required: true },
+    frequency: { type: String, required: true },
+    condition: { type: String, required: true },
+    value: { type: Number, required: true },
+    active: { type: Boolean, required: true },
+    users: { type: [ALERT_USER_SCHEMA], required: true },
+    createdBy: { type: String, required: true },
+    createdAt: { type: Date, required: true }
+});
 
-
-AlertSchema.statics.alertByWidgetId = function(id: string): BlueBird<IAlertDocument[]> {
+AlertSchema.statics.alertsbyWidgetId = function(id: string): BlueBird<IAlertDocument[]> {
     const alertModel = (<IAlertModel>this);
 
     return new BlueBird<IAlertDocument[]>((resolve, reject) => {
-        alertModel.find({ 'modelAlert.id': id })
+        alertModel.find({ 'alertModel.id': id })
             .then((result: IAlertDocument[]) => {
                 resolve(result);
                 return;
@@ -156,7 +126,7 @@ AlertSchema.statics.removeAlert = function(id: string): BlueBird<IAlertDocument>
 
         alertModel.findById(id).then((alert: IAlertDocument) => {
             if (!alert) {
-                reject({ name: 'no alert found', message: 'no alert found' });
+                reject({ name: 'no Alert found', message: 'no Alert found' });
                 return;
             }
 
@@ -182,7 +152,7 @@ AlertSchema.statics.removeAlertByModelId = function(id: string): BlueBird<IAlert
             return;
         }
 
-        alertModel.findOne({ 'modelAlert.id': id }).then((alert: IAlertDocument) => {
+        alertModel.findOne({ 'alertModel.id': id }).then((alert: IAlertDocument) => {
             if (!alert) {
                 resolve(null);
                 return;
@@ -208,7 +178,7 @@ AlertSchema.statics.removeDeleteUser = async function(id: string): Promise<boole
     try {
         const removeUser = await this.update(
             {}, {
-                'notifyUsers': {
+                'users.identifier': {
                     $in: [id]
                 }
             }, {
@@ -221,11 +191,10 @@ AlertSchema.statics.removeDeleteUser = async function(id: string): Promise<boole
     }
 };
 
-
 @injectable()
-export class Alerts extends ModelBase <IAlertModel> {
+export class Alerts extends ModelBase<IAlertModel> {
     constructor(@inject(AppConnection.name) appConnection: AppConnection) {
         super();
-        this.initializeModel(appConnection.get, 'Alert', AlertSchema, 'alerts');
+        this.initializeModel(appConnection.get, 'Alerts', AlertSchema, 'alerts');
     }
 }

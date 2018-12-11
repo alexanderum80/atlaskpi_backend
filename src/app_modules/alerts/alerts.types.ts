@@ -14,26 +14,43 @@ export class AlertModelInfoInput {
     @field({ type: GraphQLTypesMap.String })
     id: string;
 }
+@input()
+export class INotificationUsers {
+    @field({ type: GraphQLTypesMap.String, required: true })
+    identifier: String;
+    @field({ type: GraphQLTypesMap.String, isArray: true, required: true })
+    deliveryMethods: String[];
+}
+
+@type()
+export class ONotificationUsers {
+    @field({ type: GraphQLTypesMap.String, required: true })
+    identifier: String;
+    @field({ type: GraphQLTypesMap.String, isArray: true, required: true })
+    deliveryMethods: String[];
+}
 
 @input()
 export class AlertInput {
-    @field({ type: GraphQLTypesMap.String, isArray: true, required: true })
-    notifyUsers: String[];
-
+    @field({ type: GraphQLTypesMap.String, required: true })
+    name: String;
+    @field({ type: GraphQLTypesMap.String, required: true })
+    kpi: String;
     @field({ type: GraphQLTypesMap.String, required: true })
     frequency: String;
-
+    @field({ type: GraphQLTypesMap.String, required: true })
+    condition: String;
+    @field({ type: GraphQLTypesMap.Float, required: true })
+    value: Number;
     @field({ type: GraphQLTypesMap.Boolean, required: true })
-    active: boolean;
+    active: Boolean;
+    @field({ type: INotificationUsers, isArray: true, required: true })
+    users: INotificationUsers[];
+    @field({ type: GraphQLTypesMap.String, required: true })
+    createdBy: String;
+    @field({ type: GraphQLTypesMap.Date, required: true })
+    createdAt: Date;
 
-    @field({ type: GraphQLTypesMap.Boolean })
-    pushNotification: boolean;
-
-    @field({ type: GraphQLTypesMap.Boolean })
-    emailNotified: boolean;
-
-    @field({ type: AlertModelInfoInput })
-    modelAlert: AlertModelInfoInput;
 }
 
 @type()
@@ -54,24 +71,24 @@ export class AlertResponse {
 
     @field({ type: GraphQLTypesMap.String })
     _id: string;
-
-    @field({ type: GraphQLTypesMap.String, isArray: true })
-    notifyUsers: String[];
-
-    @field({ type: GraphQLTypesMap.String })
+    @field({ type: GraphQLTypesMap.String, required: true })
+    name: String;
+    @field({ type: GraphQLTypesMap.String, required: true })
+    kpi: String;
+    @field({ type: GraphQLTypesMap.String, required: true })
     frequency: String;
-
+    @field({ type: GraphQLTypesMap.String, required: true })
+    condition: String;
+    @field({ type: GraphQLTypesMap.Float, required: true })
+    value: Number;
     @field({ type: GraphQLTypesMap.Boolean })
-    active: boolean;
-
-    @field({ type: GraphQLTypesMap.Boolean })
-    pushNotification: boolean;
-
-    @field({ type: GraphQLTypesMap.Boolean })
-    emailNotified: boolean;
-
-    @field({ type: AlertModelInfoResponse })
-    modelAlert: AlertModelInfoResponse;
+    active: Boolean;
+    @field({ type: ONotificationUsers, isArray: true, required: true })
+    users: ONotificationUsers[];
+    @field({ type: GraphQLTypesMap.String, required: true })
+    createdBy: String;
+    @field({ type: GraphQLTypesMap.Date, required: true })
+    createdAt: Date;
 }
 
 @type()
