@@ -12,6 +12,7 @@ import { Inventory } from './../inventory/inventory.model';
 import { IIdName } from '../../common/id-name';
 import { IValueName } from '../../common/value-name';
 import { ISearchableModel } from '../global-search/global-search';
+import { IMapDocument } from '../maps/maps';
 
 
 
@@ -52,6 +53,7 @@ export interface IDocumentExist {
     chart?: IChartDocument[];
     widget?: IWidgetDocument[];
     complexKPI?: IKPIDocument[];
+    maps?: IMapDocument[];
 }
 
 export interface IKPIDataSourceHelper {
