@@ -21,6 +21,13 @@ const distinctProvidersPipeline = [
     { '$project': { _id: 0, externalId: '$_id.externalId', name: '$_id.name' } }
 ];
 
+const distinctResourcesPipeline = [
+    { '$unwind': '$resource' },
+    { '$match' : { 'resource.externalId' : { '$ne' : null }}},
+    { '$group': { '_id': { externalId: '$resource.externalId', name: '$resource.name' } } },
+    { '$project': { _id: 0, externalId: '$_id.externalId', name: '$_id.name' } }
+];
+
 const EntitySchema = {
     externalId: String,
     name: String
@@ -56,7 +63,7 @@ const AppoitnmentCustomerSchema = {
     fullname: String
 };
 
-const ProviderSchema = {
+const ResourceSchema = {
     externalId: String,
     name: String,
     type: { type: String }
@@ -98,7 +105,7 @@ export const AppointmentSchema = new mongoose.Schema({
     createdOn: Date,
     noShowOn: Date,
     customer: AppoitnmentCustomerSchema,
-    provider: [ ProviderSchema ],
+    provider: [ ResourceSchema ],
     location: { ...AppointmentLocationSchema },
     event: { ...EventSchema },
     procedure: [ AppointmentProcedureSchema ],
@@ -106,6 +113,7 @@ export const AppointmentSchema = new mongoose.Schema({
     date: Date,
     converted: Boolean,
     appointmentType: String,
+    resource: [ ResourceSchema ],
     document: {
         type: String, // invoice, bill, charge, etc
         identifier: String
@@ -284,11 +292,14 @@ AppointmentSchema.statics.search = function(criteria: SearchAppointmentCriteriaI
             '$lt': to
         };
 
-        // provider
-        if (criteria.provider && criteria.provider.length && !isEmpty(criteria.provider[0])) {
-            query['provider.externalId'] = {
-                '$in': criteria.provider,
-            };
+        const criteriaArrayFields = [ 'provider', 'resource'];
+
+        for (const c of criteriaArrayFields) {
+            if (criteria[c] && criteria[c].length && !isEmpty(criteria[c][0])) {
+                query[`${c}.externalId`] = {
+                    '$in': criteria[c],
+                };
+            }
         }
 
         if (isBoolean(criteria.cancelled) && criteria.cancelled === false) {
@@ -316,7 +327,20 @@ AppointmentSchema.statics.providersList = function(): Promise<IIdName[]> {
             return;
         }).catch(err => {
             that._logger.error(err);
-            return reject('There was an error retrieving appointments');
+            return reject('There was an error retrieving appointments-providers');
+        });
+    });
+};
+
+AppointmentSchema.statics.resourcesList = function(): Promise<IIdName[]> {
+    const that = this;
+    return new Promise <IIdName[]>((resolve, reject) => {
+        that.aggregate(distinctResourcesPipeline).then(resources => {
+            resolve(<any>resources);
+            return;
+        }).catch(err => {
+            that._logger.error(err);
+            return reject('There was an error retrieving appointments-resources');
         });
     });
 };
