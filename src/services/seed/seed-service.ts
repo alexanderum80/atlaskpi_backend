@@ -1,6 +1,7 @@
 import { IAppConfig } from './../../configuration/config-models';
 import { inject } from 'inversify';
 import { Db, MongoClient } from 'mongodb';
+import { Logger } from '../../domain/app/logger';
 
 export interface ISeedService {
     run(targetDb: string, includeDemoData: boolean): Promise<boolean>;
@@ -10,7 +11,8 @@ export class NewSeedService implements ISeedService {
     private sourceDb = 'newdemo';
 
     constructor(
-        @inject('Config') private _config: IAppConfig
+        @inject('Config') private _config: IAppConfig,
+        @inject('Logger') private _logger: Logger
     ) { }
 
     async run(targetDb: string, includeDemoData: boolean): Promise<boolean> {
@@ -19,10 +21,9 @@ export class NewSeedService implements ISeedService {
             const dbUri =
                 this._config.newAccountDbUriFormat.replace('{{database}}', targetDb);
             const client = await this.connect(dbUri);
-            const result = await this.copyData(client, targetDb, includeDemoData);
-
+            const copyResult = await this.copyData(client, targetDb, includeDemoData);
             client.close();
-            return result;
+            return copyResult;
         } catch (e) {
             console.error('There was an error seeding new account', e);
             throw e;
@@ -87,8 +88,9 @@ export class NewSeedService implements ISeedService {
             promises.push(self.copyCollection(sourceDb, targetDb, collection));
         });
 
+
         return Promise.all(promises)
-            .then(() => true)
+            .then(() => this.updateKpiData(targetDb))
             .catch(() => false);
     }
 
@@ -110,4 +112,29 @@ export class NewSeedService implements ISeedService {
             });
         });
     }
+
+    private async updateKpiData(targetDb: Db): Promise<boolean> {
+        try {
+            // update created by in kpis
+            const user = await targetDb.collection('users').findOne({});
+            const createdDate = Date.now();
+
+            await targetDb.collection('kpis').update(
+                {},
+                { $set: {
+                        createdDate,
+                        createdBy: user._id,
+                    }
+                },
+                { multi: true}
+            );
+
+            return true;
+        } catch (err) {
+            this._logger.error('error updating new company data: ' + err);
+            return false;
+        }
+    }
+
+
 }
