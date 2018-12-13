@@ -88,6 +88,7 @@ export interface IUserPreference {
     showAppointmentCancelled?: boolean;
     providers?: string[];
     resources?: string[];
+    mobileCalendar?: string;
     calendarTimeZone?: string;
     dashboardIdNoVisible?: string[];
     dashboards?: IViewList;
