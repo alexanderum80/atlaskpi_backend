@@ -52,7 +52,7 @@ export class NewSeedService implements ISeedService {
          //   'roles',
             'virtualSources'
         ];
-        const definitionCollections = ['charts', 'dashboards', 'kpis', 'widgets'];
+        const definitionCollections = ['charts', 'dashboards', 'kpis', 'widgets', 'maps'];
         const demoDataCollections = [
             'appointments',
             'business-unit',
