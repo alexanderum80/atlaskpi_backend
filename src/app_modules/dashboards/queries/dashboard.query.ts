@@ -79,8 +79,8 @@ export class DashboardQuery implements IQuery<IDashboard> {
 
                     if (!dashboard) {
                         // that._logger.debug('dashbord doenst exists, or not enought permissions to see it.');
-                        reject('not found');
-                        return;
+                        //reject('not found');
+                        return resolve(null);      
                     }
 
                     const dashboardElementsPromises = { };

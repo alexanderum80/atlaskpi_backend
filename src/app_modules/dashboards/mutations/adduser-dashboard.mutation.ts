@@ -33,9 +33,19 @@ export class AddUserDashboardMutation extends MutationBase<IMutationResponse> {
             const userId = data.userId;
             const username = data.username;
             
+            //editing the user
             if(userId) {
                 detachUserFromAllDashboards(that._dashboards.model, userId)
                 .then(() => {
+                    if(!data.id) {
+                        /* 
+                        no need to call addUserDashboard cuz we are only removing 
+                        the user from dashboards
+                        */
+                      return resolve({
+                           success: true
+                       }) 
+                    }
                     that._dashboards.model.adduserDashboard(data.id, userId).then(dashboard => {
                         resolve({
                             success: true
@@ -48,6 +58,7 @@ export class AddUserDashboardMutation extends MutationBase<IMutationResponse> {
                     });
                 });
             }
+        // adding an user
         else{
             that._users.model.findByEmail(username)
                 .then( user => {
