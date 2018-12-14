@@ -111,6 +111,26 @@ DashboardSchema.statics.updateVisibleDashboard = function(id: string, input: Boo
         });
     };
 
+    DashboardSchema.statics.adduserDashboard = function(id: string, input: string):
+    Promise < IDashboardDocument > {
+
+        const that = < IDashboardModel > this;
+
+        return new Promise < IDashboardDocument > ((resolve, reject) => {
+            if (!id) {
+                return reject('Information not valid');
+            }
+            const idArr = id.split('|');
+            that.update({_id: { $in: idArr}}, { $push: { users: input }}, { multi: true }).then(dashboard => {
+                resolve(dashboard);
+                return;
+            }).catch(err => {
+                logger.error(err);
+                return reject('There was an error updating the dashboard');
+            });
+        });
+    };
+
 DashboardSchema.statics.deleteDashboard = function(id: string):
     Promise < IDashboardDocument > {
 
