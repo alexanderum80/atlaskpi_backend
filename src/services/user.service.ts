@@ -15,12 +15,15 @@ import { AttachmentTypeEnum, AttachmentCategoryEnum } from '../domain/app/attach
 import { Logger } from '../domain/app/logger';
 import { UserAttachmentsService } from './attachments/user-attachments.service';
 import { isEmpty, find } from 'lodash';
+import { detachUserFromAllDashboards } from '../app_modules/dashboards/mutations/common';
+import { Dashboards } from '../domain/app/dashboards/dashboard.model';
 
 @injectable()
 export class UserService {
     constructor(
         @inject(Logger.name) private _logger: Logger,
         @inject(Users.name) private _users: Users,
+        @inject(Dashboards.name) private _dashboards: Dashboards,
         @inject(Alerts.name) private _alerts: Alerts,
         @inject(ScheduleJobs.name) private _scheduleJobs: ScheduleJobs,
         @inject(Roles.name) private _roles: Roles,
@@ -79,7 +82,7 @@ export class UserService {
             if (!id) {
                 throw new Error('missing id to remove user');
             }
-
+            await detachUserFromAllDashboards(this._dashboards.model, id);
             const removeCurrentUser = await this._users.model.removeUser(id);
             if (removeCurrentUser) {
                 await this._alerts.model.removeDeleteUser(removeCurrentUser.entity._id);
