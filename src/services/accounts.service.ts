@@ -340,7 +340,7 @@ function createUserDatabase(
             })
             .then((appConn) => initializeRolesForAccount(roles, permissions))
             .then((rolesCreated) => createAdminUser(users, newAccount.database.name, firstUser, enrollmentNotification))
-            .then(() => new NewSeedService(config).run(newAccount.database.name, true))
+            .then(() => new NewSeedService(config, logger).run(newAccount.database.name, true))
             .then(() => generateFirstAccountToken(authService, {
                 hostname: `${newAccount.database.name}.${subdomain}`,
                 username: firstUser.email,
