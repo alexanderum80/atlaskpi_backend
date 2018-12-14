@@ -131,6 +131,9 @@ export class UserPreferencesInput {
     calendarTimeZone: string;
 
     @field({ type: GraphQLTypesMap.String })
+    mobileCalendar: string;   // classic | modern
+
+    @field({ type: GraphQLTypesMap.String })
     dashboardIdNoVisible: string[];
 
     @field({ type: IListView })
@@ -356,6 +359,9 @@ export class UserPreference {
 
     @field({ type: GraphQLTypesMap.String })
     resources: string;
+
+    @field({ type: GraphQLTypesMap.String })
+    mobileCalendar: string;   // classic | modern
 
     @field({ type: GraphQLTypesMap.String })
     calendarTimeZone: string;

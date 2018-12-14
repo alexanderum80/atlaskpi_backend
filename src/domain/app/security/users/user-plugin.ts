@@ -146,6 +146,7 @@ export function userPlugin(schema: mongoose.Schema, options: any) {
         resources: [{
             type: String
         }],
+        mobileCalendar: String,
         calendarTimeZone: String,
         dashboardIdNoVisible: [{
             type: String
