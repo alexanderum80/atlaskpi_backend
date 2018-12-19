@@ -12,6 +12,7 @@ import { ChartDateRange, ChartDateRangeInput, PaginationInfo, ValueName } from '
 import { Widget } from '../widgets/widgets.types';
 import { KPIExpressionHelper } from './../../domain/app/kpis/kpi-expression.helper';
 import { IValueName } from '../../domain/common/value-name';
+import { MapEntityResponse } from '../maps/map.types';
 
 @input()
 export class KPIAttributesInput  {
@@ -187,6 +188,9 @@ export class KPIEntityResponse {
 
     @field({ type: KPI, isArray: true })
     complexKPI: KPI[];
+
+    @field({ type: MapEntityResponse, isArray: true})
+    maps: MapEntityResponse[];
 }
 
 @type()

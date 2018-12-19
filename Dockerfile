@@ -1,4 +1,4 @@
-FROM node:boron
+FROM node:jessie
 
 # Create app directory
 WORKDIR /usr/src/app

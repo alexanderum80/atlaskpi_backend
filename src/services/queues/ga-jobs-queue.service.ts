@@ -43,19 +43,19 @@ let queue = require('kue');
 // let Queue = kue.createQueue();
 let _jobs: Queue;
 
-// try {
-//      _jobs = queue.createQueue({
-//         prefix: os.hostname(), // 'webapp',
-//         redis: {
-//             port: config.cache.redisPort, // 6379,
-//             host: config.cache.redisServer, // 'localhost'
-//         }
-//     });
+try {
+    _jobs = queue.createQueue({
+        prefix: os.hostname(), // 'webapp',
+        redis: {
+            port: config.cache.redisPort, // 6379,
+            host: config.cache.redisServer, // 'localhost'
+        }
+    });
 
-//     console.log('Queue name: ' + os.hostname);
-// } catch (e) {
-//     console.error('There was an error connecting to Redis Server');
-// }
+    console.log('Queue name: ' + os.hostname);
+} catch (e) {
+    console.error('There was an error connecting to Redis Server');
+}
 
 // queue.app.listen(4000);
 
@@ -68,8 +68,8 @@ export class GAJobsQueueService {
 
     constructor(
         @inject(Connectors.name) private _connectors: Connectors,
-        @inject(AppConnectionPool.name) private _connPool: AppConnectionPool
-        // @inject(GoogleAnalyticsKPIService.name) private _gaKpiService: GoogleAnalyticsKPIService
+        @inject(AppConnectionPool.name) private _connPool: AppConnectionPool,
+        @inject(GoogleAnalyticsKPIService.name) private _gaKpiService: GoogleAnalyticsKPIService
     ) {
          this._startProcessingJobs();
          this._startProcessingGARequests();

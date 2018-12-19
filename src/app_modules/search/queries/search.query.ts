@@ -18,6 +18,7 @@ import { Slideshows } from '../../../domain/app/slideshow/slideshow.model';
 import { Widgets } from '../../../domain/app/widgets/widget.model';
 import { Appointments } from '../../../domain/app/appointments/appointment-model';
 import { IGlobalSearch, ISearchResultItem } from '../../../domain/app/global-search/global-search';
+import { Maps } from '../../../domain/app/maps/maps.model';
 
 const searchSections = [
     'dashboards',
@@ -70,7 +71,8 @@ export class SearchQuery implements IQuery<SearchResult[]> {
         @inject(Widgets.name) private _widgets: Widgets,
         @inject(Users.name) private _users: Users,
         @inject(Roles.name) private _roles: Roles,
-        @inject(Appointments.name) private _appointments: Appointments
+        // @inject(Appointments.name) private _appointments: Appointments,
+        @inject(Maps.name) private _maps: Maps
     ) {
         this._adaptEngine = new AdaptEngine([AdaptIntents.Chart]);
     }
@@ -130,7 +132,11 @@ export class SearchQuery implements IQuery<SearchResult[]> {
                 this._widgets.model.globalSearch(cleanQuery, searchFields, 'Widgets', 'name', 'description'),
                 this._users.model.globalSearch(cleanQuery, ['profile.firstName', 'profile.lastName'], 'Users', 'profile.firstName', 'profile.lastName'),
                 this._roles.model.globalSearch(cleanQuery, ['name'], 'Roles', 'name', 'name'),
-                this._appointments.model.globalSearch(cleanQuery, ['reason'], 'Appointments', 'reason', 'reason')
+                this._maps.model.globalSearch(cleanQuery, ['title', 'subtitle'], 'Maps', 'title', 'subtitle')
+
+                // https://kpi-bi.atlassian.net/browse/CORE-2773
+                // Disable search of appointments in the global search due to app crash
+                // this._appointments.model.globalSearch(cleanQuery, ['reason'], 'Appointments', 'reason', 'reason'),
             ];
 
             Promise.all(searchPromises).then(res => {

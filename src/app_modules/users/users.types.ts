@@ -111,7 +111,7 @@ export class IListView {
 
 
 @input()
-export class ITourInput {
+export class UserPreferencesInput {
     @field({ type: ITourChart })
     chart: ITourChart;
 
@@ -124,8 +124,14 @@ export class ITourInput {
     @field({ type: GraphQLTypesMap.String, isArray: true })
     providers: string[];
 
+    @field({ type: GraphQLTypesMap.String, isArray: true })
+    resources: string[];
+
     @field({ type: GraphQLTypesMap.String })
     calendarTimeZone: string;
+
+    @field({ type: GraphQLTypesMap.String })
+    mobileCalendar: string;   // classic | modern
 
     @field({ type: GraphQLTypesMap.String })
     dashboardIdNoVisible: string[];
@@ -133,16 +139,16 @@ export class ITourInput {
     @field({ type: IListView })
     dashboards: IListView;
 
-    @field({ type:IListView})
+    @field({ type: IListView})
     charts: IListView;
 
-    @field({ type:IListView})
+    @field({ type: IListView})
     kpis: IListView;
 
-    @field({ type:IListView})
+    @field({ type: IListView})
     roles: IListView;
-    
-    @field({ type:IListView})
+
+    @field({ type: IListView})
     users: IListView;
 
     @field ({ type: GraphQLTypesMap.String })
@@ -352,6 +358,12 @@ export class UserPreference {
     providers: string;
 
     @field({ type: GraphQLTypesMap.String })
+    resources: string;
+
+    @field({ type: GraphQLTypesMap.String })
+    mobileCalendar: string;   // classic | modern
+
+    @field({ type: GraphQLTypesMap.String })
     calendarTimeZone: string;
 
     @field({ type: GraphQLTypesMap.String })
@@ -360,16 +372,16 @@ export class UserPreference {
     @field({ type: ListViewPreference })
     dashboards: ListViewPreference;
 
-    @field({ type:ListViewPreference })
+    @field({ type: ListViewPreference })
     charts: ListViewPreference;
 
-    @field({ type:ListViewPreference })
+    @field({ type: ListViewPreference })
     kpis: ListViewPreference;
 
-    @field({ type:ListViewPreference })
+    @field({ type: ListViewPreference })
     roles: ListViewPreference;
 
-    @field({ type:ListViewPreference })
+    @field({ type: ListViewPreference })
     users: ListViewPreference;
 
     @field ({ type: GraphQLTypesMap.String })
@@ -378,12 +390,15 @@ export class UserPreference {
     @resolver({ forField: 'providers' })
     static resolveProviders = (entity: IUserPreference) => entity.providers.join('|')
 
+    @resolver({ forField: 'resources' })
+    static resolveResources = (entity: IUserPreference) => entity.resources.join('|')
+
     @resolver({ forField: 'dashboardIdNoVisible' })
     static resolverdashboardIdNoVisible = (entity: IUserPreference) => {
         if (entity.dashboardIdNoVisible === undefined || entity.dashboardIdNoVisible.length === 0){
-             return undefined
-        }else{
-            return entity.dashboardIdNoVisible.join('|')
+             return undefined;
+        } else {
+            return entity.dashboardIdNoVisible.join('|');
         }
     }
 }

@@ -15,6 +15,19 @@ export function detachFromAllDashboards(dashboardModel: IDashboardModel, chartId
     });
 }
 
+export function detachUserFromAllDashboards(dashboardModel: IDashboardModel, userId: string): Promise<boolean> {
+    return new Promise<boolean>((resolve, reject) => {
+        dashboardModel.update({ users: { $in: [userId]}},
+                              { $pull: { users: userId }},
+                              { multi: true }).exec()
+        .then(dashboards => {
+            resolve(true);
+            return;
+        })
+        .catch(err => reject(err));
+    });
+}
+
 export function detachMapFromAllDashboards(dashboardModel: IDashboardModel, mapId: string): Promise<boolean> {
     return new Promise<boolean>((resolve, reject) => {
         dashboardModel.update({ maps: { $in: [mapId]}},

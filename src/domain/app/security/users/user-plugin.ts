@@ -143,6 +143,10 @@ export function userPlugin(schema: mongoose.Schema, options: any) {
         providers: [{
             type: String
         }],
+        resources: [{
+            type: String
+        }],
+        mobileCalendar: String,
         calendarTimeZone: String,
         dashboardIdNoVisible: [{
             type: String
@@ -1135,32 +1139,31 @@ export function userPlugin(schema: mongoose.Schema, options: any) {
 
     schema.statics.updateUserPreference = function(id: string, input: IUserPreference): Promise<IUserDocument> {
         const userModel = (<IUserModel>this);
-        let currrenDashboardIdNoVisible: any[] = [];
+        let currentDashboardIdNoVisible: any[] = [];
         let dashboardIdsNoVisibleResult;
 
         return new Promise<IUserDocument>((resolve, reject) => {
             userModel.findById(id).then((user: IUserDocument) => {
-                
-                if(input.dashboardIdNoVisible) { 
+
+                if (input.dashboardIdNoVisible) {
                     if (user.preferences.dashboardIdNoVisible.length) {
                         const dashboardIdsNoVisibleInUser = user.preferences.dashboardIdNoVisible.map(d => d);
                         Object.keys(dashboardIdsNoVisibleInUser).forEach(dKey => {
                             if (user.preferences.dashboardIdNoVisible[dKey] !== input.dashboardIdNoVisible) {
-                                currrenDashboardIdNoVisible.push(user.preferences.dashboardIdNoVisible[dKey]);
-                                dashboardIdsNoVisibleResult = currrenDashboardIdNoVisible;
+                                currentDashboardIdNoVisible.push(user.preferences.dashboardIdNoVisible[dKey]);
+                                dashboardIdsNoVisibleResult = currentDashboardIdNoVisible;
                             }
                         });
                         if (dashboardIdsNoVisibleResult !== undefined && (dashboardIdsNoVisibleResult.length === dashboardIdsNoVisibleInUser.length)) {
                             dashboardIdsNoVisibleResult = dashboardIdsNoVisibleResult.concat(input.dashboardIdNoVisible);
-                        }    
-                    }else{
+                        }
+                    } else {
                         dashboardIdsNoVisibleResult = input.dashboardIdNoVisible;
                     }
                 }
-                    const preferences = (input.dashboardIdNoVisible) 
-                                        ? {dashboardIdNoVisible: dashboardIdsNoVisibleResult} 
+                    const preferences = (input.dashboardIdNoVisible)
+                                        ? { dashboardIdNoVisible: dashboardIdsNoVisibleResult }
                                         : input;
-                                    
                 if (!isEmpty(user.preferences)) {
                     Object.assign(user.preferences, preferences);
                 } else {
