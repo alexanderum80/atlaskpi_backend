@@ -223,7 +223,7 @@ export class MapMarkerService {
                 if (resultByZip === undefined) {
                     return [];
                 }
-
+                //TODO CHECK that zipFieldName is not undefined
                 const zipFieldName = Object.keys(resultByZip[0]._id).find(k => k.toLocaleLowerCase().includes('zip' || 'postal'));
                 // get the zip codes related
                 const zipList = await this._ZipToMaps.model.find({
@@ -233,7 +233,7 @@ export class MapMarkerService {
                 let markers;
                 const groupByField = input.grouping[input.grouping.length - 1];
                 if (input && groupByField){
-                        markers = this._groupingMarkersFormatted(resultByZip, zipList, groupByField);
+                        markers = this._groupingMarkersFormatted(resultByZip, zipList, groupByField, zipFieldName);
                 } else{
                         markers = this._noGroupingsMarkersFormatted(resultByZip, zipList, groupByField);
                  }
@@ -264,14 +264,14 @@ export class MapMarkerService {
             });
         }
 
-        private _groupingMarkersFormatted(salesByZip: ISaleByZip[], zipList: IZipToMapDocument[], groupByField?: string): MapMarker[] {
+        private _groupingMarkersFormatted(salesByZip: ISaleByZip[], zipList: IZipToMapDocument[], groupByField?: string, zipFieldName?: string): MapMarker[] {
             if (isEmpty(salesByZip)) {
                 return [];
             }
             const zipCodes: Dictionary<IZipToMapDocument> = keyBy(zipList, 'zipCode');
 
             return chain(salesByZip)
-                        .groupBy('_id.customerZip')
+                        .groupBy('_id['+zipFieldName+']')
                         // key = zipCode => i.e. 37703
                         .map((value: any[], key: string) => {
                             let itemList: MapMarkerItemList[] = [];
