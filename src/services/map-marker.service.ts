@@ -223,22 +223,20 @@ export class MapMarkerService {
                 if (resultByZip === undefined) {
                     return [];
                 }
+
+                const zipFieldName = Object.keys(resultByZip[0]._id).find(k => k.toLocaleLowerCase().includes('zip' || 'postal'));
                 // get the zip codes related
                 const zipList = await this._ZipToMaps.model.find({
                                     zipCode: {
-                                        $in: <any> resultByZip.map(d => d._id.customerZip)
+                                        $in: <any> resultByZip.map(d => d._id[zipFieldName.valueOf()])
                                     }});
                 let markers;
                 const groupByField = input.grouping[input.grouping.length - 1];
-                if (input) {
-                    if (groupByField) {
+                if (input && groupByField){
                         markers = this._groupingMarkersFormatted(resultByZip, zipList, groupByField);
-                    } else {
+                } else{
                         markers = this._noGroupingsMarkersFormatted(resultByZip, zipList, groupByField);
-                    }
-                } else {
-                    markers = this._noGroupingsMarkersFormatted(resultByZip, zipList, groupByField);
-                }
+                 }
                 return markers;
             } catch (err) {
                 console.error(err);
