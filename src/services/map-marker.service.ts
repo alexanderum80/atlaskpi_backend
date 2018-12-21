@@ -207,7 +207,7 @@ export class MapMarkerService {
 
         async getMapMarkers(dataTypeMap: TypeMap, input: MapMarkerGroupingInput): Promise<IMapMarker[]> {
             try {
-                if (!input.kpi || !input.grouping) { return []; }
+                if (!input.kpi || !input.grouping || (input.grouping.length && input.grouping[0]==="")) { return []; }
                 let dateRange;
                 if (isString(input.dateRange)) {
                     dateRange = JSON.parse(input.dateRange);
@@ -220,7 +220,7 @@ export class MapMarkerService {
                 const allKpis: IKPIDocument[] = await this._kpis.model.find({});
                 const kpiDocument: IKPIDocument = allKpis.find((k: IKPIDocument) => k.id === input.kpi);
                 const resultByZip = await this.getData(kpiDocument, input);
-                if (resultByZip === undefined) {
+                if (resultByZip === undefined || !(resultByZip.length)) {
                     return [];
                 }
                 //TODO CHECK that zipFieldName is not undefined
