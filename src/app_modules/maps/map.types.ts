@@ -4,6 +4,7 @@ import { GraphQLTypesMap } from '../../framework/decorators/graphql-types-map';
 import { type } from '../../framework/decorators/type.decorator';
 import { input } from '../../framework/decorators/input.decorator';
 import { ErrorDetails } from '../../framework/graphql/common.types';
+import { resolver } from '../../framework/decorators/resolver.decorator';
 
 
 @input()
@@ -55,6 +56,11 @@ export class MapMarkerItemList {
 
     @field({ type: GraphQLTypesMap.String })
     groupName: string;
+
+    @resolver({ forField: 'groupName' })
+    static groupNameResolver(itemList) {
+        return itemList.groupName.toString();
+    }
 }
 
 @type()
