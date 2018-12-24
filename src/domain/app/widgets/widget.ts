@@ -92,6 +92,7 @@ export interface IWidget {
     type: string;
     size: string;
     color: string;
+    fontColor: string;
     numericWidgetAttributes?: INumericWidgetAttributes;
     chartWidgetAttributes?: IChartWidgetAttributes;
     dashboards?: string[];
@@ -108,6 +109,7 @@ export interface IWidgetInput {
     type: string;
     size: string;
     color: string;
+    fontColor: string;
     numericWidgetAttributes?: INumericWidgetAttributes;
     chartWidgetAttributes?: IChartWidgetAttributes;
     preview?: boolean;

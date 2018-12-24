@@ -32,7 +32,8 @@ let MapSchema = new Schema({
     groupings: [String],
     dashboards: [String],
     size: String,
-    kpi: String
+    kpi: String,
+    zipCodeSource: String
 });
 
 // add tags capabilities
@@ -54,6 +55,7 @@ MapSchema.statics.createMap = function(input: MapAttributesInput): Promise < IMa
             dateRange: requiredAndNotBlank,
             groupings: requiredAndNotBlank,
             size: requiredAndNotBlank,
+            zipCodeSource: requiredAndNotBlank
         };
 
         let errors = ( < any > validate)(( < any > input), constraints, {
@@ -73,7 +75,8 @@ MapSchema.statics.createMap = function(input: MapAttributesInput): Promise < IMa
             groupings: input.groupings,
             dashboards: input.dashboards,
             size: input.size,
-            kpi: input.kpi
+            kpi: input.kpi,
+            zipCodeSource: input.zipCodeSource
         };
 
         that.create(newMap)
@@ -102,6 +105,7 @@ MapSchema.statics.updateMap = function(id: string, input: MapAttributesInput): P
             dateRange: requiredAndNotBlank,
             groupings: requiredAndNotBlank,
             size: requiredAndNotBlank,
+            zipCodeSource: requiredAndNotBlank
         };
 
         let errors = ( < any > validate)(( < any > input), constraints, {
@@ -120,7 +124,8 @@ MapSchema.statics.updateMap = function(id: string, input: MapAttributesInput): P
             groupings: input.groupings,
             dashboards: input.dashboards,
             size: input.size,
-            kpi: input.kpi
+            kpi: input.kpi,
+            zipCodeSource: input.zipCodeSource
         };
 
         that.findOneAndUpdate({

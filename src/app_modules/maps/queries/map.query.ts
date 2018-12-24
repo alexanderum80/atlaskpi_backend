@@ -63,7 +63,8 @@ export class MapQuery implements IQuery<String> {
                         size: mapdata.size,
                         dashboards: mapdata.dashboards,
                         dateRange: <any>mapdata.dateRange,
-                        markers: markersList
+                        markers: markersList,
+                        zipCodeSource: mapdata.zipCodeSource
                     };
                     resolve(JSON.stringify(response));
                     return;

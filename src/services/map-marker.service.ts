@@ -207,7 +207,7 @@ export class MapMarkerService {
 
         async getMapMarkers(dataTypeMap: TypeMap, input: MapMarkerGroupingInput): Promise<IMapMarker[]> {
             try {
-                if (!input.kpi || !input.grouping) { return []; }
+                if (!input.kpi || !input.grouping || (input.grouping.length && input.grouping[0]==="")) { return []; }
                 let dateRange;
                 if (isString(input.dateRange)) {
                     dateRange = JSON.parse(input.dateRange);
@@ -220,25 +220,23 @@ export class MapMarkerService {
                 const allKpis: IKPIDocument[] = await this._kpis.model.find({});
                 const kpiDocument: IKPIDocument = allKpis.find((k: IKPIDocument) => k.id === input.kpi);
                 const resultByZip = await this.getData(kpiDocument, input);
-                if (resultByZip === undefined) {
+                if (resultByZip === undefined || !(resultByZip.length)) {
                     return [];
                 }
+                //TODO CHECK that zipFieldName is not undefined
+                const zipFieldName = Object.keys(resultByZip[0]._id).find(k => k.toLocaleLowerCase().includes('zip' || 'postal'));
                 // get the zip codes related
                 const zipList = await this._ZipToMaps.model.find({
                                     zipCode: {
-                                        $in: <any> resultByZip.map(d => d._id.customerZip)
+                                        $in: <any> resultByZip.map(d => d._id[zipFieldName.valueOf()])
                                     }});
                 let markers;
                 const groupByField = input.grouping[input.grouping.length - 1];
-                if (input) {
-                    if (groupByField) {
-                        markers = this._groupingMarkersFormatted(resultByZip, zipList, groupByField);
-                    } else {
+                if (input && groupByField){
+                        markers = this._groupingMarkersFormatted(resultByZip, zipList, groupByField, zipFieldName);
+                } else{
                         markers = this._noGroupingsMarkersFormatted(resultByZip, zipList, groupByField);
-                    }
-                } else {
-                    markers = this._noGroupingsMarkersFormatted(resultByZip, zipList, groupByField);
-                }
+                 }
                 return markers;
             } catch (err) {
                 console.error(err);
@@ -266,14 +264,14 @@ export class MapMarkerService {
             });
         }
 
-        private _groupingMarkersFormatted(salesByZip: ISaleByZip[], zipList: IZipToMapDocument[], groupByField?: string): MapMarker[] {
+        private _groupingMarkersFormatted(salesByZip: ISaleByZip[], zipList: IZipToMapDocument[], groupByField?: string, zipFieldName?: string): MapMarker[] {
             if (isEmpty(salesByZip)) {
                 return [];
             }
             const zipCodes: Dictionary<IZipToMapDocument> = keyBy(zipList, 'zipCode');
 
             return chain(salesByZip)
-                        .groupBy('_id.customerZip')
+                        .groupBy('_id['+zipFieldName+']')
                         // key = zipCode => i.e. 37703
                         .map((value: any[], key: string) => {
                             let itemList: MapMarkerItemList[] = [];
