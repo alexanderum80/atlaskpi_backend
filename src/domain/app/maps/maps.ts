@@ -14,6 +14,7 @@ export interface IMap {
     dashboards: string[];
     size: string;
     kpi: string;
+    zipCodeSource: string;
 }
 
 export interface IMapInput {
@@ -25,6 +26,7 @@ export interface IMapInput {
     dashboards: string[];
     size: string;
     kpi: string;
+    zipCodeSource: string;
 }
 
 export interface IGetMapInput {
