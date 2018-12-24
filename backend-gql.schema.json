@@ -4791,6 +4791,18 @@
             "deprecationReason": null
           },
           {
+            "name": "fontColor",
+            "description": "",
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "String",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "numericWidgetAttributes",
             "description": "",
             "args": [],

@@ -71,8 +71,8 @@ export class GAJobsQueueService {
         @inject(AppConnectionPool.name) private _connPool: AppConnectionPool,
         @inject(GoogleAnalyticsKPIService.name) private _gaKpiService: GoogleAnalyticsKPIService
     ) {
-         this._startProcessingJobs();
-         this._startProcessingGARequests();
+        this._startProcessingJobs();
+        this._startProcessingGARequests();
     }
 
     addGAJob(

@@ -83,7 +83,7 @@ export class ConnectorsService {
                         path: field.toLowerCase().replace(' ', '_'),
                         dataType: dataType,
                     };
-                    if (dataType === 'String') {
+                    if (dataType === 'String' || inputFieldsMap[field].path.includes('zip' || 'postal')) {
                         inputFieldsMap[field].allowGrouping = true;
                     }
                 }
