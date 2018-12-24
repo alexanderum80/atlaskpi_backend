@@ -1,3 +1,4 @@
+import { CustomList } from './custom-list/custom-list.model';
 import { FinancialActivities } from './financial-activities/financial-activity.model';
 import { COGS } from './cogs/cogs.model';
 import { Payments } from './payments/payment.model';
@@ -87,6 +88,7 @@ const registrations: any[] = [
     ScheduleJobs,
     TargetsNew,
     ProjectedIncomes,
+    CustomList
 ];
 
 export function registerAppModels(container: IBridgeContainer) {

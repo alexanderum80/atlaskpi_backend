@@ -1,3 +1,4 @@
+import { CustomList } from './../domain/app/custom-list/custom-list.model';
 import { camelCase } from 'change-case';
 import { IDateRange } from './../domain/common/date-range';
 import { IVirtualSourceDocument, IVirtualSource } from '../domain/app/virtual-sources/virtual-source';
@@ -17,6 +18,8 @@ import { AppConnection } from '../domain/app/app.connection';
 import * as moment from 'moment';
 import { IMutationResponse } from '../framework/mutations/mutation-response';
 import { Connectors } from '../domain/master/connectors/connector.model';
+import { CurrentUser } from '../domain/app/current-user';
+import { DataEntryResponse } from '../app_modules/data-entry/data-entry.types';
 
 const GOOGLE_ANALYTICS = 'GoogleAnalytics';
 
@@ -34,7 +37,10 @@ export class DataSourcesService {
         @inject('resolver') private _resolver: (name: string) => any,
         @inject(AppConnection.name) private _appConnection: AppConnection,
         @inject(Connectors.name) private _connectors: Connectors,
-        @inject(VirtualSources.name) private _virtualDatasources: VirtualSources) { }
+        @inject(VirtualSources.name) private _virtualDatasources: VirtualSources,
+        @inject(CurrentUser.name) private _user: CurrentUser,
+        @inject(CustomList.name) private _customList: CustomList
+        ) { }
 
     async get(): Promise<DataSourceResponse[]> {
         return await this._virtualDatasources.model.getDataSources();
@@ -55,6 +61,15 @@ export class DataSourcesService {
         //     async (vs: DataSourceResponse) => await this.getCollectionSource(vs),
         //     { concurrency: 10 });
         // return sortBy(virtualDataSources, 'name');
+    }
+
+    async getDataEntry(): Promise<DataSourceResponse[]> {
+        const userId = this._user.get().id;
+        return await this._virtualDatasources.model.getDataEntry(userId);
+    }
+
+    async getDataEntryById(id: string): Promise<IVirtualSourceDocument> {
+        return await this._virtualDatasources.model.getDataSourceById(id);
     }
 
     /**
@@ -213,6 +228,71 @@ export class DataSourcesService {
         return fields;
     }
 
+    async addDataSource(data): Promise<IVirtualSourceDocument> {
+        if (!data) { return Promise.reject('cannot add a document with, empty payload'); }
+
+        try {
+            const user = this._user.get().id;
+            const customList = await this._customList.model.getCustomList(user);
+
+            const fileExtensionIndex = data.inputName.lastIndexOf('.') !== -1 ? data.inputName.lastIndexOf('.') : data.inputName.length;
+
+            const simpleName = data.inputName.substr(0, fileExtensionIndex);
+            const collectionName = simpleName.substr(simpleName.length - 1, 1) !== 's'
+                                ? camelCase(simpleName.concat('s')) : camelCase(simpleName);
+
+            data.fields = JSON.parse(data.fields);
+            let inputFieldsMap = {};
+            inputFieldsMap['Source'] = {
+                path: 'source',
+                dataType: 'String',
+                allowGrouping: true
+            };
+
+            for (let i = data.fields.length - 1; i >= 0; i--) {
+                const f = data.fields[i];
+                const field = f.columnName;
+                let dataType = f.dataType;
+
+                const sourceOrigin = customList.find(c => c.id === dataType);
+
+                inputFieldsMap[field] = {
+                    path: field.toLowerCase().replace(' ', '_'),
+                    dataType: sourceOrigin ? sourceOrigin.dataType : dataType,
+                    required: f.required || false
+                };
+
+                if (sourceOrigin) {
+                    inputFieldsMap[field].sourceOrigin = sourceOrigin.id;
+                }
+
+                if (dataType === 'String') {
+                    inputFieldsMap[field].allowGrouping = true;
+                }
+            }
+
+            const virtualSourceObj: IVirtualSource = {
+                name: simpleName.toLowerCase().replace(' ', ''),
+                description: data.inputName,
+                source: collectionName,
+                modelIdentifier: collectionName,
+                dateField: data.dateRangeField.toLowerCase().replace(' ', '_'),
+                aggregate: [],
+                fieldsMap: inputFieldsMap,
+                dataEntry: true,
+                users: data.users
+            };
+            return new Promise<IVirtualSourceDocument>((resolve, reject) => {
+
+                this._virtualDatasources.model.addDataSources(virtualSourceObj).then(newSource => {
+                    resolve(newSource);
+                });
+            });
+        } catch (err) {
+            console.log('error adding virtual source: ' + err);
+        }
+    }
+
     createVirtualSourceMapCollection(input): Promise<IMutationResponse> {
         const schema = new mongoose.Schema({}, { strict: false });
         const connection: mongoose.Connection = this._appConnection.get;
@@ -235,6 +315,7 @@ export class DataSourcesService {
                 const model = new newCollection(collection);
                 model.save();
             });
+
             resolve({success: true});
             return;
         });
@@ -261,6 +342,34 @@ export class DataSourcesService {
                 'schema': dataSource.fieldsMap,
                 'data': data,
                 'dataName': connectorName,
+                'dateRangeField': dataSource.dateField,
+            };
+
+            return JSON.stringify(dataCollection);
+        } catch (err) {
+            console.log('error getting virtual source collection: ' + err);
+        }
+    }
+
+    async getVirtualSourceByIdMapCollection(id): Promise<any> {
+        try {
+            const dataSource = await this._virtualDatasources.model.getDataSourceById(id);
+
+            if (!dataSource) {
+                return null;
+            }
+
+            const schema = new mongoose.Schema({}, { strict: false });
+            const connection: mongoose.Connection = this._appConnection.get;
+            const model = connection.model(dataSource.source, schema, dataSource.source);
+
+            const dataModel = await model.find();
+            const data = await dataModel.map(data => data['_doc']);
+
+            const dataCollection = {
+                'schema': dataSource.fieldsMap,
+                'data': data,
+                'dataName': dataSource.name,
                 'dateRangeField': dataSource.dateField
             };
 

@@ -1,3 +1,5 @@
+import { CustomList } from './../custom-list/custom-list.model';
+import { CurrentUser } from '../current-user';
 import { camelCase } from 'change-case';
 import * as Bluebird from 'bluebird';
 import { inject, injectable } from 'inversify';
@@ -45,12 +47,16 @@ const VirtualSourceSchema = new mongoose.Schema({
     fieldsMap: { type: mongoose.Schema.Types.Mixed, required: true },
     externalSource: Boolean,
     filterOperators: DataTypeFiltersSchema,
-    createdOn: { type: Date, default: Date.now }
+    createdOn: { type: Date, default: Date.now },
+    dataEntry: Boolean,
+    users: [String]
 });
 
 // STATIC
 VirtualSourceSchema.statics.getDataSources = getDataSources;
 VirtualSourceSchema.statics.getDataSourceByName = getDataSourceByName;
+VirtualSourceSchema.statics.getDataSourceById = getDataSourceById;
+VirtualSourceSchema.statics.getDataEntry = getDataEntry;
 VirtualSourceSchema.statics.addDataSources = addDataSources;
 VirtualSourceSchema.statics.removeDataSources = removeDataSources;
 
@@ -65,7 +71,10 @@ VirtualSourceSchema.methods.mapDataSourceFields = mapDataSourceFields;
 
 @injectable()
 export class VirtualSources extends ModelBase<IVirtualSourceModel> {
-    constructor(@inject(AppConnection.name) appConnection: AppConnection) {
+    constructor(
+        @inject(AppConnection.name) appConnection: AppConnection,
+        @inject(CustomList.name) customListModel: CustomList
+    ) {
         super();
         this.initializeModel(appConnection.get, 'VirtualSource', VirtualSourceSchema, 'virtualSources');
     }
@@ -104,7 +113,7 @@ async function getDataSources(names?: string[]): Promise<DataSourceResponse[]> {
                 dataSource.sources = await getDistinctSourceValues(vs);
                 return dataSource;
             },
-            { concurrency: 10 }
+            // { concurrency: 10 }
         );
 
         // (let virtualSource of virtualSources) {
@@ -129,6 +138,37 @@ async function getDataSources(names?: string[]): Promise<DataSourceResponse[]> {
     }
 }
 
+async function getDataEntry(userId: string): Promise<DataSourceResponse[]> {
+    const model = this as IVirtualSourceModel;
+
+    try {
+        const virtualSources = await model.find({ dataEntry: true, users: userId});
+
+        const dataSources = await Bluebird.map(
+            virtualSources,
+            async(vs) => {
+                const dataSource: any = {
+                    _id: vs.id,
+                    name: vs.name.toLowerCase(),
+                    description: vs.description,
+                    dataSource: vs.source,
+                    fields: mapDataSourceFields(vs),
+                    externalSource: vs.externalSource,
+                    filterOperators: vs.filterOperators as any,
+                    dataEntry: vs.dataEntry,
+                    users: vs.users
+                };
+                dataSource.sources = await getDistinctSourceValues(vs);
+                return dataSource;
+            }
+        );
+
+         return sortBy(dataSources, 'name');
+    } catch (e) {
+        console.error('Error getting virtual sources');
+        return [];
+    }
+}
 
 
 async function filterSourceAndFieldsWithData(ds: DataSourceResponse, vs: IVirtualSourceDocument): Promise<DataSourceResponse> {
@@ -194,10 +234,19 @@ async function getDataSourceByName(name: string): Promise<IVirtualSourceDocument
     }
 }
 
+async function getDataSourceById(id: string): Promise<IVirtualSourceDocument> {
+    const model = this as IVirtualSourceModel;
+    try {
+        return await model.findOne({ _id: id});
+    } catch (e) {
+        console.log('Error getting virtual source fields');
+        return {} as any;
+    }
+}
 
 export function mapDataSourceFields(virtualSource: IVirtualSourceDocument, excludeSourceFiled = true): DataSourceField[] {
     // with the new feature to filter kpi by sources we do not need to send the "source" field anymore
-    // !!!UPDATE: we do need the source in the groupings so we should specify if we do not want to exclude the source field. 
+    // !!!UPDATE: we do need the source in the groupings so we should specify if we do not want to exclude the source field.
 
     const fieldsMap = virtualSource.fieldsMap;
     let fieldNames = Object.keys(virtualSource.fieldsMap)
@@ -215,12 +264,11 @@ export function mapDataSourceFields(virtualSource: IVirtualSourceDocument, exclu
     }));
 }
 
-function addDataSources(data: IVirtualSource): Promise<IVirtualSourceDocument> {
+function addDataSources(data: any): Promise<IVirtualSourceDocument> {
     // with the new feature to filter kpi by sources we do not need to send the "source" field anymore
     const that = this;
-    if (!data) { return Promise.reject('cannot add a document with, empty payload'); }
-    return new Promise<IVirtualSourceDocument>((resolve, reject) => {
 
+    return new Promise<IVirtualSourceDocument>((resolve, reject) => {
         return that.create(data)
             .then((newConnector: IVirtualSourceDocument) => {
                 resolve(newConnector);

@@ -28,9 +28,10 @@ import { TagModule } from './tags/tags.module';
 import { ActivitiesModule } from './activities/activities.module';
 import { AlertsModule } from './alerts/alerts.module';
 import {HelpCenterModule} from './help-centers/help-center.module';
-import { CustomModule } from './integrations/custom/custom.module';
 import { TargetsNewModule } from './targetsNew/target.module';
 import { NotificationsModule } from './notifications/notifications.module';
+import { DataEntryModule } from './data-entry/data-entry.module';
+import { CustomListModule } from './custom-list/custom-list.module';
 
 
 @AppModule({
@@ -64,9 +65,10 @@ import { NotificationsModule } from './notifications/notifications.module';
         TagModule,
         ConnectorsModule,
         ActivitiesModule,
-        CustomModule,
         TargetsNewModule,
         NotificationsModule,
+        DataEntryModule,
+        CustomListModule
     ]
 })
 export class AtlasApp extends ModuleBase { }

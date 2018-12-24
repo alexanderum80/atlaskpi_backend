@@ -47,76 +47,6 @@ export class ConnectorsService {
         });
     }
 
-    createCustomConnector(input, connectorType): Promise<IMutationResponse> {
-        const inputName = input.inputName.split('.')[0];
-        const connObj: IConnector = {
-            name: input.inputName,
-            databaseName: this._currentAccount.get.database.name,
-            subdomain: this._currentAccount.get.database.name,
-            type: connectorType,
-            virtualSource: camelCase(inputName).toLowerCase(),
-            config: {},
-            createdBy: 'backend',
-            createdOn: new Date(Date.now()),
-            active: true
-        };
-
-        return new Promise<IMutationResponse> ((resolve, reject) => {
-            this._connectors.model.addConnector(connObj).then(() => {
-                let collectionName = camelCase(inputName);
-                collectionName = collectionName.substr(collectionName.length - 1, 1) !== 's'
-                                    ? collectionName.concat('s') : collectionName;
-
-                input.fields = JSON.parse(input.fields);
-                let inputFieldsMap = {};
-                inputFieldsMap['Source'] = {
-                    path: 'source',
-                    dataType: 'String',
-                    allowGrouping: true
-                };
-
-                for (let i = input.fields.length - 1; i >= 0; i--) {
-                    const f = input.fields[i];
-                    const field = f.columnName;
-                    const dataType = f.dataType;
-                    inputFieldsMap[field] = {
-                        path: field.toLowerCase().replace(' ', '_'),
-                        dataType: dataType,
-                    };
-                    if (dataType === 'String') {
-                        inputFieldsMap[field].allowGrouping = true;
-                    }
-                }
-
-                const virtualSourceObj: IVirtualSource = {
-                    name: camelCase(inputName).toLowerCase(),
-                    description: input.inputName,
-                    source: collectionName,
-                    modelIdentifier: collectionName,
-                    dateField: input.dateRangeField.toLowerCase().replace(' ', '_'),
-                    aggregate: [],
-                    fieldsMap: inputFieldsMap
-                };
-
-                this._virtualSourceModel.model.addDataSources(virtualSourceObj).then(newVirtualSource => {
-                    input.inputName = collectionName;
-                    input.records = JSON.parse(input.records);
-
-                    this._dataSourcesService.createVirtualSourceMapCollection(input).then(() => {
-                        resolve({ success: true });
-                        return;
-                    });
-                }).catch(err => {
-                    resolve({ success: false, errors: [{ field: 'dataSource', errors: ['Unable to add data source'] }] });
-                    return;
-                });
-            }).catch(err => {
-                resolve({ success: false, errors: [{ field: 'connectors', errors: ['Unable to add connector'] }] });
-                return;
-            });
-        });
-    }
-
     findConnectorsBySubdomain(subdomain: string): Promise<IConnectorDocument[]> {
         const that = this;
         return new Promise<IConnectorDocument[]>((resolve, reject) => {
@@ -153,17 +83,7 @@ export class ConnectorsService {
                                 that._logger.debug('could not disconnect ' + deletedConnector.name);
                             });
 
-                        if (deletedConnector.type === 'customexcel' || deletedConnector.type === 'customcsv' || deletedConnector.type === 'customtable') {
-                            that._virtualSources.model.removeDataSources(deletedConnector.virtualSource).then(virtualSource => {
-                                that._dataSourcesService.removeVirtualSourceMapCollection(virtualSource.source).then(() => {
-                                    resolve(deletedConnector);
-                                    return;
-                                });
-                            });
-                        } else {
-                            resolve(deletedConnector);
-                            return;
-                        }
+                        resolve(deletedConnector);
                     })
                     .catch(err => reject(err));
                 }).catch(err => reject(err));
