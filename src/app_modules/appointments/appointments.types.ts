@@ -21,6 +21,9 @@ export class SearchAppointmentCriteriaInput {
     @field({ type: GraphQLTypesMap.String, isArray: true })
     provider?: string[];
 
+    @field({ type: GraphQLTypesMap.String, isArray: true })
+    resource?: string[];
+
     @field({ type: GraphQLTypesMap.Boolean })
     cancelled?: boolean;
 
@@ -207,7 +210,7 @@ export class AppointmentMutationResponse  {
 }
 
 @type()
-export class AppointmentProvider  {
+export class AppointmentResource  {
     @field({ type: GraphQLTypesMap.String })
     externalId: string;
 

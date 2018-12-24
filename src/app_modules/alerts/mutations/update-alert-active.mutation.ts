@@ -1,14 +1,11 @@
-import { IAlertDocument, IAlertInfo } from '../../../domain/app/alerts/alert';
-import { Alerts } from '../../../domain/app/alerts/alert.model';
-import { AlertInput, AlertMutationResponse } from '../alerts.types';
+import { AlertsService } from './../../../services/alerts.service';
+import { AlertMutationResponse } from '../alerts.types';
 import { inject, injectable } from 'inversify';
-import { field } from '../../../framework/decorators/field.decorator';
 import { mutation } from '../../../framework/decorators/mutation.decorator';
 import { MutationBase } from '../../../framework/mutations/mutation-base';
 import { IMutationResponse } from '../../../framework/mutations/mutation-response';
 import { GraphQLTypesMap } from '../../../framework/decorators/graphql-types-map';
 import { UpdateAlertActiveActivity } from '../activities/update-alert-active.activity';
-import { ScheduleJobService } from '../../../services/schedule-jobs/schedule-job.service';
 
 @injectable()
 @mutation({
@@ -22,21 +19,12 @@ import { ScheduleJobService } from '../../../services/schedule-jobs/schedule-job
 })
 export class UpdateAlertActiveMutation extends MutationBase<IMutationResponse> {
     constructor(
-        @inject(ScheduleJobService.name)
-        private _scheduleJobService: ScheduleJobService
+        @inject(AlertsService.name) private _alertsService: AlertsService
     ) {
         super();
     }
 
     async run(data: { id: string, active: boolean}): Promise<IMutationResponse> {
-        return await this._scheduleJobService.setActive(data.id, data.active);
-        // try {
-        //     const updateAlert = await this._alert.model.updateAlertActiveField(data.id, data.active);
-        //     return { success: true, entity: updateAlert };
-        // } catch (err) {
-        //     return {
-        //         errors: [{ field: '', errors: ['There was error updating the alert active field'] }]
-        //     };
-        // }
+        return await this._alertsService.setActive(data.id, data.active);
     }
 }

@@ -17,6 +17,7 @@ import { GoogleAnalyticsKpi } from './google-analytics-kpi';
 import { IKpiBase } from './kpi-base';
 import { Revenue } from './revenue.kpi';
 import { SimpleKPI } from './simple-kpi';
+import { VirtualSourceAggregateService } from '../../../domain/app/virtual-sources/vs-aggregate.service';
 
 @injectable()
 export class KpiFactory {
@@ -29,6 +30,7 @@ export class KpiFactory {
         @inject(GAJobsQueueService.name) private _queueService: GAJobsQueueService,
         @inject(CurrentAccount.name) private _currentAccount: CurrentAccount,
         @inject(CurrentUser.name) private _currentUser: CurrentUser,
+        @inject(VirtualSourceAggregateService.name) private _vsAggregateService: VirtualSourceAggregateService
     ) { }
 
     async getInstance(kpiDocument: IKPIDocument): Promise<IKpiBase> {
@@ -51,7 +53,8 @@ export class KpiFactory {
                     return SimpleKPI.CreateFromExpression(
                                 kpiDocument,
                                 virtualSources,
-                                tz
+                                tz,
+                                this._vsAggregateService
                           );
                 case KPITypeEnum.ExternalSource:
                     return GoogleAnalyticsKpi.CreateFromExpression( kpiDocument,
@@ -59,7 +62,8 @@ export class KpiFactory {
                                                                     this._googleAnalyticsKpiService,
                                                                     this._queueService,
                                                                     this._currentAccount,
-                                                                    virtualSources);
+                                                                    virtualSources,
+                                                                    this._vsAggregateService);
             }
 
         }

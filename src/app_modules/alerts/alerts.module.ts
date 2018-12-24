@@ -1,13 +1,13 @@
-import { UpdateAlertMutation } from './mutations/update-alert.mutation';
 import { CreateAlertMutation } from './mutations/create-alert.mutation';
-import { AlertByWidgetIdQuery } from './queries/alert-by-widget-id.query';
 import { AppModule, ModuleBase } from '../../framework/decorators/app-module';
-import {RemoveAlertMutation} from './mutations/remove-alert.mutation';
-import {UpdateAlertActiveMutation} from './mutations/update-alert-active.mutation';
+import { UpdateAlertMutation } from './mutations/update-alert.mutation';
+import { UpdateAlertActiveMutation } from './mutations/update-alert-active.mutation';
+import { RemoveAlertMutation } from './mutations/remove-alert.mutation';
+import { AlertsQuery } from './queries/alerts.query';
 
 @AppModule({
     queries: [
-        AlertByWidgetIdQuery
+        AlertsQuery
     ],
     mutations: [
         CreateAlertMutation,

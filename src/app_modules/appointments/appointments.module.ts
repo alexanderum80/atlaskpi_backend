@@ -8,6 +8,7 @@ import { AppointmentByIdQuery } from './queries/appointment-by-id.query';
 import { AppointmentsByDateQuery } from './queries/appointments-by-date.query';
 import { AppointmentsQuery } from './queries/appointments.query';
 import { SearchAppointmentsQuery } from './queries/search-appointments.query';
+import { AppointmentResourcesListQuery } from './queries/appointment-resources-list.query';
 
 @AppModule({
     mutations: [
@@ -21,7 +22,8 @@ import { SearchAppointmentsQuery } from './queries/search-appointments.query';
         AppointmentByIdQuery,
         AppointmentsQuery,
         AppointmentProvidersListQuery,
-        SearchAppointmentsQuery
+        SearchAppointmentsQuery,
+        AppointmentResourcesListQuery,
     ]
 })
 export class AppointmentsModule extends ModuleBase { }

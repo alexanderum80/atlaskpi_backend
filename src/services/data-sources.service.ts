@@ -20,6 +20,7 @@ import { IMutationResponse } from '../framework/mutations/mutation-response';
 import { Connectors } from '../domain/master/connectors/connector.model';
 import { CurrentUser } from '../domain/app/current-user';
 import { DataEntryResponse } from '../app_modules/data-entry/data-entry.types';
+import { VirtualSourceAggregateService } from '../domain/app/virtual-sources/vs-aggregate.service';
 
 const GOOGLE_ANALYTICS = 'GoogleAnalytics';
 
@@ -40,6 +41,7 @@ export class DataSourcesService {
         @inject(VirtualSources.name) private _virtualDatasources: VirtualSources,
         @inject(CurrentUser.name) private _user: CurrentUser,
         @inject(CustomList.name) private _customList: CustomList
+        @inject(VirtualSourceAggregateService.name) private _vsAggregateService: VirtualSourceAggregateService
         ) { }
 
     async get(): Promise<DataSourceResponse[]> {
@@ -82,7 +84,7 @@ export class DataSourcesService {
         }
 
         const vs = await this._virtualDatasources.model.findOne({
-            name: { $regex: new RegExp(dataSource, 'i')}
+            name: { $regex: new RegExp(`^${dataSource}$`, 'i')}
         });
 
         if (!fields) {
@@ -106,7 +108,7 @@ export class DataSourcesService {
     async getDistinctValues(name: string, source: string, field: string, limit: number, filter: string, collectionSource?: string[]): Promise<string[]> {
         try {
             const vs = await this._virtualDatasources.model.findOne({ name: { $regex: new RegExp(`^${name}$`, 'i') }  });
-            return await vs.getDistinctValues(vs, field, limit, filter, collectionSource);
+            return await vs.getDistinctValues(vs, field, limit, filter,  this._vsAggregateService, collectionSource);
         } catch (e) {
             this._logger.error('There was an error retrieving the distinct values', e);
             return [];
@@ -114,15 +116,24 @@ export class DataSourcesService {
     }
 
     async getExpressionFieldsWithData(input: KPIExpressionFieldInput): Promise<DataSourceField[]> {
-        const dataSource: string = input.dataSource;
-        const virtualSource: IVirtualSourceDocument = await this._virtualDatasources.model.getDataSourceByName(dataSource);
-
         let expressionFields: DataSourceField[];
+
+        const dataSource: string = input.dataSource;
+
+        if (!dataSource) return expressionFields;
+
+        let virtualSource: IVirtualSourceDocument = await this._virtualDatasources.model.getDataSourceByName(dataSource);
+
+        if (!virtualSource) return expressionFields;
 
         if (virtualSource.externalSource) {
             expressionFields = mapDataSourceFields(virtualSource);
             expressionFields.forEach(f => f.available = true);
         } else {
+            const vsAsObject = virtualSource.toObject() as IVirtualSource;
+
+            virtualSource.aggregate = this._vsAggregateService.applyDateRangeReplacement(vsAsObject.aggregate);
+
             expressionFields = await this.getAvailableFields(virtualSource, input.collectionSource);
         }
 
@@ -464,7 +475,7 @@ export class DataSourcesService {
         // original aggregate
         if (vs.aggregate) {
             const originalAgg =
-                (vs.toObject() as IVirtualSource)
+                (vs as IVirtualSource)
                     .aggregate
                     .map(stage => KPIFilterHelper.CleanObjectKeys(stage));
             aggregate.push(...originalAgg);
@@ -529,7 +540,7 @@ export class DataSourcesService {
         }
 
         const vs = await this._virtualDatasources.model.findOne({
-            name: { $regex: new RegExp(dataSource, 'i')}
+            name: { $regex: new RegExp(`^${dataSource}$`, 'i')}
         });
 
         if (!fields) {

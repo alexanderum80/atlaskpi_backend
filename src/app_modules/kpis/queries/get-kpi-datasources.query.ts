@@ -20,6 +20,7 @@ import { GetKpiDatasourcesActivity } from '../activities/get-kpi-datasources.act
     activity: GetKpiDatasourcesActivity,
     parameters: [
         { name: 'id', type: String },
+        { name: 'zipField', type: String }
     ],
     output: { type: Boolean, isArray: true }
 })
@@ -31,7 +32,7 @@ export class GetKpiDataSourcesQuery implements IQuery<Object> {
                 @inject(VirtualSources.name) private _virtualSources: VirtualSources,
                 @inject(Connectors.name) private _connectors: Connectors) { }
 
-    async run(data: { id: string }): Promise<Object> {
+    async run(data: { id: string, zipField: string }): Promise<Object> {
 
         const allKpis: IKPIDocument[] = await this._kpis.model.find({});
         const kpi: IKPIDocument = allKpis.find((k: IKPIDocument) => k.id === data.id);
@@ -44,7 +45,7 @@ export class GetKpiDataSourcesQuery implements IQuery<Object> {
         const searchPromises: Promise<Object>[] = [];
         virtualSources.map( s => {
             const theModel = this.getModel(s.name, s.source);
-            searchPromises.push(this.getFields(theModel));
+            searchPromises.push(this.getFields(theModel, data.zipField));
         });
         return new Promise<Object>((resolve, reject) => {
             Promise.all(searchPromises).then(res => {
@@ -61,13 +62,11 @@ export class GetKpiDataSourcesQuery implements IQuery<Object> {
         const model = connection.model(modelName, schema, source);
         return model;
     }
-    private getFields(model: any): Promise<Object> {
+    private getFields(model: any, zipField: string): Promise<Object> {
 
         return new Promise<Object>((resolve, reject) => {
             const parameters = [
-                { '$match' : {
-                        '$or' : [ { 'customer.zip' : { '$exists' : true } },
-                            { 'location.zip' : { '$exists' : true } } ] }
+                { '$match' : { [zipField] : { '$exists' : true }}
                 },
                 {
                     '$group' : { '_id' : null, 'first' : { '$first' : '$_id' } }

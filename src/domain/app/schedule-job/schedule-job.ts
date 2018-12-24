@@ -1,4 +1,5 @@
 import * as mongoose from 'mongoose';
+import * as Promise from 'bluebird';
 
 import { NotificationSourceEnum } from '../../master/notification/notification';
 
@@ -11,10 +12,35 @@ export interface IScheduleJob {
     data: any;
   }
 
+  export interface IScheduleJobModelInfo {
+    name: string;
+    id: string;
+}
+
+export interface IScheduleJobInfo {
+    notifyUsers: string[];
+    frequency: string;
+    active: boolean;
+    pushNotification: boolean;
+    emailNotified: boolean;
+    timezone: string;
+    modelAlert: IScheduleJobModelInfo;
+    dayOfMonth: number;
+    timestamp?: Date;
+}
+
 export interface IScheduleJobDocument extends IScheduleJob, mongoose.Document {
 
 }
 
-export interface IScheduleJobModel extends mongoose.Model<IScheduleJobDocument> {
+// export interface IScheduleJobDocument extends IScheduleJobInfo, mongoose.Document {}
 
+export interface IScheduleJobModel extends mongoose.Model<IScheduleJobDocument> {
+    scheduleJobByWidgetId(model: string): Promise<IScheduleJobDocument[]>;
+    createScheduleJob(input: IScheduleJobInfo): Promise<IScheduleJobDocument>;
+    updateScheduleJob(id: string, input: IScheduleJobInfo): Promise<IScheduleJobDocument>;
+    updateScheduleJobActive(id: string, active: boolean): Promise<IScheduleJobDocument>;
+    removeScheduleJob(id: string): Promise<IScheduleJobDocument>;
+    removeJobByModelId(id: string): Promise<IScheduleJobDocument>;
+    removeDeleteUser(id: string): Promise<IScheduleJobDocument>;
 }

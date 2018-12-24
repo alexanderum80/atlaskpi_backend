@@ -17,6 +17,7 @@ export class UIWidgetBase {
     protected type: string;
     protected size: string;
     protected color: string;
+    protected fontColor: string;
     protected format?: string; // string interpolation ex: "${value}" | "{value} kms"
     protected numericWidgetAttributes?: INumericWidgetAttributes;
     protected chartWidgetAttributes?: IChartWidgetAttributes;

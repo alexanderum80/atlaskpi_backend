@@ -5,13 +5,13 @@ import { Appointments } from './../../../domain/app/appointments/appointment-mod
 import { IIdName } from './../../../domain/common/id-name';
 import { IQuery } from './../../../framework/queries/query';
 import { ListAppointmentProvidersActivity } from './../activities/list-appointment-providers.activity';
-import { AppointmentProvider } from './../appointments.types';
+import { AppointmentResource } from './../appointments.types';
 
 @injectable()
 @query({
     name: 'appointmentProvidersList',
     activity: ListAppointmentProvidersActivity,
-    output: { type: AppointmentProvider, isArray: true }
+    output: { type: AppointmentResource, isArray: true }
 })
 export class AppointmentProvidersListQuery implements IQuery<IIdName[]> {
     constructor(

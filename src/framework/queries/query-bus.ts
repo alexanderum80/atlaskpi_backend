@@ -120,6 +120,8 @@ export class QueryBus implements IQueryBus {
         const keys = Object.keys(data);
         const suffix = keys.map(k => `${k}:${data[k]}`);
 
+        if(!request.account) return '';
+
         return `${request.account.database.name}:${query.constructor.name}:${suffix.join(':')}`;
     }
 }

@@ -11,6 +11,7 @@ import { ConnectorsService } from './connectors.service';
 import { DataSourcesService } from './data-sources.service';
 import { ExternalDataSourcesService } from './external-data-sources.service';
 import { KpiService } from './kpi.service';
+import { AlertsService } from './alerts.service';
 import { GoogleAnalyticsKPIService } from './kpis/google-analytics-kpi/google-analytics-kpi.service';
 import { AccountCreatedNotification } from './notifications/users/account-created.notification';
 import { EnrollmentNotification } from './notifications/users/enrollment.notification';
@@ -29,10 +30,14 @@ import { WidgetsService } from './widgets.service';
 import { ScheduleJobService } from './schedule-jobs/schedule-job.service';
 import { NewSeedService } from './seed/seed-service';
 import { DateService } from './date/date-service';
+import { VirtualSourceAggregateService } from '../domain/app/virtual-sources/vs-aggregate.service';
+import { KpiBase } from '../app_modules/kpis/queries/kpi-base';
 
 export function registerServices(container: IBridgeContainer) {
     container.registerSingleton(PnsService);
     container.registerSingleton(GAJobsQueueService);
+
+    container.registerSingleton(VirtualSourceAggregateService);
 
     // notifications
     container.registerSingleton(TargetNotification);
@@ -53,6 +58,7 @@ export function registerServices(container: IBridgeContainer) {
     container.registerPerWebRequest(ChartsService);
     container.registerPerWebRequest(MapsService);
     container.registerPerWebRequest(KpiService);
+    container.registerPerWebRequest(AlertsService);
     container.registerPerWebRequest(MapMarkerService);
     container.registerPerWebRequest(UserService);
     container.registerPerWebRequest(SocialWidgetsService);

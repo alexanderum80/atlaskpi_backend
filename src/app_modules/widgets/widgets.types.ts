@@ -57,6 +57,9 @@ export class WidgetInput  {
     @field({ type: GraphQLTypesMap.String, required: true })
     color: string;
 
+    @field({ type: GraphQLTypesMap.String, required: true })
+    fontColor: string;
+
     @field({ type: NumericWidgetAttributesInput })
     numericWidgetAttributes: NumericWidgetAttributesInput;
 
@@ -164,6 +167,9 @@ export class Widget  {
     @field({ type: GraphQLTypesMap.String })
     color: string;
 
+    @field({ type: GraphQLTypesMap.String })
+    fontColor: string;
+
     @field({ type: NumericWidgetAttributes })
     numericWidgetAttributes: NumericWidgetAttributes;
 
@@ -184,7 +190,7 @@ export class Widget  {
 
     @resolver({ forField: 'dashboards' })
     static convertDashboards(d) {
-        if(d && d.dashboards){
+        if (d && d.dashboards) {
             return  d.dashboards.map(dash => dash.toString() );
         }
         return;

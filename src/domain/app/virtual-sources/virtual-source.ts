@@ -3,6 +3,7 @@ import * as mongoose from 'mongoose';
 import { DataSourceField, DataSourceResponse } from '../../../app_modules/data-sources/data-sources.types';
 import { IValueName } from '../../common/value-name';
 import { ErrorDetails } from '../../../framework/graphql/common.types';
+import { VirtualSourceAggregateService } from './vs-aggregate.service';
 
 export interface IFieldMetadata {
     path: string;
@@ -68,6 +69,7 @@ export interface IVirtualSourceDocument extends IVirtualSource, mongoose.Documen
         fieldName: string,
         limit: number,
         filter: string,
+        vsAggregateService: VirtualSourceAggregateService,
         collectionSource?: string[]): Promise<string[]>;
     // containsPath(path: string): boolean;
 }
