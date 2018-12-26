@@ -1,3 +1,4 @@
+import { DataSource } from './../app_modules/google-spreadsheet/google-sheet.processor';
 import { CustomList } from './../domain/app/custom-list/custom-list.model';
 import { camelCase } from 'change-case';
 import { IDateRange } from '../domain/common/date-range';
@@ -36,7 +37,8 @@ export class CustomListService {
         @inject(Logger.name) private _logger: Logger,
         @inject(AppConnection.name) private _appConnection: AppConnection,
         @inject(CustomList.name) private _customList: CustomList,
-        @inject(CurrentUser.name) private _user: CurrentUser
+        @inject(CurrentUser.name) private _user: CurrentUser,
+        @inject(VirtualSources.name) private _dataSourceModel: VirtualSources
         ) { }
 
     async getCustomList(id?: string): Promise<ICustomListResponse[]> {
@@ -65,4 +67,28 @@ export class CustomListService {
         input['user'] = user;
         return await this._customList.model.updateCustomList(input);
     }
+
+    async removeCustomList(id: string): Promise<ICustomListResponse> {
+        return new Promise<ICustomListResponse>((resolve, reject) => {
+            const user = this._user.get().id;
+            this._dataSourceModel.model.getDataEntry(user).then(dataSource => {
+                const customListInUse = dataSource.filter(d => {
+                    const customListExist = d.fields.filter(f => f.sourceOrigin === id);
+                    if (customListExist.length) {
+                        return d;
+                    }
+                });
+
+                if (customListInUse.length) {
+                    return reject('list in use');
+                }
+
+               this._customList.model.removeCustomList(id).then(res => {
+                   return resolve(res);
+               });
+            });
+
+        });
+    }
+
 }

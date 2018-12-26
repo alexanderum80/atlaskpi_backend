@@ -37,7 +37,7 @@ export class AddCustomListMutation extends MutationBase<IMutationResponse> {
                 };
                 resolve({ success: true, entity: newListResponse });
             }).catch(err => {
-                resolve({ success: false, errors: [{field: 'input', errors: err}] });
+                resolve({ success: false, errors: [{field: 'input', errors: [err]}] });
             });
         });
     }

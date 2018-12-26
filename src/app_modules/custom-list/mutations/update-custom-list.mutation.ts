@@ -30,7 +30,7 @@ export class UpdateCustomListMutation extends MutationBase<IMutationResponse> {
             this._CustomListService.updateCustomList(data.input).then(customList => {
                     resolve({ success: true, entity: customList });
                 }).catch(err => {
-                    resolve({ success: false, errors: [{field: 'input', errors: err}] });
+                    resolve({ success: false, errors: [{field: 'input', errors: [err]}] });
                 });
             });
     }
