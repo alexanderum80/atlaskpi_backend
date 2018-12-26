@@ -17,7 +17,7 @@ import { AppConnection } from '../domain/app/app.connection';
 import * as moment from 'moment';
 import { IMutationResponse } from '../framework/mutations/mutation-response';
 import { Connectors } from '../domain/master/connectors/connector.model';
-import { VirtualSourceAggregateService } from '../domain/app/virtual-sources/vs-aggregate.service';
+import { VirtualSourceAggregateService, IKeyValues } from '../domain/app/virtual-sources/vs-aggregate.service';
 
 const GOOGLE_ANALYTICS = 'GoogleAnalytics';
 
@@ -354,6 +354,25 @@ export class DataSourcesService {
 
         const aggregate = [];
 
+        // process the virtual source aggregate
+        let vsAggregate;
+
+        let vsAggregateReplacements: IKeyValues = { };
+
+        if (dateRangeFilter) {
+            vsAggregateReplacements = {
+                '__from__': dateRangeFilter['$gte'],
+                '__to__': dateRangeFilter['$lt'],
+            };
+
+        }
+
+        const aggregateResult = this._vsAggregateService.processReplacements(
+            vs, vsAggregateReplacements
+        );
+
+        vsAggregate = aggregateResult.aggregate;
+
         const fields =
             Object.keys(vs.fieldsMap)
                   .map(k => { return { name: k, value: vs.fieldsMap[k].path }; });
@@ -365,10 +384,9 @@ export class DataSourcesService {
         }
 
         // original aggregate
-        if (vs.aggregate) {
+        if (vsAggregate && vsAggregate.length) {
             const originalAgg =
-                (vs as IVirtualSource)
-                    .aggregate
+                vsAggregate
                     .map(stage => KPIFilterHelper.CleanObjectKeys(stage));
             aggregate.push(...originalAgg);
         }
