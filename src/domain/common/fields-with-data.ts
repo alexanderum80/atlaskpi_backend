@@ -172,7 +172,10 @@ export async function getAggregateResult(vs: IVirtualSourceDocument, aggObject: 
     try {
         const model = getGenericModel(vs.db, vs.modelIdentifier, vs.source);
 
-        return await model.aggregate(aggObject).exec();
+        const aggregate = model.aggregate(...aggObject);
+        aggregate.allowDiskUse(true);
+
+        return await aggregate.exec();
     } catch (e) {
         console.error(e);
     }
