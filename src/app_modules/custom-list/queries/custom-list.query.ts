@@ -26,8 +26,8 @@ export class CustomListQuery implements IQuery<ICustomListResponse[]> {
                     _id: list._id,
                     name: list.name,
                     dataType: list.dataType,
-                    user: list.user,
-                    listValue: list.listValue
+                    listValue: list.listValue,
+                    users: list.users
                 };
             });
         });

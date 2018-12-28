@@ -56,6 +56,9 @@ export class DataSourceField  {
 
     @field({ type: GraphQLTypesMap.Boolean })
     available?: boolean;
+
+    @field({ type: GraphQLTypesMap.String })
+    sourceOrigin?: string;
 }
 
 @type()
@@ -112,10 +115,13 @@ export class DataSourceResponse  {
     sources?: string[];
 
     @field({ type: GraphQLTypesMap.Boolean })
-    dataEntry: boolean;
+    dataEntry?: boolean;
 
     @field({ type: GraphQLTypesMap.String, isArray: true })
-    users: string[];
+    users?: string[];
+
+    @field({ type: GraphQLTypesMap.String })
+    createdBy?: string;
 }
 
 @type()

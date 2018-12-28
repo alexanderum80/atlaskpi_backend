@@ -26,7 +26,7 @@ export class CustomListByNameQuery implements IQuery<ICustomListResponse> {
                     _id: res._id,
                     name: res.name,
                     dataType: res.dataType,
-                    user: res.user,
+                    users: res.users,
                     listValue: res.listValue
                 };
             } else {

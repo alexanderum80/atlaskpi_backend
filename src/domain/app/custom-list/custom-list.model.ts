@@ -9,8 +9,8 @@ import { tagsPlugin } from '../tags/tag.plugin';
 const CustomListSchema = new mongoose.Schema({
     name: { type: String, required: true },
     dataType: String,
-    user: String,
-    listValue: [String]
+    listValue: [String],
+    users: [String]
 });
 
 CustomListSchema.plugin(tagsPlugin);
@@ -19,7 +19,7 @@ CustomListSchema.statics.getCustomList = function (user: string, id?: string): P
     const model = this as ICustomListModel;
 
     try {
-        const query = id ? { _id: id, user: user } : { user: user };
+        const query = id ? { _id: id, users: user } : { users: user };
         return new Promise<ICustomListDocument[]>((resolve, reject) => {
             return model.find(query)
                 .then(res => {
@@ -37,7 +37,7 @@ CustomListSchema.statics.getCustomListByName = function (user: string, name: str
 
     try {
         const expressionName = new RegExp(name, 'i');
-        const query = name ? { name: { $regex: expressionName }, user: user } : { user: user };
+        const query = name ? { name: { $regex: expressionName }, users: user } : { users: user };
         return new Promise<ICustomListDocument>((resolve, reject) => {
             return model.findOne(query)
                 .then(res => {

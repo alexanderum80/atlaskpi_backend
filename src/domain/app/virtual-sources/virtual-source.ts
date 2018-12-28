@@ -41,6 +41,7 @@ export interface IVirtualSource {
     filterOperators?: IDataTypeFilters;
     dataEntry: boolean;
     users: string[];
+    createdBy: string;
 }
 
 export class IVirtualSourceModelInput {

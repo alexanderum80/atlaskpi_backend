@@ -57,14 +57,10 @@ export class CustomListService {
     }
 
     async addCustomList(input: ICustomListInput): Promise<ICustomListResponse> {
-        const user = this._user.get().id;
-        input['user'] = user;
         return await this._customList.model.addCustomList(input);
     }
 
     async updateCustomList(input: ICustomListInput): Promise<ICustomListResponse> {
-        const user = this._user.get().id;
-        input['user'] = user;
         return await this._customList.model.updateCustomList(input);
     }
 

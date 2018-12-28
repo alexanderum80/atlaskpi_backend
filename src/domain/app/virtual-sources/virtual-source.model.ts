@@ -49,6 +49,7 @@ const VirtualSourceSchema = new mongoose.Schema({
     externalSource: Boolean,
     filterOperators: DataTypeFiltersSchema,
     createdOn: { type: Date, default: Date.now },
+    createdBy: { type: String, required: true },
     dataEntry: Boolean,
     users: [String]
 });
@@ -73,8 +74,7 @@ VirtualSourceSchema.methods.mapDataSourceFields = mapDataSourceFields;
 @injectable()
 export class VirtualSources extends ModelBase<IVirtualSourceModel> {
     constructor(
-        @inject(AppConnection.name) appConnection: AppConnection,
-        @inject(CustomList.name) customListModel: CustomList
+        @inject(AppConnection.name) appConnection: AppConnection
     ) {
         super();
         this.initializeModel(appConnection.get, 'VirtualSource', VirtualSourceSchema, 'virtualSources');
@@ -158,7 +158,8 @@ async function getDataEntry(userId: string): Promise<DataSourceResponse[]> {
                     externalSource: vs.externalSource,
                     filterOperators: vs.filterOperators as any,
                     dataEntry: vs.dataEntry,
-                    users: vs.users
+                    users: vs.users,
+                    createdBy: vs.createdBy
                 };
                 dataSource.sources = await getDistinctSourceValues(vs);
                 return dataSource;

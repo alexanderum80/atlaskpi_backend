@@ -106,6 +106,9 @@ export class DataEntryResponse  {
 
     @field({ type: GraphQLTypesMap.String, isArray: true })
     users: string[];
+
+    @field({ type: GraphQLTypesMap.String })
+    createdBy: string;
 }
 
 @type()

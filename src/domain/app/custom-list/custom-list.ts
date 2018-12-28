@@ -4,7 +4,7 @@ import { IErrorDetails } from '../../common/error-details';
 export interface ICustomList {
     name: string;
     dataType: string;
-    user: string;
+    users: string[];
     listValue: string[];
 }
 
@@ -18,7 +18,7 @@ export class ICustomListResponse {
     _id: string;
     name: string;
     dataType: string;
-    user: string;
+    users: string[];
     listValue: string[];
 }
 

@@ -32,7 +32,7 @@ export class AddCustomListMutation extends MutationBase<IMutationResponse> {
                 const newListResponse = {
                     name: newList.name,
                     dataType: newList.dataType,
-                    user: newList.user,
+                    users: newList.users,
                     listValue: newList.listValue.map(list => list)
                 };
                 resolve({ success: true, entity: newListResponse });

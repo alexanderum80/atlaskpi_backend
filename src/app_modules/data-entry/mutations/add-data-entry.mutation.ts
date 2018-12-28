@@ -1,3 +1,4 @@
+import { CustomListService } from './../../../services/custom-list.service';
 import { DataEntryResponse } from './../data-entry.types';
 import * as Promise from 'bluebird';
 import { inject, injectable } from 'inversify';
@@ -20,6 +21,7 @@ import { IDataEntryInput } from '../data-entry.types';
 export class AddDataEntryMutation extends MutationBase<DataEntryResponse> {
     constructor(
         @inject(DataSourcesService.name) private _dataSourcesSvc: DataSourcesService,
+        @inject(CustomListService.name) private _customListSvc: CustomListService,
     ) {
     super();
     }
@@ -40,7 +42,8 @@ export class AddDataEntryMutation extends MutationBase<DataEntryResponse> {
                     fields: <any>newVirtualSource.fieldsMap,
                     filterOperators: <any>newVirtualSource.filterOperators || '',
                     dataEntry: newVirtualSource.dataEntry || false,
-                    users: newVirtualSource.users || []
+                    users: newVirtualSource.users || [],
+                    createdBy: newVirtualSource.createdBy
                 };
 
                 that._dataSourcesSvc.createVirtualSourceMapCollection(data.input).then(() => {

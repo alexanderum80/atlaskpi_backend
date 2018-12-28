@@ -18,6 +18,9 @@ export class CustomListInput {
 
     @field({ type: GraphQLTypesMap.String, isArray: true })
     listValue: string[];
+
+    @field({ type: GraphQLTypesMap.String, isArray: true })
+    users: string[];
 }
 
 @type()
@@ -36,8 +39,8 @@ export class ICustomListResponse  {
     @field({ type: GraphQLTypesMap.String })
     dataType: string;
 
-    @field({ type: GraphQLTypesMap.String })
-    user: string;
+    @field({ type: GraphQLTypesMap.String, isArray: true })
+    users: string[];
 
     @field({ type: GraphQLTypesMap.String, isArray: true })
     listValue: string[];

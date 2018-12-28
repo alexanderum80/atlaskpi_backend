@@ -1,3 +1,4 @@
+import { DataEntryByIdMapCollectionQuery } from './../app_modules/data-entry/queries/data-entry-by-id.query';
 import { CustomList } from './../domain/app/custom-list/custom-list.model';
 import { camelCase } from 'change-case';
 import { IDateRange } from './../domain/common/date-range';
@@ -40,7 +41,7 @@ export class DataSourcesService {
         @inject(Connectors.name) private _connectors: Connectors,
         @inject(VirtualSources.name) private _virtualDatasources: VirtualSources,
         @inject(CurrentUser.name) private _user: CurrentUser,
-        @inject(CustomList.name) private _customList: CustomList
+        @inject(CustomList.name) private _customList: CustomList,
         @inject(VirtualSourceAggregateService.name) private _vsAggregateService: VirtualSourceAggregateService
         ) { }
 
@@ -68,6 +69,23 @@ export class DataSourcesService {
     async getDataEntry(): Promise<DataSourceResponse[]> {
         const userId = this._user.get().id;
         return await this._virtualDatasources.model.getDataEntry(userId);
+    }
+
+    async getDataEntryCollection(): Promise<any> {
+        const userId = this._user.get().id;
+        const dataEntries = await this._virtualDatasources.model.getDataEntry(userId);
+
+        if (dataEntries.length) {
+            const dataEntriesCollection = [];
+            for (let index = 0; index < dataEntries.length; index++) {
+                const element = dataEntries[index];
+                const dataEntry = await this.getVirtualSourceByIdMapCollection(element._id);
+                dataEntriesCollection.push(JSON.parse(dataEntry));
+            }
+            return JSON.stringify(dataEntriesCollection);
+        } else {
+            return null;
+        }
     }
 
     async getDataEntryById(id: string): Promise<IVirtualSourceDocument> {
@@ -291,7 +309,8 @@ export class DataSourcesService {
                 aggregate: [],
                 fieldsMap: inputFieldsMap,
                 dataEntry: true,
-                users: data.users
+                users: data.users,
+                createdBy: user
             };
             return new Promise<IVirtualSourceDocument>((resolve, reject) => {
 
