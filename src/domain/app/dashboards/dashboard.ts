@@ -24,6 +24,9 @@ export interface IDashboard {
     users: IUser[];
     visible?: boolean;
     order?: number;
+    createdDate?: Date;
+    updatedBy?: any;
+    updatedDate?: Date;
 }
 
 export interface IDashboardInput {
@@ -37,6 +40,9 @@ export interface IDashboardInput {
     users: string[];
     visible?: boolean;
     order?: number;
+    createdDate?: Date;
+    updatedBy?: string;
+    updatedDate?: Date;
 }
 
 export interface IDashboardDocument extends IDashboard, mongoose.Document {

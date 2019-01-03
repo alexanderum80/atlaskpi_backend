@@ -16,6 +16,8 @@ export interface IAlert {
     users: INotificationUsers[];
     createdBy: String;
     createdAt: Date;
+    updatedBy: String;
+    updatedAt: Date;
 }
 
 export interface IAlertModelInfo {

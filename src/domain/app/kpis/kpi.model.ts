@@ -44,7 +44,9 @@ let KPISchema = new Schema({
     system: Boolean,
      //add-created
     createdBy: String,
-    createdDate: Date
+    createdDate: Date,
+    updatedBy: String,
+    updatedDate: Date
 });
 
 // add tags capabilities

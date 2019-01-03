@@ -38,6 +38,7 @@ import { TargetService } from './target.service';
 import {dataSortDesc} from '../helpers/number.helpers';
 import { TargetsNew } from '../domain/app/targetsNew/target.model';
 import { ChartDateRangeInput } from '../app_modules/shared/shared.types';
+import * as Bluebird from 'bluebird';
 
 export interface IRenderChartOptions {
     chartId?: string;
@@ -251,7 +252,20 @@ export class ChartsService {
             });
         });
     }
+    /* public listCharts(): Promise<IChart[]> {
+        const listCharts =  this._charts.model.find({});//.populate({path: 'createdBy', model: 'User'});
+        const charts = Bluebird.map(listCharts, k => {
+            const firstName = k.createdBy.profile.firstName;
+            const midleName = k.createdBy.profile.middleName;
+            const lastName = k.createdBy.profile.lastName;
 
+            const createdBy = (firstName ? firstName + ' ' : '' ) + (midleName ? midleName + ' ' : '' ) + (lastName ? lastName  : '' );
+            k.createdBy = createdBy;
+            return k;
+        });
+
+        return listCharts;
+    } */
     public getChartByTitle(title: string): Promise<IChart> {
         const that = this;
         return new Promise<IChart>((resolve, reject) => {

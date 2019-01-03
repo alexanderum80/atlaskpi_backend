@@ -556,9 +556,8 @@ export class KpiService {
         kpiExpression.map(k => {
             if (kpiType === KPITypeEnum.Simple || kpiType === KPITypeEnum.ExternalSource) {
                  (k.filter) = k.filter || [];
-                
 
-                const filterExpression = [];
+                 const filterExpression = [];
                 for (let i = 0; i < filters.length; i++) {
                     const filterExist = k.filter ?
                                         k.filter.find(f => f.field === filters[i].field &&
