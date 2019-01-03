@@ -141,6 +141,9 @@ export class KPIFilterHelper {
     }
 
     private static _deserializedAggregate(filter: any, operation= 'serialize'): any {
+
+        if (filter === null) return filter;
+
         if (isNumber(filter)) {
             return filter;
         }
