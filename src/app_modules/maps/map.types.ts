@@ -127,6 +127,19 @@ export class MapEntityResponse  {
 
     @field({ type: GraphQLTypesMap.String })
     zipCodeSource: string;
+
+    //add-created-update-by-date
+    @field({ type: GraphQLTypesMap.String })
+    createdBy?: string;
+
+    @field({ type: GraphQLTypesMap.String })
+    updatedBy?: string;
+
+    @field({ type: GraphQLTypesMap.Date })
+    createdDate?: Date;
+
+    @field({ type: GraphQLTypesMap.Date })
+    updatedDate?: Date;
 }
 
 @type()

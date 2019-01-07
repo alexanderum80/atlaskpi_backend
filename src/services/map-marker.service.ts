@@ -18,6 +18,7 @@ import { KpiFactory } from '../app_modules/kpis/queries/kpi.factory';
 import * as jsep from 'jsep';
 import * as math from 'mathjs';
 import { IChartMetadata } from '../app_modules/charts/queries/charts/chart-metadata';
+import * as Bluebird from 'bluebird';
 
 export interface IMapMarker {
     name: string;
@@ -56,8 +57,22 @@ export class MapMarkerService {
             const that = this;
             return new Promise<any[]>((resolve, reject) => {
                 that._maps.model
-                .find({})
+                .find({}).populate({path: 'createdBy', model: 'User'}).populate({path: 'updatedBy', model: 'User'})
                 .then(mapDocuments => {
+                    const mapList =  Bluebird.map(mapDocuments, async (k) => {
+                        const firstNameCreated = k.createdBy.profile.firstName;
+                        const midleNameCreated = k.createdBy.profile.middleName;
+                        const lastNameCreated = k.createdBy.profile.lastName;
+                        const firstNameUpdated = k.updatedBy.profile.firstName;
+                        const lastNameUpdated = k.updatedBy.profile.lastName;
+
+                        const createdBy = (firstNameCreated ? firstNameCreated + ' ' : '' ) + (midleNameCreated ? midleNameCreated + ' ' : '' ) + (lastNameCreated ? lastNameCreated  : '' );
+                        const updatedBy = (firstNameUpdated ? firstNameUpdated + ' ' : '' ) + (lastNameUpdated ? lastNameUpdated + ' ' : '' );
+                        k.createdBy = createdBy;
+                        k.updatedBy = updatedBy;
+            
+                        return k;
+                    });
                     return resolve(mapDocuments);
                 })
                 .catch(err => {

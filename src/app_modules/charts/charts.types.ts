@@ -186,6 +186,19 @@ export class ChartEntityResponse  {
     @field({ type: Dashboard, isArray: true })
     dashboards: Dashboard[];
 
+     //add-created
+     @field({ type: GraphQLTypesMap.String })
+     createdBy: string;
+ 
+     @field({ type: GraphQLTypesMap.Date })
+     createdDate: Date;
+ 
+     @field({ type: GraphQLTypesMap.String })
+     updatedBy: string;
+ 
+     @field({ type: GraphQLTypesMap.Date })
+     updatedDate: Date;
+
     @resolver({ forField: 'dateRange' })
     static resolveDateRange = (entity: IChart) => entity.dateRange[0]
 

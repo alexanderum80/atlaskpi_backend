@@ -243,8 +243,22 @@ export class ChartsService {
         const that = this;
         return new Promise<IChart[]>((resolve, reject) => {
             that._charts.model
-            .find({})
+            .find({}).populate({path: 'createdBy', model: 'User'}).populate({path: 'updatedBy', model: 'User'})
             .then(chartDocuments => {
+                const charList =  Bluebird.map(chartDocuments, async (k) => {
+                    const firstNameCreated = k.createdBy.profile.firstName;
+                    const midleNameCreated = k.createdBy.profile.middleName;
+                    const lastNameCreated = k.createdBy.profile.lastName;
+                    const firstNameUpdated = k.updatedBy.profile.firstName;
+                    const lastNameUpdated = k.updatedBy.profile.lastName;
+
+                    const createdBy = (firstNameCreated ? firstNameCreated + ' ' : '' ) + (midleNameCreated ? midleNameCreated + ' ' : '' ) + (lastNameCreated ? lastNameCreated  : '' );
+                    const updatedBy = (firstNameUpdated ? firstNameUpdated + ' ' : '' ) + (lastNameUpdated ? lastNameUpdated + ' ' : '' );
+                    k.createdBy = createdBy;
+                    k.updatedBy = updatedBy;
+
+                    return k;
+                });
                 return resolve(chartDocuments);
             })
             .catch(err => {
