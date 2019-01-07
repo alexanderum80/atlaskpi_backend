@@ -897,6 +897,7 @@ export class UIChartBase {
 
     protected getDefinitionForDateRange(kpi, metadata, target): Promise<any> {
         const that = this;
+
         return this.processChartData(kpi, metadata, target).then(() => {
             return that.buildDefinition(that.basicDefinition, metadata, target);
         });

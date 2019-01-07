@@ -72,11 +72,11 @@ export class KpiFactory {
 
         switch (searchBy) {
             case 'Revenue':
-                const vsSales = virtualSources.find(vs => vs.name === 'sale');
+                const vsSales = virtualSources.find(vs => vs.name.toLowerCase() === 'sales');
                 const saleModel = getGenericModel(vsSales.db, vsSales.modelIdentifier, vsSales.source);
                 return new Revenue(saleModel as any);
             case 'Expenses':
-                const vsExpense = virtualSources.find(vs => vs.name === 'expenses');
+                const vsExpense = virtualSources.find(vs => vs.name.toLowerCase() === 'expenses');
                 const expenseModel = getGenericModel(vsExpense.db, vsExpense.modelIdentifier, vsExpense.source);
                 return new ExpensesKPI(expenseModel as any, virtualSources);
             default:
