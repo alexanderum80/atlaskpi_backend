@@ -91,10 +91,8 @@ export class SearchQuery implements IQuery<SearchResult[]> {
                 let promise: Promise<SearchResult[]>;
 
                 if (intents && intents.length > 0) {
-                    console.log('Intents found');
                     promise = that._processIntents(intents);
                 } else {
-                    console.log('Intents not found');
                     promise = that._processModelsSearch(data.query);
                 }
 
