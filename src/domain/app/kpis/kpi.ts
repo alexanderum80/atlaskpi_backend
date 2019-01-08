@@ -78,6 +78,7 @@ export interface IKPISimpleDefinition {
 }
 
 export interface IKPI {
+    _id: any;
     code: string;
     name: string;
     baseKpi?: string;
@@ -94,7 +95,7 @@ export interface IKPI {
     source?: string;
     availableGroupings?: string[];
     system?: boolean;
-     //add-created
+     // add-created
     createdBy?: any;
     createdDate?: Date;
 }

@@ -28,6 +28,7 @@ export interface IConnectorTaskDefinition {
 }
 
 export interface IConnector extends IUserAudit {
+    id?: any;
     name: string;
     databaseName: string;
     subdomain: string;
