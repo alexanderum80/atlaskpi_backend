@@ -301,7 +301,7 @@ export class DataSourcesService {
             }
 
             const virtualSourceObj: IVirtualSource = {
-                name: simpleName.toLowerCase().replace(' ', ''),
+                name: camelCase(simpleName).toLowerCase(),
                 description: data.inputName,
                 source: collectionName,
                 modelIdentifier: collectionName,

@@ -268,7 +268,8 @@ export function mapDataSourceFields(virtualSource: IVirtualSourceDocument, exclu
         name: key,
         path: fieldsMap[key].path,
         type: fieldsMap[key].dataType,
-        allowGrouping: fieldsMap[key].allowGrouping
+        allowGrouping: fieldsMap[key].allowGrouping,
+        sourceOrigin: fieldsMap[key].sourceOrigin || null
     }));
 }
 

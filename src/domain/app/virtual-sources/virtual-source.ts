@@ -9,6 +9,7 @@ export interface IFieldMetadata {
     path: string;
     dataType: string;
     allowGrouping?: boolean;
+    sourceOrigin?: string;
 }
 
 export interface IVirtualSourceFields {

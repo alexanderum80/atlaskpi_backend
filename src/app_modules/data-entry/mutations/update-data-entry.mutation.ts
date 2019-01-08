@@ -1,3 +1,4 @@
+import { camelCase } from 'lodash';
 import { DataEntryMutationResponse } from '../data-entry.types';
 import * as Promise from 'bluebird';
 import { inject, injectable } from 'inversify';
@@ -31,6 +32,10 @@ export class UpdateDataEntryMutation extends MutationBase<IMutationResponse> {
 
         return new Promise<IMutationResponse>((resolve, reject) => {
             const dataInput = JSON.parse(data.input);
+
+            const fileExtensionIndex = dataInput.inputName.lastIndexOf('.') !== -1 ? dataInput.inputName.lastIndexOf('.') : dataInput.inputName.length;
+            dataInput.inputName = camelCase(dataInput.inputName.substr(0, fileExtensionIndex)).toLowerCase();
+
             this._virtualSourceSvc.model.getDataSourceByName(dataInput.inputName).then(virtualSource => {
                 that._dataSourcesSvc.removeVirtualSourceMapCollection(virtualSource.source).then(() => {
                     dataInput.inputName = virtualSource.source;
