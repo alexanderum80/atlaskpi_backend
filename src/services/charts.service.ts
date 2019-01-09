@@ -1,7 +1,8 @@
 import { camelCase } from 'change-case';
 import { inject, injectable } from 'inversify';
-import {difference, isNumber, isString, pick, PartialDeep, cloneDeep, isEmpty, isArray, omit }  from 'lodash';
+import {difference, isNumber, isString, pick, PartialDeep, cloneDeep, isEmpty, isArray, omit, uniq }  from 'lodash';
 import * as moment from 'moment-timezone';
+import * as Bluebird from 'bluebird';
 
 import { IChartMetadata } from '../app_modules/charts/queries/charts/chart-metadata';
 import {
@@ -268,14 +269,27 @@ export class ChartsService {
 
     public async previewChart(input: ChartAttributesInput): Promise<IChart> {
         try {
-            const kpi = await this._kpis.model.findOne({ _id: input.kpis[0]});
+            // const kpi = await this._kpis.model.findOne({ _id: input.kpis[0]});
             const chart = <any>{ ... input };
             const parseDefinition = JSON.parse(input.chartDefinition);
             const originalDefinitionSeries = cloneDeep(parseDefinition.series);
 
             chart.chartDefinition = parseDefinition;
-            chart.kpis[0] = kpi;
-            const definition = await this.renderDefinition(chart);
+
+            const kpis = await this._kpis.model.find({ _id: { $in: input.kpis.map(k => k.kpi) } });
+            const definitions = await Bluebird.map(kpis, k => {
+                const c = cloneDeep(chart);
+                const kpiChart = input.kpis.find(cKpi => cKpi.kpi === k.id);
+                c.chartDefinition.chart.type = kpiChart.type;
+                c.chartDefinition.chart.kpi = k.name;
+
+                c.kpis = [k];
+                return this.renderDefinition(c);
+            });
+
+            // const definition = await this.renderDefinition(chart);
+            const definition = this._mergeDefinitions(definitions);
+
             // chart.chartDefinition = definition;
             chart.chartDefinition = this._setSeriesVisibility(originalDefinitionSeries, definition);
             chart.chartDefinition = this._addSerieColorToDefinition(originalDefinitionSeries, definition);
@@ -491,15 +505,6 @@ export class ChartsService {
         return processDateRangeWithTimezone(dateRange[0], this._currentUser.get().profile.timezone);
     }
 
-    // private _getTopDateRange(dateRange: IChartDateRange[]): IDateRange {
-    //     return dateRange[0].custom && dateRange[0].custom.from ?
-    //             {
-    //                 from: moment(dateRange[0].custom.from).startOf('day').toDate(),
-    //                 to: moment(dateRange[0].custom.to).endOf('day').toDate()
-    //             }
-    //             : parsePredefinedDateOld(dateRange[0].predefined);
-    // }
-
     private _getTargetExtraPeriodOptions(frequency: number, chartDateRange?: IChartDateRange[]): IObject {
         if (!isNumber(frequency) && !isEmpty(chartDateRange)) {
             return this._noFrequencyTargetExtraOptions(chartDateRange);
@@ -657,5 +662,50 @@ export class ChartsService {
             }
         }
         return chartData;
+    }
+
+    private _mergeDefinitions(definitions: any[]) {
+        console.log(definitions);
+
+        if (definitions.length === 1) { return definitions[0]; }
+
+        // pick one definition as master
+        const def = cloneDeep(definitions[0]);
+
+        // get unique list of categories
+        def.xAxis.categories = uniq([].concat(...definitions.map(d => d.xAxis.categories)));
+
+        // combined serie names with empty data array to cover the category array
+        def.series = [].concat(...definitions.map(d => d.series.map(s => ({
+            name: s.name,
+            kpiName: d.chart.kpi,
+            type: d.chart.type,
+            data: new Array(def.xAxis.categories.length)
+        }))));
+
+        def.xAxis.categories.forEach((c, idx) => {
+            definitions.forEach(d => {
+                d.series.forEach(s => {
+                    // get final chart serie
+                    const finalSerie = def.series.find(ser => ser.name === s.name);
+                    // get category index for this chart definition so can put the value in the
+                    // right index in the final chart
+                    const categoryIndex = d.xAxis.categories.findIndex(cat => cat === c);
+
+                    if (categoryIndex !== -1 && s) {
+                        // put the category value in the right index
+                        finalSerie.data[idx] = s.data[categoryIndex];
+                    }
+                });
+            });
+        });
+
+        // add kpi name to series
+        def.series.forEach(s => {
+            s.name += ` [${s.kpiName}]`;
+            delete(s.kpiName);
+        });
+
+        return def;
     }
 }
