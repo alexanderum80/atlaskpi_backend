@@ -68,29 +68,6 @@ export class VirtualSourceAggregateService {
 
         if (replacements) {
             appliedReplacements = this._walkAndReplace(aggregate, pattern, replacements);
-
-
-            // // -- date range replacements
-            // const dateRangePlaceHolders
-            //     = SUPPORTED_PLACEHOLDERS.filter(p => p.type === AggPlaceholderTypeEnum.dateRange);
-
-            // const dateRangeReplacements
-            //     = replacements.filter(r => r === dateRangePlaceHolders.some(p => p.id === r));
-
-            // this._walkAndReplace(aggregate, pattern, dateRangeReplacements);
-
-            // if (JSON.stringify(originalAggregate) !== JSON.stringify(aggregate)) {
-            //     dateRangeApplied = true;
-            // }
-
-            // // -- other replacements
-            // const otherPlaceholders
-            //     = SUPPORTED_PLACEHOLDERS.filter(p => p.type !== AggPlaceholderTypeEnum.dateRange);
-
-            // const otherReplacements
-            //     = replacements.filter(r => r === otherPlaceholders.some(p => p.id === r));
-
-            // this._walkAndReplace(aggregate, pattern, otherReplacements);
         }
 
         return { appliedReplacements, aggregate };
@@ -166,7 +143,6 @@ export class VirtualSourceAggregateService {
 
         let appliedReplacements = [];
 
-
         for (const k in obj) if (has(k)) {
             switch (typeof obj[k]) {
                 case 'object':
@@ -184,16 +160,10 @@ export class VirtualSourceAggregateService {
                             break;
                         }
 
-
                         obj[k] = replacements[obj[k]];
                         appliedReplacements.push(placeHolder);
-
-                        // if (!SUPPORTED_PLACEHOLDERS.some(p => p.id === obj[k]))  {
-                        //     // I tried to throw an exception here but it was being swallow, then I decided to log it
-                        //     this._logger.error('virtual source placeholder not supported');
-                        //     break;
-                        // }
                     }
+                    break;
             }
         }
 
