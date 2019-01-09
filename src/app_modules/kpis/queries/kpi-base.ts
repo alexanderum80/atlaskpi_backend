@@ -9,7 +9,7 @@ import { FrequencyEnum } from '../../../domain/common/frequency-enum';
 import { IChartTop } from '../../../domain/common/top-n-record';
 import { NULL_CATEGORY_REPLACEMENT } from '../../charts/queries/charts/ui-chart-base';
 import { AggregateStage } from './aggregate';
-import { VirtualSourceAggregateService, IKeyValues, IProcessAggregateResult } from '../../../domain/app/virtual-sources/vs-aggregate.service';
+import { VirtualSourceAggregateService, IKeyValues, IProcessAggregateResult, AggPlaceholderTypeEnum } from '../../../domain/app/virtual-sources/vs-aggregate.service';
 import { IVirtualSource, IVirtualSourceDocument } from '../../../domain/app/virtual-sources/virtual-source';
 
 export interface IKpiVirtualSources {
@@ -80,12 +80,15 @@ export class KpiBase {
         const vsAggregateReplacements: IKeyValues = {
             '__from__': dateRange[0].from,
             '__to__': dateRange[0].to,
+            '__timezone__': this.timezone
         };
 
         let aggregateResult: IProcessAggregateResult = {
             aggregate: [],
-            dateRangeApplied: false
+            appliedReplacements: []
         };
+
+        let dateRangeApplied = false;
 
         if (this.kpiVirtualSources) {
             aggregateResult = this._vsAggregateService.processReplacements(
@@ -94,7 +97,11 @@ export class KpiBase {
 
             this.aggregate = aggregateResult.aggregate;
 
-            if (!aggregateResult.dateRangeApplied) {
+            dateRangeApplied
+                = aggregateResult.appliedReplacements
+                                 .filter(r => r.type === AggPlaceholderTypeEnum.dateRange).length > 0;
+
+            if (!dateRangeApplied) {
                 aggregateResult = this._vsAggregateService.tryDateRangeAsFirstStage(
                     this.aggregate,
                     this.kpiVirtualSources.virtualSource,
@@ -103,6 +110,11 @@ export class KpiBase {
                 );
             }
         }
+
+        dateRangeApplied
+            = aggregateResult.appliedReplacements
+                             .filter(r => r.type === AggPlaceholderTypeEnum.dateRange).length > 0;
+
 
         // for multiple executeQuery iterations in the same instance we need to preserve the aggregate
         this.aggregate = aggregateResult.aggregate.concat(cloneDeep(this.pristineAggregate));
@@ -116,7 +128,7 @@ export class KpiBase {
 
         return new Promise<any>((resolve, reject) => {
 
-            if (!aggregateResult.dateRangeApplied
+            if (!dateRangeApplied
                 && dateRange && dateRange.length)
                 that._injectDataRange(dateRange, dateField);
             if (options.filter)
