@@ -248,7 +248,7 @@ export class DataSourcesService {
                 const collection: any[] = [];
                 for (let i = 0; i < d.length; i++) {
                     const record = d[i];
-                    const fieldName = schemaCollection[i].columnName.toLowerCase().replace(' ', '_');
+                    const fieldName = schemaCollection[i].columnName.toLowerCase().replace(/ /g, '_');
                     collection[fieldName] = this.getValueFromDataType(schemaCollection[i].dataType, record);
                 }
                 collection['source'] = 'Manual entry';
