@@ -1,7 +1,7 @@
 import { DataEntryByIdMapCollectionQuery } from './../app_modules/data-entry/queries/data-entry-by-id.query';
 import { CustomList } from './../domain/app/custom-list/custom-list.model';
 import { camelCase } from 'change-case';
-import { IDateRange } from './../domain/common/date-range';
+import { IDateRange, isValidTimezone } from './../domain/common/date-range';
 import { IVirtualSourceDocument, IVirtualSource } from '../domain/app/virtual-sources/virtual-source';
 import { DataSourceField, DataSourceResponse } from '../app_modules/data-sources/data-sources.types';
 import { injectable, inject, Container } from 'inversify';
@@ -34,16 +34,24 @@ export interface IFieldAvailabilityOptions {
 @injectable()
 export class DataSourcesService {
 
+    private timezone: string;
+
     constructor(
         @inject(Logger.name) private _logger: Logger,
         @inject('resolver') private _resolver: (name: string) => any,
         @inject(AppConnection.name) private _appConnection: AppConnection,
         @inject(Connectors.name) private _connectors: Connectors,
         @inject(VirtualSources.name) private _virtualDatasources: VirtualSources,
-        @inject(CurrentUser.name) private _user: CurrentUser,
+        @inject(VirtualSourceAggregateService.name) private _vsAggregateService: VirtualSourceAggregateService,
         @inject(CustomList.name) private _customList: CustomList,
-        @inject(VirtualSourceAggregateService.name) private _vsAggregateService: VirtualSourceAggregateService
-        ) { }
+        @inject(CurrentUser.name) private _currentUser: CurrentUser,
+    ) {
+        const tz = this._currentUser.get().profile.timezone;
+
+        if (!isValidTimezone(tz)) throw new Error('Invalid user timezone');
+
+        this.timezone = tz;
+    }
 
     async get(): Promise<DataSourceResponse[]> {
         return await this._virtualDatasources.model.getDataSources();
@@ -67,12 +75,12 @@ export class DataSourcesService {
     }
 
     async getDataEntry(): Promise<DataSourceResponse[]> {
-        const userId = this._user.get().id;
+        const userId = this._currentUser.get().id;
         return await this._virtualDatasources.model.getDataEntry(userId);
     }
 
     async getDataEntryCollection(): Promise<any> {
-        const userId = this._user.get().id;
+        const userId = this._currentUser.get().id;
         const dataEntries = await this._virtualDatasources.model.getDataEntry(userId);
 
         if (dataEntries.length) {
@@ -261,7 +269,7 @@ export class DataSourcesService {
         if (!data) { return Promise.reject('cannot add a document with, empty payload'); }
 
         try {
-            const user = this._user.get().id;
+            const user = this._currentUser.get().id;
             const customList = await this._customList.model.getCustomList(user);
 
             const fileExtensionIndex = data.inputName.lastIndexOf('.') !== -1 ? data.inputName.lastIndexOf('.') : data.inputName.length;
@@ -490,6 +498,7 @@ export class DataSourcesService {
             vsAggregateReplacements = {
                 '__from__': dateRangeFilter['$gte'],
                 '__to__': dateRangeFilter['$lt'],
+                '__timezone__': this.timezone
             };
 
         }
