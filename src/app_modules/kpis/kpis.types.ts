@@ -59,6 +59,12 @@ export class KPIAttributesInput  {
     @field({ type: GraphQLTypesMap.Date })
     createdDate: Date;
 
+    @field({ type: GraphQLTypesMap.String })
+    updatedBy: string;
+
+    @field({ type: GraphQLTypesMap.Date })
+    updatedDate: Date;
+
 
 }
 
@@ -166,6 +172,12 @@ export class KPI  {
 
     @field({ type: GraphQLTypesMap.Date })
     createdDate: Date;
+
+    @field({ type: GraphQLTypesMap.String })
+    updatedBy: string;
+
+    @field({ type: GraphQLTypesMap.Date })
+    updatedDate: Date;
 }
 
 @input()

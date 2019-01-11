@@ -19,8 +19,10 @@ export const AlertSchema = new mongoose.Schema({
     value: { type: Number, required: true },
     active: { type: Boolean, required: true },
     users: { type: [ALERT_USER_SCHEMA], required: true },
-    createdBy: { type: String, required: true },
-    createdAt: { type: Date, required: true }
+    createdBy: { type: String },
+    createdAt: { type: Date },
+    updatedBy: { type: String},
+    updatedDate: { type: Date}
 });
 
 AlertSchema.statics.alertsbyWidgetId = function(id: string): BlueBird<IAlertDocument[]> {

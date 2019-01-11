@@ -5,7 +5,7 @@ import { resolver } from '../../framework/decorators/resolver.decorator';
 import { type } from '../../framework/decorators/type.decorator';
 import { ErrorDetails } from '../../framework/graphql/common.types';
 import { Dashboard } from '../dashboards/dashboards.types';
-import { ChartDateRange, ChartDateRangeInput } from '../shared/shared.types';
+import { ChartDateRange, ChartDateRangeInput, IDataUserDate } from '../shared/shared.types';
 import { IChart } from './../../domain/app/charts/chart';
 
 @input()
@@ -96,6 +96,20 @@ export class ChartAttributesInput  {
 
     @field({ type: GraphQLTypesMap.Boolean })
     isDrillDown?: boolean;
+
+    //add-created-update-by-date
+    @field({ type: GraphQLTypesMap.String })
+    createdBy?: string;
+
+    @field({ type: GraphQLTypesMap.String })
+    updatedBy?: string;
+
+    @field({ type: GraphQLTypesMap.Date })
+    createdDate?: Date;
+
+    @field({ type: GraphQLTypesMap.Date })
+    updatedDate?: Date;
+
 }
 
 @type()
@@ -171,6 +185,19 @@ export class ChartEntityResponse  {
 
     @field({ type: Dashboard, isArray: true })
     dashboards: Dashboard[];
+
+     //add-created
+     @field({ type: GraphQLTypesMap.String })
+     createdBy: string;
+ 
+     @field({ type: GraphQLTypesMap.Date })
+     createdDate: Date;
+ 
+     @field({ type: GraphQLTypesMap.String })
+     updatedBy: string;
+ 
+     @field({ type: GraphQLTypesMap.Date })
+     updatedDate: Date;
 
     @resolver({ forField: 'dateRange' })
     static resolveDateRange = (entity: IChart) => entity.dateRange[0]

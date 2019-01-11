@@ -38,6 +38,7 @@ import { TargetService } from './target.service';
 import {dataSortDesc} from '../helpers/number.helpers';
 import { TargetsNew } from '../domain/app/targetsNew/target.model';
 import { ChartDateRangeInput } from '../app_modules/shared/shared.types';
+import * as Bluebird from 'bluebird';
 
 export interface IRenderChartOptions {
     chartId?: string;
@@ -242,8 +243,22 @@ export class ChartsService {
         const that = this;
         return new Promise<IChart[]>((resolve, reject) => {
             that._charts.model
-            .find({})
+            .find({}).populate({path: 'createdBy', model: 'User'}).populate({path: 'updatedBy', model: 'User'})
             .then(chartDocuments => {
+                const charList =  Bluebird.map(chartDocuments, async (k) => {
+                    const firstNameCreated = k.createdBy.profile.firstName;
+                    const midleNameCreated = k.createdBy.profile.middleName;
+                    const lastNameCreated = k.createdBy.profile.lastName;
+                    const firstNameUpdated = k.updatedBy.profile.firstName;
+                    const lastNameUpdated = k.updatedBy.profile.lastName;
+
+                    const createdBy = (firstNameCreated ? firstNameCreated + ' ' : '' ) + (midleNameCreated ? midleNameCreated + ' ' : '' ) + (lastNameCreated ? lastNameCreated  : '' );
+                    const updatedBy = (firstNameUpdated ? firstNameUpdated + ' ' : '' ) + (lastNameUpdated ? lastNameUpdated + ' ' : '' );
+                    k.createdBy = createdBy;
+                    k.updatedBy = updatedBy;
+
+                    return k;
+                });
                 return resolve(chartDocuments);
             })
             .catch(err => {
@@ -251,7 +266,20 @@ export class ChartsService {
             });
         });
     }
+    /* public listCharts(): Promise<IChart[]> {
+        const listCharts =  this._charts.model.find({});//.populate({path: 'createdBy', model: 'User'});
+        const charts = Bluebird.map(listCharts, k => {
+            const firstName = k.createdBy.profile.firstName;
+            const midleName = k.createdBy.profile.middleName;
+            const lastName = k.createdBy.profile.lastName;
 
+            const createdBy = (firstName ? firstName + ' ' : '' ) + (midleName ? midleName + ' ' : '' ) + (lastName ? lastName  : '' );
+            k.createdBy = createdBy;
+            return k;
+        });
+
+        return listCharts;
+    } */
     public getChartByTitle(title: string): Promise<IChart> {
         const that = this;
         return new Promise<IChart>((resolve, reject) => {

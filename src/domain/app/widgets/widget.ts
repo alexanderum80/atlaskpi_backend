@@ -100,6 +100,11 @@ export interface IWidget {
     // virtual properties ( result of calcs, chart definitions, trending)
     materialized?: IWidgetMaterializedFields;
     tags: string[];
+    /* //add-created-update
+    createdBy?: string;
+    updatedBy?: string;
+    createdDate?: Date;
+    updatedDate?: Date; */
 }
 
 export interface IWidgetInput {
@@ -115,6 +120,11 @@ export interface IWidgetInput {
     preview?: boolean;
     tags: string[];
     dashboards?: string;
+    //add-created-update
+    createdBy?: string;
+    updatedBy?: string;
+    createdDate?: Date;
+    updatedDate?: Date;
 }
 
 export interface IWidgetDocument extends IWidget, mongoose.Document { }
