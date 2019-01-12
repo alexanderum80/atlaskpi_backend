@@ -116,6 +116,15 @@ export class ChartTopResponse {
     custom: number;
 }
 
+@type()
+export class ChartKpiType {
+    @field({ type: GraphQLTypesMap.String })
+    type: string;
+
+    @field({ type: GraphQLTypesMap.String })
+    kpi: string;
+}
+
 
 @type()
 export class ChartEntityResponse  {
@@ -136,8 +145,8 @@ export class ChartEntityResponse  {
     @field({ type: GraphQLTypesMap.String })
     group: string;
 
-    @field({ type: GraphQLTypesMap.String, isArray: true })
-    kpis: string[];
+    @field({ type: ChartKpiType, isArray: true })
+    kpis: ChartKpiType;
 
     @field({ type: ChartDateRange })
     dateRange: ChartDateRange;

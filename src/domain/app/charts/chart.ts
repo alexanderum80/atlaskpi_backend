@@ -1,21 +1,26 @@
-import { ISearchableModel } from '../global-search/global-search';
-import { IObject } from '../../../app_modules/shared/criteria.plugin';
 import * as Promise from 'bluebird';
 import * as mongoose from 'mongoose';
 
+import { IObject } from '../../../app_modules/shared/criteria.plugin';
+import { ChartDateRangeInput } from '../../../app_modules/shared/shared.types';
 import { input } from '../../../framework/decorators/input.decorator';
 import { IChartDateRange } from '../../common/date-range';
+import { IChartTop } from '../../common/top-n-record';
 import { IDashboardDocument } from '../dashboards/dashboard';
+import { ISearchableModel } from '../global-search/global-search';
 import { IKPIDocument } from '../kpis/kpi';
-import {IChartTop} from '../../common/top-n-record';
-import { ChartDateRangeInput } from '../../../app_modules/shared/shared.types';
+
+export interface IChartKpi {
+    type: string;
+    kpi: IKPIDocument;
+}
 
 export interface IChart {
     // _id?: string;
     title: string;
     subtitle?: string;
     group?: string;
-    kpis: IKPIDocument[];
+    kpis: IChartKpi[];
     dateRange: IChartDateRange[];
     top?: IChartTop;
     filter?: any;
@@ -36,11 +41,16 @@ export interface IChart {
     availableComparison?: string[];
 }
 
+export interface IChartKpiInput {
+    type: string;
+    kpi: string;
+}
+
 export interface IChartInput {
     title: string;
     subtitle?: string;
     group?: string;
-    kpis: [string];
+    kpis: IChartKpiInput[];
     dateRange: ChartDateRangeInput[];
     top?: IChartTop;
     filter?: any;
