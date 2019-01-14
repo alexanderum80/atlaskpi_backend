@@ -143,7 +143,7 @@ JobScheduleSchema.statics.removeScheduleJobByModelId = function(id: string): Blu
             return;
         }
 
-        scheduleTaskModel.findOne({ 'modelAlert.id': id }).then((scheduleJob: IScheduleJobDocument) => {
+        scheduleTaskModel.findOne({ 'data.identifier': id }).then((scheduleJob: IScheduleJobDocument) => {
             if (!scheduleJob) {
                 resolve(null);
                 return;

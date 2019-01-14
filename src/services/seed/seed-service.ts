@@ -55,21 +55,16 @@ export class NewSeedService implements ISeedService {
         const definitionCollections = ['charts', 'dashboards', 'kpis', 'widgets', 'maps'];
         const demoDataCollections = [
             'appointments',
-            'business-unit',
             'calls',
             'cogs',
-            'departments',
-            'employees',
             'expenses',
             'financialActivities',
             'inventory',
-            'locations',
             'payments',
             'sales',
             'slideshows',
             'socialNetworks',
             'tags',
-            'targets',
             'workLogs'
         ];
 
