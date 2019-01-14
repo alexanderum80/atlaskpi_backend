@@ -361,7 +361,7 @@ export class ChartsService {
             // resolve kpis
             that._kpis
                 .model
-                .find({ _id: { $in: input.kpis }})
+                .find({ _id: { $in: input.kpis.map(k => k.kpi) }})
                 .then((kpis) => {
                 if (!kpis || kpis.length !== input.kpis.length) {
                     that._logger.error('one or more kpi not found:' + id);
@@ -662,7 +662,9 @@ export class ChartsService {
     private _mergeDefinitions(definitions: any[]) {
         console.log(definitions);
 
-        if (definitions.length === 1) { return definitions[0]; }
+        if (definitions.length === 1) {
+            return definitions[0];
+        }
 
         // pick one definition as master
         const def = cloneDeep(definitions[0]);
