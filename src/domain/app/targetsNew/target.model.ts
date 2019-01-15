@@ -62,6 +62,10 @@ const TargetSchema = new mongoose.Schema({
     targetValue: { type: Number, default: 0 },
     active: { type: Boolean, default: true },
     deleted: { type: Boolean, default: false },
+    createdBy: String,
+    createdDate: Date,
+    updatedBy: String,
+    updatedDate: Date
 });
 
 // add tags capabilities
@@ -104,6 +108,10 @@ TargetSchema.statics.createNew = function(targetInput: ITargetNewInput): Promise
                 notifyOnPercentages: [0.25, 0.5, 0.75]
             },
             milestones: targetInput.milestones,
+            createdBy: targetInput.createdBy,
+            createdDate: targetInput.createdDate,
+            updatedBy: targetInput.updatedBy,
+            updatedDate: targetInput.updatedDate
         };
 
         that.create(objectTarget)
@@ -118,57 +126,74 @@ TargetSchema.statics.createNew = function(targetInput: ITargetNewInput): Promise
     });
 };
 
-TargetSchema.statics.updateTargetNew = async function(_id: string, targetInput: ITargetNew): Promise<ITargetNewDocument> {
+TargetSchema.statics.updateTargetNew = function(_id: string, targetInput: ITargetNew): Promise<ITargetNewDocument> {
     const that = <ITargetNewModel> this;
+    return new Promise<ITargetNewDocument>((resolve, reject) => {
+        try {
 
-    try {
+            // const target = await that.findById(_id).lean().exec() as ITargetNew;
 
-        // const target = await that.findById(_id).lean().exec() as ITargetNew;
+            if (!targetInput) {
+                return null;
+            }
 
-        if (!targetInput) {
-            return null;
+            // convert milestones due dates
+            if (targetInput.milestones) {
+                targetInput.milestones.forEach(m => {
+                    if (m.dueDate) {
+                        m.dueDate = new Date(m.dueDate);
+                    }
+                });
+            }
+
+               const objectTarget = {
+                _id: _id,
+                name: targetInput.name,
+                source : {
+                    type: targetInput.source.type,
+                    identifier: targetInput.source.identifier
+                },
+                reportOptions: targetInput.reportOptions,
+                compareTo: targetInput.compareTo,
+                type: targetInput.type,
+                value: targetInput.value,
+                appliesTo: targetInput.appliesTo,
+                unit: targetInput.unit,
+                active: targetInput.active,
+                targetValue: targetInput.targetValue || 0,
+                notificationConfig : {
+                    ...targetInput.notificationConfig,
+                    notifyOnPercentages: [0.25, 0.5, 0.75]
+                },
+                milestones: targetInput.milestones,
+                timestamp: new Date(),
+                updatedBy: targetInput.updatedBy,
+                updatedDate: targetInput.updatedDate
+            };
+
+        // that.findByIdAndUpdate(_id, objectTarget);
+
+         that.findByIdAndUpdate({_id: _id}, objectTarget, { new: true }, (err, result) => {
+            if (err) {
+                console.log(err);
+                reject(err);
+                return;
+            }
+
+            if (result) {
+                resolve(result);
+                return;
+            }
+
+            reject('There was an error updating the widget');
+        });
+         //   return objectTarget as any;
+
+        } catch (err) {
+            logger.error(err);
+            throw new Error('There was an error updating the target');
         }
-
-        // convert milestones due dates
-        if (targetInput.milestones) {
-            targetInput.milestones.forEach(m => {
-                if (m.dueDate) {
-                    m.dueDate = new Date(m.dueDate);
-                }
-            });
-        }
-
-        const objectTarget = {
-            _id: _id,
-            name: targetInput.name,
-            source : {
-                type: targetInput.source.type,
-                identifier: targetInput.source.identifier
-            },
-            reportOptions: targetInput.reportOptions,
-            compareTo: targetInput.compareTo,
-            type: targetInput.type,
-            value: targetInput.value,
-            appliesTo: targetInput.appliesTo,
-            unit: targetInput.unit,
-            active: targetInput.active,
-            targetValue: targetInput.targetValue || 0,
-            notificationConfig : {
-                ...targetInput.notificationConfig,
-                notifyOnPercentages: [0.25, 0.5, 0.75]
-            },
-            milestones: targetInput.milestones,
-            timestamp: new Date(),
-        };
-
-        await that.findByIdAndUpdate(_id, objectTarget);
-
-        return objectTarget as any;
-
-    } catch (err) {
-        logger.error(err);
-        throw new Error('There was an error updating the target');
-    }
+    });
 };
 
 TargetSchema.statics.deleteTargetNew = function(_id: string): Promise<ITargetNewDocument> {

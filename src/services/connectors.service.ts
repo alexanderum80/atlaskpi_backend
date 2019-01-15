@@ -80,7 +80,7 @@ export class ConnectorsService {
                     const field = f.columnName;
                     const dataType = f.dataType;
                     inputFieldsMap[field] = {
-                        path: field.toLowerCase().replace(' ', '_'),
+                        path: field.toLowerCase().replace(/ /g, '_'),
                         dataType: dataType,
                     };
                     if (dataType === 'String' || inputFieldsMap[field].path.includes('zip' || 'postal')) {
@@ -93,7 +93,7 @@ export class ConnectorsService {
                     description: input.inputName,
                     source: collectionName,
                     modelIdentifier: collectionName,
-                    dateField: input.dateRangeField.toLowerCase().replace(' ', '_'),
+                    dateField: input.dateRangeField.toLowerCase().replace(/ /g, '_'),
                     aggregate: [],
                     fieldsMap: inputFieldsMap
                 };

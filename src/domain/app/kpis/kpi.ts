@@ -98,6 +98,8 @@ export interface IKPI {
      // add-created
     createdBy?: any;
     createdDate?: Date;
+    updatedBy?: any;
+    updatedDate?: Date;
 }
 
 export interface IKPIDocument extends IKPI, mongoose.Document {

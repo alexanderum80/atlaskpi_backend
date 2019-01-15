@@ -1,8 +1,8 @@
+import * as Bluebird from 'bluebird';
 import { camelCase } from 'change-case';
 import { inject, injectable } from 'inversify';
-import {difference, isNumber, isString, pick, PartialDeep, cloneDeep, isEmpty, isArray, omit, uniq }  from 'lodash';
+import { cloneDeep, difference, isArray, isEmpty, isNumber, isString, omit, PartialDeep, pick, uniq } from 'lodash';
 import * as moment from 'moment-timezone';
-import * as Bluebird from 'bluebird';
 
 import { IChartMetadata } from '../app_modules/charts/queries/charts/chart-metadata';
 import {
@@ -13,9 +13,11 @@ import {
 import { IObject } from '../app_modules/shared/criteria.plugin';
 import { CurrentUser } from '../domain/app/current-user';
 import { Logger } from '../domain/app/logger';
+import { TargetsNew } from '../domain/app/targetsNew/target.model';
 import { VirtualSources } from '../domain/app/virtual-sources/virtual-source.model';
-import {chartTopLimit, IChartTop, isNestedArray} from '../domain/common/top-n-record';
-import {ChartAttributesInput} from './../app_modules/charts/charts.types';
+import { chartTopLimit, IChartTop, isNestedArray } from '../domain/common/top-n-record';
+import { dataSortDesc } from '../helpers/number.helpers';
+import { ChartAttributesInput } from './../app_modules/charts/charts.types';
 import { ChartFactory } from './../app_modules/charts/queries/charts/chart-factory';
 import { IUIChart, NULL_CATEGORY_REPLACEMENT } from './../app_modules/charts/queries/charts/ui-chart-base';
 import { DateRangeHelper } from './../app_modules/date-ranges/queries/date-range.helper';
@@ -34,12 +36,8 @@ import {
     PredefinedTargetPeriod,
     processDateRangeWithTimezone,
 } from './../domain/common/date-range';
-import {FrequencyEnum, FrequencyTable} from './../domain/common/frequency-enum';
+import { FrequencyEnum, FrequencyTable } from './../domain/common/frequency-enum';
 import { TargetService } from './target.service';
-import {dataSortDesc} from '../helpers/number.helpers';
-import { TargetsNew } from '../domain/app/targetsNew/target.model';
-import { ChartDateRangeInput } from '../app_modules/shared/shared.types';
-import { IKPI } from '../domain/app/kpis/kpi';
 
 export interface IRenderChartOptions {
     chartId?: string;
@@ -246,8 +244,22 @@ export class ChartsService {
         const that = this;
         return new Promise<IChart[]>((resolve, reject) => {
             that._charts.model
-            .find({})
+            .find({}).populate({path: 'createdBy', model: 'User'}).populate({path: 'updatedBy', model: 'User'})
             .then(chartDocuments => {
+                const charList =  Bluebird.map(chartDocuments, async (k) => {
+                    const firstNameCreated = k.createdBy.profile.firstName;
+                    const midleNameCreated = k.createdBy.profile.middleName;
+                    const lastNameCreated = k.createdBy.profile.lastName;
+                    const firstNameUpdated = k.updatedBy.profile.firstName;
+                    const lastNameUpdated = k.updatedBy.profile.lastName;
+
+                    const createdBy = (firstNameCreated ? firstNameCreated + ' ' : '' ) + (midleNameCreated ? midleNameCreated + ' ' : '' ) + (lastNameCreated ? lastNameCreated  : '' );
+                    const updatedBy = (firstNameUpdated ? firstNameUpdated + ' ' : '' ) + (lastNameUpdated ? lastNameUpdated + ' ' : '' );
+                    k.createdBy = createdBy;
+                    k.updatedBy = updatedBy;
+
+                    return k;
+                });
                 return resolve(chartDocuments);
             })
             .catch(err => {
@@ -255,7 +267,20 @@ export class ChartsService {
             });
         });
     }
+    /* public listCharts(): Promise<IChart[]> {
+        const listCharts =  this._charts.model.find({});//.populate({path: 'createdBy', model: 'User'});
+        const charts = Bluebird.map(listCharts, k => {
+            const firstName = k.createdBy.profile.firstName;
+            const midleName = k.createdBy.profile.middleName;
+            const lastName = k.createdBy.profile.lastName;
 
+            const createdBy = (firstName ? firstName + ' ' : '' ) + (midleName ? midleName + ' ' : '' ) + (lastName ? lastName  : '' );
+            k.createdBy = createdBy;
+            return k;
+        });
+
+        return listCharts;
+    } */
     public getChartByTitle(title: string): Promise<IChart> {
         const that = this;
         return new Promise<IChart>((resolve, reject) => {

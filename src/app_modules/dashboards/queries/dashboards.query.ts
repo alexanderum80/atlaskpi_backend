@@ -12,6 +12,7 @@ import { IQuery } from '../../../framework/queries/query';
 import { GetDashboardsActivity } from '../activities/get-dashboards.activity';
 import { Dashboard } from '../dashboards.types';
 import { CurrentUser } from './../../../domain/app/current-user';
+import * as Bluebird from 'bluebird';
 
 const transformProps = require('transform-props');
 
@@ -64,14 +65,20 @@ export class DashboardsQuery implements IQuery<IDashboard[]> {
                 })
                 .populate({
                     path: 'owner',
-                    select: ['_id', 'username', 'visible']
+                    select: ['_id', 'username', 'profile.firstName', 'profile.lastName', 'visible']
                 })
+                .populate({path: 'updatedBy', model: 'User'})
                 .then(dashboards => {
                     (dashboards as IDashboard[]).forEach(d => {
+                        const firstNameUpdated = d.updatedBy.profile.firstName;
+                        const lastNameUpdated = d.updatedBy.profile.lastName;
+                        const updatedBy = (firstNameUpdated ? firstNameUpdated + ' ' : '') + (lastNameUpdated ? lastNameUpdated + ' ' : '');
+                        d.updatedBy = updatedBy;
                         transformProps(d, this.castToString, '_id');
                         d.owner = JSON.stringify(d.owner) as any;
                         d.charts = d.charts.map(c => JSON.stringify(c)) as any;
                     });
+
 
                     resolve(dashboards as IDashboard[]);
                 }).catch(e => {

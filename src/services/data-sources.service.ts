@@ -1,5 +1,5 @@
 import { camelCase } from 'change-case';
-import { IDateRange } from './../domain/common/date-range';
+import { IDateRange, isValidTimezone } from './../domain/common/date-range';
 import { IVirtualSourceDocument, IVirtualSource } from '../domain/app/virtual-sources/virtual-source';
 import { DataSourceField, DataSourceResponse } from '../app_modules/data-sources/data-sources.types';
 import { injectable, inject, Container } from 'inversify';
@@ -18,6 +18,7 @@ import * as moment from 'moment';
 import { IMutationResponse } from '../framework/mutations/mutation-response';
 import { Connectors } from '../domain/master/connectors/connector.model';
 import { VirtualSourceAggregateService, IKeyValues } from '../domain/app/virtual-sources/vs-aggregate.service';
+import { CurrentUser } from '../domain/app/current-user';
 
 const GOOGLE_ANALYTICS = 'GoogleAnalytics';
 
@@ -30,14 +31,23 @@ export interface IFieldAvailabilityOptions {
 @injectable()
 export class DataSourcesService {
 
+    private timezone: string;
+
     constructor(
         @inject(Logger.name) private _logger: Logger,
         @inject('resolver') private _resolver: (name: string) => any,
         @inject(AppConnection.name) private _appConnection: AppConnection,
         @inject(Connectors.name) private _connectors: Connectors,
         @inject(VirtualSources.name) private _virtualDatasources: VirtualSources,
-        @inject(VirtualSourceAggregateService.name) private _vsAggregateService: VirtualSourceAggregateService
-        ) { }
+        @inject(VirtualSourceAggregateService.name) private _vsAggregateService: VirtualSourceAggregateService,
+        @inject(CurrentUser.name) private _currentUser: CurrentUser,
+    ) {
+        const tz = this._currentUser.get().profile.timezone;
+
+        if (!isValidTimezone(tz)) throw new Error('Invalid user timezone');
+
+        this.timezone = tz;
+    }
 
     async get(): Promise<DataSourceResponse[]> {
         return await this._virtualDatasources.model.getDataSources();
@@ -238,7 +248,7 @@ export class DataSourcesService {
                 const collection: any[] = [];
                 for (let i = 0; i < d.length; i++) {
                     const record = d[i];
-                    const fieldName = schemaCollection[i].columnName.toLowerCase().replace(' ', '_');
+                    const fieldName = schemaCollection[i].columnName.toLowerCase().replace(/ /g, '_');
                     collection[fieldName] = this.getValueFromDataType(schemaCollection[i].dataType, record);
                 }
                 collection['source'] = 'Manual entry';
@@ -363,6 +373,7 @@ export class DataSourcesService {
             vsAggregateReplacements = {
                 '__from__': dateRangeFilter['$gte'],
                 '__to__': dateRangeFilter['$lt'],
+                '__timezone__': this.timezone
             };
 
         }

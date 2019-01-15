@@ -63,7 +63,11 @@ export class ListMapsQuery implements IQuery<String[]> {
                         size: mapdata.size,
                         dashboards: mapdata.dashboards,
                         dateRange: <any>mapdata.dateRange,
-                        markers: markersList
+                        markers: markersList,
+                        createdBy: mapdata.createdBy,
+                        createdDate: mapdata.createdDate,
+                        updatedBy: mapdata.updatedBy,
+                        updatedDate: mapdata.updatedDate
                     };
                     resolve(JSON.stringify(response));
                     return;
