@@ -65,23 +65,27 @@ export class KpiService {
         const users = await this._users.model.find();
         // process available groupings
         const kpiList = await Bluebird.map(kpis, async (k) => {
-            const kpiSources: string[] = this._getKpiSources(k, kpis, connectors);
-            // find common field paths on the sources
-            const groupingInfo = await this._getCommonSourcePaths(kpiSources, virtualSources);
-            k.groupingInfo = groupingInfo || [];
-            const firstNameCreated = k.createdBy.profile.firstName;
-            const midleNameCreated = k.createdBy.profile.middleName;
-            const lastNameCreated = k.createdBy.profile.lastName;
+            try {
+                const kpiSources: string[] = this._getKpiSources(k, kpis, connectors);
+                // find common field paths on the sources
+                const groupingInfo = await this._getCommonSourcePaths(kpiSources, virtualSources);
+                k.groupingInfo = groupingInfo || [];
+                const firstNameCreated = k.createdBy.profile.firstName;
+                const midleNameCreated = k.createdBy.profile.middleName;
+                const lastNameCreated = k.createdBy.profile.lastName;
 
-            const firstNameUpdated = k.updatedBy.profile.firstName;
-            const lastNameUpdated = k.updatedBy.profile.lastName;
- 
-            const createdBy = (firstNameCreated ? firstNameCreated + ' ' : '' ) + (midleNameCreated ? midleNameCreated + ' ' : '' ) + (lastNameCreated ? lastNameCreated  : '' );
-            const updatedBy = (firstNameUpdated ? firstNameUpdated + ' ' : '' ) + (lastNameUpdated ? lastNameUpdated + ' ' : '' );
-            k.createdBy = createdBy;
-            k.updatedBy = updatedBy;
+                const firstNameUpdated = k.updatedBy.profile.firstName;
+                const lastNameUpdated = k.updatedBy.profile.lastName;
 
-            return k;
+                const createdBy = (firstNameCreated ? firstNameCreated + ' ' : '' ) + (midleNameCreated ? midleNameCreated + ' ' : '' ) + (lastNameCreated ? lastNameCreated  : '' );
+                const updatedBy = (firstNameUpdated ? firstNameUpdated + ' ' : '' ) + (lastNameUpdated ? lastNameUpdated + ' ' : '' );
+                k.createdBy = createdBy;
+                k.updatedBy = updatedBy;
+
+                return k;
+            } catch (e) {
+                console.error(e);
+            }
         });
 
         return kpiList;
