@@ -23,7 +23,7 @@ const orderMonths = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Se
 export class ChartPostProcessingExtention {
 
     process(chart: IChart, series: any[]) {
-        let code = chart.kpis[0].code;
+        let code = chart.kpis[0].kpi.code;
 
         // Chart Series
         chart.chartDefinition.series = series;

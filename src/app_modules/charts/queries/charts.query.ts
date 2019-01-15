@@ -31,7 +31,7 @@ export class ChartsQuery implements IQuery<string> {
             that._charts.model
             .find({})
             .populate({
-                path: 'kpis'
+                path: 'kpis.kpi'
             })
             .then(chartsCollection => {
                 // process charts

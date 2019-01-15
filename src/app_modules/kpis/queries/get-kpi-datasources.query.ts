@@ -19,7 +19,7 @@ import { GetKpiDatasourcesActivity } from '../activities/get-kpi-datasources.act
     name: 'getKpiDataSources',
     activity: GetKpiDatasourcesActivity,
     parameters: [
-        { name: 'id', type: String },
+        { name: 'ids', type: String, isArray: true, required: true },
         { name: 'zipField', type: String }
     ],
     output: { type: Boolean, isArray: true }
@@ -32,29 +32,25 @@ export class GetKpiDataSourcesQuery implements IQuery<Object> {
                 @inject(VirtualSources.name) private _virtualSources: VirtualSources,
                 @inject(Connectors.name) private _connectors: Connectors) { }
 
-    async run(data: { id: string, zipField: string }): Promise<Object> {
+    async run(data: { ids: string[], zipField: string }): Promise<Object> {
 
         const allKpis: IKPIDocument[] = await this._kpis.model.find({});
-        const kpi: IKPIDocument = allKpis.find((k: IKPIDocument) => k.id === data.id);
         const connectors: IConnectorDocument[] = await this._connectors.model.find({});
-        const kpiSources: string[] = this._kpiservice._getKpiSources(kpi, allKpis, connectors);
         const vs: IVirtualSourceDocument[] = await this._virtualSources.model.find({});
+        const kpis: IKPIDocument = allKpis.find((k: IKPIDocument) => data.ids.indexOf(k.id) !== -1);
+        const kpiSources: string[] = this._kpiservice._getKpiSources(kpis, allKpis, connectors);
+
         const virtualSources: IVirtualSourceDocument[] = vs.filter((v: IVirtualSourceDocument) => {
             return kpiSources.indexOf(v.name.toLocaleLowerCase()) !== -1;
         });
+
         const searchPromises: Promise<Object>[] = [];
         virtualSources.map( s => {
             const theModel = this.getModel(s.name, s.source);
             searchPromises.push(this.getFields(theModel, data.zipField));
         });
-        return new Promise<Object>((resolve, reject) => {
-            Promise.all(searchPromises).then(res => {
-                resolve(res);
-            })
-            .catch(err => {
-                reject(err);
-            });
-        });
+
+        return Promise.all(searchPromises);
     }
     private getModel(modelName: string, source: string): any {
         const schema = new mongoose.Schema({}, { strict: false });
