@@ -1,27 +1,61 @@
 import { IAppConfig } from './../../configuration/config-models';
-import { inject } from 'inversify';
 import { Db, MongoClient } from 'mongodb';
 import { Logger } from '../../domain/app/logger';
+import * as Bluebird from 'bluebird';
+import { IAccountDocument } from '../../domain/master/accounts/Account';
 
 export interface ISeedService {
-    run(targetDb: string, includeDemoData: boolean): Promise<boolean>;
+    run(includeDemoData: boolean): Promise<boolean>;
+}
+
+export enum IMigrationType {
+    raw = 'raw',
+    command = 'command'
+}
+
+export interface IMigration {
+    order: number;
+    name: string;
+    payload: any;
+    type: IMigrationType;
 }
 
 export class NewSeedService implements ISeedService {
     private sourceDb = 'newdemo';
 
     constructor(
-        @inject('Config') private _config: IAppConfig,
-        @inject('Logger') private _logger: Logger
+       private _config: IAppConfig,
+       private _logger: Logger,
+       private _newAccount: IAccountDocument,
     ) { }
 
-    async run(targetDb: string, includeDemoData: boolean): Promise<boolean> {
+    async run(includeDemoData: boolean): Promise<boolean> {
+        const targetDbName = this._newAccount.database.name;
         try {
             this.sourceDb = this._config.seedDbName;
             const dbUri =
-                this._config.newAccountDbUriFormat.replace('{{database}}', targetDb);
+                this._config.newAccountDbUriFormat.replace('{{database}}', targetDbName);
             const client = await this.connect(dbUri);
+
+            const targetDb = client.db(targetDbName);
+
             const copyResult = await this.copyData(client, targetDb, includeDemoData);
+
+            const migrationsCollection = this._newAccount.db.collection('migrations');
+
+            const migrations =
+                await migrationsCollection
+                        .find()
+                        .sort({ order: 1})
+                        .toArray();
+
+            const migrationResult =
+                await Bluebird.map(
+                            migrations,
+                            async(m) => this.runMigration(targetDb, m),
+                            { concurrency: 1}
+                );
+
             client.close();
             return copyResult;
         } catch (e) {
@@ -42,9 +76,9 @@ export class NewSeedService implements ISeedService {
         });
     }
 
-    private copyData(
+    private async copyData(
         client: MongoClient,
-        targetDbName: string,
+        targetDb: Db,
         addDemoData: boolean): Promise<boolean> {
         const self = this;
         const basicCollections = [
@@ -76,16 +110,15 @@ export class NewSeedService implements ISeedService {
         }
 
         const sourceDb = client.db(this.sourceDb);
-        const targetDb = client.db(targetDbName);
+
         const promises: Promise<boolean>[] = [];
 
         collectionNames.forEach((collection) => {
             promises.push(self.copyCollection(sourceDb, targetDb, collection));
         });
 
-
         return Promise.all(promises)
-            .then(() => this.updateKpiData(targetDb))
+            .then(() => true)
             .catch(() => false);
     }
 
@@ -107,26 +140,14 @@ export class NewSeedService implements ISeedService {
             });
         });
     }
+    private async runMigration(targetDb: Db, m: IMigration): Promise <boolean> {
+        console.log('running migration: ' + m.name);
 
-    private async updateKpiData(targetDb: Db): Promise<boolean> {
         try {
-            // update created by in kpis
-            const user = await targetDb.collection('users').findOne({});
-            const createdDate = Date.now();
-
-            await targetDb.collection('kpis').update(
-                {},
-                { $set: {
-                        createdDate,
-                        createdBy: user._id,
-                    }
-                },
-                { multi: true}
-            );
-
+            const res = await (<any>targetDb).eval(m.payload.code);
             return true;
-        } catch (err) {
-            this._logger.error('error updating new company data: ' + err);
+        } catch (e) {
+            console.error('There was an error running migration: ' + m.name, e);
             return false;
         }
     }
