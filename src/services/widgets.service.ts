@@ -170,6 +170,7 @@ export class WidgetsService {
 
             docs.forEach(d => {
                 const widgetAsObject = <IWidget>d.toObject();
+                widgetAsObject['position'] = d.position;
                 uiWidgetsPromises.push(
                     that._widgetFactory.getInstance(widgetAsObject).then(uiWidget => {
                         return uiWidget.materialize({ timezone: this._timezone });

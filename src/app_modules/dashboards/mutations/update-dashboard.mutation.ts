@@ -1,3 +1,4 @@
+import { Widgets } from './../../../domain/app/widgets/widget.model';
 import * as Promise from 'bluebird';
 import { inject, injectable } from 'inversify';
 
@@ -8,6 +9,7 @@ import { IMutationResponse } from '../../../framework/mutations/mutation-respons
 import { UpdateDashboardActivity } from '../activities/update-dashboard.activity';
 import { DashboardInput, DashboardResponse } from '../dashboards.types';
 import { DashboardQuery } from '../queries/dashboard.query';
+import { input } from '../../../framework/decorators/input.decorator';
 
 
 @injectable()
@@ -30,10 +32,31 @@ export class UpdateDashboardMutation extends MutationBase<IMutationResponse> {
         const that = this;
 
         return new Promise<IMutationResponse>((resolve, reject) => {
-            that._dashboards.model.updateDashboard(data.id, data.input).then(dashboard => {
+            let widgets = [];
+            let charts = [];
+            let socialwidgets = [];
+            let maps = [];
+            let dataInput = [];
+            if (data.input.widgets) {
+                widgets = data.input.widgets.map(wt => JSON.parse(wt));
+            }
+            data.input['widgets'] = widgets;
+            if (data.input.socialwidgets) {
+                socialwidgets = data.input.socialwidgets.map(swt => JSON.parse(swt));
+            }
+            data.input['socialwidgets'] = socialwidgets;
+            if (data.input.charts) {
+                charts = data.input.charts.map(ct => JSON.parse(ct));
+            }
+            data.input['charts'] = charts;
+            if (data.input.maps) {
+                maps = data.input.maps.map(mt => JSON.parse(mt));
+            }
+            data.input['maps'] = maps;
+            that._dashboards.model.updateDashboard(data.id, <any>data.input).then(dashboard => {
                 resolve({
                     success: true,
-                    entity: dashboard
+                    entity: null
                 });
             }).catch(err => {
                 resolve({

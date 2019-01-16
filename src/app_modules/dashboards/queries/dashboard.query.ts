@@ -1,3 +1,4 @@
+import { IWidgetDocument } from './../../../domain/app/widgets/widget';
 import * as Promise from 'bluebird';
 import * as console from 'console';
 import { inject, injectable } from 'inversify';
@@ -70,38 +71,61 @@ export class DashboardQuery implements IQuery<IDashboard> {
                 .findOne(query)
                 .populate(
                     {
-                        path: 'charts',
+                        path: 'charts.id',
                         populate: { path: 'kpis' }
                     }
                 )
-                .populate('widgets')
+                .populate('widgets.id')
                 .then(dashboard => {
 
                     if (!dashboard) {
                         // that._logger.debug('dashbord doenst exists, or not enought permissions to see it.');
-                        //reject('not found');
-                        return resolve(null);      
+                        // reject('not found');
+                        return resolve(null);
                     }
 
                     const dashboardElementsPromises = { };
                     // process widgets
-                    dashboardElementsPromises['widgets'] = that._widgetService.materializeWidgetDocuments(<any>dashboard.widgets);
+                    const widgetsElements: IWidgetDocument[] = dashboard.widgets.map(w => {
+                        let widget = (<any>w).id;
+                        widget['position'] = (<any>w).position;
+                        return widget;
+                    });
+
+                    dashboardElementsPromises['widgets'] = that._widgetService.materializeWidgetDocuments(widgetsElements);
 
                     // process social widgets
+                    const socialwidgetsElements = dashboard.socialwidgets.map(w => {
+                        let swidget = [];
+                        swidget['id'] = (<any>w).id;
+                        swidget['position'] = (<any>w).position;
+                        return swidget;
+                    });
 
-                    let swidgetsPromises = dashboard.socialwidgets.map(c => {
-                        return that._socialwidgetService.getSocialWidgetsById(<any>c);
+                    let swidgetsPromises = socialwidgetsElements.map(sw => {
+                        return that._socialwidgetService.getSocialWidgetsById((<any>sw).id, (<any>sw).position);
                     });
 
                     // process maps
-
-                    let mapsPromises = dashboard.maps.map(m => {
-                        return that._mapQuery.run({ id: m});
+                    const mapsElements = dashboard.maps.map(m => {
+                        let map = [];
+                        map['id'] = (<any>m).id;
+                        map['position'] = (<any>m).position;
+                        return map;
                     });
 
+                    let mapsPromises = mapsElements.map(m => { return that._mapQuery.run({ id: (<any>m).id, position: (<any>m).position}); });
+
                     // process charts
-                    let chartPromises = dashboard.charts.map(c => {
-                        return that._chartQuery.run({ id: (<any>c)._id } as any);
+                    const chartsElements = dashboard.charts.map(m => {
+                        let chart = (<any>m).id;
+                        chart['position'] = (<any>m).position;
+                        return chart;
+                    });
+                    let chartPromises = chartsElements.map(c => {
+                        let chartobj = that._chartQuery.run({ id: c.id, position: c.position } as any);
+                        chartobj['position'] = c.position;
+                        return chartobj;
                     });
 
                     dashboardElementsPromises['charts'] = Promise.all(chartPromises);
@@ -110,7 +134,7 @@ export class DashboardQuery implements IQuery<IDashboard> {
 
                     dashboardElementsPromises['socialwidgets'] = Promise.all(swidgetsPromises);
 
-                    Promise.props(dashboardElementsPromises).then((elements: { widgets: IUIWidget[], socialwidgets: string[] , charts: string[], maps: string}) => {
+                    Promise.props(dashboardElementsPromises).then((elements: { widgets: IUIWidget[], socialwidgets: string[] , charts: string[], maps: string[]}) => {
                         let response = {};
 
                         const widgetsAsString = elements.widgets.map(w => JSON.stringify(w));

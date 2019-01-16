@@ -12,7 +12,8 @@ import { TypeMap } from '../../../domain/app/sales/sale';
     name: 'map',
     activity: GetMapActivity,
     parameters: [
-        { name: 'id', type: String }
+        { name: 'id', type: String },
+        { name: 'position', type: String}
     ],
     output: { type: String }
 })
@@ -23,13 +24,13 @@ export class MapQuery implements IQuery<String> {
         @inject('Logger') private _logger: Logger
     ) { }
 
-    run(data: {id: string }): Promise<string> {
+    run(data: {id: string, position: string }): Promise<string> {
         const that = this;
         return new Promise<string>((resolve, reject) => {
             that._mapsService.getMapById(data.id)
                 .then(m => {
                     const many: any = m;
-                    this.getMarkers(m, many.dateRange, many.groupings, many.kpi)
+                    this.getMarkers(m, many.dateRange, many.groupings, many.kpi, data.position)
                     .then(res => {
                         resolve(<any>res);
                     })
@@ -44,7 +45,7 @@ export class MapQuery implements IQuery<String> {
         });
     }
 
-    private getMarkers(mapdata: any, dateRange: string, groupings: string[], kpi: string ): Promise<Object> {
+    private getMarkers(mapdata: any, dateRange: string, groupings: string[], kpi: string, position: string ): Promise<Object> {
         return new Promise<Object>((resolve, reject) => {
             const markerGroupings  = {
                 dateRange: JSON.stringify(dateRange),
@@ -64,7 +65,8 @@ export class MapQuery implements IQuery<String> {
                         dashboards: mapdata.dashboards,
                         dateRange: <any>mapdata.dateRange,
                         markers: markersList,
-                        zipCodeSource: mapdata.zipCodeSource
+                        zipCodeSource: mapdata.zipCodeSource,
+                        position: position
                     };
                     resolve(JSON.stringify(response));
                     return;

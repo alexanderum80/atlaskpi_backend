@@ -26,13 +26,18 @@ export interface IDashboard {
     order?: number;
 }
 
+export interface IElement {
+    id: string;
+    position: number;
+}
+
 export interface IDashboardInput {
     name: string;
     description: string;
-    charts: string[];
-    widgets: string[];
-    socialwidgets: string[];
-    maps: string[];
+    charts: IElement[];
+    widgets: IElement[];
+    socialwidgets: IElement[];
+    maps: IElement[];
     owner: string;
     users: string[];
     visible?: boolean;

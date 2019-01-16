@@ -59,7 +59,7 @@ export class DashboardsQuery implements IQuery<IDashboard[]> {
                 .find(query)
                 .lean(true)
                 .populate({
-                    path: 'charts',
+                    path: 'charts.id',
                     populate: { path: 'kpis' }
                 })
                 .populate({
@@ -70,7 +70,7 @@ export class DashboardsQuery implements IQuery<IDashboard[]> {
                     (dashboards as IDashboard[]).forEach(d => {
                         transformProps(d, this.castToString, '_id');
                         d.owner = JSON.stringify(d.owner) as any;
-                        d.charts = d.charts.map(c => JSON.stringify(c)) as any;
+                        d.charts = d.charts.map(c => JSON.stringify((<any>c).id)) as any;
                     });
 
                     resolve(dashboards as IDashboard[]);

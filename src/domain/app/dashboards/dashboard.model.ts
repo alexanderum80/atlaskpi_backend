@@ -22,20 +22,20 @@ let DashboardSchema = new Schema({
     name: { type: String, unique: true, required: true },
     description: String,
     charts: [{
-        type: Schema.Types.String,
-        ref: 'Chart'
+        id: { type: Schema.Types.String, ref: 'Chart' },
+        position: {type: Schema.Types.Number}
     }],
     widgets: [{
-        type: Schema.Types.String,
-        ref: 'Widget'
+        id: { type: Schema.Types.String, ref: 'Widget' },
+        position: {type: Schema.Types.Number}
     }],
     socialwidgets: [{
-        type: Schema.Types.String,
-        ref: 'socialwidget'
+        id: { type: Schema.Types.String, ref: 'socialwidget' },
+        position: {type: Schema.Types.Number}
     }],
     maps: [{
-        type: Schema.Types.String,
-        ref: 'map'
+        id: { type: Schema.Types.String, ref: 'map' },
+        position: {type: Schema.Types.Number}
     }],
     owner: {
         type: Schema.Types.String,
@@ -207,7 +207,7 @@ DashboardSchema.statics.deleteChartIdFromDashboard = function(id: string, charts
             if (!id || !charts) {
                 return reject('No dashboard Id or chartId was provided');
             }
-            else{
+            else {
 
                 that.findByIdAndUpdate(id, {$set: {charts}}, {new: true}).then(dashboard => {
                     resolve(dashboard);
@@ -216,8 +216,8 @@ DashboardSchema.statics.deleteChartIdFromDashboard = function(id: string, charts
                     logger.error(err);
                     return reject('There was an error updating the dashboard');
                 });
-            };
-        });    
+            }
+        });
     };
 
 

@@ -87,6 +87,7 @@ export interface IWidgetMaterializedFields {
 
 export interface IWidget {
     order: number;
+    position?: number;
     name: string;
     description?: string;
     type: string;
@@ -104,6 +105,7 @@ export interface IWidget {
 
 export interface IWidgetInput {
     order: number;
+    position?: number;
     name: string;
     description?: string;
     type: string;

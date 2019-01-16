@@ -9,6 +9,7 @@ import { GetChartInput } from '../charts.types';
 import { IChart } from './../../../domain/app/charts/chart';
 import { IQuery } from './../../../framework/queries/query';
 import { Logger } from '../../../domain/app/logger';
+import { Int32 } from 'bson';
 
 // TODO: I need kind of a big refactory here
 @injectable()
@@ -19,6 +20,7 @@ import { Logger } from '../../../domain/app/logger';
     parameters: [
         { name: 'id', type: String },
         { name: 'input', type: GetChartInput },
+        {name: 'position', type: String},
     ],
     output: { type: String }
 })
@@ -28,7 +30,7 @@ export class ChartQuery implements IQuery<String> {
         @inject('Logger') private _logger: Logger
     ) { }
 
-    run(data: { id: string, input: IChartInput, /* TODO: I added this extra parameter here maually */ chart: any }): Promise<String> {
+    run(data: { id: string, input: IChartInput, position: string, /* TODO: I added this extra parameter here maually */ chart: any }): Promise<String> {
         this._logger.debug('running get chart query for id:' + data.id);
 
         const that = this;
@@ -38,6 +40,7 @@ export class ChartQuery implements IQuery<String> {
                 that._chartsService.getChart(data.id.toString(), data.input);
 
             chartPromise.then((res) => {
+                if (data.position) { res['position'] = data.position; }
                 resolve(JSON.stringify(res));
                 return;
             })
