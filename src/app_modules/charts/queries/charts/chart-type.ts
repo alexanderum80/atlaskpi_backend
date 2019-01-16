@@ -22,7 +22,13 @@ export const ChartType = {
     SolidGauge: 'solidgauge',
     Spline: 'spline',
     TreeMap: 'treemap',
-    Waterfall: 'waterfall'
+    Waterfall: 'waterfall',
+    AreaBar: 'area-bar',
+    AreaColumn: 'area-column',
+    BarLine: 'bar-line',
+    BarSpLine: 'bar-spline',
+    ColumnLine: 'column-line',
+    ColumnSpLine: 'column-spline',
 };
 
 // export interface ChartPlotOptions {

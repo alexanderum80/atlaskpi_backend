@@ -71,16 +71,14 @@ export class DashboardQuery implements IQuery<IDashboard> {
                 .populate(
                     {
                         path: 'charts',
-                        populate: { path: 'kpis' }
+                        populate: { path: 'kpis.kpi' }
                     }
                 )
                 .populate('widgets')
                 .then(dashboard => {
 
                     if (!dashboard) {
-                        // that._logger.debug('dashbord doenst exists, or not enought permissions to see it.');
-                        //reject('not found');
-                        return resolve(null);      
+                        return resolve(null);
                     }
 
                     const dashboardElementsPromises = { };

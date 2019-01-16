@@ -47,7 +47,7 @@ export class DashboardByNameQuery implements IQuery<IDashboard> {
                 .populate(
                     {
                         path: 'charts',
-                        populate: { path: 'kpis' }
+                        populate: { path: 'kpis.kpi' }
                     }
                 )
                 .populate('widgets')

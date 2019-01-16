@@ -18,14 +18,14 @@ import { KPIExpressionHelper } from '../domain/app/kpis/kpi-expression.helper';
 import { KPIFilterHelper } from '../domain/app/kpis/kpi-filter.helper';
 import { KPIs } from '../domain/app/kpis/kpi.model';
 import { ISaleModel } from '../domain/app/sales/sale';
-import { IVirtualSourceDocument } from '../domain/app/virtual-sources/virtual-source';
+import { IVirtualSourceDocument, IVirtualSource } from '../domain/app/virtual-sources/virtual-source';
 import { VirtualSources, mapDataSourceFields } from '../domain/app/virtual-sources/virtual-source.model';
 import { IWidgetDocument } from '../domain/app/widgets/widget';
 import { Widgets } from '../domain/app/widgets/widget.model';
 import { processDateRangeWithTimezone } from '../domain/common/date-range';
 import { blackListDataSource, getFieldsWithData, IFieldsWithDataDatePipeline } from '../domain/common/fields-with-data';
 import { IValueName } from '../domain/common/value-name';
-import { IConnectorDocument } from '../domain/master/connectors/connector';
+import { IConnectorDocument, IConnector } from '../domain/master/connectors/connector';
 import { Connectors } from '../domain/master/connectors/connector.model';
 import { IMutationResponse } from '../framework/mutations/mutation-response';
 import { DataSourcesService } from './data-sources.service';
@@ -65,23 +65,27 @@ export class KpiService {
         const users = await this._users.model.find();
         // process available groupings
         const kpiList = await Bluebird.map(kpis, async (k) => {
-            const kpiSources: string[] = this._getKpiSources(k, kpis, connectors);
-            // find common field paths on the sources
-            const groupingInfo = await this._getCommonSourcePaths(kpiSources, virtualSources);
-            k.groupingInfo = groupingInfo || [];
-            const firstNameCreated = k.createdBy.profile.firstName;
-            const midleNameCreated = k.createdBy.profile.middleName;
-            const lastNameCreated = k.createdBy.profile.lastName;
+            try {
+                const kpiSources: string[] = this._getKpiSources(k, kpis, connectors);
+                // find common field paths on the sources
+                const groupingInfo = await this._getCommonSourcePaths(kpiSources, virtualSources);
+                k.groupingInfo = groupingInfo || [];
+                const firstNameCreated = k.createdBy.profile.firstName;
+                const midleNameCreated = k.createdBy.profile.middleName;
+                const lastNameCreated = k.createdBy.profile.lastName;
 
-            const firstNameUpdated = k.updatedBy.profile.firstName;
-            const lastNameUpdated = k.updatedBy.profile.lastName;
- 
-            const createdBy = (firstNameCreated ? firstNameCreated + ' ' : '' ) + (midleNameCreated ? midleNameCreated + ' ' : '' ) + (lastNameCreated ? lastNameCreated  : '' );
-            const updatedBy = (firstNameUpdated ? firstNameUpdated + ' ' : '' ) + (lastNameUpdated ? lastNameUpdated + ' ' : '' );
-            k.createdBy = createdBy;
-            k.updatedBy = updatedBy;
+                const firstNameUpdated = k.updatedBy.profile.firstName;
+                const lastNameUpdated = k.updatedBy.profile.lastName;
 
-            return k;
+                const createdBy = (firstNameCreated ? firstNameCreated + ' ' : '' ) + (midleNameCreated ? midleNameCreated + ' ' : '' ) + (lastNameCreated ? lastNameCreated  : '' );
+                const updatedBy = (firstNameUpdated ? firstNameUpdated + ' ' : '' ) + (lastNameUpdated ? lastNameUpdated + ' ' : '' );
+                k.createdBy = createdBy;
+                k.updatedBy = updatedBy;
+
+                return k;
+            } catch (e) {
+                console.error(e);
+            }
         });
 
         return kpiList;
@@ -96,19 +100,20 @@ export class KpiService {
 
     async getGroupingsWithData(input: KpiGroupingsInput): Promise<IValueName[]> {
         try {
-            const allKpis: IKPIDocument[] = await this._kpis.model.find({});
-            const cloneKpis: IKPIDocument[] = cloneDeep(allKpis);
-            const kpi: IKPIDocument = cloneKpis.find((k: IKPIDocument) => k.id === input.id);
-
-            const connectors: IConnectorDocument[] = await this._connectors.model.find({});
-
+            const allKpis: IKPI[] = await this._kpis.model.find({}).lean().exec() as IKPI[];
+            const kpis: IKPI[] = allKpis.filter((k: IKPI) => input.ids.indexOf(k._id.toString()) !== -1);
+            const connectors: IConnector[] = await this._connectors.model.find({}).lean() as IConnector[];
             const vs: IVirtualSourceDocument[] = await this._virtualSources.model.find({});
-            const kpiSources: string[] = this._getKpiSources(kpi, allKpis, connectors);
-            const sources: IVirtualSourceDocument[] = vs.filter((v: IVirtualSourceDocument) => {
+
+            const kpiSourcesArrays = await Bluebird.map(kpis, (kpi) => this._getKpiSources(kpi, allKpis, connectors));
+            const kpiSources = [].concat(...kpiSourcesArrays);
+
+            // const kpiSources: string[] = this._getKpiSources(kpis, allKpis, connectors);
+            const sources: IVirtualSourceDocument[] = vs.filter((v: IVirtualSource) => {
                 return kpiSources.indexOf(v.name.toLocaleLowerCase()) !== -1;
             });
 
-            const kpiFilter = this._cleanFilter(kpi.filter || {});
+            const kpiFilter = this._cleanFilter(kpis.filter || {});
 
             return await this._groupingsWithData(sources, input.dateRange, kpiFilter);
         } catch (err) {
@@ -191,7 +196,7 @@ export class KpiService {
             }) : [];
     }
 
-    public _getKpiSources(kpi: IKPIDocument, kpis: IKPIDocument[], connectors: IConnectorDocument[]): string[] {
+    public _getKpiSources(kpi: IKPI, kpis: IKPI[], connectors: IConnector[]): string[] {
 
         if (kpi.type === KPITypeEnum.ExternalSource) {
             const expression = KPIExpressionHelper.DecomposeExpression(kpi.type, kpi.expression);
@@ -226,7 +231,7 @@ export class KpiService {
         return [];
     }
 
-    private  _getComplexKpiExpressionSources(expression: string, kpis: IKPIDocument[], connectors: IConnectorDocument[]): string[] {
+    private  _getComplexKpiExpressionSources(expression: string, kpis: IKPI[], connectors: IConnector[]): string[] {
         const regex = new RegExp(/kpi(\w+)/g); // I need to extract kpis from the expression
         let match: RegExpExecArray;
         const sources: string[] = [];
@@ -234,7 +239,7 @@ export class KpiService {
         while (match = regex.exec(expression)) {
             const a = expression;
             const kpiId = match[1];
-            const kpi = kpis.find(k => k.id === kpiId);
+            const kpi = kpis.find(k => k._id.toString() === kpiId);
 
             if (kpi) {
                 const kpiSources = this._getKpiSources(kpi, kpis, connectors);
@@ -355,10 +360,7 @@ export class KpiService {
             const existingGroupings: Array<IValueName[]> =
                 await Bluebird.map(
                     virtualSources,
-                    async (vs: IVirtualSourceDocument) =>
-                        this._getAvailableGroupingForOptions(
-                            vs, dateRange, kpiFilter
-                        )
+                    async (vs: IVirtualSourceDocument) => this._getAvailableGroupingForOptions(vs, dateRange, kpiFilter)
                 );
 
             if (!existingGroupings) {

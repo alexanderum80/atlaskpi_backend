@@ -64,7 +64,7 @@ export class ChartWidget extends UIWidgetBase implements IUIWidget {
         try {
             const chartDocument = await this._charts.model
                 .findOne({ _id: this.chartWidgetAttributes.chart })
-                .populate({ path: 'kpis' });
+                .populate({ path: 'kpis.kpi' });
 
             if (!chartDocument) {
                 console.error('could not resolve a chart object for the kpi');
@@ -73,7 +73,7 @@ export class ChartWidget extends UIWidgetBase implements IUIWidget {
 
             const chartObject = <IChart>chartDocument.toObject();
             const uiChart = this._chartFactory.getInstance(chartObject);
-            const kpi = await this._kpiFactory.getInstance(chartObject.kpis[0]);
+            const kpi = await this._kpiFactory.getInstance(chartObject.kpis[0].kpi);
             const chartParameters: IChartMetadata = {
                 filter: chartObject.filter,
                 frequency: FrequencyTable[chartObject.frequency],
