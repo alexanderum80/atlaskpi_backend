@@ -135,6 +135,19 @@ export class TargetNew  {
     @field({ type: Milestone, isArray: true })
     milestones: Milestone[];
 
+    //add-created
+    @field({ type: GraphQLTypesMap.String })
+    createdBy: string;
+
+    @field({ type: GraphQLTypesMap.Date })
+    createdDate: Date;
+
+    @field({ type: GraphQLTypesMap.String })
+    updatedBy: string;
+
+    @field({ type: GraphQLTypesMap.Date })
+    updatedDate: Date;
+
 
 }
 
@@ -253,6 +266,19 @@ export class TargetNewInput  {
 
     @field({ type: MilestoneInput, isArray: true })
     milestones: MilestoneInput[];
+
+    //add-created
+    @field({ type: GraphQLTypesMap.String })
+    createdBy: string;
+
+    @field({ type: GraphQLTypesMap.Date })
+    createdDate: Date;
+
+    @field({ type: GraphQLTypesMap.String })
+    updatedBy: string;
+
+    @field({ type: GraphQLTypesMap.Date })
+    updatedDate: Date;
 
 
 }

@@ -59,7 +59,12 @@ let ChartSchema = new Schema({
     chartDefinition: { type: Schema.Types.Mixed, required: true },
     xAxisSource: String,
     comparison: [String],
-    top: TopSchema
+    top: TopSchema,
+    //add-created-update-by-date
+    createdBy: String,
+    createdDate: Date,
+    updatedBy: String,
+    updatedDate: Date
 });
 
 // add tags capabilities
@@ -119,7 +124,12 @@ ChartSchema.statics.createChart = function(input: IChartInput): Promise < IChart
             chartDefinition: JSON.parse(input.chartDefinition),
             xAxisSource: input.xAxisSource,
             comparison: input.comparison,
-            top: input.top
+            top: input.top,
+            //add-created-update-by-date
+            createdBy: input.createdBy,
+            createdDate: input.createdDate,
+            updatedBy: input.updatedBy,
+            updatedDate: input.updatedDate
         };
 
         that.create(newChart)
@@ -175,7 +185,10 @@ ChartSchema.statics.updateChart = function(id: string, input: IChartInput): Prom
             chartDefinition: JSON.parse(input.chartDefinition),
             xAxisSource: input.xAxisSource,
             comparison: input.comparison,
-            top: input.top
+            top: input.top,
+            //add-created-update-by-date
+            updatedBy: input.updatedBy,
+            updatedDate: input.updatedDate
         };
 
         that.findOneAndUpdate({

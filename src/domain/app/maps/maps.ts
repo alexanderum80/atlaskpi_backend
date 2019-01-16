@@ -15,6 +15,11 @@ export interface IMap {
     size: string;
     kpi: string;
     zipCodeSource: string;
+    //add-created-update
+    createdBy?: any;
+    updatedBy?: any;
+    createdDate?: Date;
+    updatedDate?: Date;
 }
 
 export interface IMapInput {
@@ -27,6 +32,11 @@ export interface IMapInput {
     size: string;
     kpi: string;
     zipCodeSource: string;
+    //add-created-update
+    createdBy?: string;
+    updatedBy?: string;
+    createdDate?: Date;
+    updatedDate?: Date;
 }
 
 export interface IGetMapInput {

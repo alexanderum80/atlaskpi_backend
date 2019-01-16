@@ -76,6 +76,10 @@ export interface ITargetNew {
     deleted: boolean;
     milestones: ITargetMilestone[];
     percentageCompletion?: number;
+    createdBy?: string;
+    createdDate?: Date;
+    updatedBy?: string;
+    updatedDate?: Date;
 }
 
 export interface IMilestone {
@@ -99,6 +103,10 @@ export interface ITargetNewInput {
     timestamp?: Date;
     notificationConfig: NotificationConfigNew;
     milestones: IMilestone[];
+    createdBy?: string;
+    createdDate?: Date;
+    updatedBy?: string;
+    updatedDate?: Date;
 }
 
 export interface ISourceNewInput {
