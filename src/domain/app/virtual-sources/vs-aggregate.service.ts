@@ -9,11 +9,21 @@ import { Logger } from './../../../domain/app/logger';
 
 const pattern = new RegExp('^__[a-z]+[a-z]__$', 'i');
 
-const SUPPORTED_PLACEHOLDERS = [
-    '__from__',
-    '__to__'
-];
+export enum AggPlaceholderTypeEnum {
+    dateRange = 'DateRange',
+    timezone = 'Timezone'
+}
 
+export interface IAggReplacementItem {
+    id: string;
+    type: AggPlaceholderTypeEnum;
+}
+
+const SUPPORTED_PLACEHOLDERS: IAggReplacementItem[] = [
+    { id: '__from__', type: AggPlaceholderTypeEnum.dateRange },
+    { id: '__to__', type: AggPlaceholderTypeEnum.dateRange },
+    { id: '__timezone__', type: AggPlaceholderTypeEnum.timezone }
+];
 
 export interface IKeyValues {
     [key: string]: any;
@@ -21,7 +31,7 @@ export interface IKeyValues {
 
 export interface IProcessAggregateResult {
     aggregate: AggregateStage[];
-    dateRangeApplied: boolean;
+    appliedReplacements: IAggReplacementItem[];
 }
 
 export interface IProcessAggregateOptions {
@@ -40,12 +50,12 @@ export class VirtualSourceAggregateService {
 
     processReplacements(virtualSource: IVirtualSourceDocument, replacements: IKeyValues): IProcessAggregateResult {
         let aggregate = [];
-        let dateRangeApplied = false;
+        let appliedReplacements = [];
 
         if (!virtualSource) throw new Error('virtual source cannot be empty');
 
         if (!virtualSource.aggregate) {
-            return { aggregate, dateRangeApplied };
+            return { aggregate, appliedReplacements };
         }
 
         const objVirtualSource = virtualSource.toObject();
@@ -57,15 +67,10 @@ export class VirtualSourceAggregateService {
         }
 
         if (replacements) {
-            const originalAggregate = cloneDeep(aggregate);
-            this._walkAndReplace(aggregate, pattern, replacements);
-
-            if (JSON.stringify(originalAggregate) !== JSON.stringify(aggregate)) {
-                dateRangeApplied = true;
-            }
+            appliedReplacements = this._walkAndReplace(aggregate, pattern, replacements);
         }
 
-        return { dateRangeApplied, aggregate };
+        return { appliedReplacements, aggregate };
     }
 
     tryDateRangeAsFirstStage(
@@ -74,13 +79,13 @@ export class VirtualSourceAggregateService {
         parentVirtualSource: IVirtualSourceDocument,
         dateRange: IDateRange): IProcessAggregateResult {
 
-        let dateRangeApplied = false;
+        let appliedReplacements = [];
         let topDateRangeStage;
 
         if (!virtualSource) throw new Error('virtual source cannot be empty');
 
         if (!virtualSource.aggregate) {
-            return { aggregate, dateRangeApplied };
+            return { aggregate, appliedReplacements };
         }
 
         if (parentVirtualSource && parentVirtualSource.name
@@ -95,14 +100,18 @@ export class VirtualSourceAggregateService {
                     }
                 }
             };
-            dateRangeApplied = true;
+
+            appliedReplacements = [
+                SUPPORTED_PLACEHOLDERS.find(p => p.id === '__from__'),
+                SUPPORTED_PLACEHOLDERS.find(p => p.id === '__to__'),
+            ];
         }
 
         if (topDateRangeStage) {
             aggregate.unshift(topDateRangeStage);
         }
 
-        return { dateRangeApplied, aggregate };
+        return { appliedReplacements, aggregate };
     }
 
     applyDateRangeReplacement(
@@ -129,26 +138,36 @@ export class VirtualSourceAggregateService {
         return newAggregate;
     }
 
+    private _walkAndReplace(obj: any, pattern: RegExp, replacements: IKeyValues): IAggReplacementItem[] {
+        const has = Object.prototype.hasOwnProperty.bind(obj);
 
-    private _walkAndReplace(obj: any, pattern: RegExp, replacements: IKeyValues) {
-    const has = Object.prototype.hasOwnProperty.bind(obj);
+        let appliedReplacements = [];
 
-    for (const k in obj) if (has(k)) {
-        switch (typeof obj[k]) {
-            case 'object':
-                this._walkAndReplace(obj[k], pattern, replacements);
-                break;
-            case 'string':
-                if (pattern.test(obj[k])) {
-                    if (!SUPPORTED_PLACEHOLDERS.includes(obj[k]))  {
-                        // I tried to throw an exception here but it was being swallow, then I decided to log it
-                        this._logger.error('virtual source placeholder not supported');
-                        return;
+        for (const k in obj) if (has(k)) {
+            switch (typeof obj[k]) {
+                case 'object':
+                    const applied =  this._walkAndReplace(obj[k], pattern, replacements);
+                    appliedReplacements = Array.from(new Set([].concat(...appliedReplacements, ...applied)));
+                    break;
+
+                case 'string':
+                    if (pattern.test(obj[k])) {
+                        const placeHolder = SUPPORTED_PLACEHOLDERS.find(p => p.id === obj[k]);
+
+                        if (!placeHolder)  {
+                            // I tried to throw an exception here but it was being swallow, then I decided to log it
+                            this._logger.error('virtual source placeholder not supported');
+                            break;
+                        }
+
+                        obj[k] = replacements[obj[k]];
+                        appliedReplacements.push(placeHolder);
                     }
-                    obj[k] = replacements[obj[k]];
-                }
+                    break;
+            }
         }
+
+        return appliedReplacements;
     }
-}
 
 }

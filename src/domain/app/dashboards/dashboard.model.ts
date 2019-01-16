@@ -46,7 +46,11 @@ let DashboardSchema = new Schema({
         ref: 'User'
     }],
     visible: Boolean,
-    order: Number
+    order: Number,
+    //add-created-update-by-date
+    createdDate: Date,
+    updatedBy: String,
+    updatedDate: Date
 });
 
 // add tags capabilities

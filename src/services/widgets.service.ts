@@ -119,8 +119,12 @@ export class WidgetsService {
         try {
             // IMPORTANT!!!: transform date from string to date based on user timezone.
             const tz = this._user.get().profile.timezone;
+
+            // it could be a chart widget
+            if(data.numericWidgetAttributes){
             data.numericWidgetAttributes.dateRange
                 = convertStringDateRangeToDateDateRange(data.numericWidgetAttributes.dateRange as any, tz) as any;
+            }
 
             const uiWidget = await this._widgetFactory.getInstance(data);
             return uiWidget.materialize({ timezone: this._timezone });
@@ -216,7 +220,7 @@ export class WidgetsService {
                     // remove alert from widget
                     const deleteModel = {
                         widget: that._widgets.model.removeWidget(id),
-                        alert: that._scheduleJobs.model.removeJobByModelId(id)
+                        alert: that._scheduleJobs.model.removeScheduleJobByModelId(id)
                     };
                     BlueBird.props(deleteModel).then(documents => {
                         resolve(documents.widget);

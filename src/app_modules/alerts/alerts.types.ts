@@ -46,10 +46,14 @@ export class AlertInput {
     active: Boolean;
     @field({ type: INotificationUsers, isArray: true, required: true })
     users: INotificationUsers[];
-    @field({ type: GraphQLTypesMap.String, required: true })
+    @field({ type: GraphQLTypesMap.String})
     createdBy: String;
-    @field({ type: GraphQLTypesMap.Date, required: true })
+    @field({ type: GraphQLTypesMap.Date})
     createdAt: Date;
+    @field({ type: GraphQLTypesMap.String})
+    updatedBy: String;
+    @field({ type: GraphQLTypesMap.Date})
+    updatedDate: Date;
 
 }
 
@@ -85,10 +89,15 @@ export class AlertResponse {
     active: Boolean;
     @field({ type: ONotificationUsers, isArray: true, required: true })
     users: ONotificationUsers[];
-    @field({ type: GraphQLTypesMap.String, required: true })
+    @field({ type: GraphQLTypesMap.String})
     createdBy: String;
-    @field({ type: GraphQLTypesMap.Date, required: true })
+    @field({ type: GraphQLTypesMap.Date})
     createdAt: Date;
+    @field({ type: GraphQLTypesMap.String})
+    updatedBy: String;
+    @field({ type: GraphQLTypesMap.Date})
+    updatedDate: Date;
+
 }
 
 @type()

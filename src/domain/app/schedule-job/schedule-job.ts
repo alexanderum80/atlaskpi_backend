@@ -41,6 +41,6 @@ export interface IScheduleJobModel extends mongoose.Model<IScheduleJobDocument> 
     updateScheduleJob(id: string, input: IScheduleJobInfo): Promise<IScheduleJobDocument>;
     updateScheduleJobActive(id: string, active: boolean): Promise<IScheduleJobDocument>;
     removeScheduleJob(id: string): Promise<IScheduleJobDocument>;
-    removeJobByModelId(id: string): Promise<IScheduleJobDocument>;
+    removeScheduleJobByModelId(id: string): Promise<IScheduleJobDocument>;
     removeDeleteUser(id: string): Promise<IScheduleJobDocument>;
 }

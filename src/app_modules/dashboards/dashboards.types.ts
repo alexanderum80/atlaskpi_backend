@@ -49,6 +49,17 @@ export class DashboardInput  {
     @field({ type: GraphQLTypesMap.Int })
     order?: number;
 
+     //add-created-update-by-date
+
+    @field({ type: GraphQLTypesMap.String })
+     updatedBy?: string;
+
+    @field({ type: GraphQLTypesMap.Date })
+     createdDate?: Date;
+
+    @field({ type: GraphQLTypesMap.Date })
+     updatedDate?: Date;
+
 }
 
 
@@ -91,6 +102,17 @@ export class Dashboard  {
 
     @field({ type: GraphQLTypesMap.Int })
     order?: number;
+
+    //add-created-update-by-date
+
+    @field({ type: GraphQLTypesMap.String })
+     updatedBy?: string;
+
+    @field({ type: GraphQLTypesMap.Date })
+     createdDate?: Date;
+
+    @field({ type: GraphQLTypesMap.Date })
+     updatedDate?: Date;
 }
 
 

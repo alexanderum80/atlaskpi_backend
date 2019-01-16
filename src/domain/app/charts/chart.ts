@@ -34,6 +34,11 @@ export interface IChart {
     canAddTarget?: boolean;
     futureTarget?: boolean;
     availableComparison?: string[];
+    //add-created-update
+    createdBy?: any;
+    updatedBy?: any;
+    createdDate?: Date;
+    updatedDate?: Date;
 }
 
 export interface IChartInput {
@@ -58,6 +63,11 @@ export interface IChartInput {
     isDrillDown?: boolean;
     originalFrequency?: string;
     onTheFly: boolean;
+    //add-created-update
+    createdBy?: string;
+    updatedBy?: string;
+    createdDate?: Date;
+    updatedDate?: Date;
 }
 
 export interface IGetChartInput {
