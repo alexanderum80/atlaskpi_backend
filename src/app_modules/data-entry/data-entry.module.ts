@@ -5,12 +5,14 @@ import { DataEntryByIdMapCollectionQuery } from './queries/data-entry-by-id.quer
 import { DataEntryQuery } from './queries/data-entry.query';
 import { UpdateDataEntryMutation } from './mutations/update-data-entry.mutation';
 import { DataEntryCollectionQuery } from './queries/data-entry-collection.query';
+import { ProcessImportFIleQuery } from './queries/process-import-file.query';
 
 @AppModule({
     queries: [
         DataEntryByIdMapCollectionQuery,
         DataEntryQuery,
-        DataEntryCollectionQuery
+        DataEntryCollectionQuery,
+        ProcessImportFIleQuery
     ],
     mutations: [
         AddDataEntryMutation,
