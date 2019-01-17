@@ -102,5 +102,9 @@ export class Entity {
     @field({ type: GraphQLTypesMap.String })
     name: string;
 }
-
+@input()
+export class IDataUserDate {
+    @field({type: GraphQLTypesMap.String })
+    createdBy: string;
+}
 

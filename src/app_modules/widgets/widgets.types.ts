@@ -71,6 +71,19 @@ export class WidgetInput  {
 
     @field({ type: GraphQLTypesMap.String, isArray: true })
     dashboards: string[];
+
+    //add-created-update-by-date
+    @field({ type: GraphQLTypesMap.String })
+    createdBy?: string;
+
+    @field({ type: GraphQLTypesMap.String })
+    updatedBy?: string;
+
+    @field({ type: GraphQLTypesMap.Date })
+    createdDate?: Date;
+
+    @field({ type: GraphQLTypesMap.Date })
+    updatedDate?: Date;
 }
 
 
@@ -195,6 +208,19 @@ export class Widget  {
         }
         return;
     }
+
+    //add-created-update-by-date
+    @field({ type: GraphQLTypesMap.String })
+    createdBy?: string;
+
+    @field({ type: GraphQLTypesMap.String })
+    updatedBy?: string;
+
+    @field({ type: GraphQLTypesMap.Date })
+    createdDate?: Date;
+
+    @field({ type: GraphQLTypesMap.Date })
+    updatedDate?: Date;
 }
 
 

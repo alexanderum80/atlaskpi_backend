@@ -54,7 +54,12 @@ const WidgetSchema = new Schema({
     fontColor: String!,
     numericWidgetAttributes: NumericWidgetSchema,
     chartWidgetAttributes: ChartWidgetSchema,
-    tags: String
+    tags: String,
+    //add-created-update
+    createdBy: String,
+    updatedBy: String,
+    createdDate: Date,
+    updatedDate: Date
 });
 
 // add tags capabilities
@@ -130,7 +135,12 @@ WidgetSchema.statics.createWidget = function(input: IWidgetInput): Promise<IWidg
             color: input.color,
             fontColor: input.fontColor,
             preview: input.preview,
-            tags: input.tags
+            tags: input.tags,
+            //add-created-update-by-date
+            createdBy: input.createdBy,
+            createdDate: input.createdDate,
+            updatedBy: input.updatedBy,
+            updatedDate: input.updatedDate
         };
 
         switch (input.type) {
@@ -168,7 +178,7 @@ WidgetSchema.statics.updateWidget = function(id: string, input: IWidgetInput): P
             type: requiredAndNotBlank,
             size: requiredAndNotBlank,
             color: requiredAndNotBlank,
-            fontColor: requiredAndNotBlank,
+            fontColor: requiredAndNotBlank
         };
 
         const errors = (<any>validate)(input, constraints, { fullMessages: false });
@@ -244,8 +254,6 @@ WidgetSchema.statics.removeWidget = function(id: string): Promise<IWidgetDocumen
                     reject(err);
                     return;
                 }
-
-                
 
                 resolve(widget);
                 return;

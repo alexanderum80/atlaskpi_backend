@@ -31,6 +31,7 @@ import { IMutationResponse } from '../framework/mutations/mutation-response';
 import { DataSourcesService } from './data-sources.service';
 import { IMapDocument } from '../domain/app/maps/maps';
 import { Maps } from '../domain/app/maps/maps.model';
+import { Users } from '../domain/app/security/users/user.model';
 
 export interface IGroupingsModel {
     sales: ISaleModel;
@@ -53,26 +54,32 @@ export class KpiService {
         @inject(Connectors.name) private _connectors: Connectors,
         @inject(DataSourcesService.name) private _dataSourcesService: DataSourcesService,
         @inject(CurrentUser.name) private _user: CurrentUser,
-        @inject(Maps.name) private _maps: Maps
+        @inject(Maps.name) private _maps: Maps,
+        @inject(Users.name) private _users: Users
     ) {}
 
     async getKpis(): Promise<IKPIDocument[]> {
-        const kpis = await this._kpis.model.find({}).populate({path: 'createdBy', model: 'User'});
+        const kpis = await this._kpis.model.find({}).populate({path: 'createdBy', model: 'User'}).populate({path: 'updatedBy', model: 'User'});
         const virtualSources = await this._virtualSources.model.find({});
         const connectors = await this._connectors.model.find({});
-
+        const users = await this._users.model.find();
         // process available groupings
         const kpiList = await Bluebird.map(kpis, async (k) => {
             const kpiSources: string[] = this._getKpiSources(k, kpis, connectors);
             // find common field paths on the sources
             const groupingInfo = await this._getCommonSourcePaths(kpiSources, virtualSources);
             k.groupingInfo = groupingInfo || [];
-            const firstName = k.createdBy.profile.firstName;
-            const midleName = k.createdBy.profile.middleName;
-            const lastName = k.createdBy.profile.lastName;
+            const firstNameCreated = k.createdBy.profile.firstName;
+            const midleNameCreated = k.createdBy.profile.middleName;
+            const lastNameCreated = k.createdBy.profile.lastName;
 
-            const createdBy = (firstName ? firstName + ' ' : '' ) + (midleName ? midleName + ' ' : '' ) + (lastName ? lastName  : '' );
+            const firstNameUpdated = k.updatedBy.profile.firstName;
+            const lastNameUpdated = k.updatedBy.profile.lastName;
+ 
+            const createdBy = (firstNameCreated ? firstNameCreated + ' ' : '' ) + (midleNameCreated ? midleNameCreated + ' ' : '' ) + (lastNameCreated ? lastNameCreated  : '' );
+            const updatedBy = (firstNameUpdated ? firstNameUpdated + ' ' : '' ) + (lastNameUpdated ? lastNameUpdated + ' ' : '' );
             k.createdBy = createdBy;
+            k.updatedBy = updatedBy;
 
             return k;
         });
@@ -556,9 +563,8 @@ export class KpiService {
         kpiExpression.map(k => {
             if (kpiType === KPITypeEnum.Simple || kpiType === KPITypeEnum.ExternalSource) {
                  (k.filter) = k.filter || [];
-                
 
-                const filterExpression = [];
+                 const filterExpression = [];
                 for (let i = 0; i < filters.length; i++) {
                     const filterExist = k.filter ?
                                         k.filter.find(f => f.field === filters[i].field &&

@@ -18,6 +18,7 @@ import { isEmpty, find } from 'lodash';
 import { detachUserFromAllDashboards } from '../app_modules/dashboards/mutations/common';
 import { Dashboards } from '../domain/app/dashboards/dashboard.model';
 
+
 @injectable()
 export class UserService {
     constructor(

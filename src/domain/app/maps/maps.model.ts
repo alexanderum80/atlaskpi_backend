@@ -33,7 +33,12 @@ let MapSchema = new Schema({
     dashboards: [String],
     size: String,
     kpi: String,
-    zipCodeSource: String
+    zipCodeSource: String,
+     //add-created-update-by-date
+    createdBy: String,
+    createdDate: Date,
+    updatedBy: String,
+    updatedDate: Date
 });
 
 // add tags capabilities
@@ -76,7 +81,11 @@ MapSchema.statics.createMap = function(input: MapAttributesInput): Promise < IMa
             dashboards: input.dashboards,
             size: input.size,
             kpi: input.kpi,
-            zipCodeSource: input.zipCodeSource
+            zipCodeSource: input.zipCodeSource,
+            createdBy: input.createdBy,
+            createdDate: input.createdDate,
+            updatedBy: input.updatedBy,
+            updatedDate: input.updatedDate
         };
 
         that.create(newMap)
@@ -125,7 +134,9 @@ MapSchema.statics.updateMap = function(id: string, input: MapAttributesInput): P
             dashboards: input.dashboards,
             size: input.size,
             kpi: input.kpi,
-            zipCodeSource: input.zipCodeSource
+            zipCodeSource: input.zipCodeSource,
+            updatedBy: input.updatedBy,
+            updatedDate: input.updatedDate
         };
 
         that.findOneAndUpdate({
