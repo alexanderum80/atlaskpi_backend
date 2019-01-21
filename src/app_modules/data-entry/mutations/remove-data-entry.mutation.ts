@@ -7,7 +7,7 @@ import { IMutationResponse } from '../../../framework/mutations/mutation-respons
 import { RemoveDataEntrySourcesActivity } from '../activities/remove-data-entry-sources.activity';
 import { DataSourcesService } from '../../../services/data-sources.service';
 import { VirtualSources } from '../../../domain/app/virtual-sources/virtual-source.model';
-import { DataEntryMutationResponse } from '../data-entry.types';
+import { DataEntryMutationResponse, RemoveDataEntryResult } from '../data-entry.types';
 
 @injectable()
 @mutation({
@@ -16,7 +16,7 @@ import { DataEntryMutationResponse } from '../data-entry.types';
     parameters: [
         { name: 'name', type: String, required: true },
     ],
-    output: { type: DataEntryMutationResponse }
+    output: { type: RemoveDataEntryResult }
 })
 export class RemoveDataEntryMutation extends MutationBase<IMutationResponse> {
     constructor(
@@ -32,33 +32,22 @@ export class RemoveDataEntryMutation extends MutationBase<IMutationResponse> {
         // resolve kpis
         return new Promise<IMutationResponse>((resolve, reject) => {
 
-            that._virtualSourceModel.model.removeDataSources(data.name).then(virtualSource => {
+            that._dataSourcesSvc.removeDataEntry(data.name).then(virtualSource => {
                 that._dataSourcesSvc.removeVirtualSourceMapCollection(virtualSource.source).then(deletedConnector => {
-                    resolve({
-                        success: true,
-                        entity: deletedConnector
-                    });
+                    resolve({success: true});
                 }).catch(err => {
                     resolve({
                         success: false,
                         errors: [
                             {
                                 field: 'general',
-                                errors: ['There was an error removing virtual source collection']
+                                errors: ['There was an error removing the virtual source map collection']
                             }
                         ]
                     });
                 });
             }).catch(err => {
-                    resolve({
-                        success: false,
-                        errors: [
-                            {
-                                field: 'general',
-                                errors: ['There was an error removing the data source']
-                            }
-                        ]
-                    });
+                resolve({ success: false, entity: JSON.stringify(err.entity) });
             });
         });
     }

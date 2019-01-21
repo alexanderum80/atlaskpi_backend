@@ -2,6 +2,7 @@ import { type } from '../../framework/decorators/type.decorator';
 import { field } from '../../framework/decorators/field.decorator';
 import { GraphQLTypesMap } from '../../framework/decorators/graphql-types-map';
 import { input } from '../../framework/decorators/input.decorator';
+import { ErrorDetails } from '../../framework/graphql/common.types';
 
 @input()
 export class IDataEntryModelInput {
@@ -130,4 +131,16 @@ export class DataEntryMutationResponse extends DataEntryResponse {
 
     @field({ type: IDataEntryMutationError, isArray: true })
     errors?: IDataEntryMutationError[];
+}
+
+@type()
+export class RemoveDataEntryResult {
+    @field({ type: GraphQLTypesMap.Boolean })
+    success: boolean;
+
+    @field({ type: GraphQLTypesMap.String })
+    entity?: string;
+
+    @field({ type: ErrorDetails, isArray: true })
+    errors?: ErrorDetails[];
 }
