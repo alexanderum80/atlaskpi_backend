@@ -55,7 +55,7 @@ export class SocialWidgetsService {
         });
     }
 
-    getSocialWidgetsById(id: string, position: string): Promise<string> {
+    getSocialWidgetsById(id: string, position?: string): Promise<string> {
         const that = this;
         return new Promise<string>((resolve, reject) => {
             that._connectors.model.findById(id)

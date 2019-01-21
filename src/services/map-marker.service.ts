@@ -238,7 +238,7 @@ export class MapMarkerService {
                 if (resultByZip === undefined || !(resultByZip.length)) {
                     return [];
                 }
-                //TODO CHECK that zipFieldName is not undefined
+                // TODO CHECK that zipFieldName is not undefined
                 const zipFieldName = Object.keys(resultByZip[0]._id).find(k => k.toLocaleLowerCase().includes('zip' || 'postal'));
                 // get the zip codes related
                 const zipList = await this._ZipToMaps.model.find({
@@ -247,7 +247,7 @@ export class MapMarkerService {
                                     }});
                 let markers;
                 const groupByField = input.grouping[input.grouping.length - 1];
-                if (input && groupByField){
+                if (input && groupByField) {
                         markers = this._groupingMarkersFormatted(resultByZip, zipList, groupByField, zipFieldName);
                 } else{
                         markers = this._noGroupingsMarkersFormatted(resultByZip, zipList, groupByField);

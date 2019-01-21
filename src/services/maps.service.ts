@@ -1,11 +1,5 @@
 import { inject, injectable } from 'inversify';
 import {difference, isString }  from 'lodash';
-
-import {
-    detachMapFromDashboards,
-    attachMapToDashboards,
-    detachMapFromAllDashboards,
-} from '../app_modules/dashboards/mutations/common';
 import { Logger } from '../domain/app/logger';
 import {IChartTop} from '../domain/common/top-n-record';
 import { Dashboards } from './../domain/app/dashboards/dashboard.model';
@@ -13,6 +7,10 @@ import { KPIs } from './../domain/app/kpis/kpi.model';
 import {IChartDateRange} from './../domain/common/date-range';
 import { Maps } from '../domain/app/maps/maps.model';
 import { MapAttributesInput } from '../app_modules/maps/map.types';
+import { attachMapToDashboards,
+    detachMapFromDashboards,
+    detachMapFromAllDashboards
+} from '../app_modules/maps/mutations/common';
 
 export interface IRenderChartOptions {
     chartId?: string;
@@ -114,7 +112,7 @@ export class MapsService {
                 }
 
                 // resolve dashboards the map is in
-                that._dashboards.model.find( {maps: { $in: [id]}})
+                that._dashboards.model.find( {'maps.id': { $in: [id]}})
                     .then((mapDashboards) => {
                         // update the map
                         that._maps.model.updateMap(id, input)
@@ -128,9 +126,9 @@ export class MapsService {
                                 } else {
                                     mapObj = map;
                                 }
-                                detachMapFromDashboards(that._dashboards.model, toRemoveDashboardIds, mapObj.id)
+                                detachMapFromDashboards(that._dashboards.model, toRemoveDashboardIds, mapObj)
                                 .then(() => {
-                                    attachMapToDashboards(that._dashboards.model, toAddDashboardIds, mapObj.id)
+                                    attachMapToDashboards(that._dashboards.model, this._maps.model , toAddDashboardIds, mapObj)
                                     .then(() => {
                                         resolve(JSON.stringify(map));
                                         return;

@@ -30,7 +30,7 @@ export class DeleteWidgetFromDashboard extends MutationBase<IMutationResponse> {
     async run(data: { dashboardId: string, widgetId: string }): Promise<IMutationResponse> {
         try {
             const dashboardDoc = await this._dashboards.model.deleteWidget(data.dashboardId, data.widgetId);
-            return { success: true, entity: dashboardDoc };
+            return { success: true, entity: null };
         } catch (err) {
             return {
                 success: false,

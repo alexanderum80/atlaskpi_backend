@@ -1,3 +1,4 @@
+import { Widget } from './../../widgets/widgets.types';
 import { IWidgetDocument } from './../../../domain/app/widgets/widget';
 import * as Promise from 'bluebird';
 import * as console from 'console';
@@ -86,9 +87,9 @@ export class DashboardQuery implements IQuery<IDashboard> {
 
                     const dashboardElementsPromises = { };
                     // process widgets
-                    const widgetsElements: IWidgetDocument[] = dashboard.widgets.map(w => {
+                    const widgetsElements = dashboard.widgets.map(w => {
                         let widget = (<any>w).id;
-                        widget['position'] = (<any>w).position;
+                        Widget['position'] = (<any>w).position;
                         return widget;
                     });
 

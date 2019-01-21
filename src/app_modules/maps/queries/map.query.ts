@@ -24,7 +24,7 @@ export class MapQuery implements IQuery<String> {
         @inject('Logger') private _logger: Logger
     ) { }
 
-    run(data: {id: string, position: string }): Promise<string> {
+    run(data: {id: string, position?: string }): Promise<string> {
         const that = this;
         return new Promise<string>((resolve, reject) => {
             that._mapsService.getMapById(data.id)

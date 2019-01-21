@@ -5,7 +5,6 @@ import * as moment from 'moment-timezone';
 
 import { IChartMetadata } from '../app_modules/charts/queries/charts/chart-metadata';
 import {
-    attachToDashboards,
     detachFromAllDashboards,
     detachFromDashboards,
 } from '../app_modules/dashboards/mutations/common';
@@ -37,8 +36,11 @@ import {FrequencyEnum, FrequencyTable} from './../domain/common/frequency-enum';
 import { TargetService } from './target.service';
 import {dataSortDesc} from '../helpers/number.helpers';
 import { TargetsNew } from '../domain/app/targetsNew/target.model';
-import { ChartDateRangeInput } from '../app_modules/shared/shared.types';
 import * as Bluebird from 'bluebird';
+import { attachChartToDashboards,
+    detachChartFromAllDashboards,
+    detachChartFromDashboards
+} from '../app_modules/charts/mutations/common';
 
 export interface IRenderChartOptions {
     chartId?: string;
@@ -338,7 +340,7 @@ export class ChartsService {
 
             // create the chart
             const chart = await this._charts.model.createChart(input);
-            await attachToDashboards(this._dashboards.model, input.dashboards, chart._id);
+            await attachChartToDashboards(this._dashboards.model, input.dashboards, chart);
 
             return chart;
         } catch (e) {
@@ -362,7 +364,7 @@ export class ChartsService {
                     return;
                 }
 
-                detachFromAllDashboards(that._dashboards.model, chart._id)
+                detachChartFromAllDashboards(that._dashboards.model, chart._id)
                 .then(() => {
                     chart.remove().then(() =>  {
                         resolve(<IChart>chart.toObject());
@@ -389,7 +391,7 @@ export class ChartsService {
                 }
 
                 // resolve dashboards the chart is in
-                that._dashboards.model.find( {charts: { $in: [id]}})
+                that._dashboards.model.find( {'charts.id': { $in: [id]}})
                     .then((chartDashboards) => {
                         // update the chart
 
@@ -403,9 +405,9 @@ export class ChartsService {
                                 const toRemoveDashboardIds = difference(currentDashboardIds, input.dashboards);
                                 const toAddDashboardIds = difference(input.dashboards, currentDashboardIds);
 
-                                detachFromDashboards(that._dashboards.model, toRemoveDashboardIds, chart._id)
+                                detachChartFromDashboards(that._dashboards.model, toRemoveDashboardIds, chart.id)
                                 .then(() => {
-                                    attachToDashboards(that._dashboards.model, toAddDashboardIds, chart._id)
+                                    attachChartToDashboards(that._dashboards.model, toAddDashboardIds, chart)
                                     .then(() => {
                                         resolve(chart);
                                         return;
@@ -448,8 +450,10 @@ export class ChartsService {
     private _resolveDashboards(chart): Promise<IDashboardDocument[]> {
         const that = this;
         return new Promise<IDashboardDocument[]>((resolve, reject) => {
-            that._dashboards.model.find( { charts: { $in: [chart._id] }}).exec()
-                .then((dashboards) => resolve(dashboards))
+            that._dashboards.model.find( { charts: { id: chart.id }}).exec()
+                .then((dashboards) => {
+                    resolve(dashboards);
+                })
                 .catch(err => reject(err));
         });
     }

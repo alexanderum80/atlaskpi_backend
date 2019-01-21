@@ -27,11 +27,31 @@ export class CreateDashboardMutation extends MutationBase<IMutationResponse> {
 
         // resolve kpis
         return new Promise<IMutationResponse>((resolve, reject) => {
+            let widgets = [];
+            let charts = [];
+            let socialwidgets = [];
+            let maps = [];
+            if (data.input.widgets) {
+                widgets = data.input.widgets.map(wt => JSON.parse(wt));
+            }
+            data.input['widgets'] = widgets;
+            if (data.input.socialwidgets) {
+                socialwidgets = data.input.socialwidgets.map(swt => JSON.parse(swt));
+            }
+            data.input['socialwidgets'] = socialwidgets;
+            if (data.input.charts) {
+                charts = data.input.charts.map(ct => JSON.parse(ct));
+            }
+            data.input['charts'] = charts;
+            if (data.input.maps) {
+                maps = data.input.maps.map(mt => JSON.parse(mt));
+            }
+            data.input['maps'] = maps;
             that._dashboards.model.createDashboard(data.input)
             .then(dashboard => {
                     resolve({
                         success: true,
-                        entity: dashboard
+                        entity: null
                     });
             }).catch(err => {
                     resolve({
