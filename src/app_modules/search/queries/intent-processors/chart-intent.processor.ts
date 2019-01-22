@@ -53,9 +53,12 @@ export class ChartIntentProcessor {
     }
 
     private _convertIntentToChart(intent: any): IChart {
+        const chartType = intent.ChartType.split(' ')[0];
         return {
             title: `${intent.DateRange} ${intent.Collection}`,
-            kpis: intent.Collection === 'sales' ? [SalesKPI] : [ExpensesKPI],
+            kpis: intent.Collection === 'sales'
+                ? [{ type: chartType, kpi: SalesKPI }]
+                : [{ type: chartType, kpi: ExpensesKPI}],
             dateRange: [{
                 predefined: intent.DateRange
             }],
@@ -65,7 +68,7 @@ export class ChartIntentProcessor {
             xAxisSource: '',
             chartDefinition: {
                 chart: {
-                    type: intent.ChartType.split(' ')[0]
+                    type: chartType
                 }
             }
         };

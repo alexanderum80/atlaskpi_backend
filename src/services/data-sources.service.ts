@@ -1,26 +1,27 @@
-import { CustomList } from './../domain/app/custom-list/custom-list.model';
 import { camelCase } from 'change-case';
-import { isValidTimezone } from './../domain/common/date-range';
-import { IVirtualSourceDocument, IVirtualSource } from '../domain/app/virtual-sources/virtual-source';
-import { DataSourceField, DataSourceResponse } from '../app_modules/data-sources/data-sources.types';
-import { injectable, inject, Container } from 'inversify';
-import {VirtualSources, mapDataSourceFields} from '../domain/app/virtual-sources/virtual-source.model';
-import { isBoolean } from 'lodash';
-import { Logger } from '../domain/app/logger';
-import { KPIFilterHelper } from '../domain/app/kpis/kpi-filter.helper';
-import { isEmpty, toInteger, toNumber } from 'lodash';
-import {KPIExpressionFieldInput} from '../app_modules/kpis/kpis.types';
-import {getFieldsWithData, getGenericModel, getAggregateResult} from '../domain/common/fields-with-data';
-import * as mongoose from 'mongoose';
-import { AppConnection } from '../domain/app/app.connection';
+import { inject, injectable } from 'inversify';
+import { isBoolean, isEmpty, toInteger, toNumber } from 'lodash';
 import * as moment from 'moment';
-import { IMutationResponse } from '../framework/mutations/mutation-response';
-import { Connectors } from '../domain/master/connectors/connector.model';
-import { CurrentUser } from '../domain/app/current-user';
-import { VirtualSourceAggregateService, IKeyValues } from '../domain/app/virtual-sources/vs-aggregate.service';
+import * as mongoose from 'mongoose';
 import * as XLSX from 'ts-xlsx';
-import { KPIs } from '../domain/app/kpis/kpi.model';
+
+import { DataSourceField, DataSourceResponse } from '../app_modules/data-sources/data-sources.types';
+import { KPIExpressionFieldInput } from '../app_modules/kpis/kpis.types';
+import { AppConnection } from '../domain/app/app.connection';
+import { CurrentUser } from '../domain/app/current-user';
 import { IKPIDocument } from '../domain/app/kpis/kpi';
+import { KPIFilterHelper } from '../domain/app/kpis/kpi-filter.helper';
+import { KPIs } from '../domain/app/kpis/kpi.model';
+import { Logger } from '../domain/app/logger';
+import { IVirtualSource, IVirtualSourceDocument } from '../domain/app/virtual-sources/virtual-source';
+import { mapDataSourceFields, VirtualSources } from '../domain/app/virtual-sources/virtual-source.model';
+import { IKeyValues, VirtualSourceAggregateService } from '../domain/app/virtual-sources/vs-aggregate.service';
+import { getAggregateResult, getFieldsWithData } from '../domain/common/fields-with-data';
+import { Connectors } from '../domain/master/connectors/connector.model';
+import { IMutationResponse } from '../framework/mutations/mutation-response';
+import { CustomList } from './../domain/app/custom-list/custom-list.model';
+import { isValidTimezone } from './../domain/common/date-range';
+import { CustomListService } from './custom-list.service';
 
 const GOOGLE_ANALYTICS = 'GoogleAnalytics';
 const csvTokenDelimeter = ',';
@@ -44,6 +45,7 @@ export class DataSourcesService {
         @inject(VirtualSources.name) private _virtualDatasources: VirtualSources,
         @inject(VirtualSourceAggregateService.name) private _vsAggregateService: VirtualSourceAggregateService,
         @inject(CustomList.name) private _customList: CustomList,
+        @inject(CustomListService.name) private _customListService: CustomListService,
         @inject(CurrentUser.name) private _currentUser: CurrentUser,
         @inject(KPIs.name) private _kpis: KPIs
     ) {
@@ -406,10 +408,12 @@ export class DataSourcesService {
             const data = await dataModel.map(data => data['_doc']);
 
             const dataCollection = {
-                'schema': dataSource.fieldsMap,
-                'data': data,
-                'dataName': dataSource.name,
-                'dateRangeField': dataSource.dateField
+                name: dataSource.description,
+                schema: dataSource.fieldsMap,
+                data: data,
+                dataName: dataSource.name,
+                dateRangeField: dataSource.dateField,
+                customLists: await this._customListService.customListsByVirtualSource(dataSource._id),
             };
 
             return JSON.stringify(dataCollection);

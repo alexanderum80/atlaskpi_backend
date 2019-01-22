@@ -1,4 +1,4 @@
-import { ICustomListModel, ICustomListDocument, ICustomListResponse } from './custom-list';
+import { ICustomListModel, ICustomListDocument, ICustomListResponse, ICustomList } from './custom-list';
 import { inject, injectable } from 'inversify';
 import * as mongoose from 'mongoose';
 
@@ -15,90 +15,66 @@ const CustomListSchema = new mongoose.Schema({
 
 CustomListSchema.plugin(tagsPlugin);
 
-CustomListSchema.statics.getCustomList = function (user: string, id?: string): Promise<ICustomListDocument[]> {
+CustomListSchema.statics.getCustomList = async function (user: string, id?: string): Promise<ICustomList[]> {
     const model = this as ICustomListModel;
 
     try {
         const query = id ? { _id: id, users: user } : { users: user };
-        return new Promise<ICustomListDocument[]>((resolve, reject) => {
-            return model.find(query)
-                .then(res => {
-                    resolve(res);
-                });
-        });
+        return model.find(query).lean().exec() as Promise<ICustomList[]>;
     } catch (e) {
         console.error('Error getting data type list');
         return null;
     }
 };
 
-CustomListSchema.statics.getCustomListByName = function (user: string, name: string): Promise<ICustomListDocument> {
+CustomListSchema.statics.getCustomListByName = async function (user: string, name: string): Promise<ICustomList> {
     const model = this as ICustomListModel;
 
     try {
         const expressionName = new RegExp(name, 'i');
         const query = name ? { name: { $regex: expressionName }, users: user } : { users: user };
-        return new Promise<ICustomListDocument>((resolve, reject) => {
-            return model.findOne(query)
-                .then(res => {
-                    resolve(res);
-                });
-        });
+
+        return model.findOne(query).lean().exec() as Promise<ICustomList>;
     } catch (e) {
         console.error('Error getting data type list');
         return null;
     }
 };
 
-CustomListSchema.statics.addCustomList = function(data: any): Promise<ICustomListDocument> {
-    const that = this;
-    if (!data) { return Promise.reject('cannot add a document with, empty payload'); }
+CustomListSchema.statics.addCustomList = async function(data: any): Promise<ICustomListDocument> {
+    const that = this as ICustomListModel;
+    if (!data) { throw new Error('cannot add a document with, empty payload'); }
 
-    return new Promise<ICustomListDocument>((resolve, reject) => {
-        return that.create(data)
-            .then(newDataType => {
-                resolve(newDataType);
-                return;
-            })
-            .catch(err => {
-                reject('cannot create custom list: ' + err);
-                return;
-            });
-    });
+    try {
+        return that.create(data);
+    } catch (e) {
+        console.error(e);
+        throw new Error('Error creating custom list: ' + e);
+    }
 };
 
-CustomListSchema.statics.updateCustomList = function(data: any): Promise<ICustomListDocument> {
+CustomListSchema.statics.updateCustomList = async function(data: any): Promise<ICustomListDocument> {
     const that = this as ICustomListModel;
-    if (!data) { return Promise.reject('cannot update a document with, empty payload'); }
+    if (!data) { throw new Error('cannot update a document with, empty payload'); }
 
-    return new Promise<ICustomListDocument>((resolve, reject) => {
-        return that.findByIdAndUpdate(data._id, data)
-            .then((dataType: ICustomListDocument) => {
-                resolve(dataType);
-                return;
-            })
-            .catch(err => {
-                reject('cannot update custom list: ' + err);
-                return;
-            });
-    });
+    try {
+        return that.findByIdAndUpdate(data._id, data).exec();
+    } catch (e) {
+        console.error(e);
+        throw new Error('Error updating custom list: ' + e);
+    }
 };
 
 CustomListSchema.statics.removeCustomList = function(id: string): Promise<ICustomListDocument> {
     const that = this as ICustomListModel;
-    if (!id) { return Promise.reject('cannot remove a document with, empty payload'); }
-    return new Promise<ICustomListDocument>((resolve, reject) => {
+    if (!id) { throw new Error('cannot remove a document with, empty payload'); }
 
-        return that.findByIdAndRemove(id)
-            .then((removedList: ICustomListDocument) => {
-                resolve(removedList);
-                return;
-            })
-            .catch(err => {
-                reject('cannot remove custom list: ' + err);
-                return;
-            });
-    });
+    try {
+        return that.findByIdAndRemove(id).exec();
+    } catch (e) {
+        console.error(e);
+        throw new Error('Error updating custom list: ' + e);
+    }
 };
 
 @injectable()
