@@ -412,7 +412,7 @@ export class DataSourcesService {
             const data = await dataModel.map(data => data['_doc']);
 
             const dataCollection = {
-                name: dataSource.name,
+                name: dataSource.description,
                 schema: dataSource.fieldsMap,
                 data: data,
                 dataName: dataSource.name,
