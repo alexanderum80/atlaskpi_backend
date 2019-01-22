@@ -1,19 +1,16 @@
-import { DataEntryByIdMapCollectionQuery } from './../app_modules/data-entry/queries/data-entry-by-id.query';
 import { CustomList } from './../domain/app/custom-list/custom-list.model';
 import { camelCase } from 'change-case';
-import { IDateRange, isValidTimezone } from './../domain/common/date-range';
+import { isValidTimezone } from './../domain/common/date-range';
 import { IVirtualSourceDocument, IVirtualSource } from '../domain/app/virtual-sources/virtual-source';
 import { DataSourceField, DataSourceResponse } from '../app_modules/data-sources/data-sources.types';
 import { injectable, inject, Container } from 'inversify';
 import {VirtualSources, mapDataSourceFields} from '../domain/app/virtual-sources/virtual-source.model';
-import { sortBy, concat, isBoolean } from 'lodash';
+import { isBoolean } from 'lodash';
 import { Logger } from '../domain/app/logger';
 import { KPIFilterHelper } from '../domain/app/kpis/kpi-filter.helper';
-import * as Bluebird from 'bluebird';
-import { isObject, isEmpty, toInteger, toNumber } from 'lodash';
+import { isEmpty, toInteger, toNumber } from 'lodash';
 import {KPIExpressionFieldInput} from '../app_modules/kpis/kpis.types';
 import {getFieldsWithData, getGenericModel, getAggregateResult} from '../domain/common/fields-with-data';
-import { ICriteriaSearchable } from '../app_modules/shared/criteria.plugin';
 import * as mongoose from 'mongoose';
 import { AppConnection } from '../domain/app/app.connection';
 import * as moment from 'moment';
@@ -27,10 +24,6 @@ import { IKPIDocument } from '../domain/app/kpis/kpi';
 
 const GOOGLE_ANALYTICS = 'GoogleAnalytics';
 const csvTokenDelimeter = ',';
-
-const Alphabet = [
-    'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'
-];
 
 export interface IFieldAvailabilityOptions {
     dateRangeFilter?: { $gte: Date, $lt: Date };
@@ -302,7 +295,7 @@ export class DataSourcesService {
                 const sourceOrigin = customList.find(c => c.id === dataType);
 
                 inputFieldsMap[field] = {
-                    path: field.toLowerCase().replace(' ', '_'),
+                    path: field.toLowerCase().replace(/ /g, '_'),
                     dataType: sourceOrigin ? sourceOrigin.dataType : dataType,
                     required: f.required || false
                 };
@@ -321,7 +314,7 @@ export class DataSourcesService {
                 description: data.inputName,
                 source: collectionName,
                 modelIdentifier: collectionName,
-                dateField: data.dateRangeField.toLowerCase().replace(' ', '_'),
+                dateField: data.dateRangeField.toLowerCase().replace(/ /g, '_'),
                 aggregate: [],
                 fieldsMap: inputFieldsMap,
                 dataEntry: true,
@@ -744,7 +737,6 @@ export class DataSourcesService {
     }
 
     async processExcelFile(worksheet): Promise<string> {
-        const alphExtended = this.getAlphabetExtended();
         let excelFileData = {
             fields: [],
             records: []
@@ -752,30 +744,32 @@ export class DataSourcesService {
 
         let j = 1;
         const range = XLSX.utils.decode_range(worksheet['!ref']);
+        const ncolumns = range.e.c - range.s.c;
         const nrows = range.e.r - range.s.r + 1;
-        for (let i = 1; i <= nrows; i++) {
+        for (let R = 0; R <= nrows; R++) {
           const dataArray = [];
-          alphExtended.map(alph => {
-            const cell = alph + i;
-            let cellValue = '';
-            if (worksheet[cell]) {
-              cellValue = <any>worksheet[cell].w.trimEnd();
-            }
-
-            if (j === 1) {
-              if (cellValue !== '') {
-                const newfield = {
-                  columnName: cellValue,
-                  dataType: '',
-                  required: false
-                };
-
-                excelFileData.fields.push(newfield);
+          for (let C = 0; C <= ncolumns; C++) {
+              const cell_address = { c: C, r: R };
+              const cell = XLSX.utils.encode_cell(cell_address);
+              let cellValue = '';
+              if (worksheet[cell]) {
+                cellValue = <any>worksheet[cell].w.trimEnd();
               }
-            } else if (dataArray.length < excelFileData.fields.length) {
-              dataArray.push(cellValue);
-            }
-          });
+
+              if (j === 1) {
+                if (cellValue !== '') {
+                  const newfield = {
+                    columnName: cellValue,
+                    dataType: '',
+                    required: false
+                  };
+
+                  excelFileData.fields.push(newfield);
+                }
+              } else if (dataArray.length < excelFileData.fields.length) {
+                dataArray.push(cellValue);
+              }
+          }
 
           const dataArrayValueNotNull = dataArray.filter(d => d !== '');
           if (dataArray.length > 0 && dataArrayValueNotNull.length > 0) {
@@ -889,13 +883,4 @@ export class DataSourcesService {
         return dataType;
     }
 
-    getAlphabetExtended(): string[] {
-        let resultArr = Alphabet;
-        for (let i = 0; i < 3; i++) {
-            for (let j = 0; j < 26; j++) {
-                resultArr.push(Alphabet[i] + Alphabet[j]);
-            }
-        }
-        return resultArr;
-    }
 }
