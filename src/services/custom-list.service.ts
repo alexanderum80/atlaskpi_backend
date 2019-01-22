@@ -1,26 +1,12 @@
-import { DataSource } from './../app_modules/google-spreadsheet/google-sheet.processor';
-import { CustomList } from './../domain/app/custom-list/custom-list.model';
-import { camelCase } from 'change-case';
-import { IDateRange } from '../domain/common/date-range';
-import { IVirtualSourceDocument, IVirtualSource } from '../domain/app/virtual-sources/virtual-source';
-import { DataSourceField, DataSourceResponse } from '../app_modules/data-sources/data-sources.types';
-import { injectable, inject, Container } from 'inversify';
-import {VirtualSources, mapDataSourceFields} from '../domain/app/virtual-sources/virtual-source.model';
-import { sortBy, concat, isBoolean } from 'lodash';
-import { Logger } from '../domain/app/logger';
-import { KPIFilterHelper } from '../domain/app/kpis/kpi-filter.helper';
-import * as Bluebird from 'bluebird';
-import { isObject, isEmpty, toInteger, toNumber } from 'lodash';
-import {KPIExpressionFieldInput} from '../app_modules/kpis/kpis.types';
-import {getFieldsWithData, getGenericModel, getAggregateResult} from '../domain/common/fields-with-data';
-import { ICriteriaSearchable } from '../app_modules/shared/criteria.plugin';
-import * as mongoose from 'mongoose';
+import { inject, injectable } from 'inversify';
+
 import { AppConnection } from '../domain/app/app.connection';
-import * as moment from 'moment';
-import { IMutationResponse } from '../framework/mutations/mutation-response';
-import { Connectors } from '../domain/master/connectors/connector.model';
 import { CurrentUser } from '../domain/app/current-user';
-import { ICustomListResponse, ICustomListInput } from '../domain/app/custom-list/custom-list';
+import { ICustomListInput, ICustomListResponse, ICustomList } from '../domain/app/custom-list/custom-list';
+import { Logger } from '../domain/app/logger';
+import { VirtualSources } from '../domain/app/virtual-sources/virtual-source.model';
+import { CustomList } from './../domain/app/custom-list/custom-list.model';
+import { IVirtualSource } from '../domain/app/virtual-sources/virtual-source';
 
 const GOOGLE_ANALYTICS = 'GoogleAnalytics';
 
@@ -38,7 +24,7 @@ export class CustomListService {
         @inject(AppConnection.name) private _appConnection: AppConnection,
         @inject(CustomList.name) private _customList: CustomList,
         @inject(CurrentUser.name) private _user: CurrentUser,
-        @inject(VirtualSources.name) private _dataSourceModel: VirtualSources
+        @inject(VirtualSources.name) private _virtualSources: VirtualSources
         ) { }
 
     async getCustomList(id?: string): Promise<ICustomListResponse[]> {
@@ -52,7 +38,24 @@ export class CustomListService {
             return await this._customList.model.getCustomListByName(user, name);
         }
         catch (err) {
-            console.log(err);
+            console.error(err);
+        }
+    }
+
+    async customListsByVirtualSource(id: string): Promise<ICustomList[]> {
+        try {
+            const vs = await this._virtualSources.model.findById(id).lean().exec() as IVirtualSource;
+            const listIds: string[] = [];
+            // get fields with list data sources
+            for (let [key, value] of Object.entries(vs.fieldsMap)) {
+                if (value.sourceOrigin) { listIds.push(value.sourceOrigin); }
+            }
+
+            if (!listIds.length) { return []; }
+
+            return this._customList.model.find({ _id: { $in: listIds } }).lean().exec() as Promise<ICustomList[]>;
+        } catch (e) {
+            console.error(e);
         }
     }
 
@@ -67,7 +70,7 @@ export class CustomListService {
     async removeCustomList(id: string): Promise<ICustomListResponse> {
         return new Promise<ICustomListResponse>((resolve, reject) => {
             const user = this._user.get().id;
-            this._dataSourceModel.model.getDataEntry(user).then(dataSource => {
+            this._virtualSources.model.getDataEntry(user).then(dataSource => {
                 const customListInUse = dataSource.filter(d => {
                     const customListExist = d.fields.filter(f => f.sourceOrigin === id);
                     if (customListExist.length) {
