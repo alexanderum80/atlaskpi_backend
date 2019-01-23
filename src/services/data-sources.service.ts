@@ -294,7 +294,7 @@ export class DataSourcesService {
                 const field = f.columnName;
                 let dataType = f.dataType;
 
-                const sourceOrigin = customList.find(c => c.id === dataType);
+                const sourceOrigin = customList.find(c => c._id.toString() === dataType);
 
                 inputFieldsMap[field] = {
                     path: field.toLowerCase().replace(/ /g, '_'),
@@ -303,10 +303,12 @@ export class DataSourcesService {
                 };
 
                 if (sourceOrigin) {
-                    inputFieldsMap[field].sourceOrigin = sourceOrigin.id;
+                    inputFieldsMap[field].sourceOrigin = sourceOrigin._id.toString();
                 }
 
-                if (dataType === 'String' || inputFieldsMap[field].path.includes('zip' || 'postal')) {
+                if (dataType === 'String' || 
+                    inputFieldsMap[field].dataType === 'String' ||
+                    inputFieldsMap[field].path.includes('zip' || 'postal') ) {
                     inputFieldsMap[field].allowGrouping = true;
                 }
             }
