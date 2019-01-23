@@ -84,4 +84,5 @@ export interface IVirtualSourceModel extends mongoose.Model<IVirtualSourceDocume
     getDataSourceByName(name: string): Promise<IVirtualSourceDocument>;
     getDataSourceById(id: string): Promise<IVirtualSourceDocument>;
     findByNames(names: string): Promise<IVirtualSourceDocument[]>;
+    transformFieldsToRealTypes(dataDocument: any, fieldsToMap );
 }

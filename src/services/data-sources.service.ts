@@ -306,7 +306,7 @@ export class DataSourcesService {
                     inputFieldsMap[field].sourceOrigin = sourceOrigin.id;
                 }
 
-                if (dataType === 'String') {
+                if (dataType === 'String' || inputFieldsMap[field].path.includes('zip' || 'postal')) {
                     inputFieldsMap[field].allowGrouping = true;
                 }
             }

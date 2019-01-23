@@ -6,7 +6,7 @@ import { mutation } from '../../../framework/decorators/mutation.decorator';
 import { MutationBase } from '../../../framework/mutations/mutation-base';
 import { DataSourcesService } from '../../../services/data-sources.service';
 import { UpdateDataEntryCollectionActivity } from '../activities/update-data-entry-collection.activity';
-import { VirtualSources } from '../../../domain/app/virtual-sources/virtual-source.model';
+import { VirtualSources, transformFieldsToRealTypes } from '../../../domain/app/virtual-sources/virtual-source.model';
 import { IMutationResponse } from '../../../framework/mutations/mutation-response';
 import { Schema } from 'mongoose';
 
@@ -34,8 +34,11 @@ export class UpdateDataEntryMutation extends MutationBase<IMutationResponse> {
             const vs = await this._virtualSourceSvc.model.findOne({ _id: data.id});
             const model = vs.collection.conn.model(vs.name, new Schema({}, {strict: false}), vs.source);
 
+            const transformedRecords = dataInput.map( record => transformFieldsToRealTypes( record , vs.fieldsMap))
+        
+
             await model.remove({ _id: { $in: dataInput.map(i => i._id) } });
-            await model.insertMany(dataInput);
+            await model.insertMany(transformedRecords);
 
             return { success: true };
         } catch (e) {

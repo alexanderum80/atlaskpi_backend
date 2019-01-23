@@ -272,6 +272,38 @@ export function mapDataSourceFields(virtualSource: IVirtualSourceDocument, exclu
         sourceOrigin: fieldsMap[key].sourceOrigin || null
     }));
 }
+export function transformFieldsToRealTypes(dataDocument: any, fieldsToMap ) {
+
+    let fieldNames = Object.keys(fieldsToMap)
+                           .sort();
+
+ 
+    fieldNames.forEach(key => {
+        if(dataDocument[fieldsToMap[key].path]) {
+
+            switch ( fieldsToMap[key].dataType ) {
+                case 'String':
+                dataDocument[fieldsToMap[key].path] = String(dataDocument[fieldsToMap[key].path]);
+                    break;
+                case 'Number':
+                    dataDocument[fieldsToMap[key].path] = Number(dataDocument[fieldsToMap[key].path]);
+                    break;
+                case 'Date':
+                dataDocument[fieldsToMap[key].path] = new Date(dataDocument[fieldsToMap[key].path]);
+                    break;
+                case 'Boolean':
+                    dataDocument[fieldsToMap[key].path] = dataDocument[fieldsToMap[key].path] === "true";
+                    break;
+                default:
+                    break;
+            }
+    }
+    });
+
+    return dataDocument;
+}
+
+
 
 function addDataSources(data: any): Promise<IVirtualSourceDocument> {
     // with the new feature to filter kpi by sources we do not need to send the "source" field anymore

@@ -4,15 +4,16 @@ import * as mongoose from 'mongoose';
 import { IMutationResponse } from '../../../framework/mutations/mutation-response';
 import { IPagedQueryResult, IPaginationDetails } from '../../../framework/queries/pagination';
 import { IChartDateRange } from '../../common/date-range';
-import { IChartDocument } from '../charts/chart';
+import { IChartDocument, IChart } from '../charts/chart';
 import { Expenses } from '../expenses/expense.model';
 import { Sales } from '../sales/sale.model';
-import { IWidgetDocument } from '../widgets/widget';
+import { IWidgetDocument, IWidget } from '../widgets/widget';
 import { Inventory } from './../inventory/inventory.model';
 import { IIdName } from '../../common/id-name';
 import { IValueName } from '../../common/value-name';
 import { ISearchableModel } from '../global-search/global-search';
 import { IMapDocument } from '../maps/maps';
+import { IMap } from '../dashboards/dashboard';
 
 
 
@@ -50,10 +51,10 @@ export interface IKPIDataSourceHelper {
 }
 
 export interface IDocumentExist {
-    chart?: IChartDocument[];
-    widget?: IWidgetDocument[];
-    complexKPI?: IKPIDocument[];
-    maps?: IMapDocument[];
+    chart?: IChart[];
+    widget?: IWidget[];
+    complexKPI?: IKPI[];
+    maps?: IMap[];
 }
 
 export interface IKPIDataSourceHelper {
