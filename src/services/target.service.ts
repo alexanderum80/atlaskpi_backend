@@ -133,10 +133,10 @@ export class TargetService {
     async targetProgressValue(data: ITargetNewDocument): Promise<number> {
         try {
             const chart: IChart = await this._charts.model.findById(data.source.identifier)
-                .populate({ path: 'kpis' })
+                .populate({ path: 'kpis.kpi' })
                 .lean(true)
                 .exec() as IChart;
-            const kpi: IKpiBase = await this._kpiFactory.getInstance(chart.kpis[0]);
+            const kpi: IKpiBase = await this._kpiFactory.getInstance(chart.kpis[0].kpi);
 
             const groupings: string[] = (chart.groupings && chart.groupings[0]) ? chart.groupings : [];
             const stackName: string = !data.appliesTo ? undefined : data.appliesTo.value;
@@ -241,9 +241,9 @@ export class TargetService {
         try {
 
             const chart: IChart = await this._charts.model.findById(data.source.identifier)
-                .populate({ path: 'kpis' })
+                .populate({ path: 'kpis.kpi' })
                 .lean(true).exec() as any;
-            const kpi: IKpiBase = await this._kpiFactory.getInstance(chart.kpis[0]);
+            const kpi: IKpiBase = await this._kpiFactory.getInstance(chart.kpis[0].kpi);
 
             const compareDateRange = this.getCompareDateRange(
                 chart.dateRange[0],
@@ -307,12 +307,12 @@ export class TargetService {
 
         // get kpi from the chart with input.chart[0]
         const chart = await that._charts.model.findById(input.chart[0])
-            .populate({ path: 'kpis' });
+            .populate({ path: 'kpis.kpi' });
 
         if (this.isTargetReachZero(chart.frequency, input.datepicker, input.notificationDate)) {
             return 0;
         }
-        const kpi: IKpiBase = await that._kpiFactory.getInstance(chart.kpis[0]);
+        const kpi: IKpiBase = await that._kpiFactory.getInstance(chart.kpis[0].kpi);
         const getDateRange: IDateRange = that._getDateRange(
                 input.period,
                 input.notificationDate,

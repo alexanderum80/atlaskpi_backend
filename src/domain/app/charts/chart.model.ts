@@ -29,6 +29,15 @@ const TopSchema = {
     custom: Number
 };
 
+const ChartKpiSchema = {
+    type: { type: String, required: true },
+    kpi: {
+        type: mongoose.Schema.Types.String,
+        ref: 'KPI',
+        required: true
+    }
+};
+
 let ChartSchema = new Schema({
     title: {
         type: String,
@@ -37,11 +46,7 @@ let ChartSchema = new Schema({
     },
     subtitle: String,
     group: String,
-    kpis: [{
-        type: mongoose.Schema.Types.String,
-        ref: 'KPI',
-        required: true
-    }],
+    kpis: [ChartKpiSchema],
     dateRange: [ChartDateRangeSchema],
     filter: Schema.Types.Mixed,
     frequency: String,

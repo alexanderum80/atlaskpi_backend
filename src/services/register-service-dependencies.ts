@@ -31,6 +31,8 @@ import { NewSeedService } from './seed/seed-service';
 import { DateService } from './date/date-service';
 import { VirtualSourceAggregateService } from '../domain/app/virtual-sources/vs-aggregate.service';
 import { KpiBase } from '../app_modules/kpis/queries/kpi-base';
+import { NotificationService } from './notifications/notification.service';
+import { PushNotifier } from './notifications/push-notifier.service';
 
 export function registerServices(container: IBridgeContainer) {
     container.registerSingleton(PnsService);
@@ -67,7 +69,6 @@ export function registerServices(container: IBridgeContainer) {
     container.registerPerWebRequest(UserPasswordService);
     container.registerPerWebRequest(ScheduleJobService);
     container.registerPerWebRequest(DateService);
-
-
-
+    container.registerPerWebRequest(NotificationService);
+    container.registerPerWebRequest(PushNotifier);
 }
