@@ -55,7 +55,7 @@ const WidgetSchema = new Schema({
     numericWidgetAttributes: NumericWidgetSchema,
     chartWidgetAttributes: ChartWidgetSchema,
     tags: String,
-    //add-created-update
+    // add-created-update
     createdBy: String,
     updatedBy: String,
     createdDate: Date,

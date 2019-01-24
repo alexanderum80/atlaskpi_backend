@@ -89,7 +89,7 @@ export class DashboardQuery implements IQuery<IDashboard> {
                     // process widgets
                     const widgetsElements = dashboard.widgets.map(w => {
                         let widget = (<any>w).id;
-                        Widget['position'] = (<any>w).position;
+                        widget['position'] = (<any>w).position;
                         return widget;
                     });
 
