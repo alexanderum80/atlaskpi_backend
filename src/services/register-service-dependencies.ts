@@ -1,3 +1,4 @@
+import { CustomListService } from './custom-list.service';
 import { MapMarkerService } from './map-marker.service';
 import { IBridgeContainer } from '../framework/di/bridge-container';
 import { AccountsService } from './accounts.service';
@@ -69,6 +70,7 @@ export function registerServices(container: IBridgeContainer) {
     container.registerPerWebRequest(UserPasswordService);
     container.registerPerWebRequest(ScheduleJobService);
     container.registerPerWebRequest(DateService);
+    container.registerPerWebRequest(CustomListService);
     container.registerPerWebRequest(NotificationService);
     container.registerPerWebRequest(PushNotifier);
 }

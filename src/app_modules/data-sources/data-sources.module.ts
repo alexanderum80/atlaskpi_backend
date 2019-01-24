@@ -11,7 +11,7 @@ import { DataSourceByNameQuery } from './queries/data-source-by-name.query';
         DataSourceCollectionQuery,
         GetFieldsWithDataQuery,
         ExternalDataSourcesQuery,
-        DataSourceByNameQuery
+        DataSourceByNameQuery,
     ]
 })
 export class DataSourcesModule extends ModuleBase { }

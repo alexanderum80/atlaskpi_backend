@@ -1,47 +1,38 @@
+import { type } from '../../framework/decorators/type.decorator';
 import { field } from '../../framework/decorators/field.decorator';
 import { GraphQLTypesMap } from '../../framework/decorators/graphql-types-map';
-import { type } from '../../framework/decorators/type.decorator';
 import { input } from '../../framework/decorators/input.decorator';
+import { ErrorDetails } from '../../framework/graphql/common.types';
 
 @input()
-export class DataSourceFieldInput {
+export class IDataEntryModelInput {
     @field({ type: GraphQLTypesMap.String })
-    name?: string;
+    columnName: string;
 
     @field({ type: GraphQLTypesMap.String })
-    path: string;
-
-    @field({ type: GraphQLTypesMap.String })
-    type: string;
-
-    @field({ type: GraphQLTypesMap.Boolean })
-    allowGrouping: boolean;
+    dataType: string;
 }
 
-
 @input()
-export class DataSourceFilterFieldsInput {
+export class IDataEntryInput {
     @field({ type: GraphQLTypesMap.String })
-    dataSource: string;
+    inputName: string;
+
+    @field({ type: GraphQLTypesMap.String })
+    fields: string;
+
+    @field({ type: GraphQLTypesMap.String })
+    records: string;
+
+    @field({ type: GraphQLTypesMap.String })
+    dateRangeField: string;
 
     @field({ type: GraphQLTypesMap.String, isArray: true })
-    collectionSource?: string[];
-
-    @field({ type: DataSourceFieldInput, isArray: true })
-    fields: DataSourceFieldInput[];
+    users: string[];
 }
 
 @type()
-export class IMutationError {
-    @field({ type: String })
-    field: string;
-
-    @field({ type: String, isArray: true })
-    errors: string[];
-}
-
-@type()
-export class DataSourceField  {
+export class DataEntryField  {
     @field({ type: GraphQLTypesMap.String })
     name?: string;
 
@@ -56,13 +47,10 @@ export class DataSourceField  {
 
     @field({ type: GraphQLTypesMap.Boolean })
     available?: boolean;
-
-    @field({ type: GraphQLTypesMap.String })
-    sourceOrigin?: string;
 }
 
 @type()
-export class FilterOperator {
+export class DataEntryFilterOperator {
     @field({ type: GraphQLTypesMap.String })
     description: string;
 
@@ -80,16 +68,16 @@ export class FilterOperator {
 }
 
 @type()
-export class DataTypeFilters {
-    @field({ type: FilterOperator, isArray: true })
-    Number: FilterOperator[];
+export class DataEntryTypeFilters {
+    @field({ type: DataEntryFilterOperator, isArray: true })
+    Number: DataEntryFilterOperator[];
 
-    @field({ type: FilterOperator, isArray: true })
-    String: FilterOperator[];
+    @field({ type: DataEntryFilterOperator, isArray: true })
+    String: DataEntryFilterOperator[];
 }
 
 @type()
-export class DataSourceResponse  {
+export class DataEntryResponse  {
     @field({ type: GraphQLTypesMap.String })
     _id?: string;
 
@@ -105,45 +93,54 @@ export class DataSourceResponse  {
     @field({ type: GraphQLTypesMap.Boolean })
     externalSource?: boolean;
 
-    @field({ type: DataSourceField, isArray: true })
-    fields: DataSourceField[];
+    @field({ type: DataEntryField, isArray: true })
+    fields: DataEntryField[];
 
-    @field({ type: DataTypeFilters })
-    filterOperators: DataTypeFilters;
+    @field({ type: DataEntryTypeFilters })
+    filterOperators: DataEntryTypeFilters;
 
     @field({ type: GraphQLTypesMap.String, isArray: true})
     sources?: string[];
 
     @field({ type: GraphQLTypesMap.Boolean })
-    dataEntry?: boolean;
+    dataEntry: boolean;
 
     @field({ type: GraphQLTypesMap.String, isArray: true })
-    users?: string[];
+    users: string[];
 
     @field({ type: GraphQLTypesMap.String })
-    createdBy?: string;
+    createdBy: string;
 }
 
 @type()
-export class DataSourceMutationResponse extends DataSourceResponse {
+export class IDataEntryMutationError {
+    @field({ type: String })
+    field: string;
+
+    @field({ type: String, isArray: true })
+    errors: string[];
+}
+
+@type()
+export class DataEntryMutationResponse extends DataEntryResponse {
     @field({ type: GraphQLTypesMap.Boolean })
     success?: boolean;
 
-    @field({ type: DataSourceResponse })
-    entity?: DataSourceResponse;
+    @field({ type: DataEntryResponse })
+    entity?: DataEntryResponse;
 
-    @field({ type: IMutationError, isArray: true })
-    errors?: IMutationError[];
+    @field({ type: IDataEntryMutationError, isArray: true })
+    errors?: IDataEntryMutationError[];
 }
 
 @type()
-export class ExternalDataSourceResponse extends DataSourceResponse {
-    @field({ type: GraphQLTypesMap.String })
-    id: string;
+export class RemoveDataEntryResult {
+    @field({ type: GraphQLTypesMap.Boolean })
+    success: boolean;
 
     @field({ type: GraphQLTypesMap.String })
-    connectorId: string;
+    entity?: string;
 
-    @field({ type: GraphQLTypesMap.String })
-    connectorType: string;
+    @field({ type: ErrorDetails, isArray: true })
+    errors?: ErrorDetails[];
 }

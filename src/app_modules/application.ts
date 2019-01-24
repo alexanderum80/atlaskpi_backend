@@ -27,13 +27,13 @@ import { WidgetsModule } from './widgets/widgets.module';
 import { CountriesModule } from './countries/countries.module';
 import { TagModule } from './tags/tags.module';
 import { ActivitiesModule } from './activities/activities.module';
-import { ScheduleJobModule } from './schedule-jobs/scheduleJob.module';
-import { HelpCenterModule} from './help-centers/help-center.module';
-import { CustomModule } from './integrations/custom/custom.module';
+import { AlertsModule } from './alerts/alerts.module';
+import {HelpCenterModule} from './help-centers/help-center.module';
 import { TargetsNewModule } from './targetsNew/target.module';
 import { NotificationsModule } from './notifications/notifications.module';
-import { AlertsModule } from './alerts/alerts.module';
-
+import { DataEntryModule } from './data-entry/data-entry.module';
+import { CustomListModule } from './custom-list/custom-list.module';
+import { ScheduleJobModule } from './schedule-jobs/scheduleJob.module';
 
 @AppModule({
     imports: [
@@ -66,9 +66,10 @@ import { AlertsModule } from './alerts/alerts.module';
         TagModule,
         ConnectorsModule,
         ActivitiesModule,
-        CustomModule,
         TargetsNewModule,
         NotificationsModule,
+        DataEntryModule,
+        CustomListModule,
         AlertsModule
     ]
 })

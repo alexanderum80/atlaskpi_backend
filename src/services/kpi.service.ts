@@ -9,7 +9,7 @@ import { DocumentQuery } from 'mongoose';
 
 import { KpiGroupingsInput } from '../app_modules/kpis/kpis.types';
 import { ChartDateRangeInput } from '../app_modules/shared/shared.types';
-import { IChartDocument } from '../domain/app/charts/chart';
+import { IChartDocument, IChart } from '../domain/app/charts/chart';
 import { Charts } from '../domain/app/charts/chart.model';
 import { IExpenseModel } from '../domain/app/expenses/expense';
 import { IInventoryModel } from '../domain/app/inventory/inventory';
@@ -20,7 +20,7 @@ import { KPIs } from '../domain/app/kpis/kpi.model';
 import { ISaleModel } from '../domain/app/sales/sale';
 import { IVirtualSourceDocument, IVirtualSource } from '../domain/app/virtual-sources/virtual-source';
 import { VirtualSources, mapDataSourceFields } from '../domain/app/virtual-sources/virtual-source.model';
-import { IWidgetDocument } from '../domain/app/widgets/widget';
+import { IWidgetDocument, IWidget } from '../domain/app/widgets/widget';
 import { Widgets } from '../domain/app/widgets/widget.model';
 import { processDateRangeWithTimezone } from '../domain/common/date-range';
 import { blackListDataSource, getFieldsWithData, IFieldsWithDataDatePipeline } from '../domain/common/fields-with-data';
@@ -32,6 +32,7 @@ import { DataSourcesService } from './data-sources.service';
 import { IMapDocument } from '../domain/app/maps/maps';
 import { Maps } from '../domain/app/maps/maps.model';
 import { Users } from '../domain/app/security/users/user.model';
+import { IMap } from '../domain/app/dashboards/dashboard';
 
 export interface IGroupingsModel {
     sales: ISaleModel;
@@ -437,28 +438,22 @@ export class KpiService {
             }
 
             // query to find if kpi is in use by chart, widget, or complexkpi
-            const findCharts: DocumentQuery<IChartDocument[], IChartDocument> = this._chart.model.find({
-                kpis: { $in: [id] }
-            });
-            const findWidgets: DocumentQuery<IWidgetDocument[], IWidgetDocument> = this._widget.model.find({
-                'numericWidgetAttributes.kpi': id
-            });
-            const findMaps: DocumentQuery<IMapDocument[], IMapDocument> = this._maps.model.find({
-                'kpi': id
-            });
+            const findCharts = this._chart.model.find({ 'kpis.kpi': { $in: [id] }})
+                .lean().exec() as Promise<IChart[]>;
+            const findWidgets = this._widget.model.find({ 'numericWidgetAttributes.kpi': id })
+                .lean().exec() as Promise<IWidget[]>;
+            const findMaps = this._maps.model.find({ 'kpi': id })
+                .lean().exec() as Promise<IMap[]>;
 
             // contain regex expression to use for complex kpi
             const expression: RegExp = new RegExp(id);
-            const findComplexKpi: DocumentQuery<IKPIDocument[], IKPIDocument> = this._kpis.model.find({
-                expression: {
-                    $regex: expression
-                }
-            });
+            const findComplexKpi = this._kpis.model.find({ expression: { $regex: expression}})
+                .lean().exec() as Promise<IKPI[]>;  
 
             let documentExists: IDocumentExist = {};
 
             Bluebird.all([findCharts, findWidgets, findComplexKpi, findMaps])
-                .spread((charts: IChartDocument[], widgets: IWidgetDocument[], complexKPI: IKPIDocument[], maps: IMapDocument[]) => {
+                .spread((charts: IChart[], widgets: IWidget[], complexKPI: IKPI[], maps: IMap[]) => {
                     documentExists = {
                         chart: charts,
                         widget: widgets,

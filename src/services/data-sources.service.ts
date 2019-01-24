@@ -1,26 +1,30 @@
 import { camelCase } from 'change-case';
-import { IDateRange, isValidTimezone } from './../domain/common/date-range';
-import { IVirtualSourceDocument, IVirtualSource } from '../domain/app/virtual-sources/virtual-source';
-import { DataSourceField, DataSourceResponse } from '../app_modules/data-sources/data-sources.types';
-import { injectable, inject, Container } from 'inversify';
-import {VirtualSources, mapDataSourceFields} from '../domain/app/virtual-sources/virtual-source.model';
-import { sortBy, concat, isBoolean } from 'lodash';
-import { Logger } from '../domain/app/logger';
-import { KPIFilterHelper } from '../domain/app/kpis/kpi-filter.helper';
-import * as Bluebird from 'bluebird';
-import { isObject, isEmpty, toInteger, toNumber } from 'lodash';
-import {KPIExpressionFieldInput} from '../app_modules/kpis/kpis.types';
-import {getFieldsWithData, getGenericModel, getAggregateResult} from '../domain/common/fields-with-data';
-import { ICriteriaSearchable } from '../app_modules/shared/criteria.plugin';
-import * as mongoose from 'mongoose';
-import { AppConnection } from '../domain/app/app.connection';
+import { inject, injectable } from 'inversify';
+import { isBoolean, isEmpty, toInteger, toNumber } from 'lodash';
 import * as moment from 'moment';
-import { IMutationResponse } from '../framework/mutations/mutation-response';
-import { Connectors } from '../domain/master/connectors/connector.model';
-import { VirtualSourceAggregateService, IKeyValues } from '../domain/app/virtual-sources/vs-aggregate.service';
+import * as mongoose from 'mongoose';
+import * as XLSX from 'ts-xlsx';
+
+import { DataSourceField, DataSourceResponse } from '../app_modules/data-sources/data-sources.types';
+import { KPIExpressionFieldInput } from '../app_modules/kpis/kpis.types';
+import { AppConnection } from '../domain/app/app.connection';
 import { CurrentUser } from '../domain/app/current-user';
+import { IKPIDocument } from '../domain/app/kpis/kpi';
+import { KPIFilterHelper } from '../domain/app/kpis/kpi-filter.helper';
+import { KPIs } from '../domain/app/kpis/kpi.model';
+import { Logger } from '../domain/app/logger';
+import { IVirtualSource, IVirtualSourceDocument } from '../domain/app/virtual-sources/virtual-source';
+import { mapDataSourceFields, VirtualSources } from '../domain/app/virtual-sources/virtual-source.model';
+import { IKeyValues, VirtualSourceAggregateService } from '../domain/app/virtual-sources/vs-aggregate.service';
+import { getAggregateResult, getFieldsWithData } from '../domain/common/fields-with-data';
+import { Connectors } from '../domain/master/connectors/connector.model';
+import { IMutationResponse } from '../framework/mutations/mutation-response';
+import { CustomList } from './../domain/app/custom-list/custom-list.model';
+import { isValidTimezone } from './../domain/common/date-range';
+import { CustomListService } from './custom-list.service';
 
 const GOOGLE_ANALYTICS = 'GoogleAnalytics';
+const csvTokenDelimeter = ',';
 
 export interface IFieldAvailabilityOptions {
     dateRangeFilter?: { $gte: Date, $lt: Date };
@@ -40,7 +44,10 @@ export class DataSourcesService {
         @inject(Connectors.name) private _connectors: Connectors,
         @inject(VirtualSources.name) private _virtualDatasources: VirtualSources,
         @inject(VirtualSourceAggregateService.name) private _vsAggregateService: VirtualSourceAggregateService,
+        @inject(CustomList.name) private _customList: CustomList,
+        @inject(CustomListService.name) private _customListService: CustomListService,
         @inject(CurrentUser.name) private _currentUser: CurrentUser,
+        @inject(KPIs.name) private _kpis: KPIs
     ) {
         const tz = this._currentUser.get().profile.timezone;
 
@@ -68,6 +75,32 @@ export class DataSourcesService {
         //     async (vs: DataSourceResponse) => await this.getCollectionSource(vs),
         //     { concurrency: 10 });
         // return sortBy(virtualDataSources, 'name');
+    }
+
+    async getDataEntry(): Promise<DataSourceResponse[]> {
+        const userId = this._currentUser.get().id;
+        return await this._virtualDatasources.model.getDataEntry(userId);
+    }
+
+    async getDataEntryCollection(): Promise<any> {
+        const userId = this._currentUser.get().id;
+        const dataEntries = await this._virtualDatasources.model.getDataEntry(userId);
+
+        if (dataEntries.length) {
+            const dataEntriesCollection = [];
+            for (let index = 0; index < dataEntries.length; index++) {
+                const element = dataEntries[index];
+                const dataEntry = await this.getVirtualSourceByIdMapCollection(element._id);
+                dataEntriesCollection.push(JSON.parse(dataEntry));
+            }
+            return JSON.stringify(dataEntriesCollection);
+        } else {
+            return null;
+        }
+    }
+
+    async getDataEntryById(id: string): Promise<IVirtualSourceDocument> {
+        return await this._virtualDatasources.model.getDataSourceById(id);
     }
 
     /**
@@ -235,6 +268,74 @@ export class DataSourcesService {
         return fields;
     }
 
+    async addDataSource(data): Promise<IVirtualSourceDocument> {
+        if (!data) { return Promise.reject('cannot add a document with, empty payload'); }
+
+        try {
+            const user = this._currentUser.get().id;
+            const customList = await this._customList.model.getCustomList(user);
+
+            const fileExtensionIndex = data.inputName.lastIndexOf('.') !== -1 ? data.inputName.lastIndexOf('.') : data.inputName.length;
+
+            const simpleName = data.inputName.substr(0, fileExtensionIndex);
+            const collectionName = simpleName.substr(simpleName.length - 1, 1) !== 's'
+                                ? camelCase(simpleName.concat('s')) : camelCase(simpleName);
+
+            data.fields = JSON.parse(data.fields);
+            let inputFieldsMap = {};
+            inputFieldsMap['Source'] = {
+                path: 'source',
+                dataType: 'String',
+                allowGrouping: true
+            };
+
+            for (let i = data.fields.length - 1; i >= 0; i--) {
+                const f = data.fields[i];
+                const field = f.columnName;
+                let dataType = f.dataType;
+
+                const sourceOrigin = customList.find(c => c._id.toString() === dataType);
+
+                inputFieldsMap[field] = {
+                    path: field.toLowerCase().replace(/ /g, '_'),
+                    dataType: sourceOrigin ? sourceOrigin.dataType : dataType,
+                    required: f.required || false
+                };
+
+                if (sourceOrigin) {
+                    inputFieldsMap[field].sourceOrigin = sourceOrigin._id.toString();
+                }
+
+                if (dataType === 'String' || 
+                    inputFieldsMap[field].dataType === 'String' ||
+                    inputFieldsMap[field].path.includes('zip' || 'postal') ) {
+                    inputFieldsMap[field].allowGrouping = true;
+                }
+            }
+
+            const virtualSourceObj: IVirtualSource = {
+                name: camelCase(simpleName).toLowerCase(),
+                description: data.inputName,
+                source: collectionName,
+                modelIdentifier: collectionName,
+                dateField: data.dateRangeField.toLowerCase().replace(/ /g, '_'),
+                aggregate: [],
+                fieldsMap: inputFieldsMap,
+                dataEntry: true,
+                users: data.users,
+                createdBy: user
+            };
+            return new Promise<IVirtualSourceDocument>((resolve, reject) => {
+
+                this._virtualDatasources.model.addDataSources(virtualSourceObj).then(newSource => {
+                    resolve(newSource);
+                });
+            });
+        } catch (err) {
+            console.log('error adding virtual source: ' + err);
+        }
+    }
+
     createVirtualSourceMapCollection(input): Promise<IMutationResponse> {
         const schema = new mongoose.Schema({}, { strict: false });
         const connection: mongoose.Connection = this._appConnection.get;
@@ -257,6 +358,7 @@ export class DataSourcesService {
                 const model = new newCollection(collection);
                 model.save();
             });
+
             resolve({success: true});
             return;
         });
@@ -283,13 +385,76 @@ export class DataSourcesService {
                 'schema': dataSource.fieldsMap,
                 'data': data,
                 'dataName': connectorName,
-                'dateRangeField': dataSource.dateField
+                'dateRangeField': dataSource.dateField,
             };
 
             return JSON.stringify(dataCollection);
         } catch (err) {
             console.log('error getting virtual source collection: ' + err);
         }
+    }
+
+    async getVirtualSourceByIdMapCollection(id): Promise<any> {
+        try {
+            const dataSource = await this._virtualDatasources.model.getDataSourceById(id);
+
+            if (!dataSource) {
+                return null;
+            }
+
+            const schema = new mongoose.Schema({}, { strict: false });
+            const connection: mongoose.Connection = this._appConnection.get;
+            const model = connection.model(dataSource.source, schema, dataSource.source);
+
+            const dataModel = await model.find();
+            const data = await dataModel.map(data => data['_doc']);
+
+            const dataCollection = {
+                name: dataSource.description,
+                schema: dataSource.fieldsMap,
+                data: data,
+                dataName: dataSource.name,
+                dateRangeField: dataSource.dateField,
+                customLists: await this._customListService.customListsByVirtualSource(dataSource._id),
+            };
+
+            return JSON.stringify(dataCollection);
+        } catch (err) {
+            console.log('error getting virtual source collection: ' + err);
+        }
+    }
+
+    removeDataEntry(name: string): Promise<any> {
+        return new Promise<any>((resolve, reject) => {
+            this._virtualDatasources.model.getDataSourceByName(name).then(dataSource => {
+                if (!dataSource) {
+                    reject('the virtual source ' + name + ' do not exist');
+                    return;
+                }
+
+                this.dataEntryInUseByModel(dataSource.id).then((virtualSources: IKPIDocument[]) => {
+
+                    // check if data entry is in use by another model
+                    if (virtualSources.length) {
+                        reject({ message: 'Data entry is being used by ', entity: virtualSources, error: 'Data entry is being used by '});
+                        return;
+                    }
+
+                    return this._virtualDatasources.model.removeDataSources(name).then(res => {
+                        resolve(res);
+                    })
+                    .catch(err => {
+                        reject('cannot remove data source: ' + err);
+                    });
+                })
+                .catch(err => {
+                    reject('cannot get data entry in use: ' + err);
+                });
+            })
+            .catch(err => {
+                reject('cannot get data source by name: ' + err);
+            });
+        });
     }
 
     removeVirtualSourceMapCollection(source): Promise<any> {
@@ -501,4 +666,227 @@ export class DataSourcesService {
             console.log(err);
         }
     }
+
+    async dataEntryInUseByModel(id: string): Promise<IKPIDocument[]> {
+        const that = this;
+
+        return new Promise<IKPIDocument[]>((resolve, reject) => {
+            // reject if no id is provided
+            if (!id) {
+                return reject({ success: false,
+                                errors: [ { field: 'id', errors: ['Data entry not found']} ] });
+            }
+
+            const expressionId: RegExp = new RegExp(id, 'i');
+
+            const connectorsArray: any[] = [];
+
+            this._virtualDatasources.model.findById(id)
+                .then(connector => {
+
+                    const virtualSourceName = connector.name || null;
+
+                    // contain regex expression to use for complex kpi
+                    const expressionName: RegExp = new RegExp(virtualSourceName);
+
+                    this._kpis.model.find({
+                        expression: {
+                            $regex: expressionName,
+                        },
+                        type: 'simple'
+                    })
+                    .then(kpis => {
+                        if (!kpis.length) {
+                            resolve([]);
+                            return;
+                        }
+
+                        const expressionKpiId: RegExp[] = kpis.map(k => new RegExp(k.id, 'i'));
+
+                        this._kpis.model.find({
+                            type: { $ne: 'simple' },
+                            $or: [{
+                                expression: {
+                                    $regex: expressionName
+                                }
+                            }, {
+                                expression: {
+                                    $in: expressionKpiId
+                                }
+                            }, {
+                                expression: {
+                                    $regex: expressionId
+                                }
+                            }]
+                        })
+                        .then(res => {
+                            kpis = kpis.concat(<any>res);
+                            if (kpis.length) {
+                                kpis.forEach(k => {
+                                    connectorsArray.push({
+                                        name: k.name,
+                                        type: 'kpi'
+                                    });
+                                });
+                                resolve(connectorsArray);
+                            }
+                        });
+                    }).catch(err => {
+                        reject(err);
+                        return;
+                    });
+                }).catch(err => {
+                    reject(err);
+                    return;
+                });
+        });
+    }
+
+    async processExcelFile(worksheet): Promise<string> {
+        let excelFileData = {
+            fields: [],
+            records: []
+        };
+
+        let j = 1;
+        const range = XLSX.utils.decode_range(worksheet['!ref']);
+        const ncolumns = range.e.c - range.s.c;
+        const nrows = range.e.r - range.s.r + 1;
+        for (let R = 0; R <= nrows; R++) {
+          const dataArray = [];
+          for (let C = 0; C <= ncolumns; C++) {
+              const cell_address = { c: C, r: R };
+              const cell = XLSX.utils.encode_cell(cell_address);
+              let cellValue = '';
+              if (worksheet[cell]) {
+                cellValue = <any>worksheet[cell].w.trimEnd();
+              }
+
+              if (j === 1) {
+                if (cellValue !== '') {
+                  const newfield = {
+                    columnName: cellValue,
+                    dataType: '',
+                    required: false
+                  };
+
+                  excelFileData.fields.push(newfield);
+                }
+              } else if (dataArray.length < excelFileData.fields.length) {
+                dataArray.push(cellValue);
+              }
+          }
+
+          const dataArrayValueNotNull = dataArray.filter(d => d !== '');
+          if (dataArray.length > 0 && dataArrayValueNotNull.length > 0) {
+            excelFileData.records.push(dataArray);
+          }
+
+          j += 1;
+        }
+
+        if (excelFileData.records.length > 0) {
+          for (let n = 0; n < excelFileData.records[0].length; n++) {
+            const element = excelFileData.records[0][n];
+            const cellDataType = this.getDataTypeFromValue(element);
+            excelFileData.fields[n].dataType = cellDataType;
+          }
+        }
+
+        return JSON.stringify(excelFileData);
+    }
+
+    async processCsvFile(fileData): Promise<string> {
+        const headerLength = this._getCsvHeaderArray(fileData, ',').length;
+
+        let csvFileData = {
+            fields: [],
+            records: []
+        };
+
+        csvFileData.records = this._getDataRecordsArrayFromCSVFile(fileData,
+          headerLength, csvTokenDelimeter);
+
+        if (csvFileData.records.length === 0) {
+          return;
+        }
+
+        csvFileData.fields = this._getFieldsArrayFromCSVFile(fileData, csvFileData);
+
+        return JSON.stringify(csvFileData);
+    }
+
+    private _getCsvHeaderArray(csvRecordsArr, tokenDelimeter) {
+        const headers = csvRecordsArr[0].split(tokenDelimeter);
+        const headerArray = [];
+        for (let j = 0; j < headers.length; j++) {
+            headerArray.push(headers[j]);
+        }
+        return headerArray;
+    }
+
+    private _getFieldsArrayFromCSVFile(csvRecordsArray, csvFileData) {
+        const fieldsArray = csvRecordsArray[0].split(csvTokenDelimeter);
+        let fields: any[] = [];
+
+        for (let i = 0; i < fieldsArray.length; i++) {
+            const element = fieldsArray[i];
+            const dataType = this.getDataTypeFromValue(csvFileData.records[0][i]);
+            fields.push({
+                columnName: element,
+                dataType: dataType,
+                required: dataType === 'Date' ? true : false
+            });
+        }
+        return fields;
+    }
+
+    private _getDataRecordsArrayFromCSVFile(csvRecordsArray, headerLength, tokenDelimeter) {
+        const dataArr = [];
+
+        for (let i = 1; i < csvRecordsArray.length; i++) {
+            const dataRow = csvRecordsArray[i].split(tokenDelimeter);
+
+            const data = [];
+            let compositeField = '';
+            let concatData = false;
+            for (let j = 0; j < dataRow.length; j++) {
+                const value = dataRow[j];
+                if (value.startsWith('"') && value.endsWith('"')) {
+                    data.push(value.replace(/"/g, ''));
+                } else if (value.startsWith('"')) {
+                    compositeField = value;
+                    concatData = true;
+                } else if (value.endsWith('"')) {
+                    compositeField += ',' + value;
+                    concatData = false;
+                    data.push(compositeField.replace(/"/g, ''));
+                } else if (concatData) {
+                    compositeField += ',' + value;
+                } else {
+                    data.push(value);
+                }
+            }
+
+            dataArr.push(data);
+        }
+        return dataArr;
+    }
+
+    getDataTypeFromValue(value) {
+        let dataType: string;
+        if (value === null || value === '') {
+            dataType = 'String';
+        } else if (isBoolean(value) || value === '0' || value === '1') {
+            dataType = 'Boolean';
+        } else if (!isNaN(+value)) {
+            dataType = 'Number';
+        } else if (!isNaN(Date.parse(value))) {
+            dataType = 'Date';
+        } else {
+            dataType = 'String';
+        }
+        return dataType;
+    }
+
 }
