@@ -291,9 +291,6 @@ export function transformFieldsToRealTypes(dataDocument: any, fieldsToMap ) {
                 case 'Date':
                 dataDocument[fieldsToMap[key].path] = new Date(dataDocument[fieldsToMap[key].path]);
                     break;
-                case 'Boolean':
-                    dataDocument[fieldsToMap[key].path] = dataDocument[fieldsToMap[key].path] === "true";
-                    break;
                 default:
                     break;
             }
