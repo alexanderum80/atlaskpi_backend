@@ -19,7 +19,7 @@ import * as moment from 'moment';
     cache: { ttl: 1800 },
     activity: GetKpiOldestDateActivity,
     parameters: [
-        { name: 'id', type: String },
+        { name: 'ids', type: String, isArray: true },
     ],
     output: { type: String }
 })
@@ -31,21 +31,31 @@ export class GetKpiOldestDateQuery implements IQuery<Object> {
         @inject(VirtualSources.name) private _virtualSources: VirtualSources,
         @inject(Connectors.name) private _connectors: Connectors) { }
 
-    async run(data: { id: string }): Promise<Object> {
+    async run(data: { ids: string[] }): Promise<Object> {
 
         const allKpis: IKPIDocument[] = await this._kpis.model.find({});
-        const kpi: IKPIDocument = allKpis.find((k: IKPIDocument) => k.id === data.id);
+        const kpis: IKPIDocument[] = allKpis.filter((k: IKPIDocument) => data.ids.indexOf(k.id) !== -1);
         const connectors: IConnectorDocument[] = await this._connectors.model.find({});
-        const kpiSources: string[] = this._kpiservice._getKpiSources(kpi, allKpis, connectors);
         const vs: IVirtualSourceDocument[] = await this._virtualSources.model.find({});
+
+        let kpiSources: string[] = [];
+
+        kpis.forEach(k => {
+            const kpis = this._kpiservice._getKpiSources(k, allKpis, connectors);
+            kpiSources = kpiSources.concat(kpis);
+        });
+
         const virtualSources: IVirtualSourceDocument[] = vs.filter((v: IVirtualSourceDocument) => {
             return kpiSources.indexOf(v.name.toLocaleLowerCase()) !== -1;
         });
+
         const searchPromises: Promise<Object>[] = [];
+
         virtualSources.map(s => {
             const theModel = this.getModel(s.name, s.source);
             searchPromises.push(this.getOldDestYear(theModel, s.dateField));
         });
+
         return new Promise<Object>((resolve, reject) => {
             Promise.all(searchPromises).then(res => {
                 let result: number[] = [];
@@ -67,11 +77,12 @@ export class GetKpiOldestDateQuery implements IQuery<Object> {
                     result = result.sort();
                     endResult = result[result.length - 1];
                 }
+
                 resolve(endResult);
             })
-                .catch(err => {
-                    reject(err);
-                });
+            .catch(err => {
+                reject(err);
+            });
         });
     }
 

@@ -48,7 +48,7 @@ export class VirtualSourceAggregateService {
         @inject(Logger.name) private _logger: Logger
     ) { }
 
-    processReplacements(virtualSource: IVirtualSourceDocument, replacements: IKeyValues): IProcessAggregateResult {
+    processReplacements(virtualSource: IVirtualSource, replacements: IKeyValues): IProcessAggregateResult {
         let aggregate = [];
         let appliedReplacements = [];
 
@@ -58,10 +58,8 @@ export class VirtualSourceAggregateService {
             return { aggregate, appliedReplacements };
         }
 
-        const objVirtualSource = virtualSource.toObject();
-
-        if (objVirtualSource.aggregate && objVirtualSource.aggregate.length) {
-           aggregate = objVirtualSource.aggregate.map(a => {
+        if (virtualSource.aggregate && virtualSource.aggregate.length) {
+           aggregate = virtualSource.aggregate.map(a => {
                return KPIFilterHelper.CleanObjectKeys(a);
            });
         }

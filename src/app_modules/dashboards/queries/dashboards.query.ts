@@ -61,7 +61,7 @@ export class DashboardsQuery implements IQuery<IDashboard[]> {
                 .lean(true)
                 .populate({
                     path: 'charts.id',
-                    populate: { path: 'kpis' }
+                    populate: { path: 'kpis.kpi' }
                 })
                 .populate({
                     path: 'owner',

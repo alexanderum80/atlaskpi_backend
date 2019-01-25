@@ -21,22 +21,23 @@ export class ChartFactory {
 
     getInstance(chart: IChart): IUIChart {
         const tz = this._user.get().profile.timezone;
+        const fh = new FrequencyHelper();
 
         switch (chart.chartDefinition.chart.type) {
             case ChartType.Area:
-                return new AreaChart(chart, new FrequencyHelper(), tz);
+                return new AreaChart(chart, fh, tz);
             case ChartType.Bar:
-                return new BarChart(chart, new FrequencyHelper(),  tz);
+                return new BarChart(chart, fh,  tz);
             case ChartType.Column:
-                return new ColumnChart(chart, new FrequencyHelper(), tz);
+                return new ColumnChart(chart, fh, tz);
             case ChartType.Donut:
-                return new DonutChart(chart, new FrequencyHelper(), tz);
+                return new DonutChart(chart, fh, tz);
             case ChartType.Line:
-                return new LineChart(chart, new FrequencyHelper(), tz);
+                return new LineChart(chart, fh, tz);
             case ChartType.Spline:
-                return new SPLineChart(chart, new FrequencyHelper(), tz);
+                return new SPLineChart(chart, fh, tz);
             case ChartType.Pie:
-                return new PieChart(chart, new FrequencyHelper(), tz);
+                return new PieChart(chart, fh, tz);
             default:
                 return null;
         }
