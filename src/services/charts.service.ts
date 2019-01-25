@@ -685,31 +685,39 @@ export class ChartsService {
     }
 
     private _mergeDefinitions(definitions: any[]) {
-        console.log(definitions);
-
         if (definitions.length === 1) {
             return definitions[0];
         }
 
+        // filter only definitions with series
+        definitions = definitions.filter(d => !!d.series);
+
         // pick one definition as master
         const def = cloneDeep(definitions[0]);
+
+        if (!def) {
+            return;
+        }
 
         // get unique list of categories
         def.xAxis.categories = uniq([].concat(...definitions.map(d => d.xAxis.categories)));
 
         // combined serie names with empty data array to cover the category array
         def.series = [].concat(...definitions.map(d => d.series.map(s => ({
-            name: s.name,
-            kpiName: d.chart.kpi,
-            type: d.chart.type,
-            data: new Array(def.xAxis.categories.length)
-        }))));
+                name: s.name,
+                kpiName: d.chart.kpi,
+                type: d.chart.type,
+                data: new Array(def.xAxis.categories.length)
+            })
+        )));
 
         def.xAxis.categories.forEach((c, idx) => {
-            definitions.forEach(d => {
+            definitions.filter(d => !!d.series).forEach(d => {
                 d.series.forEach(s => {
                     // get final chart serie
                     const finalSerie = def.series.find(ser => ser.name === s.name);
+
+                    if (!finalSerie) { return; }
                     // get category index for this chart definition so can put the value in the
                     // right index in the final chart
                     const categoryIndex = d.xAxis.categories.findIndex(cat => cat === c);
