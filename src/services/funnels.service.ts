@@ -81,7 +81,6 @@ export class FunnelsService {
         @inject(CurrentUser.name) private _currentUser: CurrentUser,
         @inject(Logger.name) private _logger: Logger,
         @inject(KpiFactory.name) private _kpiFactory: KpiFactory,
-        @inject(VirtualSources.name) private _virtualSources: VirtualSources,
         @inject(KPIs.name) private _kpis: KPIs,
     ) {
       this._timezone = this._currentUser.get().profile.timezone;
@@ -145,52 +144,14 @@ export class FunnelsService {
       return rendered;
     }
 
-    public async renderByDefinitionMock(input: FunnelInput): Promise<RenderedFunnelType> {
-        // return sampleFunnel;
-
-        const { name, stages } = input;
-
-        const mockStages: RenderedFunnelStageType[]  = [];
-
-        if (!input.stages || !input.stages.length) { return { name, stages: []} as RenderedFunnelType; }
-
-        // this method should go to the server
-        // mockig the data for now
-
-        input.stages.forEach((stage, index) => {
-            const { compareToStage, foreground, background } = stage;
-            const stageName = stage.name;
-
-            const newStage: RenderedFunnelStageType = {
-                foreground,
-                background,
-                name: stageName,
-                compareToStageName: compareToStage,
-                amount: sampleFunnel.stages[index].amount,
-                count: sampleFunnel.stages[index].count,
-                order: index
-            };
-
-            mockStages.push(newStage);
-        });
-
-        const rendered: RenderedFunnelType = {
-            name,
-            stages: mockStages
-        };
-
-        return rendered;
-    }
-
     private async _calcStageData(stage: FunnelStageInput): Promise<IStageData> {
         const kpiDocument = await this._kpis.model.findOne({ _id: stage.kpi });
-
         if (!kpiDocument) throw new Error('kpi not found');
 
         const [count, amount] = await Bluebird.all(
           [
-            this._calculateStageCount(kpiDocument, stage.dateRange),
-            this._calculateStageAmount(kpiDocument, stage.dateRange)
+            this._calcStageCount(kpiDocument, stage.dateRange),
+            this._calcStageAmount(kpiDocument, stage.dateRange)
           ]
         );
 
@@ -201,7 +162,7 @@ export class FunnelsService {
         };
     }
 
-    private async _calculateStageCount(kpiDocument: IKPIDocument, dateRange: ChartDateRangeInput): Promise<number> {
+    private async _calcStageCount(kpiDocument: IKPIDocument, dateRange: ChartDateRangeInput): Promise<number> {
         // in this method we modify the expression to get the count of customers
         const kpiObject = kpiDocument.toObject();
 
@@ -214,7 +175,7 @@ export class FunnelsService {
         return (res[0] || {}).value || 0;
     }
 
-    private async _calculateStageAmount(kpiDocument: IKPIDocument, dateRange: ChartDateRangeInput): Promise<number> {
+    private async _calcStageAmount(kpiDocument: IKPIDocument, dateRange: ChartDateRangeInput): Promise<number> {
         const kpiObject = kpiDocument.toObject();
 
         const kpi = await this._kpiFactory.getInstance(kpiObject);

@@ -101,3 +101,46 @@ export class RenderedFunnelType  {
     @field({ type: RenderedFunnelStageType, isArray: true})
     stages: RenderedFunnelStageType[];
 }
+
+
+@type()
+export class FunnelStageType  {
+    @field({ type: GraphQLTypesMap.String, required: true })
+    _id: string;
+
+    @field({ type: GraphQLTypesMap.Int, required: true })
+    order: number;
+
+    @field({ type: GraphQLTypesMap.String, required: true })
+    name: string;
+
+    @field({ type: GraphQLTypesMap.String, required: true })
+    kpi: string;
+
+    @field({ type: ChartDateRangeInput, required: true })
+    dateRange: ChartDateRangeInput;
+
+    @field({ type: GraphQLTypesMap.String, isArray: true })
+    fieldsToProject: string;
+
+    @field({ type: GraphQLTypesMap.String  })
+    compareToStage: string;
+
+    @field({ type: GraphQLTypesMap.String, required: true })
+    foreground: string;
+
+    @field({ type: GraphQLTypesMap.String, required: true })
+    background: string;
+}
+
+@type()
+export class FunnelType  {
+    @field({ type: GraphQLTypesMap.String })
+    _id: string;
+
+    @field({ type: GraphQLTypesMap.String, required: true })
+    name: string;
+
+    @field({ type: FunnelStageInput, isArray: true })
+    stages: FunnelStageInput[];
+}
