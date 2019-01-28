@@ -1,6 +1,6 @@
 {
     "name": "atlaskpi-backend",
-    "version": "0.5.189",
+    "version": "0.5.190",
     "description": "",
     "main": "index.ts",
     "scripts": {
@@ -114,6 +114,7 @@
         "request-promise": "^4.1.1",
         "sharp": "^0.20.1",
         "transform-props": "^1.0.1",
+        "ts-xlsx": "^0.0.11",
         "validate.js": "^0.11.1",
         "winston": "^2.3.0",
         "zen-observable": "^0.6.0"

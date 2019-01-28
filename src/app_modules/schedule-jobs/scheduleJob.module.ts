@@ -4,6 +4,7 @@ import { ScheduleJobByWidgetIdQuery } from './queries/scheduleJob-by-widget-id.q
 import { AppModule, ModuleBase } from '../../framework/decorators/app-module';
 import {RemoveScheduleJobMutation} from './mutations/remove-scheduleJob.mutation';
 import {UpdateScheduleJobActiveMutation} from './mutations/update-scheduleJob-active.mutation';
+import { TestScheduleJobAlertMutation } from './mutations/test-schedule-job-alert.mutation';
 
 @AppModule({
     queries: [
@@ -13,7 +14,8 @@ import {UpdateScheduleJobActiveMutation} from './mutations/update-scheduleJob-ac
         CreateScheduleJobMutation,
         UpdateScheduleJobMutation,
         UpdateScheduleJobActiveMutation,
-        RemoveScheduleJobMutation
+        RemoveScheduleJobMutation,
+        TestScheduleJobAlertMutation,
     ]
 })
 

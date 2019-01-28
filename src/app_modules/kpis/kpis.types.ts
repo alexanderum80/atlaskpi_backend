@@ -166,7 +166,7 @@ export class KPI  {
     @field({ type: GraphQLTypesMap.String })
     source: string;
 
-     //add-created
+     // add-created
     @field({ type: GraphQLTypesMap.String })
     createdBy: string;
 
@@ -182,8 +182,8 @@ export class KPI  {
 
 @input()
 export class KpiGroupingsInput {
-    @field({ type: GraphQLTypesMap.String, required: true })
-    id: string;
+    @field({ type: GraphQLTypesMap.String, isArray: true, required: true })
+    ids: string[];
 
     @field({ type: ChartDateRangeInput, required: true, isArray: true })
     dateRange: ChartDateRangeInput[];

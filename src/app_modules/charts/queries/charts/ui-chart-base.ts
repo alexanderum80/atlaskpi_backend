@@ -524,7 +524,7 @@ export class UIChartBase {
         let serieObject;
         if (this.chart.chartDefinition.chart.type === ChartType.Pie) {
             serieObject = {
-                name: this.chart.kpis[0].name,
+                name: this.chart.kpis[0].kpi.name,
                 data:  categories.map(cat => {
                     let dataItem = cat.id !== NULL_CATEGORY_REPLACEMENT
                                ? data.find((item: any) => item._id[meta.xAxisSource] === cat.id)
@@ -539,7 +539,7 @@ export class UIChartBase {
 
          } else {
             serieObject = {
-                name: this.chart.kpis[0].name,
+                name: this.chart.kpis[0].kpi.name,
                 data: []
             };
 
@@ -569,9 +569,9 @@ export class UIChartBase {
         // When no groupings or frequency we have a single value
         // Highcharts need a category for displaying a value so we are going to use the kpi name
         if (serieObject.data.length === 1 && categories.length === 1 && categories[0].id === NULL_CATEGORY_REPLACEMENT) {
-            this.categories[0].name = this.chart.kpis[0].name;
+            this.categories[0].name = this.chart.kpis[0].kpi.name;
             if (this.chart.chartDefinition.chart.type === ChartType.Pie) {
-                serieObject.data[0].name = this.chart.kpis[0].name;
+                serieObject.data[0].name = this.chart.kpis[0].kpi.name;
             }
         }
 

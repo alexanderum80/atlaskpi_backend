@@ -1,6 +1,7 @@
+import * as Bluebird from 'bluebird';
 import { camelCase } from 'change-case';
 import { inject, injectable } from 'inversify';
-import {difference, isNumber, isString, pick, PartialDeep, cloneDeep, isEmpty, isArray, omit }  from 'lodash';
+import { cloneDeep, difference, isArray, isEmpty, isNumber, isString, omit, PartialDeep, pick, uniq } from 'lodash';
 import * as moment from 'moment-timezone';
 
 import { IChartMetadata } from '../app_modules/charts/queries/charts/chart-metadata';
@@ -12,9 +13,11 @@ import {
 import { IObject } from '../app_modules/shared/criteria.plugin';
 import { CurrentUser } from '../domain/app/current-user';
 import { Logger } from '../domain/app/logger';
+import { TargetsNew } from '../domain/app/targetsNew/target.model';
 import { VirtualSources } from '../domain/app/virtual-sources/virtual-source.model';
-import {chartTopLimit, IChartTop, isNestedArray} from '../domain/common/top-n-record';
-import {ChartAttributesInput} from './../app_modules/charts/charts.types';
+import { chartTopLimit, IChartTop, isNestedArray } from '../domain/common/top-n-record';
+import { dataSortDesc } from '../helpers/number.helpers';
+import { ChartAttributesInput } from './../app_modules/charts/charts.types';
 import { ChartFactory } from './../app_modules/charts/queries/charts/chart-factory';
 import { IUIChart, NULL_CATEGORY_REPLACEMENT } from './../app_modules/charts/queries/charts/ui-chart-base';
 import { DateRangeHelper } from './../app_modules/date-ranges/queries/date-range.helper';
@@ -33,12 +36,8 @@ import {
     PredefinedTargetPeriod,
     processDateRangeWithTimezone,
 } from './../domain/common/date-range';
-import {FrequencyEnum, FrequencyTable} from './../domain/common/frequency-enum';
+import { FrequencyEnum, FrequencyTable } from './../domain/common/frequency-enum';
 import { TargetService } from './target.service';
-import {dataSortDesc} from '../helpers/number.helpers';
-import { TargetsNew } from '../domain/app/targetsNew/target.model';
-import { ChartDateRangeInput } from '../app_modules/shared/shared.types';
-import * as Bluebird from 'bluebird';
 
 export interface IRenderChartOptions {
     chartId?: string;
@@ -90,153 +89,155 @@ export class ChartsService {
     async renderDefinition(chart: IChart, options?: IRenderChartOptions): Promise<any> {
         try {
             if (!chart) {
-                throw new Error('missing parameter');
+                throw new Error('chart info is missing');
             }
 
-            const uiChart = this._chartFactory.getInstance(chart);
-            const groupings = this._prepareGroupings(chart, options);
-            const kpi = await this._kpiFactory.getInstance(chart.kpis[0]);
+            const definitions = chart.kpis.map(async k => {
+                if (!k.kpi) { return null; }
 
-            const meta: IChartMetadata = {
-                filter: options && options.filter || chart.filter,
-                frequency: FrequencyTable[options && options.frequency || chart.frequency],
-                groupings: groupings,
-                comparison: options && options.comparison || chart.comparison,
-                xAxisSource: options && options.xAxisSource || chart.xAxisSource,
-                dateRange: (options && !options.isFutureTarget && options.dateRange) || chart.dateRange || null,
-                top: (options && options.top) || chart.top,
-                isDrillDown: options && options.isDrillDown || false,
-                isFutureTarget: options && options.isFutureTarget || false,
-                sortingCriteria: chart.sortingCriteria,
-                sortingOrder: chart.sortingOrder,
-                originalFrequency: (options && options.originalFrequency) ? FrequencyTable[options.originalFrequency] : -1,
-                onTheFly: (options ? options.onTheFly : false),
-            };
+                const c = cloneDeep(chart);
+                c.chartDefinition.chart.type = k.type;
+                c.chartDefinition.chart.kpi = k.kpi.name;
 
-            chart.targetExtraPeriodOptions = this._getTargetExtraPeriodOptions(meta.frequency, chart.dateRange);
-            chart.canAddTarget = this._canAddTarget(meta.dateRange);
+                c.kpis = [k];
 
-            // lets fill the comparison options for this chart if only if its not a comparison chart already
-            const isComparisonChart = !chart.comparison || !chart.comparison.length;
-            if (isComparisonChart) {
-                chart.availableComparison = DateRangeHelper.getComparisonItemsForDateRangeIdentifier(chart.dateRange[0].predefined || 'custom')
-                                                            .map(item => item.key);
-            }
+                const uiChart = this._chartFactory.getInstance(c);
+                const groupings = this._prepareGroupings(c, options);
+                const kpi = await this._kpiFactory.getInstance(c.kpis[0].kpi);
 
-            // get top n if have necessary data
-            if (meta.groupings &&
-                meta.groupings.length &&
-                meta.top &&
-                (meta.top.predefined || meta.top.custom)) {
-                    const topNData: any[] = await this._getTopByGrouping(meta, kpi);
+                const meta: IChartMetadata = {
+                    filter: options && options.filter || c.filter,
+                    frequency: FrequencyTable[options && options.frequency || c.frequency],
+                    groupings: groupings,
+                    comparison: options && options.comparison || c.comparison,
+                    xAxisSource: options && options.xAxisSource || c.xAxisSource,
+                    dateRange: (options && !options.isFutureTarget && options.dateRange) || c.dateRange || null,
+                    top: (options && options.top) || c.top,
+                    isDrillDown: options && options.isDrillDown || false,
+                    isFutureTarget: options && options.isFutureTarget || false,
+                    sortingCriteria: c.sortingCriteria,
+                    sortingOrder: c.sortingOrder,
+                    originalFrequency: (options && options.originalFrequency) ? FrequencyTable[options.originalFrequency] : -1,
+                    onTheFly: (options ? options.onTheFly : false),
+                };
 
-                    const groupByField: string = camelCase(meta.groupings[0]);
-                    const checkTopGroupings = topNData.map(d => d._id[groupByField] || NULL_CATEGORY_REPLACEMENT);
+                chart.targetExtraPeriodOptions = this._getTargetExtraPeriodOptions(meta.frequency, chart.dateRange);
+                chart.canAddTarget = this._canAddTarget(meta.dateRange);
 
-                    meta.includeTopGroupingValues = topNData.map(d => {
-                        return d._id[groupByField] ||
-                              (
-                                  isNestedArray(checkTopGroupings) ?
-                                  [NULL_CATEGORY_REPLACEMENT] : NULL_CATEGORY_REPLACEMENT
-                              );
-                    });
+                // lets fill the comparison options for this chart if only if its not a comparison chart already
+                const isComparisonChart = !c.comparison || !c.comparison.length;
+                if (isComparisonChart) {
+                    c.availableComparison = DateRangeHelper.getComparisonItemsForDateRangeIdentifier(c.dateRange[0].predefined || 'custom')
+                                                                .map(item => item.key);
+                }
 
+                // get top n if have necessary data
+                if (meta.groupings &&
+                    meta.groupings.length &&
+                    meta.top &&
+                    (meta.top.predefined || meta.top.custom)) {
+                        const topNData: any[] = await this._getTopByGrouping(meta, kpi);
+
+                        const groupByField: string = camelCase(meta.groupings[0]);
+                        const checkTopGroupings = topNData.map(d => d._id[groupByField] || NULL_CATEGORY_REPLACEMENT);
+
+                        meta.includeTopGroupingValues = topNData.map(d => {
+                            return d._id[groupByField] ||
+                                (
+                                    isNestedArray(checkTopGroupings) ?
+                                    [NULL_CATEGORY_REPLACEMENT] : NULL_CATEGORY_REPLACEMENT
+                                );
+                        });
+
+                        if (!meta.isDrillDown && options && options.chartId) {
+                            return this._renderRegularDefinition(options.chartId, kpi, uiChart, meta);
+                        }
+
+                        return this._renderPreviewDefinition(kpi, uiChart, meta);
+                } else {
                     if (!meta.isDrillDown && options && options.chartId) {
                         return this._renderRegularDefinition(options.chartId, kpi, uiChart, meta);
                     }
 
                     return this._renderPreviewDefinition(kpi, uiChart, meta);
-            } else {
-                if (!meta.isDrillDown && options && options.chartId) {
-                    return this._renderRegularDefinition(options.chartId, kpi, uiChart, meta);
                 }
+            });
 
-                return this._renderPreviewDefinition(kpi, uiChart, meta);
-            }
+            return Promise.all(definitions).then(res => this._mergeDefinitions(res));
+            // return this._mergeDefinitions(definitions);
+
         } catch (e) {
             console.error('There was an error rendering chart definition', e);
             return null;
         }
     }
 
-    public getChart(chart: any): Promise<IChart>;
-    public getChart(id: string, input?: IChartInput): Promise<IChart>;
-    public getChart(idOrChart: string, input?: IChartInput): Promise<IChart> {
-        // in order for this query to make sense I need either a chart definition or an id
-        if (!idOrChart && !input) {
-            return Promise.reject('An id or a chart definition is needed');
-        }
+    async getChart(chart: any): Promise<IChart>;
+    async getChart(id: string, input?: IChartInput): Promise<IChart>;
+    async getChart(idOrChart: string, input?: IChartInput): Promise<IChart> {
+        try {
+            // in order for this query to make sense I need either a chart definition or an id
+            if (!idOrChart && !input) {
+                throw new Error('An id or a chart definition is needed');
+            }
 
-        let chart = null;
+            input = input || {} as any;
+            let chart = !isString(idOrChart)
+                ? idOrChart : await this.getChartById(idOrChart);
 
-        if (!isString(idOrChart)) {
-            chart = idOrChart;
-        }
-
-        let chartPromise = chart ?
-                Promise.resolve(<IChart>chart)
-                : this.getChartById(idOrChart);
-
-        const that = this;
-        if (idOrChart && (typeof idOrChart === 'string')) {
-            if (!input) {
-                (<any>input) = {};
-                (<any>input).chartId = idOrChart;
-            } else {
+            if (typeof idOrChart === 'string') {
                 (<any>input).chartId = idOrChart;
             }
+
+            if (input && input.dateRange) {
+                // update dateRange, frequency, grouping, isDrillDown
+                // use case: change daterange and frequency in chart view of dashboard
+                const chartOptions: PartialDeep<IChartInput> = pick(input,
+                            ['dateRange', 'frequency', 'groupings', 'isDrillDown', 'xAxisSource', 'comparison']
+                );
+                Object.assign(chart, chartOptions);
+            }
+
+            const definition = await this.renderDefinition(chart, input as any);
+            // chart.chartDefinition = definition;
+            const originalDefinitionSeries = cloneDeep(chart.chartDefinition.series);
+
+            chart.chartDefinition = this._setSeriesVisibility(originalDefinitionSeries, definition);
+            chart.chartDefinition = this._addSerieColorToDefinition(originalDefinitionSeries, definition);
+
+            return chart;
+        } catch (e) {
+            this._logger.error(e);
+            throw e;
         }
-        return new Promise<IChart>((resolve, reject) => {
-            chartPromise.then(chart => {
-                if (input && input.dateRange) {
-                    // update dateRange, frequency, grouping, isDrillDown
-                    // use case: change daterange and frequency in chart view of dashboard
-                    const chartOptions: PartialDeep<IChartInput> = pick(input,
-                                ['dateRange', 'frequency', 'groupings', 'isDrillDown', 'xAxisSource', 'comparison']
-                    );
-                    Object.assign(chart, chartOptions);
-                }
-                that.renderDefinition(chart, input as any).then(definition => {
-                    // chart.chartDefinition = definition;
-                    const originalDefinitionSeries = cloneDeep(chart.chartDefinition.series);
-
-                    chart.chartDefinition = this._setSeriesVisibility(originalDefinitionSeries, definition);
-                    chart.chartDefinition = this._addSerieColorToDefinition(originalDefinitionSeries, definition);
-                    resolve(chart);
-                    return;
-                });
-            })
-            .catch(err => {
-                that._logger.error(err);
-                reject(err);
-            });
-        });
-
     }
 
-    public getChartById(id: string): Promise<IChart> {
-        const that = this;
-
-        return new Promise<IChart>((resolve, reject) => {
-            this._charts.model
+    public async getChartById(id: string): Promise<IChart> {
+        try {
+            const chart = await this._charts.model
                 .findOne({ _id: id })
-                .populate({
-                    path: 'kpis',
-                }).then(chartDocument => {
-                    if (!chartDocument) {
-                        reject({ field: 'id', errors: ['Chart not found']});
-                        return;
-                    }
-                    that._resolveDashboards(chartDocument).then((dashboards) => {
-                        const chart: any = chartDocument.toObject();
-                        chart.dashboards = dashboards;
+                .populate({ path: 'kpis.kpi' })
+                .lean()
+                .exec() as IChart;
 
-                        resolve(chart);
-                        return;
-                    });
-                })
-                .catch(e => reject(e));
-        });
+            if (!chart) {
+                throw { field: 'id', errors: ['Chart not found']};
+            }
+
+            // const kpis = await this._kpis.model.find({ _id: chart.kpis.map(k => k.kpi) }).lean().exec() as IKPI[];
+            // // attach kpis to chart document
+            // chart.kpis.forEach(k => {
+            //     k.kpi = kpis.find(kpiDoc => kpiDoc._id.toString() === k.kpi);
+            // });
+
+            const dashboards = await this._resolveDashboards(chart);
+            // const chart: any = chartDocument.toObject();
+            chart.dashboards = dashboards;
+
+            return chart;
+        } catch (e) {
+            throw e;
+        }
     }
 
     public listCharts(): Promise<IChart[]> {
@@ -244,8 +245,9 @@ export class ChartsService {
         return new Promise<IChart[]>((resolve, reject) => {
             that._charts.model
             .find({}).populate({path: 'createdBy', model: 'User'}).populate({path: 'updatedBy', model: 'User'})
-            .then(chartDocuments => {
-                const charList =  Bluebird.map(chartDocuments, async (k) => {
+            .lean()
+            .then((chartDocuments: IChart[]) => {
+                resolve(chartDocuments.map((k) => {
                     const firstNameCreated = k.createdBy.profile.firstName;
                     const midleNameCreated = k.createdBy.profile.middleName;
                     const lastNameCreated = k.createdBy.profile.lastName;
@@ -258,8 +260,7 @@ export class ChartsService {
                     k.updatedBy = updatedBy;
 
                     return k;
-                });
-                return resolve(chartDocuments);
+                }));
             })
             .catch(err => {
                 return reject(err);
@@ -296,15 +297,20 @@ export class ChartsService {
 
     public async previewChart(input: ChartAttributesInput): Promise<IChart> {
         try {
-            const kpi = await this._kpis.model.findOne({ _id: input.kpis[0]});
+            // const kpi = await this._kpis.model.findOne({ _id: input.kpis[0]});
             const chart = <any>{ ... input };
             const parseDefinition = JSON.parse(input.chartDefinition);
             const originalDefinitionSeries = cloneDeep(parseDefinition.series);
 
             chart.chartDefinition = parseDefinition;
-            chart.kpis[0] = kpi;
+
+            const kpis = await this._kpis.model.find({ _id: { $in: input.kpis.map(k => k.kpi) } });
+            chart.kpis.forEach(ik => {
+                ik.kpi = kpis.find(k => k.id === ik.kpi);
+            });
+
             const definition = await this.renderDefinition(chart);
-            // chart.chartDefinition = definition;
+
             chart.chartDefinition = this._setSeriesVisibility(originalDefinitionSeries, definition);
             chart.chartDefinition = this._addSerieColorToDefinition(originalDefinitionSeries, definition);
 
@@ -317,7 +323,7 @@ export class ChartsService {
 
     public async createChart(input: IChartInput): Promise<IChart> {
         try {
-            const kpis = await this._kpis.model.find({ _id: { $in: input.kpis }});
+            const kpis = await this._kpis.model.find({ _id: { $in: input.kpis.map(k => k.kpi) }});
 
             if (!kpis || kpis.length !== input.kpis.length) {
                 this._logger.error('one or more kpi not found');
@@ -380,7 +386,7 @@ export class ChartsService {
             // resolve kpis
             that._kpis
                 .model
-                .find({ _id: { $in: input.kpis }})
+                .find({ _id: { $in: input.kpis.map(k => k.kpi) }})
                 .then((kpis) => {
                 if (!kpis || kpis.length !== input.kpis.length) {
                     that._logger.error('one or more kpi not found:' + id);
@@ -518,15 +524,6 @@ export class ChartsService {
     private _getTopDateRange(dateRange: IChartDateRange[]): IDateRange {
         return processDateRangeWithTimezone(dateRange[0], this._currentUser.get().profile.timezone);
     }
-
-    // private _getTopDateRange(dateRange: IChartDateRange[]): IDateRange {
-    //     return dateRange[0].custom && dateRange[0].custom.from ?
-    //             {
-    //                 from: moment(dateRange[0].custom.from).startOf('day').toDate(),
-    //                 to: moment(dateRange[0].custom.to).endOf('day').toDate()
-    //             }
-    //             : parsePredefinedDateOld(dateRange[0].predefined);
-    // }
 
     private _getTargetExtraPeriodOptions(frequency: number, chartDateRange?: IChartDateRange[]): IObject {
         if (!isNumber(frequency) && !isEmpty(chartDateRange)) {
@@ -685,5 +682,60 @@ export class ChartsService {
             }
         }
         return chartData;
+    }
+
+    private _mergeDefinitions(definitions: any[]) {
+        if (definitions.length === 1) {
+            return definitions[0];
+        }
+
+        // filter only definitions with series
+        definitions = definitions.filter(d => !!d.series);
+
+        // pick one definition as master
+        const def = cloneDeep(definitions[0]);
+
+        if (!def) {
+            return;
+        }
+
+        // get unique list of categories
+        def.xAxis.categories = uniq([].concat(...definitions.map(d => d.xAxis.categories)));
+
+        // combined serie names with empty data array to cover the category array
+        def.series = [].concat(...definitions.map(d => d.series.map(s => ({
+                name: s.name,
+                kpiName: d.chart.kpi,
+                type: d.chart.type,
+                data: new Array(def.xAxis.categories.length)
+            })
+        )));
+
+        def.xAxis.categories.forEach((c, idx) => {
+            definitions.filter(d => !!d.series).forEach(d => {
+                d.series.forEach(s => {
+                    // get final chart serie
+                    const finalSerie = def.series.find(ser => ser.name === s.name);
+
+                    if (!finalSerie) { return; }
+                    // get category index for this chart definition so can put the value in the
+                    // right index in the final chart
+                    const categoryIndex = d.xAxis.categories.findIndex(cat => cat === c);
+
+                    if (categoryIndex !== -1 && s) {
+                        // put the category value in the right index
+                        finalSerie.data[idx] = s.data[categoryIndex];
+                    }
+                });
+            });
+        });
+
+        // add kpi name to series
+        def.series.forEach(s => {
+            s.name += ` [${s.kpiName}]`;
+            delete(s.kpiName);
+        });
+
+        return def;
     }
 }

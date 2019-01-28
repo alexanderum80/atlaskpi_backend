@@ -1,3 +1,4 @@
+import { IDataEntryInput } from './../../../app_modules/data-entry/data-entry.types';
 import * as mongoose from 'mongoose';
 import { DataSourceField, DataSourceResponse } from '../../../app_modules/data-sources/data-sources.types';
 import { IValueName } from '../../common/value-name';
@@ -8,6 +9,7 @@ export interface IFieldMetadata {
     path: string;
     dataType: string;
     allowGrouping?: boolean;
+    sourceOrigin?: string;
 }
 
 export interface IVirtualSourceFields {
@@ -38,6 +40,9 @@ export interface IVirtualSource {
     fieldsMap: IVirtualSourceFields;
     externalSource?: boolean;
     filterOperators?: IDataTypeFilters;
+    dataEntry: boolean;
+    users: string[];
+    createdBy: string;
 }
 
 export class IVirtualSourceModelInput {
@@ -72,9 +77,12 @@ export interface IVirtualSourceDocument extends IVirtualSource, mongoose.Documen
 }
 
 export interface IVirtualSourceModel extends mongoose.Model<IVirtualSourceDocument> {
-    addDataSources(data: IVirtualSource): Promise<IVirtualSourceDocument>;
+    addDataSources(data: any): Promise<IVirtualSourceDocument>;
     removeDataSources(name: string): Promise<IVirtualSourceDocument>;
     getDataSources(names?: string[]): Promise<DataSourceResponse[]>;
+    getDataEntry(userId: string): Promise<DataSourceResponse[]>;
     getDataSourceByName(name: string): Promise<IVirtualSourceDocument>;
+    getDataSourceById(id: string): Promise<IVirtualSourceDocument>;
     findByNames(names: string): Promise<IVirtualSourceDocument[]>;
+    transformFieldsToRealTypes(dataDocument: any, fieldsToMap );
 }

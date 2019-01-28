@@ -19,6 +19,7 @@ import * as jsep from 'jsep';
 import * as math from 'mathjs';
 import { IChartMetadata } from '../app_modules/charts/queries/charts/chart-metadata';
 import * as Bluebird from 'bluebird';
+import { IMap } from '../domain/app/maps/maps';
 
 export interface IMapMarker {
     name: string;
@@ -58,8 +59,9 @@ export class MapMarkerService {
             return new Promise<any[]>((resolve, reject) => {
                 that._maps.model
                 .find({}).populate({path: 'createdBy', model: 'User'}).populate({path: 'updatedBy', model: 'User'})
-                .then(mapDocuments => {
-                    const mapList =  Bluebird.map(mapDocuments, async (k) => {
+                .lean()
+                .then((mapDocuments: IMap[]) => {
+                    resolve(mapDocuments.map((k) => {
                         const firstNameCreated = k.createdBy.profile.firstName;
                         const midleNameCreated = k.createdBy.profile.middleName;
                         const lastNameCreated = k.createdBy.profile.lastName;
@@ -70,10 +72,9 @@ export class MapMarkerService {
                         const updatedBy = (firstNameUpdated ? firstNameUpdated + ' ' : '' ) + (lastNameUpdated ? lastNameUpdated + ' ' : '' );
                         k.createdBy = createdBy;
                         k.updatedBy = updatedBy;
-            
+
                         return k;
-                    });
-                    return resolve(mapDocuments);
+                    }));
                 })
                 .catch(err => {
                     return reject(err);

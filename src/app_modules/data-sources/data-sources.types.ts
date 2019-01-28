@@ -31,6 +31,14 @@ export class DataSourceFilterFieldsInput {
     fields: DataSourceFieldInput[];
 }
 
+@type()
+export class IMutationError {
+    @field({ type: String })
+    field: string;
+
+    @field({ type: String, isArray: true })
+    errors: string[];
+}
 
 @type()
 export class DataSourceField  {
@@ -48,6 +56,9 @@ export class DataSourceField  {
 
     @field({ type: GraphQLTypesMap.Boolean })
     available?: boolean;
+
+    @field({ type: GraphQLTypesMap.String })
+    sourceOrigin?: string;
 }
 
 @type()
@@ -77,9 +88,11 @@ export class DataTypeFilters {
     String: FilterOperator[];
 }
 
-
 @type()
 export class DataSourceResponse  {
+    @field({ type: GraphQLTypesMap.String })
+    _id?: string;
+
     @field({ type: GraphQLTypesMap.String })
     name: string;
 
@@ -100,6 +113,27 @@ export class DataSourceResponse  {
 
     @field({ type: GraphQLTypesMap.String, isArray: true})
     sources?: string[];
+
+    @field({ type: GraphQLTypesMap.Boolean })
+    dataEntry?: boolean;
+
+    @field({ type: GraphQLTypesMap.String, isArray: true })
+    users?: string[];
+
+    @field({ type: GraphQLTypesMap.String })
+    createdBy?: string;
+}
+
+@type()
+export class DataSourceMutationResponse extends DataSourceResponse {
+    @field({ type: GraphQLTypesMap.Boolean })
+    success?: boolean;
+
+    @field({ type: DataSourceResponse })
+    entity?: DataSourceResponse;
+
+    @field({ type: IMutationError, isArray: true })
+    errors?: IMutationError[];
 }
 
 @type()

@@ -27,7 +27,7 @@ export class KpiGroupingsQuery implements IQuery<IValueName[]> {
 
         const input = data.input;
 
-        if (!input.id || isEmpty(input.dateRange)) {
+        if (!input.ids || isEmpty(input.dateRange)) {
             return [];
         }
 

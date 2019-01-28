@@ -1,4 +1,3 @@
-import * as Promise from 'bluebird';
 import { inject, injectable } from 'inversify';
 
 import { IChart } from '../../../domain/app/charts/chart';
@@ -22,18 +21,6 @@ export class ListChartsQuery implements IQuery<IChart[]> {
     ) { }
 
     run(data: { }): Promise<IChart[]> {
-        const that = this;
-        return new Promise<IChart[]>((resolve, reject) => {
-            that._chartsService
-                .listCharts()
-                .then(charts => {
-                    resolve(charts);
-                    return;
-                })
-                .catch(err => {
-                    that._logger.error(err);
-                    reject(err);
-                });
-        });
+        return this._chartsService.listCharts();
     }
 }
