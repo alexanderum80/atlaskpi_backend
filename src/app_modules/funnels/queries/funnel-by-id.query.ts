@@ -5,18 +5,20 @@ import { IQuery } from '../../../framework/queries/query';
 import { ListFunnelActivity } from '../activities/list-funnel.activity';
 import { FunnelType } from '../funnels.types';
 import { Funnels } from '../../../domain/app/funnels/funnel.model';
+import { FunnelByIdActivity } from '../activities/funnel-by-id-activity';
 import { IFunnelDocument } from '../../../domain/app/funnels/funnel';
 
 @injectable()
 @query({
-    name: 'funnels',
-    activity: ListFunnelActivity,
-    output: { type: FunnelType, isArray: true }
+    name: 'funnelById',
+    activity: FunnelByIdActivity,
+    parameters: [ { name: 'id', type: String, required: true }],
+    output: { type: FunnelType }
 })
-export class FunnelListQuery implements IQuery<IFunnelDocument[]> {
+export class FunnelByIdQuery implements IQuery<IFunnelDocument> {
     constructor(@inject(Funnels.name) private _funnels: Funnels) { }
 
-    run(data: {}): Promise<IFunnelDocument[]> {
-        return this._funnels.model.listFunnels();
+    run(data: {id: string}): Promise<IFunnelDocument> {
+       return this._funnels.model.funnelById(data.id);
     }
 }

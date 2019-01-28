@@ -176,7 +176,7 @@ export class FunnelType  {
 
 
 @type()
-export class CreateFunnelResponse  {
+export class FunnelEntityResponse  {
     @field({ type: GraphQLTypesMap.Boolean })
     success: boolean;
 

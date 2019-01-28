@@ -63,11 +63,11 @@ FunnelSchema.statics.updateFunnel = async function(id: string, input: IFunnel): 
     if (!input) throw new Error('nothing to update');
 
     try {
-        const document = await model.findByIdAndUpdate(id, input);
+        const document = await model.findByIdAndUpdate(id, input, {new: true});
         return document;
     } catch (err) {
         console.log(err);
-        throw new Error('could not upudate the funnel');
+        throw new Error('could not update the funnel');
     }
 
 };
@@ -98,6 +98,20 @@ FunnelSchema.statics.listFunnels = async function(): Promise<IFunnelDocument[]> 
     } catch (err) {
         console.log(err);
         throw new Error('could not get the list of funnels');
+    }
+};
+
+FunnelSchema.statics.funnelById = async function(id: string): Promise<IFunnelDocument> {
+    const model = (<IFunnelModel>this);
+    try {
+        const funnel = await model.findOne({ _id: id });
+        if (!funnel) throw new Error('funnel not found');
+
+        return funnel;
+
+    } catch (err) {
+        console.log(err);
+        throw new Error('could not retrieve funnel');
     }
 };
 

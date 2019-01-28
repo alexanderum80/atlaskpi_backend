@@ -30,7 +30,9 @@ export interface IFunnelDocument extends IFunnel, mongoose.Document { }
 
 export interface IFunnelModel extends mongoose.Model<IFunnelDocument>, ISearchableModel {
     createFunnel(input: FunnelInput): Promise<IFunnelDocument>;
-    updateFunnel(id: string, input: IFunnel): Promise<IFunnelDocument>;
+    updateFunnel(id: string, input: FunnelInput): Promise<IFunnelDocument>;
     deleteFunnel(id: string): Promise<IFunnelDocument>;
     listFunnels(): Promise<IFunnelDocument[]>;
+    funnelById(id: string): Promise<IFunnelDocument>;
+
 }
