@@ -18,6 +18,7 @@ const ChartDateRangeSchema = {
 };
 
 const FunnelStageSchema = {
+    _id: { type: String, required: true },
     order: Number,
     name: String,
     kpi: String,
@@ -26,22 +27,19 @@ const FunnelStageSchema = {
     compareToStage: String,
     foreground: String,
     background: String,
-
-    createdBy: String,
-    updatedBy: String,
-    createdDate: Date,
-    updatedDate: Date
 };
 
 const FunnelSchema = new mongoose.Schema({
     name: { type: String, unique: true, required: true },
-    stages: [FunnelStageSchema]
+    stages: [FunnelStageSchema],
+    createdBy: String,
+    updatedBy: String,
+    createdDate: Date,
+    updatedDate: Date
 });
-
 
 FunnelSchema.plugin(tagsPlugin);
 FunnelSchema.plugin(searchPlugin);
-
 
 FunnelSchema.statics.createFunnel = async function(input: IFunnel): Promise<IFunnelDocument> {
     const model = (<IFunnelModel>this);

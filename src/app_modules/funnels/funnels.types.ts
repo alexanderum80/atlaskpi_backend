@@ -4,7 +4,8 @@ import { type } from '../../framework/decorators/type.decorator';
 import { resolver } from '../../framework/decorators/resolver.decorator';
 
 import { GraphQLTypesMap } from '../../framework/decorators/graphql-types-map';
-import { ChartDateRangeInput } from '../shared/shared.types';
+import { ChartDateRangeInput, ChartDateRange } from '../shared/shared.types';
+import { ErrorDetails } from '../../framework/graphql/common.types';
 
 @input()
 export class FunnelStageInput  {
@@ -46,6 +47,18 @@ export class FunnelInput  {
 
     @field({ type: FunnelStageInput, isArray: true })
     stages: FunnelStageInput[];
+
+    @field({ type: GraphQLTypesMap.String })
+    createdBy: string;
+
+    @field({ type: GraphQLTypesMap.Date })
+    createdDate: Date;
+
+    @field({ type: GraphQLTypesMap.String })
+    updatedBy: string;
+
+    @field({ type: GraphQLTypesMap.Date })
+    updatedDate: Date;
 }
 
 
@@ -105,20 +118,20 @@ export class RenderedFunnelType  {
 
 @type()
 export class FunnelStageType  {
-    @field({ type: GraphQLTypesMap.String, required: true })
+    @field({ type: GraphQLTypesMap.String })
     _id: string;
 
-    @field({ type: GraphQLTypesMap.Int, required: true })
+    @field({ type: GraphQLTypesMap.Int })
     order: number;
 
-    @field({ type: GraphQLTypesMap.String, required: true })
+    @field({ type: GraphQLTypesMap.String })
     name: string;
 
-    @field({ type: GraphQLTypesMap.String, required: true })
+    @field({ type: GraphQLTypesMap.String })
     kpi: string;
 
-    @field({ type: ChartDateRangeInput, required: true })
-    dateRange: ChartDateRangeInput;
+    @field({ type: ChartDateRange })
+    dateRange: ChartDateRange;
 
     @field({ type: GraphQLTypesMap.String, isArray: true })
     fieldsToProject: string;
@@ -126,10 +139,10 @@ export class FunnelStageType  {
     @field({ type: GraphQLTypesMap.String  })
     compareToStage: string;
 
-    @field({ type: GraphQLTypesMap.String, required: true })
+    @field({ type: GraphQLTypesMap.String })
     foreground: string;
 
-    @field({ type: GraphQLTypesMap.String, required: true })
+    @field({ type: GraphQLTypesMap.String, })
     background: string;
 }
 
@@ -137,10 +150,39 @@ export class FunnelStageType  {
 export class FunnelType  {
     @field({ type: GraphQLTypesMap.String })
     _id: string;
+    @resolver({ forField: '_id' })
+    static convertId(e) {
+        return e._id.toString();
+    }
 
-    @field({ type: GraphQLTypesMap.String, required: true })
+    @field({ type: GraphQLTypesMap.String })
     name: string;
 
-    @field({ type: FunnelStageInput, isArray: true })
-    stages: FunnelStageInput[];
+    @field({ type: FunnelStageType, isArray: true })
+    stages: FunnelStageType[];
+
+    @field({ type: GraphQLTypesMap.String })
+    createdBy: string;
+
+    @field({ type: GraphQLTypesMap.Date })
+    createdDate: Date;
+
+    @field({ type: GraphQLTypesMap.String })
+    updatedBy: string;
+
+    @field({ type: GraphQLTypesMap.Date })
+    updatedDate: Date;
+}
+
+
+@type()
+export class CreateFunnelResponse  {
+    @field({ type: GraphQLTypesMap.Boolean })
+    success: boolean;
+
+    @field({ type: FunnelType })
+    entity: FunnelType;
+
+    @field({ type: ErrorDetails, isArray: true })
+    errors: ErrorDetails[];
 }
