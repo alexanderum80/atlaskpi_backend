@@ -171,8 +171,6 @@ export class NewSeedService implements ISeedService {
             })
         );
 
-        // ->
-
         const userObjectCollections = ['kpis', 'charts', 'widgets', 'maps'];
 
         for (const col of userObjectCollections) {
