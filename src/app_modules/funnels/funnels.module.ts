@@ -4,11 +4,13 @@ import { CreateFunnelMutation } from './mutations/create-funnel.mutation';
 import { FunnelListQuery } from './queries/funnels.query';
 import { FunnelByIdQuery } from './queries/funnel-by-id.query';
 import { UpdateFunnelMutation } from './mutations/update-funnel.mutation';
+import { DeleteFunnelMutation } from './mutations/delete-funnel.mutation';
 
 @AppModule({
     mutations: [
         CreateFunnelMutation,
-        UpdateFunnelMutation
+        UpdateFunnelMutation,
+        DeleteFunnelMutation
     ],
     queries: [
         RenderFunnelByDefinitionQuery,

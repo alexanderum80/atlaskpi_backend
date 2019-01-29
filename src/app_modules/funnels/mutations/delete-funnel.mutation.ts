@@ -6,25 +6,25 @@ import { IMutationResponse } from '../../../framework/mutations/mutation-respons
 import { FunnelInput, FunnelEntityResponse } from '../funnels.types';
 import { Funnels } from '../../../domain/app/funnels/funnel.model';
 import { UpdateFunnelActivity } from '../activities/update-funnel.activity';
+import { DeleteFunnelActivity } from '../activities/delete-funnel.activity';
 
 @injectable()
 @mutation({
-    name: 'updateFunnel',
-    activity: UpdateFunnelActivity,
+    name: 'deleteFunnel',
+    activity: DeleteFunnelActivity,
     parameters: [
         { name: '_id', type: String, required: true },
-        { name: 'input', type: FunnelInput },
     ],
     output: { type: FunnelEntityResponse }
 })
-export class UpdateFunnelMutation extends MutationBase<IMutationResponse> {
+export class DeleteFunnelMutation extends MutationBase<IMutationResponse> {
     constructor(@inject(Funnels.name) private _funnels: Funnels) {
         super();
     }
 
-    async run(data: { _id: string, input: FunnelInput }): Promise<IMutationResponse> {
+    async run(data: { _id: string }): Promise<IMutationResponse> {
         try {
-            const funnel = await this._funnels.model.updateFunnel(data._id, data.input);
+            const funnel = await this._funnels.model.deleteFunnel(data._id);
             return { success: true, entity: funnel };
         } catch (err) {
             return {
@@ -32,7 +32,7 @@ export class UpdateFunnelMutation extends MutationBase<IMutationResponse> {
                 errors: [
                     {
                         field: 'funnel',
-                        errors: ['There was an error updating the funnel']
+                        errors: ['There was an error deleting the funnel']
                     }
                 ]
             };
