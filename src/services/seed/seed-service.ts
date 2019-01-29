@@ -39,25 +39,30 @@ export class NewSeedService implements ISeedService {
 
             const targetDb = client.db(targetDbName);
 
-            const copyResult = await this.copyData(client, targetDb, includeDemoData);
+            const copied = await this.copyData(client, targetDb, includeDemoData);
 
-            const migrationsCollection = this._newAccount.db.collection('migrations');
-
-            const migrations =
-                await migrationsCollection
-                        .find()
-                        .sort({ order: 1})
-                        .toArray();
-
-            const migrationResult =
-                await Bluebird.map(
-                            migrations,
-                            async(m) => this.runMigration(targetDb, m),
-                            { concurrency: 1}
-                );
+            const migrated = await this._runMigrations(targetDb);
 
             client.close();
-            return copyResult;
+            return copied && migrated;
+
+            // ------> MongoDB Atlas doesn't allow to run eval, we need to refactor this to use
+            // db.runCommand() https://docs.mongodb.com/manual/reference/method/db.runCommand/
+
+            // const migrationsCollection = this._newAccount.db.collection('migrations');
+
+            // const migrations =
+            //     await migrationsCollection
+            //             .find()
+            //             .sort({ order: 1})
+            //             .toArray();
+
+            // const migrationResult =
+            //     await Bluebird.map(
+            //                 migrations,
+            //                 async(m) => this.runMigration(targetDb, m),
+            //                 { concurrency: 1}
+            //     );
         } catch (e) {
             console.error('There was an error seeding new account', e);
             throw e;
@@ -140,17 +145,63 @@ export class NewSeedService implements ISeedService {
             });
         });
     }
-    private async runMigration(targetDb: Db, m: IMigration): Promise <boolean> {
-        console.log('running migration: ' + m.name);
 
-        try {
-            const res = await (<any>targetDb).eval(m.payload.code);
-            return true;
-        } catch (e) {
-            console.error('There was an error running migration: ' + m.name, e);
-            return false;
+
+    private async _runMigrations(targetDb: Db): Promise<boolean> {
+
+        const db = targetDb;
+
+        const now = new Date(Date.now());
+        const user = await db.collection('users').findOne({});
+        const userId = user._id.toString();
+
+        const promises = [];
+
+        // -> add Owner and metadata to dashboards
+        promises.push(
+            db.collection('dashboards').update({}, {
+                $set: {
+                    createdDate: now,
+                    updatedDate: now,
+                    owner: userId,
+                    updatedBy: userId,
+                }
+                }, {
+                multi: true
+            })
+        );
+
+        const userObjectCollections = ['kpis', 'charts', 'widgets', 'maps'];
+
+        for (const col of userObjectCollections) {
+            promises.push(
+                db.collection(col).update({}, {
+                    $set: {
+                        createdDate: now,
+                        updatedDate: now,
+                        createdBy: userId,
+                        updatedBy: userId,
+                    }
+                }, {
+                multi: true
+                })
+            );
         }
+
+        return Promise.all(promises).then(() => true).catch(err => false);
     }
+
+    // private async runMigration(targetDb: Db, m: IMigration): Promise <boolean> {
+    //     console.log('running migration: ' + m.name);
+
+    //     try {
+    //         const res = await (<any>targetDb).eval(m.payload.code);
+    //         return true;
+    //     } catch (e) {
+    //         console.error('There was an error running migration: ' + m.name, e);
+    //         return false;
+    //     }
+    // }
 
 
 }
