@@ -7,26 +7,24 @@ import { RenderFunnelByDefinitionActivity } from '../activities/render-funnel-by
 import { FunnelInput, RenderedFunnelType } from '../funnels.types';
 import { FunnelsService } from '../../../services/funnels.service';
 import { inject, injectable } from 'inversify';
+import { RenderFunnelByIdActivity } from '../activities/render-funnel-by-id.activity';
 
 @injectable()
 @query({
-    name: 'renderFunnelByDefinition',
-    activity: RenderFunnelByDefinitionActivity,
-    parameters: [
-        { name: 'input', type: FunnelInput, required: true },
-    ],
+    name: 'renderFunnelById',
+    activity: RenderFunnelByIdActivity,
+    parameters: [ { name: 'id', type: String, required: true }],
     output: { type: RenderedFunnelType }
 })
-export class RenderFunnelByDefinitionQuery implements IQuery<RenderedFunnelType> {
+export class RenderFunnelByIdQuery implements IQuery<RenderedFunnelType> {
     constructor(
         @inject(FunnelsService.name) private _funnelsService: FunnelsService,
         @inject(Logger.name) private _logger: Logger
     ) { }
 
-    async run(data: { input: FunnelInput }): Promise<RenderedFunnelType> {
+    async run(data: { id: string }): Promise<RenderedFunnelType> {
         try {
-            const funnel = await this._funnelsService.renderByDefinition(data.input);
-            return funnel;
+            return await this._funnelsService.renderById(data.id);
         } catch (e) {
             this._logger.error(e);
             return null;

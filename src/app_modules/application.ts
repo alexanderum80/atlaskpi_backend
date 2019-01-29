@@ -1,4 +1,4 @@
-import { Alerts } from './../domain/app/alerts/alerts.model';
+import { Alerts } from '../domain/app/alerts/alerts.model';
 import { GoogleSpreadSheetModule } from './google-spreadsheet/google-spreadsheet.module';
 import { CallRailModule } from './integrations/callrail/callrail.module';
 import { AppModule, ModuleBase } from '../framework/decorators/app-module';

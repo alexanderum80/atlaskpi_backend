@@ -10,62 +10,8 @@ import { KPIs } from '../domain/app/kpis/kpi.model';
 import { IKPIDocument } from '../domain/app/kpis/kpi';
 import { ChartDateRangeInput } from '../app_modules/shared/shared.types';
 import * as Bluebird from 'bluebird';
+import { Funnels } from '../domain/app/funnels/funnel.model';
 
-const sampleFunnel: any = {
-    _id: '1',
-    name: 'Inquires to Surgery Pipeline',
-    stages: [
-      {
-        _id: '1',
-        order: 1,
-        name: 'Inquires',
-        count: 100,
-        amount: 1000000,
-        foreground: '#fff',
-        background: '#FF3D00',
-      },
-      {
-        _id: '2',
-        order: 2,
-        name: 'Scheduled Consults',
-        count: 60,
-        amount: 350000,
-        foreground: '#fff',
-        background: '#FF6F00',
-      },
-      {
-        _id: '3',
-        order: 3,
-        name: 'Completed Consults',
-        count: 50,
-        amount: 320000,
-        foreground: '#fff',
-        background: '#FFC107',
-      },
-      {
-        _id: '4',
-        order: 4,
-        name: 'Scheduled Surgeries',
-        count: 33,
-        amount: 320000,
-        foreground: '#fff',
-        background: '#4CAF50',
-        compareToStageName: 'Completed Consults',
-        compareToStageValue: 65
-      },
-      {
-        _id: '5',
-        order: 5,
-        name: 'Completed Surgeries',
-        count: 30,
-        amount: 192000,
-        foreground: '#fff',
-        background: '#304FFE',
-        compareToStageName: 'Completed Consults',
-        compareToStageValue: 60
-      },
-    ]
-  };
 
 interface IStageData {
   _id: string;
@@ -82,6 +28,7 @@ export class FunnelsService {
         @inject(Logger.name) private _logger: Logger,
         @inject(KpiFactory.name) private _kpiFactory: KpiFactory,
         @inject(KPIs.name) private _kpis: KPIs,
+        @inject(Funnels.name) private _funnels: Funnels,
     ) {
       this._timezone = this._currentUser.get().profile.timezone;
     }
@@ -142,6 +89,19 @@ export class FunnelsService {
         };
 
       return rendered;
+    }
+
+    public async renderById(_id: string): Promise<RenderedFunnelType> {
+      try {
+        const document = await this._funnels.model.findOne({ _id});
+
+        if (!document) throw new Error('funnel not found');
+
+        return await this.renderByDefinition(document.toObject());
+      } catch (err) {
+        this._logger.error(err);
+        throw err;
+      }
     }
 
     private async _calcStageData(stage: FunnelStageInput): Promise<IStageData> {
