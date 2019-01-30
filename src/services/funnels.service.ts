@@ -168,7 +168,7 @@ export class FunnelsService {
         // in this method we modify the expression to get the count of customers
         const kpiObject = kpiDocument.toObject();
 
-        kpiObject.expression = 'count(appointments.customer.externalId)';
+        kpiObject.expression = kpiObject.expression.replace('sum(', 'count(');
 
         const kpi = await this._kpiFactory.getInstance(kpiObject);
         const dr = processDateRangeWithTimezone(dateRange, this._timezone);
