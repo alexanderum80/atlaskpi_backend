@@ -15,7 +15,7 @@ import { IKeyValues, IProcessAggregateResult, VirtualSourceAggregateService, Agg
 import { DateService } from './date/date-service';
 import { KPIFilterHelper } from '../domain/app/kpis/kpi-filter.helper';
 import { Schema } from 'mongoose';
-import { isEmpty } from 'lodash';
+import { isEmpty, sumBy, set } from 'lodash';
 
 export interface IReportColumn {
   name: string;
@@ -66,6 +66,11 @@ export class ReportService {
             const columns = this._getReportColumns(vs, [...fullPathFields, expression.field]);
             const rows = await this._getReportData(vs, parentVs, kpi, dateRange, columns);
 
+            // add a row with the total of the expression field
+            const totalRow = this._generateTotalRow(columns, rows, expression, fullPathFields);
+
+            rows.push(totalRow);
+
             return { columns, rows };
         } catch (err) {
             this._logger.error(err);
@@ -74,14 +79,18 @@ export class ReportService {
     }
 
 
-    private _getReportColumns(vs: IVirtualSourceDocument, fullPathFields: string[]): IReportColumn[] {
+    private _getReportColumns(vs: IVirtualSourceDocument, fields: string[]): IReportColumn[] {
         const columns = [];
 
-        for (const [key, value] of Object.entries(vs.fieldsMap)) {
-            if (!fullPathFields.some(path => path === value.path)) { continue; }
+        const sortedFields = Object.keys(vs.fieldsMap).sort();
+
+        for (let i = 0; i < sortedFields.length; i++) {
+            const value = vs.fieldsMap[sortedFields[i]];
+
+            if (!fields.some(path => path === value.path)) { continue; }
 
             const column: IReportColumn = {
-                name: key,
+                name: sortedFields[i],
                 path: value.path,
                 type: value.dataType
             };
@@ -158,7 +167,7 @@ export class ReportService {
         }
 
         // add the projection
-        const projectStage = { $project: { _id: null }};
+        const projectStage = { $project: { _id: 0 }};
 
         for (const column of columns) {
             projectStage.$project[column.path] = 1;
@@ -183,5 +192,19 @@ export class ReportService {
         }
     }
 
+    private _generateTotalRow(columns: IReportColumn[], rows: any[], expression: IKPISimpleDefinition, fullPathFields: string[], ): any {
+        const total = sumBy(rows, expression.field);
+        const lastColumn = columns[columns.length - 2];
 
+        let totalRow = { };
+
+        for (let i = 0; i < fullPathFields.length; i++) {
+            totalRow[fullPathFields[0]] = '';
+        }
+
+        set(totalRow, lastColumn.path, 'TOTAL');
+        set(totalRow, expression.field, total);
+
+        return totalRow;
+    }
 }
