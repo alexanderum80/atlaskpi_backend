@@ -6,6 +6,7 @@ import { resolver } from '../../framework/decorators/resolver.decorator';
 import { GraphQLTypesMap } from '../../framework/decorators/graphql-types-map';
 import { ChartDateRangeInput, ChartDateRange } from '../shared/shared.types';
 import { ErrorDetails } from '../../framework/graphql/common.types';
+import { IFunnelStageDetails } from '../../services/funnels.service';
 
 @input()
 export class FunnelStageInput  {
@@ -185,4 +186,29 @@ export class FunnelEntityResponse  {
 
     @field({ type: ErrorDetails, isArray: true })
     errors: ErrorDetails[];
+}
+
+@type()
+export class FunnelStageFieldType {
+    @field({ type: GraphQLTypesMap.String })
+    name: string;
+
+    @field({ type: GraphQLTypesMap.String })
+    path: string;
+
+    @field({ type: GraphQLTypesMap.String })
+    type: string;
+}
+
+@type()
+export class FunnelStageDetailsResponse  {
+    @field({ type: FunnelStageFieldType, isArray: true })
+    columns: FunnelStageFieldType[];
+
+    @field({ type: GraphQLTypesMap.String })
+    rows: string;
+    @resolver({ forField: 'rows' })
+    static resolverForData(entity: IFunnelStageDetails) {
+        return JSON.stringify(entity.rows);
+    }
 }

@@ -1,4 +1,3 @@
-
 import { CurrentUser } from '../domain/app/current-user';
 import { Logger } from '../domain/app/logger';
 import { VirtualSources } from '../domain/app/virtual-sources/virtual-source.model';
@@ -11,12 +10,24 @@ import { IKPIDocument } from '../domain/app/kpis/kpi';
 import { ChartDateRangeInput } from '../app_modules/shared/shared.types';
 import * as Bluebird from 'bluebird';
 import { Funnels } from '../domain/app/funnels/funnel.model';
+import { ReportService } from './report.service';
 
 
 interface IStageData {
   _id: string;
   count: number;
   amount: number;
+}
+
+export interface IFunnelStageField {
+  name: string;
+  path: string;
+  type: string;
+}
+
+export interface IFunnelStageDetails {
+  columns: IFunnelStageField[];
+  rows: any[];
 }
 
 @injectable()
@@ -29,12 +40,13 @@ export class FunnelsService {
         @inject(KpiFactory.name) private _kpiFactory: KpiFactory,
         @inject(KPIs.name) private _kpis: KPIs,
         @inject(Funnels.name) private _funnels: Funnels,
+        @inject(ReportService.name) private _reportService: ReportService,
     ) {
       this._timezone = this._currentUser.get().profile.timezone;
     }
 
     public async renderByDefinition(input: FunnelInput): Promise<RenderedFunnelType> {
-      const { name, stages } = input;
+      const { _id, name, stages } = input;
 
       const renderedStages: RenderedFunnelStageType[]  = [];
 
@@ -84,6 +96,7 @@ export class FunnelsService {
         }
 
         const rendered: RenderedFunnelType = {
+            _id,
             name,
             stages: renderedStages
         };
@@ -120,6 +133,35 @@ export class FunnelsService {
           amount,
           _id: stage._id,
         };
+    }
+
+    public async getStageDetails(funnelId: string, stageId: string): Promise<IFunnelStageDetails> {
+      try {
+        const funnelDoc = await this._funnels.model.findOne({ _id: funnelId });
+
+        if (!funnelDoc) throw new Error('funnel not found');
+
+        const foundStage = funnelDoc.stages.find(s => s._id === stageId);
+
+        if (!foundStage) throw new Error('stage not found in funnel');
+
+        const kpiDocument = await this._kpis.model.findOne({ _id: foundStage.kpi });
+
+        const report = await this._reportService.generateReport({
+          kpi: kpiDocument,
+          dateRange: foundStage.dateRange,
+          fullPathFields: foundStage.fieldsToProject
+        });
+
+        return { columns: report.columns, rows: report.rows };
+
+
+        return null;
+      } catch (err) {
+        this._logger.error(err);
+        throw err;
+      }
+      return null;
     }
 
     private async _calcStageCount(kpiDocument: IKPIDocument, dateRange: ChartDateRangeInput): Promise<number> {

@@ -6,6 +6,7 @@ import { FunnelByIdQuery } from './queries/funnel-by-id.query';
 import { UpdateFunnelMutation } from './mutations/update-funnel.mutation';
 import { DeleteFunnelMutation } from './mutations/delete-funnel.mutation';
 import { RenderFunnelByIdQuery } from './queries/render-funnel-by-id.query';
+import { FunnelStageDetailsQuery } from './queries/stage-details.query';
 
 @AppModule({
     mutations: [
@@ -17,7 +18,8 @@ import { RenderFunnelByIdQuery } from './queries/render-funnel-by-id.query';
         RenderFunnelByDefinitionQuery,
         FunnelListQuery,
         FunnelByIdQuery,
-        RenderFunnelByIdQuery
+        RenderFunnelByIdQuery,
+        FunnelStageDetailsQuery
     ],
 })
 export class FunnelsModule extends ModuleBase {}

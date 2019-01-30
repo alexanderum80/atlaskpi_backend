@@ -11,6 +11,17 @@ const keyMap = {
     __dot__: '.'
 };
 
+const replacementString = [
+    { key: '__dot__', value: '.' },
+    { key: '__dollar__', value: '$' }
+];
+
+function isRegExpOperator(operator: string): boolean {
+    const regexStrings = ['startWith', 'endWith', 'contains', 'regex'];
+
+    return regexStrings.indexOf(operator) !== -1;
+}
+
 export class KPIFilterHelper {
     static ComposeFilter(
         kpiType: KPITypeEnum,
@@ -252,6 +263,58 @@ export class KPIFilterHelper {
                                 operator: String(op).replace('$', ''),
                                 criteria: criteria
                             };
+    }
+
+    static cleanFilter(filter: any): any {
+        let newFilter = {};
+
+        if (isString(filter)) {
+            return filter;
+        }
+
+        Object.keys(filter).forEach(filterKey => {
+
+            let key = filterKey;
+            replacementString.forEach(r => key = key.replace(r.key, r.value));
+            let value = filter[filterKey];
+
+            if (!isArray(value) && !isDate(value) && isObject(value)) {
+                newFilter[key] = KPIFilterHelper.cleanFilter(value);
+            } else if (!isDate(value) && isArray(value)) {
+                for (let i = 0; i < value.length; i++) {
+                    value[i] = KPIFilterHelper.cleanFilter(value[i]);
+                }
+                newFilter[key] = value;
+            } else {
+                // apply filter
+                let filterValue = filter[filterKey];
+                const operatorName = filterKey.replace(/__dot__|__dollar__|\$/g, '');
+
+                if (isRegExpOperator(operatorName)) {
+                    // process filter value
+                    if (operatorName.indexOf('start') !== -1) {
+                        filterValue = '^' + filterValue;
+                    }
+
+                    if (operatorName.indexOf('end') !== -1) {
+                        filterValue = filterValue + '$';
+                    }
+
+                    key = '$regex';
+                    if (operatorName === 'regex') {
+                        value = new RegExp(filterValue);
+                    } else {
+                        value = new RegExp(filterValue, 'i');
+                    }
+                } else {
+                    value = filterValue;
+                }
+
+                newFilter[key] = value;
+            }
+        });
+
+        return newFilter;
     }
 
 }

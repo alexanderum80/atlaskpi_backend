@@ -35,6 +35,7 @@ import { KpiBase } from '../app_modules/kpis/queries/kpi-base';
 import { NotificationService } from './notifications/notification.service';
 import { PushNotifier } from './notifications/push-notifier.service';
 import { FunnelsService } from './funnels.service';
+import { ReportService } from './report.service';
 
 export function registerServices(container: IBridgeContainer) {
     container.registerSingleton(PnsService);
@@ -75,5 +76,5 @@ export function registerServices(container: IBridgeContainer) {
     container.registerPerWebRequest(NotificationService);
     container.registerPerWebRequest(PushNotifier);
     container.registerPerWebRequest(FunnelsService);
-
+    container.registerPerWebRequest(ReportService);
 }
