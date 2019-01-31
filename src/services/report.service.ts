@@ -63,7 +63,8 @@ export class ReportService {
             // it's ok if the parent virtual source is null, is handled inside _getReportDataMethod
             const parentVs = await this._virtualSources.model.findOne({ name: vs.source.toLowerCase() });
 
-            const columns = this._getReportColumns(vs, [...fullPathFields, expression.field]);
+            let columns = this._getReportColumns(vs, [...fullPathFields, expression.field]);
+            columns = this._moveAmountColumnToEnd(columns, expression.field);
             const rows = await this._getReportData(vs, parentVs, kpi, dateRange, columns);
 
             // add a row with the total of the expression field
@@ -215,5 +216,12 @@ export class ReportService {
         set(totalRow, expression.field, total);
 
         return totalRow;
+    }
+
+    private _moveAmountColumnToEnd(columns: IReportColumn[], amountField: string): IReportColumn[] {
+        return [
+            ...columns.filter(c => c.path !== amountField),
+            ...columns.filter(c => c.path === amountField)
+        ];
     }
 }
