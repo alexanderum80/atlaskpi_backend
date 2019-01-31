@@ -100,7 +100,13 @@ export const initialRoles  = {
             { action: 'Modify', subject: 'User' },
             { action: 'Delete', subject: 'User' },
             // smart bar
-            { action: 'View', subject: 'SmartBar' }
+            { action: 'View', subject: 'SmartBar' },
+
+            // funnel
+            { action: 'Create', subject: 'Funnel' },
+            { action: 'View', subject: 'Funnel' },
+            { action: 'Modify', subject: 'Funnel' },
+            { action: 'Delete', subject: 'Funnel' },
         ],
         semiAdmin: [
             // chart
@@ -196,7 +202,13 @@ export const initialRoles  = {
             { action: 'Modify', subject: 'User' },
             { action: 'Delete', subject: 'User' },
             // smart bar
-            { action: 'View', subject: 'SmartBar' }
+            { action: 'View', subject: 'SmartBar' },
+
+            // funnel
+            { action: 'Create', subject: 'Funnel' },
+            { action: 'View', subject: 'Funnel' },
+            { action: 'Modify', subject: 'Funnel' },
+            { action: 'Delete', subject: 'Funnel' },
         ],
         manager: [
             // chart
@@ -272,7 +284,12 @@ export const initialRoles  = {
             { action: 'View', subject: 'User' },
             { action: 'Modify', subject: 'User' },
             // smart bar
-            { action: 'View', subject: 'SmartBar' }
+            { action: 'View', subject: 'SmartBar' },
+
+            // funnel
+            { action: 'Create', subject: 'Funnel' },
+            { action: 'View', subject: 'Funnel' },
+            { action: 'Modify', subject: 'Funnel' },
         ],
         supervisor: [
             // chart
@@ -333,7 +350,11 @@ export const initialRoles  = {
             { action: 'View', subject: 'User' },
             { action: 'Modify', subject: 'User' },
             // smart bar
-            { action: 'View', subject: 'SmartBar' }
+            { action: 'View', subject: 'SmartBar' },
+
+            // funnel
+            { action: 'Create', subject: 'Funnel' },
+            { action: 'View', subject: 'Funnel' },
         ],
         externalUser: [
           // chart
@@ -348,7 +369,10 @@ export const initialRoles  = {
             // widgets
             { action: 'View', subject: 'Widget' },
             // slideshow
-            { action: 'View', subject: 'Slideshow' }
+            { action: 'View', subject: 'Slideshow' },
+
+            // funnel
+            { action: 'View', subject: 'Funnel' },
         ],
         viewer: [
             // chart
@@ -369,7 +393,9 @@ export const initialRoles  = {
             // employee
             { action: 'View', subject: 'Employee' },
             // slideshow
-            { action: 'View', subject: 'Slideshow' }
+            { action: 'View', subject: 'Slideshow' },
+            // funnel
+            { action: 'View', subject: 'Funnel' },
         ]
 };
 
@@ -708,5 +734,27 @@ export const allPermissions = [
   {
     'action': 'ChangeSettingsOnFly',
     'subject': 'Chart'
-  }
+  },
+
+
+  // FUNNEL
+  {
+    'action': 'Create',
+    'subject': 'Funnel'
+  },
+  {
+    'action': 'View',
+    'subject': 'Funnel'
+  },
+  {
+    'action': 'Modify',
+    'subject': 'Funnel'
+  },
+  {
+    'action': 'Delete',
+    'subject': 'Funnel'
+  },
+
+
+
 ];

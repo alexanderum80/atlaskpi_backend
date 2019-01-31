@@ -41,6 +41,7 @@ import { ScheduleJobs } from './schedule-job/schedule-job.model';
 import { Maps } from './maps/maps.model';
 import { TargetsNew } from './targetsNew/target.model';
 import { ProjectedIncomes } from './projected-income/projected-income.model';
+import { Funnels } from './funnels/funnel.model';
 
 // import { ChartFormats } from './chart-formats/chart-format.model';
 interface IRegistrationInfo {
@@ -88,7 +89,8 @@ const registrations: any[] = [
     ScheduleJobs,
     TargetsNew,
     ProjectedIncomes,
-    CustomList
+    CustomList,
+    Funnels
 ];
 
 export function registerAppModels(container: IBridgeContainer) {

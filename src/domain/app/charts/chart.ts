@@ -3,7 +3,6 @@ import * as mongoose from 'mongoose';
 
 import { IObject } from '../../../app_modules/shared/criteria.plugin';
 import { ChartDateRangeInput } from '../../../app_modules/shared/shared.types';
-import { input } from '../../../framework/decorators/input.decorator';
 import { IChartDateRange } from '../../common/date-range';
 import { IChartTop } from '../../common/top-n-record';
 import { IDashboardDocument } from '../dashboards/dashboard';
