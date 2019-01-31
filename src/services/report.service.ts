@@ -153,16 +153,25 @@ export class ReportService {
         const reportAggregate: AggregateStage[]  =  [];
 
 
+        const matchStage = { $match: {}};
+
+        if (!dateRangeApplied) {
+            matchStage.$match[vs.dateField] = {
+                '$gte':  parsedDateRange.from,
+                '$lt':   parsedDateRange.to
+            };
+        }
+
         // add the filters if any
         const filters = kpi.filter && KPIFilterHelper.cleanFilter(kpi.filter);
 
         if (!isEmpty(filters)) {
-            const matchStage = { $match: {}};
-
             for (const [k, v] of Object.entries(filters)) {
                 matchStage.$match[k] = v;
             }
+        }
 
+        if (!dateRangeApplied || !isEmpty(filters)) {
             reportAggregate.push(matchStage);
         }
 
