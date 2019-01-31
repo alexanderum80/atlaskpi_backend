@@ -248,14 +248,24 @@ export class ChartsService {
             .lean()
             .then((chartDocuments: IChart[]) => {
                 resolve(chartDocuments.map((k) => {
+                    let  createdBy = "";
+                    let updatedBy = "";
+
+                    if(k.createdBy !== null) {
                     const firstNameCreated = k.createdBy.profile.firstName;
                     const midleNameCreated = k.createdBy.profile.middleName;
                     const lastNameCreated = k.createdBy.profile.lastName;
+                    
+                    createdBy = (firstNameCreated ? firstNameCreated + ' ' : '' ) + (midleNameCreated ? midleNameCreated + ' ' : '' ) + (lastNameCreated ? lastNameCreated  : '' );
+                    }
+
+                    if(k.updatedBy !== null){
                     const firstNameUpdated = k.updatedBy.profile.firstName;
                     const lastNameUpdated = k.updatedBy.profile.lastName;
 
-                    const createdBy = (firstNameCreated ? firstNameCreated + ' ' : '' ) + (midleNameCreated ? midleNameCreated + ' ' : '' ) + (lastNameCreated ? lastNameCreated  : '' );
-                    const updatedBy = (firstNameUpdated ? firstNameUpdated + ' ' : '' ) + (lastNameUpdated ? lastNameUpdated + ' ' : '' );
+                    updatedBy = (firstNameUpdated ? firstNameUpdated + ' ' : '' ) + (lastNameUpdated ? lastNameUpdated + ' ' : '' );
+                    }
+                    
                     k.createdBy = createdBy;
                     k.updatedBy = updatedBy;
 
