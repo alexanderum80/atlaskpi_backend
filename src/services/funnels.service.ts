@@ -80,11 +80,14 @@ export class FunnelsService {
 
               const foundTotalStage = renderedStages.find(s => s._id === inputStage.compareToStage);
               const thisRenderedStage = renderedStages.find(s => s._id === inputStage._id);
-              const percent =
+              let percent =
                 Math.floor(
                     ((thisRenderedStage.amount * 100) / foundTotalStage.amount)
                     * 100
                 ) / 100;
+
+              // handle infinity values
+              if (!Number.isFinite(percent)) percent = -1;
 
               thisRenderedStage.compareToStageValue = percent;
           });
@@ -162,6 +165,15 @@ export class FunnelsService {
         throw err;
       }
       return null;
+    }
+
+    public hasInvalidComparisonValues(rendered: RenderedFunnelType): Boolean {
+        for (const stage of rendered.stages) {
+          if (!stage.compareToStageValue) continue;
+          if (!Number.isFinite(stage.compareToStageValue)) return true;
+        }
+
+        return false;
     }
 
     private async _calcStageCount(kpiDocument: IKPIDocument, dateRange: ChartDateRangeInput): Promise<number> {
