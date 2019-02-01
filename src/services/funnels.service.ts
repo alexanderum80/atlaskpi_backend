@@ -166,16 +166,6 @@ export class FunnelsService {
       }
       return null;
     }
-
-    public hasInvalidComparisonValues(rendered: RenderedFunnelType): Boolean {
-        for (const stage of rendered.stages) {
-          if (!stage.compareToStageValue) continue;
-          if (!Number.isFinite(stage.compareToStageValue)) return true;
-        }
-
-        return false;
-    }
-
     private async _calcStageCount(kpiDocument: IKPIDocument, dateRange: ChartDateRangeInput): Promise<number> {
         // in this method we modify the expression to get the count of customers
         const kpiObject = kpiDocument.toObject();
