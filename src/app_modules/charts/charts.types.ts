@@ -36,6 +36,9 @@ export class GetChartInput  {
 
     @field({ type: GraphQLTypesMap.String})
     originalFrequency?: string;
+
+    @field({ type: GraphQLTypesMap.String})
+    kpiFilter?: string;
 }
 
 @input()

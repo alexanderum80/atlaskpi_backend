@@ -38,6 +38,8 @@ import {
 } from './../domain/common/date-range';
 import { FrequencyEnum, FrequencyTable } from './../domain/common/frequency-enum';
 import { TargetService } from './target.service';
+import { KPIFilterHelper } from '../domain/app/kpis/kpi-filter.helper';
+import { KPITypeMap } from '../domain/app/kpis/kpi';
 
 export interface IRenderChartOptions {
     chartId?: string;
@@ -52,6 +54,7 @@ export interface IRenderChartOptions {
     isDrillDown?: boolean;
     originalFrequency?: string;
     onTheFly: boolean;
+    kpiFilter?: string;
 }
 
 
@@ -104,6 +107,33 @@ export class ChartsService {
                 const uiChart = this._chartFactory.getInstance(c);
                 const groupings = this._prepareGroupings(c, options);
                 const kpi = await this._kpiFactory.getInstance(c.kpis[0].kpi);
+
+                if (options && options.kpiFilter) {
+                    const filter = JSON.parse(options.kpiFilter);
+                    const virtualSources = await this._virtualSources.model.find({});
+                    const kpiType = KPITypeMap[k.kpi.type];
+
+                    let expression: any;
+                    expression = {
+                        dataSource: k.kpi.type !== 'externalsource' ?
+                                    kpi['kpiVirtualSources'].virtualSource.source :
+                                    kpi['kpiVirtualSources'].virtualSource.name
+                    };
+                    const composedFilter = KPIFilterHelper.ComposeFilter(kpiType, virtualSources, JSON.stringify(expression), JSON.stringify(filter));
+                    if (k.kpi.type === 'externalsource') {
+                        kpi['_kpi'].filter = composedFilter;
+                    } else {
+                        kpi['kpi'].filter = composedFilter;
+                        const pristineFilterIndex = kpi['pristineAggregate'].findIndex(p => p.filter);
+                        let mongoDbFilterArray = filter.map(f => KPIFilterHelper.transform2MongoFilter(f, virtualSources, expression.dataSource));
+                        if (filter.length > 1) {
+                            kpi['pristineAggregate'][pristineFilterIndex].$match.$and = mongoDbFilterArray;
+                        } else {
+                            mongoDbFilterArray = mongoDbFilterArray[0];
+                            kpi['pristineAggregate'][pristineFilterIndex].$match = mongoDbFilterArray;
+                        }
+                    }
+                }
 
                 const meta: IChartMetadata = {
                     filter: options && options.filter || c.filter,
@@ -513,7 +543,7 @@ export class ChartsService {
             return data;
         }
 
-        const sortedData: any[] = data.sort(dataSortDesc);
+        const sortedData: any[] = data ? data.sort(dataSortDesc) : [];
 
         if (limit !== 1 && (groupings || groupings.length)) {
             limit = limit - 1;
