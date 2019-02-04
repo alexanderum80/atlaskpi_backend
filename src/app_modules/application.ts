@@ -1,4 +1,4 @@
-import { Alerts } from './../domain/app/alerts/alerts.model';
+import { Alerts } from '../domain/app/alerts/alerts.model';
 import { GoogleSpreadSheetModule } from './google-spreadsheet/google-spreadsheet.module';
 import { CallRailModule } from './integrations/callrail/callrail.module';
 import { AppModule, ModuleBase } from '../framework/decorators/app-module';
@@ -34,6 +34,7 @@ import { NotificationsModule } from './notifications/notifications.module';
 import { DataEntryModule } from './data-entry/data-entry.module';
 import { CustomListModule } from './custom-list/custom-list.module';
 import { ScheduleJobModule } from './schedule-jobs/scheduleJob.module';
+import { FunnelsModule } from './funnels/funnels.module';
 
 @AppModule({
     imports: [
@@ -70,7 +71,8 @@ import { ScheduleJobModule } from './schedule-jobs/scheduleJob.module';
         NotificationsModule,
         DataEntryModule,
         CustomListModule,
-        AlertsModule
+        AlertsModule,
+        FunnelsModule
     ]
 })
 export class AtlasApp extends ModuleBase { }
