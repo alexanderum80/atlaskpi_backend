@@ -1,43 +1,61 @@
-import { CurrentUser } from '../domain/app/current-user';
-import { DataSourceField } from './../app_modules/data-sources/data-sources.types';
 import * as Bluebird from 'bluebird';
 import { inject, injectable } from 'inversify';
 import { cloneDeep, intersectionBy, isArray, isDate, isEmpty, isObject, isString, pickBy, uniqBy } from 'lodash';
-import * as moment from 'moment';
-import * as mongoose from 'mongoose';
-import { DocumentQuery } from 'mongoose';
 
+import { FunnelStageKpiFieldType } from '../app_modules/funnels/funnels.types';
 import { KpiGroupingsInput } from '../app_modules/kpis/kpis.types';
 import { ChartDateRangeInput } from '../app_modules/shared/shared.types';
-import { IChartDocument, IChart } from '../domain/app/charts/chart';
+import { IChart } from '../domain/app/charts/chart';
 import { Charts } from '../domain/app/charts/chart.model';
+import { CurrentUser } from '../domain/app/current-user';
+import { IMap } from '../domain/app/dashboards/dashboard';
 import { IExpenseModel } from '../domain/app/expenses/expense';
 import { IInventoryModel } from '../domain/app/inventory/inventory';
-import { IDocumentExist, IKPI, IKPIDocument, IKPIFilter, KPITypeEnum, KPITypeMap } from '../domain/app/kpis/kpi';
+import {
+    IDocumentExist,
+    IKPI,
+    IKPIDocument,
+    IKPIFilter,
+    IKPISimpleDefinition,
+    KPITypeEnum,
+    KPITypeMap,
+} from '../domain/app/kpis/kpi';
 import { KPIExpressionHelper } from '../domain/app/kpis/kpi-expression.helper';
 import { KPIFilterHelper } from '../domain/app/kpis/kpi-filter.helper';
 import { KPIs } from '../domain/app/kpis/kpi.model';
+import { Maps } from '../domain/app/maps/maps.model';
 import { ISaleModel } from '../domain/app/sales/sale';
-import { IVirtualSourceDocument, IVirtualSource } from '../domain/app/virtual-sources/virtual-source';
-import { VirtualSources, mapDataSourceFields } from '../domain/app/virtual-sources/virtual-source.model';
-import { IWidgetDocument, IWidget } from '../domain/app/widgets/widget';
+import { Users } from '../domain/app/security/users/user.model';
+import { IVirtualSource, IVirtualSourceDocument } from '../domain/app/virtual-sources/virtual-source';
+import { mapDataSourceFields, VirtualSources } from '../domain/app/virtual-sources/virtual-source.model';
+import { IWidget } from '../domain/app/widgets/widget';
 import { Widgets } from '../domain/app/widgets/widget.model';
 import { processDateRangeWithTimezone } from '../domain/common/date-range';
 import { blackListDataSource, getFieldsWithData, IFieldsWithDataDatePipeline } from '../domain/common/fields-with-data';
 import { IValueName } from '../domain/common/value-name';
-import { IConnectorDocument, IConnector } from '../domain/master/connectors/connector';
+import { IConnector } from '../domain/master/connectors/connector';
 import { Connectors } from '../domain/master/connectors/connector.model';
 import { IMutationResponse } from '../framework/mutations/mutation-response';
+import { DataSourceField } from './../app_modules/data-sources/data-sources.types';
 import { DataSourcesService } from './data-sources.service';
-import { IMapDocument } from '../domain/app/maps/maps';
-import { Maps } from '../domain/app/maps/maps.model';
-import { Users } from '../domain/app/security/users/user.model';
-import { IMap } from '../domain/app/dashboards/dashboard';
+
+export interface ISimpleKPIElements {
+    dataSource: string;
+    aggField: string;
+    filters: any;
+}
 
 export interface IGroupingsModel {
     sales: ISaleModel;
     expenses: IExpenseModel;
     inventory: IInventoryModel;
+}
+
+export interface IFunnelStageField {
+    name: string;
+    path: string;
+    type: string;
+    isArray: boolean;
 }
 
 @injectable()
@@ -240,6 +258,23 @@ export class KpiService {
         }
 
         return [];
+    }
+
+    public decomposeKpi(kpi: IKPIDocument): ISimpleKPIElements {
+        if (kpi.type !== KPITypeEnum.Simple) { throw new Error('only simple kpis can be decomposed'); }
+
+        const expression = KPIExpressionHelper.DecomposeExpression(<KPITypeEnum>kpi.type, kpi.expression) as IKPISimpleDefinition;
+
+        // add the filters if any
+        const filters = kpi.filter && KPIFilterHelper.cleanFilter(kpi.filter);
+
+        const { dataSource, field } = expression;
+
+        return {
+            dataSource,
+            aggField: expression.field,
+            filters
+        };
     }
 
     private  _getComplexKpiExpressionSources(expression: string, kpis: IKPI[], connectors: IConnector[]): string[] {
@@ -591,5 +626,36 @@ export class KpiService {
         });
 
         return kpi;
+    }
+
+    async getKpiFieldsForFunnelStage(kpiId: string): Promise<FunnelStageKpiFieldType> {
+        try {
+            const rawKpi = await this._kpis.model.findOne({ _id: kpiId }).lean().exec() as IKPI;
+            if (rawKpi.type !==  KPITypeEnum.Simple) { throw new Error('funnel version 1 only supports simple kpis'); }
+
+            const expression = KPIExpressionHelper.DecomposeExpression(rawKpi.type, rawKpi.expression) as IKPISimpleDefinition;
+
+            const vs: IVirtualSourceDocument =
+                await this._virtualSources.model.findOne({ name: { $regex: new RegExp(`^${expression.dataSource}$`, 'i') }  });
+
+            const fields =
+                Object.keys(vs.fieldsMap)
+                      .map(k => ({
+                          name: k,
+                          path: vs.fieldsMap[k].path,
+                          type: vs.fieldsMap[k].dataType,
+                          isArray: !!vs.fieldsMap[k].isArray,  // !! applying type coercion to convert null to false
+                      }));
+
+            return {
+                fields,
+                id: kpiId,
+                name: rawKpi.name
+            };
+
+        } catch (err) {
+            console.error('error getting grouping data', err);
+            return null;
+        }
     }
 }
