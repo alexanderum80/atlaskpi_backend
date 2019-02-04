@@ -113,18 +113,12 @@ export interface IReportColumn {
   isArray: boolean;
 }
 
-export interface IReportOptionsQ {
+export interface IReportOptions {
     dataSource: string;
     dateRange: IChartDateRange;
     timezone: string;
     filter: any;
     fields: string[];
-}
-
-export interface IReportOptions {
-    kpi: IKPIDocument;
-    dateRange: IChartDateRange;
-    fullPathFields: string[];
 }
 
 export interface IReportResult {
@@ -144,7 +138,7 @@ export class ReportService {
     ) {
     }
 
-    async runReport(options: IReportOptionsQ): Promise<IReportResult> {
+    async run(options: IReportOptions): Promise<IReportResult> {
         const { dataSource, dateRange, filter,  fields, timezone } = options;
 
         try {

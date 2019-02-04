@@ -24,8 +24,7 @@ export class RenderFunnelByIdQuery implements IQuery<RenderedFunnelType> {
 
     async run(data: { id: string }): Promise<RenderedFunnelType> {
         try {
-            const rendered = await this._funnelsService.renderById(data.id);
-            return rendered;
+            return await this._funnelsService.renderById(data.id);
         } catch (e) {
             this._logger.error(e);
             return null;

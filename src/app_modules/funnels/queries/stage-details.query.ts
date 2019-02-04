@@ -40,16 +40,6 @@ export class FunnelStageDetailsQuery implements IQuery<IFunnelStageDetails> {
 
     ) { }
 
-    // async run(data: { funnelId: string, stageId: string }): Promise<IFunnelStageDetails> {
-    //     try {
-    //         const result = await this._funnelsService.getStageDetails(data.funnelId, data.stageId);
-    //         return result;
-    //     } catch (e) {
-    //         this._logger.error(e);
-    //         return null;
-    //     }
-    // }
-
     async run(data: { funnelId: string, stageId: string }): Promise<IFunnelStageDetails> {
         const { funnelId, stageId } = data;
         try {
@@ -72,7 +62,7 @@ export class FunnelStageDetailsQuery implements IQuery<IFunnelStageDetails> {
 
             const selectedFields = this._getFieldsToProject(vs, foundStage.fieldsToProject, kpiParts.aggField);
 
-            const report = await this._reportService.runReport({
+            const report = await this._reportService.run({
                 dataSource: kpiParts.dataSource,
                 dateRange: foundStage.dateRange,
                 timezone: this._currentUser.get().profile.timezone,

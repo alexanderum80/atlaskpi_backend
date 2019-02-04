@@ -23,8 +23,7 @@ export class RenderFunnelByDefinitionQuery implements IQuery<RenderedFunnelType>
 
     async run(data: { input: FunnelInput }): Promise<RenderedFunnelType> {
         try {
-            const rendered = await this._funnelsService.renderByDefinition(data.input);
-            return rendered;
+            return await this._funnelsService.renderByDefinition(data.input);
         } catch (e) {
             this._logger.error(e);
             return null;
