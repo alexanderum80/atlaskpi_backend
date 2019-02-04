@@ -70,9 +70,14 @@ export class DashboardsQuery implements IQuery<IDashboard[]> {
                 .populate({path: 'updatedBy', model: 'User'})
                 .then(dashboards => {
                     (dashboards as IDashboard[]).forEach(d => {
-                        const firstNameUpdated = d.updatedBy.profile.firstName;
-                        const lastNameUpdated = d.updatedBy.profile.lastName;
-                        const updatedBy = (firstNameUpdated ? firstNameUpdated + ' ' : '') + (lastNameUpdated ? lastNameUpdated + ' ' : '');
+                        let updatedBy = "";
+                        
+                        if(d.updatedBy !== null){
+                            const firstNameUpdated = d.updatedBy.profile.firstName;
+                            const lastNameUpdated = d.updatedBy.profile.lastName;
+                            updatedBy = (firstNameUpdated ? firstNameUpdated + ' ' : '') + (lastNameUpdated ? lastNameUpdated + ' ' : '');
+                        }
+                        
                         d.updatedBy = updatedBy;
                         transformProps(d, this.castToString, '_id');
                         d.owner = JSON.stringify(d.owner) as any;

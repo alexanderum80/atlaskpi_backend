@@ -10,7 +10,6 @@ import { IMutationResponse } from '../../../framework/mutations/mutation-respons
 import { CreateEmployeeActivity } from '../activities/create-employee.activity';
 import { CreateEmployeeResponse, EmployeeAttributesInput } from '../employees.types';
 
-
 @injectable()
 @mutation({
     name: 'createEmployee',

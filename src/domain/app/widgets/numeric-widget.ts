@@ -120,26 +120,35 @@ export class NumericWidget extends UIWidgetBase implements IUIWidget {
         const comparisonsIds = Object.keys(output).filter(d => d !== 'main');
         const compareValue = Number(output[comparisonsIds[0]]) || 0;
 
-        let comparisonValue: string;
-        let comparisonDirection: string;
-        let comparisonObject: IMaterializedComparison;
+        let materialized: IWidgetMaterializedFields;
 
-        if (comparisonsIds.length) {
-            const dateRangeId = getDateRangeIdFromString(widgetDateRange.predefined);
-            const comparisonString = PredefinedComparisonDateRanges[dateRangeId][comparisonsIds[0]];
-            comparisonObject = { period: comparisonString, value: compareValue };
-        }
+         if (!Number.isNaN(value) && Number.isFinite(value)){
+            let comparisonValue: string;
+            let comparisonDirection: string;
+            let comparisonObject: IMaterializedComparison;
 
-        if (comparisonObject &&
-            this.numericWidgetAttributes.comparisonArrowDirection &&
-            this.numericWidgetAttributes.comparisonArrowDirection !== 'none') {
-                comparisonObject.arrowDirection = this._getComparisonDirection(value, compareValue);
-        }
+            if (comparisonsIds.length) {
+                const dateRangeId = getDateRangeIdFromString(widgetDateRange.predefined);
+                const comparisonString = PredefinedComparisonDateRanges[dateRangeId][comparisonsIds[0]];
+                comparisonObject = { period: comparisonString, value: compareValue };
+            }
 
-        const materialized: IWidgetMaterializedFields = {
-            value: value,
-            comparison:  comparisonObject
-        };
+            if (comparisonObject &&
+                this.numericWidgetAttributes.comparisonArrowDirection &&
+                this.numericWidgetAttributes.comparisonArrowDirection !== 'none') {
+                    comparisonObject.arrowDirection = this._getComparisonDirection(value, compareValue);
+            }
+
+            materialized = {
+                value: value,
+                comparison:  comparisonObject
+            }
+        }else{
+            materialized = {
+                value: null,
+                comparison:  null
+            };
+        }   
 
         const result = Object.assign({}, this.widget, { materialized: materialized });
 

@@ -62,14 +62,24 @@ export class MapMarkerService {
                 .lean()
                 .then((mapDocuments: IMap[]) => {
                     resolve(mapDocuments.map((k) => {
-                        const firstNameCreated = k.createdBy.profile.firstName;
-                        const midleNameCreated = k.createdBy.profile.middleName;
-                        const lastNameCreated = k.createdBy.profile.lastName;
-                        const firstNameUpdated = k.updatedBy.profile.firstName;
-                        const lastNameUpdated = k.updatedBy.profile.lastName;
+                        let  createdBy = "";
+                        let updatedBy = "";
 
-                        const createdBy = (firstNameCreated ? firstNameCreated + ' ' : '' ) + (midleNameCreated ? midleNameCreated + ' ' : '' ) + (lastNameCreated ? lastNameCreated  : '' );
-                        const updatedBy = (firstNameUpdated ? firstNameUpdated + ' ' : '' ) + (lastNameUpdated ? lastNameUpdated + ' ' : '' );
+                        if(k.createdBy !== null) {
+                            const firstNameCreated = k.createdBy.profile.firstName;
+                            const midleNameCreated = k.createdBy.profile.middleName;
+                            const lastNameCreated = k.createdBy.profile.lastName;
+                            
+                            createdBy = (firstNameCreated ? firstNameCreated + ' ' : '' ) + (midleNameCreated ? midleNameCreated + ' ' : '' ) + (lastNameCreated ? lastNameCreated  : '' );
+                        }
+
+                        if(k.updatedBy !== null){
+                            const firstNameUpdated = k.updatedBy.profile.firstName;
+                            const lastNameUpdated = k.updatedBy.profile.lastName;
+
+                            updatedBy = (firstNameUpdated ? firstNameUpdated + ' ' : '' ) + (lastNameUpdated ? lastNameUpdated + ' ' : '' );
+                        }
+
                         k.createdBy = createdBy;
                         k.updatedBy = updatedBy;
 
