@@ -253,8 +253,10 @@ export class WidgetsService {
     async _resolveDashboards(widget): Promise<IDashboardDocument[]> {
         const that = this;
         return await new Promise<IDashboardDocument[]>((resolve, reject) => {
-            that._dashboards.model.find( { widgets: { $in: [widget._id] }}).exec()
-                .then((dashboards) => resolve(dashboards))
+            that._dashboards.model.find( { 'widgets.id': { $in: [widget._id] }}).exec()
+                .then((dashboards) => {
+                    resolve(dashboards);
+                })
                 .catch(err => reject(err));
         });
     }
