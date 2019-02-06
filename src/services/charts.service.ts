@@ -106,34 +106,30 @@ export class ChartsService {
 
                 const uiChart = this._chartFactory.getInstance(c);
                 const groupings = this._prepareGroupings(c, options);
-                const kpi = await this._kpiFactory.getInstance(c.kpis[0].kpi);
+
+                const chartKpi = c.kpis[0].kpi;
+                const kpiInstance = await this._kpiFactory.getInstance(chartKpi);
 
                 if (options && options.kpiFilter) {
-                    const filter = JSON.parse(options.kpiFilter);
-                    const virtualSources = await this._virtualSources.model.find({});
-                    const kpiType = KPITypeMap[k.kpi.type];
+                    let filter = JSON.parse(options.kpiFilter);
+                    if (filter.length) {
+                        const virtualSources = await this._virtualSources.model.find({});
+                        const kpiType = KPITypeMap[k.kpi.type];
 
-                    let expression: any;
-                    expression = {
-                        dataSource: k.kpi.type !== 'externalsource' ?
-                                    kpi['kpiVirtualSources'].virtualSource.source :
-                                    kpi['kpiVirtualSources'].virtualSource.name
-                    };
-                    const composedFilter = KPIFilterHelper.ComposeFilter(kpiType, virtualSources, JSON.stringify(expression), JSON.stringify(filter));
-                    if (k.kpi.type === 'externalsource') {
-                        kpi['_kpi'].filter = composedFilter;
-                    } else {
-                        kpi['kpi'].filter = composedFilter;
-                        const pristineFilterIndex = kpi['pristineAggregate'].findIndex(p => p.filter);
-                        let mongoDbFilterArray = filter.map(f => KPIFilterHelper.transform2MongoFilter(f, virtualSources, expression.dataSource));
-                        if (filter.length > 1) {
-                            kpi['pristineAggregate'][pristineFilterIndex].$match.$and = mongoDbFilterArray;
-                        } else {
-                            mongoDbFilterArray = mongoDbFilterArray[0];
-                            kpi['pristineAggregate'][pristineFilterIndex].$match = mongoDbFilterArray;
-                        }
+                        let expression: any;
+                        expression = {
+                            dataSource: k.kpi.type !== 'externalsource' ?
+                                        kpiInstance['kpiVirtualSources'].virtualSource.source :
+                                        kpiInstance['kpiVirtualSources'].virtualSource.name
+                        };
+
+                        const composedFilter = KPIFilterHelper.ComposeFilter(kpiType, virtualSources, JSON.stringify(expression), JSON.stringify(filter));
+
+                        chartKpi.filter = composedFilter;
                     }
                 }
+
+                const kpi = await this._kpiFactory.getInstance(chartKpi);
 
                 const meta: IChartMetadata = {
                     filter: options && options.filter || c.filter,

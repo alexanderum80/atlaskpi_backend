@@ -265,16 +265,6 @@ export class KPIFilterHelper {
                             };
     }
 
-    public static transform2MongoFilter(f: IKPIFilter, virtualSources, vsName: string): any {
-        const fieldset = {};
-        const cleanVsName = vsName.split('$')[0];
-
-        const virtualSource = virtualSources.find(v => v.name.toLowerCase() === cleanVsName.toLowerCase());
-        const map = virtualSource.fieldsMap;
-        Object.keys(virtualSource.fieldsMap).forEach(k => fieldset[map[k].path] = map[k].dataType);
-        return this._transform2MongoFilter(f, fieldset);
-    }
-
     static cleanFilter(filter: any): any {
         let newFilter = {};
 
