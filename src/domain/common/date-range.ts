@@ -1614,13 +1614,15 @@ export function processDateRangeWithTimezone(dr: IChartDateRange | ChartDateRang
 
     let start, end;
 
-    if (dr.custom.from instanceof Date) {
-        start = moment.utc(dr.custom.from).format(AKPIDateFormatEnum.US_DATE);
-        end = moment.utc(dr.custom.to).format(AKPIDateFormatEnum.US_DATE);
-    } else {
-        start = dr.custom.from;
-        end = dr.custom.to;
+    if (dr.custom.from instanceof Date && dr.custom.to instanceof Date) {
+        return {
+            from: dr.custom.from,
+            to: dr.custom.to,
+        };
     }
+
+    start = dr.custom.from;
+    end = dr.custom.to;
 
     const from = moment.tz(
         start,
@@ -1646,8 +1648,8 @@ export function  convertStringDateRangeToDateDateRange(dateRange: ChartDateRange
     };
 
     if (dateRange.custom && dateRange.custom.from) {
-        const from = moment.tz(dateRange.custom.from, AKPIDateFormatEnum.US_DATE, timezone).toDate();
-        const to = moment.tz(dateRange.custom.to, AKPIDateFormatEnum.US_DATE, timezone).toDate();
+        const from = moment.tz(dateRange.custom.from, AKPIDateFormatEnum.US_DATE, timezone).startOf('day').toDate();
+        const to = moment.tz(dateRange.custom.to, AKPIDateFormatEnum.US_DATE, timezone).endOf('day').toDate();
         newDateRange.custom = {
             from,
             to
