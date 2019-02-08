@@ -47,6 +47,14 @@ export class SimpleKPI extends SimpleKPIBase implements IKpiBase {
                 $match: { }
             },
             {
+                formulaFields: true,
+                $addFields: { }
+            },
+            {
+                formulaFieldsFilter: true,
+                $match: { }
+            },
+            {
                 frequency: true,
                 $project: {
                     '_id': 0

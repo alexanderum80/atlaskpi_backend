@@ -1,0 +1,291 @@
+var vs = { 
+    "_id": "5ac3dc4e49bdac0208431002", 
+    "name" : "Appointments", 
+    "description" : "Appointments", 
+    "source" : "appointments", 
+    "modelIdentifier" : "Appointment", 
+    "dateField" : "from", 
+    "fieldsMap" : {
+        "Source" : {
+            "path" : "source", 
+            "dataType" : "String", 
+            "allowGrouping" : true
+        }, 
+        "External Id" : {
+            "path" : "externalId", 
+            "dataType" : "String"
+        }, 
+        "Location's Name" : {
+            "path" : "location.name", 
+            "dataType" : "String", 
+            "allowGrouping" : true
+        }, 
+        "Location's City" : {
+            "path" : "location.city", 
+            "dataType" : "String", 
+            "allowGrouping" : true
+        }, 
+        "Location's State" : {
+            "path" : "location.state", 
+            "dataType" : "String", 
+            "allowGrouping" : true
+        }, 
+        "Location's Zip" : {
+            "path" : "location.zip", 
+            "dataType" : "String", 
+            "allowGrouping" : true
+        }, 
+        "Location's External Id" : {
+            "path" : "location.externalId", 
+            "dataType" : "String"
+        }, 
+        "Location's Address 1" : {
+            "path" : "location.address1", 
+            "dataType" : "String"
+        }, 
+        "Location's Address 2" : {
+            "path" : "location.address2", 
+            "dataType" : "String"
+        }, 
+        "Customer's Address" : {
+            "path" : "customer.address", 
+            "dataType" : "String"
+        }, 
+        "Customer's City" : {
+            "path" : "customer.city", 
+            "dataType" : "String", 
+            "allowGrouping" : true
+        }, 
+        "Customer's State" : {
+            "path" : "customer.state", 
+            "dataType" : "String", 
+            "allowGrouping" : true
+        }, 
+        "Customer's Zip Code" : {
+            "path" : "customer.zip", 
+            "dataType" : "String", 
+            "allowGrouping" : true
+        }, 
+        "Customer's Gender" : {
+            "path" : "customer.gender", 
+            "dataType" : "String", 
+            "allowGrouping" : true
+        }, 
+        "Customer's Date of Birth" : {
+            "path" : "customer.dob", 
+            "dataType" : "Date"
+        },
+        "Customer's Age" : {
+            "path" : "customer.age", 
+            "dataType" : "Number",
+            "formula": {
+                '__dollar__cond': [{
+                      '__dollar__ne': ['$customer.dob', null]
+                  }, {
+                      '__dollar__subtract': [
+                          { 
+                              '__dollar__divide': [{
+                                  '__dollar__subtract': [ '__now__' , '$customer.dob']
+                              }, 31556952000]
+                          },
+                          { '__dollar__mod': [{ 
+                                  '__dollar__divide': [{
+                                      '__dollar__subtract': [ '__now__' , '$customer.dob']
+                                  }, 31556952000]
+                              }, 1 
+                            ]
+                          }
+                      ]                		   	
+                  }, null
+                ]   
+            },
+        }, 
+        "Customer's Full Name" : {
+            "path" : "customer.fullname", 
+            "dataType" : "String", 
+            "allowGrouping" : true
+        }, 
+        "Customer's External Id" : {
+            "path" : "customer.externalId", 
+            "dataType" : "String"
+        }, 
+        "Provider's Full Name" : {
+            "path" : "provider.name", 
+            "dataType" : "String", 
+            "allowGrouping" : true, 
+            "isArray" : true
+        }, 
+        "Provider's External Id" : {
+            "path" : "provider.externalId", 
+            "dataType" : "String", 
+            "isArray" : true
+        }, 
+        "Provider's type" : {
+            "path" : "provider.type", 
+            "dataType" : "String", 
+            "allowGrouping" : true, 
+            "isArray" : true
+        }, 
+        "Reason" : {
+            "path" : "reason", 
+            "dataType" : "String", 
+            "allowGrouping" : true
+        }, 
+        "Resource's Name" : {
+            "path" : "resource.name", 
+            "dataType" : "String", 
+            "allowGrouping" : true, 
+            "isArray" : true
+        }, 
+        "Resource's External Id" : {
+            "path" : "resource.externalId", 
+            "dataType" : "String", 
+            "isArray" : true
+        }, 
+        "Resource's type" : {
+            "path" : "resource.type", 
+            "dataType" : "String", 
+            "allowGrouping" : true, 
+            "isArray" : true
+        }, 
+        "Comments" : {
+            "path" : "comments", 
+            "dataType" : "String", 
+            "allowGrouping" : true
+        }, 
+        "From" : {
+            "path" : "from", 
+            "dataType" : "Date"
+        }, 
+        "To" : {
+            "path" : "to", 
+            "dataType" : "Date"
+        }, 
+        "Duration" : {
+            "path" : "duration", 
+            "dataType" : "Number"
+        }, 
+        "Approved" : {
+            "path" : "approved", 
+            "dataType" : "Boolean", 
+            "allowGrouping" : true
+        }, 
+        "Checked In" : {
+            "path" : "checkedIn", 
+            "dataType" : "Boolean", 
+            "allowGrouping" : true
+        }, 
+        "Checked Out" : {
+            "path" : "checkedOut", 
+            "dataType" : "Boolean", 
+            "allowGrouping" : true
+        }, 
+        "Cancelled" : {
+            "path" : "cancelled", 
+            "dataType" : "Boolean", 
+            "allowGrouping" : true
+        }, 
+        "No Show" : {
+            "path" : "noShow", 
+            "dataType" : "Boolean", 
+            "allowGrouping" : true
+        }, 
+        "Checked in On" : {
+            "path" : "checkedInOn", 
+            "dataType" : "Date"
+        }, 
+        "Checked out On" : {
+            "path" : "checkedOutOn", 
+            "dataType" : "Date"
+        }, 
+        "Cancelled On" : {
+            "path" : "cancelledOn", 
+            "dataType" : "Date"
+        }, 
+        "Confirmed On" : {
+            "path" : "confirmedOn", 
+            "dataType" : "Date"
+        }, 
+        "Created On" : {
+            "path" : "createdOn", 
+            "dataType" : "Date"
+        }, 
+        "No show On" : {
+            "path" : "noShowOn", 
+            "dataType" : "Date"
+        }, 
+        "Event name" : {
+            "path" : "event.name", 
+            "dataType" : "String", 
+            "allowGrouping" : true
+        }, 
+        "Event External Id" : {
+            "path" : "event.externalId", 
+            "dataType" : "String", 
+            "allowGrouping" : true
+        }, 
+        "Event Code" : {
+            "path" : "event.code", 
+            "dataType" : "String", 
+            "allowGrouping" : true
+        }, 
+        "Event Color" : {
+            "path" : "event.color", 
+            "dataType" : "String"
+        }, 
+        "Conflict Color" : {
+            "path" : "event.conflictColor", 
+            "dataType" : "String"
+        }, 
+        "Conflict cancelled color" : {
+            "path" : "event.cancelledColor", 
+            "dataType" : "String"
+        }, 
+        "Procedure name" : {
+            "path" : "procedure.name", 
+            "dataType" : "String", 
+            "allowGrouping" : true, 
+            "isArray" : true
+        }, 
+        "Procedure External Id" : {
+            "path" : "procedure.externalId", 
+            "dataType" : "String", 
+            "isArray" : true
+        }, 
+        "Referral name" : {
+            "path" : "referral.name", 
+            "dataType" : "String", 
+            "allowGrouping" : true
+        }, 
+        "Referral External Id" : {
+            "path" : "referral.externalId", 
+            "dataType" : "String"
+        }, 
+        "Date" : {
+            "path" : "date", 
+            "dataType" : "Date"
+        }, 
+        "Converted" : {
+            "path" : "converted", 
+            "dataType" : "Boolean", 
+            "allowGrouping" : true
+        }, 
+        "Appointment type" : {
+            "path" : "appointmentType", 
+            "dataType" : "String", 
+            "allowGrouping" : true
+        }, 
+        "Document type" : {
+            "path" : "document.type", 
+            "dataType" : "String"
+        }, 
+        "Document identifier" : {
+            "path" : "document.identifier", 
+            "dataType" : "String"
+        }, 
+        "Purpose Total Amount" : {
+            "path" : "totalProcedureAmount", 
+            "dataType" : "Number"
+        }
+    }
+}

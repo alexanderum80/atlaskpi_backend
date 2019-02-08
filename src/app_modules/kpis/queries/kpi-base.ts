@@ -10,7 +10,7 @@ import { IChartTop } from '../../../domain/common/top-n-record';
 import { NULL_CATEGORY_REPLACEMENT } from '../../charts/queries/charts/ui-chart-base';
 import { AggregateStage } from './aggregate';
 import { VirtualSourceAggregateService, IKeyValues, IProcessAggregateResult, AggPlaceholderTypeEnum } from '../../../domain/app/virtual-sources/vs-aggregate.service';
-import { IVirtualSource, IVirtualSourceDocument } from '../../../domain/app/virtual-sources/virtual-source';
+import { IVirtualSource, IVirtualSourceDocument, IFieldMetadata } from '../../../domain/app/virtual-sources/virtual-source';
 
 export interface IKpiVirtualSources {
     virtualSource: IVirtualSourceDocument;
@@ -126,6 +126,8 @@ export class KpiBase {
 
         let that = this;
 
+        const formulaFields = this._getFormulaFields(this.kpiVirtualSources.virtualSource);
+
         return new Promise<any>((resolve, reject) => {
 
             if (!dateRangeApplied
@@ -133,6 +135,11 @@ export class KpiBase {
                 that._injectDataRange(dateRange, dateField);
             if (options.filter)
                 that._injectFilter(options.filter);
+
+
+            if (formulaFields.length) that._injectFormulaFields(formulaFields);
+
+
             if (options.stackName)
                 that._injectTargetStackFilter(options.groupings, options.stackName);
             if (options.frequency >= 0)
@@ -497,5 +504,27 @@ export class KpiBase {
             return new RegExp(expression.searchValue[1], expression.searchValue[2]);
         }
         return new RegExp(expression.searchValue, 'i');
+    }
+
+    private _getFormulaFields(vs: IVirtualSource): { key: string, value: IFieldMetadata }[] {
+        const fields = [];
+        for (const [key, value] of Object.entries(vs.fieldsMap)) {
+            if (!value.formula) continue;
+            fields.push({ key, value });
+        }
+
+        return fields;
+    }
+
+    private _injectFormulaFields(fields: { key: string, value: IFieldMetadata }[]) {
+        let formulaFieldsStage = this.findStage('formulaFields', '$addFields');
+
+        if (!formulaFieldsStage) {
+            throw new Error('cannot inject formula field because an addFields stage could not be found');
+        }
+
+        for (const field of fields) {
+            formulaFieldsStage.$addFields[field.key] = field.value.formula;
+        }
     }
 }
