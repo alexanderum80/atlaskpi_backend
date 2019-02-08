@@ -126,6 +126,8 @@ export class ChartsService {
                         const composedFilter = KPIFilterHelper.ComposeFilter(kpiType, virtualSources, JSON.stringify(expression), JSON.stringify(filter));
 
                         chartKpi.filter = composedFilter;
+                    } else {
+                        chartKpi.filter = null;
                     }
                 }
 
