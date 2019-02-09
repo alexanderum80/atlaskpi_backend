@@ -108,7 +108,7 @@ export class ChartsService {
                 const groupings = this._prepareGroupings(c, options);
 
                 const chartKpi = c.kpis[0].kpi;
-                const kpiInstance = await this._kpiFactory.getInstance(chartKpi);
+                let kpi = await this._kpiFactory.getInstance(chartKpi);
 
                 if (options && options.kpiFilter) {
                     let filter = JSON.parse(options.kpiFilter);
@@ -119,8 +119,8 @@ export class ChartsService {
                         let expression: any;
                         expression = {
                             dataSource: k.kpi.type !== 'externalsource' ?
-                                        kpiInstance['kpiVirtualSources'].virtualSource.source :
-                                        kpiInstance['kpiVirtualSources'].virtualSource.name
+                                        kpi['kpiVirtualSources'].virtualSource.source :
+                                        kpi['kpiVirtualSources'].virtualSource.name
                         };
 
                         const composedFilter = KPIFilterHelper.ComposeFilter(kpiType, virtualSources, JSON.stringify(expression), JSON.stringify(filter));
@@ -129,9 +129,8 @@ export class ChartsService {
                     } else {
                         chartKpi.filter = null;
                     }
+                    kpi = await this._kpiFactory.getInstance(chartKpi);
                 }
-
-                const kpi = await this._kpiFactory.getInstance(chartKpi);
 
                 const meta: IChartMetadata = {
                     filter: options && options.filter || c.filter,
