@@ -3,15 +3,16 @@ import { injectable, inject } from 'inversify';
 import { AggregateStage } from '../../../app_modules/kpis/queries/aggregate';
 import { IDateRange } from '../../common/date-range';
 import { cloneDeep } from 'lodash';
-import { IVirtualSource, IVirtualSourceDocument } from './virtual-source';
+import { IVirtualSource, IVirtualSourceDocument, IFieldMetadata } from './virtual-source';
 import { KPIFilterHelper } from '../kpis/kpi-filter.helper';
 import { Logger } from './../../../domain/app/logger';
 
-const pattern = new RegExp('^__[a-z]+[a-z]__$', 'i');
+export const ObjectReplacementPattern = new RegExp('^__[a-z]+[a-z]__$', 'i');
 
 export enum AggPlaceholderTypeEnum {
     dateRange = 'DateRange',
-    timezone = 'Timezone'
+    timezone = 'Timezone',
+    dateNow = 'DateNow',
 }
 
 export interface IAggReplacementItem {
@@ -22,7 +23,8 @@ export interface IAggReplacementItem {
 const SUPPORTED_PLACEHOLDERS: IAggReplacementItem[] = [
     { id: '__from__', type: AggPlaceholderTypeEnum.dateRange },
     { id: '__to__', type: AggPlaceholderTypeEnum.dateRange },
-    { id: '__timezone__', type: AggPlaceholderTypeEnum.timezone }
+    { id: '__timezone__', type: AggPlaceholderTypeEnum.timezone },
+    { id: '__now__', type: AggPlaceholderTypeEnum.dateNow }
 ];
 
 export interface IKeyValues {
@@ -65,7 +67,7 @@ export class VirtualSourceAggregateService {
         }
 
         if (replacements) {
-            appliedReplacements = this._walkAndReplace(aggregate, pattern, replacements);
+            appliedReplacements = this.walkAndReplace(aggregate, ObjectReplacementPattern, replacements);
         }
 
         return { appliedReplacements, aggregate };
@@ -131,12 +133,22 @@ export class VirtualSourceAggregateService {
 
         const newAggregate = cloneDeep(aggregate);
 
-        this._walkAndReplace(newAggregate, pattern, replacements);
+        this.walkAndReplace(newAggregate, ObjectReplacementPattern, replacements);
 
         return newAggregate;
     }
 
-    private _walkAndReplace(obj: any, pattern: RegExp, replacements: IKeyValues): IAggReplacementItem[] {
+    getFormulaFields(vs: IVirtualSource): { key: string, value: IFieldMetadata }[] {
+        const fields = [];
+        for (const [key, value] of Object.entries(vs.fieldsMap)) {
+            if (!value.formula) continue;
+            fields.push({ key, value });
+        }
+
+        return fields;
+    }
+
+    walkAndReplace(obj: any, pattern: RegExp, replacements: IKeyValues): IAggReplacementItem[] {
         const has = Object.prototype.hasOwnProperty.bind(obj);
 
         let appliedReplacements = [];
@@ -144,7 +156,7 @@ export class VirtualSourceAggregateService {
         for (const k in obj) if (has(k)) {
             switch (typeof obj[k]) {
                 case 'object':
-                    const applied =  this._walkAndReplace(obj[k], pattern, replacements);
+                    const applied =  this.walkAndReplace(obj[k], pattern, replacements);
                     appliedReplacements = Array.from(new Set([].concat(...appliedReplacements, ...applied)));
                     break;
 
@@ -161,6 +173,9 @@ export class VirtualSourceAggregateService {
                         obj[k] = replacements[obj[k]];
                         appliedReplacements.push(placeHolder);
                     }
+                    break;
+
+                default:
                     break;
             }
         }

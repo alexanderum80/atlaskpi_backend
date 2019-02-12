@@ -1,6 +1,6 @@
 import { inject, injectable } from 'inversify';
 import { camelCase } from 'change-case';
-import { find, cloneDeep, isArray, isDate, isObject, isString } from 'lodash';
+import { find, cloneDeep, isArray, isDate, isObject, isString, isNumber, isBoolean } from 'lodash';
 import * as logger from 'winston';
 
 import { IKPI } from '../../../domain/app/kpis/kpi';
@@ -9,7 +9,7 @@ import { FrequencyEnum } from '../../../domain/common/frequency-enum';
 import { IChartTop } from '../../../domain/common/top-n-record';
 import { NULL_CATEGORY_REPLACEMENT } from '../../charts/queries/charts/ui-chart-base';
 import { AggregateStage } from './aggregate';
-import { VirtualSourceAggregateService, IKeyValues, IProcessAggregateResult, AggPlaceholderTypeEnum } from '../../../domain/app/virtual-sources/vs-aggregate.service';
+import { VirtualSourceAggregateService, IKeyValues, IProcessAggregateResult, AggPlaceholderTypeEnum, ObjectReplacementPattern } from '../../../domain/app/virtual-sources/vs-aggregate.service';
 import { IVirtualSource, IVirtualSourceDocument, IFieldMetadata } from '../../../domain/app/virtual-sources/virtual-source';
 
 export interface IKpiVirtualSources {
@@ -77,6 +77,7 @@ export class KpiBase {
 
     executeQuery(dateField: string, dateRange?: IDateRange[], options?: IGetDataOptions): Promise<any> {
         // process the virtual source aggregate
+
         const vsAggregateReplacements: IKeyValues = {
             '__from__': dateRange[0].from,
             '__to__': dateRange[0].to,
@@ -126,19 +127,14 @@ export class KpiBase {
 
         let that = this;
 
-        const formulaFields = this._getFormulaFields(this.kpiVirtualSources.virtualSource);
-
         return new Promise<any>((resolve, reject) => {
 
             if (!dateRangeApplied
                 && dateRange && dateRange.length)
                 that._injectDataRange(dateRange, dateField);
+
             if (options.filter)
                 that._injectFilter(options.filter);
-
-
-            if (formulaFields.length) that._injectFormulaFields(formulaFields);
-
 
             if (options.stackName)
                 that._injectTargetStackFilter(options.groupings, options.stackName);
@@ -238,6 +234,26 @@ export class KpiBase {
         });
     }
 
+    protected _injectFormulaFieldFilter(filter: any) {
+        let matchStage = this.findStage('formulaFieldsFilter', '$match');
+        let cleanFilter = this._cleanFilter(filter);
+
+        if (!matchStage) {
+            throw new Error('KpiBase#_injectFormulaFieldFilter: Cannot inject filter because a formulaFieldsFilter/$match stage could not be found');
+        }
+
+        Object.keys(cleanFilter).forEach(filterKey => {
+            // do not add top to the filter, that gets applied in the end
+            if (filterKey === 'top') return;
+            matchStage.$match[filterKey] = cleanFilter[filterKey];
+        });
+
+        if (Object.keys(matchStage.$match).length > 0) return;
+
+        const index = this.aggregate.indexOf(matchStage);
+        if (index !== -1) this.aggregate.splice(index, 1);
+    }
+
     private _injectTargetStackFilter(field: any, stackName: any) {
         let matchStage = this.findStage('filter', '$match');
         if (!matchStage) {
@@ -261,7 +277,9 @@ export class KpiBase {
     protected _cleanFilter(filter: any): any {
         let newFilter = {};
 
-        if (isString(filter)) {
+        if (!filter || isString(filter) ||
+            isNumber(filter) || isBoolean(filter) ||
+            isDate(filter)) {
             return filter;
         }
 
@@ -506,25 +524,93 @@ export class KpiBase {
         return new RegExp(expression.searchValue, 'i');
     }
 
-    private _getFormulaFields(vs: IVirtualSource): { key: string, value: IFieldMetadata }[] {
-        const fields = [];
-        for (const [key, value] of Object.entries(vs.fieldsMap)) {
-            if (!value.formula) continue;
-            fields.push({ key, value });
-        }
+    protected _processFormulaFields(): boolean {
+        const formulaFields = this._vsAggregateService.getFormulaFields(this.kpiVirtualSources.virtualSource);
 
-        return fields;
-    }
-
-    private _injectFormulaFields(fields: { key: string, value: IFieldMetadata }[]) {
         let formulaFieldsStage = this.findStage('formulaFields', '$addFields');
 
         if (!formulaFieldsStage) {
             throw new Error('cannot inject formula field because an addFields stage could not be found');
         }
 
-        for (const field of fields) {
-            formulaFieldsStage.$addFields[field.key] = field.value.formula;
+        const __now__ = new Date(Date.now());
+
+        const replacements: IKeyValues = {
+           __now__
+        };
+
+
+        for (const field of formulaFields) {
+            const cleanFormula = this._cleanFilter(field.value.formula);
+            this._vsAggregateService.walkAndReplace(cleanFormula, ObjectReplacementPattern, replacements);
+
+            formulaFieldsStage.$addFields[field.value.path] = cleanFormula;
         }
+
+        if (Object.keys(formulaFieldsStage.$addFields).length > 0) return;
+
+        const index = this.aggregate.indexOf(formulaFieldsStage);
+        if (index !== -1) this.aggregate.splice(index, 1);
+    }
+
+    protected _classifyFilters(filter: any): { regularFilter: any, formulaFieldFilter: any } {
+        let regularFilter = {};
+        const formulaFieldFilter = {};
+
+        if (!filter || !Object.keys(filter).length) return { regularFilter, formulaFieldFilter };
+
+        const formulaFields = this._vsAggregateService.getFormulaFields(this.kpiVirtualSources.virtualSource);
+
+        let cleanFilter = this._cleanFilter(filter);
+
+        let cleanFilterWithAnd;
+
+        if (cleanFilter['$and']) {
+            cleanFilterWithAnd = cleanFilter;
+            cleanFilter = cleanFilter['$and'];
+        }
+
+        if (cleanFilterWithAnd) {
+            for (filter of cleanFilter) {
+                Object.keys(filter).forEach(filterKey => {
+                    // do not add top to the filter, that gets applied in the end
+                    if (filterKey === 'top') return;
+
+                    if (formulaFields.some(f => f.value.path === filterKey)) {
+                        formulaFieldFilter[filterKey] = filter[filterKey];
+                        return;
+                    }
+
+                    regularFilter[filterKey] = filter[filterKey];
+
+                });
+            }
+        } else {
+            Object.keys(cleanFilter).forEach(filterKey => {
+                // do not add top to the filter, that gets applied in the end
+                if (filterKey === 'top') return;
+
+                if (formulaFields.some(f => f.value.path === filterKey)) {
+                    formulaFieldFilter[filterKey] = cleanFilter[filterKey];
+                    return;
+                }
+
+                regularFilter[filterKey] = cleanFilter[filterKey];
+
+            });
+        }
+
+
+        if (cleanFilterWithAnd) {
+            const newRegularFilter = {};
+            newRegularFilter['$and'] = [];
+            for (const [key, value] of Object.entries(regularFilter)) {
+                newRegularFilter['$and'].push({ [key]: value });
+            }
+
+            regularFilter = newRegularFilter;
+        }
+
+        return { regularFilter, formulaFieldFilter };
     }
 }

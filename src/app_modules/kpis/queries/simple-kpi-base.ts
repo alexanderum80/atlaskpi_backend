@@ -102,6 +102,11 @@ export class SimpleKPIBase extends KpiBase {
         if (postGroupFilter) {
             postGroupMatchStage.$match['value'] = postGroupFilter;
         }
+
+        if (Object.keys(postGroupMatchStage.$match).length > 0) return;
+
+        const index = this.aggregate.indexOf(postGroupMatchStage);
+        if (index !== -1) this.aggregate.splice(index, 1);
     }
 
     protected aggFieldFilterOnly(filter: any, fieldName: string) {

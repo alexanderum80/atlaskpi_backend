@@ -106,9 +106,22 @@ export class SimpleKPI extends SimpleKPIBase implements IKpiBase {
         if (this.kpi && this.kpi.filter)
             deserializedFilter = this._cleanFilter(this.kpi.filter);
 
-        if (deserializedFilter)
-            this._injectPreGroupStageFilters(deserializedFilter, null);
-            // this._injectPreGroupStageFilters(deserializedFilter, definition.field);
+        const { regularFilter, formulaFieldFilter } = this._classifyFilters(deserializedFilter);
+
+        if (Object.keys(regularFilter).length)
+            this._injectPreGroupStageFilters(regularFilter, null);
+
+        // this method should be called always, it removes the addFields stage
+        // if no formula fields present in the virtual source
+        this._processFormulaFields();
+
+        // this method should be called always, it removes the match stage
+        // if no filters for formula fields
+        this._injectFormulaFieldFilter(formulaFieldFilter);
+
+        // if (deserializedFilter)
+        //     this._injectPreGroupStageFilters(deserializedFilter, null);
+        //     // this._injectPreGroupStageFilters(deserializedFilter, definition.field);
 
         this._injectFieldToProjection(definition.field);
         this._injectAcumulatorFunctionAndArgs(definition);

@@ -610,14 +610,20 @@ export class DataSourcesService {
         const aggResult = await getAggregateResult(vs, aggregate) as any[];
         // console.dir(aggResult);
 
-        const expresionFields = mapDataSourceFields(vs, excludeSourceField);
+        const expressionFields = mapDataSourceFields(vs, excludeSourceField);
 
-        // set availablee fields with value gt 0
-        expresionFields.forEach(f => {
+        // set available fields with value gt 0
+        expressionFields.forEach(f => {
             f.available  = (aggResult[0] || {})[f.name] > 0 ? true : false;
         });
 
-        return expresionFields;
+        // set formula field always available until we define what's the best strategy
+        const formulaFields = this._vsAggregateService.getFormulaFields(vs);
+        expressionFields.forEach(f => {
+            f.available  = formulaFields.some(f => f.value.path === f.value.path) ? true : false;
+        });
+
+        return expressionFields;
     }
 
     async getKPIFilterFieldsWithData(dataSource: string, collectionSource?: string[], fields?: DataSourceField[]): Promise<DataSourceField[]> {
