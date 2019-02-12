@@ -174,9 +174,6 @@ export class VirtualSourceAggregateService {
                         appliedReplacements.push(placeHolder);
                     }
                     break;
-
-                default:
-                    break;
             }
         }
 
