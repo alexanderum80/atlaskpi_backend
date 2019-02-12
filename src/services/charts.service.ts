@@ -118,8 +118,8 @@ export class ChartsService {
 
                         let expression: any;
                         expression = {
-                            dataSource: k.kpi.type !== 'externalsource' ?
-                                        kpi['kpiVirtualSources'].virtualSource.source :
+                            dataSource: /* k.kpi.type !== 'externalsource' ?
+                                        kpi['kpiVirtualSources'].virtualSource.source : */
                                         kpi['kpiVirtualSources'].virtualSource.name
                         };
 
