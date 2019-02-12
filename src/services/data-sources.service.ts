@@ -620,7 +620,8 @@ export class DataSourcesService {
         // set formula field always available until we define what's the best strategy
         const formulaFields = this._vsAggregateService.getFormulaFields(vs);
         expressionFields.forEach(f => {
-            f.available  = formulaFields.some(f => f.value.path === f.value.path) ? true : false;
+            if (!formulaFields.some(f => f.value.path === f.value.path)) return;
+            f.available = true;
         });
 
         return expressionFields;
