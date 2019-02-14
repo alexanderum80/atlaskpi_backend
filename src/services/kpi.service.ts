@@ -554,13 +554,13 @@ export class KpiService {
         }
 
         kpis.map(k => {
-            if (k.filter) {
+            if (k && k.filter) {
                 k.filter = KPIFilterHelper.DecomposeFilter(kpiType, k.filter);
             }
         });
 
         // filtering by expression
-        const kpiExpression = kpis.filter(k => k.expression === expression);
+        const kpiExpression = kpis.filter(k => k && k.expression === expression);
 
         const kpi = [];
 
