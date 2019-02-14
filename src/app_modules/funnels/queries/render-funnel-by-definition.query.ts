@@ -1,5 +1,3 @@
-
-
 import { query } from '../../../framework/decorators/query.decorator';
 import { IQuery } from '../../../framework/queries/query';
 import { Logger } from '../../../domain/app/logger';
@@ -25,8 +23,7 @@ export class RenderFunnelByDefinitionQuery implements IQuery<RenderedFunnelType>
 
     async run(data: { input: FunnelInput }): Promise<RenderedFunnelType> {
         try {
-            const funnel = await this._funnelsService.renderByDefinition(data.input);
-            return funnel;
+            return await this._funnelsService.renderByDefinition(data.input);
         } catch (e) {
             this._logger.error(e);
             return null;

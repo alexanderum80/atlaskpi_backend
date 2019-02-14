@@ -17,16 +17,108 @@ import { KPIFilterHelper } from '../domain/app/kpis/kpi-filter.helper';
 import { Schema } from 'mongoose';
 import { isEmpty, sumBy, set } from 'lodash';
 
+export interface IReportReq {
+    'title': {
+        'text': 'Report Title',
+        'align': 'left|center|right',
+        'style': string[]; //  [normal|underlined|italic|bold]
+    };
+    'dataSource': 'appointments';
+    'cultureInfo': {
+        'dateFormat': 'string',
+        'currencySymbol': '$',
+        'separators': {
+            'decimal': '.',
+            'thousand': ','
+        }
+    };
+    'timezone': 'string';
+    'dateRange': {
+        'predefined': 'last month';
+    };
+    'filter': { /* ... */ };
+    'columns': [
+        {
+            'fieldPath': 'firstName',
+            'title': 'First Name',
+            'type': 'string',
+            'align': 'left|center|right',
+            'format': 'capitalize|uppercase|lowercase',
+            'style':  string[],    // [normal|underlined|italic|bold]
+            'replacements': {
+                'undefined': 'something else',
+                'null': 'null',
+                'botox': 'MY BOTOX',
+            },
+            'sort': 'asc',
+            'position': 1,
+            'width': 100
+        },
+        {
+            'fieldPath': 'amount',
+            'title': 'Price',
+            'type': 'number',
+            'align': 'left|center|right',
+            'format': 'integer|percent|currency',
+            'style': 'normal|italic|bold',
+            'position': 2,
+            'aggregate': 'sum',
+            'width': 100
+        },
+        {
+            'fieldPath': 'timestamp',
+            'title': 'Timestamp',
+            'type': 'date',
+            'align': 'left|center|right',
+            'format': 'MM/DD/YYYY|YYYY|MM/DD',
+            'style': 'normal|italic|bold',
+            'position': 3,
+            'width': 100
+        }
+    ];
+    'groupings': [
+        {
+            'fieldPath': 'location.name',
+            'headerFormat': 'Location: {value}',
+            'order': 1
+        }
+    ];
+}
+
+export interface IReportResponse {
+    title: {
+        plain: string;
+        html: string;        // html string
+    };
+    dateStart: Date;
+    dateEnd: Date;
+    generatedAt: Date;
+    generatedBy: String;    //
+    columns: {
+        title: {
+            plain: string;
+            html: string;
+        },
+
+    };
+
+    // need to work on this for the real report engine, it's on the white board
+
+}
+
 export interface IReportColumn {
   name: string;
   path: string;
   type: string;
+  isArray: boolean;
 }
 
 export interface IReportOptions {
-    kpi: IKPIDocument;
+    dataSource: string;
     dateRange: IChartDateRange;
-    fullPathFields: string[];
+    timezone: string;
+    filter: any;
+    fields: string[];
 }
 
 export interface IReportResult {
@@ -37,40 +129,26 @@ export interface IReportResult {
 
 @injectable()
 export class ReportService {
-    private _timezone: string;
 
     constructor(
-        @inject(CurrentUser.name) private _currentUser: CurrentUser,
         @inject(Logger.name) private _logger: Logger,
-        @inject(KPIs.name) private _kpis: KPIs,
         @inject(VirtualSources.name) private _virtualSources: VirtualSources,
         @inject(VirtualSourceAggregateService.name) private _vsAggregateService: VirtualSourceAggregateService,
         @inject(DateService.name) private dateService: DateService,
     ) {
-      this._timezone = this._currentUser.get().profile.timezone;
     }
 
-    async generateReport(options: IReportOptions): Promise<IReportResult> {
-        const { kpi, dateRange, fullPathFields } = options;
-
-        const expression = KPIExpressionHelper.DecomposeExpression(<KPITypeEnum>kpi.type, kpi.expression) as IKPISimpleDefinition;
+    async run(options: IReportOptions): Promise<IReportResult> {
+        const { dataSource, dateRange, filter,  fields, timezone } = options;
 
         try {
-            const vs = await this._virtualSources.model.findOne({
-                name: { $regex: new RegExp(`^${expression.dataSource}$`, 'i')}
-            });
+            const vs = await this._virtualSources.model.findOne({name: { $regex: new RegExp(`^${dataSource}$`, 'i')}});
 
             // it's ok if the parent virtual source is null, is handled inside _getReportDataMethod
-            const parentVs = await this._virtualSources.model.findOne({ name: vs.source.toLowerCase() });
+            const parentVs = await this._virtualSources.model.findOne({ name: vs.source.toLowerCase() }).lean() as IVirtualSourceDocument;
 
-            let columns = this._getReportColumns(vs, [...fullPathFields, expression.field]);
-            columns = this._moveAmountColumnToEnd(columns, expression.field);
-            const rows = await this._getReportData(vs, parentVs, kpi, dateRange, columns);
-
-            // add a row with the total of the expression field
-            const totalRow = this._generateTotalRow(columns, rows, expression, fullPathFields);
-
-            rows.push(totalRow);
+            let columns = this._getReportColumns(vs, fields);
+            const rows = await this._getReportData(vs, parentVs, dateRange, timezone, filter, columns);
 
             return { columns, rows };
         } catch (err) {
@@ -78,7 +156,6 @@ export class ReportService {
             return null;
         }
     }
-
 
     private _getReportColumns(vs: IVirtualSourceDocument, fields: string[]): IReportColumn[] {
         const columns = [];
@@ -93,7 +170,8 @@ export class ReportService {
             const column: IReportColumn = {
                 name: sortedFields[i],
                 path: value.path,
-                type: value.dataType
+                type: value.dataType,
+                isArray: !!value.isArray
             };
 
             columns.push(column);
@@ -105,8 +183,9 @@ export class ReportService {
     private async _getReportData(
         vs: IVirtualSourceDocument,
         parentVs: IVirtualSourceDocument,
-        kpi: IKPIDocument,
         dateRange: IChartDateRange,
+        timezone: string,
+        filter: any,
         columns: IReportColumn[]
     ): Promise<any[]> {
         let aggregate: AggregateStage[] = [];
@@ -116,7 +195,7 @@ export class ReportService {
         const vsAggregateReplacements: IKeyValues = {
             '__from__': parsedDateRange.from,
             '__to__': parsedDateRange.to,
-            '__timezone__': this._timezone
+            '__timezone__': timezone
         };
 
         let aggregateResult: IProcessAggregateResult = {
@@ -164,7 +243,7 @@ export class ReportService {
         }
 
         // add the filters if any
-        const filters = kpi.filter && KPIFilterHelper.cleanFilter(kpi.filter);
+        const filters = filter;
 
         if (!isEmpty(filters)) {
             for (const [k, v] of Object.entries(filters)) {
@@ -202,26 +281,4 @@ export class ReportService {
         }
     }
 
-    private _generateTotalRow(columns: IReportColumn[], rows: any[], expression: IKPISimpleDefinition, fullPathFields: string[], ): any {
-        const total = sumBy(rows, expression.field);
-        const lastColumn = columns[columns.length - 2];
-
-        let totalRow = { };
-
-        for (let i = 0; i < fullPathFields.length; i++) {
-            totalRow[fullPathFields[0]] = '';
-        }
-
-        set(totalRow, lastColumn.path, 'TOTAL');
-        set(totalRow, expression.field, total);
-
-        return totalRow;
-    }
-
-    private _moveAmountColumnToEnd(columns: IReportColumn[], amountField: string): IReportColumn[] {
-        return [
-            ...columns.filter(c => c.path !== amountField),
-            ...columns.filter(c => c.path === amountField)
-        ];
-    }
 }
