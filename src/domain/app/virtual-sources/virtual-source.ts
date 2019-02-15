@@ -11,6 +11,7 @@ export interface IFieldMetadata {
     allowGrouping?: boolean;
     sourceOrigin?: string;
     formula?: any;
+    isArray?: boolean;
 }
 
 export interface IVirtualSourceFields {

@@ -80,11 +80,14 @@ export class FunnelsService {
 
               const foundTotalStage = renderedStages.find(s => s._id === inputStage.compareToStage);
               const thisRenderedStage = renderedStages.find(s => s._id === inputStage._id);
-              const percent =
+              let percent =
                 Math.floor(
                     ((thisRenderedStage.amount * 100) / foundTotalStage.amount)
                     * 100
                 ) / 100;
+
+              // handle infinity values
+              if (!Number.isFinite(percent)) percent = -1;
 
               thisRenderedStage.compareToStageValue = percent;
           });
@@ -133,35 +136,6 @@ export class FunnelsService {
           amount,
           _id: stage._id,
         };
-    }
-
-    public async getStageDetails(funnelId: string, stageId: string): Promise<IFunnelStageDetails> {
-      try {
-        const funnelDoc = await this._funnels.model.findOne({ _id: funnelId });
-
-        if (!funnelDoc) throw new Error('funnel not found');
-
-        const foundStage = funnelDoc.stages.find(s => s._id === stageId);
-
-        if (!foundStage) throw new Error('stage not found in funnel');
-
-        const kpiDocument = await this._kpis.model.findOne({ _id: foundStage.kpi });
-
-        const report = await this._reportService.generateReport({
-          kpi: kpiDocument,
-          dateRange: foundStage.dateRange,
-          fullPathFields: foundStage.fieldsToProject
-        });
-
-        return { columns: report.columns, rows: report.rows };
-
-
-        return null;
-      } catch (err) {
-        this._logger.error(err);
-        throw err;
-      }
-      return null;
     }
 
     private async _calcStageCount(kpiDocument: IKPIDocument, dateRange: ChartDateRangeInput): Promise<number> {
