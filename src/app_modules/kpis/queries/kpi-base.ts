@@ -1,6 +1,6 @@
 import { inject, injectable } from 'inversify';
 import { camelCase } from 'change-case';
-import { find, cloneDeep, isArray, isDate, isObject, isString, isNumber, isBoolean } from 'lodash';
+import { find, cloneDeep, isArray, isDate, isObject, isString, isNumber, isBoolean, merge } from 'lodash';
 import * as logger from 'winston';
 
 import { IKPI } from '../../../domain/app/kpis/kpi';
@@ -236,7 +236,7 @@ export class KpiBase {
 
     protected _injectFormulaFieldFilter(filter: any) {
         let matchStage = this.findStage('formulaFieldsFilter', '$match');
-        let cleanFilter = this._cleanFilter(filter);
+        let cleanFilter = this._vsAggregateService.cleanFilter(filter);
 
         if (!matchStage) {
             throw new Error('KpiBase#_injectFormulaFieldFilter: Cannot inject filter because a formulaFieldsFilter/$match stage could not be found');
@@ -577,12 +577,13 @@ export class KpiBase {
                     if (filterKey === 'top') return;
 
                     if (formulaFields.some(f => f.value.path === filterKey)) {
-                        formulaFieldFilter[filterKey] = filter[filterKey];
+                        formulaFieldFilter[filterKey] =
+                            merge(formulaFieldFilter[filterKey] || {}, filter[filterKey]);
                         return;
                     }
 
-                    regularFilter[filterKey] = filter[filterKey];
-
+                    regularFilter[filterKey]
+                        = merge(regularFilter[filterKey] || {}, filter[filterKey]);
                 });
             }
         } else {
