@@ -601,12 +601,15 @@ export class KpiBase {
             });
         }
 
-
         if (cleanFilterWithAnd) {
             const newRegularFilter = {};
-            newRegularFilter['$and'] = [];
-            for (const [key, value] of Object.entries(regularFilter)) {
-                newRegularFilter['$and'].push({ [key]: value });
+
+            if (Object.entries(regularFilter).length) {
+                newRegularFilter['$and'] = [];
+
+                for (const [key, value] of Object.entries(regularFilter)) {
+                    newRegularFilter['$and'].push({ [key]: value });
+                }
             }
 
             regularFilter = newRegularFilter;
