@@ -198,6 +198,9 @@ export class FunnelStageFieldType {
 
     @field({ type: GraphQLTypesMap.String })
     type: string;
+
+    @field({ type: GraphQLTypesMap.Boolean })
+    isArray: boolean;
 }
 
 @type()
@@ -211,4 +214,31 @@ export class FunnelStageDetailsResponse  {
     static resolverForData(entity: IFunnelStageDetails) {
         return JSON.stringify(entity.rows);
     }
+}
+
+@type()
+export class FunnelStageField  {
+    @field({ type: GraphQLTypesMap.String })
+    name: string;
+
+    @field({ type: GraphQLTypesMap.String })
+    path: string;
+
+    @field({ type: GraphQLTypesMap.String })
+    type: string;
+
+    @field({ type: GraphQLTypesMap.Boolean })
+    isArray: boolean;
+}
+
+@type()
+export class FunnelStageKpiFieldType  {
+    @field({ type: GraphQLTypesMap.String })
+    id: string;
+
+    @field({ type: GraphQLTypesMap.String })
+    name: string;
+
+    @field({ type: FunnelStageField, isArray: true })
+    fields: FunnelStageField[];
 }

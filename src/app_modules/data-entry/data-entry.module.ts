@@ -6,6 +6,7 @@ import { DataEntryQuery } from './queries/data-entry.query';
 import { UpdateDataEntryMutation } from './mutations/update-data-entry.mutation';
 import { DataEntryCollectionQuery } from './queries/data-entry-collection.query';
 import { ProcessImportFIleQuery } from './queries/process-import-file.query';
+import { RemoveRowsDataEntryMutation } from './mutations/remove-rows-data-entry.mutation';
 
 @AppModule({
     queries: [
@@ -17,7 +18,8 @@ import { ProcessImportFIleQuery } from './queries/process-import-file.query';
     mutations: [
         AddDataEntryMutation,
         RemoveDataEntryMutation,
-        UpdateDataEntryMutation
+        UpdateDataEntryMutation,
+        RemoveRowsDataEntryMutation
     ]
 })
 export class DataEntryModule extends ModuleBase { }
