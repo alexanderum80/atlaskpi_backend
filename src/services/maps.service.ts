@@ -7,9 +7,7 @@ import { KPIs } from './../domain/app/kpis/kpi.model';
 import {IChartDateRange} from './../domain/common/date-range';
 import { Maps } from '../domain/app/maps/maps.model';
 import { MapAttributesInput } from '../app_modules/maps/map.types';
-import { attachMapToDashboards,
-    detachMapFromDashboards,
-    detachMapFromAllDashboards
+import { attachMapToDashboards, detachMapFromDashboards, detachMapFromAllDashboards
 } from '../app_modules/maps/mutations/common';
 
 export interface IRenderChartOptions {
@@ -126,7 +124,7 @@ export class MapsService {
                                 } else {
                                     mapObj = map;
                                 }
-                                detachMapFromDashboards(that._dashboards.model, toRemoveDashboardIds, mapObj)
+                                detachMapFromDashboards(that._dashboards.model, toRemoveDashboardIds, mapObj.id)
                                 .then(() => {
                                     attachMapToDashboards(that._dashboards.model, this._maps.model , toAddDashboardIds, mapObj)
                                     .then(() => {
