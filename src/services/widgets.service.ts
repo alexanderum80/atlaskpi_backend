@@ -12,7 +12,7 @@ import { IWidget, IWidgetDocument } from '../domain/app/widgets/widget';
 import { WidgetFactory } from '../domain/app/widgets/widget-factory';
 import { Widgets } from '../domain/app/widgets/widget.model';
 import { INameType } from './../domain/common/name-type';
-import { attachToDashboards } from '../app_modules/widgets/mutations/common';
+import { attachWidgetToDashboards } from '../app_modules/widgets/mutations/common';
 import { Logger } from '../domain/app/logger';
 import { detachFromDashboards } from '../app_modules/widgets/mutations/common';
 import { ScheduleJobs } from '../domain/app/schedule-job/schedule-job.model';
@@ -48,7 +48,7 @@ export class WidgetsService {
             const widget = await this._widgets.model.createWidget(input);
 
             // attach widget to dashboard
-            await attachToDashboards(this._dashboards.model, inputDashboards, widget._id);
+            await attachWidgetToDashboards(this._dashboards.model, this._widgets.model , inputDashboards, widget);
 
             return widget;
         } catch (e) {
@@ -61,7 +61,7 @@ export class WidgetsService {
         try {
             const inputDashboards = <any>input.dashboards || [];
             // resolve dashboards to include the widget
-            const widgetsDashboards = await this._dashboards.model.find( {widgets: { $in: [id] }});
+            const widgetsDashboards = await this._dashboards.model.find( {'widgets.id': { $in: [id] }});
 
             const currentDashboardIds = widgetsDashboards.map(d => String(d._id));
             const toRemoveDashboardIds = difference(currentDashboardIds, inputDashboards);
@@ -79,7 +79,7 @@ export class WidgetsService {
             await detachFromDashboards(this._dashboards.model, toRemoveDashboardIds, widget._id);
 
             // attach widget to dashboard
-            await attachToDashboards(this._dashboards.model, toAddDashboardIds, widget._id);
+            await attachWidgetToDashboards(this._dashboards.model, this._widgets.model, toAddDashboardIds, widget);
 
             return widget;
         } catch (e) {
@@ -121,7 +121,7 @@ export class WidgetsService {
             const tz = this._user.get().profile.timezone;
 
             // it could be a chart widget
-            if(data.numericWidgetAttributes){
+            if (data.numericWidgetAttributes) {
             data.numericWidgetAttributes.dateRange
                 = convertStringDateRangeToDateDateRange(data.numericWidgetAttributes.dateRange as any, tz) as any;
             }
@@ -174,6 +174,7 @@ export class WidgetsService {
 
             docs.forEach(d => {
                 const widgetAsObject = <IWidget>d.toObject();
+                widgetAsObject['position'] = d.position;
                 uiWidgetsPromises.push(
                     that._widgetFactory.getInstance(widgetAsObject).then(uiWidget => {
                         return uiWidget.materialize({ timezone: this._timezone });
@@ -252,8 +253,10 @@ export class WidgetsService {
     async _resolveDashboards(widget): Promise<IDashboardDocument[]> {
         const that = this;
         return await new Promise<IDashboardDocument[]>((resolve, reject) => {
-            that._dashboards.model.find( { widgets: { $in: [widget._id] }}).exec()
-                .then((dashboards) => resolve(dashboards))
+            that._dashboards.model.find( { 'widgets.id': { $in: [widget._id] }}).exec()
+                .then((dashboards) => {
+                    resolve(dashboards);
+                })
                 .catch(err => reject(err));
         });
     }

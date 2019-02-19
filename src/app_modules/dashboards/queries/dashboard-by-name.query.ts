@@ -1,3 +1,4 @@
+import { IWidgetDocument } from './../../../domain/app/widgets/widget';
 import * as Promise from 'bluebird';
 import * as console from 'console';
 import { inject, injectable } from 'inversify';
@@ -46,11 +47,11 @@ export class DashboardByNameQuery implements IQuery<IDashboard> {
                 .findOne({name: data.name})
                 .populate(
                     {
-                        path: 'charts',
+                        path: 'charts.id',
                         populate: { path: 'kpis.kpi' }
                     }
                 )
-                .populate('widgets')
+                .populate('widgets.id')
                 .then(dashboard => {
 
                     if (!dashboard) {
@@ -60,12 +61,26 @@ export class DashboardByNameQuery implements IQuery<IDashboard> {
                     }
 
                     const dashboardElementsPromises = { };
+
                     // process widgets
-                    dashboardElementsPromises['widgets'] = that._widgetService.materializeWidgetDocuments(<any>dashboard.widgets);
+                    const widgetsElements: IWidgetDocument[] = dashboard.widgets.map(w => {
+                        let widget = (<any>w).id;
+                        widget['position'] = (<any>w).position;
+                        return widget;
+                    });
+
+                    dashboardElementsPromises['widgets'] = that._widgetService.materializeWidgetDocuments(widgetsElements);
 
                     // process charts
-                    let chartPromises = dashboard.charts.map(c => {
-                        return that._chartQuery.run({ id: (<any>c)._id } as any);
+                    const chartsElements = dashboard.charts.map(m => {
+                        let chart = (<any>m).id;
+                        chart['position'] = (<any>m).position;
+                        return chart;
+                    });
+                    let chartPromises = chartsElements.map(c => {
+                        let chartobj = that._chartQuery.run({ id: c.id, position: c.position } as any);
+                        chartobj['position'] = c.position;
+                        return chartobj;
                     });
 
                     dashboardElementsPromises['charts'] = Promise.all(chartPromises);

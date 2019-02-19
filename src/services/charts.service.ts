@@ -1,4 +1,3 @@
-import * as Bluebird from 'bluebird';
 import { camelCase } from 'change-case';
 import { inject, injectable } from 'inversify';
 import { cloneDeep, difference, isArray, isEmpty, isNumber, isString, omit, PartialDeep, pick, uniq } from 'lodash';
@@ -6,17 +5,14 @@ import * as moment from 'moment-timezone';
 
 import { IChartMetadata } from '../app_modules/charts/queries/charts/chart-metadata';
 import {
-    attachToDashboards,
     detachFromAllDashboards,
     detachFromDashboards,
 } from '../app_modules/dashboards/mutations/common';
 import { IObject } from '../app_modules/shared/criteria.plugin';
 import { CurrentUser } from '../domain/app/current-user';
 import { Logger } from '../domain/app/logger';
-import { TargetsNew } from '../domain/app/targetsNew/target.model';
 import { VirtualSources } from '../domain/app/virtual-sources/virtual-source.model';
 import { chartTopLimit, IChartTop, isNestedArray } from '../domain/common/top-n-record';
-import { dataSortDesc } from '../helpers/number.helpers';
 import { ChartAttributesInput } from './../app_modules/charts/charts.types';
 import { ChartFactory } from './../app_modules/charts/queries/charts/chart-factory';
 import { IUIChart, NULL_CATEGORY_REPLACEMENT } from './../app_modules/charts/queries/charts/ui-chart-base';
@@ -38,6 +34,13 @@ import {
 } from './../domain/common/date-range';
 import { FrequencyEnum, FrequencyTable } from './../domain/common/frequency-enum';
 import { TargetService } from './target.service';
+import {dataSortDesc} from '../helpers/number.helpers';
+import { TargetsNew } from '../domain/app/targetsNew/target.model';
+import * as Bluebird from 'bluebird';
+import { attachChartToDashboards,
+    detachChartFromAllDashboards,
+    detachChartFromDashboards
+} from '../app_modules/charts/mutations/common';
 import { KPIFilterHelper } from '../domain/app/kpis/kpi-filter.helper';
 import { KPITypeMap } from '../domain/app/kpis/kpi';
 
@@ -275,24 +278,23 @@ export class ChartsService {
             .lean()
             .then((chartDocuments: IChart[]) => {
                 resolve(chartDocuments.map((k) => {
-                    let  createdBy = "";
-                    let updatedBy = "";
+                    let  createdBy = '';
+                    let updatedBy = '';
 
-                    if(k.createdBy !== null) {
+                    if (k.createdBy !== null) {
                     const firstNameCreated = k.createdBy.profile.firstName;
                     const midleNameCreated = k.createdBy.profile.middleName;
                     const lastNameCreated = k.createdBy.profile.lastName;
-                    
+
                     createdBy = (firstNameCreated ? firstNameCreated + ' ' : '' ) + (midleNameCreated ? midleNameCreated + ' ' : '' ) + (lastNameCreated ? lastNameCreated  : '' );
                     }
 
-                    if(k.updatedBy !== null){
-                    const firstNameUpdated = k.updatedBy.profile.firstName;
-                    const lastNameUpdated = k.updatedBy.profile.lastName;
-
-                    updatedBy = (firstNameUpdated ? firstNameUpdated + ' ' : '' ) + (lastNameUpdated ? lastNameUpdated + ' ' : '' );
+                    if (k.updatedBy !== null) {
+                        const firstNameUpdated = k.updatedBy.profile.firstName;
+                        const lastNameUpdated = k.updatedBy.profile.lastName;
+                        updatedBy = (firstNameUpdated ? firstNameUpdated + ' ' : '' ) + (lastNameUpdated ? lastNameUpdated + ' ' : '' );
                     }
-                    
+
                     k.createdBy = createdBy;
                     k.updatedBy = updatedBy;
 
@@ -381,7 +383,7 @@ export class ChartsService {
 
             // create the chart
             const chart = await this._charts.model.createChart(input);
-            await attachToDashboards(this._dashboards.model, input.dashboards, chart._id);
+            await attachChartToDashboards(this._dashboards.model, input.dashboards, chart);
 
             return chart;
         } catch (e) {
@@ -405,7 +407,7 @@ export class ChartsService {
                     return;
                 }
 
-                detachFromAllDashboards(that._dashboards.model, chart._id)
+                detachChartFromAllDashboards(that._dashboards.model, chart._id)
                 .then(() => {
                     chart.remove().then(() =>  {
                         resolve(<IChart>chart.toObject());
@@ -432,7 +434,7 @@ export class ChartsService {
                 }
 
                 // resolve dashboards the chart is in
-                that._dashboards.model.find( {charts: { $in: [id]}})
+                that._dashboards.model.find( {'charts.id': { $in: [id]}})
                     .then((chartDashboards) => {
                         // update the chart
 
@@ -446,9 +448,9 @@ export class ChartsService {
                                 const toRemoveDashboardIds = difference(currentDashboardIds, input.dashboards);
                                 const toAddDashboardIds = difference(input.dashboards, currentDashboardIds);
 
-                                detachFromDashboards(that._dashboards.model, toRemoveDashboardIds, chart._id)
+                                detachChartFromDashboards(that._dashboards.model, toRemoveDashboardIds, chart.id)
                                 .then(() => {
-                                    attachToDashboards(that._dashboards.model, toAddDashboardIds, chart._id)
+                                    attachChartToDashboards(that._dashboards.model, toAddDashboardIds, chart)
                                     .then(() => {
                                         resolve(chart);
                                         return;
@@ -491,8 +493,10 @@ export class ChartsService {
     private _resolveDashboards(chart): Promise<IDashboardDocument[]> {
         const that = this;
         return new Promise<IDashboardDocument[]>((resolve, reject) => {
-            that._dashboards.model.find( { charts: { $in: [chart._id] }}).exec()
-                .then((dashboards) => resolve(dashboards))
+            that._dashboards.model.find( { 'charts.id': { $in: [chart._id] }}).exec()
+                .then((dashboards) => {
+                    resolve(dashboards);
+                })
                 .catch(err => reject(err));
         });
     }

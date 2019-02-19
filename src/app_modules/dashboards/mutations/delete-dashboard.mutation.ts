@@ -30,9 +30,21 @@ export class DeleteDashboardMutation extends MutationBase<IMutationResponse> {
         return new Promise<IMutationResponse>((resolve, reject) => {
             that._dashboards.model.deleteDashboard(data.id)
             .then(dashboard => {
+                let dashResponse = dashboard.toObject();
+                const chartsStrings = dashboard.charts.map(m => JSON.stringify(m));
+                const mapsStrings = dashboard.maps.map(m => JSON.stringify(m));
+                const widgetsStrings = dashboard.widgets.map(m => JSON.stringify(m));
+                const socialWidgetsStrings = dashboard.socialwidgets.map(m => JSON.stringify(m));
+                
+                dashResponse = Object.assign(dashResponse, {
+                    charts: chartsStrings,
+                    widgets: widgetsStrings,
+                    maps: mapsStrings,
+                    socialwidgets: socialWidgetsStrings } )
+
                     resolve({
                         success: true,
-                        entity: dashboard
+                        entity: dashResponse
                     });
             }).catch(err => {
                     resolve({

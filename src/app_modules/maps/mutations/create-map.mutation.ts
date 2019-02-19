@@ -11,7 +11,7 @@ import { IMapDocument } from '../../../domain/app/maps/maps';
 import { Dashboards } from '../../../domain/app/dashboards/dashboard.model';
 import { KPIs } from '../../../domain/app/kpis/kpi.model';
 import { Maps } from '../../../domain/app/maps/maps.model';
-import { attachMapToDashboards } from '../../dashboards/mutations/common';
+import { attachMapToDashboards } from './common';
 
 @injectable()
 @mutation({
@@ -57,7 +57,7 @@ export class CreateMapMutation extends MutationBase<IMutationResponse> {
             }
             // create the map
             const map = await this._maps.model.createMap(input);
-            await attachMapToDashboards(this._dashboards.model, input.dashboards, map.id);
+            await attachMapToDashboards(this._dashboards.model, this._maps.model , input.dashboards, map);
             return map;
         } catch (e) {
             this._logger.error('There was an error creating a map', e);

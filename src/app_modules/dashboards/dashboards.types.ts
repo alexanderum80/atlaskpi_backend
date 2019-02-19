@@ -49,7 +49,7 @@ export class DashboardInput  {
     @field({ type: GraphQLTypesMap.Int })
     order?: number;
 
-     //add-created-update-by-date
+     // add-created-update-by-date
 
     @field({ type: GraphQLTypesMap.String })
      updatedBy?: string;

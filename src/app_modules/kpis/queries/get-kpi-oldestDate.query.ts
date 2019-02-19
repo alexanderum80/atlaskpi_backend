@@ -62,7 +62,7 @@ export class GetKpiOldestDateQuery implements IQuery<Object> {
                 let endResult;
                 res.map(r => {
                     // this happens with google analytics the response is a []
-                    if (Object.values(r).length < 1 || 
+                    if (Object.values(r).length < 1 ||
                         (Object.values(r).length === 1 && Object.values(r[0]).length === 0)) {
                         // assign a fixed value up to 3 years in the past
                         endResult = moment().year() - 3;

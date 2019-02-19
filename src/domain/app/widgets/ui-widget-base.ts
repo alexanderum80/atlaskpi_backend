@@ -12,6 +12,7 @@ export interface IUIWidget extends UIWidgetBase {
 
 export class UIWidgetBase {
     protected order: number;
+    protected position?: number;
     protected name: string;
     protected description?: string;
     protected type: string;

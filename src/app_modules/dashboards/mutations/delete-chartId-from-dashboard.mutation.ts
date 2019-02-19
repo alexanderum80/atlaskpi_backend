@@ -30,7 +30,7 @@ export class DeleteChartIdFromDashboardMutation extends MutationBase<IMutationRe
         const that = this;
 
         return new Promise<IMutationResponse>((resolve, reject) => {
-            that._dashboards.model.deleteChartIdFromDashboard(data.id, data.charts).then(dashboard => {
+            that._dashboards.model.deleteChartIdFromDashboard(data.id, data.charts[0]).then(dashboard => {
 
                 resolve({
                     success: true,

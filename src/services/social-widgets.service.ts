@@ -55,7 +55,7 @@ export class SocialWidgetsService {
         });
     }
 
-    getSocialWidgetsById(id: string): Promise<string> {
+    getSocialWidgetsById(id: string, position?: string): Promise<string> {
         const that = this;
         return new Promise<string>((resolve, reject) => {
             that._connectors.model.findById(id)
@@ -66,6 +66,9 @@ export class SocialWidgetsService {
                 }
                 that._toSocialWidget(connector, moment().utc().toDate(), 'last 7 days')
                 .then(swidget => {
+                    if (position) {
+                        swidget['position'] = position;
+                    }
                     resolve(JSON.stringify(swidget));
                     return;
                 })

@@ -93,10 +93,10 @@ MapSchema.statics.createMap = function(input: MapAttributesInput): Promise < IMa
             .catch((err) => reject(err));
     });
 };
-MapSchema.statics.updateMap = function(id: string, input: MapAttributesInput): Promise < String > {
+MapSchema.statics.updateMap = function(id: string, input: MapAttributesInput): Promise < IMapDocument > {
     const that = this;
 
-    return new Promise < String > ((resolve, reject) => {
+    return new Promise < IMapDocument > ((resolve, reject) => {
         if (!id) {
             return Promise.reject({
                 message: 'There was an error updating the map'

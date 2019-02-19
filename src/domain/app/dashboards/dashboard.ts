@@ -27,6 +27,7 @@ export interface IDashboard {
     createdDate?: Date;
     updatedBy?: any;
     updatedDate?: Date;
+    position?: number;
 }
 
 export interface IDashboardInput {
@@ -62,5 +63,5 @@ export interface IDashboardModel extends mongoose.Model<IDashboardDocument>, ISe
     deleteDashboard(id: string): Promise<IDashboardDocument>;
     findDashboardByChartId(id: string): Promise<string>;
     deleteWidget(dashboardId: string, widgetId: string): Promise<IDashboardDocument>;
-    deleteChartIdFromDashboard(id: string, charts: string[]): Promise<IDashboardDocument>;
+    deleteChartIdFromDashboard(id: string, chart: string): Promise<IDashboardDocument>;
  }
