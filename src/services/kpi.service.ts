@@ -131,7 +131,7 @@ export class KpiService {
         try {
             const allKpis: IKPI[] = await this._kpis.model.find({}).lean().exec() as IKPI[];
             const kpis: IKPI[] = allKpis.filter((k: IKPI) => input.ids.indexOf(k._id.toString()) !== -1);
-            const connectors: IConnector[] = await this._connectors.model.find({}).lean() as IConnector[];
+            const connectors: IConnector[] = await this._connectors.model.find({}) as IConnector[];
             const vs: IVirtualSourceDocument[] = await this._virtualSources.model.find({});
 
             const kpiSourcesArrays = await Bluebird.map(kpis, (kpi) => this._getKpiSources(kpi, allKpis, connectors));
