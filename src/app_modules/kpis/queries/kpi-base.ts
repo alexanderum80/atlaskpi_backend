@@ -561,7 +561,7 @@ export class KpiBase {
 
         const formulaFields = this._vsAggregateService.getFormulaFields(this.kpiVirtualSources.virtualSource);
 
-        let cleanFilter = this._cleanFilter(filter);
+        let cleanFilter = this._vsAggregateService.cleanFilter(filter);
 
         let cleanFilterWithAnd;
 
