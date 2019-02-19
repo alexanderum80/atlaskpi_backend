@@ -1,0 +1,267 @@
+{ 
+    "name" : "Sales", 
+    "description" : "Sales", 
+    "source" : "sales", 
+    "modelIdentifier" : "Sale", 
+    "dateField" : "product.from", 
+    "fieldsMap" : {
+        "Location's Name" : {
+            "path" : "location.name", 
+            "dataType" : "String", 
+            "allowGrouping" : true
+        }, 
+        "Location's City" : {
+            "path" : "location.city", 
+            "dataType" : "String", 
+            "allowGrouping" : true
+        }, 
+        "Location's State" : {
+            "path" : "location.state", 
+            "dataType" : "String", 
+            "allowGrouping" : true
+        }, 
+        "Location's Zip" : {
+            "path" : "location.zip", 
+            "dataType" : "String", 
+            "allowGrouping" : true
+        }, 
+        "Location's External Id" : {
+            "path" : "location.externalId", 
+            "dataType" : "String"
+        }, 
+        "Customer's Address" : {
+            "path" : "customer.address", 
+            "dataType" : "String"
+        }, 
+        "Customer's City" : {
+            "path" : "customer.city", 
+            "dataType" : "String", 
+            "allowGrouping" : true
+        }, 
+        "Customer's State" : {
+            "path" : "customer.state", 
+            "dataType" : "String", 
+            "allowGrouping" : true
+        }, 
+        "Customer's Zip Code" : {
+            "path" : "customer.zip", 
+            "dataType" : "String", 
+            "allowGrouping" : true
+        }, 
+        "Customer's Gender" : {
+            "path" : "customer.gender", 
+            "dataType" : "String", 
+            "allowGrouping" : true
+        }, 
+        "Customer's Date of Birth" : {
+            "path" : "customer.dob", 
+            "dataType" : "Date"
+        },
+        "Customer's Age" : {
+            "path" : "customer.age", 
+            "dataType" : "Number", 
+            "formula" : {
+                "__dollar__cond" : [
+                    {
+                        "__dollar__ne" : [
+                            "$customer.dob", 
+                            null
+                        ]
+                    }, 
+                    {
+                        "__dollar__subtract" : [
+                            {
+                                "__dollar__divide" : [
+                                    {
+                                        "__dollar__subtract" : [
+                                            "__now__", 
+                                            "$customer.dob"
+                                        ]
+                                    }, 
+                                    31556952000
+                                ]
+                            }, 
+                            {
+                                "__dollar__mod" : [
+                                    {
+                                        "__dollar__divide" : [
+                                            {
+                                                "__dollar__subtract" : [
+                                                    "__now__", 
+                                                    "$customer.dob"
+                                                ]
+                                            }, 
+                                            31556952000
+                                        ]
+                                    }, 
+                                    1
+                                ]
+                            }
+                        ]
+                    }, 
+                    null
+                ]
+            }, 
+            "allowGrouping" : true
+        },  
+        "Customer's Full Name" : {
+            "path" : "customer.fullname", 
+            "dataType" : "String", 
+            "allowGrouping" : true
+        }, 
+        "Customer's External Id" : {
+            "path" : "customer.externalId", 
+            "dataType" : "String"
+        }, 
+        "Employee's Full Name" : {
+            "path" : "employee.fullName", 
+            "dataType" : "String", 
+            "allowGrouping" : true
+        }, 
+        "Employee's Role" : {
+            "path" : "employee.role", 
+            "dataType" : "String", 
+            "allowGrouping" : true
+        }, 
+        "Employee's Type of Employment" : {
+            "path" : "employee.type", 
+            "dataType" : "String", 
+            "allowGrouping" : true
+        }, 
+        "Employee's External Id" : {
+            "path" : "employee.externalId", 
+            "dataType" : "String"
+        }, 
+        "Item's name" : {
+            "path" : "product.itemName", 
+            "dataType" : "String", 
+            "allowGrouping" : true
+        }, 
+        "Product's code" : {
+            "path" : "product.itemCode", 
+            "dataType" : "String", 
+            "allowGrouping" : true
+        }, 
+        "Product's description" : {
+            "path" : "product.itemDescription", 
+            "dataType" : "String", 
+            "allowGrouping" : true
+        }, 
+        "Product's quantity" : {
+            "path" : "product.quantity", 
+            "dataType" : "Number"
+        }, 
+        "Product's unit price" : {
+            "path" : "product.unitPrice", 
+            "dataType" : "Number"
+        }, 
+        "Product's tax 1" : {
+            "path" : "product.tax", 
+            "dataType" : "Number"
+        }, 
+        "Product's tax 2" : {
+            "path" : "product.tax2", 
+            "dataType" : "Number"
+        }, 
+        "Amount" : {
+            "path" : "product.amount", 
+            "dataType" : "Number"
+        }, 
+        "Total before taxes" : {
+            "path" : "product.preTaxTotal", 
+            "dataType" : "Number"
+        }, 
+        "Paid" : {
+            "path" : "product.paid", 
+            "dataType" : "Number"
+        }, 
+        "Discounts" : {
+            "path" : "product.discount", 
+            "dataType" : "Number"
+        }, 
+        "Product's Total Cost" : {
+            "path" : "product.totalCost", 
+            "dataType" : "Number"
+        }, 
+        "From" : {
+            "path" : "product.from", 
+            "dataType" : "Date"
+        }, 
+        "To" : {
+            "path" : "product.to", 
+            "dataType" : "Date"
+        }, 
+        "Product's external Id" : {
+            "path" : "product.externalId", 
+            "dataType" : "String"
+        }, 
+        "Category" : {
+            "path" : "category.name", 
+            "dataType" : "String", 
+            "allowGrouping" : true
+        }, 
+        "Subcategory" : {
+            "path" : "category.subCategoryName", 
+            "dataType" : "String", 
+            "allowGrouping" : true
+        }, 
+        "Category's type of service" : {
+            "path" : "category.service", 
+            "dataType" : "Number", 
+            "allowGrouping" : true
+        }, 
+        "Category's External Id" : {
+            "path" : "category.externalId", 
+            "dataType" : "String"
+        }, 
+        "Timestamp" : {
+            "path" : "timestamp", 
+            "dataType" : "Date"
+        }, 
+        "Concept" : {
+            "path" : "concept", 
+            "dataType" : "String"
+        }, 
+        "Bill id" : {
+            "path" : "billId", 
+            "dataType" : "String"
+        }, 
+        "Source" : {
+            "path" : "source", 
+            "dataType" : "String", 
+            "allowGrouping" : true
+        }, 
+        "External Id" : {
+            "path" : "externalId", 
+            "dataType" : "String"
+        }, 
+        "Business Unit" : {
+            "path" : "businessUnit.name", 
+            "dataType" : "String", 
+            "allowGrouping" : true
+        }, 
+        "Service Type" : {
+            "path" : "serviceType", 
+            "dataType" : "String", 
+            "allowGrouping" : true
+        }, 
+        "Referral" : {
+            "path" : "referral.name", 
+            "dataType" : "String", 
+            "allowGrouping" : true
+        }, 
+        "Referral's External Id" : {
+            "path" : "referral.externalId", 
+            "dataType" : "String"
+        }, 
+        "Seller's External Id" : {
+            "path" : "seller.externalId", 
+            "dataType" : "String"
+        }, 
+        "Seller's Full Name" : {
+            "path" : "seller.name", 
+            "dataType" : "String", 
+            "allowGrouping" : true
+        }
+    }
+}

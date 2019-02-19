@@ -2,16 +2,17 @@
 import { injectable, inject } from 'inversify';
 import { AggregateStage } from '../../../app_modules/kpis/queries/aggregate';
 import { IDateRange } from '../../common/date-range';
-import { cloneDeep } from 'lodash';
-import { IVirtualSource, IVirtualSourceDocument } from './virtual-source';
+import { IVirtualSource, IVirtualSourceDocument, IFieldMetadata } from './virtual-source';
 import { KPIFilterHelper } from '../kpis/kpi-filter.helper';
 import { Logger } from './../../../domain/app/logger';
+import { cloneDeep, isArray, isDate, isObject, isString, isNumber, isBoolean } from 'lodash';
 
-const pattern = new RegExp('^__[a-z]+[a-z]__$', 'i');
+export const ObjectReplacementPattern = new RegExp('^__[a-z]+[a-z]__$', 'i');
 
 export enum AggPlaceholderTypeEnum {
     dateRange = 'DateRange',
-    timezone = 'Timezone'
+    timezone = 'Timezone',
+    dateNow = 'DateNow',
 }
 
 export interface IAggReplacementItem {
@@ -22,12 +23,20 @@ export interface IAggReplacementItem {
 const SUPPORTED_PLACEHOLDERS: IAggReplacementItem[] = [
     { id: '__from__', type: AggPlaceholderTypeEnum.dateRange },
     { id: '__to__', type: AggPlaceholderTypeEnum.dateRange },
-    { id: '__timezone__', type: AggPlaceholderTypeEnum.timezone }
+    { id: '__timezone__', type: AggPlaceholderTypeEnum.timezone },
+    { id: '__now__', type: AggPlaceholderTypeEnum.dateNow }
 ];
 
 export interface IKeyValues {
     [key: string]: any;
 }
+
+
+const replacementString = [
+    { key: '__dot__', value: '.' },
+    { key: '__dollar__', value: '$' }
+];
+
 
 export interface IProcessAggregateResult {
     aggregate: AggregateStage[];
@@ -65,7 +74,7 @@ export class VirtualSourceAggregateService {
         }
 
         if (replacements) {
-            appliedReplacements = this._walkAndReplace(aggregate, pattern, replacements);
+            appliedReplacements = this.walkAndReplace(aggregate, ObjectReplacementPattern, replacements);
         }
 
         return { appliedReplacements, aggregate };
@@ -131,12 +140,22 @@ export class VirtualSourceAggregateService {
 
         const newAggregate = cloneDeep(aggregate);
 
-        this._walkAndReplace(newAggregate, pattern, replacements);
+        this.walkAndReplace(newAggregate, ObjectReplacementPattern, replacements);
 
         return newAggregate;
     }
 
-    private _walkAndReplace(obj: any, pattern: RegExp, replacements: IKeyValues): IAggReplacementItem[] {
+    getFormulaFields(vs: IVirtualSource): { key: string, value: IFieldMetadata }[] {
+        const fields = [];
+        for (const [key, value] of Object.entries(vs.fieldsMap)) {
+            if (!value.formula) continue;
+            fields.push({ key, value });
+        }
+
+        return fields;
+    }
+
+    walkAndReplace(obj: any, pattern: RegExp, replacements: IKeyValues): IAggReplacementItem[] {
         const has = Object.prototype.hasOwnProperty.bind(obj);
 
         let appliedReplacements = [];
@@ -144,7 +163,7 @@ export class VirtualSourceAggregateService {
         for (const k in obj) if (has(k)) {
             switch (typeof obj[k]) {
                 case 'object':
-                    const applied =  this._walkAndReplace(obj[k], pattern, replacements);
+                    const applied =  this.walkAndReplace(obj[k], pattern, replacements);
                     appliedReplacements = Array.from(new Set([].concat(...appliedReplacements, ...applied)));
                     break;
 
@@ -166,6 +185,89 @@ export class VirtualSourceAggregateService {
         }
 
         return appliedReplacements;
+    }
+
+    public cleanFilter(filter: any): any {
+        let newFilter = {};
+
+        if (!filter || isString(filter) ||
+            isNumber(filter) || isBoolean(filter) ||
+            isDate(filter)) {
+            return filter;
+        }
+
+        Object.keys(filter).forEach(filterKey => {
+
+            let key = filterKey;
+            replacementString.forEach(r => key = key.replace(r.key, r.value));
+            let value = filter[filterKey];
+
+            if (!isArray(value) && !isDate(value) && isObject(value)) {
+                newFilter[key] = this.cleanFilter(value);
+            } else if (!isDate(value) && isArray(value)) {
+                for (let i = 0; i < value.length; i++) {
+                    value[i] = this.cleanFilter(value[i]);
+                }
+                newFilter[key] = value;
+            } else {
+                // apply filter
+                let filterValue = filter[filterKey];
+                const operatorName = filterKey.replace(/__dot__|__dollar__/g, '');
+
+                if (this._isRegExpOperator(operatorName)) {
+                    // process filter value
+                    if (operatorName.indexOf('start') !== -1) {
+                        filterValue = '^' + filterValue;
+                    }
+
+                    if (operatorName.indexOf('end') !== -1) {
+                        filterValue = filterValue + '$';
+                    }
+
+                    key = '$regex';
+                    if (operatorName === 'regex') {
+                        value = new RegExp(filterValue);
+                    } else {
+                        value = new RegExp(filterValue, 'i');
+                    }
+                } else {
+                    value = filterValue;
+                }
+
+                newFilter[key] = value;
+            }
+        });
+
+        return newFilter;
+    }
+
+
+    public generateFormulaFieldStage(vs: IVirtualSource): any {
+        const formulaFields = this.getFormulaFields(vs);
+
+        if (!formulaFields || !formulaFields.length) return;
+
+        const stage = { $addFields: { } };
+
+        const __now__ = new Date(Date.now());
+
+        const replacements: IKeyValues = {
+            __now__
+        };
+
+        for (const field of formulaFields) {
+            const cleanFormula = this.cleanFilter(field.value.formula);
+            this.walkAndReplace(cleanFormula, ObjectReplacementPattern, replacements);
+            stage.$addFields[field.value.path] = cleanFormula;
+        }
+
+        return stage;
+    }
+
+    private _isRegExpOperator(operator: string): boolean {
+        const regexStrings = ['startWith', 'endWith', 'contains', 'regex'];
+
+        return regexStrings.indexOf(operator) !== -1;
     }
 
 }

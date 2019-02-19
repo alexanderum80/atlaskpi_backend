@@ -1,5 +1,3 @@
-import { CustomList } from './../custom-list/custom-list.model';
-import { CurrentUser } from '../current-user';
 import { camelCase } from 'change-case';
 import * as Bluebird from 'bluebird';
 import { inject, injectable } from 'inversify';
@@ -11,9 +9,9 @@ import { IObject, ICriteriaAggregate } from '../../../app_modules/shared/criteri
 import { ModelBase } from '../../../type-mongo/model-base';
 import { IValueName } from '../../common/value-name';
 import { AppConnection } from '../app.connection';
-import { IFilterOperator, IVirtualSourceDocument, IVirtualSourceModel, IVirtualSource } from '../virtual-sources/virtual-source';
+import { IFilterOperator, IVirtualSourceDocument, IVirtualSourceModel, IVirtualSource, IFieldMetadata } from '../virtual-sources/virtual-source';
 import { KPIFilterHelper } from '../kpis/kpi-filter.helper';
-import { VirtualSourceAggregateService } from './vs-aggregate.service';
+import { VirtualSourceAggregateService, IKeyValues, ObjectReplacementPattern } from './vs-aggregate.service';
 
 const COLLECTION_SOURCE_MAX_LIMIT = 20;
 const COLLECTION_SOURCE_FIELD_NAME = 'source';
@@ -220,6 +218,10 @@ async function getDistinctValues(
             aggregate = vsAggregateService.applyDateRangeReplacement(aggregate);
         }
 
+        const formulaFieldStage = vsAggregateService.generateFormulaFieldStage(this);
+
+        if (formulaFieldStage) aggregate.push(formulaFieldStage);
+
         return await (model as any).findCriteria(fieldName, aggregate, limit, filter, collectionSource);
     } catch (e) {
         console.error(e);
@@ -387,6 +389,7 @@ function getDataTypeOperator(dataType: string, filterName: string): IFilterOpera
 
 function findCriteria(field: string, aggregate: any[], limit?: number, filter?: string, collectionSource?: string[]): Promise<string[]> {
     const that = this;
+
     let aggregateOptions = aggregate.concat(criteriaAggregation({ field, limit, filter, collectionSource }));
 
     return new Promise<string[]>((resolve, reject) => {

@@ -10,6 +10,7 @@ export interface IFieldMetadata {
     dataType: string;
     allowGrouping?: boolean;
     sourceOrigin?: string;
+    formula?: any;
     isArray?: boolean;
 }
 

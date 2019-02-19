@@ -4,6 +4,9 @@ export interface AggregateStage {
     frequency?: boolean;
     topN?: boolean;
 
+    formulaFields?: boolean;
+    formulaFieldsFilter?: boolean;
+
     $match?: any;
     $project?: any;
     $group?: any;
