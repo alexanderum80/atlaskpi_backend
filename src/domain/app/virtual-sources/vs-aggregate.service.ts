@@ -5,7 +5,7 @@ import { IDateRange } from '../../common/date-range';
 import { IVirtualSource, IVirtualSourceDocument, IFieldMetadata } from './virtual-source';
 import { KPIFilterHelper } from '../kpis/kpi-filter.helper';
 import { Logger } from './../../../domain/app/logger';
-import { cloneDeep, isArray, isDate, isObject, isString, isNumber, isBoolean } from 'lodash';
+import { cloneDeep, isArray, isDate, isObject, isString, isNumber, isBoolean, isRegExp } from 'lodash';
 
 export const ObjectReplacementPattern = new RegExp('^__[a-z]+[a-z]__$', 'i');
 
@@ -192,7 +192,7 @@ export class VirtualSourceAggregateService {
 
         if (!filter || isString(filter) ||
             isNumber(filter) || isBoolean(filter) ||
-            isDate(filter)) {
+            isDate(filter) || isRegExp(filter)) {
             return filter;
         }
 
