@@ -477,10 +477,11 @@ export class DataSourcesService {
                 if (inputValue === null || inputValue === '') {
                     return 0;
                 }
-                if (inputValue.toString().split('.').length > 1) {
-                    return toNumber(inputValue);
+                const cleanNumber = inputValue.replace(/,/, '');
+                if (cleanNumber.toString().split('.').length > 1) {
+                    return toNumber(cleanNumber);
                 } else {
-                    return toInteger(inputValue);
+                    return toInteger(cleanNumber);
                 }
             case 'Date':
                 return moment.utc(inputValue).toDate();
@@ -886,7 +887,7 @@ export class DataSourcesService {
             dataType = 'String';
         } else if (isBoolean(value) || value === '0' || value === '1') {
             dataType = 'Boolean';
-        } else if (!isNaN(+value)) {
+        } else if (!isNaN(+value.replace(/,/, ''))) {
             dataType = 'Number';
         } else if (!isNaN(Date.parse(value))) {
             dataType = 'Date';
