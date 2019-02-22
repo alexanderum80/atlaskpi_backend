@@ -2,6 +2,7 @@ import { isString } from 'lodash';
 
 import { IDashboardModel } from '../../../domain/app/dashboards/dashboard';
 import { IMapModel } from '../../../domain/app/maps/maps';
+import { Maps } from '../../../domain/app/maps/maps.model';
 
 export function detachMapFromAllDashboards(dashboardModel: IDashboardModel, mapId: string): Promise<boolean> {
     return new Promise<boolean>((resolve, reject) => {
@@ -89,6 +90,32 @@ export function attachMapToDashboard(dashboardModel: IDashboardModel, values: an
                                 }
                             }).exec()
         .then(dashboards => {
+            resolve(true);
+            return;
+        })
+        .catch(err => reject(err));
+    });
+}
+
+export function detachDashboardFromAllMaps(mapModel: IMapModel, dashboardId: string): Promise<boolean> {
+    return new Promise<boolean>((resolve, reject) => {
+        mapModel.update({ dashboards: { $in: [dashboardId]}},
+                              { $pull: { dashboards: dashboardId}},
+                              { multi: true }).exec()
+        .then(maps => {
+            return resolve(true);
+        })
+        .catch(err => reject(err));
+    });
+}
+export function attachDashboardToMap(mapModel: IMapModel, mapsIds: string[], dashboardId: string): Promise<boolean> {
+
+    return new Promise<boolean>((resolve, reject) => {
+        mapModel.update({_id: {$in: mapsIds}},
+                        { $addToSet:  {dashboards: dashboardId }},
+                        {multi: true}
+                        ).exec()
+        .then(maps => {
             resolve(true);
             return;
         })

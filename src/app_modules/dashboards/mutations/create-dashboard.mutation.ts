@@ -7,6 +7,8 @@ import { MutationBase } from '../../../framework/mutations/mutation-base';
 import { IMutationResponse } from '../../../framework/mutations/mutation-response';
 import { CreateDashboardActivity } from '../activities/create-dashboard.activity';
 import { DashboardInput, DashboardResponse } from '../dashboards.types';
+import { Maps } from '../../../domain/app/maps/maps.model';
+import { attachDashboardToMap, detachDashboardFromAllMaps } from '../../maps/mutations/common';
 
 @injectable()
 @mutation({
@@ -18,7 +20,8 @@ import { DashboardInput, DashboardResponse } from '../dashboards.types';
     output: { type: DashboardResponse }
 })
 export class CreateDashboardMutation extends MutationBase<IMutationResponse> {
-    constructor(@inject(Dashboards.name) private _dashboards: Dashboards) {
+    constructor(@inject(Dashboards.name) private _dashboards: Dashboards,
+                @inject(Maps.name) private _maps: Maps) {
         super();
     }
 
@@ -49,10 +52,20 @@ export class CreateDashboardMutation extends MutationBase<IMutationResponse> {
             data.input['maps'] = maps;
             that._dashboards.model.createDashboard(data.input)
             .then(dashboard => {
-                    resolve({
-                        success: true,
-                        entity: null
-                    });
+                
+                detachDashboardFromAllMaps(this._maps.model, dashboard.id)
+                .then( (res) =>
+                {
+                    if(res && maps.length){
+                        const mapsToUpdate =  maps.map( obj => obj.id);
+                        attachDashboardToMap(this._maps.model, mapsToUpdate, dashboard.id);
+                    }
+                })
+
+                resolve({
+                    success: true,
+                    entity: null
+                });
             }).catch(err => {
                     resolve({
                         success: false,
