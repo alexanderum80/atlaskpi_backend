@@ -13,7 +13,7 @@ export class BasicRoleChecker {
         const found = allUserPermissions.find(p => p.action === action && p.subject === subject);
 
         if (!found) {
-            console.log('!!!Permission not found... TODO: let the UI know....');
+            console.log('!!!Permission not found... (action) -> : ', action, '(subject) -> : ', subject, ' TODO: let the UI know....');
             return false;
         }
 
