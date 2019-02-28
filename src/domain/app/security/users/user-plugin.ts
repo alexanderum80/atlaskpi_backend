@@ -1054,7 +1054,14 @@ export function userPlugin(schema: mongoose.Schema, options: any) {
 
             if (filter) {
             (<IUserModel>this).find({username: { $ne: filter } })
-                .populate('roles', '-_id, name')
+                .populate({
+                    path: 'roles', 
+                    select: '-_id, name',
+                    populate: {
+                        path: 'permissions',
+                        model: 'Permission'
+                    }
+                })
                 .then((users) => {
                     if (users) {
                         resolve(users);
@@ -1066,7 +1073,14 @@ export function userPlugin(schema: mongoose.Schema, options: any) {
                 });
             } else {
                 (<IUserModel>this).find({})
-                    .populate('roles', '-_id, name')
+                    .populate({
+                        path: 'roles', 
+                        select: '-_id, name',
+                        populate: {
+                            path: 'permissions',
+                            model: 'Permission'
+                        }
+                    })
                     .then((users) => {
                         if (users) {
                             resolve(users);
