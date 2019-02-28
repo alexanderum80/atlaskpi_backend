@@ -11,7 +11,7 @@ export class UpdateAlertActiveActivity implements IActivity {
 
     check(): Promise<boolean> {
         return Promise.resolve(
-            BasicRoleChecker.hasPermission(this._user, 'Update', 'Alert')
+            BasicRoleChecker.hasPermission(this._user, 'Modify', 'Alert')
         );
     }
 }
