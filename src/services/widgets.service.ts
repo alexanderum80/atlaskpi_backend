@@ -16,6 +16,7 @@ import { attachWidgetToDashboards } from '../app_modules/widgets/mutations/commo
 import { Logger } from '../domain/app/logger';
 import { detachFromDashboards } from '../app_modules/widgets/mutations/common';
 import { ScheduleJobs } from '../domain/app/schedule-job/schedule-job.model';
+import { ScheduleJobService } from './schedule-jobs/schedule-job.service';
 
 @injectable()
 export class WidgetsService {
@@ -27,6 +28,7 @@ export class WidgetsService {
         @inject(Widgets.name) private _widgets: Widgets,
         @inject(WidgetFactory.name) private _widgetFactory: WidgetFactory,
         @inject(ScheduleJobs.name) private _scheduleJobs: ScheduleJobs,
+        @inject(ScheduleJobService.name) private _scheduleJobService: ScheduleJobService,
         @inject(Logger.name) private _logger: Logger,
         @inject(CurrentUser.name) private _user: CurrentUser
     ) {
@@ -108,7 +110,15 @@ export class WidgetsService {
                 widgets = widgetDocuments.map(d => d.toObject());
             }
 
-            return widgets;
+            const widgetsWAlerts = [];
+
+            for(let w of widgets){
+                const alerts = await this._scheduleJobService.getJobsByIdentifier(w._id.toString());
+                w.hasAlerts = alerts.length > 0;
+                widgetsWAlerts.push(w)
+            }
+
+            return widgetsWAlerts;
         } catch (e) {
             console.error('There was an error getting the list of widgets', e);
             return [];
