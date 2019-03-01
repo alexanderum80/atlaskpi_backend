@@ -23,7 +23,7 @@ export class SimpleKPI extends SimpleKPIBase implements IKpiBase {
         let collection: ICollection;
 
         const virtualSource = virtualSources.find(s => s.name.toLocaleLowerCase() === simpleKPIDefinition.dataSource.toLocaleLowerCase());
-        const parentVirtualSource = virtualSources.find(s => s.name.toLocaleLowerCase() === virtualSource.source.toLowerCase());
+        const parentVirtualSource = virtualSources.find(s => s.name.toLocaleLowerCase() === (virtualSource && virtualSource.source.toLowerCase()));
 
         if (!virtualSource) throw new Error('cannot create a kpi without a virtual source');
 

@@ -694,8 +694,8 @@ export class DataSourcesService {
 
                     const virtualSourceName = connector.name || null;
 
-                    // contain regex expression to use for complex kpi
-                    const expressionName: RegExp = new RegExp(virtualSourceName);
+                    // Fixed in CORE-2870. should match exactly the virtualSource Name plus an s
+                    const expressionName: RegExp = new RegExp(`^$${virtualSourceName}s$`, 'i');
 
                     this._kpis.model.find({
                         expression: {
