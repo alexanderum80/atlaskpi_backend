@@ -251,7 +251,7 @@ export class WidgetsService {
         return new Promise<INameType[]>((resolve, reject) => {
             that._dashboards
                 .model
-                .find({ widgets: { $in: [id]}})
+                .find({ widgets: { $elemMatch: {id} }})
                 .then(dashboards => {
                     const result = dashboards.map(d => { return { name: d.name, type: 'Dashboard '}; });
                     return resolve(result);
