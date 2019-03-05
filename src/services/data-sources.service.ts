@@ -26,6 +26,9 @@ import { CustomListService } from './custom-list.service';
 const GOOGLE_ANALYTICS = 'GoogleAnalytics';
 const csvTokenDelimeter = ',';
 
+// \W is the equivalent of [^0-9a-zA-Z_]
+const FIELD_NAME_REGEX_REPLACEMENT = new RegExp(/\W/g);
+
 export interface IFieldAvailabilityOptions {
     dateRangeFilter?: { $gte: Date, $lt: Date };
     filters?: any;
@@ -297,7 +300,7 @@ export class DataSourcesService {
                 const sourceOrigin = customList.find(c => c._id.toString() === dataType);
 
                 inputFieldsMap[field] = {
-                    path: field.toLowerCase().replace(/ /g, '_'),
+                    path: field.toLowerCase().replace(FIELD_NAME_REGEX_REPLACEMENT, '_'),
                     dataType: sourceOrigin ? sourceOrigin.dataType : dataType,
                     required: f.required || false
                 };
@@ -306,7 +309,7 @@ export class DataSourcesService {
                     inputFieldsMap[field].sourceOrigin = sourceOrigin._id.toString();
                 }
 
-                if (dataType === 'String' || 
+                if (dataType === 'String' ||
                     inputFieldsMap[field].dataType === 'String' ||
                     inputFieldsMap[field].path.includes('zip' || 'postal') ) {
                     inputFieldsMap[field].allowGrouping = true;
@@ -318,7 +321,7 @@ export class DataSourcesService {
                 description: data.inputName,
                 source: collectionName,
                 modelIdentifier: collectionName,
-                dateField: data.dateRangeField.toLowerCase().replace(/ /g, '_'),
+                dateField: data.dateRangeField.toLowerCase().replace(FIELD_NAME_REGEX_REPLACEMENT, '_'),
                 aggregate: [],
                 fieldsMap: inputFieldsMap,
                 dataEntry: true,
@@ -349,7 +352,7 @@ export class DataSourcesService {
                 const collection: any[] = [];
                 for (let i = 0; i < d.length; i++) {
                     const record = d[i];
-                    const fieldName = schemaCollection[i].columnName.toLowerCase().replace(/ /g, '_');
+                    const fieldName = schemaCollection[i].columnName.toLowerCase().replace(FIELD_NAME_REGEX_REPLACEMENT, '_');
                     collection[fieldName] = this.getValueFromDataType(schemaCollection[i].dataType, record);
                 }
                 collection['source'] = 'Manual entry';
@@ -694,8 +697,8 @@ export class DataSourcesService {
 
                     const virtualSourceName = connector.name || null;
 
-                    // contain regex expression to use for complex kpi
-                    const expressionName: RegExp = new RegExp(virtualSourceName);
+                    // Fixed in CORE-2870. should match exactly the virtualSource Name plus an s
+                    const expressionName: RegExp = new RegExp(`^$${virtualSourceName}s$`, 'i');
 
                     this._kpis.model.find({
                         expression: {
