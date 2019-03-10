@@ -136,6 +136,9 @@ export class UserPreferencesInput {
     @field({ type: GraphQLTypesMap.String })
     dashboardIdNoVisible: string[];
 
+    @field({ type: GraphQLTypesMap.String })
+    atlasSheetsIdNoVisible: string[];
+
     @field({ type: IListView })
     dashboards: IListView;
 
@@ -369,6 +372,9 @@ export class UserPreference {
     @field({ type: GraphQLTypesMap.String })
     dashboardIdNoVisible: string;
 
+    @field({ type: GraphQLTypesMap.String })
+    atlasSheetsIdNoVisible: string;
+
     @field({ type: ListViewPreference })
     dashboards: ListViewPreference;
 
@@ -395,10 +401,19 @@ export class UserPreference {
 
     @resolver({ forField: 'dashboardIdNoVisible' })
     static resolverdashboardIdNoVisible = (entity: IUserPreference) => {
-        if (entity.dashboardIdNoVisible === undefined || entity.dashboardIdNoVisible.length === 0){
+        if (entity.dashboardIdNoVisible === undefined || entity.dashboardIdNoVisible.length === 0) {
              return undefined;
         } else {
             return entity.dashboardIdNoVisible.join('|');
+        }
+    }
+
+    @resolver({ forField: 'atlasSheetsIdNoVisible' })
+    static resolverAtlasSheetsIdNoVisible = (entity: IUserPreference) => {
+        if (entity.atlasSheetsIdNoVisible === undefined || entity.atlasSheetsIdNoVisible.length === 0) {
+             return undefined;
+        } else {
+            return entity.atlasSheetsIdNoVisible.join('|');
         }
     }
 }

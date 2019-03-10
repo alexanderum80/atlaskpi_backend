@@ -151,6 +151,9 @@ export function userPlugin(schema: mongoose.Schema, options: any) {
         dashboardIdNoVisible: [{
             type: String
         }],
+        atlasSheetsIdNoVisible: [{
+            type: String
+        }],
         dashboards: ListViewSchema,
         charts: ListViewSchema,
         kpis: ListViewSchema,
@@ -1154,7 +1157,9 @@ export function userPlugin(schema: mongoose.Schema, options: any) {
     schema.statics.updateUserPreference = function(id: string, input: IUserPreference): Promise<IUserDocument> {
         const userModel = (<IUserModel>this);
         let currentDashboardIdNoVisible: any[] = [];
+        let currentAtlasSheetsIdNoVisible: any[] = [];
         let dashboardIdsNoVisibleResult;
+        let atlasSheetsIdsNoVisibleResult;
 
         return new Promise<IUserDocument>((resolve, reject) => {
             userModel.findById(id).then((user: IUserDocument) => {
@@ -1175,9 +1180,32 @@ export function userPlugin(schema: mongoose.Schema, options: any) {
                         dashboardIdsNoVisibleResult = input.dashboardIdNoVisible;
                     }
                 }
-                    const preferences = (input.dashboardIdNoVisible)
-                                        ? { dashboardIdNoVisible: dashboardIdsNoVisibleResult }
-                                        : input;
+                if (input.atlasSheetsIdNoVisible) {
+                    if (user.preferences.atlasSheetsIdNoVisible.length) {
+                        const atlasSheetsIdsNoVisibleInUser = user.preferences.atlasSheetsIdNoVisible.map(d => d);
+                        Object.keys(atlasSheetsIdsNoVisibleInUser).forEach(dKey => {
+                            if (user.preferences.atlasSheetsIdNoVisible[dKey] !== input.atlasSheetsIdNoVisible) {
+                                currentAtlasSheetsIdNoVisible.push(user.preferences.atlasSheetsIdNoVisible[dKey]);
+                                atlasSheetsIdsNoVisibleResult = currentAtlasSheetsIdNoVisible;
+                            }
+                        });
+                        if (atlasSheetsIdsNoVisibleInUser !== undefined && atlasSheetsIdsNoVisibleResult && (atlasSheetsIdsNoVisibleResult.length === atlasSheetsIdsNoVisibleInUser.length)) {
+                            atlasSheetsIdsNoVisibleResult = atlasSheetsIdsNoVisibleResult.concat(input.atlasSheetsIdNoVisible);
+                        }
+                    } else {
+                        atlasSheetsIdsNoVisibleResult = input.atlasSheetsIdNoVisible;
+                    }
+                }
+
+                const preferences = {};
+
+                if (input.dashboardIdNoVisible) {
+                    preferences['dashboardIdNoVisible'] = dashboardIdsNoVisibleResult;
+                }
+                if (input.atlasSheetsIdNoVisible) {
+                    preferences['atlasSheetsIdNoVisible'] = atlasSheetsIdsNoVisibleResult;
+                }
+
                 if (!isEmpty(user.preferences)) {
                     Object.assign(user.preferences, preferences);
                 } else {

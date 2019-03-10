@@ -91,6 +91,7 @@ export interface IUserPreference {
     mobileCalendar?: string;
     calendarTimeZone?: string;
     dashboardIdNoVisible?: string[];
+    atlasSheetsIdNoVisible?: string[];
     dashboards?: IViewList;
     charts?: IViewList;
     kpis?: IViewList;
