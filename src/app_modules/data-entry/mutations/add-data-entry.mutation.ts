@@ -1,3 +1,4 @@
+import { map } from 'lodash';
 import { CustomListService } from './../../../services/custom-list.service';
 import { DataEntryResponse } from './../data-entry.types';
 import * as Promise from 'bluebird';
@@ -46,7 +47,8 @@ export class AddDataEntryMutation extends MutationBase<DataEntryResponse> {
                     createdBy: newVirtualSource.createdBy
                 };
 
-                that._dataSourcesSvc.createVirtualSourceMapCollection(data.input).then(() => {
+                that._dataSourcesSvc.createVirtualSourceMapCollection(data.input).then(res => {
+                    virtualSourceResponse.invalidRows = JSON.stringify(res);
                     resolve(virtualSourceResponse);
                     return;
                 });

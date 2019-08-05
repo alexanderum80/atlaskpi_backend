@@ -12,6 +12,7 @@ export interface IFieldMetadata {
     sourceOrigin?: string;
     formula?: any;
     isArray?: boolean;
+    required?: boolean
 }
 
 export interface IVirtualSourceFields {

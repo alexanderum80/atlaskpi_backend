@@ -382,8 +382,8 @@ export class TargetService {
                 diff = moment().diff(dueDate);
                 break;
             case 'weekly':
-                const weekly = moment().week();
-                const weeklyDate = moment(dueDate).week();
+                const weekly = moment().isoWeek();
+                const weeklyDate = moment(dueDate).isoWeek();
                 diff = weeklyDate - weekly;
                 break;
             case 'monthly':
@@ -449,7 +449,7 @@ export class TargetService {
             case FrequencyEnum.Daily:
                 return moment(targetDate).format('YYYY-MM-DD');
             case FrequencyEnum.Weekly:
-                return moment(targetDate).week() - 1;
+                return moment(targetDate).isoWeek();
             default:
                 // no frequency
                 return null;

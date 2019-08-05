@@ -7,6 +7,7 @@ import { AccountsModule } from './accounts/accounts.module';
 import { AppointmentsModule } from './appointments/appointments.module';
 import { BusinessUnitModule } from './business-units/business-units.module';
 import { ChartsModule } from './charts/charts.module';
+import { CommentsModule } from './comments/comments.module';
 import { ConnectorsModule } from './connectors/connectors.module';
 import { DashboardsModule } from './dashboards/dashboards.module';
 import { DataSourcesModule } from './data-sources/data-sources.module';
@@ -45,6 +46,7 @@ import { FunnelsModule } from './funnels/funnels.module';
         BusinessUnitModule,
         CallRailModule,
         ChartsModule,
+        CommentsModule,
         CountriesModule,
         DashboardsModule,
         DataSourcesModule,

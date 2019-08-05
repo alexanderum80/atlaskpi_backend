@@ -1,10 +1,8 @@
-import { camelCase } from 'lodash';
-import { DataEntryMutationResponse } from '../data-entry.types';
+import { RemoveDataEntryResult } from '../data-entry.types';
 import { inject, injectable } from 'inversify';
 
 import { mutation } from '../../../framework/decorators/mutation.decorator';
 import { MutationBase } from '../../../framework/mutations/mutation-base';
-import { DataSourcesService } from '../../../services/data-sources.service';
 import { UpdateDataEntryCollectionActivity } from '../activities/update-data-entry-collection.activity';
 import { VirtualSources, transformFieldsToRealTypes } from '../../../domain/app/virtual-sources/virtual-source.model';
 import { IMutationResponse } from '../../../framework/mutations/mutation-response';
@@ -18,7 +16,7 @@ import { Schema } from 'mongoose';
         { name: 'id', type: String, required: true },
         { name: 'input', type: String, required: true },
     ],
-    output: { type: DataEntryMutationResponse }
+    output: { type: RemoveDataEntryResult }
 })
 export class UpdateDataEntryMutation extends MutationBase<IMutationResponse> {
     constructor(
@@ -35,40 +33,22 @@ export class UpdateDataEntryMutation extends MutationBase<IMutationResponse> {
             const model = vs.collection.conn.model(vs.name, new Schema({}, {strict: false}), vs.source);
 
             const transformedRecords = dataInput.map( record => transformFieldsToRealTypes( record , vs.fieldsMap))
-        
+            let entity;
+            const docsContainIds = dataInput.filter(i => i._id);
 
-            await model.remove({ _id: { $in: dataInput.map(i => i._id) } });
-            await model.insertMany(transformedRecords);
+            if(docsContainIds && docsContainIds.length ){
+                await model.remove({ _id: { $in: dataInput.map(i => i._id) } });
+            }
 
-            return { success: true };
+            await model.insertMany(transformedRecords)
+            .then(res => {
+                entity = res[0];
+            });
+
+            return { success: true , entity: JSON.stringify(entity)};
         } catch (e) {
             console.error(e);
             return { success: false };
         }
-
-        // const that = this;
-        // return new Promise<IMutationResponse>((resolve, reject) => {
-        //     const dataInput = JSON.parse(data.input);
-
-
-
-        //     const fileExtensionIndex = dataInput.inputName.lastIndexOf('.') !== -1 ? dataInput.inputName.lastIndexOf('.') : dataInput.inputName.length;
-        //     dataInput.inputName = camelCase(dataInput.inputName.substr(0, fileExtensionIndex)).toLowerCase();
-
-        //     this._virtualSourceSvc.model.getDataSourceByName(dataInput.inputName).then(virtualSource => {
-        //         that._dataSourcesSvc.removeVirtualSourceMapCollection(virtualSource.source).then(() => {
-        //             dataInput.inputName = virtualSource.source;
-        //             dataInput.fields = JSON.parse(dataInput.fields);
-        //             dataInput.records = JSON.parse(dataInput.records);
-
-        //             that._dataSourcesSvc.createVirtualSourceMapCollection(dataInput).then(() => {
-        //                 resolve({ success: true });
-        //                 return;
-        //             });
-        //         });
-        //     }).catch(err => {
-        //         resolve(null);
-        //     });
-        // });
     }
 }

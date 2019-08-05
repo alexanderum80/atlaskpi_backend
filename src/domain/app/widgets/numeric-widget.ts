@@ -122,7 +122,9 @@ export class NumericWidget extends UIWidgetBase implements IUIWidget {
 
         let materialized: IWidgetMaterializedFields;
 
-         if (!Number.isNaN(value) && Number.isFinite(value)){
+        //- if value and compareValue are valid (a number and finite)
+         if ((!Number.isNaN(value) && Number.isFinite(value)) &&
+            (!Number.isNaN(compareValue) && Number.isFinite(compareValue))){
             let comparisonValue: string;
             let comparisonDirection: string;
             let comparisonObject: IMaterializedComparison;

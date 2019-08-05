@@ -1,3 +1,5 @@
+import { from } from 'apollo-link/lib';
+import { CommentNotification } from './notifications/users/comment.notification';
 import { inject, injectable } from 'inversify';
 import { Connection } from 'mongoose';
 import { IExtendedRequest } from '../middlewares/extended-request';
@@ -30,6 +32,7 @@ interface IUserPassword {
 export class UserPasswordService {
     private _user: Users;
     private _userForgotPasswordNotification: UserForgotPasswordNotification;
+    private _commentNotificacion: CommentNotification;
     private _connection: Connection;
     private _appConnection: AppConnection;
     private _currentAccount: CurrentAccount;
@@ -45,7 +48,7 @@ export class UserPasswordService {
         @inject(AppConnectionPool.name) private _appConnectionPool: AppConnectionPool
     ) {}
 
-    async instantiateDependencies(data: IUserPassword) {
+    async instantiateDependencies(data: IUserPassword, fromComment?: boolean) {
         this._payload = data;
         let account: IAccountDocument;
 
@@ -71,7 +74,11 @@ export class UserPasswordService {
         this._user = new Users(this._appConnection);
 
         this._currentAccount = new CurrentAccount(this._request);
-        this._userForgotPasswordNotification = new UserForgotPasswordNotification(this._config, this._currentAccount, this._request);
+        if (fromComment === true) {
+            this._commentNotificacion = new CommentNotification(this._config, this._currentAccount, this._request);
+        } else {
+            this._userForgotPasswordNotification = new UserForgotPasswordNotification(this._config, this._currentAccount, this._request);
+        }
     }
 
     async forgotPassword(): Promise<ErrorSuccessResult> {
@@ -84,6 +91,22 @@ export class UserPasswordService {
 
         let success = false;
         if (forgotPasswordMutation) {
+            success = true;
+        }
+
+        return { success: success };
+    }
+
+    async notifyComment(data): Promise<ErrorSuccessResult> {
+        const notifyCommentMutation: SentMessageInfo = await this._user.model.sendCommentNotification(
+            data.from,
+            data.to,
+            data.dashboardId,
+            this._commentNotificacion
+        );
+
+        let success = false;
+        if (notifyCommentMutation) {
             success = true;
         }
 

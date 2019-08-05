@@ -107,6 +107,27 @@ export const initialRoles  = {
             { action: 'View', subject: 'Funnel' },
             { action: 'Modify', subject: 'Funnel' },
             { action: 'Delete', subject: 'Funnel' },
+
+            //- comments
+            { action: 'View', subject: 'Comment' },
+            { action: 'Create', subject: 'Comment' },
+            { action: 'Update', subject: 'Comment' },
+            { action: 'Delete', subject: 'Comment' },
+
+            //- live alerts
+            { action: 'View', subject: 'Alert' },
+            { action: 'Create', subject: 'Alert' },
+            { action: 'Modify', subject: 'Alert' },
+            { action: 'Delete', subject: 'Alert' },
+
+            //- atlas sheets
+            { action: 'View', subject: 'AtlasSheets' },
+            { action: 'Create', subject: 'AtlasSheets' },
+            { action: 'Update Data', subject: 'AtlasSheets' },
+            { action: 'Modify Shema', subject: 'AtlasSheets' },
+            { action: 'Delete', subject: 'AtlasSheets' },
+
+
         ],
         semiAdmin: [
             // chart
@@ -209,6 +230,25 @@ export const initialRoles  = {
             { action: 'View', subject: 'Funnel' },
             { action: 'Modify', subject: 'Funnel' },
             { action: 'Delete', subject: 'Funnel' },
+
+            //- comments
+            { action: 'View', subject: 'Comment' },
+            { action: 'Create', subject: 'Comment' },
+            { action: 'Update', subject: 'Comment' },
+            { action: 'Delete', subject: 'Comment' },
+
+            //- live alerts
+            { action: 'View', subject: 'Alert' },
+            { action: 'Create', subject: 'Alert' },
+            { action: 'Modify', subject: 'Alert' },
+            { action: 'Delete', subject: 'Alert' },
+
+            //- atlas sheets
+            { action: 'View', subject: 'AtlasSheets' },
+            { action: 'Create', subject: 'AtlasSheets' },
+            { action: 'Update Data', subject: 'AtlasSheets' },
+            { action: 'Modify Shema', subject: 'AtlasSheets' },
+            { action: 'Delete', subject: 'AtlasSheets' },
         ],
         manager: [
             // chart
@@ -290,6 +330,23 @@ export const initialRoles  = {
             { action: 'Create', subject: 'Funnel' },
             { action: 'View', subject: 'Funnel' },
             { action: 'Modify', subject: 'Funnel' },
+
+            // atlas sheets
+            { action: 'View', subject: 'AtlasSheets' },
+            { action: 'Create', subject: 'AtlasSheets' },
+            { action: 'Update Data', subject: 'AtlasSheets' },
+
+            //comments
+            { action: 'View', subject: 'Comment' },
+            { action: 'Create', subject: 'Comment' },
+            { action: 'Update', subject: 'Comment' },
+            
+
+            // live alerts
+            { action: 'View', subject: 'Alert' },
+            { action: 'Create', subject: 'Alert' },
+            { action: 'Modify', subject: 'Alert' },
+            
         ],
         supervisor: [
             // chart
@@ -355,28 +412,34 @@ export const initialRoles  = {
             // funnel
             { action: 'Create', subject: 'Funnel' },
             { action: 'View', subject: 'Funnel' },
+
+            // atlas sheets
+            { action: 'View', subject: 'AtlasSheets' },
+            { action: 'Create', subject: 'AtlasSheets' },
+            { action: 'Update Data', subject: 'AtlasSheets' },
+
+            //comments
+            { action: 'View', subject: 'Comment' },
+            { action: 'Create', subject: 'Comment' },
+            { action: 'Update', subject: 'Comment' },
+
+            // live alerts
+            { action: 'View', subject: 'Alert' },
+            { action: 'Create', subject: 'Alert' },
+              
         ],
         externalUser: [
-          // chart
-            { action: 'View', subject: 'Chart' },
-            { action: 'Add Comment on', subject: 'Chart' },
-            // data
-            { action: 'All Fields', subject: 'Data' },
+            { action: 'Add Comment on', subject: 'Chart' },          
             // target
             { action: 'View', subject: 'Target' },
             // dashboard
             { action: 'View', subject: 'Dashboard' },
-            // widgets
-            { action: 'View', subject: 'Widget' },
             // slideshow
             { action: 'View', subject: 'Slideshow' },
-
             // funnel
             { action: 'View', subject: 'Funnel' },
         ],
         viewer: [
-            // chart
-            { action: 'View', subject: 'Chart' },
             { action: 'Add Comment on', subject: 'Chart' },
             // data
             { action: 'Import/Add', subject: 'Data' },
@@ -386,8 +449,6 @@ export const initialRoles  = {
             { action: 'View', subject: 'Milestone' },
             // dashboard
             { action: 'View', subject: 'Dashboard' },
-            // widgets
-            { action: 'View', subject: 'Widget' },
             // appointments
             { action: 'View', subject: 'Appointment' },
             // employee
@@ -396,6 +457,13 @@ export const initialRoles  = {
             { action: 'View', subject: 'Slideshow' },
             // funnel
             { action: 'View', subject: 'Funnel' },
+            //- altas sheets
+            { action: 'View', subject: 'AtlasSheets' },
+            { action: 'Update Data', subject: 'AtlasSheets' },
+            //- comments
+            { action: 'View', subject: 'Comment' },
+            { action: 'Create', subject: 'Comment' },
+            { action: 'Update', subject: 'Comment' },
         ]
 };
 
@@ -755,6 +823,62 @@ export const allPermissions = [
     'subject': 'Funnel'
   },
 
+  // ATLAS SHEETS
+  { 
+    "action" : "View", 
+    "subject" : "AtlasSheets"
+  },
+  { 
+    "action" : "Create", 
+    "subject" : "AtlasSheets"
+  },
+  { 
+    "action" : "Update Data", 
+    "subject" : "AtlasSheets"
+  },
+  { 
+    "action" : "Modify Shema", 
+    "subject" : "AtlasSheets"
+  },
+  { 
+    "action" : "Delete", 
+    "subject" : "AtlasSheets"
+  },
 
+  //CHART COMMENTS
+  { 
+    "action" : "View", 
+    "subject" : "Comment"
+  },
+  { 
+    "action" : "Create", 
+    "subject" : "Comment"
+  },
+  { 
+    "action" : "Update", 
+    "subject" : "Comment"
+  },
+  { 
+    "action" : "Delete", 
+    "subject" : "Comment"
+  },
+
+  //- LIVE ALERTS
+  { 
+    "action" : "View", 
+    "subject" : "Alert"
+  },
+  { 
+    "action" : "Create", 
+    "subject" : "Alert"
+  },
+  { 
+    "action" : "Modify", 
+    "subject" : "Alert"
+  },
+  { 
+    "action" : "Delete", 
+    "subject" : "Alert"
+  }
 
 ];

@@ -145,7 +145,7 @@ export class ReportService {
             const vs = await this._virtualSources.model.findOne({name: { $regex: new RegExp(`^${dataSource}$`, 'i')}});
 
             // it's ok if the parent virtual source is null, is handled inside _getReportDataMethod
-            const parentVs = await this._virtualSources.model.findOne({ name: vs.source.toLowerCase() }).lean() as IVirtualSourceDocument;
+            const parentVs = await this._virtualSources.model.findOne({ name: { $regex: new RegExp(`^${vs.source}$`, 'i') }}).lean() as IVirtualSourceDocument;
 
             let columns = this._getReportColumns(vs, fields);
             const rows = await this._getReportData(vs, parentVs, dateRange, timezone, filter, columns);

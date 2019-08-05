@@ -7,6 +7,9 @@ import { IFunnelDocument, IFunnel, IFunnelModel } from './funnel';
 import { ModelBase } from '../../../type-mongo/model-base';
 import { AppConnection } from '../app.connection';
 
+
+const Schema = mongoose.Schema;
+
 const customDateRangeSchema = {
     from: Date,
     to: Date
@@ -32,6 +35,10 @@ const FunnelStageSchema = {
 const FunnelSchema = new mongoose.Schema({
     name: { type: String, unique: true, required: true },
     stages: [FunnelStageSchema],
+    users: [{
+        type: Schema.Types.String,
+        ref: 'User'
+    }],
     createdBy: String,
     updatedBy: String,
     createdDate: Date,
@@ -90,11 +97,11 @@ FunnelSchema.statics.deleteFunnel = async function(id: string): Promise<IFunnelD
 };
 
 
-FunnelSchema.statics.listFunnels = async function(): Promise<IFunnelDocument[]> {
+FunnelSchema.statics.listFunnels = async function(query?: any): Promise<IFunnelDocument[]> {
     const model = (<IFunnelModel>this);
 
     try {
-        return await model.find({});
+        return await model.find(query);
     } catch (err) {
         console.log(err);
         throw new Error('could not get the list of funnels');

@@ -1,9 +1,10 @@
 
 import { IDashboardModel } from '../../../domain/app/dashboards/dashboard';
+import { ICommentsModel } from '../../../domain/app/comments/comments';
 
 export function detachChartFromAllDashboards(dashboardModel: IDashboardModel, chartId: string): Promise<boolean> {
     return new Promise<boolean>((resolve, reject) => {
-        dashboardModel.update({ charts: { $in: [chartId]}},
+        dashboardModel.update({ charts: { $elemMatch: {id: chartId}}},
                               { $pull: { charts: { id: chartId }}},
                               { multi: true }).exec()
         .then(dashboards => {
@@ -21,6 +22,17 @@ export function detachChartFromDashboards(dashboardModel: IDashboardModel, dashb
                               { $pull: { charts: { id: chartId }}},
                               { multi: true }).exec()
         .then(dashboards => {
+            resolve(true);
+            return;
+        })
+        .catch(err => reject(err));
+    });
+}
+
+export function deleteCommentsFromChart(commentModel: ICommentsModel, chartId: string): Promise<boolean> {
+    return new Promise<boolean>((resolve, reject) => {
+        commentModel.deleteMany({chart: chartId}).exec()
+        .then(comments => {
             resolve(true);
             return;
         })

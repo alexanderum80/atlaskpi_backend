@@ -35,6 +35,7 @@ export class ExternalDataSourcesService {
                 name: v.name,
                 description: `${conn.name} (${v.description})`,
                 dataSource: v.dataSource,
+                dateField: v.dateField,
                 fields: v.fields,
                 filterOperators: v.filterOperators,
                 externalSource: true

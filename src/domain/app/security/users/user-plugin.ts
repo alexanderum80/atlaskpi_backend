@@ -39,6 +39,7 @@ import {
 } from './user';
 import { IUserToken } from './user-token';
 import { userAuditSchema } from '../../../common/audit.schema';
+import { ICommentNotifier } from '../../../../services/notifications/users/comment.notification';
 
 
 export function insentive_username(username: string): any {
@@ -125,7 +126,7 @@ export function userPlugin(schema: mongoose.Schema, options: any) {
         listMode: {
             type: String
         }
-    }
+    };
 
     const UserNotificationsSchema = {
         general: Boolean,
@@ -806,6 +807,7 @@ export function userPlugin(schema: mongoose.Schema, options: any) {
                 condition['username'] = email;
             }
 
+
             (<IUserModel>that).findOne(condition).then((user) => {
                 if (!user) {
                     reject({ name: 'notfound', message: 'Account not found' });
@@ -823,6 +825,32 @@ export function userPlugin(schema: mongoose.Schema, options: any) {
                     });
                 }, (err) => {
                     reject({ message: 'Reset password token could not be generated', error: err });
+                });
+            });
+        });
+    };
+
+    schema.statics.sendCommentNotification = function(from: any, to: any, dashboardId: string , notifier: ICommentNotifier): Promise<nodemailer.SentMessageInfo> {
+        const that = this;
+        return new Promise<nodemailer.SentMessageInfo>((resolve, reject) => {
+            const source = JSON.parse(from);
+            const target = JSON.parse(to);
+
+            let param = {
+                from: source,
+                to: target,
+                dashboardId: dashboardId
+            };
+
+            (<IUserModel>that).findOne({_id: target._id}).then((user) => {
+                if (!user) {
+                    reject({ name: 'notfound', message: 'Account not found' });
+                    return;
+                }
+                notifier.notify(user, user.emails[0].address, param).then((sentEmailInfo) => {
+                    resolve(sentEmailInfo);
+                }, (err) => {
+                    throw { name: 'email', message: err.message };
                 });
             });
         });
@@ -1058,7 +1086,7 @@ export function userPlugin(schema: mongoose.Schema, options: any) {
             if (filter) {
             (<IUserModel>this).find({username: { $ne: filter } })
                 .populate({
-                    path: 'roles', 
+                    path: 'roles',
                     select: '-_id, name',
                     populate: {
                         path: 'permissions',
@@ -1077,7 +1105,7 @@ export function userPlugin(schema: mongoose.Schema, options: any) {
             } else {
                 (<IUserModel>this).find({})
                     .populate({
-                        path: 'roles', 
+                        path: 'roles',
                         select: '-_id, name',
                         populate: {
                             path: 'permissions',
@@ -1197,7 +1225,7 @@ export function userPlugin(schema: mongoose.Schema, options: any) {
                     }
                 }
 
-                const preferences = {};
+                const preferences = input;
 
                 if (input.dashboardIdNoVisible) {
                     preferences['dashboardIdNoVisible'] = dashboardIdsNoVisibleResult;

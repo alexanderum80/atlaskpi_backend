@@ -1,0 +1,125 @@
+<html>
+
+<head>
+    <style>
+        body {
+            background-color: #eee;
+            color: gray;
+            font-family: Verdana, Geneva, Tahoma, sans-serif;
+        }
+
+        .container {
+            margin-top: 25px;
+            margin: auto;
+            width: 70%;
+            color: black !important;
+        }
+
+        .card {
+            background-color: white;
+            border: 1px solid whitesmoke;
+        }
+
+        @media only screen and (max-width: 768px) {
+            .container {
+                width: initial !important;
+            }
+        }
+
+        .card .header {
+            text-align: center;
+            padding: 35px;
+            background-color: #061657;
+        }
+
+        .card .content {
+            font-size: 14px;
+            padding-top: 10px;
+            padding-left: 25px;
+        }
+
+        .greetings {
+            font-size: 14px;
+            padding-left: 25px;
+        }
+
+        .im {
+            color: black !important;
+        }
+
+        .logo {
+            height: 60px;
+            margin-top: 30px;
+        }
+
+        @media only screen and (max-width: 1024px) and (orientation: landscape) {
+            .logo {
+                width: 43%;
+            }
+        }
+
+        .title {
+            margin: 10px;
+            color: white;
+            font-size: 12px;
+            font-weight: 100;
+        }
+
+        .plain-link {
+            margin: 50px 0px;
+        }
+
+        .dont-break-out {
+            /* These are technically the same, but use both */
+            overflow-wrap: break-word;
+            word-wrap: break-word;
+
+            -ms-word-break: break-all;
+            /* This is the dangerous one in WebKit, as it breaks things wherever */
+            word-break: break-all;
+            /* Instead use this non-standard one: */
+            word-break: break-word;
+
+            /* Adds a hyphen where the word breaks, if supported (No Blink) */
+            -ms-hyphens: auto;
+            -moz-hyphens: auto;
+            -webkit-hyphens: auto;
+            hyphens: auto;
+        }
+
+        .regards {
+            margin-top: 25px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="card">
+            <div class="header">
+                <img class="logo" alt="Logo" src="https://bi.atlaskpi.com/assets/img/logos/white-logo.png"/>
+                <div class="title">
+                    <span>Notification</span>
+                </div>
+            </div>
+            <div class="greetings">
+                <h1>Dear {{fullName}},</h1>
+            </div>
+            <div class="content">
+                <p>
+                    {{createdBy}} , has mention you in a chart, follow the link below or login to your account to learn more.
+                </p>
+                <div>
+                    <a class="dont-break-out plain-link" href="{{method}}://{{host}}.{{subdomain}}/#/dashboards/{{dashboardId}}">
+                    {{method}}://{{host}}.{{subdomain}}/#/dashboards/{{dashboardId}}
+                    </a>
+                </div>
+
+                <div class="regards">Best Regards,</div>
+                <div>AtlasKPI Team</div>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>

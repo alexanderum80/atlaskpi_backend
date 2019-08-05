@@ -57,6 +57,9 @@ export class DataSourceField  {
     @field({ type: GraphQLTypesMap.Boolean })
     available?: boolean;
 
+    @field({ type: GraphQLTypesMap.Boolean })
+    required?: boolean;
+
     @field({ type: GraphQLTypesMap.String })
     sourceOrigin?: string;
 }
@@ -98,6 +101,9 @@ export class DataSourceResponse  {
 
     @field({ type: GraphQLTypesMap.String })
     description: string;
+
+    @field({ type: GraphQLTypesMap.String })
+    dateField: string;
 
     @field({ type: GraphQLTypesMap.String })
     dataSource: string;

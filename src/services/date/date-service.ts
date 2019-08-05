@@ -33,7 +33,7 @@ export class DateService {
                 uoft = 'quarter';
                 break;
             case 'weekly':
-                uoft = 'week';
+                uoft = 'isoWeek';
                 break;
             case 'yearly':
                 uoft = 'year';

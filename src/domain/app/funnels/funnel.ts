@@ -2,15 +2,17 @@ import { IChartDateRange } from '../../common/date-range';
 import * as mongoose from 'mongoose';
 import { ISearchableModel } from '../global-search/global-search';
 import { FunnelInput } from '../../../app_modules/funnels/funnels.types';
+import { IUser } from '../security/users/user';
 
 export interface IFunnel {
     // _id?: string;
     name: string;
     stages: IFunnelStage[];
+    users: string[] | IUser[];
 
-    createdBy?: string;
+    createdBy: string;
     updatedBy?: string;
-    createdDate?: Date;
+    createdDate: Date;
     updatedDate?: Date;
 }
 
@@ -32,7 +34,7 @@ export interface IFunnelModel extends mongoose.Model<IFunnelDocument>, ISearchab
     createFunnel(input: FunnelInput): Promise<IFunnelDocument>;
     updateFunnel(id: string, input: FunnelInput): Promise<IFunnelDocument>;
     deleteFunnel(id: string): Promise<IFunnelDocument>;
-    listFunnels(): Promise<IFunnelDocument[]>;
+    listFunnels(query?: any): Promise<IFunnelDocument[]>;
     funnelById(id: string): Promise<IFunnelDocument>;
 
 }

@@ -1,6 +1,6 @@
 import { camelCase } from 'change-case';
 import { inject, injectable } from 'inversify';
-import { isBoolean, isEmpty, toInteger, toNumber } from 'lodash';
+import { isBoolean, isEmpty, toInteger, toNumber, map } from 'lodash';
 import * as moment from 'moment';
 import * as mongoose from 'mongoose';
 import * as XLSX from 'ts-xlsx';
@@ -22,6 +22,7 @@ import { IMutationResponse } from '../framework/mutations/mutation-response';
 import { CustomList } from './../domain/app/custom-list/custom-list.model';
 import { isValidTimezone } from './../domain/common/date-range';
 import { CustomListService } from './custom-list.service';
+import { field } from '../framework/decorators/field.decorator';
 
 const GOOGLE_ANALYTICS = 'GoogleAnalytics';
 const csvTokenDelimeter = ',';
@@ -271,6 +272,48 @@ export class DataSourcesService {
         return fields;
     }
 
+    async mapFieldsFromFrontend(fields) {
+        const user = this._currentUser.get().id;
+        const customList = await this._customList.model.getCustomList(user);
+
+        let inputFieldsMap = {};
+            inputFieldsMap['Source'] = {
+                path: 'source',
+                dataType: 'String',
+                allowGrouping: true,
+                defaultValue: ''
+            };
+
+            for (let i = fields.length - 1; i >= 0; i--) {
+                const f = fields[i];
+                const field = f.columnName;
+                let dataType = f.dataType;
+
+                const sourceOrigin = customList.find(c => c._id.toString() === dataType);
+                const vsField = ( f.path ) ? f.path : null;
+
+                inputFieldsMap[field] = {
+                    path: vsField || field.toLowerCase().replace(FIELD_NAME_REGEX_REPLACEMENT, '_'),
+                    dataType: sourceOrigin ? sourceOrigin.dataType : dataType,
+                    required: f.required || false,
+                    allowGrouping: f.allowGrouping,
+                    defaultValue: f.defaultValue
+                };
+
+                if (sourceOrigin) {
+                    inputFieldsMap[field].sourceOrigin = sourceOrigin._id.toString();
+                }
+
+                if (dataType === 'String' ||
+                    inputFieldsMap[field].dataType === 'String' ||
+                    inputFieldsMap[field].path.includes('zip' || 'postal') ) {
+                    inputFieldsMap[field].allowGrouping = true;
+                }
+            }
+
+            return inputFieldsMap;
+    }
+
     async addDataSource(data): Promise<IVirtualSourceDocument> {
         if (!data) { return Promise.reject('cannot add a document with, empty payload'); }
 
@@ -285,37 +328,7 @@ export class DataSourcesService {
                                 ? camelCase(simpleName.concat('s')) : camelCase(simpleName);
 
             data.fields = JSON.parse(data.fields);
-            let inputFieldsMap = {};
-            inputFieldsMap['Source'] = {
-                path: 'source',
-                dataType: 'String',
-                allowGrouping: true
-            };
-
-            for (let i = data.fields.length - 1; i >= 0; i--) {
-                const f = data.fields[i];
-                const field = f.columnName;
-                let dataType = f.dataType;
-
-                const sourceOrigin = customList.find(c => c._id.toString() === dataType);
-
-                inputFieldsMap[field] = {
-                    path: field.toLowerCase().replace(FIELD_NAME_REGEX_REPLACEMENT, '_'),
-                    dataType: sourceOrigin ? sourceOrigin.dataType : dataType,
-                    required: f.required || false
-                };
-
-                if (sourceOrigin) {
-                    inputFieldsMap[field].sourceOrigin = sourceOrigin._id.toString();
-                }
-
-                if (dataType === 'String' ||
-                    inputFieldsMap[field].dataType === 'String' ||
-                    inputFieldsMap[field].path.includes('zip' || 'postal') ) {
-                    inputFieldsMap[field].allowGrouping = true;
-                }
-            }
-
+            let inputFieldsMap = await this.mapFieldsFromFrontend(data.fields);
             const virtualSourceObj: IVirtualSource = {
                 name: camelCase(simpleName).toLowerCase(),
                 description: data.inputName,
@@ -330,7 +343,8 @@ export class DataSourcesService {
             };
             return new Promise<IVirtualSourceDocument>((resolve, reject) => {
 
-                this._virtualDatasources.model.addDataSources(virtualSourceObj).then(newSource => {
+                this._virtualDatasources.model.addDataSources(virtualSourceObj)
+                .then(newSource => {
                     resolve(newSource);
                 });
             });
@@ -339,30 +353,42 @@ export class DataSourcesService {
         }
     }
 
-    createVirtualSourceMapCollection(input): Promise<IMutationResponse> {
+    createVirtualSourceMapCollection(input): Promise<any> {
         const schema = new mongoose.Schema({}, { strict: false });
         const connection: mongoose.Connection = this._appConnection.get;
         const newCollection = <any>connection.model(input.inputName, schema, input.inputName);
 
         const dataCollection = <any>input.records;
         const schemaCollection = input.fields;
+        let isValidData = true;
+        const invalidRows = [];
 
-        return new Promise<IMutationResponse>((resolve, reject) => {
+        return new Promise<any>((resolve, reject) => {
             dataCollection.map(d => {
-                const collection: any[] = [];
+                isValidData = true;
+                let collection: any = {};
                 for (let i = 0; i < d.length; i++) {
                     const record = d[i];
                     const fieldName = schemaCollection[i].columnName.toLowerCase().replace(FIELD_NAME_REGEX_REPLACEMENT, '_');
-                    collection[fieldName] = this.getValueFromDataType(schemaCollection[i].dataType, record);
+                    // Here I must validate data with the dataType
+                    const validData = this.getValueFromDataType(schemaCollection[i].dataType, record);
+                    if (validData !== 'error') {
+                        collection[fieldName] = validData;
+                    } else {
+                        collection[fieldName] = record;
+                        isValidData = false;
+                    }
                 }
                 collection['source'] = 'Manual entry';
                 collection['timestamp'] = moment.utc().toDate();
-
-                const model = new newCollection(collection);
-                model.save();
+                if (isValidData) {
+                    const model = new newCollection(collection);
+                    model.save();
+                } else {
+                    invalidRows.push(collection);
+                }
             });
-
-            resolve({success: true});
+            resolve(invalidRows.length > 0 ? invalidRows : '');
             return;
         });
     }
@@ -475,28 +501,40 @@ export class DataSourcesService {
     }
 
     getValueFromDataType(dataType, inputValue) {
-        switch (dataType) {
-            case 'Number':
-                if (inputValue === null || inputValue === '') {
-                    return 0;
-                }
-                const cleanNumber = inputValue.replace(/,/, '');
-                if (cleanNumber.toString().split('.').length > 1) {
-                    return toNumber(cleanNumber);
-                } else {
-                    return toInteger(cleanNumber);
-                }
-            case 'Date':
-                return moment.utc(inputValue).toDate();
-            case 'Boolean':
-                if (!isBoolean(inputValue)) {
-                    const booleanValue: boolean = inputValue === '1' || inputValue === 'true';
-                    inputValue = booleanValue;
-                }
-                return inputValue as boolean;
-            default:
-                return inputValue;
+        try {
+            if (inputValue === 'ENTER') {
+                const cdcd = inputValue;
+            }
+            switch (dataType) {
+                case 'Number':
+                    if (inputValue === null || inputValue === '') {
+                        return 0;
+                    }
+                    if (isNaN(inputValue)) {
+                        return 'error';
+                    }
+                    // - converts currency "$-14,588.00" to number "-14588.00"
+                    const cleanNumber = inputValue.replace(/[^0-9.-]+/g, '');
+                    if (cleanNumber.toString().split('.').length > 1) {
+                        return toNumber(cleanNumber);
+                    } else {
+                        return toInteger(cleanNumber);
+                    }
+                case 'Date':
+                    return moment.utc(inputValue).toDate();
+                case 'Boolean':
+                    if (!isBoolean(inputValue)) {
+                        const booleanValue: boolean = inputValue === '1' || inputValue === 'true';
+                        inputValue = booleanValue;
+                    }
+                    return inputValue as boolean;
+                default:
+                    return inputValue;
+            }
+        } catch (error) {
+            return 'error';
         }
+
     }
     /**
     // To get the availability of the fields we are going to use the following mehthod/aggegation stage
@@ -775,10 +813,13 @@ export class DataSourcesService {
 
               if (j === 1) {
                 if (cellValue !== '') {
+                    const child_address = { c: C, r: R + 1 };
+                    const cell_child = XLSX.utils.encode_cell(child_address);
+
                   const newfield = {
                     columnName: cellValue,
-                    dataType: '',
-                    required: false
+                    dataType: (worksheet[cell_child]) ? worksheet[cell_child].t : 's',
+                    required: false,
                   };
 
                   excelFileData.fields.push(newfield);
@@ -799,7 +840,7 @@ export class DataSourcesService {
         if (excelFileData.records.length > 0) {
           for (let n = 0; n < excelFileData.records[0].length; n++) {
             const element = excelFileData.records[0][n];
-            const cellDataType = this.getDataTypeFromValue(element);
+            const cellDataType = this.getDataTypeFromValueXlsx(element, excelFileData.fields[n].dataType);
             excelFileData.fields[n].dataType = cellDataType;
           }
         }
@@ -892,7 +933,7 @@ export class DataSourcesService {
             dataType = 'Boolean';
         } else if (!isNaN(+value.replace(/,/, ''))) {
             dataType = 'Number';
-        } else if (!isNaN(Date.parse(value))) {
+        } else if (!isNaN(Date.parse(value)) && this.hasDateFormat(value)) {
             dataType = 'Date';
         } else {
             dataType = 'String';
@@ -900,4 +941,38 @@ export class DataSourcesService {
         return dataType;
     }
 
+    getDataTypeFromValueXlsx(value, dataTypeFromFIle) {
+        let dataType: string;
+
+        // - date can come either as string 's', number 'n' or date 'd'
+        if (this.hasDateFormat(value) && ( (!isNaN(Date.parse(value)) && ['s', 'd'].includes(dataTypeFromFIle)) ||
+            (dataTypeFromFIle === 'n' && isNaN(value) && !isNaN(Date.parse(value))) )
+        ) {
+            dataType = 'Date';
+        }
+        if (isBoolean(value) && dataTypeFromFIle === 'b' ) {
+            dataType = 'Boolean';
+        }
+        if ( dataTypeFromFIle === 'n' && !dataType) {
+            if (typeof value === 'string' || value instanceof String) {
+                value = value.replace(/[^0-9.-]+/g, '');
+             }
+            if (!isNaN(value)) {
+                dataType = 'Number';
+            }
+        }
+        if (!dataType) {
+            dataType = 'String';
+        }
+        return dataType;
+    }
+
+    hasDateFormat(date) {
+        /* this just check format rather than valid dates,
+        will match 3333-02-02, 20/10/20, 1/1/2014, 12.1.20 */
+        let regex = new RegExp(/^\d{2}[- /.]\d{2}[- /.]\d{2}|^\d{4}[-/.]\d{2}[-/.]\d{2}|^\d{1}[-/.]\d{1}[-/.]\d{2}|^\d{2}[-/.]\d{1}[-/.]\d{2}|^\d{1}[-/.]\d{2}[-/.]\d{2}/);
+
+        let dateOk = regex.test(date);
+        return dateOk;
+    }
 }

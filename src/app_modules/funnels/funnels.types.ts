@@ -46,6 +46,9 @@ export class FunnelInput  {
     @field({ type: GraphQLTypesMap.String, required: true })
     name: string;
 
+    @field({ type: GraphQLTypesMap.String, isArray: true })
+    users: string;
+
     @field({ type: FunnelStageInput, isArray: true })
     stages: FunnelStageInput[];
 
@@ -158,6 +161,9 @@ export class FunnelType  {
 
     @field({ type: GraphQLTypesMap.String })
     name: string;
+
+    @field({ type: GraphQLTypesMap.String, isArray: true })
+    users: string;
 
     @field({ type: FunnelStageType, isArray: true })
     stages: FunnelStageType[];

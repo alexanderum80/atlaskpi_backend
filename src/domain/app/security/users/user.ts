@@ -13,6 +13,7 @@ import { IRole, IRoleDocument, IRoleList } from '../roles/role';
 import { IIdentity } from './identity';
 import { IUserToken } from './user-token';
 import { ISearchableModel } from '../../global-search/global-search';
+import { ICommentNotifier } from '../../../../services/notifications/users/comment.notification';
 
 
 
@@ -312,6 +313,11 @@ export interface IUserModel extends mongoose.Model<IUserDocument>, ISearchableMo
      * @param {string} token - the token retrieved from the reset password url
      * @param {string} newPassword - the new password for the user
      * @param {boolean} logoutOtherSessions - (Optional) Logout other sessions for this user. (default: true)
+     * @returns {Promise<IMutationResponse>}
+     */
+    sendCommentNotification(from: string, to: string, dashboardId: string, notifier: ICommentNotifier): Promise<nodemailer.SentMessageInfo>;
+    /**
+     * Send comment notification.
      * @returns {Promise<IMutationResponse>}
      */
     resetPassword(token: string, newPassword: string, profile?: IUserProfile, enrollment?: boolean, logoutOtherSessions?: boolean): Promise<IMutationResponse>;

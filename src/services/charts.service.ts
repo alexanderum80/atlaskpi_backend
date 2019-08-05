@@ -34,12 +34,15 @@ import {
 } from './../domain/common/date-range';
 import { FrequencyEnum, FrequencyTable } from './../domain/common/frequency-enum';
 import { TargetService } from './target.service';
+import { ICommentDocument } from '../domain/app/comments/comments';
+import { Comments } from '../domain/app/comments/comments.model';
 import {dataSortDesc} from '../helpers/number.helpers';
 import { TargetsNew } from '../domain/app/targetsNew/target.model';
 import * as Bluebird from 'bluebird';
 import { attachChartToDashboards,
     detachChartFromAllDashboards,
-    detachChartFromDashboards
+    detachChartFromDashboards,
+    deleteCommentsFromChart
 } from '../app_modules/charts/mutations/common';
 import { KPIFilterHelper } from '../domain/app/kpis/kpi-filter.helper';
 import { KPITypeMap } from '../domain/app/kpis/kpi';
@@ -67,6 +70,7 @@ export class ChartsService {
     constructor(
         @inject(Charts.name) private _charts: Charts,
         @inject(Dashboards.name) private _dashboards: Dashboards,
+        @inject(Comments.name) private _comments: Comments,
         @inject(KPIs.name) private _kpis: KPIs,
         @inject(TargetsNew.name) private _targets: TargetsNew,
         @inject(TargetService.name) private _targetService: TargetService,
@@ -235,6 +239,9 @@ export class ChartsService {
             chart.chartDefinition = this._setSeriesVisibility(originalDefinitionSeries, definition);
             chart.chartDefinition = this._addSerieColorToDefinition(originalDefinitionSeries, definition);
 
+            // Resolve comments
+
+
             return chart;
         } catch (e) {
             this._logger.error(e);
@@ -261,8 +268,10 @@ export class ChartsService {
             // });
 
             const dashboards = await this._resolveDashboards(chart);
+            const comments = await this._resolveComments(chart);
             // const chart: any = chartDocument.toObject();
             chart.dashboards = dashboards;
+            chart.comments = comments;
 
             return chart;
         } catch (e) {
@@ -406,8 +415,8 @@ export class ChartsService {
                     reject({ field: 'id', errors: ['Chart not found']});
                     return;
                 }
-
-                detachChartFromAllDashboards(that._dashboards.model, chart._id)
+                this.deleteComments(chart.id);
+                detachChartFromAllDashboards(that._dashboards.model, chart.id)
                 .then(() => {
                     chart.remove().then(() =>  {
                         resolve(<IChart>chart.toObject());
@@ -417,6 +426,10 @@ export class ChartsService {
                 .catch(err => reject(err));
             });
         });
+    }
+
+    async deleteComments(chartId: string): Promise<any> {
+        return await deleteCommentsFromChart(this._comments.model, chartId);
     }
 
     public updateChart(id: string, input: IChartInput): Promise<IChart> {
@@ -498,6 +511,22 @@ export class ChartsService {
                     resolve(dashboards);
                 })
                 .catch(err => reject(err));
+        });
+    }
+
+    private _resolveComments(chart): Promise<ICommentDocument[]> {
+        const that = this;
+        return new Promise<ICommentDocument[]>((resolve, reject) => {
+            that._comments.model
+            .find({ chart: { $in: [chart._id] }})
+                .populate('users.id')
+                .populate('createdBy')
+                .populate('children.users.id')
+                .populate('children.createdBy')
+            .then((comments) => {
+                resolve(comments);
+            })
+            .catch(err => reject(err));
         });
     }
 

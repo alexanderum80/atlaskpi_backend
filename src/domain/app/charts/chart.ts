@@ -8,6 +8,7 @@ import { IChartTop } from '../../common/top-n-record';
 import { IDashboardDocument } from '../dashboards/dashboard';
 import { ISearchableModel } from '../global-search/global-search';
 import { IKPIDocument } from '../kpis/kpi';
+import { ICommentDocument } from '../comments/comments';
 
 export interface IChartKpi {
     type: string;
@@ -33,12 +34,13 @@ export interface IChart {
     xAxisSource: string;
     comparison?: string[];
     dashboards?: IDashboardDocument[];
+    comments?: ICommentDocument[];
     targetList?: any[];
     targetExtraPeriodOptions?: IObject;
     canAddTarget?: boolean;
     futureTarget?: boolean;
     availableComparison?: string[];
-    //add-created-update
+    // add-created-update
     createdBy?: any;
     updatedBy?: any;
     createdDate?: Date;
@@ -72,7 +74,7 @@ export interface IChartInput {
     isDrillDown?: boolean;
     originalFrequency?: string;
     onTheFly: boolean;
-    //add-created-update
+    // add-created-update
     createdBy?: string;
     updatedBy?: string;
     createdDate?: Date;

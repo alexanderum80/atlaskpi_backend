@@ -24,7 +24,8 @@ export class ProcessImportFIleQuery implements IQuery<string> {
             case 'csv':
                 return this._dataSourcesSvc.processCsvFile(fileData);
             case 'excel':
-                return this._dataSourcesSvc.processExcelFile(fileData);
+                const result = this._dataSourcesSvc.processExcelFile(fileData);
+                return result;
         }
     }
 }

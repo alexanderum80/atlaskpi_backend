@@ -27,8 +27,9 @@ export const MailgunService: IEmailService = {
             nodemailerMailgun.sendMail(sendEmailPayload, (err, info) => {
                 if (err) {
                     reject(err);
-                }
+                } else {
                 resolve(info);
+                }
             });
 
         });

@@ -150,6 +150,7 @@ async function getDataEntry(userId: string): Promise<DataSourceResponse[]> {
                 const dataSource: any = {
                     _id: vs.id,
                     name: vs.name.toLowerCase(),
+                    dateField: vs.dateField,
                     description: vs.description,
                     dataSource: vs.source,
                     fields: mapDataSourceFields(vs),
@@ -271,7 +272,8 @@ export function mapDataSourceFields(virtualSource: IVirtualSourceDocument, exclu
         path: fieldsMap[key].path,
         type: fieldsMap[key].dataType,
         allowGrouping: fieldsMap[key].allowGrouping,
-        sourceOrigin: fieldsMap[key].sourceOrigin || null
+        sourceOrigin: fieldsMap[key].sourceOrigin || null,
+        required: fieldsMap[key].required
     }));
 }
 export function transformFieldsToRealTypes(dataDocument: any, fieldsToMap ) {
@@ -279,9 +281,8 @@ export function transformFieldsToRealTypes(dataDocument: any, fieldsToMap ) {
     let fieldNames = Object.keys(fieldsToMap)
                            .sort();
 
- 
     fieldNames.forEach(key => {
-        if(dataDocument[fieldsToMap[key].path]) {
+        if (dataDocument[fieldsToMap[key].path]) {
 
             switch ( fieldsToMap[key].dataType ) {
                 case 'String':

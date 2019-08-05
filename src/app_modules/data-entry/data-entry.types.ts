@@ -1,8 +1,10 @@
+import { isArray } from 'util';
 import { type } from '../../framework/decorators/type.decorator';
 import { field } from '../../framework/decorators/field.decorator';
 import { GraphQLTypesMap } from '../../framework/decorators/graphql-types-map';
 import { input } from '../../framework/decorators/input.decorator';
 import { ErrorDetails } from '../../framework/graphql/common.types';
+import { any } from 'bluebird';
 
 @input()
 export class IDataEntryModelInput {
@@ -80,6 +82,8 @@ export class DataEntryTypeFilters {
 export class DataEntryResponse  {
     @field({ type: GraphQLTypesMap.String })
     _id?: string;
+    @field({ type: GraphQLTypesMap.String })
+    id?: string;
 
     @field({ type: GraphQLTypesMap.String })
     name: string;
@@ -110,6 +114,9 @@ export class DataEntryResponse  {
 
     @field({ type: GraphQLTypesMap.String })
     createdBy: string;
+
+    @field({ type: GraphQLTypesMap.String })
+    invalidRows?: string;
 }
 
 @type()

@@ -1,3 +1,4 @@
+import { Comments } from './comments/comments.model';
 import { CustomList } from './custom-list/custom-list.model';
 import { FinancialActivities } from './financial-activities/financial-activity.model';
 import { COGS } from './cogs/cogs.model';
@@ -58,6 +59,7 @@ const registrations: any[] = [
     BusinessUnits,
     Calls,
     Charts,
+    Comments,
     Maps,
     Customers,
     Dashboards,
